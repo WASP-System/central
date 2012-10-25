@@ -386,6 +386,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 
 	  /**
 	   * {@inheritDoc}
+	   *
+	   * status must be either CREATED or ABANDONED
 	   */
 	  @Override
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{

@@ -5,7 +5,6 @@ import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Handling WASP Batch Job Launch messages.
@@ -14,10 +13,6 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  */
 public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	
-	
-	private Integer runId;
-	
-	private Integer platformUnitId;
 	
 	private BatchJobLaunchContext batchJobLaunchContext;
 	
@@ -30,22 +25,6 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		this.batchJobLaunchContext = batchJobLaunchContext;
 	}
 
-	public Integer getRunId() {
-		return runId;
-	}
-
-	public void setRunId(Integer runId) {
-		this.runId = runId;
-	}
-
-	public Integer getPlatformUnitId() {
-		return platformUnitId;
-	}
-
-	public void setPlatformUnitId(Integer platformUnitId) {
-		this.platformUnitId = platformUnitId;
-	}
-	
 	public BatchJobLaunchMessageTemplate(BatchJobLaunchContext batchJobLaunchContext){
 		super();
 		this.batchJobLaunchContext = batchJobLaunchContext;
