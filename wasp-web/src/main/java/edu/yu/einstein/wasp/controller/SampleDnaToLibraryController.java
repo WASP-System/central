@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -62,8 +63,10 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.Statesample;
 import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -107,6 +110,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleService sampleService;
   @Autowired
   private JobService jobService;
+  @Autowired
+  private AuthenticationService authenticationService;
   
 
   
@@ -279,7 +284,30 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/dashboard.do";
 	  }
 	  m.addAttribute("job", job);
-
+	  
+	  List<JobUser> jobUserList = job.getJobUser();
+	  List<User> additionalJobViewers = new ArrayList<User>();
+	  for(JobUser jobUser : jobUserList){
+		  if(jobUser.getUser().getUserId().intValue() != job.getUserId().intValue() && jobUser.getUser().getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+			  additionalJobViewers.add(jobUser.getUser());
+		  }
+	  }
+	  class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+	  Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+	  m.addAttribute("additionalJobViewers", additionalJobViewers);
+	  
+	  User authenticatedUser = authenticationService.getAuthenticatedUser();
+	  Boolean userIsPermittedToModifyJobViewers = false;
+	  if(authenticationService.isSuperUser() || authenticatedUser.getUserId().intValue() == job.getUserId().intValue() || authenticatedUser.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+		  userIsPermittedToModifyJobViewers = true; //superuser, job's submitter, job's PI
+	  }
+	  m.addAttribute("userIsPermittedToModifyJobViewers", userIsPermittedToModifyJobViewers);
+	  
 	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
 	  
@@ -459,6 +487,23 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("files", files);
 		
 		return "sampleDnaToLibrary/listJobSamples";
+  }
+  
+  @RequestMapping(value="/removeViewerFromJob/{jobId}/{userId}.do", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
+  public String listJobSamples(@PathVariable("jobId") Integer jobId, @PathVariable("userId") Integer userId, ModelMap m) {
+	  
+	  try{
+		  jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
+	  }
+	  catch(Exception e){
+		  waspMessage(e.getMessage());
+		  System.out.println(e.getMessage());
+		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  }
+	   
+	  waspMessage("libraryCreated.created_success.label");
+	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
   }
   
   /**

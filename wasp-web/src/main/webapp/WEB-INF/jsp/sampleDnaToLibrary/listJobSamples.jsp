@@ -2,38 +2,87 @@
 <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></h1>
-<c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
-<br />
+<%-- for divs side by side see http://stackoverflow.com/questions/5803023/how-to-place-two-divs-next-to-each-other --%>
 
+<div style="width=100%; overflow:hidden">
+
+	<div style="float:left">
+	 
+	   <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
+	 
+	</div>
+
+	<div style="padding-left:0.5cm; overflow:hidden">
+
+<%-- 				
+		<form  method='post' name='xxx' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_email();">
+		<table class="data" style="margin: 0px 0">
+		<tr  ><td colspan="2" class="label-centered" style="background-color:#FAF2D6" nowrap>Job Viewers</td></tr>
+		<tr ><td colspan="2" ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
+		<tr ><td colspan="2" ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
+		<tr><td >Fabien Delahaye</td><td><a href="">Remove</a></td></tr>
+		<tr ><td colspan="2"  class="label-centered" style="background-color:#FAF2D6" nowrap>Add New Viewer</td></tr>
+		<tr><td >Viewer's Email Address: </td><td ><input type='text' name='newViewer' id="newViewer" size='15' maxlength='25'></td></tr>
+		<tr><td colspan="2" align="center"><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/></td></tr>
+		</table>
+		</form>
+--%> 	
+		<table class="data EditTable ui-widget ui-widget-content" style="margin: 0px 0">
+		<tr  ><td colspan="2" class="label-centered" style="background-color:#FAF2D6" nowrap>Job Viewers</td></tr>
+		<tr ><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td>Submitter</td></tr>
+		<tr ><td ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td><td>PI</td></tr>
+		<c:forEach items="${additionalJobViewers}" var="additionalJobViewer">
+			<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
+			<td>
+				<c:if test='${userIsPermittedToModifyJobViewers==true}'>
+					<a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'>remove</a>
+				</c:if>
+			</td>
+		</c:forEach>
+		<c:if test='${userIsPermittedToModifyJobViewers==true}'>
+			<form  method='post' name='xxx' action="<c:url value="/sampleDnaToLibrary/addJobViewer/${job.jobId}.do" />" onsubmit="return validate_email();">
+			<tr ><td colspan="2"  class="label-centered" style="background-color:#FAF2D6" nowrap>Add New Viewer</td></tr>
+			<tr><td >Viewer's Email Address: </td><td ><input type='text' name='newViewer' id="newViewer" size='20' maxlength='50'></td></tr>
+			<tr><td colspan="2" align="center"><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/></td></tr>
+			</form>
+		</c:if>
+		</table>
+		<c:if test='${userIsPermittedToModifyJobViewers==true}'>
+			
+		</c:if>	
+	</div>
+
+</div>
+
+<br />
 <div>
 <input  class="button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
-</div>
-<div id="user_requested_coverage_data" style="display:none">
-
-<table class="data">
-<tr class="FormData">
-	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
-</tr>
-<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+</div>		
+<div id="user_requested_coverage_data" style="display:none">		
+	<table class="data">
 	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6" >
-			<c:out value="${coverageItem.getName()}" />
-		</td>
-		<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
-		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
-   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
-   				<c:choose>
-   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
-   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
-   				</c:choose>   
-  			</td>   
-		</c:forEach>
+		<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
 	</tr>
-</c:forEach>
-</table>
+	<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6" >
+				<c:out value="${coverageItem.getName()}" />
+			</td>
+			<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
+			<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+	   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+	   				<c:choose>
+	   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+	   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+	   				</c:choose>   
+	  			</td>   
+			</c:forEach>
+		</tr>
+	</c:forEach>
+	</table>
 </div>
-
 <br />
+
 <c:set var="idCounter" value="1000" scope="page" />
 <table class="data"> 
 

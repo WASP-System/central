@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.JobSoftwareDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
@@ -49,6 +50,7 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
@@ -81,6 +83,7 @@ import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 
 @Service
 @Transactional
@@ -132,13 +135,22 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	private TaskDao taskDao;
 
 	@Autowired
+	private UserDao userDao;
+
+	@Autowired
 	private TaskService taskService;
-	 
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
 	@Autowired
 	private JobMetaDao jobMetaDao;
 
 	@Autowired
 	protected LabDao labDao;
+
+	@Autowired
+	protected LabUserDao labUserDao;
 
 	@Autowired
 	protected JobUserDao jobUserDao;
@@ -672,4 +684,47 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		return jobList;
 		
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeJobViewer(Integer jobId, Integer userId)throws Exception{
+		
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId().intValue() <= 0 ){
+			  throw new Exception("job does not exist in database");			  
+		  }
+		  
+		  User authenticatedUser = authenticationService.getAuthenticatedUser();
+		  Boolean userIsPermittedToModifyJobViewers = false;
+		  if(authenticationService.isSuperUser() || authenticatedUser.getUserId().intValue() == job.getUserId().intValue() || authenticatedUser.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			  userIsPermittedToModifyJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userIsPermittedToModifyJobViewers){
+			  throw new Exception("You are not permittedtodothis");			  
+		  }
+		  
+		  if(job.getUserId().intValue() == userId.intValue() ){
+			  throw new Exception("Job submitter may not be removed as viewer");			  
+		  }
+		  if(job.getLab().getPrimaryUserId().intValue() == userId.intValue() ){
+			  throw new Exception("Job PI may not be removed as viewer");			  
+		  }
+		  
+		  User user = userDao.getUserByUserId(userId.intValue());
+		  if(user.getUserId().intValue() <= 0 ){
+			  throw new Exception("User to be removed does not exist in database");			  
+		  }
+		  
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), userId.intValue());
+		  if(jobUser.getJobUserId().intValue() <= 0){
+			  throw new Exception("User to be removed is not a viewer of this job");
+		  }
+		  else{
+			  jobUserDao.remove(jobUser);
+			  jobUserDao.flush(jobUser);
+		  }		
+	}
+	
 }
