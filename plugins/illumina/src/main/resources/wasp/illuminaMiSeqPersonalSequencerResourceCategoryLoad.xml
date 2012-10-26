@@ -20,11 +20,11 @@
 
   <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoader">
     <property name="name" value="Illumina MiSeq Personal Sequencer" />
-    <property name="area" value="#{illuminaMiSeqPersonalSequencer}" />
+    <property name="area" value="#{illuminaMiSeqPersonalSequencerArea}" />
     <property name="resourceType" value="mps" />
 	 <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaMiSeqPersonalSequencer}" />
+         <property name="area" value="#{illuminaMiSeqPersonalSequencerArea}" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readlength=25:25;36:36;50:50;100:100;150:150</value>
