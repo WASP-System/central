@@ -473,4 +473,29 @@ public class StubSampleService implements SampleService {
 		
 	}
 
+	@Override
+	public Boolean isSampleAwaitingLibraryCreation(Sample sample) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateLibraryCreatedStatus(Sample sample, WaspStatus status)
+			throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isDnaOrRna(SampleDraft sampleDraft) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isDnaOrRna(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
