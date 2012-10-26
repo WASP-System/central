@@ -12,15 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
-import org.powermock.api.easymock.PowerMock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -40,7 +35,6 @@ import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
-@PrepareForTest(SecurityContext.class)
 public class TestAuthenticationServiceImpl {
 	
 	UserDao mockUserDao;
@@ -232,10 +226,6 @@ public class TestAuthenticationServiceImpl {
   public void afterClass() {
 	  
   }
-
-  
-
- 
 
   @BeforeSuite
   public void beforeSuite() {
