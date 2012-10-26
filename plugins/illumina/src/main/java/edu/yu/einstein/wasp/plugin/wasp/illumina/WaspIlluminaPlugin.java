@@ -37,4 +37,10 @@ public class WaspIlluminaPlugin extends WaspPlugin {
 		
 	}
 
+	@Override
+	public Set<String> getBatchJobNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

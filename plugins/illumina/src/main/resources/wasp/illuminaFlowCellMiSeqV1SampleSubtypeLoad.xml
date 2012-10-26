@@ -23,8 +23,8 @@
     <property name="sampleType" value="#{waspSampleType['platformunit']}" />
     <property name="compatibleResourcesByIName">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaMiSeq100">
-  				<constructor-arg type="String" value="illuminaMiSeq100" />
+  			<bean class="java.lang.String" depends-on="illuminaMiSeqPersonalSequencer">
+  				<constructor-arg type="String" value="illuminaMiSeqPersonalSequencer" />
   			</bean>
   		</list>
   	</property>
