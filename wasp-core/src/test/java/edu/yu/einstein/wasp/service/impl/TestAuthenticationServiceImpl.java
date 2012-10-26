@@ -5,12 +5,22 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -30,21 +40,47 @@ import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
+@PrepareForTest(SecurityContext.class)
 public class TestAuthenticationServiceImpl {
 	
 	UserDao mockUserDao;
 	UserPendingDao mockUserPendingDao;
 	AuthenticationServiceImpl authServiceImpl;
 	
-  // Test
-  //TODO: test not working, please fix me
+  @Test
   public void getAuthenticatedUser() {
 	  User user = new User();
-	  expect(mockUserDao.getUserByLogin("user1")).andReturn(user);
+	  user.setLogin("jdoe");
+	  user.setFirstName("Jane");
+	  user.setLastName("Doe");
+
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("username", "password"));
+	  
+	  expect(mockUserDao.getUserByLogin("username")).andReturn(user);
 	  replay(mockUserDao);
+	  
 	  Assert.assertEquals(authServiceImpl.getAuthenticatedUser(), user);
 	  verify(mockUserDao);
   }
+  
+  @Test
+  public void getRoles() {
+	  User user = new User();
+	  user.setLogin("userlogin");
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken(user,"", authorities));
+	  
+	  String[] roles = new String[1];
+	  roles[0] = "ROLE_USER";
+	  Assert.assertEquals(authServiceImpl.getRoles(), roles);
+  }
+  
+  
 	
   /**
    * Test scenario when login name already chosen by someone with a different email address
@@ -53,9 +89,6 @@ public class TestAuthenticationServiceImpl {
   public void isLoginAlreadyInUse1() {
 	  
 	  User user = new User();
-
-	  
-	  
 	  Map loginQueryMap = new HashMap();
 	  loginQueryMap.put("login", "jgreally");
 	  
@@ -66,7 +99,6 @@ public class TestAuthenticationServiceImpl {
 		  
 	  userPendingList.add(userPending);
 
-	  
 	  expect(mockUserDao.getUserByLogin("jgreally")).andReturn(user);
 	  expect(mockUserPendingDao.findByMap(loginQueryMap)).andReturn(userPendingList);
 	  
@@ -88,6 +120,50 @@ public class TestAuthenticationServiceImpl {
 	  verify(mockUserPendingDao);
 	  
   }
+  
+  @Test
+  public void hasRoleInRoleArray(){
+	  
+	  //Test case:1
+	  String rolesToCompare [] = {"da","fm", "sa"};
+	  String rolesBaseline [] = {"da","fm", "sa"};
+	  //Test case:2
+	  String rolesToCompare2 [] = {null, null, null};
+	  String rolesBaseline2 [] = {"da","fm", "sa"};
+	  //Test case:3
+	  String rolesToCompare3 [] = {"da", "fm", "sa"};
+	  String rolesBaseline3[] = {"asd","asd", "asd"};
+	  
+	  //Test case:4 throws NullPointerException
+	  String rolesToCompare4 [] = {"da", "fm", "sa"};
+	  String rolesBaseline4 [] = {null,"fm", "sa"};
+	  
+	  Assert.assertTrue(authServiceImpl.hasRoleInRoleArray(rolesToCompare, rolesBaseline));
+	  Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare2, rolesBaseline2));
+	  Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare3, rolesBaseline3));
+	  
+	  //Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare4, rolesBaseline4));
+
+
+
+  }
+  
+  @Test
+  public void hasRole(){
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.hasRole("da"));
+	  
+
+
+  }
+  
+  
   
   /**
    * Test scenario (by setting userId=1) when login name already exists.
@@ -117,12 +193,14 @@ public class TestAuthenticationServiceImpl {
   
   @BeforeTest
   public void beforeTest() {
+	  
 	  authServiceImpl = new AuthenticationServiceImpl();
 	  mockUserDao = createMockBuilder(UserDaoImpl.class).addMockedMethods(UserDaoImpl.class.getMethods()).createMock();
 	  mockUserPendingDao = createMockBuilder(UserPendingDaoImpl.class).addMockedMethods(UserPendingDaoImpl.class.getMethods()).createMock();
 	  
 	  Assert.assertNotNull(mockUserDao);
 	  Assert.assertNotNull(mockUserPendingDao);
+	  
 	  authServiceImpl.setUserDao(mockUserDao);
 	  authServiceImpl.setUserPendingDao(mockUserPendingDao);
 
@@ -130,6 +208,8 @@ public class TestAuthenticationServiceImpl {
   
   @AfterTest
   public void afterTest() {
+	  
+	 
   }
 
   @BeforeMethod
@@ -140,6 +220,8 @@ public class TestAuthenticationServiceImpl {
   public void afterMethod() {
 	  EasyMock.reset(mockUserDao);
 	  EasyMock.reset(mockUserPendingDao);
+	  
+	  SecurityContextHolder.clearContext();
   }
 
   @BeforeClass
@@ -148,6 +230,7 @@ public class TestAuthenticationServiceImpl {
 
   @AfterClass
   public void afterClass() {
+	  
   }
 
   
