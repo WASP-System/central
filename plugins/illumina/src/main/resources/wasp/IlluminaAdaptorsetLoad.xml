@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+  <bean id="truseqIndexedDnaArea" class="java.lang.String">
+  	<constructor-arg><value>truseqIndexedDna</value></constructor-arg>
+  </bean>
+    
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="truseqIndexedDnaUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="#{truseqIndexedDnaArea}" />
+  </bean>
+
+  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoader" >
+  	<property name="area" value="#{truseqIndexedDnaArea}" />
+  	<property name="name" value="TruSEQ INDEXED DNA" />
+  	<property name="sampleTypeIName" value="dna" />
+	
+	<property name="metaFromWrapper">
+		<bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+  			<property name="area" value="#{truseqIndexedDnaArea}" />
+  			<property name="metaList">
+  				<list>
+  					<value>#{illuminaAdaptorType['truseq']}=1</value>
+  				</list>
+  			</property>
+  		</bean>
+	</property>
+
+  	<property name="compatibleResourcesByIName">
+  		<list>
+  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
+  				<constructor-arg type="String" value="illuminaHiSeq2000" />
+  			</bean>
+  		</list>
+  	</property>
+
+  	<property name="adaptorList">
+  		<list>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed1" />
+  				<property name="name" value="TrueSeq Adaptor, Index 1" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ATCACG" />
+  				<property name="barcodenumber" value="1" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed2" />
+  				<property name="name" value="TrueSeq Adaptor, Index 2" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="CGATGT" />
+  				<property name="barcodenumber" value="2" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed3" />
+  				<property name="name" value="TrueSeq Adaptor, Index 3" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="TTAGGC" />
+  				<property name="barcodenumber" value="3" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed4" />
+  				<property name="name" value="TrueSeq Adaptor, Index 4" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="TGACCA" />
+  				<property name="barcodenumber" value="4" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed5" />
+  				<property name="name" value="TrueSeq Adaptor, Index 5" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ACAGTG" />
+  				<property name="barcodenumber" value="5" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed6" />
+  				<property name="name" value="TrueSeq Adaptor, Index 6" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GCCAAT" />
+  				<property name="barcodenumber" value="6" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed7" />
+  				<property name="name" value="TrueSeq Adaptor, Index 7" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="CAGATC" />
+  				<property name="barcodenumber" value="7" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed8" />
+  				<property name="name" value="TrueSeq Adaptor, Index 8" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ACTTGA" />
+  				<property name="barcodenumber" value="8" />
+  			</bean> 
+			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed9" />
+  				<property name="name" value="TrueSeq Adaptor, Index 9" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GATCAG" />
+  				<property name="barcodenumber" value="9" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed10" />
+  				<property name="name" value="TrueSeq Adaptor, Index 10" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="TAGCTT" />
+  				<property name="barcodenumber" value="10" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed11" />
+  				<property name="name" value="TrueSeq Adaptor, Index 11" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GGCTAC" />
+  				<property name="barcodenumber" value="11" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed12" />
+  				<property name="name" value="TrueSeq Adaptor, Index 12" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="CTTGTA" />
+  				<property name="barcodenumber" value="12" />
+  			</bean>
+			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed13" />
+  				<property name="name" value="TrueSeq Adaptor, Index 13" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="AGTCAA" />
+  				<property name="barcodenumber" value="13" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed14" />
+  				<property name="name" value="TrueSeq Adaptor, Index 14" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="AGTTCC" />
+  				<property name="barcodenumber" value="14" />
+  			</bean>
+			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed15" />
+  				<property name="name" value="TrueSeq Adaptor, Index 15" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ATGTCA" />
+  				<property name="barcodenumber" value="15" />
+  			</bean>
+			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed16" />
+  				<property name="name" value="TrueSeq Adaptor, Index 16" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="CCGTCC" />
+  				<property name="barcodenumber" value="16" />
+  			</bean>
+  			<!-- # 17 is reserved -->
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed18" />
+  				<property name="name" value="TrueSeq Adaptor, Index 18" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GTCCGC" />
+  				<property name="barcodenumber" value="18" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed19" />
+  				<property name="name" value="TrueSeq Adaptor, Index 19" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GTGAAA" />
+  				<property name="barcodenumber" value="19" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed20" />
+  				<property name="name" value="TrueSeq Adaptor, Index 20" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GTGGCC" />
+  				<property name="barcodenumber" value="20" />
+  			</bean>
+			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed21" />
+  				<property name="name" value="TrueSeq Adaptor, Index 21" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GTTTCG" />
+  				<property name="barcodenumber" value="21" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed22" />
+  				<property name="name" value="TrueSeq Adaptor, Index 22" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="CGTACG" />
+  				<property name="barcodenumber" value="22" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed23" />
+  				<property name="name" value="TrueSeq Adaptor, Index 23" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="GAGTGG" />
+  				<property name="barcodenumber" value="23" />
+  			</bean>
+  			<!-- #24 is reserved -->
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed25" />
+  				<property name="name" value="TrueSeq Adaptor, Index 25" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ACTGAT" />
+  				<property name="barcodenumber" value="25" />
+  			</bean>
+  			<!-- # 26 is reserved -->
+ 			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaTrueseqDnaIndexed27" />
+  				<property name="name" value="TrueSeq Adaptor, Index 27" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="ATTCCT" />
+  				<property name="barcodenumber" value="27" />
+  			</bean>
+  		</list>
+  	</property>
+  </bean> 
+
+</beans>
