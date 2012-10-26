@@ -21,8 +21,6 @@
 	<bean id="wasp-illumina.Service" class="edu.yu.einstein.wasp.mps.illumina.IlluminaService" />
 	
 	<bean id="wasp-illumina.SequenceRunProcessor" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />
-
-	<bean id="" class="" />
 	
 	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin">
 		<constructor-arg type="java.lang.String">
