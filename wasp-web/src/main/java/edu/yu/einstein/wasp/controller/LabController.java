@@ -180,13 +180,16 @@ public class LabController extends WaspController {
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
 			if(!piLogin.isEmpty()){//likely incorrect format
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				if(pi.getUserId()==null){//fake it
+					pi.setUserId(new Integer(0));
+				}
 			}
 		}
 		Department department = null;
 		if(departmentName != null){
 			department = deptDao.getDepartmentByName(departmentName.trim());
 			if(department.getDepartmentId()==null){//not found in department list
-				department.setDepartmentId(0);
+				department.setDepartmentId(new Integer(0));
 			}
 		}
 		
@@ -195,97 +198,39 @@ public class LabController extends WaspController {
 
 		List<Lab> labList = new ArrayList<Lab>();
 
-		//if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-		if(piNameAndLogin==null){//no search parameter, so get all labs
-
-			//labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
-			labList = this.labDao.findAll();
+		Map queryMap = new HashMap();
+		if(pi != null){
+			queryMap.put("primaryUserId", pi.getUserId().intValue());
+		}
+		if(department != null){
+			queryMap.put("departmentId", department.getDepartmentId().intValue());
+		}
 		
-		} else {
-
-			/*
-			Map<String, String> m = new HashMap<String, String>();
-
-			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			labList = this.labDao.findByMap(m);
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Lab> allLabs = new ArrayList<Lab>(
-						sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord));
-				
-				allLabs.removeAll(labList);
-
-				labList = allLabs;
+		List<String> orderByColumnNames = new ArrayList<String>();
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("name")){
+				orderByColumnNames.add("name");
 			}
-			*/
-			if(pi != null && pi.getUserId() != null){
-				Lab lab = this.labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
-				if(lab != null && lab.getLabId() != null && lab.getLabId() != 0){
-					labList.add(lab);
-				}
+			else if(sidx.equals("primaryUser")){
+				orderByColumnNames.add("user.lastName"); orderByColumnNames.add("user.firstName");
+			}
+			else if(sidx.equals("departmentId")){
+				orderByColumnNames.add("department.name");
 			}
 		}
-		if(department != null ){
-			List<Lab> removeLabList = new ArrayList<Lab>();
-			for(Lab lab : labList){				
-				if(lab.getDepartmentId().intValue() != department.getDepartmentId().intValue()){
-					removeLabList.add(lab);
-				}
-			}
-			labList.removeAll(removeLabList);
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnNames.add("user.lastName"); orderByColumnNames.add("user.firstName");
+			sord = new String("asc");
 		}
+		labList = labDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, sord);	
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove labs not in the DA's department
 			List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
 			labList.retainAll(labsToKeep);
 		}
-				
-		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
-		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
-			}
-		}
-		class LabNameComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getName().compareToIgnoreCase(arg1.getName());
-			}
-		}
-		class DepartmentComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getDepartment().getName().compareToIgnoreCase(arg1.getDepartment().getName());
-			}
-		}
-		
-		if ( !labList.isEmpty() && labList.size() > 1 ){
 	
-			if(sidx == null || sidx.isEmpty() || sidx.equals("primaryUser") ){//PIname/Asc will be default order by
-				Collections.sort(labList, new PILastNameFirstNameComparatorThroughLab());
-				if (sidx.equals("primaryUser") && sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-			else if (sidx.equals("name")){
-				Collections.sort(labList, new LabNameComparatorThroughLab());//asc
-				if(sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-			else if (sidx.equals("departmentId")){
-				Collections.sort(labList, new DepartmentComparatorThroughLab());//asc
-				if(sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-		}
-		
-
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();//????
 
 		try {
 			// String labs = mapper.writeValueAsString(labList);

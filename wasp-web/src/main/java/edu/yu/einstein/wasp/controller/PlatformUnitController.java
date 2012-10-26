@@ -288,6 +288,7 @@ public class PlatformUnitController extends WaspController {
 		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
 		String lanecountFromGrid = request.getParameter("lanecount")==null?null:request.getParameter("lanecount").trim();//if not passed, will be null
 		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
+		//next one no longer used
 		String resourceCategoryNameFromGrid = request.getParameter("resourceCategoryName")==null?null:request.getParameter("resourceCategoryName").trim();//if not passed, will be null
 		//System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("barcodeFromGrid = " + barcodeFromGrid);
 		//System.out.println("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
@@ -321,13 +322,32 @@ public class PlatformUnitController extends WaspController {
 			queryMap.put("sampleSubtype.name", sampleSubtypeNameFromGrid);//and restrict to the passed sampleSubtypeName
 		}
 		
-		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("sampleId");
-		String direction = "desc";
-		tempPlatformUnitList = sampleDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);			
+		Map dateMap = new HashMap();
+		if(dateFromGridAsDate != null){
+			dateMap.put("receiveDts", dateFromGridAsDate);
+		}
 		
+		List<String> orderByColumnAndDirection = new ArrayList<String>();		
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("date")){
+				orderByColumnAndDirection.add("receiveDts " + sord);
+			}
+			else if(sidx.equals("name")){//job.name
+				orderByColumnAndDirection.add("name " + sord);
+			}
+			else if(sidx.equals("sampleSubtypeName")){
+				orderByColumnAndDirection.add("sampleSubtype.name " + sord); 
+			}
+		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnAndDirection.add("receiveDts desc");
+		}
+		
+		tempPlatformUnitList = sampleDao.findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
+		
+		//have to deal with these separately. FIND certain attributes that cannot be dealt with via direct SQL
 		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
-				|| lanecountFromGrid != null || dateFromGridAsDate != null || resourceCategoryNameFromGrid != null){
+				|| lanecountFromGrid != null || resourceCategoryNameFromGrid != null){
 			
 			if(barcodeFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
@@ -371,17 +391,7 @@ public class PlatformUnitController extends WaspController {
 			}			
 			if(lanecountFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
-					/* replaced 9-25-12
-					List<SampleMeta> sampleMetaList = sample.getSampleMeta();		
-					for(SampleMeta sm : sampleMetaList){
-						if(sm.getK().indexOf("lanecount") > -1){
-							if(sm.getV().equalsIgnoreCase(lanecountFromGrid)){//remember both readlengthFromGrid and the metadata value are strings (in this case, they are string representations of numbers)
-								platformUnitsFoundInSearch.add(sample);
-							}
-							break;
-						}
-					}
-					*/
+					
 					Integer numberOfIndexedCellsOnPlatformUnit;
 					try{
 						numberOfIndexedCellsOnPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample);
@@ -394,18 +404,7 @@ public class PlatformUnitController extends WaspController {
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
 			}			
-			if(dateFromGridAsDate != null){
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-				String dateToSearchFor = formatter.format(dateFromGridAsDate);
-				for(Sample sample : tempPlatformUnitList){
-					if(formatter.format(sample.getReceiveDts()).equals(dateToSearchFor)){
-						platformUnitsFoundInSearch.add(sample);
-					}
-				}
-				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
-				platformUnitsFoundInSearch.clear();
-			}
-			if(resourceCategoryNameFromGrid != null){
+			if(resourceCategoryNameFromGrid != null){//not used
 				ResourceCategory rcRequested = resourceCategoryDao.getResourceCategoryByName(resourceCategoryNameFromGrid);
 				if(rcRequested != null && rcRequested.getResourceCategoryId()!=null){//if not found, then platformUnitsFoundInSearch will be empty, and no records retained
 					for(Sample sample : tempPlatformUnitList){
@@ -427,15 +426,12 @@ public class PlatformUnitController extends WaspController {
 		
 		platformUnitList.addAll(tempPlatformUnitList);
 		
-		//finally deal with sorting
+		//finally deal with sorting those attributes that cannot be performed by SQL statement
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
 			boolean indexSorted = false;
 			
-			if(sidx.equals("name")){Collections.sort(platformUnitList, new SampleNameComparator()); indexSorted = true;}
-			else if(sidx.equals("sampleSubtypeName")){Collections.sort(platformUnitList, new SampleSubtypeNameComparator()); indexSorted = true;}
-			else if(sidx.equals("date")){Collections.sort(platformUnitList, new SampleReceiveDateComparator()); indexSorted = true;}
-			else if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
+			if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
 			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}
 			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}
 			//replaced 9-25-12    else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}
@@ -532,23 +528,17 @@ public class PlatformUnitController extends WaspController {
 					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
 				}
 				
-				//User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
-				//List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
-				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(sample.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							//sample.getName() + " (<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>details</a>)",
 							"<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>"+sample.getName()+"</a>",
 							barcode,
 							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
 							readType,
 							readlength,
-							lanecount,
-							//String.format("%.2f", amount),
-							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							lanecount
 				}));
 				 
 				for (SampleMeta meta:sampleMetaList) {
@@ -564,9 +554,7 @@ public class PlatformUnitController extends WaspController {
 			return outputJSON(jqgrid, response); 	
 			 
 		} 
-		catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON " + platformUnitList, e);
-		}	
+		catch (Throwable e) {throw new IllegalStateException("Can't marshall to JSON " + platformUnitList, e);}	
 	}	
 
 	//helper method for createUpdatePlatformUnit

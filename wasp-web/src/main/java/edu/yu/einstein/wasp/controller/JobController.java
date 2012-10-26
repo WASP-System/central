@@ -292,99 +292,73 @@ public class JobController extends WaspController {
 		//web viewer is a member of the facility or administration
 		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
-		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
-			Map m = new HashMap();
-			if(jobId != null){
-				m.put("jobId", jobId.intValue());
-			}
-			if(jobname != null){
-				m.put("name", jobname.trim());
-			}
-			if(submitter != null){
-				m.put("UserId", submitter.getUserId().intValue());
-			}
-			if(piLab != null){
-				m.put("labId", piLab.getLabId().intValue());
-			}
-			//While I'd have liked to include createts here, for use in the next SQL statement, 
-			//I couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
-			//if(createts != null){
-			//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
-			//}
-			List<String> orderByColumnNames = new ArrayList<String>();
-			orderByColumnNames.add("jobId");
-			
-			//if Map m has no entries, SQL will find ALL jobs
-			tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
-			
+		//if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
+		Map m = new HashMap();
+		if(jobId != null){
+			m.put("jobId", jobId.intValue());
 		}
-		else { //web viewer is NOT member of the facility, so viewer is a regular user that submits jobs [a regular labmember or PI]; 
-				//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
-
-			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
-			tempJobList = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
+		if(jobname != null){
+			m.put("name", jobname.trim());
 		}
-		
-		//Deal with any one-by-one additional searches of the result set
-		Boolean performOneByOneSearch = false;
-		
-		//search for a specific createts one by one
+		if(submitter != null){
+			m.put("UserId", submitter.getUserId().intValue());
+		}
+		if(piLab != null){
+			m.put("labId", piLab.getLabId().intValue());
+		}
+		Map dateMap = new HashMap();
 		if(createts != null){
-			performOneByOneSearch = true;
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			String dateToSearchFor = formatter.format(createts);
-			for (Job job : tempJobList){
-				if(formatter.format(job.getCreatets()).equals(dateToSearchFor)){
-					jobsFoundInSearch.add(job);
-				}
+			dateMap.put("createts", createts);
+		}
+
+		List<String> orderByColumnAndDirection = new ArrayList<String>();		
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("jobId")){
+				orderByColumnAndDirection.add("jobId " + sord);
 			}
-		}
-		if(performOneByOneSearch){
-			jobList.addAll(jobsFoundInSearch);
-		}
-		else{
-			jobList.addAll(tempJobList);
-		}
-		
-		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
-		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
-			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
-			jobList.retainAll(jobsToKeep);
-		}
-		
-		//Finally deal with any sort requests coming from the grid. 
-		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
-			
-			//resultset within jobList is currently sorted by jobId/desc.
-			if(sidx.equals("jobId") && sord.equals("asc")){
-				Collections.sort(jobList, new JobIdComparator());
-			}
-			else if(sidx.equals("name")){
-				Collections.sort(jobList, new JobNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
+			else if(sidx.equals("name")){//job.name
+				orderByColumnAndDirection.add("name " + sord);
 			}
 			else if(sidx.equals("submitter")){
-				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
+				orderByColumnAndDirection.add("user.lastName " + sord);
+				orderByColumnAndDirection.add("user.firstName " + sord);
 			}
 			else if(sidx.equals("pi")){
-				Collections.sort(jobList, new PILastNameFirstNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}			
+				orderByColumnAndDirection.add("lab.user.lastName " + sord);
+				orderByColumnAndDirection.add("lab.user.firstName " + sord);
+			}
 			else if(sidx.equals("createts")){
-				Collections.sort(jobList, new JobCreatetsComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}				
+				orderByColumnAndDirection.add("createts " + sord);
+			}
 		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnAndDirection.add("jobId desc");
+		}
+			
+		tempJobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+
+		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da
+			if(authenticationService.isOnlyDepartmentAdministrator()){//turns out that the DA doesn't appear to have access to this page
+				//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+				//in order to remove jobs not in the DA's department
+				List<Job> jobsToKeep = filterService.filterJobListForDA(tempJobList);//this returned list is jobs in the DA's departments
+				tempJobList.retainAll(jobsToKeep);
+			}
+		}
+		else{//not a facility member of any type, so regular viewer (labmember or PI)
+		
+			//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - 
+			//instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
+			//this should be changed in future
+
+			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
+			tempJobList.retainAll(jobsToKeep);
+		}
+		jobList.addAll(tempJobList);
+	
+		
+		
 		
 		//Format output for grid by pages
 		try {

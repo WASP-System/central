@@ -218,14 +218,17 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 					qString += ", ";
 				}
 				qString += "h." + orderByColumnName;
+				if (direction != null && !"".equals(direction)) {
+					qString += " " + direction;
+				}
 				firstOrderBy = false;
 			}
-			if (firstOrderBy == false && direction != null && !"".equals(direction)) {
-				qString += " " + direction;
-			}
+			//if (firstOrderBy == false && direction != null && !"".equals(direction)) {
+			//	qString += " " + direction;
+			//}
 		}
 		// logger.debug("ROBERT: " + qString);
-
+		//System.out.println("ROBERT: " + qString);
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
@@ -235,6 +238,94 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		return q.getResultList();
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
+		boolean where = false;
+		//boolean firstMap = true;
+		boolean firstDistinct = true;
+		boolean firstOrderBy = true;
+
+		String qString = "SELECT h FROM " + entityClass.getName() + " h";
+
+		for (Object key : m.keySet()) {
+			if (where == false) {
+				qString += " WHERE ";				
+			} 
+			else{
+				qString += " and ";
+			}
+			qString += "h." + key.toString() + " = :" + key.toString().replaceAll("\\W+", "");
+			where = true;
+		}		
+		for (Object key : dateMap.keySet()) {
+			if (where == false){
+				qString += " WHERE ";				
+			} 
+			else{
+				qString += " and ";
+			}
+			qString += "DATE(h." + key.toString() + ") = :" + key.toString().replaceAll("\\W+", "");
+			where = true;
+		}
+		if (distinctColumnNames != null && !"".equals(distinctColumnNames)) {
+			for (String distinctColumnName : distinctColumnNames) {
+				if (where == false) {
+					qString += " WHERE (";
+					where = true;
+				} else if (firstDistinct == true) {
+					qString += " AND (";
+				} else if (firstDistinct == false) {
+					qString += ", ";
+				}
+
+				qString += "h." + distinctColumnName;
+				firstDistinct = false;
+			}
+			if (firstDistinct == false) {
+				qString += ") IN (SELECT DISTINCT";
+				firstDistinct = true;
+
+				for (String distinctColumnName : distinctColumnNames) {
+
+					if (firstDistinct == false) {
+						qString += ", ";
+					}
+					qString += " j." + distinctColumnName;
+					firstDistinct = false;
+				}
+			}
+			if (firstDistinct == false) {
+				qString += " FROM " + entityClass.getName() + " j) ";
+			}
+		}
+		if (orderByColumnAndDirectionList != null && !orderByColumnAndDirectionList.isEmpty()) {
+			for (String orderByColumnAndDirection : orderByColumnAndDirectionList) {
+				if (firstOrderBy == true) {
+					qString += " ORDER BY ";
+				} else if (firstOrderBy == false) {
+					qString += ", ";
+				}
+				qString += "h." + orderByColumnAndDirection;
+				firstOrderBy = false;
+			}
+		}
+		
+		Query q = entityManager.createQuery(qString);
+
+		for (Object key : m.keySet()) {
+			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
+		}
+		for (Object key : dateMap.keySet()) {
+			q.setParameter(key.toString().replaceAll("\\W+", ""), dateMap.get(key));
+		}
+		
+		// logger.debug("ROBERT: " + qString);
+		//System.out.println("ROBERT: " + qString);
+
+		return q.getResultList();
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {

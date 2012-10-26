@@ -21,7 +21,7 @@
 
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 
-<c:if test='${viewerIsFacilityMember=="true"}'>
+<%-- <c:if test='${viewerIsFacilityMember=="true"}'> --%>
 <script type="text/javascript">
    //http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
   //http://www.ok-soft-gmbh.com/jqGrid/FillToolbarSearchFilter.htm   was really good 
@@ -150,7 +150,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search"
 });//end document.ready() 
   
 </script>
-</c:if> 
+<%-- </c:if> --%>
  
 <center>  
 <br /><br />
@@ -159,7 +159,7 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search"
 </center> 
 
 
-<!--  
+<!--  PLEASE SAVE THIS FOR REFERENCE MATERIAL (dubin)
  <script type="text/javascript">
 ///http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
 //http://www.ok-soft-gmbh.com/jqGrid/FillToolbarSearchFilter.htm   was really good 
