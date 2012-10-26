@@ -37,6 +37,9 @@ public abstract class WaspLoader {
 		this.area = StringUtils.replace(area, ".", "_"); 
 		this.iname = area;
 	}
+	public String getArea() {
+		return this.iname;
+	}
 	
 	protected List<UiField> uiFields; 
 	

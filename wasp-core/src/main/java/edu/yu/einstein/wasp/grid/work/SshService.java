@@ -50,8 +50,8 @@ public class SshService implements GridWorkService, GridTransportService {
 		return localProperties;
 	}
 
-	public void setLocalProperties(Properties waspLocalProperties) {
-		this.localProperties = waspLocalProperties;
+	public void setLocalProperties(Properties waspSiteProperties) {
+		this.localProperties = waspSiteProperties;
 		String prefix = this.name + ".settings.";
 		for (String key : this.localProperties.stringPropertyNames()) {
 			if (key.startsWith(prefix)) {

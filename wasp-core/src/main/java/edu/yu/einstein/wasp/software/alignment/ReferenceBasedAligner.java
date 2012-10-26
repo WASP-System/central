@@ -1,12 +1,14 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.software;
+package edu.yu.einstein.wasp.software.alignment;
+
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author calder
  *
  */
-public interface ReferenceBasedAligner {
+public abstract class ReferenceBasedAligner extends SoftwarePackage {
 
 }
