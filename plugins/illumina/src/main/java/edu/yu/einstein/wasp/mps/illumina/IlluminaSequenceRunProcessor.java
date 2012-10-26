@@ -32,16 +32,17 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.mps.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
 
 /**
  * @author calder
  * 
  */
 @Component
-public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
+public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 
 	private static Log logger = LogFactory.getLog(IlluminaSequenceRunProcessor.class);
 
@@ -61,13 +62,13 @@ public class IlluminaSequenceRunProcessor implements SequenceRunProcessor {
 	@Override
 	public void preProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		WorkUnit w = new WorkUnit();
-		
+				
 		Sample platformUnit = run.getPlatformUnit();
 		
-		List<SoftwareComponent> sd = new ArrayList<SoftwareComponent>();
-		sd.add(new CasavaSoftwareComponent());
+		List<SoftwarePackage> sp = new ArrayList<SoftwarePackage>();
+		sp.add(this);
 		w.setCommand("touch start-illumina-pipeline.txt");
-		w.setSoftwareDependencies(sd);
+		w.setSoftwareDependencies(sp);
 		w.setProcessMode(ProcessMode.SINGLE);
 		
 		GridWorkService gws = ghs.getGridWorkService(w);

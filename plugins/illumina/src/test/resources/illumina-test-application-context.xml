@@ -36,8 +36,13 @@
       </property>  
   </bean> 
    -->
+   
+  <import resource="classpath*:/META-INF/spring/integration/RmiMessageSend-context.xml" />
+  <import resource="classpath*:/META-INF/spring/batch-integration-common-config.xml" />
+  <import resource="classpath*:/META-INF/spring/integration/message-routing-inbound.xml" />
+   
   <!-- local instance configuration -->
-  <import resource="classpath*:/wasp-local-context.xml" />
+  <import resource="classpath*:/wasp-site-context.xml" />
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
         <!-- property name="useCodeAsDefaultMessage" value="true"/-->
@@ -59,6 +64,7 @@
         <property name="showSql" value="false" />
       </bean>
     </property>   
+    <property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
   </bean>
 
   <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
