@@ -64,13 +64,15 @@ public class TestAuthenticationServiceImpl {
 	  user.setLogin("userlogin");
 	  
 	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-	  authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+	  authorities.add(new GrantedAuthorityImpl("da"));
+	  authorities.add(new GrantedAuthorityImpl("lm"));
 	  
 	  SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken(user,"", authorities));
 	  
-	  String[] roles = new String[1];
-	  roles[0] = "ROLE_USER";
+	  String[] roles = new String[2];
+	  roles[0] = "da";
+	  roles[1] = "lm";
 	  Assert.assertEquals(authServiceImpl.getRoles(), roles);
   }
   
@@ -152,13 +154,77 @@ public class TestAuthenticationServiceImpl {
 				new UsernamePasswordAuthenticationToken("","", authorities));
 	  
 	  Assert.assertTrue(authServiceImpl.hasRole("da"));
-	  
-
+	  Assert.assertFalse(authServiceImpl.hasRole("asd"));
 
   }
   
+  @Test
+  public void isFacilityMember() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("lm"));
+	  authorities.add(new GrantedAuthorityImpl("su"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.isFacilityMember());
+
+  }
   
+  @Test
+  public void isFacilityMember2() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("lm"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isFacilityMember());
+
+  }
+    
+  @Test
+  public void isOnlyDepartmentAdministrator() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da-*"));
+	   	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
   
+  @Test
+  public void isOnlyDepartmentAdministrator2() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da-*"));
+	  authorities.add(new GrantedAuthorityImpl("su"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
+  
+  @Test
+  public void isOnlyDepartmentAdministrator3() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("testrole1"));
+	  authorities.add(new GrantedAuthorityImpl("testrole2"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
   /**
    * Test scenario (by setting userId=1) when login name already exists.
    */
