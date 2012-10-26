@@ -25,6 +25,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -301,12 +302,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
 	  m.addAttribute("additionalJobViewers", additionalJobViewers);
 	  
-	  User authenticatedUser = authenticationService.getAuthenticatedUser();
-	  Boolean userIsPermittedToModifyJobViewers = false;
-	  if(authenticationService.isSuperUser() || authenticatedUser.getUserId().intValue() == job.getUserId().intValue() || authenticatedUser.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-		  userIsPermittedToModifyJobViewers = true; //superuser, job's submitter, job's PI
+	  User currentWebViewer = authenticationService.getAuthenticatedUser();
+	  Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+	  if(authenticationService.isSuperUser() || currentWebViewer.getUserId().intValue() == job.getUserId().intValue() || currentWebViewer.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+		  currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
 	  }
-	  m.addAttribute("userIsPermittedToModifyJobViewers", userIsPermittedToModifyJobViewers);
+	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
 	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
@@ -491,19 +493,46 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @RequestMapping(value="/removeViewerFromJob/{jobId}/{userId}.do", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
-  public String listJobSamples(@PathVariable("jobId") Integer jobId, @PathVariable("userId") Integer userId, ModelMap m) {
+  public String removeViewerFromJob(@PathVariable("jobId") Integer jobId, @PathVariable("userId") Integer userId, ModelMap m) {
 	  
 	  try{
 		  jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
 	  }
 	  catch(Exception e){
-		  waspMessage(e.getMessage());
-		  System.out.println(e.getMessage());
+		  logger.debug(e.getMessage());
+		//System.out.println(e.getMessage());
+		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
 	   
-	  waspMessage("libraryCreated.created_success.label");
+	  waspMessage("listJobSamples.jobViewerRemoved.label");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+  }
+  
+  @RequestMapping(value="/addJobViewer.do", method=RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
+  public String addJobViewer(@RequestParam("jobId") Integer jobId,
+		  @RequestParam("newViewerEmailAddress") String newViewerEmailAddress,
+		  ModelMap m)  {	
+System.out.println("at 1");	  
+	  try{
+		  System.out.println("at 2");
+		  System.out.println("jobId = " + jobId + " and email address = " + newViewerEmailAddress);
+		  jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+		  System.out.println("at 3");	  
+	  }
+	  catch(Exception e){
+		  System.out.println("at 4");	  
+		  logger.debug(e.getMessage());
+		  System.out.println("the exception message is " + e.getMessage());
+		  waspErrorMessage(e.getMessage());
+		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  }
+	  System.out.println("at 5");	   
+	  waspMessage("listJobSamples.jobViewerAdded.label");
+	  System.out.println("at 6");	  
+	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+	  
   }
   
   /**

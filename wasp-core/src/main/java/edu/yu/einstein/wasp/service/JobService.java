@@ -131,4 +131,13 @@ public interface JobService extends WaspService {
 	 * 
 	 */
 	public void removeJobViewer(Integer jobId, Integer userId) throws Exception;
+	
+	/**
+	 * addJobViewer() adds a viewer to a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
+	 * @param Integer jobId (the job to which the viewer is to be added)
+	 * @param String newViewerEmailAddress (the new viewer's email address)
+	 * @return void (maybe should be an int or boolean)
+	 * 
+	 */
+	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception;
 }
