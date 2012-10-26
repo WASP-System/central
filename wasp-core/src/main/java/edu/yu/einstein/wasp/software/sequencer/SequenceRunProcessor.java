@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.mps;
+package edu.yu.einstein.wasp.software.sequencer;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -10,6 +10,7 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * 
@@ -17,7 +18,7 @@ import edu.yu.einstein.wasp.model.Sample;
  * @author calder
  *
  */
-public interface SequenceRunProcessor {
+public abstract class SequenceRunProcessor extends SoftwarePackage {
 	
 	
 	/**
@@ -29,7 +30,7 @@ public interface SequenceRunProcessor {
 	 * @throws GridAccessException 
 	 * @throws GridUnresolvableHostException 
 	 */
-	public void preProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
+	public abstract void preProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
 	
 	/**
 	 * Using the GridWorkService, run the sequence analysis post-processing steps on the specified host in
@@ -41,7 +42,7 @@ public interface SequenceRunProcessor {
 	 * @throws GridAccessException 
 	 * @throws GridUnresolvableHostException 
 	 */
-	public void processSequenceRun(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
+	public abstract void processSequenceRun(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
 	
 	
 	/**
@@ -53,7 +54,7 @@ public interface SequenceRunProcessor {
 	 * @throws GridAccessException 
 	 * @throws GridUnresolvableHostException 
 	 */
-	public void postProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
+	public abstract void postProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
 	
 	/**
 	 * ensure completion of coping results files (FASTQ, instrument specific files, etc.) to the staging area.
@@ -61,6 +62,6 @@ public interface SequenceRunProcessor {
 	 * @param platformUnit
 	 * @param ghs
 	 */
-	public void stage(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
+	public abstract void stage(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException;
 
 }

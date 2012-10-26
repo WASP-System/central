@@ -58,7 +58,7 @@
   <import resource="classpath*:wasp/*waspPlugin.xml" /> 
 
   <!-- load site specific properties -->
-  <bean id="waspLocalProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  <bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="locations">
       <list>
         <value>classpath:/wasp.site.properties</value>

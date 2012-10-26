@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Called to get the configuration string for loading software modules.
@@ -21,24 +21,24 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 public class ModulesManager extends HashMap<String, String> implements
 		SoftwareManager {
 
-	private static final Logger logger = Logger.getLogger(SgeWorkService.class);
+	private static final Logger logger = Logger.getLogger(ModulesManager.class);
 
 	// wasp instance properties
-	private Properties waspLocalProperties;
+	private Properties waspSiteProperties;
 
 	private String name;
 
 	/**
 	 * 
 	 */
-	public ModulesManager(String name, Properties waspLocalProperties) {
+	public ModulesManager(String name, Properties waspSiteProperties) {
 		this.name = name;
-		this.waspLocalProperties = waspLocalProperties;
+		this.waspSiteProperties = waspSiteProperties;
 		String prefix = this.name + ".software.";
-		for (String key : this.waspLocalProperties.stringPropertyNames()) {
+		for (String key : this.waspSiteProperties.stringPropertyNames()) {
 			if (key.startsWith(prefix)) {
 				String newKey = key.replaceFirst(prefix, "");
-				String value = this.waspLocalProperties.getProperty(key);
+				String value = this.waspSiteProperties.getProperty(key);
 				this.put(newKey, value);
 				logger.debug("Configured software property for host \""
 						+ this.name + "\": " + newKey + "=" + value);
@@ -54,22 +54,22 @@ public class ModulesManager extends HashMap<String, String> implements
 		String result = "";
 		
 		// configure software dependencies that are loaded via modules
-		for (SoftwareComponent sw : w.getSoftwareDependencies()) {
+		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
 
-			String name = sw.getName();
+			String name = sw.getArea();
 			// if the name is configured on the host, override the software
 			// package's name
-			if (this.containsKey(sw.getName() + ".name"))
-				name = sw.getName();
+			if (this.containsKey(sw.getArea() + ".name"))
+				name = this.get(sw.getArea() + ".name");
 
-			String version = sw.getVersion();
+			String version = sw.getRequestedVersion();
 			// if the version is configured on the host, force that version.
-			if (this.containsKey(sw.getVersion() + ".version"))
-				version = sw.getName();
+			if (this.containsKey(sw.getArea() + ".version"))
+				version = this.get(sw.getArea() + ".version");
 			
-			if ((name == null) || (version == null)) {
-				logger.error("null value in software configuration: " + name + "/" + version);
-				throw new GridExecutionException("unable to configure software");
+			if (version == null) {
+				logger.error("No version has been set for software: " + name );
+				throw new GridExecutionException("Unable to configure software, no version set for " + name );
 			}
 
 			result += new StringBuilder().append(
@@ -78,14 +78,17 @@ public class ModulesManager extends HashMap<String, String> implements
 		result += "module list" + "\n\n";
 		
 		// configure the number of processes that will be used.
-		int procs = 1;
-		for (SoftwareComponent sw : w.getSoftwareDependencies()) {
-			if (w.getProcessMode().equals(ProcessMode.SINGLE)) break;
+		int procs = 0;
+		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
+			if (w.getProcessMode().equals(ProcessMode.SINGLE)) {
+				procs++;
+				break;
+			}
 			if (w.getProcessMode().equals(ProcessMode.FIXED)) {
 				procs = w.getProcessorRequirements().intValue();
 				break;
 			}
-			String pkey = sw.getName() + ".env.processors";
+			String pkey = sw.getArea() + ".env.processors";
 			if (w.getProcessMode().equals(ProcessMode.MAX)) {
 				if (this.containsKey(pkey)) {
 					Integer p = new Integer(this.get(pkey));
@@ -93,7 +96,7 @@ public class ModulesManager extends HashMap<String, String> implements
 				}
 			}
 			
-			// sum mode leaves "one for the pot"
+			
 			if (w.getProcessMode().equals(ProcessMode.SUM)) {
 				if (this.containsKey(pkey)) {
 					Integer p = new Integer(this.get(pkey));
@@ -105,6 +108,8 @@ public class ModulesManager extends HashMap<String, String> implements
 			
 			w.setProcessorRequirements(new Integer(procs));
 		}
+		
+		logger.debug("Configured work unit with mode " + w.getProcessMode().toString() + " and " + procs + " processors.");
 		
 		return result;
 	}

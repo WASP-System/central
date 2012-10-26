@@ -9,6 +9,7 @@ import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Basic unit of work to be executed.   
@@ -71,7 +72,7 @@ public class WorkUnit {
 	/**
 	 * List of software packages that need to be configured by a {@link SoftwareManager}.
 	 */
-	private List<SoftwareComponent> softwareDependencies;
+	private List<SoftwarePackage> softwareDependencies;
 	
 	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
@@ -263,14 +264,14 @@ public class WorkUnit {
 	/**
 	 * @return the softwareDependencies
 	 */
-	public List<SoftwareComponent> getSoftwareDependencies() {
+	public List<SoftwarePackage> getSoftwareDependencies() {
 		return softwareDependencies;
 	}
 
 	/**
 	 * @param softwareDependencies the softwareDependencies to set
 	 */
-	public void setSoftwareDependencies(List<SoftwareComponent> softwareDependencies) {
+	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {
 		this.softwareDependencies = softwareDependencies;
 	}
 	
