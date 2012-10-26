@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
@@ -326,6 +327,31 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			return true;
 		return false;
 	}
+	
+	  
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isSampleAwaitingLibraryCreation(Sample sample){
+		// sample flow completed successfully and library flow currently in state wasp.library.step.listenForLibraryCreated
+		Assert.assertParameterNotNull(sample, "No Sample provided");
+		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		if (isLibrary(sample))
+			return false;
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		
+		JobExecution jobExecution = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(
+				batchJobExplorer.getJobExecutions("wasp.sample.jobflow", parameterMap, false, ExitStatus.COMPLETED)
+			);
+		if (jobExecution == null)
+			return false;
+		
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, false, BatchStatus.STARTED);
+		return stepExecutions.size() > 0;
+	}
+	
 		
 	  
 	  /**
@@ -386,8 +412,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 
 	  /**
 	   * {@inheritDoc}
-	   *
-	   * status must be either CREATED or ABANDONED
+
 	   */
 	  @Override
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
@@ -399,6 +424,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
 		  
 		  SampleStatusMessageTemplate messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		  sendOutboundMessage(messageTemplate.build());
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(sample, "No Sample provided");
+		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNull(status, "No Status provided");
+		  if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
+			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		  
+		  LibraryStatusMessageTemplate messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		  sendOutboundMessage(messageTemplate.build());
 	  }
@@ -931,9 +973,31 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isLibrary(Sample sample) {
+	public boolean isLibrary(Sample sample){
 		Assert.assertParameterNotNull(sample, "No sample provided");
 		if (sample.getSampleType().getIName().equals("library") || sample.getSampleType().getIName().equals("facilityLibrary"))
+			return true;
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isDnaOrRna(SampleDraft sampleDraft) {
+		Assert.assertParameterNotNull(sampleDraft, "No sampleDraft provided");
+		if (sampleDraft.getSampleType().getIName().equals(sampleTypeDao.getSampleTypeByIName("dna").getIName()) || sampleDraft.getSampleType().getIName().equals(sampleTypeDao.getSampleTypeByIName("rna").getIName()))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isDnaOrRna(Sample sample) {
+		Assert.assertParameterNotNull(sample, "No sample provided");
+		if (sample.getSampleType().getIName().equals(sampleTypeDao.getSampleTypeByIName("dna").getIName()) || sample.getSampleType().getIName().equals(sampleTypeDao.getSampleTypeByIName("rna").getIName()))
 			return true;
 		return false;
 	}

@@ -15,7 +15,7 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 	
 	/**
 	 * Get the job executions that match the job name provided, and parameters provided as a Map.
-	 * The name match is a suffix match so 'aStep' or 'job.aStep' or 'wasp.job.aStep' will all 
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all 
 	 * match a step name of 'wasp.job.aStep' in the database 
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.

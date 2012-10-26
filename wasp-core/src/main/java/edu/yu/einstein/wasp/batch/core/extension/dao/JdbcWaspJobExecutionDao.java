@@ -45,11 +45,12 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		
 		
 		String sql = "SELECT E.JOB_EXECUTION_ID from %PREFIX%JOB_EXECUTION E, %PREFIX%JOB_INSTANCE I where "
-			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID and I.JOB_NAME LIKE :name";
+			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID and (I.JOB_NAME LIKE :name1 or I.JOB_NAME LIKE :name2)";
 		
 		if (name == null)
 			name = "";
-		parameterSource.addValue("name", "%"+name);
+		parameterSource.addValue("name1", "%" + name);
+		parameterSource.addValue("name2", name + "%");
 		
 		if (batchStatus != null){
 			sql += " and STATUS = :status ";

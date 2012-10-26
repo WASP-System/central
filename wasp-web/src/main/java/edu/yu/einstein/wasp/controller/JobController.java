@@ -37,6 +37,8 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -600,8 +602,19 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.CREATED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobPiApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/lab/pendinglmapproval/list.do";	
@@ -610,56 +623,25 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "DA");//private method below
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.CREATED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobDaApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  logger.error(e);
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/department/dapendingtasklist.do";		  
 	}
  
-  private void pendingJobApproval(String action, Integer jobId, String approver){
-
-	  Task taskOfInterest;
-	  //confirm action is either approve or reject
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==null || job.getJobId().intValue() == 0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if("DA".equals(approver)){
-		  taskOfInterest = taskDao.getTaskByIName("DA Approval");//confirm task id > 0 is below
-	  }
-	  else if("LM".equals(approver) || "PI".equals(approver)){
-		 taskOfInterest = taskDao.getTaskByIName("PI Approval");//confirm task id > 0 is below
-	  }
-	  else{
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if(taskOfInterest.getTaskId()==null || taskOfInterest.getTaskId().intValue()==0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  List<Statejob> statejobList = job.getStatejob();
-	  for(Statejob statejob : statejobList){
-		  State state = statejob.getState();
-		  if(taskOfInterest.getTaskId()==state.getTaskId()){
-			  if("approve".equals(action)){
-				  state.setStatus("COMPLETED");
-				  stateDao.save(state);
-				  waspMessage("job.approval.approved"); break;
-			  }
-			  else if("reject".equals(action)){
-				  state.setStatus("ABANDONED");
-				  stateDao.save(state); 
-				  waspMessage("job.approval.rejected"); break;
-			  }			 
-		  }
-	  }
-	  return;	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
-  }
-
-
 
 	/**
 	 * show job/resource data and meta information to be modified.

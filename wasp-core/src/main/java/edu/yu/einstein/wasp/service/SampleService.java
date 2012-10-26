@@ -130,6 +130,13 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return
 		 */
 		public Boolean isSampleReceived(Sample sample);
+		
+		/**
+		 * Returns true if sample has a library batch flow in state awaiting library creation
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleAwaitingLibraryCreation(Sample sample);
 	  
 	  /**
 	   * Accepts and (in-situ) sorts list of samples by sample name 
@@ -154,11 +161,23 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  /**
 	   * Updates sample's Receive Sample status. Sends message via Spring Integration
+	   * Status must be either CREATED or ABANDONED
 	   * @param Sample sample
 	   * @param String status (from web)
 	   * @return boolean
 	   */
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
+	  
+	  /**
+	   * Updates sample's library creation status. Sends message via Spring Integration
+	   * Status must be either CREATED or ABANDONED
+	   * @param Sample sample
+	   * @param String status (from web)
+	   * @return boolean
+	   */
+	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
+	  
+	  
 	  
 	  /**
 	   * Returns boolean informing whether a sample has been processed by the facility
@@ -537,5 +556,19 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return void
 	   */
 	  public void deleteSequenceRun(Run run)throws Exception;
+
+	  /**
+	   * is sampleDraft a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(SampleDraft sampleDraft);
+	  
+	  /**
+	   * is sample a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(Sample sample);
 	  
 }

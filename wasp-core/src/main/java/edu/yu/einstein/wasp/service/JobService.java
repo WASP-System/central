@@ -156,7 +156,8 @@ public interface JobService extends WaspMessageHandlingService {
 	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample);
 	
 	/**
-	 * Updates the Job Quote Status for job
+	 * Updates the Job Quote Status for job.
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -165,6 +166,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job DA approval Status for job
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -173,6 +175,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job Pi Approval Status for job
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
