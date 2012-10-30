@@ -3,7 +3,8 @@ package edu.yu.einstein.wasp.daemon.test;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
@@ -45,7 +46,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	@Autowired 
 	private JobRegistry jobRegistry;
 	
-	private final Logger logger = Logger.getLogger(JobApprovalFlowTests.class);
+	private final Logger logger = LoggerFactory.getLogger(JobApprovalFlowTests.class);
 	
 	private Message<?> message = null;
 	

@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.model.UiField;
 
 public abstract class WaspLoader {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected String domain;
 	public void setDomain(String domain) { this.domain = domain;}
@@ -119,7 +120,7 @@ public abstract class WaspLoader {
 	
 	public List<UiField> getUiFields() {return this.uiFields; }
 
-	protected static final Logger log = Logger.getLogger(WaspLoader.class);
+	protected static final Logger log = LoggerFactory.getLogger(WaspLoader.class);
 	
 	protected WaspLoader sourceLoadService;
 	

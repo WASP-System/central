@@ -8,7 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ import edu.yu.einstein.wasp.service.StatusMessageService;
 @Transactional
 public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusMessageService{
 	
-	protected static final Logger logger = Logger.getLogger(StatusMessageServiceImpl.class);
+	protected Logger logger = LoggerFactory.getLogger(StatusMessageServiceImpl.class);
 	
 	private static final String STATUS_KEY_PREFIX = "statusMessage."; 
 	

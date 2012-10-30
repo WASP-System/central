@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -31,7 +32,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  */
 public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(ListenForStatusTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
 
 	private StatusMessageTemplate messageTemplate;
 	

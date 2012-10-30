@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.integration.test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -26,7 +27,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	@Autowired
 	MessageChannelRegistry channelRegistry;
 	
-	private final Logger logger = Logger.getLogger(RmiInputTests.class);
+	private final Logger logger = LoggerFactory.getLogger(RmiInputTests.class);
 	
 	private Message<?> message = null;
 	

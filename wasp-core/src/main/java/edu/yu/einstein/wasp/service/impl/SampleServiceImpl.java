@@ -511,10 +511,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  String puIdStr = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
 				  IdsForPlatformUnitsNotAvailable.add(Integer.valueOf(puIdStr));
 			  } catch (ParameterValueRetrievalException e){
-				  logger.error(e);
+				  logger.error(e.getLocalizedMessage());
 				  continue;
 			  } catch (NumberFormatException e){
-				  logger.error(e);
+				  logger.error(e.getLocalizedMessage());
 				  continue;
 			  }
 		  }

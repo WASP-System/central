@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.controller.validator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindException;

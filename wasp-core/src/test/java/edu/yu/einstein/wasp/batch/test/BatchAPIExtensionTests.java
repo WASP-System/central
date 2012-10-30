@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -32,7 +33,7 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 	
-	private final Logger logger = Logger.getLogger(BatchAPIExtensionTests.class);
+	private final Logger logger = LoggerFactory.getLogger(BatchAPIExtensionTests.class);
 	
 	private final String JOB_ID_KEY = "jobId";
 	

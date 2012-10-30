@@ -5,7 +5,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;

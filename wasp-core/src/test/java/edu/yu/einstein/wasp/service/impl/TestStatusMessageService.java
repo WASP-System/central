@@ -3,7 +3,8 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -15,7 +16,7 @@ import edu.yu.einstein.wasp.test.stubs.SampleMetaDaoStub;
 
 public class TestStatusMessageService {
 	
-	protected static final Logger logger = Logger.getLogger(TestStatusMessageService.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TestStatusMessageService.class);
 
 	private SampleMetaDaoStub sampleMetaDaoStub = new SampleMetaDaoStub(); 
 	

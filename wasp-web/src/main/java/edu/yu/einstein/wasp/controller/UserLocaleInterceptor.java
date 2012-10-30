@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.core.Config;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;

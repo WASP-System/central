@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.model;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -8,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class TestFile{
 	
-	private static final Logger logger = Logger.getLogger(TestFile.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestFile.class);
   
 	// paths to test
 	private static final String TestPath1 = "foo/file1.txt";

@@ -13,7 +13,8 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -33,7 +34,7 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 public class MetaHelper {
 
 	
-	protected final Logger logger = Logger.getLogger(MetaHelper.class);
+	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
 	/**
 	 * Constructor

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -28,7 +29,7 @@ public class SampleWrapper implements BioMoleculeWrapperI{
 	protected SampleWrapper parent = null; // e.g. if this sample is a library then the parent might be a source DNA sample
 	protected Sample sample = null; // the sample object wrapped by this class
 	
-	protected static final Logger logger = Logger.getLogger(SampleWrapper.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SampleWrapper.class);
 		
 	/**
 	 * Constructor: requires the target sample object

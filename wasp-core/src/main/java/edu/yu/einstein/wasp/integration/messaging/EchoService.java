@@ -2,7 +2,8 @@ package edu.yu.einstein.wasp.integration.messaging;
 
 import java.rmi.RemoteException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 
 /**
@@ -12,11 +13,11 @@ import org.springframework.integration.Message;
  */
 public class EchoService implements ClientMessageI {
 	
-	private static final Logger logger = Logger.getLogger(EchoService.class);
+	private Logger logger = LoggerFactory.getLogger(EchoService.class);
 
 	@Override
 	public Message process(Message message) throws RemoteException {
-		logger.info(message);
+		logger.info(message.toString());
 		return message;
 	}
 

@@ -7,7 +7,8 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +37,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
 	
-	private static final Logger logger = Logger.getLogger(AuthenticationServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
 	@Autowired
 	private UserDao userDao;

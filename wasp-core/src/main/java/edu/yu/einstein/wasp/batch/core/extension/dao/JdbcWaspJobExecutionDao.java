@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -25,7 +26,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	
 	private WaspJobInstanceDao waspJobInstanceDao;
 	
-	private static final Logger logger = Logger.getLogger(JdbcWaspJobExecutionDao.class);
+	private Logger logger = LoggerFactory.getLogger(JdbcWaspJobExecutionDao.class);
 	
 	public void setWaspJobInstanceDao(WaspJobInstanceDao waspJobInstanceDao){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be null");

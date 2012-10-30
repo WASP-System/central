@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registry for storing and retrieving plugin bean references
@@ -15,7 +16,7 @@ public class WaspPluginRegistry {
 
 	private Map<String, WaspPlugin> plugins;
 	
-	private final Logger logger = Logger.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * Constructor

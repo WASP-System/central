@@ -112,9 +112,18 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -157,6 +166,7 @@
 			<excludes>
 			<exclude>commons-logging.properties</exclude>
 			<exclude>simplelog.properties</exclude>
+			<exclude>logback.xml</exclude>
 			</excludes>
 			</filter>
 			</filters>
@@ -243,10 +253,10 @@
 	</goals>
 	<configuration>
 	<tasks>
-	<delete file="${project.build.outputDirectory}/log4j.properties"/>
-	<delete file="${project.build.outputDirectory}/log4j.debug.properties"/>
-	<copy file="src/main/resources/log4j.debug.properties"
-	tofile="${project.build.outputDirectory}/log4j.properties"/>
+	<delete file="${project.build.outputDirectory}/logback.xml"/>
+	<delete file="${project.build.outputDirectory}/logback.deploy.xml"/>
+	<copy file="src/main/resources/logback.deploy.xml"
+	tofile="${project.build.outputDirectory}/logback.xml"/>
 	</tasks>
 	</configuration>
 	</execution>

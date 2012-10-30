@@ -23,7 +23,8 @@ import java.util.Map;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
@@ -35,7 +36,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.
-	protected static Logger logger = Logger.getLogger(WaspDaoImpl.class.getName());
+	private Logger logger = LoggerFactory.getLogger(WaspDaoImpl.class.getName());
 
 	@Override
 	public void persist(final E entity) {

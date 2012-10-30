@@ -4,7 +4,8 @@
 package edu.yu.einstein.wasp.integration.messaging;
 
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.core.MessageSelector;
@@ -28,7 +29,7 @@ public class Security implements MessageSelector {
 		this.authenticationService = authenticationService;
 	}
 
-	private static final Logger logger = Logger.getLogger(Security.class);
+	private Logger logger = LoggerFactory.getLogger(Security.class);
 
 	/**
 	 * {@inheritDoc}

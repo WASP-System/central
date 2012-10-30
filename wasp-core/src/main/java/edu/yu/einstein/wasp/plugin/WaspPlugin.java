@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -30,7 +31,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements Init
 
 	private Properties waspSiteProperties;
 	
-	private final Logger logger = Logger.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public WaspPlugin(String pluginName, Properties waspSiteProperties) {
 		this.setPluginName(pluginName);
