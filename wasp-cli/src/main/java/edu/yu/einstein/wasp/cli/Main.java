@@ -46,7 +46,7 @@ public class Main {
 			Message<String> message;
 			if (cl.hasOption("l")) {
 				message = (Message<String>) MessageBuilder.withPayload("list")
-						.setHeader("target", "wasp")
+						.setHeader("target", "pluginRegistry")
 						.setHeader("user", parser.getUser())
 						.setHeader("password", parser.getPassword())
 						.build();
