@@ -15,7 +15,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -37,7 +38,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
  */
 public class PbsWorkService implements GridWorkService {
 	
-	private static final Logger logger = Logger.getLogger(PbsWorkService.class);
+	private Logger logger = LoggerFactory.getLogger(PbsWorkService.class);
 
 	private String namePrefix = "WASP-";
 	public void setNamePrefix(String np) {

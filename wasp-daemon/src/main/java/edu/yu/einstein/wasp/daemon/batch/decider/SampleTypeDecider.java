@@ -3,7 +3,8 @@ package edu.yu.einstein.wasp.daemon.batch.decider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
@@ -15,7 +16,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 public class SampleTypeDecider implements JobExecutionDecider{
 	
-	protected static Logger logger = Logger.getLogger(SampleTypeDecider.class);
+	protected Logger logger = LoggerFactory.getLogger(SampleTypeDecider.class);
 
 	private SampleService sampleService;
 	

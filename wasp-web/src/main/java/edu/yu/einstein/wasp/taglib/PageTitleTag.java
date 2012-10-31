@@ -11,7 +11,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;

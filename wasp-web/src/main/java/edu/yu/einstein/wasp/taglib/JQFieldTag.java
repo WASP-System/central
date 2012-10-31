@@ -19,7 +19,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;

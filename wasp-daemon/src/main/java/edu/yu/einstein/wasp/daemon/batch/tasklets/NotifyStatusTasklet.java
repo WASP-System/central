@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -14,7 +15,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 public class NotifyStatusTasklet extends WaspTasklet implements Tasklet {
 	
-	private final Logger logger = Logger.getLogger(NotifyStatusTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(NotifyStatusTasklet.class);
 
 	private StatusMessageTemplate messageTemplate;
 	

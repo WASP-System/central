@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.springframework.batch.core.repository.dao.JdbcJobInstanceDao;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,7 +20,7 @@ import org.springframework.util.Assert;
 @Repository
 public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJobInstanceDao, InitializingBean{
 	
-	private static final Logger logger = Logger.getLogger(JdbcWaspJobInstanceDao.class);
+	private Logger logger = LoggerFactory.getLogger(JdbcWaspJobInstanceDao.class);
 	
 	/**
 	 * {@inheritDoc}

@@ -3,7 +3,8 @@ package edu.yu.einstein.wasp.integration.messaging;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -17,7 +18,7 @@ import org.springframework.util.Assert;
  */
 public class MessageChannelRegistryBeanPostProcessor implements BeanPostProcessor {
 	
-	private static Logger logger = Logger.getLogger(MessageChannelRegistryBeanPostProcessor.class);
+	private Logger logger = LoggerFactory.getLogger(MessageChannelRegistryBeanPostProcessor.class);
 	
 	private MessageChannelRegistry messageRegistry;
 	

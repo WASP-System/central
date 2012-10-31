@@ -286,9 +286,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					activeJobList.add(job);
 				}
 			} catch(ParameterValueRetrievalException e){
-				logger.error(e);
+				logger.error(e.getLocalizedMessage());
 			} catch(NumberFormatException e){
-				logger.error(e);
+				logger.error(e.getLocalizedMessage());
 			}
 			
 		}

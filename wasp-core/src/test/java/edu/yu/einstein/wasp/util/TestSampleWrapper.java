@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -33,7 +34,7 @@ public class TestSampleWrapper {
 	private SampleMeta sampleMeta2;
 	private SampleMeta sampleMeta3;
 	private SampleMeta sampleMeta4;
-	private static final Logger logger = Logger.getLogger(TestSampleWrapper.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestSampleWrapper.class);
 
 	@BeforeTest
 	public void beforeTest() {

@@ -112,9 +112,18 @@
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -157,6 +166,7 @@
 			<excludes>
 			<exclude>commons-logging.properties</exclude>
 			<exclude>simplelog.properties</exclude>
+			<exclude>logback.xml</exclude>
 			</excludes>
 			</filter>
 			</filters>
@@ -226,36 +236,6 @@
 	</dependency>
 	</dependencies>
 	</dependencyManagement>
-
-
-	<profiles>
-	<profile>
-	<id>deploy</id>
-	<build>
-	<plugins>
-	<plugin>
-	<artifactId>maven-antrun-plugin</artifactId>
-	<executions>
-	<execution>
-	<phase>prepare-package</phase>
-	<goals>
-	<goal>run</goal>
-	</goals>
-	<configuration>
-	<tasks>
-	<delete file="${project.build.outputDirectory}/log4j.properties"/>
-	<delete file="${project.build.outputDirectory}/log4j.debug.properties"/>
-	<copy file="src/main/resources/log4j.debug.properties"
-	tofile="${project.build.outputDirectory}/log4j.properties"/>
-	</tasks>
-	</configuration>
-	</execution>
-	</executions>
-	</plugin>
-	</plugins>
-	</build>
-	</profile>
-	</profiles>
  
 	<groupId>edu.yu.einstein.wasp.daemon</groupId>
 </project>

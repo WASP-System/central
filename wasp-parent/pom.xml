@@ -91,6 +91,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<springsec.version>3.1.1.RELEASE</springsec.version>
 		<spring.batch.version>2.1.9.RELEASE</spring.batch.version>
 		<spring.integration.version>2.2.0.RC2</spring.integration.version>
+		<logback.version>1.0.7</logback.version>
+		<slf4j.version>1.7.2</slf4j.version>
+		<maven.enforcer.plugin>1.1.1</maven.enforcer.plugin>
+		<java.version>1.6</java.version>
+		<maven.version.range>3.0.0</maven.version.range>
 	</properties>
 
 	<modules>
@@ -103,7 +108,41 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</modules>
 
 	<build>
-		<plugins>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<version>${maven.enforcer.plugin}</version>
+			<executions>
+				<execution>
+					<id>enforce-banned-dependencies</id>
+					<goals>
+						<goal>enforce</goal>
+					</goals>
+					<configuration>
+						<rules>
+							<bannedDependencies>
+								<searchTransitive>true</searchTransitive>
+								<excludes>
+									<exclude>commons-logging:1.*</exclude>
+									<exclude>log4j:log4j</exclude>
+									<exclude>org.slf4j:1.5*</exclude>
+									<exclude>org.springframework:2.*</exclude>
+									<exclude>org.springframework:3.0.*</exclude>
+								</excludes>
+							</bannedDependencies>
+							<requireMavenVersion>
+								<version>${maven.version.range}</version>
+							</requireMavenVersion>
+							<requireJavaVersion>
+								<version>${java.version}</version>
+							</requireJavaVersion>
+						</rules>
+						<fail>true</fail>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
 		<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -262,12 +301,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
 			<artifactId>spring-batch-integration</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 
@@ -345,18 +378,43 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<artifactId>commons-lang</artifactId>
 				<version>2.6</version>
 			</dependency>
+		<!-- logging, slf4j + logback -->
 			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-				<version>1.1.1</version>
-				<!-- 	<scope>provided</scope>  -->
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>99-empty</version>
+		 	</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jcl-over-slf4j</artifactId>
-				<version>1.6.2</version>
-				<!-- 	<scope>provided</scope>  -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
 			</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-access</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+		<!-- end logging -->
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
@@ -448,11 +506,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>1.1</version>
 			</dependency>
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.16</version>
-			</dependency>
-			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.18</version>
@@ -481,6 +534,15 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
 				<version>${spring.framework.version}</version>
+				<!--<scope>runtime</scope>-->
+				<!--
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
+				-->
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -564,16 +626,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>3.1.0.RC2</version>
 			</dependency>
 -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.6.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-simple</artifactId>
-				<version>1.6.2</version>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-acl</artifactId>
@@ -738,6 +790,18 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-integration</artifactId>
 				<version>1.2.1.RELEASE</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+					<!--
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+					-->
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -766,6 +830,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 				<version>2.6.12</version>
+				<exclusions>
+					<exclusion>
+				        	<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>cglib</groupId>
@@ -897,6 +967,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<id>jboss-thirdparty-releases</id>
 			<name>JBoss Thirdparty Releases</name>
 			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+		</repository>
+		<repository>
+			<id>version99</id>
+		        <!-- highly available repository serving empty artifacts -->
+			<url>http://version99.qos.ch/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>

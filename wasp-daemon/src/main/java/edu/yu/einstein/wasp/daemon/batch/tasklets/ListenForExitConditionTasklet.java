@@ -7,7 +7,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
@@ -31,7 +32,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  */
 public class ListenForExitConditionTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = Logger.getLogger(ListenForExitConditionTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(ListenForExitConditionTasklet.class);
 
 	private Set<StatusMessageTemplate> messageTemplates;
 	

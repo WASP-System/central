@@ -6,7 +6,8 @@ package edu.yu.einstein.wasp.grid.work;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class ModulesManager extends HashMap<String, String> implements
 		SoftwareManager {
 
-	private static final Logger logger = Logger.getLogger(ModulesManager.class);
+	private Logger logger = LoggerFactory.getLogger(ModulesManager.class);
 
 	// wasp instance properties
 	private Properties waspSiteProperties;
