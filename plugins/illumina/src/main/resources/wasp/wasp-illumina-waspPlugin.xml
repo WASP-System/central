@@ -11,25 +11,28 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
 	default-autowire="byName">
 
-	<!-- channel for communications with this plugin. channels are discovered 
-		by the .waspPluginChannel suffix. -->
-	<int:channel id="illumina.waspPluginChannel" />
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.wasp-illumina" />
 
-	<int:service-activator input-channel="illumina.waspPluginChannel"
-		ref="wasp-illumina.Service" method="process" output-channel="wasp.channel.rmi.outbound.reply" />
+	<int:service-activator input-channel="wasp.channel.wasp-illumina"
+		ref="wasp-illumina.Service" method="process" />
+		<!-- output-channel="wasp.channel.rmi.outbound.reply" --> 
+		
 
 	<bean id="wasp-illumina.Service" class="edu.yu.einstein.wasp.mps.illumina.IlluminaService" />
 	
-	<bean id="wasp-illumina.SequenceRunProcessor" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />
+	<!-- <bean id="wasp-illumina.SequenceRunProcessor" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />  -->
 	
 	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin">
 		<constructor-arg type="java.lang.String">
 			<value>wasp-illumina</value>
 		</constructor-arg>
 		<constructor-arg><ref bean="waspSiteProperties" /></constructor-arg>
+		<constructor-arg><ref bean="wasp.channel.wasp-illumina" /></constructor-arg>
+		<constructor-arg><ref bean="wasp.pluginRegistry" /></constructor-arg>
 		<property name="provides" >
 			<set>
-				<ref bean="wasp-illumina.SequenceRunProcessor" />
+				<ref bean="casava" />
 			</set>
 		</property>
 		<property name="handles" >
@@ -38,6 +41,7 @@
 				<ref bean="illuminaMiSeqPersonalSequencerArea" />
 			</set>
 		</property>
+		
 	</bean>
 
 </beans>

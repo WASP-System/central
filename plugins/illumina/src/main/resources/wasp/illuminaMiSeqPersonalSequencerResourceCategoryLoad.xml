@@ -15,7 +15,7 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaMiSeqPersonalSequencer}" />
+    <property name="baseArea" value="#{illuminaMiSeqPersonalSequencerArea}" />
   </bean>
 
   <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoader">
