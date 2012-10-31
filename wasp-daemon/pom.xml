@@ -236,36 +236,6 @@
 	</dependency>
 	</dependencies>
 	</dependencyManagement>
-
-
-	<profiles>
-	<profile>
-	<id>deploy</id>
-	<build>
-	<plugins>
-	<plugin>
-	<artifactId>maven-antrun-plugin</artifactId>
-	<executions>
-	<execution>
-	<phase>prepare-package</phase>
-	<goals>
-	<goal>run</goal>
-	</goals>
-	<configuration>
-	<tasks>
-	<delete file="${project.build.outputDirectory}/logback.xml"/>
-	<delete file="${project.build.outputDirectory}/logback.deploy.xml"/>
-	<copy file="src/main/resources/logback.deploy.xml"
-	tofile="${project.build.outputDirectory}/logback.xml"/>
-	</tasks>
-	</configuration>
-	</execution>
-	</executions>
-	</plugin>
-	</plugins>
-	</build>
-	</profile>
-	</profiles>
  
 	<groupId>edu.yu.einstein.wasp.daemon</groupId>
 </project>
