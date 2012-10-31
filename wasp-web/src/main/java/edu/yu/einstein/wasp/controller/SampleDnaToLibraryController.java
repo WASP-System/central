@@ -500,11 +500,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  catch(Exception e){
 		  logger.debug(e.getMessage());
-		//System.out.println(e.getMessage());
 		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }
-	   
+	  }	   
 	  waspMessage("listJobSamples.jobViewerRemoved.label");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
   }
@@ -514,25 +512,16 @@ public class SampleDnaToLibraryController extends WaspController {
   public String addJobViewer(@RequestParam("jobId") Integer jobId,
 		  @RequestParam("newViewerEmailAddress") String newViewerEmailAddress,
 		  ModelMap m)  {	
-System.out.println("at 1");	  
 	  try{
-		  System.out.println("at 2");
-		  System.out.println("jobId = " + jobId + " and email address = " + newViewerEmailAddress);
-		  jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
-		  System.out.println("at 3");	  
+		   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
 	  }
-	  catch(Exception e){
-		  System.out.println("at 4");	  
+	  catch(Exception e){		    
 		  logger.debug(e.getMessage());
-		  System.out.println("the exception message is " + e.getMessage());
 		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
-	  System.out.println("at 5");	   
 	  waspMessage("listJobSamples.jobViewerAdded.label");
-	  System.out.println("at 6");	  
-	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  
+	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";	  
   }
   
   /**

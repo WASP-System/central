@@ -84,6 +84,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 @Service
 @Transactional
@@ -691,38 +692,48 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	@Override
 	public void removeJobViewer(Integer jobId, Integer userId)throws Exception{
 		
-		  Job job = jobDao.getJobByJobId(jobId.intValue());
-		  if(job.getJobId().intValue() <= 0 ){
-			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  if(jobId == null || userId == null){
+			  throw new Exception("listJobSamples.illegalOperation.label");	
 		  }
 		  
-		  User authenticatedUser = authenticationService.getAuthenticatedUser();
-		  Boolean userIsPermittedToRemoveJobViewers = false;
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
+			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
+		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
+			  throw new Exception("listJobSamples.userNotFound.label");			  
+		  }
+
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToRemoveJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
 		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
-				  ||  authenticatedUser.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
-				  || authenticatedUser.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
-				  || authenticatedUser.getUserId().intValue() == userId.intValue()//webViewer (if not the job submitter or the job's PI) is allowed to remove himself or herself, but not others.
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  || userPerformingThisAction.getUserId().intValue() == userToBeRemoved.getUserId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
 			)
 		  {
-			  userIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
+			  userPerformingThisActionIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
 		  }
-		  if(!userIsPermittedToRemoveJobViewers){
+		  if(!userPerformingThisActionIsPermittedToRemoveJobViewers){
 			  throw new Exception("listJobSamples.illegalOperation.label");			  
 		  }
 		  
-		  if(job.getUserId().intValue() == userId.intValue() ){//trying to remove job submitter as viewer; not allowed
+		  //we checked that webviewer is authorized to do this. Now make certain that the webviewer is not trying to remove the job submitter or job PI. 
+		  if(userToBeRemoved.getUserId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
 			  throw new Exception("listJobSamples.submitterRemovalIllegal.label");			  
 		  }
-		  if(job.getLab().getPrimaryUserId().intValue() == userId.intValue() ){//trying to remove job pi as viewer; not allowed
+		  if(userToBeRemoved.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
 			  throw new Exception("listJobSamples.piRemovalIllegal.label");			  
 		  }
 		  
-		  User user = userDao.getUserByUserId(userId.intValue());
-		  if(user.getUserId().intValue() <= 0 ){//user not found in the user table; odd.
-			  throw new Exception("listJobSamples.userNotFound.label");			  
-		  }
-		  
-		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), userId.intValue());
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getJobId().intValue(), userToBeRemoved.getUserId().intValue());
 		  if(jobUser.getJobUserId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
 			  throw new Exception("listJobSamples.userNotViewerOfThisJob.label");
 		  }
@@ -737,51 +748,54 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	 */
 	@Override
 	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception{
-		System.out.println("at 7");	  		
+		
+		  if(jobId == null || newViewerEmailAddress == null){
+		  	  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }		
+		  System.out.println("at 7");	  		
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
-		  if(job.getJobId().intValue() <= 0 ){
-			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
+			throw new Exception("listJobSamples.jobNotFound.label");			  
 		  }
-		  System.out.println("at 8 ");	
-		  User authenticatedUser = authenticationService.getAuthenticatedUser();
-		  Boolean userIsPermittedToAddJobViewers = false;
-		  if(authenticationService.isSuperUser() || authenticatedUser.getUserId().intValue() == job.getUserId().intValue() || authenticatedUser.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-			  userIsPermittedToAddJobViewers = true; //only superuser, job's submitter, job's PI  can add new viewer
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
 		  }
-		  if(!userIsPermittedToAddJobViewers){
+		  
+		  Boolean userPerformingThisActionIsPermittedToAddJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+			)
+		  {
+			  userPerformingThisActionIsPermittedToAddJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToAddJobViewers){
 			  throw new Exception("listJobSamples.illegalOperation.label");			  
 		  }
-		  System.out.println("at 9");
-		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim())){
-			  //|| test email for format *******MUST ADD
+		  
+		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
 			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
 		  }
-		  System.out.println("at 9.5");
 		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
-		  System.out.println("at 9.6");
-		  if(newViewerToBeAddedToJob.getUserId().intValue()<= 0){
-			  System.out.println("at 9.7");
+		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
 			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
 		  }
-		  System.out.println("at 10 and the viewer to be added is " + newViewerToBeAddedToJob.getLastName());	
 		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getUserId().intValue());
-		  System.out.println("at 10.5");
-		  if(jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
-			  System.out.println("at 10.6");
+		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
 			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
 		  }
-		  System.out.println("at 11");	
+		  Role role = roleDao.getRoleByRoleName("jv");
+		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
+			  throw new Exception("listJobSamples.roleNotFound.label");
+		  }
 		  JobUser newJobUser = new JobUser();
 		  newJobUser.setJob(job);
 		  newJobUser.setUser(newViewerToBeAddedToJob);
-		  System.out.println("at 12");	
-		  Role role = roleDao.getRoleByRoleName("jv");
-		  if(role.getRoleId().intValue()<=0){
-			  throw new Exception("listJobSamples.roleNotFound.label");
-		  }
-		  System.out.println("at 13");	
+		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
 		  newJobUser.setRole(role);
-		  //jobUserDao.save(newJobUser);
-		  System.out.println("at 14");	
+		  jobUserDao.save(newJobUser);
 	}
 }
