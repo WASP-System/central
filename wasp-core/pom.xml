@@ -509,6 +509,12 @@
 				<groupId>org.unitils</groupId>
 				<artifactId>unitils-dbmaintainer</artifactId>
 				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-nop</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.unitils</groupId>
