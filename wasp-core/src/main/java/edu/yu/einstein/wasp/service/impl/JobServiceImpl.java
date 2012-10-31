@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.JobSoftwareDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
@@ -49,6 +50,7 @@ import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.StateDao;
 import edu.yu.einstein.wasp.dao.StatejobDao;
 import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
@@ -81,6 +83,8 @@ import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 @Service
 @Transactional
@@ -132,13 +136,22 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	private TaskDao taskDao;
 
 	@Autowired
+	private UserDao userDao;
+
+	@Autowired
 	private TaskService taskService;
-	 
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
 	@Autowired
 	private JobMetaDao jobMetaDao;
 
 	@Autowired
 	protected LabDao labDao;
+
+	@Autowired
+	protected LabUserDao labUserDao;
 
 	@Autowired
 	protected JobUserDao jobUserDao;
@@ -671,5 +684,118 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		
 		return jobList;
 		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeJobViewer(Integer jobId, Integer userId)throws Exception{
+		
+		  if(jobId == null || userId == null){
+			  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }
+		  
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
+			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
+		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
+			  throw new Exception("listJobSamples.userNotFound.label");			  
+		  }
+
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToRemoveJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  || userPerformingThisAction.getUserId().intValue() == userToBeRemoved.getUserId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
+			)
+		  {
+			  userPerformingThisActionIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToRemoveJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  //we checked that webviewer is authorized to do this. Now make certain that the webviewer is not trying to remove the job submitter or job PI. 
+		  if(userToBeRemoved.getUserId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
+			  throw new Exception("listJobSamples.submitterRemovalIllegal.label");			  
+		  }
+		  if(userToBeRemoved.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
+			  throw new Exception("listJobSamples.piRemovalIllegal.label");			  
+		  }
+		  
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getJobId().intValue(), userToBeRemoved.getUserId().intValue());
+		  if(jobUser.getJobUserId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
+			  throw new Exception("listJobSamples.userNotViewerOfThisJob.label");
+		  }
+		  else{
+			  jobUserDao.remove(jobUser);
+			  jobUserDao.flush(jobUser);
+		  }		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception{
+		
+		  if(jobId == null || newViewerEmailAddress == null){
+		  	  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }		
+		  System.out.println("at 7");	  		
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
+			throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToAddJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+			)
+		  {
+			  userPerformingThisActionIsPermittedToAddJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToAddJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
+			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
+		  }
+		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
+		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
+			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
+		  }
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getUserId().intValue());
+		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
+			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
+		  }
+		  Role role = roleDao.getRoleByRoleName("jv");
+		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
+			  throw new Exception("listJobSamples.roleNotFound.label");
+		  }
+		  JobUser newJobUser = new JobUser();
+		  newJobUser.setJob(job);
+		  newJobUser.setUser(newViewerToBeAddedToJob);
+		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
+		  newJobUser.setRole(role);
+		  jobUserDao.save(newJobUser);
 	}
 }
