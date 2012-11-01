@@ -20,7 +20,6 @@ import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -89,7 +88,7 @@ public class IlluminaService implements ClientMessageI {
 	private Message<String> help() {
 		String mstr = "\nIllumina CASAVA Pipeline plugin\n" +
 						"-------------------------------\n" +
-						"java -jar wasp -t illumina -m \'{\"task\":\"bcl2fastq\",\"id\":\"run_folder_name\"}\'\n";
+						"java -jar wasp -t illumina -m \'{\"task\":\"bcl2fastq\",\"id\":\"run_id\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 

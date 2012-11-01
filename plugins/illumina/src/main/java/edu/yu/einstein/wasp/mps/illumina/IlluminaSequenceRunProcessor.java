@@ -68,6 +68,13 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				
 		Sample platformUnit = run.getPlatformUnit();
 		
+		if (sampleService.sampleIsPlatformUnit(platformUnit)) {
+			logger.debug("platform unit: " + platformUnit.getName());
+		} else {
+			logger.error("Not a platform unit: " + platformUnit.getName());
+			throw new edu.yu.einstein.wasp.exception.InvalidParameterException(platformUnit.getSampleId() + " is not a platform unit");
+		}
+		
 		List<SoftwarePackage> sp = new ArrayList<SoftwarePackage>();
 		sp.add(this);
 		w.setCommand("touch start-illumina-pipeline.txt");
