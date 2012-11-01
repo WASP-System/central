@@ -103,7 +103,7 @@
 		default-output-channel="wasp.channel.unknown"
 		resolution-required="false" />
 		
-	<!-- Routes messages correctly via gateway-reply-channel header  -->
+	<!-- Routes messages correctly via gateway-reply-channel header -->  
 	<int:header-value-router input-channel="wasp.channel.primaryReply" 
 		header-name="gateway-reply-channel" 
 		resolution-required="true" />

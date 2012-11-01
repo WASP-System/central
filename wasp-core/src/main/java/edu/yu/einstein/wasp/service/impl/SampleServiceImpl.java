@@ -143,7 +143,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
 	
-	@Autowired
 	private SampleSourceDao sampleSourceDao;
 	
 	@Autowired
@@ -666,7 +665,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (platformUnit.getSampleSource() == null)
 			  return indexedCells;
 		  
-		  for (SampleSource ss : platformUnit.getSampleSource()){
+		  Map<String,Integer> q = new HashMap<String,Integer>();
+		  q.put("sampleId", platformUnit.getSampleId());
+		  
+		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample cell = ss.getSourceSample();
 			  Integer index = ss.getIndex();
 			  if (!cell.getSampleType().getIName().equals("cell")){
@@ -709,13 +711,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String, Integer> sampleSourceQuery = new HashMap<String, Integer>();
 		  sampleSourceQuery.put("sampleId", platformUnit.getSampleId());
 		  sampleSourceQuery.put("index", index);
-		  if (sampleSourceDao.findByMap(sampleSourceQuery) != null)
+		  if (getSampleSourceDao().findByMap(sampleSourceQuery) != null)
 			  throw new SampleIndexException("index '"+index+"' already assigned to a cell associated with this platform unit");
 		  SampleSource sampleSource = new SampleSource();
 		  sampleSource.setSample(platformUnit);
 		  sampleSource.setSourceSample(cell);
 		  sampleSource.setIndex(index);
-		  sampleSourceDao.persist(sampleSource);
+		  getSampleSourceDao().persist(sampleSource);
 	  }
 	  
 	  /**
@@ -773,7 +775,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (cell.getSampleSource() == null)
 			  return libraries;
 		  
-		  for (SampleSource ss : cell.getSampleSource()){
+		  Map<String,Integer> q = new HashMap<String,Integer>();
+		  q.put("sampleId", cell.getSampleId());
+		  		  
+		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample library = ss.getSourceSample();
 			  if (!this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
@@ -897,7 +902,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  newSampleSource.setSample(cell);
 		  newSampleSource.setSourceSample(library);
 		  newSampleSource.setIndex(index.getValue());
-		  newSampleSource = sampleSourceDao.save(newSampleSource);//capture the new samplesourceid
+		  newSampleSource = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
 		  
 		  try{
 			  MetaHelper metaHelper = new MetaHelper("LibraryOnCell", SampleSourceMeta.class);
@@ -1464,7 +1469,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					sampleSource.setSampleId(platformUnitDb.getSampleId());
 					sampleSource.setSourceSampleId(cellDb.getSampleId());
 					sampleSource.setIndex(i);
-					SampleSource sampleSourceDb = this.sampleSourceDao.save(sampleSource);
+					SampleSource sampleSourceDb = this.getSampleSourceDao().save(sampleSource);
 					if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
 						throw new SampleException("new samplesource unexpectedly not saved during create or update of platformunit");
 					}
@@ -1749,8 +1754,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			sampleSourceMetaDao.remove(meta);
 			sampleSourceMetaDao.flush(meta);
 		}
-		sampleSourceDao.remove(sampleSource);
-		sampleSourceDao.flush(sampleSource);
+		getSampleSourceDao().remove(sampleSource);
+		getSampleSourceDao().flush(sampleSource);
 	}
 	private void deleteSampleAndItsMeta(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid sample provided");
@@ -1879,4 +1884,20 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return currentLockStatus;
 	}
 		
+
+	/**
+	 * @return the sampleSourceDao
+	 */
+	public SampleSourceDao getSampleSourceDao() {
+		return sampleSourceDao;
+	}
+
+	/**
+	 * @param sampleSourceDao the sampleSourceDao to set
+	 */
+	@Autowired
+	public void setSampleSourceDao(SampleSourceDao sampleSourceDao) {
+		this.sampleSourceDao = sampleSourceDao;
+	}
+
 }

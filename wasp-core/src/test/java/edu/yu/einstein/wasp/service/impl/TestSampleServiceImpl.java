@@ -25,9 +25,11 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.SampleSourceDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -46,6 +48,7 @@ public class TestSampleServiceImpl {
 	HibernateTemplate hibernateTemplateMock;
 	private SampleServiceImpl sampleServiceImpl = new SampleServiceImpl();
 	SampleDao mockSampleDao;
+	SampleSourceDao mockSampleSourceDao;
 	WorkflowDao mockWorkflowDao;
 	SampleMetaDao mockSampleMetaDao;
 
@@ -235,6 +238,9 @@ public class TestSampleServiceImpl {
   
   @Test (groups = "unit-tests-service-object")
   public void getIndexedCellsOnPlatformUnit(){
+	  
+	  sampleServiceImpl.setSampleSourceDao(mockSampleSourceDao);
+	  
 	  SampleType puSampleType = new SampleType();
 	  puSampleType.setIName("platformunit");
 	  
@@ -281,6 +287,30 @@ public class TestSampleServiceImpl {
 	  expectedResult.put(1, cell1);
 	  expectedResult.put(2, cell2);
 	  
+	  Map<String, Integer> qm = new HashMap<String, Integer>();
+	  qm.put("sampleId", pu.getSampleId());
+	  List<SampleSource> qr1 = new ArrayList<SampleSource>();
+	  qr1.add(puCell1);
+	  qr1.add(puCell2);
+	  
+	  Map<String, Integer> qm2 = new HashMap<String, Integer>();
+	  qm2.put("sampleId", cell1.getSampleId());
+	  	  
+	  SampleSource libFail = new SampleSource();
+	  libFail.setSample(pu);
+	  libFail.setIndex(3);
+	  libFail.setSourceSample(library);
+	  
+	  List<SampleSource> failList = new ArrayList<SampleSource>();
+	  failList.add(puCell1);
+	  failList.add(puCell2);
+	  failList.add(libFail);
+	  
+	  expect(mockSampleSourceDao.findByMap(qm)).andReturn(qr1);
+	  expect(mockSampleSourceDao.findByMap(qm)).andReturn(failList);
+	  
+	  replay(mockSampleSourceDao);
+	  
 	  try {
 		Assert.assertEquals(sampleServiceImpl.getIndexedCellsOnPlatformUnit(pu), expectedResult);
 	  } catch (SampleTypeException e) {
@@ -308,12 +338,15 @@ public class TestSampleServiceImpl {
 		  exceptionMessage = e.getMessage();
 	  }
 	  Assert.assertEquals(exceptionMessage, "Expected 'cell' but got Sample of type 'library' instead.");
-	  
+
+	  verify(mockSampleSourceDao);
 	  
   }
   
   @Test (groups = "unit-tests-service-objects")
   public void getLibrariesOnCellAllMethods(){
+	  
+	  sampleServiceImpl.setSampleSourceDao(mockSampleSourceDao);
 	  
 	  List<Sample> samplesNoControl = new ArrayList<Sample>(); 
 	  List<Sample> samplesWithControl = new ArrayList<Sample>(); 
@@ -394,6 +427,27 @@ public class TestSampleServiceImpl {
 	  
 	  cell1.setSampleSource(cell1Libraries);
 	  
+	  Map<String, Integer> qu = new HashMap<String, Integer>();
+	  qu.put("sampleId", cell1.getSampleId());
+	  
+	  List<SampleSource> cell1LibrariesNoControl = new ArrayList<SampleSource>();
+	  for (SampleSource ss : cell1Libraries) {
+		  SampleSubtype sss = ss.getSourceSample().getSampleSubtype();
+		  if ((sss == null) || (!sss.getIName().equals(controlSampleSubtype.getIName()))) {
+			  cell1LibrariesNoControl.add(ss);
+		  }
+	  }
+	  
+	  List<SampleSource> ssc = new ArrayList<SampleSource>();
+	  ssc.add(ssCell1Lib3);	  
+	  
+	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1Libraries);
+	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1LibrariesNoControl);
+	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(ssc);
+	  expect(mockSampleSourceDao.findByMap(qu)).andReturn(cell1LibrariesWithNonLibrary);
+	  
+	  replay(mockSampleSourceDao);
+	  	  
 	  try {
 		Assert.assertEquals(sampleServiceImpl.getLibrariesOnCell(cell1), samplesWithControl);
 	  } catch (SampleTypeException e) {
@@ -430,6 +484,8 @@ public class TestSampleServiceImpl {
 	  }
 	  Assert.assertEquals(exceptionMessage, "Expected 'library' but got Sample of type 'cell' instead.");
 	  
+	  verify(mockSampleSourceDao);
+	  
   }
   
   @BeforeTest
@@ -438,11 +494,13 @@ public class TestSampleServiceImpl {
 	  hibernateTemplateMock = createMockBuilder(HibernateTemplate.class).addMockedMethods(HibernateTemplate.class.getMethods()).createMock();
 	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 	  mockSampleDao = createMockBuilder(SampleDaoImpl.class).addMockedMethods(SampleDaoImpl.class.getMethods()).createMock();
+	  mockSampleSourceDao = createMockBuilder(SampleSourceDaoImpl.class).addMockedMethods(SampleSourceDaoImpl.class.getMethods()).createMock();
 	  
 	  Assert.assertNotNull(mockWorkflowDao);
 	  Assert.assertNotNull(hibernateTemplateMock);
 	  Assert.assertNotNull(mockSampleMetaDao);
 	  Assert.assertNotNull(mockSampleDao);
+	  Assert.assertNotNull(mockSampleSourceDao);
 
   }
 
@@ -462,6 +520,7 @@ public class TestSampleServiceImpl {
 	  EasyMock.reset(hibernateTemplateMock);
 	  EasyMock.reset(mockSampleMetaDao);
 	  EasyMock.reset(mockSampleDao);
+	  EasyMock.reset(mockSampleSourceDao);
 
 	  
   }
