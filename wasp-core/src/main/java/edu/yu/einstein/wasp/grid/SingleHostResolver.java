@@ -6,8 +6,8 @@ package edu.yu.einstein.wasp.grid;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -26,7 +26,7 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 	private String username;
 	private String account;
 	
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String queue;
 	private String maxRunTime;
 	private String project;

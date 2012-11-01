@@ -5,8 +5,8 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
 
@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
  */
 public class LocalhostTransportConnection implements GridTransportConnection {
 
-	private static final Log logger = LogFactory.getLog(LocalhostTransportConnection.class);
+	private static final Logger logger = LoggerFactory.getLogger(LocalhostTransportConnection.class);
 	
 	/**
 	 * {@inheritDoc}

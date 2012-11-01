@@ -221,6 +221,7 @@ public class SgeWorkService implements GridWorkService {
 		File script;
 		try {
 			script = File.createTempFile("wasp-", ".sge");
+			logger.debug("temporary local sge script: " + script.getAbsolutePath().toString());
 			BufferedWriter scriptHandle = new BufferedWriter(new FileWriter(script));
 			SgeSubmissionScript sss = new SgeSubmissionScript(w);
 			GridHostResolver ghr = transportService.getHostResolver();
