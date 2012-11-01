@@ -11,7 +11,7 @@
 	</parent>
 	<artifactId>wasp-daemon</artifactId>
 	<packaging>jar</packaging>
-	<name>WASP System Batch processing component</name>
+	<name>WASP System Daemon</name>
 	<url>http://waspsystem.org/</url>
 	<description>
 		<![CDATA[

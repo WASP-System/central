@@ -3,8 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.grid.SingleHostResolver;
  */
 public class LocalhostTransportService implements GridTransportService {
 	
-	private static final Log logger = LogFactory.getLog(SshService.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SoftwareManager softwareManager;
 
