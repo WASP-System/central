@@ -5,8 +5,8 @@ package edu.yu.einstein.wasp.mps.illumina;
 
 import java.rmi.RemoteException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,14 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.cli.ClientMessageI;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -31,7 +33,7 @@ import edu.yu.einstein.wasp.service.RunService;
 @Component
 public class IlluminaService implements ClientMessageI {
 	
-	private static Log logger = LogFactory.getLog(IlluminaService.class);
+	private static Logger logger = LoggerFactory.getLogger(IlluminaService.class);
 	
 	@Autowired
 	private GridHostResolver waspGridHostResolver;
@@ -56,14 +58,27 @@ public class IlluminaService implements ClientMessageI {
 			JSONObject jo = new JSONObject(m.getPayload().toString());
 			
 			if (! jo.has("task")) return MessageBuilder.withPayload("\"task\" is required").build();
-			if (! jo.has("id")) return MessageBuilder.withPayload("\"id\" is required").build();
+			if ((! jo.has("id")) && (! jo.has("name"))) return MessageBuilder.withPayload("\"id\" or \"name\" is required").build();
 			
 			String task = (String) jo.get("task");
-			String id = (String) jo.get("id");
+			String id = "";
+			String name = "";
+			if (jo.has("id")) id = (String) jo.get("id");
+			if (jo.has("name")) name = (String) jo.get("name");
+			
+			Assert.assertParameterNotNull(id);
+			Assert.assertParameterNotNull(name);
 			
 			if (task.equals("bcl2fastq")) {
 				try {
-					illuminaSequenceRunProcessor.preProcess(runService.getRunByName(id), waspGridHostResolver);
+					Run run;
+					if (id == "") {
+						run = runService.getRunByName(name);
+					} else { 
+						run = runService.getRunDao().findById(new Integer(id));	
+					}
+					logger.debug("going to try to initiate processing on " + run.getName());
+					illuminaSequenceRunProcessor.preProcess(run, waspGridHostResolver);
 				} catch (GridUnresolvableHostException e) {
 					logger.error("Unable to locate the correct host to process bcl2fastq: " + e.getMessage());
 					return MessageBuilder.withPayload("Unable to locate the correct host to process bcl2fastq").build();
@@ -88,7 +103,8 @@ public class IlluminaService implements ClientMessageI {
 	private Message<String> help() {
 		String mstr = "\nIllumina CASAVA Pipeline plugin\n" +
 						"-------------------------------\n" +
-						"java -jar wasp -t illumina -m \'{\"task\":\"bcl2fastq\",\"id\":\"run_id\"}\'\n";
+						"wasp -t wasp-illumina -m \'{\"task\":\"bcl2fastq\",\"id\":\"run_id\"}\'\n" +
+						"wasp -t wasp-illumina -m \'{\"task\":\"bcl2fastq\",\"name\":\"run_name\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 

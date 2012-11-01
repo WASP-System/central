@@ -13,8 +13,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +47,7 @@ import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
 @Component
 public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 
-	private static Log logger = LogFactory.getLog(IlluminaSequenceRunProcessor.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SampleService sampleService;
@@ -93,9 +93,10 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(platformUnit);
 			gfs.put(f, hostname, directory + "/" + "SampleSheet.csv");
+			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("problem: " + e.getLocalizedMessage());
 			throw new GridExecutionException("unable to pre-process illumina sample sheet", e);
 		}
 		
