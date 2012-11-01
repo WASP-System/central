@@ -2,14 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,11 +38,9 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;

@@ -5,7 +5,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,11 +23,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -634,7 +631,7 @@ public class JobController extends WaspController {
 	  try {
 		  jobService.updateJobDaApprovalStatus(job, status);
 	  } catch (WaspMessageBuildingException e) {
-		  logger.error(e);
+		  logger.error(e.getLocalizedMessage());
 		  waspErrorMessage("job.approval.error"); 
 	  }
 	  String referer = request.getHeader("Referer");

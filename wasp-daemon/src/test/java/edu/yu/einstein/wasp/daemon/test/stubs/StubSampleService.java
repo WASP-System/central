@@ -25,6 +25,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
@@ -34,6 +35,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 
 @Service
 @Transactional
@@ -496,6 +498,33 @@ public class StubSampleService implements SampleService {
 	public boolean isDnaOrRna(Sample sample) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public List<Sample> getAvailableAndCompatiblePlatformUnits(
+			ResourceCategory resourceCategory) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPlatformUnitLockStatus(Sample platformunit,
+			LockStatus lockStatus) throws SampleTypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public LockStatus getPlatformUnitLockStatus(Sample platformunit)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

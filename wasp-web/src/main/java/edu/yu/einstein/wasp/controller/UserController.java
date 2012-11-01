@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;

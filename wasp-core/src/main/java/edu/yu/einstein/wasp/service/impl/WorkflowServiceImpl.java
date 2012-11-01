@@ -104,22 +104,17 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 			workflowMetaList = new ArrayList<WorkflowMeta>();
 		WorkflowMeta jobFlowBatchJobNameMeta = null;
 		try{
-			System.out.println("MetaHelper.getMetaObjectFromList("+WORKFLOW_AREA+", "+metaKey+", "+workflowMetaList+")");
 			jobFlowBatchJobNameMeta = MetaHelper.getMetaObjectFromList(WORKFLOW_AREA, metaKey, workflowMetaList);
 			
 			if (jobFlowBatchJobNameMeta.getV().equals(metaValue)){ // no change in value
-				System.out.println(jobFlowBatchJobNameMeta.getV()+"="+metaValue+", so not changing");
 				return;
 			}
-			System.out.println(jobFlowBatchJobNameMeta.getV()+"!="+metaValue+", so going to update");
 		} catch(MetadataException e) {
 			// doesn't exist so create
 			jobFlowBatchJobNameMeta = new WorkflowMeta();
 			jobFlowBatchJobNameMeta.setK(WORKFLOW_AREA + "." + metaKey);
-			System.out.println("creating new meta object: "+jobFlowBatchJobNameMeta.getK());
 		}
 		jobFlowBatchJobNameMeta.setV(metaValue);
-		System.out.println("updating: "+workflow.getWorkflowId()+", "+jobFlowBatchJobNameMeta.toString());
 		workflowMetaDao.updateByWorkflowId(workflow.getWorkflowId(), jobFlowBatchJobNameMeta);
 	}
 	

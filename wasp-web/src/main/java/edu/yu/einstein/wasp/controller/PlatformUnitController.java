@@ -9,18 +9,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
-import nl.captcha.Captcha;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -29,11 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,21 +33,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.controller.validator.UserPendingMetaValidatorImpl;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
-import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
-import edu.yu.einstein.wasp.dao.RunCellDao;
-import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
@@ -69,21 +54,18 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
@@ -95,15 +77,15 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.util.StringHelper;
 
 
 
@@ -154,12 +136,9 @@ public class PlatformUnitController extends WaspController {
 
 	@Autowired
 	private AdaptorDao adaptorDao;
-	
-	@Autowired
-	private SampleDao sampleDao;
 
 	@Autowired
-	private JobDao jobDao;
+	private JobService jobService;
 
 	@Autowired
 	private JobSampleDao jobSampleDao;
@@ -205,13 +184,9 @@ public class PlatformUnitController extends WaspController {
 	private SampleBarcodeDao sampleBarcodeDao;
 	
 	@Autowired
-	private RunDao runDao;
+	private RunService runService;
 	
-	@Autowired
-	private RunMetaDao runMetaDao;
-
-	@Autowired
-	private RunCellDao runCellDao;
+	
 	
 	@Autowired
 	private BarcodeDao barcodeDao;
@@ -331,7 +306,7 @@ public class PlatformUnitController extends WaspController {
 			orderByColumnAndDirection.add("receiveDts desc");
 		}
 		
-		tempPlatformUnitList = sampleDao.findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
+		tempPlatformUnitList = sampleService.getSampleDao().findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
 		
 		//have to deal with these separately. FIND certain attributes that cannot be dealt with via direct SQL
 		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
@@ -457,7 +432,7 @@ public class PlatformUnitController extends WaspController {
 			if(!StringUtils.isEmpty(request.getParameter("selId")))
 			{
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = platformUnitList.indexOf(jobDao.findById(selId));
+				int selIndex = platformUnitList.indexOf(jobService.getJobDao().findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -790,22 +765,22 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
 		
-		Sample platformUnit2; 
+		Sample platformUnit; 
 		try{
-			platformUnit2 = sampleService.getPlatformUnit(sampleId);
-			m.addAttribute("platformUnitSampleId", platformUnit2.getSampleId().toString());
-			m.addAttribute("platformUnitSampleSubtypeId", platformUnit2.getSampleSubtype().getSampleSubtypeId().toString());
-			m.addAttribute("typeOfPlatformUnit", platformUnit2.getSampleSubtype().getName());
-			m.addAttribute("barcodeName", platformUnit2.getSampleBarcode().get(0).getBarcode().getBarcode());
-			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit2).toString());
+			platformUnit = sampleService.getPlatformUnit(sampleId);
+			m.addAttribute("platformUnitSampleId", platformUnit.getSampleId().toString());
+			m.addAttribute("platformUnitSampleSubtypeId", platformUnit.getSampleSubtype().getSampleSubtypeId().toString());
+			m.addAttribute("typeOfPlatformUnit", platformUnit.getSampleSubtype().getName());
+			m.addAttribute("barcodeName", platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
+			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString());
 			
 			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 			String area = metaHelperWebapp.getArea();
-			String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit2.getSampleMeta());
+			String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit.getSampleMeta());
 			m.addAttribute("readlength", readlength);
-			String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit2.getSampleMeta());
+			String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit.getSampleMeta());
 			m.addAttribute("readType", readType);	
-			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit2.getSampleMeta());
+			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			
 			/*
@@ -819,7 +794,7 @@ public class PlatformUnitController extends WaspController {
 			}
 			*/
 			
-			List<Run> sequenceRuns = platformUnit2.getRun();
+			List<Run> sequenceRuns = platformUnit.getRun();
 			m.addAttribute("sequenceRuns", sequenceRuns);
 			
 			metaHelperWebapp = getMetaHelperWebappRunInstance();//********note this is now runInstance
@@ -870,41 +845,32 @@ public class PlatformUnitController extends WaspController {
 				runDetails.put(sequenceRun.getRunId(), detailMap);
 			}
 			m.addAttribute("runDetails", runDetails);
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			waspErrorMessage("wasp.unexpected_error.error");
+			return "redirect:/dashboard.do";
+		}
 	
 		
 		//10-17-12 the remainder of this page (the items on the flow cell) was not reviewed; it can no doubt do with work
 		
-		Sample platformUnit = platformUnit2;//sampleDao.getSampleBySampleId(sampleId.intValue());
-		if( platformUnit==null || platformUnit.getSampleId()==null || platformUnit.getSampleId().intValue()==0 || ! "platformunit".equals(platformUnit.getSampleType().getIName()) ){
-			waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
-			return "redirect:/dashboard.do";
-		}
 		
 		//is this flowcell on a run?
 		//////10-17-12List<Run> runList = platformUnit.getRun();
 		//////10-17-12m.put("runList", runList);
 		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
-		//locking the flowcell is recorded as its task, Assign Library To Platform Unit, changing from CREATED to COMPLETED/FINALIZED
 		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
 		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
 		//Here, just determine if it's locked
-		String platformUnitStatus = "UNKNOWN";
-		List<Statesample> stateSampleList = platformUnit.getStatesample();
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task==null || task.getTaskId().intValue()==0){
-			//TODO we have a problem; don't know how to deal with this
-			//however we'll simply leave platformUnitIsLocked as "UNKNOWN"
+		SampleServiceImpl.LockStatus platformUnitLockStatus = SampleServiceImpl.LockStatus.UNKOWN;
+		try {
+			platformUnitLockStatus = sampleService.getPlatformUnitLockStatus(platformUnit);
+		} catch(SampleTypeException e){
+			logger.debug(e.getMessage());
+			waspErrorMessage("wasp.unexpected_error.error");
+			return "redirect:/dashboard.do";
 		}
-		for(Statesample stateSample : stateSampleList){
-			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
-				platformUnitStatus = stateSample.getState().getStatus().toUpperCase();
-			}
-		}
-		m.put("platformUnitStatus", platformUnitStatus);
-		
-		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
-		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
+		m.put("platformUnitLockStatus", platformUnitLockStatus.toString());
 		
 		Map<Integer, String> technicians = new HashMap<Integer, String>();
 		List<User> allUsers = userDao.findAll();
@@ -918,7 +884,7 @@ public class PlatformUnitController extends WaspController {
 		m.put("technicians", technicians);
 		
 		List<Resource> resourceList= resourceDao.findAll(); 
-		List<Resource> filteredResourceList = new ArrayList();
+		List<Resource> filteredResourceList = new ArrayList<Resource>();
 		for(Resource resource : resourceList){
 			//logger.debug("resource: " + resource.getName());
 			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
@@ -931,7 +897,7 @@ public class PlatformUnitController extends WaspController {
 		m.put("resources", filteredResourceList);
 		
 		List<Adaptor> allAdaptors = adaptorDao.findAll();
-		Map adaptorList = new HashMap();
+		Map<String, Adaptor> adaptorList = new HashMap<String, Adaptor>();
 		for(Adaptor adaptor : allAdaptors){
 			adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
 		}
@@ -943,9 +909,9 @@ public class PlatformUnitController extends WaspController {
 			logger.debug("Unable to find sampleSubtype of controlLibrarySample");
 		}
 		
-		Map controlFilterMap = new HashMap();
+		Map<String, Integer> controlFilterMap = new HashMap<String, Integer>();
 		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
-		List<Sample> controlLibraryList = sampleDao.findByMap(controlFilterMap);
+		List<Sample> controlLibraryList = sampleService.getSampleDao().findByMap(controlFilterMap);
 		for(Sample sample : controlLibraryList){
 			logger.debug("control: " + sample.getName());
 			if(sample.getIsActive().intValue()==0){
@@ -960,104 +926,37 @@ public class PlatformUnitController extends WaspController {
 		//return "redirect:/dashboard.do";
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	/**
-	 * limitPriorToAssignment
+	 * limitPriorToAssignment: limit choices based on machine type and job having libraries to go on a platformunit 
 	 */
 	@RequestMapping(value="/limitPriorToAssign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String limitPriorToAssignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
-			ModelMap m) {
+	public String limitPriorToAssignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId, ModelMap m) {
 		
 		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
 		if(resourceType == null || resourceType.getResourceTypeId()==null || resourceType.getResourceTypeId().intValue()==0){
 			waspErrorMessage("platformunit.resourceTypeNotFound.error");
 			return "redirect:/dashboard.do"; 
 		}
-		Map filterForResourceCategory = new HashMap();
+		Map<String, Integer> filterForResourceCategory = new HashMap<String, Integer>();
 		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
 		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
 		
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("resourceCategories", resourceCategories);
-//perhaps a better way to screen is to find all jobs that are not completed, and show those that have at least one library
-		if(resourceCategoryId.intValue() > 0){
-			//get list of jobs with following: 
-			//	1. select states from state where task 106 (now it's 5) Assign Library To Platform Unit and status CREATED
-			//	2. select those states from statejob to get those jobs
-			//	3. filter jobs to include only those requesting specific sequencing machine (resourceCategoryId) 
-/**************		
-			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-			if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
-				waspErrorMessage("platformunit.taskNotFound.error");
-				return "redirect:/dashboard.do"; 
-			}
-			Map filterForState = new HashMap();
-			filterForState.put("taskId", task.getTaskId());
-			filterForState.put("status", "CREATED");
-			List<State> states = stateDao.findByMap(filterForState);
-			List<Job> jobList = new ArrayList();
-			for(State state : states){
-				if(state.getStatejob().isEmpty()){
-					continue;
-				}
-				Job job = state.getStatejob().get(0).getJob();//should be one
-				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
-				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
-					jobList.add(state.getStatejob().get(0).getJob());
-				}
-				
-			}
-		
-			//if(jobList.size()==0){
-			//	int v = 10216;
-			//	jobList.add(jobDao.getJobByJobId(v));
-			//}
-*****************/
-			// 4/16/12 I (Dubin) think it's actually better to be able to add a job's libraries to flow cells at any point until the job is closed
-			// so for redo the task test
-			Task task = taskDao.getTaskByIName("Start Job");
-			if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
-				waspErrorMessage("platformunit.taskNotFound.error");
-				return "redirect:/dashboard.do"; 
-			}
-			Map filterForState = new HashMap();
-			filterForState.put("taskId", task.getTaskId());
-			filterForState.put("status", "CREATED");
-			List<State> states = stateDao.findByMap(filterForState);
-			Set<Job> jobSet = new HashSet();
-			List<Job> jobList = new ArrayList<Job>();
-			for(State state : states){
-				if(state.getStatejob().isEmpty()){
-					continue;
-				}
-				Job job = state.getStatejob().get(0).getJob();//should be one
-				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
-				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
-					jobSet.add(state.getStatejob().get(0).getJob());
-				}				
-			}
-			Iterator<Job> it = jobSet.iterator();
-			 
-			while(it.hasNext()){
-				jobList.add((Job)it.next());
-			}
-			Collections.sort(jobList, new JobComparator());
-			
-			m.put("jobList", jobList);
+		List<Job> jobList = new ArrayList<Job>();
+		for (Job job: jobService.getJobsWithLibrariesToGoOnPlatformUnit()){
+			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
+			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
+				jobList.add(job);
+			}	
 		}
-		
+		Collections.sort(jobList, new JobComparator());
+		m.put("jobList", jobList);
+
 		return "facility/platformunit/limitPriorToAssign"; 
 	}
 	
@@ -1072,7 +971,7 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assign.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentForm(@RequestParam("resourceCategoryId") Integer resourceCategoryId,
-			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,//this will be a single jobId or it will be 0 [error] or -1 [indicating find all jobs that are not complete and have libraries to go onto flow cells]
+			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,// this will be a single jobId or it will be 0 [error] or -1 [indicating find all jobs that are not complete and have libraries to go onto flow cells]
 			ModelMap m) {
 
 		if(jobsToWorkWith.intValue()==0){//no job selected by user through the drop-down box
@@ -1084,87 +983,33 @@ public class PlatformUnitController extends WaspController {
 			waspErrorMessage("platformunit.resourceCategoryInvalidValue.error");
 			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=0";
 		}
-				
-		// pickup FlowCells limited by states and filter to get only those compatible with the selected machine resourceCategoryId
-		Map stateMap = new HashMap(); 
-
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-
-		if(task == null || task.getTaskId() == null){
-			waspErrorMessage("platformunit.taskNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> temp_platformUnitStates = stateDao.findByMap(stateMap);
-		List<State> platformUnitStates = new ArrayList<State>();//for the filtered states (but would really just need a filtered list of flow cells)
 		
-		List<Sample> flowCells = new ArrayList<Sample>();
-		
-		Map stsrcMap = new HashMap();//get the ids for the types of flow cells that go on the selected machine
-		stsrcMap.put("resourcecategoryId", resourceCategory.getResourceCategoryId()); 
-		List<SampleSubtypeResourceCategory> stsrcList = sampleSubtypeResourceCategoryDao.findByMap(stsrcMap);
-		for(State s : temp_platformUnitStates){
-			List<Statesample> ssList = s.getStatesample();
-			for(Statesample ss : ssList){
-				for(SampleSubtypeResourceCategory stsrc : stsrcList){
-					if(stsrc.getSampleSubtypeId().intValue() == ss.getSample().getSampleSubtypeId().intValue()){
-						platformUnitStates.add(s);//consider really just taking the flowcell sample, which is done next line
-						flowCells.add(ss.getSample());
-					}
-				}
-			}
-		}
+		List<Sample> puList = sampleService.getAvailableAndCompatiblePlatformUnits(resourceCategory);
+
 
 		// picks up jobs
 		
 		List<Job> jobs = new ArrayList<Job>();
 		
-		Task task2 = taskDao.getTaskByIName("Start Job");
-		if(task2==null || task2.getTaskId()==null || task2.getTaskId().intValue()==0){
-			waspErrorMessage("platformunit.taskNotFound.error");
-			return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
-		}
-		Map filterForState = new HashMap();
-		filterForState.put("taskId", task2.getTaskId());
-		filterForState.put("status", "CREATED");
-		List<State> states = stateDao.findByMap(filterForState);
-		
 		if(jobsToWorkWith.intValue() > 0){//get the single job selected from the dropdown box; so parameter jobsToWorkWith has a value > 0, representing a single jobId; confirm it meets state and resourceCategory criteria
-			Job job = jobDao.getJobByJobId(jobsToWorkWith);
+			Job job = jobService.getJobDao().getJobByJobId(jobsToWorkWith);
 			if(job==null || job.getJobId()==null || job.getJobId().intValue()==0){
 				waspErrorMessage("platformunit.jobNotFound.error");
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
-			for(State state : states){
-				if(state.getStatejob().isEmpty()){
-					continue;
-				}
-				Job job2 = state.getStatejob().get(0).getJob();//should be one
-				if(job2.getJobId().intValue()==job.getJobId().intValue()){
-					JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job2.getJobId());
-					if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
-						jobs.add(state.getStatejob().get(0).getJob());
-					}
+			for (Job currentValidJob: jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory)){
+				if (job.getJobId().equals(currentValidJob.getJobId())){
+					jobs.add(job);
+					break;
 				}
 			}
 		}
 		else if(jobsToWorkWith.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId and state criteria; so parameter jobsToWorkWith has a value > -1 which means it's asking for all available jobs that meet state and resourceCategory criteria
-
-			for(State state : states){
-				if(state.getStatejob().isEmpty()){
-					continue;
-				}
-				Job job = state.getStatejob().get(0).getJob();//should be one
-				JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategoryId, job.getJobId());
-				if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0){
-					jobs.add(state.getStatejob().get(0).getJob());
-				}
-			}
+			jobs =  jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory);
 		}
 	
 		//map of adaptors for display; this really needs to be a part of the library sample
-		Map adaptors = new HashMap();
+		Map<String, String> adaptors = new HashMap<String, String>();
 		List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 		for(Adaptorset as : adaptorsetList){
 			String adaptorsetname = new String(as.getName());
@@ -1183,9 +1028,8 @@ public class PlatformUnitController extends WaspController {
 		m.put("machineName", resourceCategory.getName());
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("jobs", jobs); 
-		m.put("platformUnitStates", platformUnitStates); 
 		m.put("adaptors", adaptors);
-		m.put("flowCells", flowCells);
+		m.put("platformUnits", puList);
 		
 		return "facility/platformunit/assign"; 
 	}
@@ -1233,9 +1077,9 @@ public class PlatformUnitController extends WaspController {
 			Integer librarySampleId, Integer laneSampleId,
 			Integer jobId, String libConcInLanePicoM) {
 
-		Job job = jobDao.getJobByJobId(jobId);
-		Sample laneSample = sampleDao.getSampleBySampleId(laneSampleId); 
-		Sample librarySample = sampleDao.getSampleBySampleId(librarySampleId); 
+		Job job = jobService.getJobDao().getJobByJobId(jobId);
+		Sample laneSample = sampleService.getSampleDao().getSampleBySampleId(laneSampleId); 
+		Sample librarySample = sampleService.getSampleDao().getSampleBySampleId(librarySampleId); 
 		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
 		Float libConcInLanePicoMFloat = 0.0f;
 		boolean error = false;
@@ -1280,29 +1124,26 @@ public class PlatformUnitController extends WaspController {
 			return;
 		}
 						
-		// ensure flowcell in the "CREATED" state 
+		// ensure platform unit is available
 		
-		boolean flowCellIsAvailable = false;
+		boolean puIsAvailable = false;
+				
 		List<SampleSource> parentSampleSources = laneSample.getSourceSampleId();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
 			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
 		else{
-			Sample flowCell = parentSampleSources.get(0).getSample();
-			if( ! "platformunit".equals(flowCell.getSampleType().getIName()) ){
+			Sample platformUnit = parentSampleSources.get(0).getSample();
+			if( ! sampleService.sampleIsPlatformUnit(platformUnit) ){
 				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			}
 			else{
-				Map stateSampleMap = new HashMap(); 
-				stateSampleMap.put("sampleId", flowCell.getSampleId());
-				List<Statesample> stateSampleList = stateSampleDao.findByMap(stateSampleMap);
-				for(Statesample stateSample : stateSampleList){
-					if(stateSample.getState().getTask().getIName().equals("assignLibraryToPlatformUnit")){
-						flowCellIsAvailable=true;
-						break;
-					}
+				for (Sample currentPlatformUnit : sampleService.getAvailableAndCompatiblePlatformUnits(job)){
+					if (currentPlatformUnit.getSampleId().equals(platformUnit.getSampleId()));
+					puIsAvailable=true;
+					break;
 				}
-				if(!flowCellIsAvailable){
+				if(!puIsAvailable){
 					error=true; waspErrorMessage("platformunit.flowcellStateError.error");
 				}
 			}
@@ -1328,19 +1169,6 @@ public class PlatformUnitController extends WaspController {
 			waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
 			logger.warn(me.getMessage()); // print more detailed error to warn logs
 			return;
-		}
-		
-		//update batch. 
-		//This is being done after first assignment to flow cell. BUT, maybe user requested the library be on two or three lane. 
-		//Really must work this logic out. Alternatively, the logic should perhaps be inside batch to create TWO or more assignLibraryToPlatformUnit states for the library.
-		List<Statesample> stateSampleList = librarySample.getStatesample();
-		for(Statesample stateSample : stateSampleList){
-			State state = stateSample.getState();
-			if(state.getTask().getIName().equals("assignLibraryToPlatformUnit")){
-				state.setStatus("COMPLETED");
-				stateDao.save(state);
-				break;
-			}
 		}
 		
 		waspMessage("platformunit.libAdded.success");
@@ -1445,40 +1273,20 @@ public class PlatformUnitController extends WaspController {
 		//logger.debug("lock: " + lock);
 		String ret_value = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 		
-		if( ! lock.equals("CREATED") && ! lock.equals("COMPLETED")){
-			//parameter locked invalid
+		SampleServiceImpl.LockStatus lockStatus = SampleServiceImpl.LockStatus.UNKOWN;
+		try{
+			lockStatus = SampleServiceImpl.LockStatus.valueOf(lock);
+		} catch(IllegalArgumentException e){
+			waspErrorMessage("platformunit.lock_status.error");
 			return ret_value;
 		}
-		
-		Sample platformUnit = sampleDao.getSampleBySampleId(platformUnitId);
-		if(platformUnit == null || platformUnit.getSampleId().intValue()==0){
+			
+		try{
+			sampleService.setPlatformUnitLockStatus(sampleService.getPlatformUnit(platformUnitId), lockStatus);
+		} catch (Exception e){
 			//message that platform unit not found
-			return ret_value;
-		}
-		if(! platformUnit.getSampleType().getIName().equals("platformunit")){
-			//message that sample is not a platform unit 
-			return ret_value;
-		}
-		
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task==null || task.getTaskId().intValue()==0){
-			//TODO we have a problem; 
-			//task not found
-			return ret_value;
-		}
-		
-		boolean stateFoundAndUpdated = false;
-		List<Statesample> stateSampleList = platformUnit.getStatesample();
-		for(Statesample stateSample : stateSampleList){
-			if(stateSample.getState().getTaskId().intValue() == task.getTaskId().intValue()){
-				State state = stateSample.getState();
-				state.setStatus(lock);
-				stateDao.save(state);
-				stateFoundAndUpdated = true;
-			}
-		}
-		if(stateFoundAndUpdated==false){
-			//message unalbe to locate/save new state
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
 			return ret_value;
 		}
 		
@@ -1531,7 +1339,7 @@ public class PlatformUnitController extends WaspController {
 		sampleSource.setSampleId(cellId);
 		sampleSource.setSourceSampleId(newControlId);
 		//figure out the next multiplexindex
-		Sample cell = sampleDao.getSampleBySampleId(cellId);
+		Sample cell = sampleService.getSampleDao().getSampleBySampleId(cellId);
 		List<SampleSource> sampleSourceList = cell.getSampleSource();
 		int maxMultipleIndex = 0;
 		for(SampleSource ss : sampleSourceList){
@@ -1606,7 +1414,7 @@ public class PlatformUnitController extends WaspController {
 		//must add success or failure messages
 		
 		//first, is the flowcell (via the platformUnitId, such as an Illumina Flowcell Version 3) compatible with the resourceId (the machine instance, such as an Illumina HiSeq 2000)
-		Sample platformUnit = sampleDao.getSampleBySampleId(platformUnitId);
+		Sample platformUnit = sampleService.getSampleDao().getSampleBySampleId(platformUnitId);
 		if(platformUnit.getSampleId().intValue()==0){
 			//message unable to find platform unit record
 			logger.debug("unable to find platform unit record");
@@ -1726,72 +1534,22 @@ public class PlatformUnitController extends WaspController {
 		
 		//new run
 		if(runId==null){//new run
-			Run newRun = new Run();
-			newRun.setResource(machineInstance);
-			newRun.setName(runName.trim());
-			newRun.setPlatformUnit(platformUnit);//set the flow cell
-			newRun.setUserId(technicianId);
-			newRun.setStartts(dateStart);
-			newRun = runDao.save(newRun);
-			logger.debug("-----");
-			logger.debug("saved new run runid=" + newRun.getRunId().intValue());
-			//runmeta : readlength and readType
-			RunMeta newRunMeta = new RunMeta();
-			newRunMeta.setRun(newRun);
-			newRunMeta.setK("run.readlength");
-			newRunMeta.setV(readLength);
-			newRunMeta.setPosition(new Integer(0));//do we really use this???
-			newRunMeta = runMetaDao.save(newRunMeta);
-			logger.debug("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
-			newRunMeta = new RunMeta();
-			newRunMeta.setRun(newRun);
-			newRunMeta.setK("run.readType");
-			newRunMeta.setV(readType);
-			newRunMeta.setPosition(new Integer(0));//do we really use this???
-			newRunMeta = runMetaDao.save(newRunMeta);
-			logger.debug("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
-			//runlane
 			try {
-				for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
-					RunCell runCell = new RunCell();
-					runCell.setRun(newRun);//the runid
-					runCell.setSample(cell);//the cellid
-					runCell = runCellDao.save(runCell);
-					logger.debug("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
-				}
+				runService.initiateRun(runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
+				//With the creation of this new sequence run record, we want to make it that the flow cell on this
+				//sequence run is no longer able to accept additional User libraries:
+				sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
+				waspMessage("runInstance.created_success.label");
 			} catch (SampleTypeException e) {
-				logger.error(e.getMessage());
-			}
-			logger.debug("-----");
-			//4/16/12
-			//With the creation of this new sequence run record, we want to make it that the flow cell on this
-			//sequence run is no longer able to accept additional User libraries. To do this, set this platform 
-			//unit's task of "Assign Library To Platform Unit" to something like "COMPLETED"
-			//with this, the platform unit associated with this sequence run will not appear on the "Add Library To Flow Cell" drop-down list of available flow cells.
-			Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-			//well if we do this, then there will be no rollback, so just let it throw its exception if this task is not found.
-			//if(task==null || task.getTaskId()==null || task.getTaskId().intValue()==0){
-				//TODO fix this error message
-			//	waspErrorMessage("platformunit.taskNotFound.error");
-				//return return_string;
-			//}
-			Map taskFilterMap = new HashMap();
-			taskFilterMap.put("taskId", task.getTaskId());
-			taskFilterMap.put("status", "CREATED");
-			List<State> stateList = stateDao.findByMap(taskFilterMap);
-			for(State state : stateList){
-				List <Statesample> statesampleList = state.getStatesample();
-				for(Statesample statesample : statesampleList){
-					if(statesample.getSampleId().intValue() == platformUnit.getSampleId().intValue()){
-						state.setStatus("COMPLETED");
-						stateDao.save(state);
-						logger.debug("StateId " + state.getStateId().intValue() + " is now set to Completed");
-					}
-				}
+				waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
+				logger.warn(e.getLocalizedMessage());
+			} catch (WaspMessageBuildingException e) {
+				waspErrorMessage("wasp.integration_message_send.error");
+				logger.warn(e.getLocalizedMessage());
 			}
 		}
 		else if(runId != null){//update run
-			Run run = runDao.getRunByRunId(runId);
+			Run run = runService.getRunDao().getRunByRunId(runId);
 			if(run.getRunId().intValue()==0){
 				//unable to locate run record; 
 				logger.debug("Update Failed: Unable to locate Sequence Run record");
@@ -1809,50 +1567,11 @@ public class PlatformUnitController extends WaspController {
 				logger.debug("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
 				return return_string;
 			}
-			run.setResource(machineInstance);
-			run.setName(runName.trim());
-			run.setPlatformUnit(platformUnit);
-			run.setUserId(technicianId);
-			run.setStartts(dateStart);
-
-			run = runDao.save(run);//since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
-			
-			List<RunMeta> runMetaList = run.getRunMeta();
-			boolean readLengthIsSet = false;
-			boolean readTypeIsSet = false;
-			for(RunMeta rm : runMetaList){
-				if(rm.getK().indexOf("readlength") > -1){
-					rm.setV(readLength);
-					runMetaDao.save(rm);//probably superfluous
-					readLengthIsSet = true;
-				}
-				if(rm.getK().indexOf("readType") > -1){
-					rm.setV(readType);
-					runMetaDao.save(rm);//probably superfluous
-					readTypeIsSet = true;
-				}
-			}
-			if(readLengthIsSet == false){
-				RunMeta newRunMeta = new RunMeta();
-				newRunMeta.setRun(run);
-				newRunMeta.setK("run.readlength");
-				newRunMeta.setV(readLength);
-				newRunMeta.setPosition(new Integer(0));//do we really use this???
-				newRunMeta = runMetaDao.save(newRunMeta);
-			}
-			if(readTypeIsSet == false){
-				RunMeta newRunMeta = new RunMeta();
-				newRunMeta.setRun(run);
-				newRunMeta.setK("run.readType");
-				newRunMeta.setV(readType);
-				newRunMeta.setPosition(new Integer(0));//do we really use this???
-				newRunMeta = runMetaDao.save(newRunMeta);
-			}
-			
+			runService.updateRun(run, runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
+			waspMessage("run.updated_success.label");
 			logger.debug("Sequence run has been updated now: runStDate = " + runStartDate);
 		}
 		
-		//need message to confirm update completed sucessfully
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 	}
@@ -1899,19 +1618,19 @@ public class PlatformUnitController extends WaspController {
 		if (request.getParameter("_search") == null 
 				|| request.getParameter("_search").equals("false") 
 				|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sampleDao.findByMap(sampleListBaseQueryMap);
+			sampleList = sampleService.getSampleDao().findByMap(sampleListBaseQueryMap);
 
 		} else {
 
 			sampleListBaseQueryMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			sampleList = this.sampleDao.findByMap(sampleListBaseQueryMap);
+			sampleList = this.sampleService.getSampleDao().findByMap(sampleListBaseQueryMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
 				Map allSampleListBaseQueryMap = new HashMap();
 				allSampleListBaseQueryMap.put("sampleTypeId", 5);
 
-				List<Sample> allSampleList = sampleDao.findByMap(allSampleListBaseQueryMap);
+				List<Sample> allSampleList = sampleService.getSampleDao().findByMap(allSampleListBaseQueryMap);
 				for (Sample excludeSample : allSampleList) {
 					allSampleList.remove(excludeSample);
 				}
@@ -1949,7 +1668,7 @@ public class PlatformUnitController extends WaspController {
 		 */
 		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(this.sampleDao.findById(selId));
+			int selIndex = sampleList.indexOf(this.sampleService.getSampleDao().findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
@@ -2226,15 +1945,15 @@ public class PlatformUnitController extends WaspController {
 		orderConstraints.add("name");
 
 		if (request.getParameter("_search") == null || StringUtils.isEmpty(request.getParameter("searchString"))) {
-			sampleList = sidx.isEmpty() ? this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord);
+			sampleList = sidx.isEmpty() ? this.sampleService.getSampleDao().findByMap(sampleListBaseQueryMap) : this.sampleService.getSampleDao().findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord);
 		} else {
 
 			searchParamMap.put(request.getParameter("searchField"), request.getParameter("searchString"));
 
-			sampleList = this.sampleDao.findByMap(searchParamMap);
+			sampleList = this.sampleService.getSampleDao().findByMap(searchParamMap);
 
 			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ?  this.sampleDao.findByMap(sampleListBaseQueryMap) : this.sampleDao.findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord));
+				List<Sample> allSamples = new ArrayList<Sample>(sidx.isEmpty() ?  this.sampleService.getSampleDao().findByMap(sampleListBaseQueryMap) : this.sampleService.getSampleDao().findByMapDistinctOrderBy(sampleListBaseQueryMap, null, orderConstraints, sord));
 
 				for (Iterator<Sample> it = sampleList.iterator(); it.hasNext();) {
 					Sample excludeSample = it.next();
@@ -2305,7 +2024,7 @@ public class PlatformUnitController extends WaspController {
 		 */
 		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 			int selId = Integer.parseInt(request.getParameter("selId"));
-			int selIndex = sampleList.indexOf(sampleDao.findById(selId));
+			int selIndex = sampleList.indexOf(sampleService.getSampleDao().findById(selId));
 			frId = selIndex;
 			toId = frId + 1;
 
@@ -2375,7 +2094,7 @@ public class PlatformUnitController extends WaspController {
 			}
 			
 			//check if Sample Name already exists in db; if 'true', do not allow to proceed.
-			if(this.sampleDao.getSampleByName(request.getParameter("name")).getName() != null) {
+			if(this.sampleService.getSampleDao().getSampleByName(request.getParameter("name")).getName() != null) {
 				
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -2416,7 +2135,7 @@ public class PlatformUnitController extends WaspController {
 	public String viewPlatformUnit(
 			 @PathVariable("sampleId") Integer sampleId,
 			 ModelMap m) {
-		Sample sample = sampleDao.getSampleBySampleId(sampleId);
+		Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 
 		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
 
@@ -2430,7 +2149,7 @@ public class PlatformUnitController extends WaspController {
 	public String updatePlatformUnitForm(
 			 @PathVariable("sampleId") Integer sampleId,
 			 ModelMap m) {
-		Sample sample = sampleDao.getSampleBySampleId(sampleId);
+		Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
 
 		sample.setSampleMeta(getMetaHelperWebapp().syncWithMaster(sample.getSampleMeta()));
 
@@ -2475,7 +2194,7 @@ public class PlatformUnitController extends WaspController {
 			sampleForm.setIsGood(1);
 			
 		} else {
-			Sample sampleDb =	sampleDao.getSampleBySampleId(sampleId);
+			Sample sampleDb =	sampleService.getSampleDao().getSampleBySampleId(sampleId);
 			
 			//SampleBarcode resourceBarcodeDB = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleForm.getSampleId());
 
@@ -2526,7 +2245,7 @@ public class PlatformUnitController extends WaspController {
 				 cell.setIsReceived(1);
 				 cell.setReceiverUserId(sampleForm.getSubmitterUserId());
 				 cell.setReceiveDts(new Date());
-				 sampleDb = this.sampleDao.save(cell);
+				 sampleDb = this.sampleService.getSampleDao().save(cell);
 				 
 				 SampleSource sampleSource = new SampleSource();
 				 sampleSource.setSampleId(sampleForm.getSampleId());
@@ -2546,11 +2265,11 @@ public class PlatformUnitController extends WaspController {
 			/** If the user changed the sample name, update all corresponding cells names **/
 			for (Iterator<SampleSource> it = sampleSourceList.iterator(); it.hasNext();) {
 				SampleSource tr = it.next();
-				Sample cell = this.sampleDao.findById(tr.getSourceSampleId());
+				Sample cell = this.sampleService.getSampleDao().findById(tr.getSourceSampleId());
 				String cellName = cell.getName();
 				String subString = cellName.substring(cellName.lastIndexOf("/"), cellName.length());
 				cell.setName(sampleForm.getName().concat(subString));
-				this.sampleDao.merge(cell);
+				this.sampleService.getSampleDao().merge(cell);
 								
 			}
 			
@@ -2592,9 +2311,9 @@ public class PlatformUnitController extends WaspController {
 	
 		Sample sampleDb;
 		if (sampleForm.getSampleId() == null || sampleForm.getSampleId().intValue() == 0) {
-			sampleDb = sampleDao.save(sampleForm);
+			sampleDb = sampleService.getSampleDao().save(sampleForm);
 		} else {
-			sampleDb = sampleDao.merge(sampleForm);
+			sampleDb = sampleService.getSampleDao().merge(sampleForm);
 		}
 
 		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), sampleForm.getSampleMeta());
@@ -2614,7 +2333,7 @@ public class PlatformUnitController extends WaspController {
 		Sample sampleDb;
 		if (sampleId == null || sampleId.intValue() == 0) {
 			
-			sampleDb = sampleDao.save(sampleForm);
+			sampleDb = sampleService.getSampleDao().save(sampleForm);
 			
 			SampleBarcode sampleBarcode = new SampleBarcode();
 			Barcode barcode = new Barcode();
@@ -2631,7 +2350,7 @@ public class PlatformUnitController extends WaspController {
 			this.sampleBarcodeDao.save(sampleBarcode);
 		
 		} else {
-			sampleDb = sampleDao.merge(sampleForm);
+			sampleDb = sampleService.getSampleDao().merge(sampleForm);
 			
 			SampleBarcode sampleBarcodeDb = this.sampleBarcodeDao.getSampleBarcodeBySampleId(sampleId);
 
@@ -2670,39 +2389,10 @@ public class PlatformUnitController extends WaspController {
 		sampleMetaDao.updateBySampleId(sampleDb.getSampleId(), (List<SampleMeta>) sampleMetaHelper.getMetaList()); // now we get the list and persist it
 
 		createUpdateCell(sampleDb, laneCount, sampleId);
-		createState(sampleId, sampleDb);
 		
 		return "redirect:/facility/platformunit/ok";
 	}
 	
-	/**
-	 * Inserts a record in State table and Sets state name to  "Platform Unit" and state status to "CREATED" 
-	 * Also inserts a new record in Samplestate table
-	 * 
-	 * @param sampleDb
-	 */
-	public void createState(Integer sampleId, Sample sampleDb) {
-		
-		Map<String, String> taskQueryMap = new HashMap<String, String>();
-		taskQueryMap.put("iName", "assignLibraryToPlatformUnit");
-		List <Task> task = new ArrayList <Task> (this.taskDao.findByMap(taskQueryMap));
-
-		if (sampleId == null || sampleId.intValue() == 0) {
-
-			State state = new State();
-			state.setTaskId(task.get(0).getTaskId());
-			state.setName(task.get(0).getName());
-			state.setStatus("CREATED");
-			state.setLastUpdTs(new Date());
-			State stateDb = this.stateDao.save(state);
-			
-			Statesample stateSample = new Statesample();
-			stateSample.setSampleId(sampleDb.getSampleId());
-			stateSample.setStateId(stateDb.getStateId());
-			this.stateSampleDao.save(stateSample);
-		}
-
-	}
 
 	/**
 	 * limitPriorToPlatformUnitAssignment

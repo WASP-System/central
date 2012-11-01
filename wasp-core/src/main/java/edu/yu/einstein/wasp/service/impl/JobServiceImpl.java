@@ -26,7 +26,6 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +80,7 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -192,16 +192,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
-	@Autowired
-	public void setBatchJobExplorer(JobExplorer jobExplorer){
-		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
-	}
-	
-	public JobExplorerWasp getBatchJobExplorerWasp() {
-		return this.batchJobExplorer;
-	}
-	
-	
+		
 	@Autowired
 	protected WorkflowService workflowService;
 	
@@ -722,7 +713,21 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
+		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
+		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
+			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategory.getResourceCategoryId(), currentJob.getJobId());
+			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0)
+				jobsFilteredByResourceCategory.add(currentJob);
+		}
+		return jobsFilteredByResourceCategory;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
 			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();

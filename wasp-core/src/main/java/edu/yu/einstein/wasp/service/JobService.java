@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 
@@ -107,13 +108,22 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
-	 * getJobsWithLibrariesToGoOnFlowCell() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
+	 * are registered as awaiting analysis but not yet assigned to a cell. Only returns those jobs for which the resource category matches that specified.
+	 * @param ResourceCategory
+	 * @return List<Job>
+	 * 
+	 */
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory);
+	
+	/**
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
 	 * are registered as awaiting analysis but not yet assigned to a cell
 	 * @param none
 	 * @return List<Job>
 	 * 
 	 */
-	public List<Job> getJobsWithLibrariesToGoOnFlowCell();
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit();
 	
 	/**
 	 * getJobsSubmittedOrViewableByUser() returns list of jobs that was submitted by, as well as viewable by, a specific user. 

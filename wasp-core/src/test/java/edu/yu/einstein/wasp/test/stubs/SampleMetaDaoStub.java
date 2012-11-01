@@ -151,4 +151,10 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 		return null;
 	}
 
+	@Override
+	public void updateBySampleId(int sampleId, SampleMeta m) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

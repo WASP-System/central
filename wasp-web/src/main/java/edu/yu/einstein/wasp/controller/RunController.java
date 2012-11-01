@@ -50,7 +50,6 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;

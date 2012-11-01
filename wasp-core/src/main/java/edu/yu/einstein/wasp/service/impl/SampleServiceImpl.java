@@ -27,7 +27,6 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,6 +91,10 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 @Service
 @Transactional
 public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements SampleService {
+	
+	private static final String LOCK_META_AREA = "lock";
+	
+	private static final String LOCK_META_KEY = "status";
 
 	private SampleDao	sampleDao;
 
@@ -160,15 +163,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 private RunDao runDao;
 
 	private JobExplorerWasp batchJobExplorer;
-	
-	@Autowired
-	public void setBatchJobExplorer(JobExplorer jobExplorer){
-		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
-	}
-	
-	public JobExplorerWasp getBatchJobExplorerWasp() {
-		return this.batchJobExplorer;
-	}
 	
 		
 	@Autowired
@@ -394,6 +388,27 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 	  }
 	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
+		  	if(webStatus.equals("RECEIVED")){
+				return WaspStatus.CREATED;
+			}
+			else if(webStatus.equals("FAILED QC")){
+				return WaspStatus.FAILED;
+			}
+			else if(webStatus.equals("WITHDRAWN")){
+				return WaspStatus.ABANDONED;
+			}
+			else {
+				return WaspStatus.UNKNOWN;
+			}
+	  }
+	  
 
 	  
 	  /**
@@ -402,7 +417,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
 		  // TODO: Write test!!
-		  BatchStatus [] statusList = {BatchStatus.STARTED, BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED, BatchStatus.UNKNOWN};
+		  BatchStatus [] statusList = {BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED};
 		  List<String> options = new ArrayList<String>();
 		  for(BatchStatus status : statusList){
 			  options.add(convertReceiveSampleStatusForWeb(status));
@@ -565,11 +580,34 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  // collect platform unit objects whose id's are not in the IdsForPlatformUnitsNotAvailable list
 		  for (Sample pu: allPlatformUnits){
-			  if (! IdsForPlatformUnitsNotAvailable.contains( pu.getSampleId() ) )
-				  availablePlatformUnits.add(pu);
+			  try {
+				if (! IdsForPlatformUnitsNotAvailable.contains( pu.getSampleId() ) && ! getPlatformUnitLockStatus(pu).equals(LockStatus.LOCKED))
+					  availablePlatformUnits.add(pu);
+				} catch (SampleTypeException e) {
+					logger.warn("received unexpected exception: " + e.getLocalizedMessage()); // shouldn't get here
+				}
 		  }
 		  
 		  return availablePlatformUnits; 
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(ResourceCategory resourceCategory){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(resourceCategory, "No ResourceCategory provided");
+		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
+		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
+		  for(Sample pu : availablePlatformUnits){
+			  for(SampleSubtypeResourceCategory ssrc : pu.getSampleSubtype().getSampleSubtypeResourceCategory()){
+				  if(ssrc.getResourcecategoryId().intValue() == resourceCategory.getResourceCategoryId().intValue()){
+					  availableAndCompatibleFlowCells.add(pu);
+				  }
+			  }
+		  }
+		  return availableAndCompatibleFlowCells;
 	  }
 	  
 	  
@@ -911,9 +949,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Run getCurrentRunForPlatformUnit(Sample platformUnit) {
+	public Run getCurrentRunForPlatformUnit(Sample platformUnit) throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "No platform unit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platform unit Provided");
+		if (!sampleIsPlatformUnit(platformUnit))
+			throw new SampleTypeException("sample is not a platfrom unit");
 		for (Run run : platformUnit.getRun()){
 			// return run if it has been started by has no record of completion
 			if (run.getStartts() != null && run.getEnDts() == null)
@@ -1789,5 +1829,54 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		runDao.flush(run);
 		return;
 	}
-
+	
+	public enum LockStatus{LOCKED,UNLOCKED,UNKOWN}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException{
+		Assert.assertParameterNotNull(platformunit, "platformunit cannot be null");
+		Assert.assertParameterNotNull(lockStatus, "lockStatus cannot be null");
+		if (!sampleIsPlatformUnit(platformunit))
+			throw new SampleTypeException("sample is not a platformunit");
+		SampleMeta currentLockStatusMeta = null;
+		List<SampleMeta> sampleMetaList = platformunit.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		try{
+			currentLockStatusMeta = MetaHelper.getMetaObjectFromList(LOCK_META_AREA, LOCK_META_KEY, sampleMetaList);
+			if (currentLockStatusMeta.getV().equals(lockStatus.toString())){ // no change in value
+				return;
+			}
+		} catch(MetadataException e) {
+			// doesn't exist so create
+			currentLockStatusMeta = new SampleMeta();
+			currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_AREA);
+		}
+		currentLockStatusMeta.setV(lockStatus.toString());
+		sampleMetaDao.updateBySampleId(platformunit.getSampleId(), currentLockStatusMeta);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public LockStatus getPlatformUnitLockStatus(Sample platformunit) throws SampleTypeException{
+		Assert.assertParameterNotNull(platformunit, "platformunit cannot be null");
+		if (!sampleIsPlatformUnit(platformunit))
+			throw new SampleTypeException("sample is not a platformunit");
+		LockStatus currentLockStatus = LockStatus.UNKOWN;
+		List<SampleMeta> sampleMetaList = platformunit.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		try{
+			currentLockStatus = LockStatus.valueOf((String) MetaHelper.getMetaValue(LOCK_META_AREA, LOCK_META_KEY, sampleMetaList));
+		} catch(MetadataException e) {
+			// value not found
+		}
+		return currentLockStatus;
+	}
+		
 }
