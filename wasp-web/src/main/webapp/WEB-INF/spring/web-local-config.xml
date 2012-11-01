@@ -11,7 +11,7 @@
 				<value>classpath:database.properties</value>  
 				<value>classpath:authentication.properties</value>
 				<value>classpath:email.properties</value>
-				<value>classpath:wasp.local.properties</value>
+				<value>classpath:wasp.site.properties</value>
 			</list>  
 		</property>  
 	</bean>  
