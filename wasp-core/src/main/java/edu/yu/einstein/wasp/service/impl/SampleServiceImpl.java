@@ -781,7 +781,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample library = ss.getSourceSample();
 			  if (!this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")){
-				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.: cellId: " + cell.getSampleId().intValue() + " cellName = " + cell.getName() + " problem libraryId = " + library.getSampleId().intValue() + " problem library name = " + library.getName() );
 			  }
 			  if (maxIndex != null && ss.getIndex() != null && ss.getIndex() > maxIndex.getValue())
 				  maxIndex.setValue(ss.getIndex());
