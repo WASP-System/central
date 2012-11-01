@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.helptag;
+package edu.yu.einstein.wasp.helptag.controller;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 

@@ -38,7 +38,7 @@
       </list>
     </property>
     
-    <property name="jobFlowBatchJob" ref="default.waspJob.jobflow.v1"  />
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1"  />
 
     <property name="dependencies">
       <list>
