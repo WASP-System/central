@@ -17,13 +17,7 @@
 	    </int:interceptors>
     </int:publish-subscribe-channel>
     
-    <!-- Main channel to send replies via gateway. Messages will be routed to correct gateway -->
-    <int:channel id="wasp.channel.primaryReply" >
-    	<int:interceptors>
-	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
-	    </int:interceptors>
-    </int:channel>
-	
+    
 	    	
     <!-- channel for messages to enter from within components of the WASP System -->
     <int:channel id="wasp.channel.rmi.inbound" />
