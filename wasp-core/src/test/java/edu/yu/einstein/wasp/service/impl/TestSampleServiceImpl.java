@@ -482,7 +482,7 @@ public class TestSampleServiceImpl {
 	  } catch (SampleTypeException e) {
 		  exceptionMessage = e.getMessage();
 	  }
-	  Assert.assertEquals(exceptionMessage, "Expected 'library' but got Sample of type 'cell' instead.");
+	  Assert.assertEquals(exceptionMessage, "Expected 'library' but got Sample of type 'cell' instead.: cellId: 1 cellName = null problem libraryId = 6 problem library name = null");
 	  
 	  verify(mockSampleSourceDao);
 	  

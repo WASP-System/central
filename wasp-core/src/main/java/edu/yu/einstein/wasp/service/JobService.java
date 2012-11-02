@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 
@@ -107,13 +108,22 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
-	 * getJobsWithLibrariesToGoOnFlowCell() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
+	 * are registered as awaiting analysis but not yet assigned to a cell. Only returns those jobs for which the resource category matches that specified.
+	 * @param ResourceCategory
+	 * @return List<Job>
+	 * 
+	 */
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory);
+	
+	/**
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
 	 * are registered as awaiting analysis but not yet assigned to a cell
 	 * @param none
 	 * @return List<Job>
 	 * 
 	 */
-	public List<Job> getJobsWithLibrariesToGoOnFlowCell();
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit();
 	
 	/**
 	 * getJobsSubmittedOrViewableByUser() returns list of jobs that was submitted by, as well as viewable by, a specific user. 
@@ -156,7 +166,8 @@ public interface JobService extends WaspMessageHandlingService {
 	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample);
 	
 	/**
-	 * Updates the Job Quote Status for job
+	 * Updates the Job Quote Status for job.
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -165,6 +176,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job DA approval Status for job
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -173,9 +185,28 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job Pi Approval Status for job
+	 * Status must be either CREATED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+
+	/**
+	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
+	 * @param Integer jobId (the job from which the viewer is to be removed)
+	 * @param Integer userId (the user to be removed as a jobviewer)
+	 * @return void (maybe should be an int or boolean)
+	 * 
+	 */
+	public void removeJobViewer(Integer jobId, Integer userId) throws Exception;
+	
+	/**
+	 * addJobViewer() adds a viewer to a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
+	 * @param Integer jobId (the job to which the viewer is to be added)
+	 * @param String newViewerEmailAddress (the new viewer's email address)
+	 * @return void (maybe should be an int or boolean)
+	 * 
+	 */
+	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception;
 }

@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.model.TaskMapping;
 public class TaskMappingLoader extends WaspLoader {
 
 	@Autowired
-	TaskMappingLoadService taskMappingLoadService;
+	private TaskMappingLoadService taskMappingLoadService;
 	
 	public TaskMappingLoader (){};
 

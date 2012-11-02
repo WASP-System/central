@@ -53,10 +53,12 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from %PREFIX%STEP_EXECUTION SE, %PREFIX%JOB_EXECUTION JE where STEP_NAME LIKE :name and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID";
+		String sql = "select SE.JOB_EXECUTION_ID, STEP_EXECUTION_ID from %PREFIX%STEP_EXECUTION SE, %PREFIX%JOB_EXECUTION JE where "
+				+ "(STEP_NAME LIKE :name1 or STEP_NAME LIKE :name2) and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID";
 		if (name == null)
 			name = "";
-		parameterSource.addValue("name", "%"+name);
+		parameterSource.addValue("name1", "%" + name);
+		parameterSource.addValue("name2", name + "%");
 		if (batchStatus != null){
 			sql += " and STATUS = :status ";
 			parameterSource.addValue("status", batchStatus);

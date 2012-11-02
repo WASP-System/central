@@ -141,8 +141,8 @@ function showAssignForm(e) {
 
 	<div class="platformUnitSide">
 	<c:choose>
-	 <c:when test='${fn:length(flowCells) > "0"}'>
-	  <c:forEach items="${flowCells}" var="pu">
+	 <c:when test='${fn:length(platformUnits) > "0"}'>
+	  <c:forEach items="${platformUnits}" var="pu">
 	    <div class="platformunit">
 	      <label>Flow Cell</label>
 	      <c:out value="${pu.name}" /> 
@@ -185,7 +185,7 @@ function showAssignForm(e) {
 
 <script>
   var lanes = $(".selectLane");
-    <c:forEach items="${flowCells}" var="pu">
+    <c:forEach items="${platformUnits}" var="pu">
 	lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
       <c:forEach items="${pu.sampleSource}" var="puparent">
          lanes.append($('<option></option>').val('<c:out value="${puparent.sourceSample.sampleId}" />').html(' - <c:out value="${puparent.sourceSample.name}" />'));

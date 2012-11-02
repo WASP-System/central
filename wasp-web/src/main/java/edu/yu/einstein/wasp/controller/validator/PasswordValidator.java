@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller.validator;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindException;
@@ -13,7 +14,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 @Component
 public class PasswordValidator{
 	
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger =LoggerFactory.getLogger(getClass());
 	
 	@Autowired
 	private AuthenticationService authenticationService;

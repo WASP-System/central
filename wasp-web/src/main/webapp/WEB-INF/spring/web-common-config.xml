@@ -15,7 +15,7 @@
 	<import resource="classpath*:META-INF/spring/core-common-config.xml" />
 	
 	<!-- import configuration for sending messages to wasp-daemon and checking status of batch jobs -->
-	<import resource="classpath*:META-INF/spring/batch-integration-config.xml" />
+	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />
 	
 	<!-- import local security context -->
 	<import resource="security-context-local.xml"/>

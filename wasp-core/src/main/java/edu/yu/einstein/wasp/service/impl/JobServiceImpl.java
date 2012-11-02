@@ -26,14 +26,12 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
-import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -46,6 +44,7 @@ import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.JobSoftwareDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
@@ -57,6 +56,8 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
+import edu.yu.einstein.wasp.dao.UserDao;
+
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
@@ -82,6 +83,7 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -93,7 +95,13 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.JobService;
+
 import edu.yu.einstein.wasp.service.WorkflowService;
+
+
+import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.util.StringHelper;
 
 
 @Service
@@ -132,10 +140,22 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	private SampleMetaDao sampleMetaDao;
 
 	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private TaskService taskService;
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
+	@Autowired
 	private JobMetaDao jobMetaDao;
 
 	@Autowired
 	protected LabDao labDao;
+
+	@Autowired
+	protected LabUserDao labUserDao;
 
 	@Autowired
 	protected JobUserDao jobUserDao;
@@ -193,16 +213,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
-	@Autowired
-	public void setBatchJobExplorer(JobExplorer jobExplorer){
-		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
-	}
-	
-	public JobExplorerWasp getBatchJobExplorerWasp() {
-		return this.batchJobExplorer;
-	}
-	
-	
+		
 	@Autowired
 	protected WorkflowService workflowService;
 	
@@ -251,12 +262,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
 			} catch (ParameterValueRetrievalException e){
-				logger.error(e.getMessage());
+				logger.warn(e.getMessage());
 				continue;
 			}
 			Sample sample = sampleDao.getSampleBySampleId(sampleId);
 			if (sample == null){
-				logger.error("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				logger.warn("Sample with sample id '"+sampleId+"' does not have a match in the database!");
 				continue;
 			}
 			submittedSamplesNotYetReceivedList.add(sample);
@@ -282,14 +293,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
 				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
 				if (job.getJobId() == 0){
-					logger.error("Expected a job object with id '"+parameterVal+"' but got none");
+					logger.warn("Expected a job object with id '"+parameterVal+"' but got none");
 				} else {
 					activeJobList.add(job);
 				}
 			} catch(ParameterValueRetrievalException e){
-				logger.error(e.getLocalizedMessage());
+				logger.warn(e.getLocalizedMessage());
 			} catch(NumberFormatException e){
-				logger.error(e.getLocalizedMessage());
+				logger.warn(e.getLocalizedMessage());
 			}
 			
 		}
@@ -316,7 +327,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return jobsAwaitingReceivingOfSamples;
 	}
 	
-	/**
+	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
@@ -481,7 +492,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
 				  }
 				  catch(Exception e){
-					  logger.error("JobServiceImpl::getExtraJobDetails(): " + e);
+					  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
 					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
 				  }	
 			  }
@@ -704,14 +715,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
 			} catch (ParameterValueRetrievalException e){
-				logger.error(e.getMessage());
+				logger.warn(e.getMessage());
 				continue;
 			}
 		}
 		for (Integer jobId: uniqueJobIds){
 			Job job = jobDao.getJobByJobId(jobId);
 			if (job == null){
-				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
+				logger.warn("Job with job id '"+jobId+"' does not have a match in the database!");
 				continue;
 			}
 			JobsAwaitingLibraryCreation.add(job);
@@ -723,7 +734,21 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
+		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
+		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
+			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategory.getResourceCategoryId(), currentJob.getJobId());
+			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0)
+				jobsFilteredByResourceCategory.add(currentJob);
+		}
+		return jobsFilteredByResourceCategory;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
 			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
@@ -741,17 +766,17 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 						librariesForJobWithAnalysisFlow.put(libraryId, 1);
 					}
 				} catch (ParameterValueRetrievalException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					continue;
 				} catch (NumberFormatException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					continue;
 				}
 				
 				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
 					Sample library = sampleDao.getSampleBySampleId(libraryId);
 					if (library.getSampleId() == 0){
-						logger.error("Cannot find Sample with id=" + libraryId);
+						logger.warn("Cannot find Sample with id=" + libraryId);
 						continue;
 					}
 					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
@@ -814,7 +839,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 		}
 		if (!sampleIsInJob){
-			logger.error("supplied sample is not associated with supplied job");
+			logger.warn("supplied sample is not associated with supplied job");
 			return false;
 		}
 		Map<String, String> parameterMap = new HashMap<String, String>();
@@ -843,6 +868,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
 		updateJobStatus(job, status, WaspJobTask.ADMIN_APPROVE);
 	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -866,5 +892,118 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		sendOutboundMessage(messageTemplate.build());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception{
+		
+		  if(jobId == null || newViewerEmailAddress == null){
+		  	  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }		
+		  //System.out.println("at 7");	  		
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
+			throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToAddJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+			)
+		  {
+			  userPerformingThisActionIsPermittedToAddJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToAddJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
+			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
+		  }
+		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
+		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
+			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
+		  }
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getUserId().intValue());
+		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
+			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
+		  }
+		  Role role = roleDao.getRoleByRoleName("jv");
+		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
+			  throw new Exception("listJobSamples.roleNotFound.label");
+		  }
+		  JobUser newJobUser = new JobUser();
+		  newJobUser.setJob(job);
+		  newJobUser.setUser(newViewerToBeAddedToJob);
+		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
+		  newJobUser.setRole(role);
+		  jobUserDao.save(newJobUser);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeJobViewer(Integer jobId, Integer userId)throws Exception{
+		
+		  if(jobId == null || userId == null){
+			  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }
+		  
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
+			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
+		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
+			  throw new Exception("listJobSamples.userNotFound.label");			  
+		  }
+
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToRemoveJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  || userPerformingThisAction.getUserId().intValue() == userToBeRemoved.getUserId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
+			)
+		  {
+			  userPerformingThisActionIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToRemoveJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  //we checked that webviewer is authorized to do this. Now make certain that the webviewer is not trying to remove the job submitter or job PI. 
+		  if(userToBeRemoved.getUserId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
+			  throw new Exception("listJobSamples.submitterRemovalIllegal.label");			  
+		  }
+		  if(userToBeRemoved.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
+			  throw new Exception("listJobSamples.piRemovalIllegal.label");			  
+		  }
+		  
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getJobId().intValue(), userToBeRemoved.getUserId().intValue());
+		  if(jobUser.getJobUserId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
+			  throw new Exception("listJobSamples.userNotViewerOfThisJob.label");
+		  }
+		  else{
+			  jobUserDao.remove(jobUser);
+			  jobUserDao.flush(jobUser);
+		  }		
 	}
 }

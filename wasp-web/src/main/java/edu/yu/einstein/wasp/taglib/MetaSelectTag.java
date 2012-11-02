@@ -6,6 +6,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
  */
 public class MetaSelectTag extends BodyTagSupport {
 	
-	Logger log=Logger.getLogger(MetaSelectTag.class);
+	Logger log=LoggerFactory.getLogger(MetaSelectTag.class);
 	
 	private MetaAttribute.Control control;
 	

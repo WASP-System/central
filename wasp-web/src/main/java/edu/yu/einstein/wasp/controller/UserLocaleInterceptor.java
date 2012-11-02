@@ -30,6 +30,7 @@ import javax.servlet.jsp.jstl.core.Config;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -49,7 +50,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
 	@Autowired
 	private UiFieldDao uiFieldDao;
 	
-    private static final Logger log = Logger.getLogger(UserLocaleInterceptor.class);
+    private static final Logger log = LoggerFactory.getLogger(UserLocaleInterceptor.class);
 	
     @Override
 	public boolean preHandle(

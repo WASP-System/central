@@ -75,6 +75,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -258,7 +259,7 @@ public class JobSubmissionController extends WaspController {
 	
 
 	public String nextPage(JobDraft jobDraft) {
-		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
+		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowDao.getWorkflowByWorkflowId(jobDraft.getWorkflowId()));
 		if (pageFlowArray.length == 0)
 			pageFlowArray = defaultPageFlow;
 
@@ -1188,7 +1189,7 @@ public class JobSubmissionController extends WaspController {
 					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
 					fileService.linkFileWithJobDraft(file, jobDraft);
 				} catch(FileUploadException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");
 				}
 			}
@@ -1502,7 +1503,7 @@ public class JobSubmissionController extends WaspController {
 			try{	
 	  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraftMeta)) );
 	  		} catch(MetadataException e){
-	  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+	  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
 	  		} catch(NumberFormatException e){
 	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
 	  		}
@@ -1697,11 +1698,13 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		
 		try {
 			jobService.createJobFromJobDraft(jobDraft, me);
 		} catch (FileMoveException e) {
-			logger.error(e.getMessage());
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+		} catch (WaspMessageBuildingException e) {
+			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 		}
 
@@ -1764,7 +1767,7 @@ public class JobSubmissionController extends WaspController {
 	 */
 
 	protected List<String[]> getPageFlowMap(JobDraft jobDraft) {
-		String[] pageFlowArray = (String[]) workflowService.getPageFlowOrder(jobDraft.getWorkflow()).toArray();
+		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
 		if (pageFlowArray.length == 0)
 			pageFlowArray = defaultPageFlow;
 		

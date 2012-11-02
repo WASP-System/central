@@ -2,8 +2,6 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -167,12 +165,12 @@ public class LabController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		//parameter from filterToolbar
 		String piNameAndLogin = request.getParameter("primaryUser")==null?null:request.getParameter("primaryUser").trim();//if not passed, will be null; if passed will be firstname lastname (login)
 		String departmentName = request.getParameter("departmentId")==null?null:request.getParameter("departmentId").trim();//if not passed, will be null; if passed will be name of department
-		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("departmentName = " + departmentName);
+		logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("departmentName = " + departmentName);
 		
 		//deal with the parameter
 		User pi = null;
@@ -891,7 +889,7 @@ public class LabController extends WaspController {
 				labMetaHelperWebapp.setMetaValueByName(name, lpm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in labMeta
-				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
+				logger.warn("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
 		labMetaDao.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
@@ -966,7 +964,7 @@ public class LabController extends WaspController {
 				userMetaHelperWebapp.setMetaValueByName(name, upm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in userMeta data
-				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
+				logger.warn("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
 		}
 		// if this user is not a PI, copy address information from the PI's User

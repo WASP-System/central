@@ -1,18 +1,14 @@
 package edu.yu.einstein.wasp.load;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.batch.core.Job;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.load.service.WorkflowLoadService;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
-import edu.yu.einstein.wasp.service.WorkflowService;
 
 
 /**
@@ -36,8 +32,8 @@ public class WorkflowLoader extends WaspResourceLoader {
   private List<String> pageFlowOrder; 
   public void setPageFlowOrder(List<String> pageFlowOrder) {this.pageFlowOrder = pageFlowOrder; }
   
-  private Job jobFlowBatchJob;
-  public void setJobFlowBatchJob(Job jobFlowBatchJob){ this.jobFlowBatchJob = jobFlowBatchJob; }
+  private String jobFlowBatchJob;
+  public void setJobFlowBatchJob(String jobFlowBatchJob){ this.jobFlowBatchJob = jobFlowBatchJob; }
 
   private Set<String> sampleSubtypes;
   public void setSampleSubtypes(Set<String> sampleSubtypes) {this.sampleSubtypes = sampleSubtypes; }
@@ -58,7 +54,7 @@ public class WorkflowLoader extends WaspResourceLoader {
  
   @PostConstruct 
   public void init() throws Exception {
-	  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob.getName());
+	  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob);
 	  workflowLoadService.updateUiFields(uiFields);
   }
 }

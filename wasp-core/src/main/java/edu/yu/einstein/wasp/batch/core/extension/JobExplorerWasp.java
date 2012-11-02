@@ -22,6 +22,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * no results obtained or throws BatchDaoDataRetrievalException if more than one step matches the given name and parameter map.
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -47,6 +49,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * no results obtained.
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -68,6 +72,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name. 
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @return
 	 */
@@ -84,6 +90,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus and/or exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -164,6 +172,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -193,6 +203,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus  must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -220,6 +232,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name 
 	 * @param batchStatus (may be null)
 	 * @return
@@ -241,6 +255,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -270,6 +286,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -316,6 +334,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * no results obtained or throws BatchDaoDataRetrievalException if more than one step matches the given name and parameter map.
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -341,6 +361,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * no results obtained.
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -362,6 +384,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name. 
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @return
 	 */
@@ -378,6 +402,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus and/or exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -409,6 +435,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus and/or exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -435,6 +463,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	/**
 	 * Get ALL JobExecution for the batch step identified by the provided job name. Returns empty list if no results obtained.
 	 * If not null, the provided BatchStatus and/or exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param batchStatus (may be null)
 	 * @param exitStatus (may be null)
@@ -458,6 +488,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -487,6 +519,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus  must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -514,6 +548,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided BatchStatus must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name 
 	 * @param batchStatus (may be null)
 	 * @return
@@ -535,6 +571,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -564,6 +602,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * If 'exclusive' is false, a subset of the job parameters may be provided and others are ignored, otherwise
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param parameterMap
 	 * @param exclusive
@@ -590,6 +630,8 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * no results obtained.
 	 * if true, there must be an exact correlation between all job parameters and those in parameterMap.
 	 * If not null, the provided exit status must match
+	 * The name match is a prefix OR suffix match so 'aStep' or 'job.aStep' or or 'wasp.job' or 'wasp.job.aStep' will all match 
+	 * a step name of 'wasp.job.aStep' in the database 
 	 * @param name
 	 * @param exitStatus (may be null)
 	 * @return

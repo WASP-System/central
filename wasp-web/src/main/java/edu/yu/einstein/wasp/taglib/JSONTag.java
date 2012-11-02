@@ -5,9 +5,10 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.slf4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 /*
@@ -17,7 +18,7 @@ import org.springframework.util.StringUtils;
  */
 public class JSONTag extends BodyTagSupport {
 	
-	Logger log=Logger.getLogger(JSONTag.class);
+	Logger log=LoggerFactory.getLogger(JSONTag.class);
 	
 	private Object object;
 	
