@@ -104,14 +104,22 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		w.setWorkingDirectory(directory);		
 		GridResult result = ghs.execute(w);
 		
-		while (gws.isFinished(result)) {
+		while (!gws.isFinished(result)) {
 			try {
+				logger.debug("job is not finished");
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+				logger.error(e.getLocalizedMessage());
 				throw new GridExecutionException("unable to sleep for sample sheet", e);
 			}
 		}
 
+	}
+
+	@Override
+	@PostConstruct
+	public void init() throws Exception {
+		super.init();
 	}
 
 	/**
