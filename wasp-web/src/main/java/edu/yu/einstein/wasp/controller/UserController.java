@@ -180,7 +180,7 @@ public class UserController extends WaspController {
 		
 		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
 		String userIdFromURL = request.getParameter("selId");//if not passed, userId is the empty string (interestingly, it's value is not null)
-		//System.out.println("selId = " + userIdFromURL);System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);System.out.println("selId = " + selId);
+		//logger.debug("selId = " + userIdFromURL);logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);logger.debug("selId = " + selId);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -189,7 +189,7 @@ public class UserController extends WaspController {
 		String firstName = request.getParameter("firstName")==null?null:request.getParameter("firstName").trim();//null if this parameter is not passed
 		String lastName = request.getParameter("lastName")==null?null:request.getParameter("lastName").trim();//null if this parameter is not passed
 		String email = request.getParameter("email")==null?null:request.getParameter("email").trim();//null if this parameter is not passed
-		//System.out.println("login = " + login);System.out.println("firstName = " + firstName);System.out.println("lastName = " + lastName);System.out.println("email = " + email);
+		//logger.debug("login = " + login);logger.debug("firstName = " + firstName);logger.debug("lastName = " + lastName);logger.debug("email = " + email);
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();

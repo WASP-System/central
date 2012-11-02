@@ -138,7 +138,7 @@ public class AutoCompleteController extends WaspController{
 	      sb.append("]}");
 	      
 	      String jsonOutput = new String(sb);
-	      //System.out.println("jsonOutput: " + jsonOutput);
+	      //logger.debug("jsonOutput: " + jsonOutput);
 	      
 	      return jsonOutput; 
 	  }
@@ -817,7 +817,7 @@ public class AutoCompleteController extends WaspController{
 	      sb.append("]}");
 	      
 	      String jsonOutput = new String(sb);
-	      System.out.println("jsonOutput: " + jsonOutput);
+	      logger.debug("jsonOutput: " + jsonOutput);
 	      
 	      return jsonOutput; 
 	  }

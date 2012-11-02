@@ -111,7 +111,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		
 		Run result;
 		if (l.size() > 1) {
-			logger.error("Run name " + name + " is not unique! Returning only the newest run.");
+			logger.warn("Run name " + name + " is not unique! Returning only the newest run.");
 			result = l.get(0);
 			
 			for (int x = 1; x <= l.size(); x++) {

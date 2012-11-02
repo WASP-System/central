@@ -97,7 +97,7 @@ public class Job2QuoteController extends WaspController {
 		String searchStr = request.getParameter("searchString");
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		String userId = request.getParameter("userId");
 		String showall = request.getParameter("showall");
@@ -106,8 +106,8 @@ public class Job2QuoteController extends WaspController {
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
 		String submittedOnDateAsString = request.getParameter("submitted_on")==null?null:request.getParameter("submitted_on").trim();//if not passed, will be null
-		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);
-		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("submittedOnDateAsString = " + submittedOnDateAsString);
+		logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);
+		logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("submittedOnDateAsString = " + submittedOnDateAsString);
 
 		//DEAL WITH PARAMETERS
 		//deal with jobId
@@ -345,7 +345,7 @@ public class Job2QuoteController extends WaspController {
 		try{
 			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.CREATED);
 		} catch (WaspMessageBuildingException e){
-			logger.error(e.getMessage());
+			logger.warn(e.getMessage());
 			try {
 				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
 				return null;

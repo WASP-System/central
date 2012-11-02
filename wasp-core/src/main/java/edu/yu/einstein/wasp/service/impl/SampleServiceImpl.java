@@ -491,7 +491,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 			  }
 		  } else {
-			  logger.debug("No facility generated libraries found");
+			  logger.warn("No facility generated libraries found");
 		  }
 		  return libraryList;
 	  }
@@ -569,10 +569,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  String puIdStr = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
 				  IdsForPlatformUnitsNotAvailable.add(Integer.valueOf(puIdStr));
 			  } catch (ParameterValueRetrievalException e){
-				  logger.error(e.getLocalizedMessage());
+				  logger.warn(e.getLocalizedMessage());
 				  continue;
 			  } catch (NumberFormatException e){
-				  logger.error(e.getLocalizedMessage());
+				  logger.warn(e.getLocalizedMessage());
 				  continue;
 			  }
 		  }
@@ -1283,7 +1283,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException{
 		Assert.assertParameterNotNull(platformUnit, "No platformUnit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit Provided");
 		Assert.assertParameterNotNull(sampleSubtype, "No sampleSubtype provided");
 		Assert.assertParameterNotNullNotZero(sampleSubtype.getSampleSubtypeId(), "Invalid sampleSubtype Provided");
 		Assert.assertParameterNotNull(barcodeName, "No barcodeName provided");
@@ -1312,7 +1311,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if(barcodeName != null && !barcodeName.equals(platformUnit.getName())){
 				platformUnitNameHasBeenChanged = true;
 			}
-			System.out.println("The name of the pu sample is : " + platformUnit.getName());
+			//System.out.println("The name of the pu sample is : " + platformUnit.getName());
 
 			action = new String("update");			
 		}

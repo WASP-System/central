@@ -95,7 +95,6 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	}
 	
 	private void setMeta(Workflow workflow, String metaKey, String metaValue){
-		System.out.println("setMeta("+workflow.getIName()+", "+metaKey+", "+metaValue+")");
 		Assert.assertParameterNotNull(workflow, "workflow cannot be null");
 		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
 		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");

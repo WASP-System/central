@@ -377,13 +377,13 @@ public class SampleDnaToLibraryController extends WaspController {
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 						if(adaptor==null){
-							logger.error("Expected an adaptor but found none in library id="+library.getSampleId().toString());
+							logger.warn("Expected an adaptor but found none in library id="+library.getSampleId().toString());
 						}
 						libraryAdaptorMap.put(library, adaptor);
 					}
 				}
 			} catch(SampleTypeException e){
-				logger.error(e.getMessage());
+				logger.warn(e.getMessage());
 			}
 		}
 		
@@ -408,7 +408,6 @@ public class SampleDnaToLibraryController extends WaspController {
 					for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelectionList){
 						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
 							if(jobCellSelection.getCellIndex().intValue() == i){
-								//System.out.print(i + " ");
 								stringBuffer.append("1");
 								found = true;
 							}
@@ -455,7 +454,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
 	  }
 	  catch(Exception e){
-		  logger.debug(e.getMessage());
+		  logger.warn(e.getMessage());
 		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }	   
@@ -472,7 +471,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
 	  }
 	  catch(Exception e){		    
-		  logger.debug(e.getMessage());
+		  logger.warn(e.getMessage());
 		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }
@@ -502,7 +501,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		try{	
   			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleMeta)) );
   		} catch(MetadataException e){
-  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
   		} catch(NumberFormatException e){
   			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
   		}
@@ -625,7 +624,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  try {
 		  sampleService.updateLibraryCreatedStatus(parentMacromolecule, WaspStatus.CREATED);
 		  waspMessage("libraryCreated.created_success.label");
-		  logger.error("Library created successfully but there was a failure to send status message to wasp-daemon");
+		  logger.warn("Library created successfully but there was a failure to send status message to wasp-daemon");
 	  } catch (WaspMessageBuildingException e) {
 		  waspErrorMessage("libraryCreated.message_fail.error");
 	  } 

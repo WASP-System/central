@@ -215,9 +215,9 @@ public class SampleController extends WaspController {
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
 		String selIdAsString = request.getParameter("selId");//not really used here
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		//logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 		//String selIdAsString = request.getParameter("selId");
-		//System.out.println("selIdAsString = " + selIdAsString);
+		//logger.debug("selIdAsString = " + selIdAsString);
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
@@ -230,11 +230,11 @@ public class SampleController extends WaspController {
 		String jobIdFromGridAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, will be null
 		String submitterNameAndLoginFromGrid = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLoginFromGrid = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
-		//System.out.println("sampleNameFromGrid = " + sampleNameFromGrid);
-		//System.out.println("typeFromGrid = " + typeFromGrid);
-		//not used System.out.println("subTypeFromGrid = " + subTypeFromGrid);
-		//System.out.println("jobIdFromGridAsString = " + jobIdFromGridAsString);
-		//System.out.println("submitterNameAndLoginFromGrid = " + submitterNameAndLoginFromGrid);System.out.println("piNameAndLoginFromGrid = " + piNameAndLoginFromGrid);
+		//logger.debug("sampleNameFromGrid = " + sampleNameFromGrid);
+		//logger.debug("typeFromGrid = " + typeFromGrid);
+		//not used logger.debug("subTypeFromGrid = " + subTypeFromGrid);
+		//logger.debug("jobIdFromGridAsString = " + jobIdFromGridAsString);
+		//logger.debug("submitterNameAndLoginFromGrid = " + submitterNameAndLoginFromGrid);logger.debug("piNameAndLoginFromGrid = " + piNameAndLoginFromGrid);
 		
 		//DEAL WITH PARAMETERS
 		
@@ -413,7 +413,7 @@ public class SampleController extends WaspController {
 		sampleService.sortSamplesBySampleName(controlLibraryList);
 		Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 		for(Sample library : controlLibraryList){
-			//System.out.println("Control Lib: " + library.getName());
+			//logger.debug("Control Lib: " + library.getName());
 			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			if(adaptor==null){
 				//message and get out of here
@@ -481,7 +481,7 @@ public class SampleController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public @ResponseBody String ajaxAdaptorsByAdaptorId(@RequestParam("adaptorsetId") String adaptorsetId){
 		
-		//System.out.println("in ajaxAdaptorsByAdaptorId and adaptorsetId = " + adaptorsetId);
+		//logger.debug("in ajaxAdaptorsByAdaptorId and adaptorsetId = " + adaptorsetId);
 		Adaptorset adaptorSet = adaptorsetDao.getAdaptorsetByAdaptorsetId(new Integer(adaptorsetId));
 		List<Adaptor> adaptorList = adaptorSet.getAdaptor();
 		if(adaptorList.size()==0){
@@ -495,10 +495,10 @@ public class SampleController extends WaspController {
 			stringBuffer.append("<option value='"+adaptor.getAdaptorId().intValue()+"'>Index "+adaptor.getBarcodenumber().intValue()+" ("+adaptor.getBarcodesequence()+")</option>");
 		}
 		String returnString = new String(stringBuffer);
-		//System.out.println("Output: " + returnString);
+		//logger.debug("Output: " + returnString);
 		
 		//String returnString = new String("<option value=''>---SELECT AN ADAPTOR---</option><option value='1'>Index 1 (AAGCTT)</option>");
-		//System.out.println("The return string = " + returnString);
+		//logger.debug("The return string = " + returnString);
 		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
 		//String returnString = new String(stringBuffer);
 		//return "<option value=''>---SELECT AN ADAPTOR---</option><option value='1'>Index 1 (AAGCTT)</option>";

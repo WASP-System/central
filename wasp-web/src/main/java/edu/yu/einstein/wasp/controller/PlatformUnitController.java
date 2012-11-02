@@ -236,7 +236,7 @@ public class PlatformUnitController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -253,11 +253,11 @@ public class PlatformUnitController extends WaspController {
 		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
 		//next one no longer used
 		String resourceCategoryNameFromGrid = request.getParameter("resourceCategoryName")==null?null:request.getParameter("resourceCategoryName").trim();//if not passed, will be null
-		//System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("barcodeFromGrid = " + barcodeFromGrid);
-		//System.out.println("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
-		//System.out.println("readTypeFromGrid = " + readTypeFromGrid);System.out.println("readlengthFromGrid = " + readlengthFromGrid);
-		//System.out.println("lanecountFromGrid = " + lanecountFromGrid);System.out.println("dateFromGridAsString = " + dateFromGridAsString);
-		//System.out.println("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
+		//logger.debug("nameFromGrid = " + nameFromGrid);logger.debug("barcodeFromGrid = " + barcodeFromGrid);
+		//logger.debug("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
+		//logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readlengthFromGrid = " + readlengthFromGrid);
+		//logger.debug("lanecountFromGrid = " + lanecountFromGrid);logger.debug("dateFromGridAsString = " + dateFromGridAsString);
+		//logger.debug("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
 		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
 		List<Sample> platformUnitsFoundInSearch = new ArrayList<Sample>();
@@ -475,15 +475,15 @@ public class PlatformUnitController extends WaspController {
 						resourceCategoryIdAsString = sm.getV();
 					}
 				}
-				//System.out.println("resourceCategoryIdAsString: " + resourceCategoryIdAsString);
+				//logger.debug("resourceCategoryIdAsString: " + resourceCategoryIdAsString);
 				try{
 					resourceCategoryIdAsInteger = Integer.valueOf(resourceCategoryIdAsString);
 				}catch(NumberFormatException e){
 					resourceCategoryIdAsInteger = new Integer(0);
 				}
-				//System.out.println("resourceCategoryIdAsInteger: " + resourceCategoryIdAsInteger.toString());
+				//logger.debug("resourceCategoryIdAsInteger: " + resourceCategoryIdAsInteger.toString());
 				resourceCategory = resourceCategoryDao.getResourceCategoryByResourceCategoryId(resourceCategoryIdAsInteger);
-				//System.out.println("resourceCategoryName: " + resourceCategory.getName());
+				//logger.debug("resourceCategoryName: " + resourceCategory.getName());
 				
 				String barcode = "";
 				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
@@ -555,7 +555,7 @@ public class PlatformUnitController extends WaspController {
 		try{			
 			sampleService.deletePlatformUnit(sampleId);
 			
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 
 		waspMessage("platformunitInstance.deleted_success.label");
 		//return "redirect:facilit/platformunit/list.do";
@@ -625,7 +625,7 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 			
 			}//end of if(sampleSubtypeId.intValue()>0)				
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
 		m.put("sampleSubtypeId", sampleSubtypeId);//must be down here, as value can cahnge if "reset"
 		m.put("sampleId", sampleId);
@@ -740,22 +740,22 @@ public class PlatformUnitController extends WaspController {
 			}
 			
 			if(action.equals("create")){
-				//System.out.println("in create1");
+				//logger.debug("in create1");
 				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 				waspMessage("platformunitInstance.created_success.label");
 			}
 			else if(action.equals("update")){
-				//System.out.println("in update1");
+				//logger.debug("in update1");
 				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 				waspMessage("platformunitInstance.updated_success.label");
 			}
 			else{//action == null
-				//System.out.println("in Unexpectedly1");
+				//logger.debug("in Unexpectedly1");
 				throw new Exception("Unexpectedly encountered action whose value is neither create or update");
 			}
-			//System.out.println("end of the POST method");		
+			//logger.debug("end of the POST method");		
 			
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	
 		return "redirect:/facility/platformunit/list.do"; 
 	}
@@ -846,7 +846,7 @@ public class PlatformUnitController extends WaspController {
 			}
 			m.addAttribute("runDetails", runDetails);
 		}catch(Exception e){
-			logger.debug(e.getMessage());
+			logger.warn(e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error");
 			return "redirect:/dashboard.do";
 		}
@@ -866,7 +866,7 @@ public class PlatformUnitController extends WaspController {
 		try {
 			platformUnitLockStatus = sampleService.getPlatformUnitLockStatus(platformUnit);
 		} catch(SampleTypeException e){
-			logger.debug(e.getMessage());
+			logger.warn(e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error");
 			return "redirect:/dashboard.do";
 		}
@@ -906,7 +906,7 @@ public class PlatformUnitController extends WaspController {
 		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
 		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
 			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
-			logger.debug("Unable to find sampleSubtype of controlLibrarySample");
+			logger.warn("Unable to find sampleSubtype of controlLibrarySample");
 		}
 		
 		Map<String, Integer> controlFilterMap = new HashMap<String, Integer>();
@@ -1159,7 +1159,7 @@ public class PlatformUnitController extends WaspController {
 			return;
 		} catch(SampleMultiplexException sme){
 			waspErrorMessage("platformunit.multiplex.error");
-			logger.debug(sme.getMessage()); // print more detailed error to debug logs
+			logger.warn(sme.getMessage()); // print more detailed error to debug logs
 			return;
 		} catch(SampleException se){
 			waspErrorMessage("platformunit.adaptorNotFound.error");
@@ -1417,20 +1417,20 @@ public class PlatformUnitController extends WaspController {
 		Sample platformUnit = sampleService.getSampleDao().getSampleBySampleId(platformUnitId);
 		if(platformUnit.getSampleId().intValue()==0){
 			//message unable to find platform unit record
-			logger.debug("unable to find platform unit record");
+			logger.warn("unable to find platform unit record");
 			return "redirect:/dashboard.do";
 		}
 		//confirm flowcell (platformUnit)
 		if( !platformUnit.getSampleType().getIName().equals("platformunit") ){
 			//message - not a flow cell
-			logger.debug("PlatformUnit not a flow cell");
+			logger.warn("PlatformUnit not a flow cell");
 			return return_string;
 		}
 		//record for machine exists
 		Resource machineInstance = resourceDao.getResourceByResourceId(resourceId);
 		if(machineInstance.getResourceId().intValue() == 0){
 			//message: unable to find record for requested machine
-			logger.debug("unable to find record for requested sequencing machine");
+			logger.warn("unable to find record for requested sequencing machine");
 			return return_string;
 		}
 		//confirm the machine and the flow cell are compatible (via sampleSubtpeResourceCategory)
@@ -1442,7 +1442,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		if(platformUnitAndMachineAreCompatible==false){
 			//message Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible
-			logger.debug("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
+			logger.warn("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
 			return return_string;
 		}
 		Integer laneCountFromMeta = null;
@@ -1452,17 +1452,17 @@ public class PlatformUnitController extends WaspController {
 					laneCountFromMeta = new Integer(sm.getV());
 				}
 				catch(Exception e){
-					logger.debug("Unable to capture platformUnit lanecount from sampleMetaData");
+					logger.warn("Unable to capture platformUnit lanecount from sampleMetaData");
 					return return_string;
 				}
 			}
 		}
 		if(laneCountFromMeta == null){
-			logger.debug("Unable to capture platformUnit lanecount from sampleMetaData");
+			logger.warn("Unable to capture platformUnit lanecount from sampleMetaData");
 			return return_string;
 		}
 		if(laneCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
-			logger.debug("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
+			logger.warn("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
 			return return_string;
 		}
 		//confirm machine and parameters readLength and readType are compatible
@@ -1495,15 +1495,15 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		if(readTypeIsValid == false){
-			logger.debug("Readtype incompatible with selected machine: unable to continue");
+			logger.warn("Readtype incompatible with selected machine: unable to continue");
 			return return_string;			
 		}
 		if(readLengthIsValid == false){
-			logger.debug("Readlength incompatible with selected machine: unable to continue");
+			logger.warn("Readlength incompatible with selected machine: unable to continue");
 			return return_string;			
 		}		
 		if(runName.trim() == ""){
-			logger.debug("Run name is Not valid");
+			logger.warn("Run name is Not valid");
 			return return_string;			
 		}
 
@@ -1517,7 +1517,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}
 		if(userIsTechnician == false){
-			logger.debug("Selected Technical Personnel is NOT listed as technician or manager");
+			logger.warn("Selected Technical Personnel is NOT listed as technician or manager");
 			return return_string;				
 		}
 		
@@ -1528,7 +1528,7 @@ public class PlatformUnitController extends WaspController {
 			dateStart = (Date)formatter.parse(runStartDate);  
 		}
 		catch(Exception e){
-			logger.debug("Start Date format must be MM/dd/yyyy.");
+			logger.warn("Start Date format must be MM/dd/yyyy.");
 			return return_string;	
 		}
 		
@@ -1552,24 +1552,24 @@ public class PlatformUnitController extends WaspController {
 			Run run = runService.getRunDao().getRunByRunId(runId);
 			if(run.getRunId().intValue()==0){
 				//unable to locate run record; 
-				logger.debug("Update Failed: Unable to locate Sequence Run record");
+				logger.warn("Update Failed: Unable to locate Sequence Run record");
 				return return_string;
 			}
 			//confirm that the platformUnit on this run is actually the same platformUnit passed in via parameter platformUnitId
 			List<Run> runList = platformUnit.getRun();
 			if(runList.size() == 0){
 				//platformUnit referenced through parameter platformUnitId is NOT on any sequence run
-				logger.debug("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
+				logger.warn("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
 				return return_string;
 			}
 			if(runList.get(0).getRunId().intValue() != run.getRunId().intValue()){
 				//platformUnit referenced through parameter platformUnitId is NOT on part of This sequence run
-				logger.debug("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
+				logger.warn("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
 				return return_string;
 			}
 			runService.updateRun(run, runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
 			waspMessage("run.updated_success.label");
-			logger.debug("Sequence run has been updated now: runStDate = " + runStartDate);
+			logger.warn("Sequence run has been updated now: runStDate = " + runStartDate);
 		}
 		
 		//return "redirect:/dashboard.do";
@@ -2464,7 +2464,7 @@ public class PlatformUnitController extends WaspController {
 		List<ResourceCategoryMeta> rcMetaList = resourceCategory.getResourceCategoryMeta();
 		for(ResourceCategoryMeta rcm : rcMetaList){
 			
-			//System.out.println(rcm.getK() + " : " + rcm.getV());			
+			//logger.debug(rcm.getK() + " : " + rcm.getV());			
 			if( rcm.getK().indexOf("readType") > -1 ){
 				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
 				for(String token : tokens){//token could be single:single

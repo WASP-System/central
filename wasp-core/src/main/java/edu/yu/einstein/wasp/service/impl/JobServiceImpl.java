@@ -262,12 +262,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
 			} catch (ParameterValueRetrievalException e){
-				logger.error(e.getMessage());
+				logger.warn(e.getMessage());
 				continue;
 			}
 			Sample sample = sampleDao.getSampleBySampleId(sampleId);
 			if (sample == null){
-				logger.error("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				logger.warn("Sample with sample id '"+sampleId+"' does not have a match in the database!");
 				continue;
 			}
 			submittedSamplesNotYetReceivedList.add(sample);
@@ -293,14 +293,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
 				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
 				if (job.getJobId() == 0){
-					logger.error("Expected a job object with id '"+parameterVal+"' but got none");
+					logger.warn("Expected a job object with id '"+parameterVal+"' but got none");
 				} else {
 					activeJobList.add(job);
 				}
 			} catch(ParameterValueRetrievalException e){
-				logger.error(e.getLocalizedMessage());
+				logger.warn(e.getLocalizedMessage());
 			} catch(NumberFormatException e){
-				logger.error(e.getLocalizedMessage());
+				logger.warn(e.getLocalizedMessage());
 			}
 			
 		}
@@ -492,7 +492,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
 				  }
 				  catch(Exception e){
-					  logger.error("JobServiceImpl::getExtraJobDetails(): " + e);
+					  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
 					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
 				  }	
 			  }
@@ -715,14 +715,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
 			} catch (ParameterValueRetrievalException e){
-				logger.error(e.getMessage());
+				logger.warn(e.getMessage());
 				continue;
 			}
 		}
 		for (Integer jobId: uniqueJobIds){
 			Job job = jobDao.getJobByJobId(jobId);
 			if (job == null){
-				logger.error("Job with job id '"+jobId+"' does not have a match in the database!");
+				logger.warn("Job with job id '"+jobId+"' does not have a match in the database!");
 				continue;
 			}
 			JobsAwaitingLibraryCreation.add(job);
@@ -766,17 +766,17 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 						librariesForJobWithAnalysisFlow.put(libraryId, 1);
 					}
 				} catch (ParameterValueRetrievalException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					continue;
 				} catch (NumberFormatException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					continue;
 				}
 				
 				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
 					Sample library = sampleDao.getSampleBySampleId(libraryId);
 					if (library.getSampleId() == 0){
-						logger.error("Cannot find Sample with id=" + libraryId);
+						logger.warn("Cannot find Sample with id=" + libraryId);
 						continue;
 					}
 					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
@@ -839,7 +839,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 		}
 		if (!sampleIsInJob){
-			logger.error("supplied sample is not associated with supplied job");
+			logger.warn("supplied sample is not associated with supplied job");
 			return false;
 		}
 		Map<String, String> parameterMap = new HashMap<String, String>();
@@ -903,7 +903,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  if(jobId == null || newViewerEmailAddress == null){
 		  	  throw new Exception("listJobSamples.illegalOperation.label");	
 		  }		
-		  System.out.println("at 7");	  		
+		  //System.out.println("at 7");	  		
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
 		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
 			throw new Exception("listJobSamples.jobNotFound.label");			  

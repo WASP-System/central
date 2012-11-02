@@ -1189,7 +1189,7 @@ public class JobSubmissionController extends WaspController {
 					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
 					fileService.linkFileWithJobDraft(file, jobDraft);
 				} catch(FileUploadException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");
 				}
 			}
@@ -1503,7 +1503,7 @@ public class JobSubmissionController extends WaspController {
 			try{	
 	  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraftMeta)) );
 	  		} catch(MetadataException e){
-	  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+	  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
 	  		} catch(NumberFormatException e){
 	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
 	  		}
@@ -1701,10 +1701,10 @@ public class JobSubmissionController extends WaspController {
 		try {
 			jobService.createJobFromJobDraft(jobDraft, me);
 		} catch (FileMoveException e) {
-			logger.error(e.getMessage());
+			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 		} catch (WaspMessageBuildingException e) {
-			logger.error(e.getMessage());
+			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 		}
 
