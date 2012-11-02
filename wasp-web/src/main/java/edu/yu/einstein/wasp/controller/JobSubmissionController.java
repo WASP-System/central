@@ -1649,16 +1649,106 @@ public class JobSubmissionController extends WaspController {
 				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getSampleDraftId());
 				sampleDraftJobDraftCellSelection.setLibraryIndex(libraryindex);
 
-				sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
-
+				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelectionDb = sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
+				sampleDraftJobDraftCellSelectionDao.flush(sampleDraftJobDraftCellSelectionDb);
 				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
 
 			}
 		}
 
-		return nextPage(jobDraft);
+		//confirm that all samples appear on at least one cell
+		//confirm that libraries with same index do not appear on same cell (this is actually tricky, since 5' indexes and TruSeq indexes do NOT conflict; also, a library without any index should preclude the addition of ANY other library, and as of now, that designation doesn't exist in the database).
+		//finally, if there is a conflict with indexes on a cell, how can we tell the user which ones using waspErrorMessage, which is a precompiled message?
+		//JobDraft revisedJobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+	/*	try{
+			confirmAllSamplesOnAtLeastOneCell(jobDraftId);
+			//confirmNoBarcodeOverlapPerCell(revisedJobDraft);
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			waspErrorMessage(e.getMessage());
+			return "redirect:/jobsubmit/cells/"+jobDraftId+".do";
+		}		
+		//if(1==1){
+		//	 waspErrorMessage("listJobSamples.jobViewerAdded.label");
+		//	return "redirect:/jobsubmit/cells/"+jobDraftId+".do";
+		//}
+		 
+	*/
+		//return nextPage(jobDraft);
+		return "redirect:/jobsubmit/errorCheckOfSampleDraftOnCells/"+jobDraftId+".do";
 	}
 
+	@RequestMapping(value="/errorCheckOfSampleDraftOnCells/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String errorCheckOfSampleDraftOnCells(
+			@PathVariable("jobDraftId") Integer jobDraftId, 
+			ModelMap m) {
+
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		try{
+			confirmAllSamplesOnAtLeastOneCell(jobDraft);
+			confirmNoBarcodeOverlapPerCell(jobDraft);
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+			waspErrorMessage(e.getMessage());
+			return "redirect:/jobsubmit/cells/"+jobDraftId+".do";
+		}	
+		return nextPage(jobDraft);
+	}
+	private void confirmAllSamplesOnAtLeastOneCell(JobDraft jobDraft) throws Exception{
+		
+		List<SampleDraft> samplesOnJobDraftList = jobDraft.getSampleDraft();
+		Set<SampleDraft> samplesOnCellsOnJobDraftSet = new HashSet<SampleDraft>();
+		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();
+		for(JobDraftCellSelection jdcs : jobDraftCellSelectionsList){
+			List <SampleDraftJobDraftCellSelection> sampleDraftJobCraftCellSelectionList = jdcs.getSampleDraftJobDraftCellSelection();
+			for(SampleDraftJobDraftCellSelection sdjdcs : sampleDraftJobCraftCellSelectionList){
+				samplesOnCellsOnJobDraftSet.add(sdjdcs.getSampleDraft());
+			}
+		}
+		Boolean sampleIsMissing = false;
+		for(SampleDraft sampleDraft : samplesOnJobDraftList){
+			if(!samplesOnCellsOnJobDraftSet.contains(sampleDraft)){
+				sampleIsMissing = true;
+				System.out.println("SampleMissingFromSomeCell is " + sampleDraft.getName());
+				//throw new Exception("jobDraft.cell_error.label"); 
+			}
+		}
+		if(sampleIsMissing){
+			throw new Exception("jobDraft.cell_error.label"); 
+		}
+	}
+	private void confirmNoBarcodeOverlapPerCell(JobDraft jobDraft) throws Exception{
+		//MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
+		//String area = metaHelperWebapp.getArea();
+		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();//these are the cells
+		for(JobDraftCellSelection jdcs : jobDraftCellSelectionsList){
+			List <SampleDraftJobDraftCellSelection> sampleDraftJobCraftCellSelectionList = jdcs.getSampleDraftJobDraftCellSelection();//these are the samples on each cell
+			Set<String> adaptorsOnCell  = new HashSet<String>();
+			for(SampleDraftJobDraftCellSelection sdjdcs : sampleDraftJobCraftCellSelectionList){
+				//samplesOnCellsOnJobDraftSet.add(sdjdcs.getSampleDraft());
+				SampleDraft sampleDraft = sdjdcs.getSampleDraft();
+				if( sampleDraft.getSampleType().getIName().equals("library") || sampleDraft.getSampleType().getIName().equals("facilityLibrary") ){
+					String adaptorIdAsString = MetaHelperWebapp.getMetaValue("genericLibrary", "adaptor", sampleDraft.getSampleDraftMeta());
+					Integer adaptorId;
+					try{
+						adaptorId = Integer.parseInt(adaptorIdAsString);
+					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
+					
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					System.out.println("SampleLibrary name: " + sampleDraft.getName() + "; Barcode: " + adaptor.getBarcodesequence());
+					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+						throw new Exception("jobDraft.cell_adaptor_error.label");
+					}
+					if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
+					else{throw new Exception("jobDraft.cell_barcode_error.label");}
+				}
+			}
+		}
+	}
+	
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
