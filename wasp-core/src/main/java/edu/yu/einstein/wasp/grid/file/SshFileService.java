@@ -124,24 +124,25 @@ public class SshFileService implements GridFileService {
 				file = manager.resolveFile(
 						getRemoteFileString(host, remoteFile), createDefaultOptions(hostKeyChecking, timeout));
 
-				logger.debug(file + " exists: " + file.exists());
-
 				result = file.exists();
 				
 				// no exception, return result
-				attempt = retries;
+				break;
 				
 			} catch (Exception e) {
+				logger.debug("caught exception in retry block: " + e.getLocalizedMessage());
 				if (attempt <= retries) {
 					logger.debug("failed, retrying: " + e.getCause().toString());
 					// ignore exception, try again
 					continue;
 				}
+				logger.error(e.getLocalizedMessage());
 				throw new RuntimeException(e);
 			} finally {
 				manager.close();
 			}
 		}
+		logger.debug(remoteFile + " exists: " + result);
 		return result;
 	}
 
