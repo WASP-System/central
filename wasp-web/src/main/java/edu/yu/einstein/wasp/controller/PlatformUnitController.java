@@ -654,16 +654,17 @@ public class PlatformUnitController extends WaspController {
 			sampleSubtype = sampleService.getSampleSubtypeConfirmedForPlatformunit(sampleSubtypeId);//if not in database or not of type and subtype platformunit, throw exception
 			
 			if(sampleId.intValue()==0 && (platformunitInstance.getSampleId()==null || platformunitInstance.getSampleId().intValue()==0)){//new platform unit
-				action = new String("create");
+				action = "create";
 			}
 			else if(sampleId.intValue()>0 && platformunitInstance.getSampleId().intValue()>0 && sampleId.intValue()==platformunitInstance.getSampleId().intValue()){//update existing platform unit
 				
-				platformUnitInDatabase = sampleService.getPlatformUnit(sampleId.intValue());//throws exception if not valid platformunit in database (checks both sampleType and sampleSubtype)
-				action = new String("update");	
+				platformUnitInDatabase = sampleService.getPlatformUnit(sampleId);//throws exception if not valid platformunit in database (checks both sampleType and sampleSubtype)
+				action = "update";	
 			}
 			else{//action==null
-				throw new Exception("PlatformUnitController.java/createUpdatePlatformUnit.do POST: Unexpected paramater problems");
+				throw new Exception("PlatformUnitController.java/createUpdatePlatformUnit.do POST: Unexpected parameter problems");
 			}
+			logger.debug("Action = "+ action);
 	
 			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 			metaHelperWebapp.getFromRequest(request, SampleMeta.class);

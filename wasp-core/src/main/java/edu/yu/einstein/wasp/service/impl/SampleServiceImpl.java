@@ -233,7 +233,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Transactional
 	  public void saveSampleWithAssociatedMeta(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		  sampleDao.save(sample);
 		  sampleMetaDao.updateBySampleId(sample.getSampleId(), sample.getSampleMeta());
 	  }
@@ -503,7 +502,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public Adaptor getLibraryAdaptor(Sample library){
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(library, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Sample Provided");
 		  Adaptor adaptor = null;
 		  String adaptorId = new String("");
 		  SampleSubtype sampleSubtype = library.getSampleSubtype();
@@ -617,7 +615,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		  List<Sample> availablePlatformUnits = getAvailablePlatformUnits();
 		  List<Sample> availableAndCompatibleFlowCells = new ArrayList<Sample>();
 		  for(Sample pu : availablePlatformUnits){
@@ -796,8 +793,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<Sample> getLibrariesOnCellWithoutControls(Sample cell) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
-		   List<Sample> filteredLibraryList = new ArrayList<Sample>();
+		  List<Sample> filteredLibraryList = new ArrayList<Sample>();
 		  for (Sample library : getLibrariesOnCell(cell)){
 			  if (!library.getSampleSubtype().getIName().equals("controlLibrarySample"))
 				  filteredLibraryList.add(library);
@@ -1135,9 +1131,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public boolean sampleIsInDatabase(Sample sample){
-		
 		Assert.assertParameterNotNull(sample, "No sample provided");
-		return this.sampleIdIsInDatabase(sample.getSampleId());
+		if (sample.getSampleId() != null && sample.getSampleId().intValue() > 0)
+			return true;
+		return false;
 	}
 	 
 	/**
@@ -1145,9 +1142,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public boolean sampleIdIsInDatabase(Integer sampleId){
-		Assert.assertParameterNotNullNotZero(sampleId, "No valid sampleId provided");
-		Sample sample = this.getSampleById(sampleId.intValue());
-		return sample.getSampleId()!=null && sample.getSampleId().intValue() > 0?true:false;
+		if (sampleId == null || sampleId == 0)
+			return false;
+		return sampleIsInDatabase(getSampleById(sampleId));
 	}
 	
 	/**
@@ -1619,9 +1616,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance){
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
 		Assert.assertParameterNotNull(sequencingMachineInstance, "Invalid sequencingMachineInstance provided");
-		Assert.assertParameterNotNullNotZero(sequencingMachineInstance.getResourceId(), "Invalid sequencingMachineInstance provided");
 		SampleSubtype sampleSubtypeOnPlatformUnit = platformUnit.getSampleSubtype();
 		for(SampleSubtypeResourceCategory ssrc : sequencingMachineInstance.getResourceCategory().getSampleSubtypeResourceCategory()){
 			if(ssrc.getSampleSubtype().getSampleSubtypeId().intValue()==sampleSubtypeOnPlatformUnit.getSampleSubtypeId().intValue()){
@@ -1736,7 +1731,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	private void deleteSampleBarcode(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid platformUnit provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid platformUnit provided");
 		List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
 		for(SampleBarcode sampleBarcode : sampleBarcodeList){
 			Barcode barcode = sampleBarcode.getBarcode();

@@ -259,7 +259,7 @@ public class JobSubmissionController extends WaspController {
 	
 
 	public String nextPage(JobDraft jobDraft) {
-		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
+		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowDao.getWorkflowByWorkflowId(jobDraft.getWorkflowId()));
 		if (pageFlowArray.length == 0)
 			pageFlowArray = defaultPageFlow;
 
