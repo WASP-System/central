@@ -1,5 +1,0 @@
-Running using this method requires that wasp-core be properly deployed into the maven repository,
-and that all plugins are compiled and deployed to $CATALINA_HOME/waspPlugins.
-
-java -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring
-

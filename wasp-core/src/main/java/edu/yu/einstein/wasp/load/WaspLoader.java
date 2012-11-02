@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.model.UiField;
 
 public abstract class WaspLoader {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected String domain;
 	public void setDomain(String domain) { this.domain = domain;}
@@ -37,11 +38,22 @@ public abstract class WaspLoader {
 		this.area = StringUtils.replace(area, ".", "_"); 
 		this.iname = area;
 	}
+	public String getArea() {
+		return this.iname;
+	}
 	
 	protected List<UiField> uiFields; 
 	
 	public void setUiFields(List<UiField> uiFields) {
-		this.uiFields = uiFields;	
+		if (uiFields == null || uiFields.isEmpty())
+			return;
+		if (this.uiFields == null)
+			this.uiFields = new ArrayList<UiField>();
+		for (UiField uiField : uiFields){
+			if (uiField.getArea() == null)
+				uiField.setArea(area);
+			this.uiFields.add(uiField);
+		}	
 	}
 	
 	public void setUiFieldGroups(List< List<UiField> > uiFieldsList) {
@@ -49,6 +61,8 @@ public abstract class WaspLoader {
 		for (List<UiField> uiFieldSet : safeList(uiFieldsList)){
 			int metapositionMaxPos = -1;
 			for (UiField uiField : uiFieldSet){
+				if (uiField.getArea() == null)
+					uiField.setArea(area);
 				if (uiField.getAttrName().equals("metaposition")){
 					int metaPosition;
 					try{
@@ -70,9 +84,7 @@ public abstract class WaspLoader {
 	
 	public void setUiFieldsFromWrapper(List<UiFieldFamilyWrapper> uiFieldWrappers) {
 		for (UiFieldFamilyWrapper uiFieldWrapper : safeList(uiFieldWrappers)){
-			if (this.uiFields == null)
-				this.uiFields = new  ArrayList<UiField>();
-			this.uiFields.addAll(uiFieldWrapper.getUiFields());
+			this.setUiFields(uiFieldWrapper.getUiFields());
 		}
 	}
 	
@@ -82,6 +94,8 @@ public abstract class WaspLoader {
 			int metapositionMaxPos = -1;
 			for (UiFieldFamilyWrapper uiFieldWrapper : uiFieldWrapperSet){
 				for (UiField uiField : uiFieldWrapper.getUiFields()){
+					if (uiField.getArea() == null)
+						uiField.setArea(area);
 					if (uiField.getAttrName().equals("metaposition")){
 						int metaPosition;
 						try{
@@ -106,7 +120,7 @@ public abstract class WaspLoader {
 	
 	public List<UiField> getUiFields() {return this.uiFields; }
 
-	protected static final Logger log = Logger.getLogger(WaspLoader.class);
+	protected static final Logger log = LoggerFactory.getLogger(WaspLoader.class);
 	
 	protected WaspLoader sourceLoadService;
 	

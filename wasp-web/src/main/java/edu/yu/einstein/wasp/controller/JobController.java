@@ -5,7 +5,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,11 +23,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
@@ -36,9 +33,9 @@ import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -56,9 +53,6 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
@@ -108,10 +102,7 @@ public class JobController extends WaspController {
 		return this.roleDao;
 	}
 
-	@Autowired
-	private TaskDao		taskDao;
-	@Autowired
-	private StateDao	stateDao;
+
 	@Autowired
 	private LabDao		labDao;
 	@Autowired
@@ -175,7 +166,7 @@ public class JobController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		//logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -188,13 +179,13 @@ public class JobController extends WaspController {
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
 		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
-		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
+		//logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("jobname = " + jobname);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("createDateAsString = " + createDateAsString);
 
 		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
 		//Note that these two request parameters attached to the URL SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
 		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
 		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
-		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
+		//logger.debug("userIdFromURL = " + userIdFromURL);logger.debug("labIdFromURL = " + labIdFromURL);
 		
 		//DEAL WITH PARAMETERS
 		
@@ -521,16 +512,12 @@ public class JobController extends WaspController {
 		List<JobUser> jobUserList = job.getJobUser();
 		jobUserList.size();
 
-		List<Statejob> stateJobList = job.getStatejob();
-		stateJobList.size();
-
 		m.addAttribute("now", now);
 		m.addAttribute("job", job);
 		m.addAttribute("jobmeta", jobMetaList);
 		m.addAttribute("jobsample", jobSampleList);
 		m.addAttribute("jobfile", jobFileList);
 		m.addAttribute("jobuser", jobUserList);
-		m.addAttribute("statejob", stateJobList);
 
 		return "job/detail";
 	}
@@ -597,42 +584,6 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-  @RequestMapping(value = "/pending/detail_ro/{deptId}/{labId}/{jobId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,@PathVariable("labId") Integer labId,
-			@PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  String now = (new Date()).toString();
-
-
-	    Job job = this.getJobDao().getById(jobId);
-
-	    List<JobMeta> jobMetaList = job.getJobMeta();
-	    jobMetaList.size();
-
-	    List<JobSample> jobSampleList = job.getJobSample();
-	    jobSampleList.size();
-
-	    List<JobFile> jobFileList = job.getJobFile();
-	    jobFileList.size();
-
-	    List<JobUser> jobUserList = job.getJobUser();
-	    jobUserList.size();
-
-	    List<Statejob> stateJobList = job.getStatejob();
-	    stateJobList.size();
-
-	    m.addAttribute("now", now);
-	    m.addAttribute("job", job);
-	    m.addAttribute("jobmeta", jobMetaList);
-	    m.addAttribute("jobsample", jobSampleList);
-	    m.addAttribute("jobfile", jobFileList);
-	    m.addAttribute("jobuser", jobUserList);
-	    m.addAttribute("statejob", stateJobList);
-	   // m.addAttribute("actingasrole", actingAsRole);
-	    
-	    return "job/pendingjob/detail_ro";
-  }
  
   /* 5/15/12 should not longer be user
   @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
@@ -648,8 +599,19 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.CREATED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobPiApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/lab/pendinglmapproval/list.do";	
@@ -658,56 +620,25 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "DA");//private method below
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.CREATED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobDaApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/department/dapendingtasklist.do";		  
 	}
  
-  private void pendingJobApproval(String action, Integer jobId, String approver){
-
-	  Task taskOfInterest;
-	  //confirm action is either approve or reject
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==null || job.getJobId().intValue() == 0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if("DA".equals(approver)){
-		  taskOfInterest = taskDao.getTaskByIName("DA Approval");//confirm task id > 0 is below
-	  }
-	  else if("LM".equals(approver) || "PI".equals(approver)){
-		 taskOfInterest = taskDao.getTaskByIName("PI Approval");//confirm task id > 0 is below
-	  }
-	  else{
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if(taskOfInterest.getTaskId()==null || taskOfInterest.getTaskId().intValue()==0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  List<Statejob> statejobList = job.getStatejob();
-	  for(Statejob statejob : statejobList){
-		  State state = statejob.getState();
-		  if(taskOfInterest.getTaskId()==state.getTaskId()){
-			  if("approve".equals(action)){
-				  state.setStatus("COMPLETED");
-				  stateDao.save(state);
-				  waspMessage("job.approval.approved"); break;
-			  }
-			  else if("reject".equals(action)){
-				  state.setStatus("ABANDONED");
-				  stateDao.save(state); 
-				  waspMessage("job.approval.rejected"); break;
-			  }			 
-		  }
-	  }
-	  return;	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
-  }
-
-
 
 	/**
 	 * show job/resource data and meta information to be modified.
@@ -789,12 +720,12 @@ public class JobController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
 	public String jobsAwaitingLibraryCreation(ModelMap m) {
 		  
-		List<Job> jobsWithLibraryCreatedTask = jobService.getJobsWithLibraryCreatedTask();
+		List<Job> jobsAwaitingLibraryCreation = jobService.getJobsAwaitingLibraryCreation();
 		List<Job> jobsActive = jobService.getActiveJobs();
 		    
 		List<Job> jobsActiveAndWithLibraryCreatedTask = new ArrayList<Job>();
 		for(Job jobActive : jobsActive){
-		    for(Job jobAwaiting : jobsWithLibraryCreatedTask){
+		    for(Job jobAwaiting : jobsAwaitingLibraryCreation){
 		    	if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
 		    		jobsActiveAndWithLibraryCreatedTask.add(jobActive);
 		    		break;

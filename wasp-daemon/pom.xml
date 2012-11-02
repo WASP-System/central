@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>wasp-parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../wasp-parent/pom.xml</relativePath>
+	</parent>
+	<artifactId>wasp-daemon</artifactId>
+	<packaging>jar</packaging>
+	<name>WASP System Daemon</name>
+	<url>http://waspsystem.org/</url>
+	<description>
+		<![CDATA[
+      This component of the WASP System handles task flows and analysis for all submitted Wasp jobs  
+    ]]>
+	</description>
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+		<module.version>0.1.0-SNAPSHOT</module.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+      		<groupId>edu.yu.einstein.wasp</groupId>
+      		<artifactId>wasp-core</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-infrastructure</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-integration</artifactId>
+		</dependency>
+		<dependency>
+			 <groupId>org.springframework.integration</groupId>
+			 <artifactId>spring-integration-core</artifactId>
+		</dependency> 
+		<dependency>
+			 <groupId>org.springframework.integration</groupId>
+			 <artifactId>spring-integration-rmi</artifactId>
+		</dependency> 
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.7</version>
+		</dependency>
+		<!--  if you use aspects in your spring config with, say, jdbc:initalize-database configuration clause, most likely you’ll get assertion error in your JUnit test.
+		The possible workaround would be to switch to aspectjweaver of version 1.6.9. (not latest version 1.6.12) -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.5</version>
+			<executions>
+			<execution>
+			<phase>package</phase>
+			<goals>
+			<goal>shade</goal>
+			</goals>
+			<configuration>
+			<transformers>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+			<mainClass>edu.yu.einstein.wasp.daemon.StartDaemon</mainClass>
+			</transformer>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			<resource>META-INF/spring.handlers</resource>
+			</transformer>
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+			<resource>META-INF/spring.schemas</resource>
+			</transformer>
+			</transformers>
+			<filters>
+			<filter>
+			<artifact>edu.yu.einstein.wasp:wasp-cli</artifact>
+			<excludes>
+			<exclude>commons-logging.properties</exclude>
+			<exclude>simplelog.properties</exclude>
+			<exclude>logback.xml</exclude>
+			</excludes>
+			</filter>
+			</filters>
+			</configuration>
+			</execution>
+			</executions>
+			</plugin>
+
+			</plugins>
+			<pluginManagement>
+				<plugins>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.10</version>
+						
+						<executions>
+							<execution>
+								<id>unit-tests</id>
+								<phase>test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<configuration>
+									<skip>${maven.test.skip}</skip>
+									<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
+									<includes>
+										 <include>**/Test*.java</include>
+										 <include>**/*Test.java</include>
+										 <include>**/*Tests.java</include>
+										 <include>**/*TestCase.java</include>
+									</includes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</pluginManagement>
+
+			
+	</build>
+	<repositories>
+		<repository>
+			<id>springframework-milestone</id>
+			<name>Spring Maven MILESTONE Repository</name>
+			<url>http://maven.springframework.org/milestone</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>Codehaus</id>
+			<url>http://repository.codehaus.org/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencyManagement>
+	<dependencies>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>bom</artifactId>
+	<version>1.0.0</version>
+	<type>pom</type>
+	<scope>import</scope>
+	</dependency>
+	</dependencies>
+	</dependencyManagement>
+ 
+	<groupId>edu.yu.einstein.wasp.daemon</groupId>
+</project>

@@ -6,8 +6,8 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -29,7 +29,7 @@ public class SshTransportConnection implements GridTransportConnection {
 	private ChannelExec channel;
 	private GridHostResolver hostResolver;
 	
-	private static final Log logger = LogFactory.getLog(SshTransportConnection.class);
+	private static final Logger logger = LoggerFactory.getLogger(SshTransportConnection.class);
 	
 	public SshTransportConnection(GridHostResolver hostResolver, String hostKeyChecking, File identityFile, WorkUnit w)
 			throws GridAccessException, GridUnresolvableHostException {
@@ -105,7 +105,7 @@ public class SshTransportConnection implements GridTransportConnection {
 			throw new GridAccessException("unable to execute");
 		} catch (IOException e) {
 			e.printStackTrace();
-			logger.error("unable to get output strem on remote host " + hostResolver.getHostname(w));
+			logger.error("unable to get output stream on remote host " + hostResolver.getHostname(w));
 			throw new GridAccessException("unable to get output stream");
 		}
 		

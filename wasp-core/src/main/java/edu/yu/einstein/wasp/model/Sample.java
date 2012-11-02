@@ -1060,63 +1060,6 @@ public class Sample extends WaspModel {
 
 
 
-	/** 
-	 * statesample
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="sampleid", insertable=false, updatable=false)
-	protected List<Statesample> statesample;
-
-
-	/** 
-	 * getStatesample()
-	 *
-	 * @return statesample
-	 *
-	 */
-	@JsonIgnore
-	public List<Statesample> getStatesample() {
-		return this.statesample;
-	}
-
-
-	/** 
-	 * setStatesample
-	 *
-	 * @param statesample
-	 *
-	 */
-	public void setStatesample (List<Statesample> statesample) {
-		this.statesample = statesample;
-	}
-
-
-	/** 
-	 * getReceivedStatus()
-	 *
-	 * @return receivedStatus
-	 *
-	 */
-	public String getReceivedStatus() {
-		String receivedStatus = "";
-		List<Statesample> statesamples = this.getStatesample();
-		for(Statesample ss : statesamples){
-			if(ss.getState().getTask().getIName().equals("Receive Sample")){
-				if(ss.getState().getStatus().equals("CREATED")){
-					receivedStatus = "AWAITING";
-				}
-				else if(ss.getState().getStatus().equals("RECEIVED") || ss.getState().getStatus().equals("FINALIZED")){
-					receivedStatus = "RECEIVED";
-				}
-				else if(ss.getState().getStatus().equals("ABANDONED")){
-					receivedStatus = "WITHDRAWN";
-				}
-			}
-		}
-		return receivedStatus;
-	}
 	
 
 }

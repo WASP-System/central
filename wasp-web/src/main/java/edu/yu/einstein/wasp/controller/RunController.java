@@ -50,7 +50,6 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
@@ -279,9 +278,9 @@ public class RunController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 //String selIdAsString = request.getParameter("selId");
-//System.out.println("selIdAsString = " + selIdAsString);
+//logger.debug("selIdAsString = " + selIdAsString);
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
@@ -296,11 +295,11 @@ public class RunController extends WaspController {
 		String dateRunStartedFromGridAsString = request.getParameter("dateRunStarted")==null?null:request.getParameter("dateRunStarted").trim();//if not passed, will be null
 		String dateRunEndedFromGridAsString = request.getParameter("dateRunEnded")==null?null:request.getParameter("dateRunEnded").trim();//if not passed, will be null
 		String statusForRunFromGrid = request.getParameter("statusForRun")==null?null:request.getParameter("statusForRun").trim();//if not passed, will be null
-		System.out.println("nameFromGrid = " + nameFromGrid);System.out.println("platformUnitBarcodeFromGrid = " + platformUnitBarcodeFromGrid);
-		System.out.println("machineAndMachineTypeFromGrid = " + machineAndMachineTypeFromGrid); 
-		System.out.println("readTypeFromGrid = " + readTypeFromGrid);System.out.println("readlengthFromGrid = " + readlengthFromGrid);
-		System.out.println("dateRunStartedFromGridAsString = " + dateRunStartedFromGridAsString);System.out.println("dateRunEndedFromGridAsString = " + dateRunEndedFromGridAsString);
-		System.out.println("statusForRunFromGrid = " + statusForRunFromGrid);
+		logger.debug("nameFromGrid = " + nameFromGrid);logger.debug("platformUnitBarcodeFromGrid = " + platformUnitBarcodeFromGrid);
+		logger.debug("machineAndMachineTypeFromGrid = " + machineAndMachineTypeFromGrid); 
+		logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readlengthFromGrid = " + readlengthFromGrid);
+		logger.debug("dateRunStartedFromGridAsString = " + dateRunStartedFromGridAsString);logger.debug("dateRunEndedFromGridAsString = " + dateRunEndedFromGridAsString);
+		logger.debug("statusForRunFromGrid = " + statusForRunFromGrid);
 	
 		List<Run> tempRunList =  new ArrayList<Run>();
 		List<Run> runsFoundInSearch = new ArrayList<Run>();
@@ -369,7 +368,7 @@ public class RunController extends WaspController {
 			
 			if(platformUnitBarcodeFromGrid != null){
 				for(Run run : tempRunList){
-					List<SampleBarcode> sbList = run.getSample().getSampleBarcode();
+					List<SampleBarcode> sbList = run.getPlatformUnit().getSampleBarcode();
 					if(sbList.get(0).getBarcode().getBarcode().equalsIgnoreCase(platformUnitBarcodeFromGrid)){
 						runsFoundInSearch.add(run);
 					}
@@ -779,7 +778,7 @@ public class RunController extends WaspController {
 			m.addAttribute("resourceId", resourceId);
 			m.addAttribute("platformUnitId", platformUnit.getSampleId().toString());			
 			
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
 
 		//return "redirect:/dashboard.do";
 		return "run/createUpdateRun";
@@ -800,7 +799,7 @@ public class RunController extends WaspController {
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
 	
-		System.out.println("Inside the createUpdateRun POST");
+		logger.debug("Inside the createUpdateRun POST");
 		//if(1==1){return "redirect:/dashboard.do";}
 		
 		try{
@@ -811,11 +810,11 @@ public class RunController extends WaspController {
 			}
 			else if(runId.intValue()==0 && (runInstance.getRunId()==null || runInstance.getRunId().intValue()==0)){
 				action = new String("create");
-				System.out.println("create new run");
+				logger.debug("create new run");
 			}
 			else if(runId.intValue()>0 && runInstance.getRunId()!=null && runInstance.getRunId().intValue()>0 && runId.intValue()==runInstance.getRunId().intValue()){
 				action = new String("update");
-				System.out.println("update existing run");
+				logger.debug("update existing run");
 			}			
 			else{
 				throw new Exception("Unexpected parameter problems 2: createUpdateRun - POST");
@@ -868,8 +867,8 @@ public class RunController extends WaspController {
 			
 			if (result.hasErrors()||otherErrorsExist){
 				
-				System.out.println("We see some errors");
-				if(otherErrorsExist){System.out.println("other errors exist");}else{System.out.println("other errors DO NOT exist");}
+				logger.debug("We see some errors");
+				if(otherErrorsExist){logger.debug("other errors exist");}else{logger.debug("other errors DO NOT exist");}
 				
 				//first deal with filling up info about the platformunit displayed on the left
 				Sample platformUnit = null; 
@@ -914,25 +913,25 @@ public class RunController extends WaspController {
 			
 			//should really confirm resource is OK, platformunit is ok, resource is OK for the flow cell
 			if(action.equals("create")){
-				//System.out.println("in create1");
+				//logger.debug("in create1");
 				//if create, then set startts to the date in the parameter (currently that parameter does not exit)
 				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.created_success.label");
 			}
 			else if(action.equals("update")){
-				//System.out.println("in update1");
+				//logger.debug("in update1");
 				runInstance.setStartts(dateRunStartedAsDateObject);
 				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.updated_success.label");
 			}
 			else{//action == null
-				//System.out.println("in Unexpectedly1");
+				//logger.debug("in Unexpectedly1");
 				throw new Exception("Unexpectedly encountered action whose value is neither create or update in createUpdateRun");
 			}
-			//System.out.println("end of the POST method");	
+			//logger.debug("end of the POST method");	
 			
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
 
 		return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/
 	}
@@ -946,7 +945,7 @@ public class RunController extends WaspController {
 			Run run = sampleService.getSequenceRun(runId);//exception if not msp run or not in db
 			sampleService.deleteSequenceRun(run);
 			return "redirect:/facility/platformunit/showPlatformUnit/"+run.getSampleId().intValue()+".do";
-		}catch(Exception e){logger.debug(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
+		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 	}
 }
 
@@ -973,7 +972,7 @@ class MachineNameComparator implements Comparator<Run> {
 class RunPlatformUnitBarcodeComparator implements Comparator<Run> {
 	@Override
 	public int compare(Run arg0, Run arg1) {
-		return arg0.getSample().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSample().getSampleBarcode().get(0).getBarcode().getBarcode());
+		return arg0.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode());
 	}
 }
 class DateRunEndedComparator implements Comparator<Run> {

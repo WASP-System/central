@@ -3,11 +3,14 @@
  */
 package edu.yu.einstein.wasp.grid;
 
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
 /**
@@ -23,13 +26,14 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 	private String username;
 	private String account;
 	
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String queue;
 	private String maxRunTime;
 	private String project;
 	private String mailRecipient;
 	private String mailCircumstances;
-	private Set<String> parallelEnvironments;
+	
+	private GridWorkService gws;
 	
 	public SingleHostResolver() {
 	}
@@ -148,15 +152,37 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 		this.mailCircumstances = circ;
 	}
 
+	
+
 	@Override
-	public void setAvailableParallelEnvironments(Set<String> pe) {
-		this.parallelEnvironments = pe;
-		
+	public GridWorkService getGridWorkService(WorkUnit w) {
+		return gws;
 	}
 
 	@Override
+	public void setAvailableWorkServices(List<GridWorkService> gws) {
+		this.gws = gws.get(0);
+	}
+	
+
+
+	@Override
 	public String getParallelEnvironmentString(WorkUnit w) {
-		return (String) parallelEnvironments.toArray()[0];
+		// TODO: too simplistic, only works with one PE
+		return (String) gws.getAvailableParallelEnvironments().toArray()[0];
+	}
+
+	@Override
+	public GridResult execute(WorkUnit w) throws GridAccessException,
+			GridUnresolvableHostException, GridExecutionException {
+		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getName());
+		return getGridWorkService(w).execute(w);
+	}
+
+	@Override
+	public boolean isFinished(GridResult g) throws GridAccessException,
+			GridExecutionException, GridUnresolvableHostException {
+		return gws.isFinished(g);
 	}
 
 }

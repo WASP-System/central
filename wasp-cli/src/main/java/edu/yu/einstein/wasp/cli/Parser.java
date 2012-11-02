@@ -9,12 +9,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Parser {
 
-	private final static Log logger = LogFactory.getLog(Parser.class);
+	private final static Logger logger = LoggerFactory.getLogger(Parser.class);
 
 	private Options options = new Options();
 	private CommandLine cl;

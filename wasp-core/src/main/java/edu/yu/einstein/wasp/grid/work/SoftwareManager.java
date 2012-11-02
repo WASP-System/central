@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.util.HashMap;
+
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 
 /**
@@ -17,12 +19,12 @@ public interface SoftwareManager {
 	 * @param w
 	 * @return
 	 */
-	public String getConfiguration(WorkUnit w) throws GridExecutionException;
+	public abstract String getConfiguration(WorkUnit w) throws GridExecutionException;
 	
 	/**
 	 * On setup, configure software manager.  Should log events and report failures.
 	 * @param s
 	 */
-	public void configure(String s);
+	public abstract void configure(String s);
 
 }

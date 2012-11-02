@@ -28,25 +28,20 @@ import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
-import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
-import edu.yu.einstein.wasp.model.Department;
-import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.FilterService;
-import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -63,17 +58,14 @@ public class Job2QuoteController extends WaspController {
 	@Autowired
 	private AcctJobquotecurrentDao acctJobquotecurrentDao;
 	@Autowired
-	private JobDao			jobDao;
+	private JobService jobService;
+	
 	@Autowired
 	private LabDao			labDao;
-	@Autowired
-	private StateDao		stateDao;
-	@Autowired
-	private StatejobDao		statejobDao;
+
 	@Autowired
 	private FilterService	filterService;
-	@Autowired
-	private TaskService		taskService;
+
 	@Autowired
 	private MessageService	messageService;
 	@Autowired
@@ -105,7 +97,7 @@ public class Job2QuoteController extends WaspController {
 		String searchStr = request.getParameter("searchString");
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		String userId = request.getParameter("userId");
 		String showall = request.getParameter("showall");
@@ -114,8 +106,8 @@ public class Job2QuoteController extends WaspController {
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
 		String submittedOnDateAsString = request.getParameter("submitted_on")==null?null:request.getParameter("submitted_on").trim();//if not passed, will be null
-		System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);
-		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("submittedOnDateAsString = " + submittedOnDateAsString);
+		logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);
+		logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("submittedOnDateAsString = " + submittedOnDateAsString);
 
 		//DEAL WITH PARAMETERS
 		//deal with jobId
@@ -223,7 +215,7 @@ public class Job2QuoteController extends WaspController {
 			orderByColumnAndDirection.add("jobId desc");
 		}
 		
-		jobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+		jobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
@@ -275,7 +267,7 @@ public class Job2QuoteController extends WaspController {
 			 */
 			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
 				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = job2quoteList.indexOf(jobDao.findById(selId));
+				int selIndex = job2quoteList.indexOf(jobService.getJobDao().findById(selId));
 				frId = selIndex;
 				toId = frId + 1;
 
@@ -350,14 +342,16 @@ public class Job2QuoteController extends WaspController {
 			acctJobquotecurrent.setJobId(jobId);
 			acctJobquotecurrentDao.persist(acctJobquotecurrent);
 		}
-		
-		Map qMap = new HashMap();
-		qMap.put("jobId", jobId);
-		qMap.put("state.task.iName", "Quote Job");
-		List<Statejob> sjList = statejobDao.findByMap(qMap);
-		for (Statejob sj : sjList) {
-			State st = stateDao.getStateByStateId(sj.getStateId());
-			st.setStatus("COMPLETED");
+		try{
+			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.CREATED);
+		} catch (WaspMessageBuildingException e){
+			logger.warn(e.getMessage());
+			try {
+				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
+				return null;
+			} catch (Throwable t) {
+				throw new IllegalStateException("Cant output message sending failure message", t);
+			}
 		}
 		
 		

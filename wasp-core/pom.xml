@@ -95,13 +95,14 @@
 							<configuration>
 								<skip>false</skip>
 								<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
+								<includes>
+									 <include>**/Test*.java</include>
+									 <include>**/*Test.java</include>
+									 <include>**/*Tests.java</include>
+									 <include>**/*TestCase.java</include>
+								</includes>
 							</configuration>
 						</execution>
-						<!-- <execution> <id>integration-tests</id> <phase>integration-test</phase> 
-							<goals> <goal>test</goal> </goals> <configuration> <skip>false</skip> <groups>integration-tests</groups> 
-							</configuration> </execution> <execution> <id>db-tests</id> <phase>integration-test</phase> 
-							<goals> <goal>test</goal> </goals> <configuration> <skip>true</skip> <groups>db-tests,a</groups> 
-							<excludedGroups>integration-tests, a</excludedGroups> </configuration> </execution> -->
 					</executions>
 				</plugin>
 			</plugins>
@@ -110,11 +111,10 @@
 
 	<dependencies>
 		<dependency>
-		        <groupId>${project.groupId}</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-cli</artifactId>
-			<version>${project.version}</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-vfs2</artifactId>
@@ -132,6 +132,10 @@
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
@@ -156,16 +160,6 @@
 			<dependency>
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jcl-over-slf4j</artifactId>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-pool</groupId>
@@ -240,16 +234,8 @@
 				<artifactId>jta</artifactId>
 			</dependency>
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-			</dependency>
-			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-aop</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -324,6 +310,10 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
 			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+			</dependency>
 <!--
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -337,10 +327,6 @@
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-simple</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
@@ -523,6 +509,12 @@
 				<groupId>org.unitils</groupId>
 				<artifactId>unitils-dbmaintainer</artifactId>
 				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-nop</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.unitils</groupId>

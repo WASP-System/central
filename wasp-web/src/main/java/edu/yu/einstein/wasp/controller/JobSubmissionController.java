@@ -67,9 +67,6 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
@@ -78,6 +75,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -110,6 +108,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -201,21 +200,15 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected SampleSubtypeDao sampleSubtypeDao;
-
-	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
-
-	@Autowired
-	protected TaskDao taskDao;
 	
 	@Autowired
 	protected SampleSubtypeDao subSampleTypeDao;
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+	
+	@Autowired
+	protected WorkflowService workflowService;
 
 	@Autowired
 	protected WorkflowresourcecategoryDao workflowresourcecategoryDao;
@@ -261,30 +254,21 @@ public class JobSubmissionController extends WaspController {
 		return new MetaHelperWebapp(JobDraftMeta.class, request.getSession());
 	}
 	
-	final public String defaultPageFlow = "/jobsubmit/modifymeta/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok";
+	final public String[] defaultPageFlow = {"/jobsubmit/modifymeta/{n}","/jobsubmit/samples/{n}","/jobsubmit/cells/{n}","/jobsubmit/verify/{n}","/jobsubmit/submit/{n}","/jobsubmit/ok"};
+	
+	
 
 	public String nextPage(JobDraft jobDraft) {
-		String pageFlow = this.defaultPageFlow;
+		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowDao.getWorkflowByWorkflowId(jobDraft.getWorkflowId()));
+		if (pageFlowArray.length == 0)
+			pageFlowArray = defaultPageFlow;
 
-		try {
-			List<WorkflowMeta> wfmList = jobDraft.getWorkflow().getWorkflowMeta();
-			for (WorkflowMeta wfm : wfmList) {
-				if (wfm.getK().equals("workflow.submitpageflow")) {
-					pageFlow = wfm.getV();
-					break;
-			}
-		}
-		} catch (Exception e) {
-		}
-
+		
 		String context = request.getContextPath();
 		String uri = request.getRequestURI();
 	
 		// strips context, lead slash ("/"), spring mapping
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
-
-
-		String pageFlowArray[] = pageFlow.split(";");
 
 		int found = -1;
 		for (int i=0; i < pageFlowArray.length -1; i++) {
@@ -1205,7 +1189,7 @@ public class JobSubmissionController extends WaspController {
 					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
 					fileService.linkFileWithJobDraft(file, jobDraft);
 				} catch(FileUploadException e){
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");
 				}
 			}
@@ -1230,7 +1214,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			// library specific functionality
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
@@ -1284,7 +1268,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
@@ -1321,7 +1305,7 @@ public class JobSubmissionController extends WaspController {
 		validateSampleDraftNameUnique(sampleDraftForm.getName(), sampleDraftId, jobDraft, result);
 		if (result.hasErrors()){
 			waspErrorMessage("sampleDetail.updated.error");
-			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+			if (sampleService.isLibrary(sampleDraftForm)){
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
@@ -1359,7 +1343,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (clone.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(clone)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
@@ -1401,7 +1385,7 @@ public class JobSubmissionController extends WaspController {
 		} catch (MetadataTypeException e) {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
-		if (sampleDraft.getSampleType().getIName().equals("library")){
+		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
@@ -1438,7 +1422,7 @@ public class JobSubmissionController extends WaspController {
 		validateSampleDraftNameUnique(sampleDraftForm.getName(), 0, jobDraft, result);
 		
 		if (result.hasErrors()){
-			if (sampleDraftForm.getSampleType().getIName().equals("library")){
+			if (sampleService.isLibrary(sampleDraftForm)){
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
@@ -1519,7 +1503,7 @@ public class JobSubmissionController extends WaspController {
 			try{	
 	  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraftMeta)) );
 	  		} catch(MetadataException e){
-	  			logger.debug("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
+	  			logger.warn("Cannot get metadata genericLibrary.adaptorset. Presumably not be defined: " + e.getMessage());
 	  		} catch(NumberFormatException e){
 	  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
 	  		}
@@ -1714,11 +1698,13 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		
 		try {
 			jobService.createJobFromJobDraft(jobDraft, me);
 		} catch (FileMoveException e) {
-			logger.error(e.getMessage());
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+		} catch (WaspMessageBuildingException e) {
+			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 		}
 
@@ -1780,14 +1766,10 @@ public class JobSubmissionController extends WaspController {
 	 *
 	 */
 
-	protected List getPageFlowMap(JobDraft jobDraft) {
-		String pageFlow = this.defaultPageFlow;
-
-		try{
-			pageFlow = MetaHelper.getMetaValue("workflow", "submitpageflow", jobDraft.getWorkflow().getWorkflowMeta());
-		} catch(MetadataException e){
-			logger.debug("No page flow defined (workflowMeta workflow.submitpageflow) so using default page flow");
-		}
+	protected List<String[]> getPageFlowMap(JobDraft jobDraft) {
+		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
+		if (pageFlowArray.length == 0)
+			pageFlowArray = defaultPageFlow;
 		
 
 		String context = request.getContextPath();
@@ -1797,11 +1779,8 @@ public class JobSubmissionController extends WaspController {
 		String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
 
 
-		String pageFlowArray[] = pageFlow.split(";");
-
 		List<String[]> rt = new ArrayList<String[]>(); 
 
-		int found = -1;
 		for (int i=0; i < pageFlowArray.length -1; i++) {
 			String page = pageFlowArray[i];
 			String mapPage = page.replaceAll("^/", "");

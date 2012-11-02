@@ -19,13 +19,13 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 /*
@@ -38,7 +38,7 @@ public class JQFieldTag extends BodyTagSupport {
 	//name of the request attribute to fetch area name from
 	public static final String AREA_ATTR="_area";
 	
-	Logger log=Logger.getLogger(JQFieldTag.class);
+	Logger log=LoggerFactory.getLogger(JQFieldTag.class);
 	
 	//width of a column; not required
 	private String columnWidth;
@@ -233,7 +233,7 @@ public class JQFieldTag extends BodyTagSupport {
 			String area=object;
 			
 			if(area.equals("platformunit") || area.equals("platformunitInstance") || area.equals("platformunitById")) clazz=Sample.class;			
-			else if(area.equals("fmpayment")) clazz=State.class;
+			//else if(area.equals("fmpayment")) clazz=State.class;
 			else {
 				try {
 					String path="edu.yu.einstein.wasp.model."+WordUtils.capitalize(area);	

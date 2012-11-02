@@ -8,13 +8,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -36,7 +38,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
  */
 public class PbsWorkService implements GridWorkService {
 	
-	private static final Logger logger = Logger.getLogger(PbsWorkService.class);
+	private Logger logger = LoggerFactory.getLogger(PbsWorkService.class);
 
 	private String namePrefix = "WASP-";
 	public void setNamePrefix(String np) {
@@ -463,6 +465,47 @@ public class PbsWorkService implements GridWorkService {
 			this.mailCircumstances = "#$ -m " + mailCircumstances + "\n";
 		}
 
+	}
+
+	@Override
+	public void setName(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setSoftwareManager(SoftwareManager softwareManager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setJobNamePrefix(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAvailableParallelEnvironments(List<String> pe) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<String> getAvailableParallelEnvironments() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GridFileService getGridFileService() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

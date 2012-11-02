@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+		
+	<!-- import RMI message sending context -->
+	<import resource="integration/RmiMessageSend-context.xml" />
+
+	<!-- import batch common config (required for autowiring JobExplorer etc) -->
+	<import resource="batch/batch-common-config.xml" />
+  
+	<!-- common integration: message sending imports (required for sending messages)-->
+	<import resource="integration/message-routing-common-config.xml"/>
+  
+	<!-- define service activator to handle requests to kick off batch jobs -->
+	<int:service-activator input-channel="wasp.channel.queue.launch" output-channel="wasp.channel.primaryReply"  method="launch" >
+		<bean id="batchJobLauncher" class="edu.yu.einstein.wasp.batch.launch.WaspBatchJobLauncher">
+			<constructor-arg name="jobLauncher" ref="jobLauncher" />
+			<constructor-arg name="jobRegistry" ref="jobRegistry" />
+		</bean>
+	</int:service-activator>
+	
+	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="5000"/>
+	
+
+</beans>

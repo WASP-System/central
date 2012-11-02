@@ -25,7 +25,8 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -50,7 +51,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 	//static bridge to properties
 	public static WaspMessageSourceImpl MESSAGE_SOURCE=null;
 	
-	private static final Logger logger = Logger.getLogger(WaspMessageSourceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(WaspMessageSourceImpl.class);
 	
 	private ApplicationContext applicationContext;
 	

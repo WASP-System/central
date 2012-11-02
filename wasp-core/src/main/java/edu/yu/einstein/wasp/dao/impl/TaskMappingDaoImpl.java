@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +59,35 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 		}
 		return results.get(0);
 	}
+	
+	/**
+	 * getTaskMappingByIName(final String iName)
+	 *
+	 * @param final String iName
+	 *
+	 * @return taskMapping
+	 */
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public TaskMapping getTaskMappingByIName (final String iName) {
+    		HashMap m = new HashMap();
+		m.put("iName", iName);
+
+		List<TaskMapping> results = this.findByMap(m);
+
+		if (results.size() == 0) {
+			TaskMapping rt = new TaskMapping();
+			return rt;
+		}
+		return results.get(0);
+	}
 
 
 
 	/**
-	 * getTaskMappingByTaskIdStatus(final int taskId, final String status)
+	 * getTaskMappingByStepAndStatus(final String stepName, final String status)
 	 *
 	 * @param final int taskId, final String status
 	 *
@@ -72,9 +97,9 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public List<TaskMapping> getTaskMappingByTaskIdStatus (final int taskId, final String status) {
+	public List<TaskMapping> getTaskMappingByBatchStepAndStatus (final String stepName, final String status) {
     		HashMap m = new HashMap();
-		m.put("taskId", taskId);
+		m.put("stepName", stepName);
 		m.put("status", status);
 
 		List<TaskMapping> results = this.findByMap(m);
@@ -96,9 +121,9 @@ public class TaskMappingDaoImpl extends WaspDaoImpl<TaskMapping> implements edu.
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public List<TaskMapping> getTaskMappingByTaskId (final int taskId) {
+	public List<TaskMapping> getTaskMappingByBatchStep (final String stepName) {
     		HashMap m = new HashMap();
-		m.put("taskId", taskId);
+		m.put("stepName", stepName);
 
 		List<TaskMapping> results = this.findByMap(m);
 

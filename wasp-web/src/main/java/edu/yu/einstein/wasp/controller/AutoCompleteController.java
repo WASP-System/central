@@ -3,17 +3,17 @@
  */
 package edu.yu.einstein.wasp.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.LinkedHashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,37 +23,36 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
+import edu.yu.einstein.wasp.dao.ResourceDao;
+import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
-import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Department;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.JobUserDao;
-import edu.yu.einstein.wasp.dao.JobSampleDao;
-import edu.yu.einstein.wasp.dao.DepartmentDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
-import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FilterService;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -139,7 +138,7 @@ public class AutoCompleteController extends WaspController{
 	      sb.append("]}");
 	      
 	      String jsonOutput = new String(sb);
-	      //System.out.println("jsonOutput: " + jsonOutput);
+	      //logger.debug("jsonOutput: " + jsonOutput);
 	      
 	      return jsonOutput; 
 	  }
@@ -818,7 +817,7 @@ public class AutoCompleteController extends WaspController{
 	      sb.append("]}");
 	      
 	      String jsonOutput = new String(sb);
-	      System.out.println("jsonOutput: " + jsonOutput);
+	      logger.debug("jsonOutput: " + jsonOutput);
 	      
 	      return jsonOutput; 
 	  }

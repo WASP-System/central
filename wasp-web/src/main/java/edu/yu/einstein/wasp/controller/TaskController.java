@@ -1,11 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -18,12 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -32,25 +31,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 @RequestMapping("/task")
 public class TaskController extends WaspController {
 
-  private TaskDao taskDao;
-  @Autowired
-  public void setTaskDao(TaskDao taskDao) {
-    this.taskDao = taskDao;
-  }
-  public TaskDao getTaskDao() {
-    return this.taskDao;
-  }
-
-  private StateDao stateDao;
-  @Autowired
-  public void setStateDao(StateDao stateDao) {
-    this.stateDao = stateDao;
-  }
-  public StateDao getStateDao() {
-    return this.stateDao;
-  }
-
-  @Autowired
+   @Autowired
   private SampleDao sampleDao;
   
   @Autowired
@@ -67,7 +48,7 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String assignLibrariesLists(ModelMap m) {
 
-	  List<Job> jobsWithLibrariesToGoOnFlowCell = jobService.getJobsWithLibrariesToGoOnFlowCell();
+	  List<Job> jobsWithLibrariesToGoOnFlowCell = jobService.getJobsWithLibrariesToGoOnPlatformUnit();
 	  List<Job> jobsActive = jobService.getActiveJobs();
 	    
 	  List<Job> jobsActiveAndWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
@@ -82,7 +63,7 @@ public class TaskController extends WaspController {
 	  jobService.sortJobsByJobId(jobsActiveAndWithLibrariesToGoOnFlowCell);	  
 	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
 	  
-	  List<Sample> activePlatformUnits = sampleService.platformUnitsAwaitingLibraries();
+	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
 	  sampleService.sortSamplesBySampleName(activePlatformUnits);	  
 	  m.addAttribute("activePlatformUnits", activePlatformUnits);
 	  
@@ -117,12 +98,12 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String listSampleReceive(ModelMap m) {
 
-    List<Job> jobsAwaitingSubmittedSamples = jobService.getJobsAwaitingSubmittedSamples();
+    List<Job> jobsAwaitingReceivingOfSamples = jobService.getJobsAwaitingReceivingOfSamples();
     List<Job> jobsActive = jobService.getActiveJobs();
     
     List<Job> jobsActiveAndAwaitingSubmittedSamples = new ArrayList<Job>();
     for(Job jobActive : jobsActive){
-    	for(Job jobAwaiting : jobsAwaitingSubmittedSamples){
+    	for(Job jobAwaiting : jobsAwaitingReceivingOfSamples){
     		if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
     			jobsActiveAndAwaitingSubmittedSamples.add(jobActive);
     			break;
@@ -133,7 +114,7 @@ public class TaskController extends WaspController {
 
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSubmittedSamples){
-    	List<Sample> newSampleList = jobService.getSubmittedSamplesAwaitingSubmission(job);
+    	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	sampleService.sortSamplesBySampleName(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -153,23 +134,32 @@ public class TaskController extends WaspController {
   public String payment(
       @RequestParam("sampleId") Integer sampleId,
       @RequestParam("receivedStatus") String receivedStatus,
-      ModelMap m
-    ) {
-
-	  if(receivedStatus == null ||  receivedStatus.equals("")){
-		  waspErrorMessage("task.samplereceive.error_receivedstatus_empty");
-	  }
-	  else if(!receivedStatus.equals("RECEIVED") && !receivedStatus.equals("WITHDRAWN")){
-		  waspErrorMessage("task.samplereceive.error_receivedstatus_invalid");
-	  }
+      ModelMap m) {
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId().intValue()==0){
-		  //message can't find sample in db
+		  waspErrorMessage("task.samplereceive_invalid_sample.error");
+		  return "redirect:/task/samplereceive/list.do";
 	  }
-	  else{
-		  sampleService.updateSampleReceiveStatus(sample, receivedStatus);
-		  waspMessage("task.samplereceive.update_success");	
-	  	 }
+	  if(receivedStatus == null ||  receivedStatus.equals("")){
+		  waspErrorMessage("task.samplereceive_receivedstatus_empty.error");
+		  return "redirect:/task/samplereceive/list.do";
+	  }
+	  try{
+		  if(receivedStatus.equals("RECEIVED")){
+			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
+		  }
+		  else if(receivedStatus.equals("WITHDRAWN")){
+			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
+		  }
+		  else{
+			  waspErrorMessage("task.samplereceive_receivedstatus_invalid.error");
+			  return "redirect:/task/samplereceive/list.do";
+		  }
+	  } catch (WaspMessageBuildingException e){
+		  logger.warn(e.getLocalizedMessage());
+		  waspMessage("task.samplereceive_message.error");
+	  }
+	  waspMessage("task.samplereceive_update_success.label");	
 	  return "redirect:/task/samplereceive/list.do";
   }
 
@@ -193,7 +183,7 @@ public class TaskController extends WaspController {
 	  List<String> receiveSampleStatusList = new ArrayList<String>();
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
 	  for(Sample sample : submittedSamplesList){	
-		  String status = sampleService.getReceiveSampleStatus(sample);		  
+		  BatchStatus status = sampleService.getReceiveSampleStatus(sample);		  
 		  receiveSampleStatusList.add(sampleService.convertReceiveSampleStatusForWeb(status));	
 		  
 		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
@@ -238,36 +228,19 @@ public class TaskController extends WaspController {
 	  for(Integer sampleId : sampleIdList){		  
 		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 		  if(sample.getSampleId() > 0 && ! sampleService.submittedSampleHasBeenProcessedByFacility(sample)){
-			  sampleService.updateSampleReceiveStatus(sample, receivedStatusList.get(index++));
+			  try{
+				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertReceiveSampleStatusFromWeb(receivedStatusList.get(index++)));
+			  } catch (WaspMessageBuildingException e){
+				  logger.warn(e.getLocalizedMessage());
+				  waspMessage("task.samplereceive_message.error");
+			  }
 		  }
 	  }
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  
   }
   
-  	public class OrderStatesByJobIdComparator implements Comparator<State> {
-		 
-  		@Override
-  		public int compare(State s1, State s2) {
-
-  			try{
-  			if(s1.getStatejob().get(0).getJobId().intValue() > s2.getStatejob().get(0).getJobId().intValue()){
-  				return 1;
-  			}
-  			else if(s1.getStatejob().get(0).getJobId().intValue() == s2.getStatejob().get(0).getJobId().intValue()){
-  				return 0;
-  			}
-  			else{
-  				return -1;
-  			}
-  			}
-  			catch(Exception e){
-  				System.out.println("1. My Comparator Exception: ");// + s1.getStatejob().get(0).getJobId().intValue() + "  and " + s2.getStatejob().get(0).getJobId().intValue());
-  				return 0;
-  			}
-  		}
-	}
-  
+ 
   
   
 }

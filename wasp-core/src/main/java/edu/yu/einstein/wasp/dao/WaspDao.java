@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 
 public interface WaspDao<E> {
@@ -95,6 +96,8 @@ public interface WaspDao<E> {
   *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
   */
   public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
+  
+  public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction);
 
   /**
    * Generates and executes SQL statement that includes

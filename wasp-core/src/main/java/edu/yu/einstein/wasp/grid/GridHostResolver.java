@@ -1,7 +1,11 @@
 package edu.yu.einstein.wasp.grid;
 
+import java.util.List;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
 /**
@@ -58,19 +62,6 @@ public interface GridHostResolver {
 	public String getMaxRunTime(WorkUnit w);
 	
 	/**
-	 * Set the parallel environment strings.
-	 * @param pe
-	 */
-	public void setAvailableParallelEnvironments(Set<String> pe);
-	
-	/**
-	 * return an appropriate parallel environment string for the host. Should be requested only when required.
-	 * @param w
-	 * @return string or null
-	 */
-	public String getParallelEnvironmentString(WorkUnit w);
-	
-	/**
 	 * return a host specific string for the account under which to run the job.
 	 * @param w
 	 * @return account or null
@@ -97,5 +88,45 @@ public interface GridHostResolver {
 	 * @return notifications or null
 	 */
 	public String getMailCircumstances(WorkUnit w);
-
+	
+	/**
+	 * Given a work unit, return the appropriate work service.  
+	 * @param w
+	 */
+	public GridWorkService getGridWorkService(WorkUnit w);
+	
+	/**
+	 * Set up the host resolver with {@link GridWorkSercice}s.
+	 * @param gws
+	 */
+	public void setAvailableWorkServices(List<GridWorkService> gws);
+	
+	/**
+	 * return an appropriate parallel environment string for the host. Should be requested only when required.
+	 * @param w
+	 * @return string or null
+	 */
+	public String getParallelEnvironmentString(WorkUnit w);
+	
+	/**
+	 * Pass through method to execute a {@link WorkUnit}.
+	 * @param w
+	 * @return
+	 * @throws GridAccessException
+	 * @throws GridUnresolvableHostException
+	 * @throws GridExecutionException 
+	 */
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
+	
+	/**
+	 * Pass through method to Test to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
+	 * if it is not running or did not complete.
+	 * @param g
+	 * @return
+	 * @throws GridUnresolvableHostException 
+	 * @throws GridException
+	 */
+	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
+	
+	
 }

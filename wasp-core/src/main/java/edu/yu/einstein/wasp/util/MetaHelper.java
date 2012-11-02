@@ -13,7 +13,8 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -33,7 +34,7 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 public class MetaHelper {
 
 	
-	protected final Logger logger = Logger.getLogger(MetaHelper.class);
+	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
 	/**
 	 * Constructor
@@ -434,7 +435,7 @@ public class MetaHelper {
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the provided list
 	 * @param name
-	 * @return {@link MetaBase} derived object or exception if not found // wrong: or null if not found 
+	 * @return {@link MetaBase} derived object or exception if not found 
 	 * @throws MetadataException if not found
 	 */
 	public static <T extends MetaBase> T getMetaObjectFromList(String area, String name, List<T> list) throws MetadataException{
@@ -465,7 +466,7 @@ public class MetaHelper {
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the last list generated and returns its value
 	 * @param name
-	 * @return {@link MetaBase} or exception if not found // wrong: or null if not found 
+	 * @return {@link MetaBase} or exception if not found
 	 * @throws MetadataException if not found
 	 */
 	public  String getMetaValueByName(String name) throws MetadataException{

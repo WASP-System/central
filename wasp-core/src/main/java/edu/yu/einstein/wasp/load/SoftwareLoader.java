@@ -4,8 +4,11 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
@@ -25,6 +28,10 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 
 public class SoftwareLoader extends WaspResourceLoader {
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass()); 
+	
+	
 
   @Autowired
   private SoftwareLoadService softwareLoadService;
@@ -56,8 +63,11 @@ public class SoftwareLoader extends WaspResourceLoader {
 	this.isActive = isActive;
   }
 
-  @PostConstruct 
+  @PostConstruct
   public void init() throws Exception {
+	  
+	  Assert.assertParameterNotNull(resourceType);
+	  logger.debug("Initialized with resourceType: " + resourceType.toString());
 	  
 	softwareLoadService.update(resourceType, meta, iname, name, isActive);
 	
