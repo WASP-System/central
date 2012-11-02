@@ -41,6 +41,8 @@ public class SshService implements GridWorkService, GridTransportService {
 	
 	private GridFileService gridFileService;
 	
+	private boolean userDirIsRoot = true;
+	
 	// not used in ssh only implementation
 	private String jobNamePrefix;
 	
@@ -202,6 +204,16 @@ public class SshService implements GridWorkService, GridTransportService {
 	@Override
 	public String getConfiguredSetting(String key) {
 		return settings.get(key);
+	}
+	
+	@Override
+	public boolean isUserDirIsRoot() {
+		return userDirIsRoot;
+	}
+
+	@Override
+	public void setUserDirIsRoot(boolean isRoot) {
+		this.userDirIsRoot = isRoot;
 	}
 
 }

@@ -175,6 +175,7 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException,
 			GridUnresolvableHostException, GridExecutionException {
+		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getName());
 		return getGridWorkService(w).execute(w);
 	}
 

@@ -48,5 +48,9 @@ public interface GridTransportService {
 	public SoftwareManager getSoftwareManager();
 	
 	public String getConfiguredSetting(String key);
+	
+	public boolean isUserDirIsRoot();
+	
+	public void setUserDirIsRoot(boolean isRoot);
 
 }

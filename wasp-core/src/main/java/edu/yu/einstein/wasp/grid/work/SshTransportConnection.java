@@ -105,7 +105,7 @@ public class SshTransportConnection implements GridTransportConnection {
 			throw new GridAccessException("unable to execute");
 		} catch (IOException e) {
 			e.printStackTrace();
-			logger.error("unable to get output strem on remote host " + hostResolver.getHostname(w));
+			logger.error("unable to get output stream on remote host " + hostResolver.getHostname(w));
 			throw new GridAccessException("unable to get output stream");
 		}
 		

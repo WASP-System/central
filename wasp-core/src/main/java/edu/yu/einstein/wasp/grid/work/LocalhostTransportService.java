@@ -21,6 +21,8 @@ public class LocalhostTransportService implements GridTransportService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private SoftwareManager softwareManager;
+	
+	private boolean userDirIsRoot;
 
 	/**
 	 * {@inheritDoc}
@@ -55,6 +57,16 @@ public class LocalhostTransportService implements GridTransportService {
 	public String getConfiguredSetting(String key) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean isUserDirIsRoot() {
+		return userDirIsRoot;
+	}
+
+	@Override
+	public void setUserDirIsRoot(boolean isRoot) {
+		this.userDirIsRoot = isRoot;
 	}
 
 }
