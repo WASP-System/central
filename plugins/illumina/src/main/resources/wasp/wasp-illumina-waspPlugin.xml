@@ -15,12 +15,9 @@
 	<int:channel id="wasp.channel.wasp-illumina" />
 
 	<int:service-activator input-channel="wasp.channel.wasp-illumina"
-		ref="wasp-illumina.Service" method="process" />
+		ref="wasp-illumina.WaspPluginBean" method="process" />
 		<!-- output-channel="wasp.channel.rmi.outbound.reply" --> 
 		
-
-	<bean id="wasp-illumina.Service" class="edu.yu.einstein.wasp.mps.illumina.IlluminaService" />
-	
 	<!-- <bean id="wasp-illumina.SequenceRunProcessor" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />  -->
 	
 	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin">
@@ -29,7 +26,6 @@
 		</constructor-arg>
 		<constructor-arg><ref bean="waspSiteProperties" /></constructor-arg>
 		<constructor-arg><ref bean="wasp.channel.wasp-illumina" /></constructor-arg>
-		<constructor-arg><ref bean="wasp.pluginRegistry" /></constructor-arg>
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />
@@ -41,7 +37,6 @@
 				<ref bean="illuminaMiSeqPersonalSequencerArea" />
 			</set>
 		</property>
-		
 	</bean>
 
 </beans>
