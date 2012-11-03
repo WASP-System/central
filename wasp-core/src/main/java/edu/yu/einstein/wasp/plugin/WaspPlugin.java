@@ -36,6 +36,11 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * "referenceBasedAligner", or "illuminaSequenceRunProcessor".  An
  * illuminaSequenceRunProcessor might additionally handle "illuminaHiSeq2000Area". 
  * 
+ * This abstract parent class implements reflection to determine methods that 
+ * are capable of responding to external messages.  Methods of the format: 
+ * public Message methodName(Message m) will have messages distributed using
+ * the "task" header value by the process(Message m) method. 
+ * 
  * @author calder
  * 
  */
