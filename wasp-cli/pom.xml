@@ -42,6 +42,77 @@
 						</configuration>
 					</execution>
 				</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>com.github.goldin</groupId>
+					<artifactId>copy-maven-plugin</artifactId>
+					<version>0.2.5</version>
+					<executions>
+						<execution>
+						<id>copyExec</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+								<targetPath>${project.build.directory}</targetPath>
+								<directory>${basedir}/src//bin/</directory>
+								<includes>
+									<include>wasp</include>
+								</includes>
+								</resource>
+							</resources>
+						</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.2.1</version>
+					<executions>
+					<execution>
+					<id>chmod</id>
+					<phase>package</phase>
+					<goals>
+						<goal>exec</goal>
+					</goals>
+					</execution>
+					</executions>
+					<configuration>
+						<executable>chmod</executable>
+						<arguments>
+							<argument>755</argument>
+							<argument>target/wasp</argument>
+						</arguments>
+					</configuration>
+				</plugin>
+
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.1</version>
+				<executions>
+					<execution>
+					<phase>package</phase>
+					<goals>
+						<goal>replace</goal>
+					</goals>                   
+					</execution>
+				</executions>
+				<configuration>
+					<file>target/wasp</file>
+					<replacements>
+						<replacement>
+							<token>CURRENTWASPVERSION</token>
+							<value>${project.version}</value>
+						</replacement>         
+					</replacements>
+				</configuration>
 			</plugin>
 
 		</plugins>
