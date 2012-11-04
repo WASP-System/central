@@ -11,7 +11,14 @@
 
 	<batch:job-repository id="jobRepository" />
 	
-	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
+
+	<bean id="waspTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${wasp.batch.corePoolSize}" />
+		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize}" />
+		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds}" />
+		<property name="queueCapacity" value="${wasp.batch.queueCapacity}" />
+	</bean>
 	
 	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
