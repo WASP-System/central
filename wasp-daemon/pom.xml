@@ -19,8 +19,8 @@
     ]]>
 	</description>
 	<properties>
-		<maven.test.skip>true</maven.test.skip>
-		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+		<maven.test.skip>false</maven.test.skip>
+		<maven.test.failure.ignore>false</maven.test.failure.ignore>
 		<module.version>0.1.0-SNAPSHOT</module.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
@@ -191,7 +191,7 @@
 								</goals>
 								<configuration>
 									<skip>${maven.test.skip}</skip>
-									<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
+									<excludedGroups>integration-tests, db-tests, a, ssh, unit-tests-batch-integration</excludedGroups>
 									<includes>
 										 <include>**/Test*.java</include>
 										 <include>**/*Test.java</include>
