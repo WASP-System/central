@@ -5,7 +5,7 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
 	<!-- taskExecutor needs to be externalized and generalized -->
-	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+<!--	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
 
 	<!-- for library, call with parameters sampleid and jobid -->
 	<batch:flow id="default.library.mainFlow.v1">

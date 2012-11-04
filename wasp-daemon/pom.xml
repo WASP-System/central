@@ -9,6 +9,7 @@
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
+	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-daemon</artifactId>
 	<packaging>jar</packaging>
 	<name>WASP System Daemon</name>
@@ -238,5 +239,4 @@
 	</dependencies>
 	</dependencyManagement>
  
-	<groupId>edu.yu.einstein.wasp.daemon</groupId>
 </project>

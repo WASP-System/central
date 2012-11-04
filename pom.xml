@@ -20,6 +20,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<artifactId>wasp-web</artifactId>
 				<version>${module.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-daemon</artifactId>
+				<version>${module.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
