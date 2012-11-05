@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <title><fmt:message key="pageTitle.task/samplereceive/list.label"/></title>
-<h1><fmt:message key="task.samplereceive.title_label" /></h1>
+<h1><fmt:message key="task.samplereceive_title.label" /></h1>
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD">Job ID:</td><td class="DataTD"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
 <tr class="FormData"><td class="CaptionTD">Job Name:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
