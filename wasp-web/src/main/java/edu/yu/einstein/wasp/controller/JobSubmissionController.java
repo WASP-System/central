@@ -1614,19 +1614,57 @@ public class JobSubmissionController extends WaspController {
 
 		JobDraft jobDraft = jobDraftService.getJobDraftById(jobDraftId);//jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (jobDraft.getJobDraftId()==null || jobDraft.getJobDraftId() <= 0){
+			logger.warn("jobDraft.jobDraft_null.error");
 			waspErrorMessage("jobDraft.jobDraft_null.error");
 			return "redirect:/dashboard.do";
 			
 		}else if(! isJobDraftEditable(jobDraft)){
+			logger.warn("jobDraft.not_pending.error");
 			waspErrorMessage("jobDraft.not_pending.error");
 			return "redirect:/dashboard.do";
+		}		
+
+		Map params = request.getParameterMap();
+		Boolean errors = false;
+		try{
+			jobDraftService.validateSampleDraftsOnCellsFromWeb(params, jobDraft);
+		}catch(Exception e){ errors = true; logger.warn(e.getMessage()); waspErrorMessage(e.getMessage()); }
+		
+		//if placement of samples is unacceptable, 
+		//get data for re-display on the GET, prepare to show flash error message, and navigate to jsp: "return jobsubmit/cell"
+		if(errors){			
+			List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+			Set<String> selectedSampleCell = new HashSet<String>();
+			//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
+			//int cellindexCount = 0;
+			for (SampleDraft sd: samples) {
+				for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
+					int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
+					String key = sd.getSampleDraftId() + "_" + cellIndex;
+					selectedSampleCell.add(key);
+				}
+			}
+			getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
+			jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
+			m.put("jobDraft", jobDraft);
+			m.put("sampleDrafts", samples);
+			m.put("selectedSampleCell", selectedSampleCell);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			return "jobsubmit/cell";
 		}
 		
-		Map params = request.getParameterMap();
+		//if all is OK		
+		//jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (this service method is transactional)
+		return nextPage(jobDraft);
 		
-		jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (this service method is transactional)
+	
 		
-		return "redirect:/jobsubmit/errorCheckOfSampleDraftOnCells/"+jobDraftId+".do";//check the new data (could never get it to pull the new data unless usining redirect)
+		
+		
+		
+		
+		//next line never worked well; introduced side effect that cannot be tolerated
+		//return "redirect:/jobsubmit/errorCheckOfSampleDraftOnCells/"+jobDraftId+".do";//check the new data (could never get it to pull the new data unless usining redirect)
 
 		/* this never worked. It appears that the new data doesn't commit to the database until this controller method completes
 		try{//check the changes to the cells			
@@ -1641,7 +1679,7 @@ public class JobSubmissionController extends WaspController {
 		return nextPage(jobDraft);
 	    */		
 	}
-
+/*
 	@RequestMapping(value="/errorCheckOfSampleDraftOnCells/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String errorCheckOfSampleDraftOnCells(
@@ -1659,7 +1697,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		return nextPage(revisedJobDraft);
 	}
-
+*/
 	@Transactional
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")

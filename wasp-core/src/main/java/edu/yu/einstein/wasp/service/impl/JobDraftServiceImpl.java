@@ -234,7 +234,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	* {@inheritDoc}
 	*/
 	@Override
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	@Transactional   /////(propagation=Propagation.REQUIRES_NEW)
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params){
 		List<JobDraftCellSelection> oldJobDraftCellSelections = jobDraft.getJobDraftCellSelection();
 
@@ -248,7 +248,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			jobDraftCellSelectionDao.flush(jdc);
 		}
 
-		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraft.getJobDraftId());
+		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraft.getJobDraftId());
 
 		
 		int maxColumns = 10;
@@ -305,6 +305,141 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			}
 		}
 	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void validateSampleDraftsOnCellsFromWeb(Map params, JobDraft jobDraft)throws Exception{
+
+		
+		JobDraft tempJobDraft = new JobDraft();
+		////////
+		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraft.getJobDraftId());
+
+		
+		int maxColumns = 10;
+		try {
+			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
+		} catch (Exception e) { throw new Exception("jobDraft.cell_unexpected_error.label"); }
+
+		//List<String> checkedList = new ArrayList<String>();
+
+		Set<SampleDraft> draftSamplesOnAtLeastOneCellSet = new HashSet<SampleDraft>();
+		Map<Integer, List<SampleDraft>> cellsMap = new HashMap<Integer, List<SampleDraft>>();
+		for (int i = 1; i <= maxColumns; i++) {
+			List<SampleDraft> draftSamplesOnCellList = new ArrayList<SampleDraft>();
+			for (SampleDraft sd: samples) {
+				String checked = "0";
+				try {
+					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+				} catch (Exception e) {
+				}
+
+				if (checked == null || checked.equals("0")) {
+					continue;
+				}
+				else{
+					draftSamplesOnAtLeastOneCellSet.add(sd);
+					draftSamplesOnCellList.add(sd);
+				}
+			}
+			cellsMap.put(new Integer(i), draftSamplesOnCellList);
+		}
+		
+		//first check that all draftsamples for this jobdraft appear at least once in draftSamplesOnAtLeastOneCellSet
+		Boolean sampleIsMissing = false;
+		for(SampleDraft sd : samples){			
+			if(!draftSamplesOnAtLeastOneCellSet.contains(sd)){
+				sampleIsMissing = true;
+				logger.warn("---SampleMissingFromSomeCell is " + sd.getName());
+			}
+		}
+		if(sampleIsMissing){
+			throw new Exception("jobDraft.cell_error.label"); 
+		}
+		
+		//second, confirm that for user-submitted libraries, barcodes do NOT appear twice within a cell 
+		for (int i = 1; i <= maxColumns; i++) {
+			List<SampleDraft> sdList = cellsMap.get(new Integer(i));
+			Set<String> adaptorsOnCell = new HashSet<String>();
+			for(SampleDraft sd : sdList){
+				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
+					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
+					Integer adaptorId;
+					try{
+						adaptorId = Integer.parseInt(adaptorIdAsString);
+					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
+					
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
+					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+						throw new Exception("jobDraft.cell_adaptor_error.label");
+					}
+					/////////if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
+					////////////else{throw new Exception("jobDraft.cell_barcode_error.label");}
+					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
+						throw new Exception("jobDraft.cell_barcode_error.label");
+					}
+					adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());
+				}				
+			}
+		}
+		
+		
+		
+		
+		/*
+		int cellindex = 0;
+
+		for (int i = 1; i <= maxColumns; i++) {
+			int libraryindex = 0;
+			boolean cellfound = false;
+
+			JobDraftCellSelection thisJobDraftCellSelection = new JobDraftCellSelection();
+			thisJobDraftCellSelection.setJobdraftId(jobDraft.getJobDraftId());
+			thisJobDraftCellSelection.setCellIndex(cellindex + 1);
+
+			for (SampleDraft sd: samples) {
+				String checked = "0";
+				try {
+					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+				} catch (Exception e) {
+				}
+
+				if (checked == null || checked.equals("0")) {
+					continue;
+				}
+
+				if (! cellfound) {
+					cellfound = true;
+					cellindex++;
+
+					JobDraftCellSelection jobDraftCellSelectionDb = jobDraftCellSelectionDao.save(thisJobDraftCellSelection);
+					thisJobDraftCellSelection = jobDraftCellSelectionDb;
+
+					jobDraftCellSelectionDao.flush(thisJobDraftCellSelection);
+				}
+
+				libraryindex++;
+
+				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelection = new SampleDraftJobDraftCellSelection();
+
+				sampleDraftJobDraftCellSelection.setJobDraftCellSelectionId(thisJobDraftCellSelection.getJobDraftCellSelectionId());
+				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getSampleDraftId());
+				sampleDraftJobDraftCellSelection.setLibraryIndex(libraryindex);
+
+				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelectionDb = sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
+				sampleDraftJobDraftCellSelectionDao.flush(sampleDraftJobDraftCellSelectionDb);
+				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
+
+			}
+		}
+		*/
+		///////
+		/////return tempJobDraft;
+	}
+	
 	
 	/**
 	* {@inheritDoc}
