@@ -3,10 +3,17 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>bom</artifactId>
-	<version>1.0.0</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<module.version>0.1.0-SNAPSHOT</module.version>
+		<module.version>${project.version}</module.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<!-- enforcer settings -->
+		<maven.enforcer.plugin>1.1.1</maven.enforcer.plugin>
+		<java.version>1.6</java.version>
+		<maven.version.range>3.0.0</maven.version.range>
+		<!-- end enforcer -->
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -20,9 +27,60 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<artifactId>wasp-web</artifactId>
 				<version>${module.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-daemon</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-interface</artifactId>
+				<version>${module.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
 		<module>wasp-parent</module>
 	</modules>
+	<build>
+		<pluginManagement>
+		<plugins>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<version>${maven.enforcer.plugin}</version>
+			<executions>
+			<execution>
+			<id>enforce-banned-dependencies</id>
+			<goals>
+			<goal>enforce</goal>
+			</goals>
+			<configuration>
+			<rules>
+			<bannedDependencies>
+			<searchTransitive>true</searchTransitive>
+			<excludes>
+			<exclude>commons-logging:1.*</exclude>
+			<exclude>log4j:log4j</exclude>
+			<exclude>org.slf4j:1.5*</exclude>
+			<exclude>org.slf4j:1.6*</exclude>
+			<exclude>org.springframework:2.*</exclude>
+			<exclude>org.springframework:3.0.*</exclude>
+			</excludes>
+			</bannedDependencies>
+			<requireMavenVersion>
+			<version>${maven.version.range}</version>
+			</requireMavenVersion>
+			<requireJavaVersion>
+			<version>${java.version}</version>
+			</requireJavaVersion>
+			</rules>
+			<fail>true</fail>
+			</configuration>
+			</execution>
+			</executions>
+			</plugin>
+		</plugins>
+		</pluginManagement>
+	</build>
 </project>

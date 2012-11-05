@@ -3,19 +3,24 @@
  */
 package edu.yu.einstein.wasp.plugin;
 
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
+import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -31,11 +36,16 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * "referenceBasedAligner", or "illuminaSequenceRunProcessor".  An
  * illuminaSequenceRunProcessor might additionally handle "illuminaHiSeq2000Area". 
  * 
+ * This abstract parent class implements reflection to determine methods that 
+ * are capable of responding to external messages.  Methods of the format: 
+ * public Message methodName(Message m) will have messages distributed using
+ * the "task" header value by the process(Message m) method. 
+ * 
  * @author calder
  * 
  */
 public abstract class WaspPlugin extends HashMap<String, String> implements
-		InitializingBean, DisposableBean {
+		InitializingBean, DisposableBean, ClientMessageI {
 
 	private Set<SoftwarePackage> provides = new HashSet<SoftwarePackage>();
 
@@ -46,8 +56,6 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	private Properties waspSiteProperties;
 
 	private MessageChannel messageChannel;
-
-	private WaspPluginRegistry pluginRegistry;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,7 +68,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 * @param pluginRegistry handle to the {@link WaspPluginRegistry}
 	 */
 	public WaspPlugin(String pluginName, Properties waspSiteProperties,
-			MessageChannel channel, WaspPluginRegistry pluginRegistry) {
+			MessageChannel channel) {
 		this.setPluginName(pluginName);
 		this.waspSiteProperties = waspSiteProperties;
 		Assert.assertParameterNotNull(pluginName,
@@ -76,15 +84,64 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 			}
 		}
 		this.messageChannel = channel;
-		this.pluginRegistry = pluginRegistry;
 	}
-
 	
-	/**
-	 * After the properties are set, register this bean with the {@link WaspPluginRegistry}.
-	 */
-	public void afterPropertiesSet() throws Exception {
-		pluginRegistry.addPlugin(this, getPluginName());
+	@Override
+	public Message process(Message m) throws RemoteException {
+		if (!m.getHeaders().containsKey("help") && !m.getHeaders().containsKey("task")) return help();
+		if (m.getHeaders().containsKey("help") && !m.getHeaders().containsKey("task")) return help();
+		
+		Method method = getMethod((String) m.getHeaders().get("task"));
+		
+		if (m.getHeaders().containsKey("help") && m.getHeaders().containsKey("task")) {
+			if (method == null) {
+				return MessageBuilder.withPayload("Error: unknown task").build();
+			}
+			try {
+				return (Message) method.invoke(this, MessageBuilder.withPayload("help").build());
+			} catch (Exception e) {
+				logger.warn("Error invoking method: " + method.getName() + " via request: " + m.getHeaders().toString());
+				return MessageBuilder.withPayload("Unable to request help from " + method.getName()).build();
+			}
+		}
+		try {
+			return (Message) method.invoke(this, m);
+		} catch (Exception e) {
+			return MessageBuilder.withPayload("Unable to execute task " + method.getName()).build();
+		}
+		
+	}
+	
+	private Message help() {
+		Set<String> methods = getMethods();
+		String retval = "";
+		retval += this.getPluginName() + "\n" 
+				+ "------------------------------\n"
+				+ "available tasks:\n\n";
+		for (String m : methods) {
+			retval += m + "\n";
+		}
+		return MessageBuilder.withPayload(retval).build();
+	}
+	
+	private Method getMethod(String m) {
+		try {
+			return this.getClass().getMethod(m, Message.class);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	protected Set<String> getMethods() {
+		TreeSet<String> methods = new TreeSet<String>();
+		for ( Method m : this.getClass().getMethods() ) {
+			if (m.getReturnType().equals(Message.class)
+					&& m.getParameterTypes().length == 1
+					&& m.getParameterTypes()[0].equals(Message.class)
+					&& m.getName() != "process")
+				methods.add(m.getName());
+		}
+		return methods;
 	}
 
 	/**
@@ -147,21 +204,6 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 */
 	public void setMessageChannel(MessageChannel messageChannel) {
 		this.messageChannel = messageChannel;
-	}
-
-	/**
-	 * @return the pluginRegistry
-	 */
-	public WaspPluginRegistry getPluginRegistry() {
-		return pluginRegistry;
-	}
-
-	/**
-	 * @param pluginRegistry
-	 *            the pluginRegistry to set
-	 */
-	public void setPluginRegistry(WaspPluginRegistry pluginRegistry) {
-		this.pluginRegistry = pluginRegistry;
 	}
 
 }
