@@ -1,121 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:p="http://www.springframework.org/schema/p"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:tx="http://www.springframework.org/schema/tx"
-        xmlns:context="http://www.springframework.org/schema/context"
-        xmlns:batch="http://www.springframework.org/schema/batch"
-  xmlns:mvc="http://www.springframework.org/schema/mvc"
-  xmlns:s="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:s="http://www.springframework.org/schema/security"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.1.xsd
-        http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
-        http://www.springframework.org/schema/batch
-        http://www.springframework.org/schema/batch/spring-batch-2.0.xsd
-  http://www.springframework.org/schema/mvc
-  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
-  http://www.springframework.org/schema/security
-  http://www.springframework.org/schema/security/spring-security-3.1.xsd
-        "
-  default-autowire="byName">
+	<!-- import local configuration -->
+	<import resource="classpath*:/daemon-test-local-config.xml" />
 
-   <!--  configure properties files -->
-<!--     <bean id="propertyPlaceholderConfigurer"  
-    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
-      <property name="locations">  
-        <list>  
-          <value>classpath*:/database.properties</value> 
-          <value>classpath*:/authentication.properties</value>
-          <value>classpath*:/email.properties</value>
-          <value>classpath*:/wasp.local.properties</value>
-        </list>  
-      </property>  
-  </bean> 
-   -->
-   
-  <import resource="classpath*:/META-INF/spring/integration/RmiMessageSend-context.xml" />
-  <import resource="classpath*:/META-INF/spring/batch-integration-common-config.xml" />
-  <import resource="classpath*:/META-INF/spring/integration/message-routing-inbound.xml" />
-   
-  <!-- local instance configuration -->
-  <import resource="classpath*:/wasp-site-context.xml" />
+	<!-- import common configuration  -->
+	<import resource="classpath*:/META-INF/spring/daemon-common-config.xml" />
 
-  <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" >
-        <!-- property name="useCodeAsDefaultMessage" value="true"/-->
-  </bean>
+	<import resource="classpath*:batch-common-config.xml" />
 
-  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-    <property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
-    <property name="url"><value>jdbc:mysql://localhost/wasp?zeroDateTimeBehavior=convertToNull&amp;characterEncoding=utf8&amp;useUnicode=true&amp;characterSetResults=utf8&amp;connectionCollation=utf8_general_ci</value></property>
-    <property name="username"><value>wasp</value></property>
-    <property name="password"><value>waspV2</value></property>
-  </bean>
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
 
-  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-    <property name="persistenceUnitName" value="waspPU" />
-    <property name="dataSource" ref="dataSource" />
-    <property name="jpaVendorAdapter">
-      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="database" value="MYSQL" />
-        <property name="showSql" value="false" />
-      </bean>
-    </property>   
-    <property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
-  </bean>
-
-  <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-    <property name="entityManagerFactory" ref="entityManagerFactory" />
-  </bean>
-
-  <tx:annotation-driven transaction-manager="transactionManager" />
-
-  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
-
-  <context:component-scan base-package="util.spring" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
-  <context:component-scan base-package="edu.yu.einstein.wasp.load" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
-
-  <context:annotation-config/>
-
-	<bean id="waspUserDetailsService"
-			class="edu.yu.einstein.wasp.security.WaspJdbcDaoImpl">
-			<property name="dataSource" ref="dataSource" />
-		</bean>
-
-		<s:authentication-manager alias="authenticationManager">
-
-
-		<s:authentication-provider user-service-ref="waspUserDetailsService">
-			<s:password-encoder hash="sha" />
-		</s:authentication-provider>
-
-		<!-- no password encoder to reauth -->
-		<s:authentication-provider user-service-ref="waspUserDetailsService" />
-	</s:authentication-manager>
-	
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-    <property name="host" value="localhost"/>
-    <property name="defaultEncoding" value="UTF-8" />
-    <property name="javaMailProperties">
-      <props>
-        <prop key="mail.smtp.from">none@foo.com</prop>
-      </props>
-    </property>
-  </bean>
-  
-  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-    <property name="velocityProperties">
-      <value>
-        resource.loader=class
-        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-      </value>
-    </property>
-  </bean>
 
 </beans>

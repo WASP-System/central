@@ -15,12 +15,12 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.cli.ClientMessageI;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.service.RunService;
 

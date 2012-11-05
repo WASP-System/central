@@ -2,12 +2,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+	<parent>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>wasp-plugin</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-illumina</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>WASP Illumina module</name>
+
 	<organization>
 	<name>Albert Einstein College of Medicine</name>
 	<url>http://einstein.yu.edu</url>
@@ -20,12 +26,8 @@
 	</license>
 	</licenses>
 
-
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
-
-		<wasp.version>0.1.0-SNAPSHOT</wasp.version>
+		<wasp.version>${project.parent.version}</wasp.version>
 		<testng.version>6.3</testng.version>
 		<jmockit.version>0.999.18</jmockit.version>
 		<logback.version>1.0.7</logback.version>
@@ -43,27 +45,14 @@
 	<dependency>
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>bom</artifactId>
-	<version>1.0.0</version>
+	<version>${wasp.version}</version>
 	<type>pom</type>
 	<scope>import</scope>
 	</dependency>
 	</dependencies>
 	</dependencyManagement>
 
-
 	<dependencies>
-		<dependency>
-			<groupId>edu.yu.einstein.wasp</groupId>
-			<artifactId>wasp-core</artifactId>
-			<version>${wasp.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>edu.yu.einstein.wasp</groupId>
-			<artifactId>wasp-daemon</artifactId>
-			<version>${wasp.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
@@ -76,121 +65,5 @@
 			<version>${jmockit.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.springframework.batch</groupId>
-			<artifactId>spring-batch-integration</artifactId>
-			<version>${batch.int.version}</version>
-			<exclusions>
-			        <exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>jcl-over-slf4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		-->
 	</dependencies>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>com.goldin.plugins</id>
-			<name>maven-copy-plugins</name>
-			<url>http://evgenyg.artifactoryonline.com/evgenyg/plugins-releases</url>
-		</pluginRepository>
-		<pluginRepository>
-          <id>com.goldin</id>
-          <name>goldin.libs</name>
-          <url>http://evgenyg.artifactoryonline.com/evgenyg/libs-releases</url>
-        </pluginRepository>
-	</pluginRepositories>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.3.1</version>
-				<executions>
-					<execution>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<packaging>jar</packaging>
-							<artifactId>${project.artifactId}</artifactId>
-							<groupId>${project.groupId}</groupId>
-							<version>${project.version}</version>
-							<file>
-								${project.build.directory}/${project.artifactId}-${project.version}.jar
-							</file>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.goldin.plugins</groupId>
-				<artifactId>maven-copy-plugin</artifactId>
-				<version>0.2.3.8-beta-6</version>
-				<executions>
-					<execution>
-						<id>copy resources</id>
-						<phase>install</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<resources>
-
-								<resource>
-									<targetPath>${catalina.home}/waspPlugins</targetPath>
-									<directory>${project.build.directory}</directory>
-									<includes>
-										<include>${project.artifactId}-${project.version}.jar</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>${maven.enforcer.plugin}</version>
-				<executions>
-					<execution>
-					<id>enforce-banned-dependencies</id>
-					<goals>
-						<goal>enforce</goal>
-					</goals>
-					<configuration>
-						<rules>
-						<bannedDependencies>
-						<searchTransitive>true</searchTransitive>
-						<excludes>
-							<exclude>commons-logging:1.*</exclude>
-							<exclude>log4j:log4j</exclude>
-							<exclude>org.slf4j:1.5*</exclude>
-							<exclude>org.springframework:2.*</exclude>
-							<exclude>org.springframework:3.0.*</exclude>
-						</excludes>
-						</bannedDependencies>
-						<requireMavenVersion>
-							<version>${maven.version.range}</version>
-						</requireMavenVersion>
-						<requireJavaVersion>
-							<version>${java.version}</version>
-						</requireJavaVersion>
-						</rules>
-						<fail>true</fail>
-					</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-		</plugins>
-	</build>
 </project>
