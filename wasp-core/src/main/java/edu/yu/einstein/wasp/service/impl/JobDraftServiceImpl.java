@@ -392,4 +392,21 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 	}
 	
+	public Map<SampleDraft, Adaptor> getAdaptorsOnSampleDrafts(List<SampleDraft> sampleDraftList){
+		Map<SampleDraft, Adaptor> map = new HashMap<SampleDraft, Adaptor>();
+		for(SampleDraft sd : sampleDraftList){
+			if( sd.getSampleType().getIName().equals("library") ){
+				try{
+					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
+					Integer adaptorId = Integer.parseInt(adaptorIdAsString);				
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					if(adaptor.getAdaptorId()!=null && adaptor.getAdaptorId()>0){
+						map.put(sd, adaptor);
+					}
+				}catch(Exception e){}
+			}		
+		}
+		return map;
+	}
+	
 }

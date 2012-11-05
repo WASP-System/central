@@ -1572,6 +1572,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		
 		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		Map<SampleDraft, Adaptor> adptorsOnSampleDrafts = jobDraftService.getAdaptorsOnSampleDrafts(samples);		
 
 		Set<String> selectedSampleCell = new HashSet<String>();
 		//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
@@ -1589,6 +1590,7 @@ public class JobSubmissionController extends WaspController {
 		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 		m.put("jobDraft", jobDraft);
 		m.put("sampleDrafts", samples);
+		m.put("adptorsOnSampleDrafts", adptorsOnSampleDrafts);
 		m.put("selectedSampleCell", selectedSampleCell);
         m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/cell";		
@@ -1640,6 +1642,8 @@ public class JobSubmissionController extends WaspController {
 			jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 			m.put("jobDraft", jobDraft);
 			m.put("sampleDrafts", samplesOnThisJobDraft);//m.put("sampleDrafts", samples);
+			Map<SampleDraft, Adaptor> adptorsOnSampleDrafts = jobDraftService.getAdaptorsOnSampleDrafts(samplesOnThisJobDraft);		
+			m.put("adptorsOnSampleDrafts", adptorsOnSampleDrafts);
 			m.put("selectedSampleCell", selectedSampleCell);//m.put("selectedSampleCell", selectedSampleCell);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 			return "jobsubmit/cell";

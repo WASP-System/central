@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Sample;
@@ -63,4 +64,11 @@ public interface JobDraftService extends WaspService {
 	 */
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params);
 
+	/**
+	 * get Map<SampleDraft, Adaptor> for sampledraft objects in parameter sampleDraftList that are of type library.
+	 * If an exception is thrown, it is caught and ignored, to be able to push ahead.  
+	 * @param List<SampleDraft> sampleDraftList
+	 * @return Map<SampleDraft, Adaptor>
+	 */
+	public Map<SampleDraft, Adaptor> getAdaptorsOnSampleDrafts(List<SampleDraft> sampleDraftList);
 }
