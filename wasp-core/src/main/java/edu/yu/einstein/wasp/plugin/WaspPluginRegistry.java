@@ -12,7 +12,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.cli.ClientMessageI;
+import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}
