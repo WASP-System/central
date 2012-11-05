@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.mps.illumina;
 
-import mockit.Expectations;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.JobRegistry;

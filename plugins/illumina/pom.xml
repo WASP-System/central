@@ -28,8 +28,6 @@
 
 	<properties>
 		<wasp.version>${project.parent.version}</wasp.version>
-		<testng.version>6.3</testng.version>
-		<jmockit.version>0.999.18</jmockit.version>
 	</properties>
 
 	<dependencyManagement>
@@ -48,13 +46,6 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>${testng.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>${jmockit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
