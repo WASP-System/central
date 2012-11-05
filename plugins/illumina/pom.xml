@@ -30,14 +30,6 @@
 		<wasp.version>${project.parent.version}</wasp.version>
 		<testng.version>6.3</testng.version>
 		<jmockit.version>0.999.18</jmockit.version>
-		<logback.version>1.0.7</logback.version>
-		<slf4j.version>1.7.2</slf4j.version>
-		<maven.enforcer.plugin>1.1.1</maven.enforcer.plugin>
-		<java.version>1.6</java.version>
-		<maven.version.range>3.0.0</maven.version.range>
-		<slf4j.version>1.7.2</slf4j.version>
-		<logback.version>1.0.7</logback.version>
-		<batch.int.version>1.2.1.RELEASE</batch.int.version>
 	</properties>
 
 	<dependencyManagement>
