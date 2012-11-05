@@ -58,25 +58,10 @@
 	</plugin>
     </plugins>
 
-    </build>
-    <dependencyManagement>
-    <dependencies>
-    <dependency>
-    <groupId>edu.yu.einstein.wasp</groupId>
-    <artifactId>bom</artifactId>
-    <version>1.0.0</version>
-    <type>pom</type>
-    <scope>import</scope>
-    </dependency>
-    </dependencies>
-    </dependencyManagement>
-
-
     <dependencies>
       <dependency>
         <groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-daemon</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
       </dependency>
     </dependencies>
 
