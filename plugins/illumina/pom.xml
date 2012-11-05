@@ -49,4 +49,14 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.goldin.plugins</groupId>
+				<artifactId>maven-copy-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
