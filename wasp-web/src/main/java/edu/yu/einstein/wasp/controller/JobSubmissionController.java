@@ -1625,30 +1625,43 @@ public class JobSubmissionController extends WaspController {
 		}		
 
 		Map params = request.getParameterMap();
+		List<SampleDraft> samplesOnThisJobDraft = jobDraft.getSampleDraft();
+		Map<Integer, List<SampleDraft>> cellMap = jobDraftService.convertWebCellsToMapCells(params, samplesOnThisJobDraft);
+		//cellMap is used to confirm validity of cell selections
+		//if cell selections are not acceptable, then cellMap is used to re-populate cells on the web page return "jobsubmit/cell";
+		//if cell selections ARE acceptable, then add selections to database and move on to next page (return nextPage(jobDraft);)
 		Boolean errors = false;
 		try{
-			jobDraftService.validateSampleDraftsOnCellsFromWeb(params, jobDraft);
+			jobDraftService.confirmAllDraftSamplesOnAtLeastOneCell(cellMap, samplesOnThisJobDraft);//confirm that all samples (from web) have been placed on at least on cell
+			jobDraftService.confirmNoBarcodeOverlapPerCell(cellMap);//confirm that no barcodes appear more than once per cell (from web)
 		}catch(Exception e){ errors = true; logger.warn(e.getMessage()); waspErrorMessage(e.getMessage()); }
 		
-		//if placement of samples is unacceptable, 
+		//if placement of samples is unacceptable (exception was thrown), 
 		//get data for re-display on the GET, prepare to show flash error message, and navigate to jsp: "return jobsubmit/cell"
 		if(errors){			
-			List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+			//////////List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 			Set<String> selectedSampleCell = new HashSet<String>();
 			//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
 			//int cellindexCount = 0;
-			for (SampleDraft sd: samples) {
-				for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
-					int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
-					String key = sd.getSampleDraftId() + "_" + cellIndex;
+			//////////for (SampleDraft sd: samples) {
+				//////////for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
+					//////////int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
+					//////////String key = sd.getSampleDraftId() + "_" + cellIndex;
+					//////////selectedSampleCell.add(key);
+				//////////}
+			///////////}
+			for(Integer cellIndex : cellMap.keySet()){
+				List<SampleDraft> sdList = cellMap.get(cellIndex);
+				for(SampleDraft sd : sdList){
+					String key = sd.getSampleDraftId() + "_" + cellIndex.intValue();
 					selectedSampleCell.add(key);
 				}
 			}
 			getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
 			jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
 			m.put("jobDraft", jobDraft);
-			m.put("sampleDrafts", samples);
-			m.put("selectedSampleCell", selectedSampleCell);
+			m.put("sampleDrafts", samplesOnThisJobDraft);//m.put("sampleDrafts", samples);
+			m.put("selectedSampleCell", selectedSampleCell);//m.put("selectedSampleCell", selectedSampleCell);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 			return "jobsubmit/cell";
 		}

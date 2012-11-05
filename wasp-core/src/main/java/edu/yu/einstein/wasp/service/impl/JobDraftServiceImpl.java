@@ -305,7 +305,39 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			}
 		}
 	}
-	
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft){
+		
+		int maxColumns = 100;
+		try {
+			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
+		} catch (Exception e) {  }
+
+		Map<Integer, List<SampleDraft>> cellsMap = new HashMap<Integer, List<SampleDraft>>();
+		for (int i = 1; i <= maxColumns; i++) {
+			List<SampleDraft> draftSamplesOnCellFromWebList = new ArrayList<SampleDraft>();
+			for (SampleDraft sd: samplesOnThisJobDraft) {
+				String checked = "0";
+				try {
+					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+				} catch (Exception e) { }
+
+				if (checked == null || checked.equals("0")) {
+					continue;
+				}
+				else{
+					draftSamplesOnCellFromWebList.add(sd);
+				}
+			}
+			cellsMap.put(new Integer(i), draftSamplesOnCellFromWebList);
+		}
+		return cellsMap;
+	}
+
 	/**
 	* {@inheritDoc}
 	*/
@@ -445,8 +477,29 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	* {@inheritDoc}
 	*/
 	@Override
-	public void confirmAllDraftSamplesOnAtLeastOneCell(JobDraft jobDraft) throws Exception{
+	public void confirmAllDraftSamplesOnAtLeastOneCell(Map<Integer, List<SampleDraft>> cellMap, List<SampleDraft> samplesOnThisJobDraft) throws Exception{
+
+		//first, convert sampledraft objects in cellMap into a set of sampledrafts
+		Set<SampleDraft> samplesOnCellsFromWebSet = new HashSet<SampleDraft>();
+		for(Integer index : cellMap.keySet()){
+			List<SampleDraft> sampleDraftList = cellMap.get(index);
+			for(SampleDraft sd : sampleDraftList){
+				samplesOnCellsFromWebSet.add(sd);
+			}
+		}
 		
+		//second, check that samples appear at least once in the set
+		Boolean sampleIsMissing = false;
+		for(SampleDraft sampleDraft : samplesOnThisJobDraft){
+			if(!samplesOnCellsFromWebSet.contains(sampleDraft)){
+				sampleIsMissing = true;
+				logger.warn("SampleMissingFromSomeCell is " + sampleDraft.getName());//for testing only 
+			}
+		}
+		if(sampleIsMissing){
+			throw new Exception("jobDraft.cell_error.label"); 
+		}
+/*		
 		List<SampleDraft> samplesOnJobDraftList = jobDraft.getSampleDraft();
 		Set<SampleDraft> samplesOnCellsOnJobDraftSet = new HashSet<SampleDraft>();
 		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();
@@ -467,14 +520,15 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		if(sampleIsMissing){
 			throw new Exception("jobDraft.cell_error.label"); 
 		}
+*/
 	}
 	
 	/**
 	* {@inheritDoc}
 	*/
 	@Override
-	public void confirmNoBarcodeOverlapPerCellInJobDraft(JobDraft jobDraft) throws Exception{
-		
+	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception{
+/*		
 		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();//these are the cells
 		for(JobDraftCellSelection jdcs : jobDraftCellSelectionsList){
 			List <SampleDraftJobDraftCellSelection> sampleDraftJobCraftCellSelectionList = jdcs.getSampleDraftJobDraftCellSelection();//these are the samples on each cell
@@ -498,6 +552,33 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 				}
 			}
 		}
+*/
+		for(Integer index : cellMap.keySet()){
+			List<SampleDraft> sdList = cellMap.get(index);
+			Set<String> adaptorsOnCell = new HashSet<String>();
+			for(SampleDraft sd : sdList){
+				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
+					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
+					Integer adaptorId;
+					try{
+						adaptorId = Integer.parseInt(adaptorIdAsString);
+					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
+					
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
+					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+						throw new Exception("jobDraft.cell_adaptor_error.label");
+					}
+					/////////if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
+					////////////else{throw new Exception("jobDraft.cell_barcode_error.label");}
+					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
+						throw new Exception("jobDraft.cell_barcode_error.label");
+					}
+					adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());
+				}				
+			}
+		}
+		
 	}
 	
 }

@@ -41,6 +41,14 @@ public interface JobDraftService extends WaspService {
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params);
 
 	/**
+	 * organize cell information from web into Map<Integer, List<SampleDraft>> format, with Integer being cellindex (starting with 1) 
+	 * @param Map params
+	 * @param List<SampleDraft> samplesOnThisJobDraft
+	 * @return Map<Integer, List<SampleDraft>>
+	 */
+	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft);
+
+	/**
 	 * organize and validate samples on cells from web submission form; 
 	 * confirm that all samples in this job draft have been placed on at least on cell; if not throw exception and use it's message as flash error
 	 * confirm that no barcodes appear more than once per cell in this job draft; if yes, throw exception and use it's message as flash error
@@ -52,17 +60,18 @@ public interface JobDraftService extends WaspService {
 	public void validateSampleDraftsOnCellsFromWeb(Map params, JobDraft jobDraft)throws Exception;
 	
 	/**
-	 * confirm that all samples in this job draft have been placed on at least on cell; if not throw exception and use it's message as flash error
-	 * @param JobDraft jobdraft
+	 * confirm that all samples (from web) have been placed on at least on cell; if not throw exception and use it's message as flash error
+	 * @param Map<Integer, List<SampleDraft>> cellMap
+	 * @param List<SampleDraft> samplesOnThisJobDraft
 	 * @return void
 	 */
-	public void confirmAllDraftSamplesOnAtLeastOneCell(JobDraft jobDraft) throws Exception;
+	public void confirmAllDraftSamplesOnAtLeastOneCell(Map<Integer, List<SampleDraft>> cellMap, List<SampleDraft> samplesOnThisJobDraft) throws Exception;
 	
 	/**
-	 * confirm that no barcodes appear more than once per cell in this job draft; if yes, throw exception and use it's message as flash error
-	 * @param JobDraft jobdraft
+	 * confirm that no barcodes appear more than once per cell from web; if yes, throw exception and use it's message as flash error
+	 * @param Map<Integer, List<SampleDraft>> cellMap
 	 * @return void
 	 */
-	public void confirmNoBarcodeOverlapPerCellInJobDraft(JobDraft jobDraft) throws Exception;
+	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception;
 		
 }
