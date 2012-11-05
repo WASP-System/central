@@ -203,6 +203,8 @@ import edu.yu.einstein.wasp.util.StringHelper;
 
 @Service
 public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftService {
+	
+	final private int DEFAULT_MAX_COLUMNS = 25;
 
 	@Autowired
 	protected AdaptorDao adaptorDao;
@@ -234,7 +236,93 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	* {@inheritDoc}
 	*/
 	@Override
-	@Transactional   /////(propagation=Propagation.REQUIRES_NEW)
+	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft){
+		
+		int maxColumns = DEFAULT_MAX_COLUMNS;
+		try {
+			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
+		} catch (Exception e) {  }
+
+		Map<Integer, List<SampleDraft>> cellsMap = new HashMap<Integer, List<SampleDraft>>();
+		for (int i = 1; i <= maxColumns; i++) {
+			List<SampleDraft> draftSamplesOnCellFromWebList = new ArrayList<SampleDraft>();
+			for (SampleDraft sd: samplesOnThisJobDraft) {
+				String checked = "0";
+				try {
+					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+				} catch (Exception e) { }
+
+				if (checked == null || checked.equals("0")) {
+					continue;
+				}
+				else{
+					draftSamplesOnCellFromWebList.add(sd);
+				}
+			}
+			cellsMap.put(new Integer(i), draftSamplesOnCellFromWebList);
+		}
+		return cellsMap;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void confirmAllDraftSamplesOnAtLeastOneCell(Map<Integer, List<SampleDraft>> cellMap, List<SampleDraft> samplesOnThisJobDraft) throws Exception{
+
+		//first, convert sampledraft objects (from the web) in cellMap into a set of sampledrafts
+		Set<SampleDraft> samplesOnCellsFromWebSet = new HashSet<SampleDraft>();
+		for(Integer index : cellMap.keySet()){
+			List<SampleDraft> sampleDraftList = cellMap.get(index);
+			for(SampleDraft sd : sampleDraftList){
+				samplesOnCellsFromWebSet.add(sd);
+			}
+		}
+		
+		//second, check that samples appear at least once in the set
+		for(SampleDraft sampleDraft : samplesOnThisJobDraft){
+			if(!samplesOnCellsFromWebSet.contains(sampleDraft)){
+				throw new Exception("jobDraft.cell_error.label");
+			}
+		}
+	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception{
+
+		for(Integer index : cellMap.keySet()){
+			List<SampleDraft> sdList = cellMap.get(index);
+			Set<String> adaptorsOnCell = new HashSet<String>();
+			for(SampleDraft sd : sdList){
+				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
+					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
+					Integer adaptorId;
+					try{
+						adaptorId = Integer.parseInt(adaptorIdAsString);
+					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
+					
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
+					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+						throw new Exception("jobDraft.cell_adaptor_error.label");
+					}
+					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
+						throw new Exception("jobDraft.cell_barcode_error.label");
+					}
+					adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());
+				}				
+			}
+		}		
+	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional   
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params){
 		List<JobDraftCellSelection> oldJobDraftCellSelections = jobDraft.getJobDraftCellSelection();
 
@@ -249,9 +337,8 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 
 		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraft.getJobDraftId());
-
 		
-		int maxColumns = 10;
+		int maxColumns = DEFAULT_MAX_COLUMNS;
 		try {
 			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
 		} catch (Exception e) {
@@ -301,284 +388,8 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelectionDb = sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
 				sampleDraftJobDraftCellSelectionDao.flush(sampleDraftJobDraftCellSelectionDb);
 				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
-
 			}
 		}
-	}
-
-	/**
-	* {@inheritDoc}
-	*/
-	@Override
-	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft){
-		
-		int maxColumns = 100;
-		try {
-			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
-		} catch (Exception e) {  }
-
-		Map<Integer, List<SampleDraft>> cellsMap = new HashMap<Integer, List<SampleDraft>>();
-		for (int i = 1; i <= maxColumns; i++) {
-			List<SampleDraft> draftSamplesOnCellFromWebList = new ArrayList<SampleDraft>();
-			for (SampleDraft sd: samplesOnThisJobDraft) {
-				String checked = "0";
-				try {
-					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
-				} catch (Exception e) { }
-
-				if (checked == null || checked.equals("0")) {
-					continue;
-				}
-				else{
-					draftSamplesOnCellFromWebList.add(sd);
-				}
-			}
-			cellsMap.put(new Integer(i), draftSamplesOnCellFromWebList);
-		}
-		return cellsMap;
-	}
-
-	/**
-	* {@inheritDoc}
-	*/
-	@Override
-	public void validateSampleDraftsOnCellsFromWeb(Map params, JobDraft jobDraft)throws Exception{
-
-		
-		JobDraft tempJobDraft = new JobDraft();
-		////////
-		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraft.getJobDraftId());
-
-		
-		int maxColumns = 10;
-		try {
-			maxColumns = Integer.parseInt(((String[])params.get("jobcells"))[0]);
-		} catch (Exception e) { throw new Exception("jobDraft.cell_unexpected_error.label"); }
-
-		//List<String> checkedList = new ArrayList<String>();
-
-		Set<SampleDraft> draftSamplesOnAtLeastOneCellSet = new HashSet<SampleDraft>();
-		Map<Integer, List<SampleDraft>> cellsMap = new HashMap<Integer, List<SampleDraft>>();
-		for (int i = 1; i <= maxColumns; i++) {
-			List<SampleDraft> draftSamplesOnCellList = new ArrayList<SampleDraft>();
-			for (SampleDraft sd: samples) {
-				String checked = "0";
-				try {
-					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
-				} catch (Exception e) {
-				}
-
-				if (checked == null || checked.equals("0")) {
-					continue;
-				}
-				else{
-					draftSamplesOnAtLeastOneCellSet.add(sd);
-					draftSamplesOnCellList.add(sd);
-				}
-			}
-			cellsMap.put(new Integer(i), draftSamplesOnCellList);
-		}
-		
-		//first check that all draftsamples for this jobdraft appear at least once in draftSamplesOnAtLeastOneCellSet
-		Boolean sampleIsMissing = false;
-		for(SampleDraft sd : samples){			
-			if(!draftSamplesOnAtLeastOneCellSet.contains(sd)){
-				sampleIsMissing = true;
-				logger.warn("---SampleMissingFromSomeCell is " + sd.getName());
-			}
-		}
-		if(sampleIsMissing){
-			throw new Exception("jobDraft.cell_error.label"); 
-		}
-		
-		//second, confirm that for user-submitted libraries, barcodes do NOT appear twice within a cell 
-		for (int i = 1; i <= maxColumns; i++) {
-			List<SampleDraft> sdList = cellsMap.get(new Integer(i));
-			Set<String> adaptorsOnCell = new HashSet<String>();
-			for(SampleDraft sd : sdList){
-				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
-					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
-					Integer adaptorId;
-					try{
-						adaptorId = Integer.parseInt(adaptorIdAsString);
-					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
-					
-					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
-					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
-						throw new Exception("jobDraft.cell_adaptor_error.label");
-					}
-					/////////if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
-					////////////else{throw new Exception("jobDraft.cell_barcode_error.label");}
-					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
-						throw new Exception("jobDraft.cell_barcode_error.label");
-					}
-					adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());
-				}				
-			}
-		}
-		
-		
-		
-		
-		/*
-		int cellindex = 0;
-
-		for (int i = 1; i <= maxColumns; i++) {
-			int libraryindex = 0;
-			boolean cellfound = false;
-
-			JobDraftCellSelection thisJobDraftCellSelection = new JobDraftCellSelection();
-			thisJobDraftCellSelection.setJobdraftId(jobDraft.getJobDraftId());
-			thisJobDraftCellSelection.setCellIndex(cellindex + 1);
-
-			for (SampleDraft sd: samples) {
-				String checked = "0";
-				try {
-					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
-				} catch (Exception e) {
-				}
-
-				if (checked == null || checked.equals("0")) {
-					continue;
-				}
-
-				if (! cellfound) {
-					cellfound = true;
-					cellindex++;
-
-					JobDraftCellSelection jobDraftCellSelectionDb = jobDraftCellSelectionDao.save(thisJobDraftCellSelection);
-					thisJobDraftCellSelection = jobDraftCellSelectionDb;
-
-					jobDraftCellSelectionDao.flush(thisJobDraftCellSelection);
-				}
-
-				libraryindex++;
-
-				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelection = new SampleDraftJobDraftCellSelection();
-
-				sampleDraftJobDraftCellSelection.setJobDraftCellSelectionId(thisJobDraftCellSelection.getJobDraftCellSelectionId());
-				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getSampleDraftId());
-				sampleDraftJobDraftCellSelection.setLibraryIndex(libraryindex);
-
-				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelectionDb = sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
-				sampleDraftJobDraftCellSelectionDao.flush(sampleDraftJobDraftCellSelectionDb);
-				// checkedList.add("sdc_" + sd.getSampleDraftId() + "_" + i + " " + cellindex + " " + libraryindex);
-
-			}
-		}
-		*/
-		///////
-		/////return tempJobDraft;
-	}
-	
-	
-	/**
-	* {@inheritDoc}
-	*/
-	@Override
-	public void confirmAllDraftSamplesOnAtLeastOneCell(Map<Integer, List<SampleDraft>> cellMap, List<SampleDraft> samplesOnThisJobDraft) throws Exception{
-
-		//first, convert sampledraft objects in cellMap into a set of sampledrafts
-		Set<SampleDraft> samplesOnCellsFromWebSet = new HashSet<SampleDraft>();
-		for(Integer index : cellMap.keySet()){
-			List<SampleDraft> sampleDraftList = cellMap.get(index);
-			for(SampleDraft sd : sampleDraftList){
-				samplesOnCellsFromWebSet.add(sd);
-			}
-		}
-		
-		//second, check that samples appear at least once in the set
-		Boolean sampleIsMissing = false;
-		for(SampleDraft sampleDraft : samplesOnThisJobDraft){
-			if(!samplesOnCellsFromWebSet.contains(sampleDraft)){
-				sampleIsMissing = true;
-				logger.warn("SampleMissingFromSomeCell is " + sampleDraft.getName());//for testing only 
-			}
-		}
-		if(sampleIsMissing){
-			throw new Exception("jobDraft.cell_error.label"); 
-		}
-/*		
-		List<SampleDraft> samplesOnJobDraftList = jobDraft.getSampleDraft();
-		Set<SampleDraft> samplesOnCellsOnJobDraftSet = new HashSet<SampleDraft>();
-		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();
-		for(JobDraftCellSelection jdcs : jobDraftCellSelectionsList){
-			List <SampleDraftJobDraftCellSelection> sampleDraftJobCraftCellSelectionList = jdcs.getSampleDraftJobDraftCellSelection();
-			for(SampleDraftJobDraftCellSelection sdjdcs : sampleDraftJobCraftCellSelectionList){
-				samplesOnCellsOnJobDraftSet.add(sdjdcs.getSampleDraft());
-			}
-		}
-		Boolean sampleIsMissing = false;
-		for(SampleDraft sampleDraft : samplesOnJobDraftList){
-			if(!samplesOnCellsOnJobDraftSet.contains(sampleDraft)){
-				sampleIsMissing = true;
-				System.out.println("SampleMissingFromSomeCell iss " + sampleDraft.getName());
-				//throw new Exception("jobDraft.cell_error.label"); 
-			}
-		}
-		if(sampleIsMissing){
-			throw new Exception("jobDraft.cell_error.label"); 
-		}
-*/
-	}
-	
-	/**
-	* {@inheritDoc}
-	*/
-	@Override
-	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception{
-/*		
-		List<JobDraftCellSelection> jobDraftCellSelectionsList = jobDraft.getJobDraftCellSelection();//these are the cells
-		for(JobDraftCellSelection jdcs : jobDraftCellSelectionsList){
-			List <SampleDraftJobDraftCellSelection> sampleDraftJobCraftCellSelectionList = jdcs.getSampleDraftJobDraftCellSelection();//these are the samples on each cell
-			Set<String> adaptorsOnCell  = new HashSet<String>();
-			for(SampleDraftJobDraftCellSelection sdjdcs : sampleDraftJobCraftCellSelectionList){
-				SampleDraft sampleDraft = sdjdcs.getSampleDraft();
-				if( sampleDraft.getSampleType().getIName().equals("library") || sampleDraft.getSampleType().getIName().equals("facilityLibrary") ){
-					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sampleDraft.getSampleDraftMeta());
-					Integer adaptorId;
-					try{
-						adaptorId = Integer.parseInt(adaptorIdAsString);
-					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
-					
-					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					System.out.println("SampleLibrary namee: " + sampleDraft.getName() + "; Barcode: " + adaptor.getBarcodesequence());
-					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
-						throw new Exception("jobDraft.cell_adaptor_error.label");
-					}
-					if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
-					else{throw new Exception("jobDraft.cell_barcode_error.label");}
-				}
-			}
-		}
-*/
-		for(Integer index : cellMap.keySet()){
-			List<SampleDraft> sdList = cellMap.get(index);
-			Set<String> adaptorsOnCell = new HashSet<String>();
-			for(SampleDraft sd : sdList){
-				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
-					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
-					Integer adaptorId;
-					try{
-						adaptorId = Integer.parseInt(adaptorIdAsString);
-					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
-					
-					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
-					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
-						throw new Exception("jobDraft.cell_adaptor_error.label");
-					}
-					/////////if(!adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());}
-					////////////else{throw new Exception("jobDraft.cell_barcode_error.label");}
-					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
-						throw new Exception("jobDraft.cell_barcode_error.label");
-					}
-					adaptorsOnCell.add(adaptor.getBarcodesequence().toUpperCase());
-				}				
-			}
-		}
-		
 	}
 	
 }

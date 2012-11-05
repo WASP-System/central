@@ -1571,7 +1571,7 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
-		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 
 		Set<String> selectedSampleCell = new HashSet<String>();
 		//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
@@ -1579,30 +1579,19 @@ public class JobSubmissionController extends WaspController {
 
 		for (SampleDraft sd: samples) {
  			for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
-
 				int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
-
 				String key = sd.getSampleDraftId() + "_" + cellIndex;
-
 				selectedSampleCell.add(key);
 			}
 		}
-
-
 		
 		getMetaHelperWebapp().setArea(jobDraft.getWorkflow().getIName());
-
 		jobDraft.setJobDraftMeta(getMetaHelperWebapp().getMasterList(JobDraftMeta.class));
-
 		m.put("jobDraft", jobDraft);
-
 		m.put("sampleDrafts", samples);
 		m.put("selectedSampleCell", selectedSampleCell);
-
         m.put("pageFlowMap", getPageFlowMap(jobDraft));
-
-		return "jobsubmit/cell";
-		
+		return "jobsubmit/cell";		
 	}
 
 	
@@ -1627,7 +1616,7 @@ public class JobSubmissionController extends WaspController {
 		Map params = request.getParameterMap();
 		List<SampleDraft> samplesOnThisJobDraft = jobDraft.getSampleDraft();
 		Map<Integer, List<SampleDraft>> cellMap = jobDraftService.convertWebCellsToMapCells(params, samplesOnThisJobDraft);
-		//cellMap is used to confirm validity of cell selections
+		//cellMap is used to confirm validity of cell selections. cellMap stores the info from the web regarding sampleDraft placement on cells
 		//if cell selections are not acceptable, then cellMap is used to re-populate cells on the web page return "jobsubmit/cell";
 		//if cell selections ARE acceptable, then add selections to database and move on to next page (return nextPage(jobDraft);)
 		Boolean errors = false;
@@ -1636,20 +1625,10 @@ public class JobSubmissionController extends WaspController {
 			jobDraftService.confirmNoBarcodeOverlapPerCell(cellMap);//confirm that no barcodes appear more than once per cell (from web)
 		}catch(Exception e){ errors = true; logger.warn(e.getMessage()); waspErrorMessage(e.getMessage()); }
 		
-		//if placement of samples is unacceptable (exception was thrown), 
+		//if placement of samples is unacceptable (meaning that an exception was thrown), 
 		//get data for re-display on the GET, prepare to show flash error message, and navigate to jsp: "return jobsubmit/cell"
 		if(errors){			
-			//////////List<SampleDraft> samples=jobDraft.getSampleDraft();//sampleDraftDao.getSampleDraftByJobId(jobDraftId);
 			Set<String> selectedSampleCell = new HashSet<String>();
-			//Map<Integer, Integer> cellMap = new HashMap<Integer, Integer>();
-			//int cellindexCount = 0;
-			//////////for (SampleDraft sd: samples) {
-				//////////for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
-					//////////int cellIndex = sdc.getJobDraftCellSelection().getCellIndex();
-					//////////String key = sd.getSampleDraftId() + "_" + cellIndex;
-					//////////selectedSampleCell.add(key);
-				//////////}
-			///////////}
 			for(Integer cellIndex : cellMap.keySet()){
 				List<SampleDraft> sdList = cellMap.get(cellIndex);
 				for(SampleDraft sd : sdList){
@@ -1667,50 +1646,10 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		//if all is OK		
-		jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (this service method is transactional)
-		return nextPage(jobDraft);
-		
-	
-		
-		
-		
-		
-		
-		//next line never worked well; introduced side effect that cannot be tolerated
-		//return "redirect:/jobsubmit/errorCheckOfSampleDraftOnCells/"+jobDraftId+".do";//check the new data (could never get it to pull the new data unless usining redirect)
-
-		/* this never worked. It appears that the new data doesn't commit to the database until this controller method completes
-		try{//check the changes to the cells			
-			JobDraft revisedJobDraft = jobDraftService.getJobDraftById(jobDraftId);//re-pull updated jobDraft from database
-			jobDraftService.confirmAllDraftSamplesOnAtLeastOneCell(revisedJobDraft);
-			jobDraftService.confirmNoBarcodeOverlapPerCellInJobDraft(revisedJobDraft);
-		}catch(Exception e){
-			logger.debug(e.getMessage());
-			waspErrorMessage(e.getMessage());
-			return "redirect:/jobsubmit/cells/"+jobDraftId+".do";
-		}
-		return nextPage(jobDraft);
-	    */		
+		jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (the service method is transactional)
+		return nextPage(jobDraft);		
 	}
-/*
-	@RequestMapping(value="/errorCheckOfSampleDraftOnCells/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String errorCheckOfSampleDraftOnCells(
-			@PathVariable("jobDraftId") Integer jobDraftId, 
-			ModelMap m) {
 
-		JobDraft revisedJobDraft = jobDraftService.getJobDraftById(jobDraftId);//re-pull updated jobDraft from database
-		try{//check the changes to the cells			
-			jobDraftService.confirmAllDraftSamplesOnAtLeastOneCell(revisedJobDraft);
-			jobDraftService.confirmNoBarcodeOverlapPerCellInJobDraft(revisedJobDraft);
-		}catch(Exception e){
-			logger.debug(e.getMessage());
-			waspErrorMessage(e.getMessage());
-			return "redirect:/jobsubmit/cells/"+jobDraftId+".do";
-		}
-		return nextPage(revisedJobDraft);
-	}
-*/
 	@Transactional
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
