@@ -1667,7 +1667,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		//if all is OK		
-		//jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (this service method is transactional)
+		jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (this service method is transactional)
 		return nextPage(jobDraft);
 		
 	
