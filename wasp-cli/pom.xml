@@ -8,6 +8,7 @@
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
+
 	<artifactId>wasp-cli</artifactId>
 	<packaging>jar</packaging>
 	<name>WASP command line interface</name>
@@ -176,6 +177,11 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-interface</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>

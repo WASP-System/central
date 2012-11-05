@@ -13,13 +13,21 @@
 	<packaging>jar</packaging>
 	<name>WASP Core API</name>
 
+	<dependencyManagement>
+	<dependencies>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>bom</artifactId>
+	<version>1.0.0</version>
+	<type>pom</type>
+	<scope>import</scope>
+	</dependency>
+	</dependencies>
+	</dependencyManagement>
+
+
 	<build>
           <resources>
-            <resource>
-             <targetPath>WEB-INF</targetPath>
-             <filtering>true</filtering>
-             <directory>src/main/webapp/WEB-INF</directory>
-            </resource>
             <resource>
              <targetPath>.</targetPath>
              <filtering>true</filtering>
@@ -28,12 +36,6 @@
            </resources>
 
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
-
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -55,25 +57,6 @@
 
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.1</version>
-					<executions>
-						<execution>
-							<phase>exec</phase>
-							<goals>
-								<goal>java</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<executable>java</executable>
-						<!--<longClasspath>true</longClasspath>-->
-						<commandlineArgs>-cp ${maven.compile.classpath}:${catalina.home}/waspPlugins/:src/main/resources</commandlineArgs>
-						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
-					</configuration>
-				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.10</version>
@@ -111,10 +94,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>wasp-cli</artifactId>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-interface</artifactId>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-vfs2</artifactId>
@@ -297,11 +279,6 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
 			</dependency>
-<!--  			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.portlet</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>org.springframework.web.servlet</artifactId>
@@ -314,19 +291,13 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
 			</dependency>
-<!--
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.transaction</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.struts</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
+			</dependency>
+			<dependency>
+			        <groupId>ch.qos.logback</groupId>
+			        <artifactId>logback-classic</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
@@ -364,44 +335,6 @@
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
 			</dependency>
-<!-- not including 
-			<dependency>
-				<groupId>taglibs</groupId>
-				<artifactId>standard</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-api</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-compat</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-core</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-el</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-jsp</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-servlet</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-servlet-wildcard</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-template</artifactId>
-			</dependency>
-/not including  -->
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
@@ -414,12 +347,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 			</dependency>
-<!--
-			<dependency>
-				<groupId>org.gatein.captcha</groupId>
-				<artifactId>simplecaptcha</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>

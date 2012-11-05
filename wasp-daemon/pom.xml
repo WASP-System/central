@@ -9,11 +9,10 @@
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
-	<groupId>edu.yu.einstein.wasp</groupId>
+
 	<artifactId>wasp-daemon</artifactId>
 	<packaging>jar</packaging>
 	<name>WASP System Daemon</name>
-	<url>http://waspsystem.org/</url>
 	<description>
 		<![CDATA[
       This component of the WASP System handles task flows and analysis for all submitted Wasp jobs  
@@ -30,9 +29,9 @@
 	
 	<dependencies>
 		<dependency>
-      		<groupId>edu.yu.einstein.wasp</groupId>
-      		<artifactId>wasp-core</artifactId>
-    	</dependency>
+      			<groupId>edu.yu.einstein.wasp</groupId>
+      			<artifactId>wasp-core</artifactId>
+    		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
