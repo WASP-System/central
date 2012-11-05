@@ -27,6 +27,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,6 +163,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 private RunDao runDao;
 
 	private JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 	
 		
 	@Autowired

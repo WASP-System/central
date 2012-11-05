@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <%-- 
 <title><fmt:message key="pageTitle.task/samplereceive/list.label"/></title>
-<h1><fmt:message key="task.samplereceive.title_label" /></h1>
+<h1><fmt:message key="task.samplereceive_title.label" /></h1>
 --%>
 <title>Create/Update Library Control</title>
 <c:choose>

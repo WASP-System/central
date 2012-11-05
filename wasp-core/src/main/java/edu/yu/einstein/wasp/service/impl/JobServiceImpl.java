@@ -26,6 +26,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -212,6 +213,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	protected JobFileDao jobFileDao;
 	
 	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 	
 		
 	@Autowired
@@ -424,9 +430,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
 		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
 		  // should only be one entry returned anyway.
-		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
-				);
+		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
+		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
+
 		  if (stepExecution == null){
 			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
 		  }
