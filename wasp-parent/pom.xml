@@ -104,6 +104,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
 		<module>../wasp-plugin</module>
+		<module>../wasp-exec</module>
 	</modules>
 
 	<build>

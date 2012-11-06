@@ -133,19 +133,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-core-asl</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-mapper-lgpl</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>oro</groupId>
 				<artifactId>oro</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>javassist</groupId>
-				<artifactId>javassist</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet.jsp</groupId>
@@ -358,10 +350,12 @@
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>cglib</groupId>
 				<artifactId>cglib</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-firefox-driver</artifactId>
