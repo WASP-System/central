@@ -9,6 +9,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<module.version>${project.version}</module.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<maven.surefire.version>2.12.4</maven.surefire.version>
 		<!-- enforcer settings -->
 		<maven.enforcer.plugin>1.1.1</maven.enforcer.plugin>
 		<java.version>1.6</java.version>
@@ -33,6 +34,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
+			        <groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-daemon</artifactId>
+				<type>test-jar</type>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-interface</artifactId>
 				<version>${module.version}</version>
@@ -46,39 +53,49 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<pluginManagement>
 		<plugins>
 			<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-enforcer-plugin</artifactId>
-			<version>${maven.enforcer.plugin}</version>
-			<executions>
-			<execution>
-			<id>enforce-banned-dependencies</id>
-			<goals>
-			<goal>enforce</goal>
-			</goals>
-			<configuration>
-			<rules>
-			<bannedDependencies>
-			<searchTransitive>true</searchTransitive>
-			<excludes>
-			<exclude>commons-logging:1.*</exclude>
-			<exclude>log4j:log4j</exclude>
-			<exclude>org.slf4j:1.5*</exclude>
-			<exclude>org.slf4j:1.6*</exclude>
-			<exclude>org.springframework:2.*</exclude>
-			<exclude>org.springframework:3.0.*</exclude>
-			</excludes>
-			</bannedDependencies>
-			<requireMavenVersion>
-			<version>${maven.version.range}</version>
-			</requireMavenVersion>
-			<requireJavaVersion>
-			<version>${java.version}</version>
-			</requireJavaVersion>
-			</rules>
-			<fail>true</fail>
-			</configuration>
-			</execution>
-			</executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${maven.enforcer.plugin}</version>
+				<executions>
+				<execution>
+				<id>enforce-banned-dependencies</id>
+				<goals>
+				<goal>enforce</goal>
+				</goals>
+				<configuration>
+				<rules>
+				<bannedDependencies>
+				<searchTransitive>true</searchTransitive>
+				<excludes>
+				<exclude>commons-logging:1.*</exclude>
+				<exclude>log4j:log4j</exclude>
+				<exclude>org.slf4j:1.5*</exclude>
+				<exclude>org.slf4j:1.6*</exclude>
+				<exclude>org.springframework:2.*</exclude>
+				<exclude>org.springframework:3.0.*</exclude>
+				</excludes>
+				</bannedDependencies>
+				<requireMavenVersion>
+				<version>${maven.version.range}</version>
+				</requireMavenVersion>
+				<requireJavaVersion>
+				<version>${java.version}</version>
+				</requireJavaVersion>
+				</rules>
+				<fail>true</fail>
+				</configuration>
+				</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.version}</version>
+				<configuration>
+				<excludedGroups>integration-tests,db-tests,a,ssh</excludedGroups>
+				<includes>
+					<include>%regex[.*Test.*\.class]</include>
+				</includes>
+				</configuration>
 			</plugin>
 		</plugins>
 		</pluginManagement>

@@ -7,7 +7,7 @@
 	<import resource="daemon-test-local-config.xml" />
 
 	<!-- import common configuration  -->
-	<import resource="META-INF/spring/daemon-common-config.xml" />
+	<import resource="classpath*:META-INF/spring/daemon-common-config.xml" />
 	
 	
 </beans>

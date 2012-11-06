@@ -39,26 +39,6 @@
 				<artifactId>maven-enforcer-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.3.1</version>
-				<executions>
-				<execution>
-				<phase>install</phase>
-				<goals>
-				<goal>install-file</goal>
-				</goals>
-				<configuration>
-				<packaging>jar</packaging>
-				<artifactId>${project.artifactId}</artifactId>
-				<groupId>${project.groupId}</groupId>
-				<version>${project.version}</version>
-				<file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-				</configuration>
-				</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>com.goldin.plugins</groupId>
 				<artifactId>maven-copy-plugin</artifactId>
 				<version>0.2.3.8-beta-6</version>
@@ -93,8 +73,13 @@
 			<artifactId>wasp-core</artifactId>
 		</dependency>
 		<dependency>
+		        <groupId>edu.yu.einstein.wasp</groupId>
+		        <artifactId>wasp-daemon</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
 			<artifactId>wasp-daemon</artifactId>
+			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -117,18 +102,5 @@
 		</dependency>
 
 	</dependencies>
-
-	<pluginRepositories>
-		<pluginRepository>
-		<id>com.goldin.plugins</id>
-		<name>maven-copy-plugins</name>
-		<url>http://evgenyg.artifactoryonline.com/evgenyg/plugins-releases</url>
-		</pluginRepository>
-		<pluginRepository>
-		<id>com.goldin</id>
-		<name>goldin.libs</name>
-		<url>http://evgenyg.artifactoryonline.com/evgenyg/libs-releases</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 </project>
