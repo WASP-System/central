@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-plugin</artifactId>
-		<version>0.1.1-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-illumina</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>WASP Illumina module</name>
 
