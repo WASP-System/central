@@ -1,7 +1,11 @@
 package edu.yu.einstein.wasp.batch.launch;
 
+import org.springframework.integration.Message;
+
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+
 public interface BatchJobLauncher {
 	
-	public void launch(BatchJobLaunchContext batchJobLaunchContext) throws Exception;
+	public Message<WaspStatus> launch(BatchJobLaunchContext batchJobLaunchContext) throws Exception;
 
 }

@@ -1,8 +1,11 @@
 package edu.yu.einstein.wasp.batch.launch;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class BatchJobLaunchContext {
+public class BatchJobLaunchContext implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private String jobName;
 	
