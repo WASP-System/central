@@ -20,7 +20,6 @@
 	</description>
 	<properties>
 		<skipTests>true</skipTests>
-		<module.version>0.1.0-SNAPSHOT</module.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<surefire.groups>none</surefire.groups>
