@@ -1625,6 +1625,7 @@ public class JobSubmissionController extends WaspController {
 		try{
 			jobDraftService.confirmAllDraftSamplesOnAtLeastOneCell(cellMap, samplesOnThisJobDraft);//confirm that all samples (from web) have been placed on at least on cell
 			jobDraftService.confirmNoBarcodeOverlapPerCell(cellMap);//confirm that no barcodes appear more than once per cell (from web)
+			jobDraftService.confirmNONEBarcodeIsUniquePerCell(cellMap);//confirm that any user submitted library with a NONE barcode MUST be the sole library on a cell (from web)
 		}catch(Exception e){ errors = true; logger.warn(e.getMessage()); waspErrorMessage(e.getMessage()); }
 		
 		//if placement of samples is unacceptable (meaning that an exception was thrown), 

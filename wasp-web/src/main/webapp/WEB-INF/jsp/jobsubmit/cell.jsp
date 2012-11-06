@@ -41,7 +41,7 @@
 	<tr class="row">
 	<td class="CaptionTD"><c:out value="${sd.name}" />
 		<c:if test="${not empty adptorsOnSampleDrafts.get(sd)}">
-			(index <c:out value="${adptorsOnSampleDrafts.get(sd).getBarcodenumber()}" />)
+			(Lib. Index <c:out value="${adptorsOnSampleDrafts.get(sd).getBarcodenumber()}" />)
 		</c:if>
 	</td>
 	  <c:forEach var="i" begin="1" end="15">

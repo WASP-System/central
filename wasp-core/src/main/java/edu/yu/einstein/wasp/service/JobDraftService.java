@@ -58,6 +58,13 @@ public interface JobDraftService extends WaspService {
 	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception;
 	
 	/**
+	 * confirm that for user-submitted libraries from web, if the library has an adaptor with a NONE barcode, it MUST be the SOLE sample on a cell; if not, throw exception and use it's message as flash error
+	 * @param Map<Integer, List<SampleDraft>> cellMap
+	 * @return void
+	 */
+	public void confirmNONEBarcodeIsUniquePerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception;
+	
+	/**
 	 * remove existing cells and their samples (if any) and add new set 
 	 * @param JobDraft jobdraft
 	 * @return void

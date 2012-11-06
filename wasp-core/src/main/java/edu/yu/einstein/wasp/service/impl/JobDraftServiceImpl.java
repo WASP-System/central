@@ -293,11 +293,11 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	@Override
 	public void confirmNoBarcodeOverlapPerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception{
 
-		for(Integer index : cellMap.keySet()){
+		for(Integer index : cellMap.keySet()){//for each cell
 			List<SampleDraft> sdList = cellMap.get(index);
 			Set<String> adaptorsOnCell = new HashSet<String>();
 			for(SampleDraft sd : sdList){
-				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){
+				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){//include facilityLib incase this is a resubmit
 					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
 					Integer adaptorId;
 					try{
@@ -305,7 +305,6 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
 					
 					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					logger.warn("SampleLibrary name: " + sd.getName() + "; Barcode: " + adaptor.getBarcodesequence());
 					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
 						throw new Exception("jobDraft.cell_adaptor_error.label");
 					}
@@ -318,6 +317,38 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}		
 	}
 	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void confirmNONEBarcodeIsUniquePerCell(Map<Integer, List<SampleDraft>> cellMap) throws Exception{
+		for(Integer index : cellMap.keySet()){//for each cell
+			List<SampleDraft> sdList = cellMap.get(index);
+			int totalNumberOfSamplesOnThisCell = sdList.size();//all samples (macromolecules and user-submitted libraries) on this cell
+			if(totalNumberOfSamplesOnThisCell <= 1){
+				continue;//no need to check since only one (or zero) samples on this cell
+			}
+			//next, check all cells that have 2 or more samples per cell. (any NONE barcode found is illegal on these cells!) 
+			for(SampleDraft sd : sdList){//check each sample (macromolecule and library) on this cell
+				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){//include facilityLib incase this is a resubmit
+					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
+					Integer adaptorId;
+					try{
+						adaptorId = Integer.parseInt(adaptorIdAsString);
+					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
+					
+					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
+					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+						throw new Exception("jobDraft.cell_adaptor_error.label");
+					}
+					if("NONE".equals(adaptor.getBarcodesequence().toUpperCase()) || adaptor.getBarcodenumber().intValue()==0 ){
+						throw new Exception("jobDraft.cell_barcode_NONE_error.label");
+					}
+				}
+			}
+		}		
+	}
+
 	/**
 	* {@inheritDoc}
 	*/
