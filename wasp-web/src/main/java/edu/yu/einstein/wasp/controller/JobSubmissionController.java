@@ -1769,7 +1769,7 @@ public class JobSubmissionController extends WaspController {
 	protected List<String[]> getPageFlowMap(JobDraft jobDraft) {
 		String[] pageFlowArray = workflowService.getPageFlowOrder(jobDraft.getWorkflow());
 		if (pageFlowArray.length == 0){
-			logger.debug("No page flow defined (workflowMeta workflow.submitpageflow) so using default page flow");
+			logger.debug("No page flow defined so using default page flow");
 			pageFlowArray = defaultPageFlow;
 		}
 		
