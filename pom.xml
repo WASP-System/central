@@ -34,6 +34,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
+			        <groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-daemon</artifactId>
+				<type>test-jar</type>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-interface</artifactId>
 				<version>${module.version}</version>

@@ -73,8 +73,18 @@
 			<artifactId>wasp-core</artifactId>
 		</dependency>
 		<dependency>
+		        <groupId>edu.yu.einstein.wasp</groupId>
+		        <artifactId>wasp-daemon</artifactId>
+		</dependency>
+		<dependency>
+		        <groupId>edu.yu.einstein.wasp</groupId>
+		        <artifactId>wasp-daemon</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
 			<artifactId>wasp-daemon</artifactId>
+			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
