@@ -124,7 +124,7 @@
 			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>bom</artifactId>
-				<version>1.0.0</version>
+				<version>0.1.0-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -180,7 +180,6 @@
 		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
 			<artifactId>wasp-interface</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
