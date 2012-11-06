@@ -20,7 +20,7 @@
 	
 	<!-- define sample main flow -->
 	<batch:flow id="wasp.default.sample.mainFlow.v1">
-		<batch:split id="wasp.sample.waitUntilActionable" task-executor="taskExecutor">
+		<batch:split id="wasp.sample.waitUntilActionable" task-executor="waspTaskExecutor">
 			<!-- We need to wait for the sample to be received and for the job to be approved before working on the sample -->
 			<batch:flow>
 				<batch:step id="wasp.sample.step.listenForSampleReceived">
@@ -152,7 +152,7 @@
 	
 	<!-- for dispatching job, call with parameter 'sampleId' and 'jobId' -->
 	<batch:job id="wasp.sample.jobflow.v1">
-		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
+		<batch:split id="wasp.sample.jobFlow.split" task-executor="waspTaskExecutor">
 			<batch:flow parent="wasp.default.sample.mainFlow.v1" />
 			<batch:flow parent="wasp.default.sample.mainFlow.exitCondition" />
 		</batch:split>

@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.cli;
+package edu.yu.einstein.wasp.interfaces.cli;
 
 import java.rmi.RemoteException;
 

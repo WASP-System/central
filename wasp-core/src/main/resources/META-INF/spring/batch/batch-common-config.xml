@@ -11,11 +11,18 @@
 
 	<batch:job-repository id="jobRepository" />
 	
-	<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
+
+	<bean id="waspTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${wasp.batch.corePoolSize:5}" />
+		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize:10}" />
+		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds:60}" />
+		<property name="queueCapacity" value="${wasp.batch.queueCapacity:10}" />
+	</bean>
 	
 	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
 		<property name="jobRepository" ref="jobRepository" />
-		<property name="taskExecutor" ref="taskExecutor" />
+		<property name="taskExecutor" ref="waspTaskExecutor" />
 	</bean>
 	
 	<!-- Not required, but useful for keeping track of which jobs are available in the context. 

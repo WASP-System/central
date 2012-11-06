@@ -16,11 +16,6 @@
 	<build>
           <resources>
             <resource>
-             <targetPath>WEB-INF</targetPath>
-             <filtering>true</filtering>
-             <directory>src/main/webapp/WEB-INF</directory>
-            </resource>
-            <resource>
              <targetPath>.</targetPath>
              <filtering>true</filtering>
              <directory>src/main/resources</directory>
@@ -29,92 +24,23 @@
 
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
-
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8.1</version>
-				<executions>
-					<execution>
-						<id>aggregate</id>
-						<goals>
-							<goal>aggregate</goal>
-						</goals>
-						<phase>site</phase>
-						<configuration>
-							<!-- Specific configuration for the aggregate report -->
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<additionalClasspathElements>
+						<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
+					</additionalClasspathElements>
+					<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
+						</suiteXmlFiles> -->
+				</configuration>
 			</plugin>
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.1</version>
-					<executions>
-						<execution>
-							<phase>exec</phase>
-							<goals>
-								<goal>java</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<executable>java</executable>
-						<!--<longClasspath>true</longClasspath>-->
-						<commandlineArgs>-cp ${maven.compile.classpath}:${catalina.home}/waspPlugins/:src/main/resources</commandlineArgs>
-						<mainClass>edu.yu.einstein.wasp.batch.StartSpring</mainClass>
-					</configuration>
-				</plugin>
-				<plugin>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.10</version>
-					<configuration>
-						<additionalClasspathElements>
-							<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
-						</additionalClasspathElements>
-						<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
-							</suiteXmlFiles> -->
-						<skip>true</skip>
-					</configuration>
-					<executions>
-						<execution>
-							<id>unit-tests</id>
-							<phase>test</phase>
-							<goals>
-								<goal>test</goal>
-							</goals>
-							<configuration>
-								<skip>false</skip>
-								<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
-								<includes>
-									 <include>**/Test*.java</include>
-									 <include>**/*Test.java</include>
-									 <include>**/*Tests.java</include>
-									 <include>**/*TestCase.java</include>
-								</includes>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 	<dependencies>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>wasp-cli</artifactId>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-interface</artifactId>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-vfs2</artifactId>
@@ -207,19 +133,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-core-asl</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-mapper-lgpl</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>oro</groupId>
 				<artifactId>oro</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>javassist</groupId>
-				<artifactId>javassist</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet.jsp</groupId>
@@ -297,11 +215,6 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
 			</dependency>
-<!--  			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.portlet</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>org.springframework.web.servlet</artifactId>
@@ -314,19 +227,13 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
 			</dependency>
-<!--
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.transaction</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.struts</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
+			</dependency>
+			<dependency>
+			        <groupId>ch.qos.logback</groupId>
+			        <artifactId>logback-classic</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
@@ -364,44 +271,6 @@
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
 			</dependency>
-<!-- not including 
-			<dependency>
-				<groupId>taglibs</groupId>
-				<artifactId>standard</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-api</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-compat</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-core</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-el</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-jsp</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-servlet</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-servlet-wildcard</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.tiles</groupId>
-				<artifactId>tiles-template</artifactId>
-			</dependency>
-/not including  -->
 			<dependency>
 				<groupId>javax.validation</groupId>
 				<artifactId>validation-api</artifactId>
@@ -414,12 +283,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 			</dependency>
-<!--
-			<dependency>
-				<groupId>org.gatein.captcha</groupId>
-				<artifactId>simplecaptcha</artifactId>
-			</dependency>
--->
 			<dependency>
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
@@ -487,10 +350,12 @@
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>cglib</groupId>
 				<artifactId>cglib</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-firefox-driver</artifactId>

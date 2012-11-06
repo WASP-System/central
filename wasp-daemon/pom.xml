@@ -9,28 +9,27 @@
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
+
 	<artifactId>wasp-daemon</artifactId>
 	<packaging>jar</packaging>
 	<name>WASP System Daemon</name>
-	<url>http://waspsystem.org/</url>
 	<description>
 		<![CDATA[
       This component of the WASP System handles task flows and analysis for all submitted Wasp jobs  
     ]]>
 	</description>
 	<properties>
-		<maven.test.skip>true</maven.test.skip>
-		<maven.test.failure.ignore>true</maven.test.failure.ignore>
-		<module.version>0.1.0-SNAPSHOT</module.version>
+		<skipTests>true</skipTests>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<surefire.groups>none</surefire.groups>
 	</properties>
 	
 	<dependencies>
 		<dependency>
-      		<groupId>edu.yu.einstein.wasp</groupId>
-      		<artifactId>wasp-core</artifactId>
-    	</dependency>
+      			<groupId>edu.yu.einstein.wasp</groupId>
+      			<artifactId>wasp-core</artifactId>
+    		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -139,103 +138,16 @@
 				</configuration>
 			</plugin>
 			<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.5</version>
-			<executions>
-			<execution>
-			<phase>package</phase>
-			<goals>
-			<goal>shade</goal>
-			</goals>
-			<configuration>
-			<transformers>
-			<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-			<mainClass>edu.yu.einstein.wasp.daemon.StartDaemon</mainClass>
-			</transformer>
-			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-			<resource>META-INF/spring.handlers</resource>
-			</transformer>
-			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-			<resource>META-INF/spring.schemas</resource>
-			</transformer>
-			</transformers>
-			<filters>
-			<filter>
-			<artifact>edu.yu.einstein.wasp:wasp-cli</artifact>
-			<excludes>
-			<exclude>commons-logging.properties</exclude>
-			<exclude>simplelog.properties</exclude>
-			<exclude>logback.xml</exclude>
-			</excludes>
-			</filter>
-			</filters>
-			</configuration>
-			</execution>
-			</executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+				<execution>
+				<goals>
+				<goal>test-jar</goal>
+				</goals>
+				</execution>
+				</executions>
 			</plugin>
-
-			</plugins>
-			<pluginManagement>
-				<plugins>
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.10</version>
-						
-						<executions>
-							<execution>
-								<id>unit-tests</id>
-								<phase>test</phase>
-								<goals>
-									<goal>test</goal>
-								</goals>
-								<configuration>
-									<skip>${maven.test.skip}</skip>
-									<excludedGroups>integration-tests, db-tests, a, ssh</excludedGroups>
-									<includes>
-										 <include>**/Test*.java</include>
-										 <include>**/*Test.java</include>
-										 <include>**/*Tests.java</include>
-										 <include>**/*TestCase.java</include>
-									</includes>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</pluginManagement>
-
-			
+		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>springframework-milestone</id>
-			<name>Spring Maven MILESTONE Repository</name>
-			<url>http://maven.springframework.org/milestone</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>Codehaus</id>
-			<url>http://repository.codehaus.org/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
-	<dependencyManagement>
-	<dependencies>
-	<dependency>
-	<groupId>edu.yu.einstein.wasp</groupId>
-	<artifactId>bom</artifactId>
-	<version>1.0.0</version>
-	<type>pom</type>
-	<scope>import</scope>
-	</dependency>
-	</dependencies>
-	</dependencyManagement>
- 
-	<groupId>edu.yu.einstein.wasp.daemon</groupId>
 </project>

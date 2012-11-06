@@ -51,11 +51,17 @@ public class Main {
 						.setHeader("password", parser.getPassword())
 						.build();
 			} else {
-				message = (Message<String>) MessageBuilder.withPayload(cl.getOptionValue("m"))
-			        .setHeader("target", cl.getOptionValue("t"))
-			        .setHeader("user", parser.getUser())
-			        .setHeader("password", parser.getPassword())
-			        .build();
+				String mp = "";
+				if (cl.hasOption("m")) mp = cl.getOptionValue("m");
+				MessageBuilder<String> m = MessageBuilder.withPayload(mp)
+				        .setHeader("user", parser.getUser())
+				        .setHeader("password", parser.getPassword());
+				
+				if(cl.hasOption("T")) m.setHeader("target", cl.getOptionValue("T"));
+				if(cl.hasOption("t")) m.setHeader("target", cl.getOptionValue("t"));
+				if(cl.hasOption("h")) m.setHeader("help", "true");
+				
+				message = m.build();
 			}
 			
 			Message<String> reply = (Message<String>) gw.handleRequestMessage(message);
