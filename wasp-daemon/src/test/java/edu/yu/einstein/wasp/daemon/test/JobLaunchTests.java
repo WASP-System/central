@@ -45,7 +45,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 	// need to use different sampleId for each test as database not reset and 
 	// it is not possible to re-submit a batch job with an identical signature (parameters)
-	private final Integer JOB_ID = 1;
+	private final Integer JOB_ID = 10;
 	private final String BATCH_JOB_NAME = "default.waspJob.jobflow.v1";
 	private final String BATCH_JOB_NAME_WRONG = "notARealJob";
 		

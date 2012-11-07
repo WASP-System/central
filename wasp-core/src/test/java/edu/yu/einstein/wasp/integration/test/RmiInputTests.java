@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
+import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -27,32 +27,28 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	@Autowired
 	MessageChannelRegistry channelRegistry;
 	
+	@Autowired
+	private RmiOutboundGateway outboundGateway;
+	
 	private final Logger logger = LoggerFactory.getLogger(RmiInputTests.class);
 	
 	private Message<?> message = null;
 	
 	private final Integer PU_ID = 1;
-	private final String PU_KEY = "platformUnitId";
 	private final Integer RUN_ID = 10;
-	private final String RUN_KEY = "runId";
-	private DirectChannel outboundRmiChannel;
-	private DirectChannel replyChannel;
 	private SubscribableChannel listeningChannel;
 	
 	@BeforeClass
 	private void setup(){
 		Assert.assertNotNull(channelRegistry);
+		Assert.assertNotNull(outboundGateway);
 		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.default", SubscribableChannel.class);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
-		outboundRmiChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound", DirectChannel.class);
-		replyChannel = channelRegistry.getChannel("wasp.channel.rmi.outbound.reply", DirectChannel.class);
-		replyChannel.subscribe(this);
 	}
 	
 	@AfterClass 
 	private void tearDown(){
 		listeningChannel.unsubscribe(this);
-		replyChannel.unsubscribe(this);
 	}
 
 	
@@ -62,10 +58,11 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 			// send run started message into outboundRmiChannel
 			GenericStatusMessageTemplate messageTemplate = new GenericStatusMessageTemplate();
 			messageTemplate.setStatus(WaspStatus.STARTED);
-			message =  messageTemplate.build();
-			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
-			outboundRmiChannel.send(message);
-			
+			Message<WaspStatus> messageToSend =  messageTemplate.build();
+			logger.info("Sending message via 'outbound rmi gateway': "+messageToSend.toString());
+			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
+			if (replyMessage != null)
+				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
 			
 			// Delay to allow message receiving and transitions. Time out after 20s.
 			int repeat = 0;
@@ -73,7 +70,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 				Thread.sleep(500);
 				repeat++;
 			}
-			if (message == null)
+			if (outboundGateway == null)
 				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.run'");
 			
 			// verify message headers
@@ -94,32 +91,23 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 	public void testUnknownTarget() throws Exception{
 		try{ 
 			// send run started message into outboundRmiChannel
-			message = MessageBuilder.withPayload(WaspStatus.STARTED)
+			Message<WaspStatus> messageToSend = MessageBuilder.withPayload(WaspStatus.STARTED)
 					.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 					.setHeader("target", "foo") //unknown target foo
 					.setHeader("runId", RUN_ID)
 					.setHeader("platformUnitId", PU_ID)
 					.setPriority(WaspStatus.STARTED.getPriority())
 					.build();
-			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+message.toString());
-			outboundRmiChannel.send(message);
-			
-			
-			// Delay to allow message receiving and transitions. Time out after 20s.
-			int repeat = 0;
-			while (message == null && repeat < 40){
-				Thread.sleep(500);
-				repeat++;
-			}
-			if (message == null)
-				Assert.fail("Timeout waiting to receive message on 'wasp.channel.rmi.outbound.reply'");
-			
-			// verify message headers
-			Assert.assertTrue(message.getHeaders().containsKey("unknown-target"));
-			Assert.assertEquals(message.getHeaders().get("unknown-target"), "true");
+			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+messageToSend.toString());
+			logger.info("Sending message via 'outbound rmi gateway': "+messageToSend.toString());
+			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
+			if (replyMessage == null)
+				Assert.fail("Message recieve timed out with no message returned");
+			Assert.assertTrue(replyMessage.getHeaders().containsKey("unknown-target"));
+			Assert.assertEquals(replyMessage.getHeaders().get("unknown-target"), "true");
 			
 			// check payload as expected (don't bother checking headers this time around)
-			Assert.assertEquals(message.getPayload(), WaspStatus.STARTED);
+			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.STARTED);
 			
 		} catch (Exception e){
 			// caught an unexpected exception

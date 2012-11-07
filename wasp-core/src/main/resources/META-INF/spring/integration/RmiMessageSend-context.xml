@@ -11,9 +11,6 @@
 	<int-rmi:outbound-gateway id="outboundRmiGateway" 
 		remote-channel="wasp.channel.rmi.inbound" 
 		request-channel="wasp.channel.rmi.outbound" 
-		reply-channel="wasp.channel.rmi.outbound.reply"
 		host="localhost" 
-		port="23532" />
-		
-	<int:channel id='wasp.channel.rmi.outbound.reply' />
+		port="23533" />
 </beans>
