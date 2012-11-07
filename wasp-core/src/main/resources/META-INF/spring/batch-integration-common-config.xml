@@ -22,7 +22,7 @@
 		</bean>
 	</int:service-activator>
 	
-	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="5000"/>
+	<int:poller id="defaultPoller" default="true" max-messages-per-poll="1" fixed-rate="100"/>
 	
 
 </beans>

@@ -33,7 +33,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 
-@ContextConfiguration(locations={"/daemon-test-launch-context.xml", "classpath:/RmiMessageSend-context.xml"})
+@ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
 
 public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
@@ -92,7 +92,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(5000); // allow some time for flow initialization
+			Thread.sleep(500); // allow some time for flow initialization
 			
 			// send approval messages (simulating button presses in web view)
 			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID);
@@ -142,7 +142,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			logger.debug("Sending message: "+completeNotificationMessage);
 			outboundRmiChannel.send(completeNotificationMessage);
 			
-			Thread.sleep(5000); // wait for message receiving and job completion events
+			Thread.sleep(500); // wait for message receiving and job completion events
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
 			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.COMPLETED.getExitCode());
@@ -165,7 +165,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(5000);
+			Thread.sleep(500);
 			
 			// send approval messages (simulating button presses in web view)
 			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID2);
@@ -207,7 +207,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
 			
-			Thread.sleep(5000); // allow batch to wrap up
+			Thread.sleep(500); // allow batch to wrap up
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
 			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.STOPPED.getExitCode());

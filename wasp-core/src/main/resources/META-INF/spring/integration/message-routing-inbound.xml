@@ -28,7 +28,10 @@
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.rmi.inbound" 
     	reply-channel="wasp.channel.rmi.internal.reply" 
-    	registry-port="23532" />
+    	registry-port="23532" 
+    	expect-reply="true"
+    	reply-timeout="20000"
+ 	/>
     	
     <int:header-enricher input-channel="wasp.channel.rmi.inbound" output-channel="wasp.channel.Authenticated1">
 		<int:header name="gateway-reply-channel" value="wasp.channel.rmi.internal.reply" />
@@ -44,7 +47,9 @@
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.rmi.secure.inbound0" 
     	reply-channel="wasp.channel.rmi.secure.reply"
-    	registry-port="23532" />
+    	registry-port="23532"
+    	expect-reply="true"
+    	reply-timeout="20000" />
     
 	<int:header-enricher input-channel="wasp.channel.rmi.secure.inbound0" output-channel="wasp.channel.rmi.secure.inbound1">
 		<int:header name="gateway-reply-channel" value="wasp.channel.rmi.secure.reply" />

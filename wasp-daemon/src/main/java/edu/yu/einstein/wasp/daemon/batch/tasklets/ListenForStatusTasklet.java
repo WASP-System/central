@@ -101,7 +101,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked");
 		if (messageQueue.isEmpty())
-			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay	
+			return delayedRepeatStatusContinuable(1000); // returns RepeatStatus.CONTINUABLE after 1s delay	
 		return RepeatStatus.FINISHED;
 	}
 	
