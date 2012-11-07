@@ -80,6 +80,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -1695,25 +1696,41 @@ public class JobSubmissionController extends WaspController {
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		User me = authenticationService.getAuthenticatedUser();
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		boolean error = false;
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		try {
-			jobService.createJobFromJobDraft(jobDraft, me);
+			Job newJob = null;
+			newJob = jobService.createJobFromJobDraft(jobDraft, me);
+			if(newJob==null || newJob.getJobId()==null || newJob.getJobId().intValue()<=0){
+				logger.warn("Error creating new job");
+				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+				error = true;
+			}
 		} catch (FileMoveException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
 		} catch (WaspMessageBuildingException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
 		}
 
+		if(error){
+			m.put("jobDraft", jobDraft);
+			return "jobsubmit/failed";
+		}
+		
 		// Adds new Job to Authorized List
 		doReauth();
 
-		return nextPage(jobDraft);
+		return nextPage(jobDraft);//currently goes do submitjob/ok
 	}
 
 
+	
+	
 	
 	/*
 	 * Returns adaptors by adaptorsetID 
