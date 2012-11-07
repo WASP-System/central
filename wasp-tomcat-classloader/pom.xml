@@ -91,6 +91,7 @@
 				<executions>
 				<execution>
 				<id>enforce-property</id>
+				<phase>install</phase>
 				<goals>
 				<goal>enforce</goal>
 				</goals>
