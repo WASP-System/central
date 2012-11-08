@@ -35,6 +35,7 @@
 									<property name="status" value="CREATED" />
 								</bean>
 							</constructor-arg>
+							<property name="name" value="wasp.sample.step.listenForSampleReceived" />
 						</bean>
 					</batch:tasklet>
 				</batch:step>
@@ -52,6 +53,7 @@
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</constructor-arg>
+							<property name="name" value="wasp.sample.step.listenForJobApproved" />
 						</bean>
 					</batch:tasklet>
 				</batch:step>
@@ -80,6 +82,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
+					<property name="name" value="wasp.sample.step.sampleQC" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.sample.step.notifySampleAbandoned" />

@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
-@ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
+@ContextConfiguration(locations={"/daemon-test-launch-context.xml","/dummyBatchJobFlow.xml"})
 
 public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
@@ -35,7 +35,6 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 	@Autowired 
 	private JobRegistry jobRegistry;
-	
 		
 	@Autowired
 	private StubSampleDao stubSampleDao;
@@ -46,7 +45,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	// need to use different sampleId for each test as database not reset and 
 	// it is not possible to re-submit a batch job with an identical signature (parameters)
 	private final Integer JOB_ID = 10;
-	private final String BATCH_JOB_NAME = "default.waspJob.jobflow.v1";
+	private final String BATCH_JOB_NAME = "dummyBatchJob";
 	private final String BATCH_JOB_NAME_WRONG = "notARealJob";
 		
 	
@@ -57,7 +56,6 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 		Assert.assertNotNull(jobRegistry);
 	}
 	
-
 		
 	/**
 	 * Test getting correct reply from WaspBatchJobLauncher service activator after sending a message to start a batch job 
@@ -69,19 +67,18 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 			jobParameters.put(WaspJobParameters.JOB_ID, JOB_ID.toString());
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(BATCH_JOB_NAME, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
-			logger.debug("Sending message : "+messageToSend.toString());
+			logger.debug("testSuccessfulJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
 			if (replyMessage == null)
-				Assert.fail("Failed to send message " + messageToSend.toString() + " within timeout period");
+				Assert.fail("testSuccessfulJobLaunch(): Failed to send message " + messageToSend.toString() + " within timeout period");
 			if (BatchJobLaunchContext.class.isInstance(replyMessage.getPayload()))
-				Assert.fail("Message bouced");
+				Assert.fail("testSuccessfulJobLaunch(): Message bouced");
 			if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
-				Assert.fail("Failed to launch job. Returned message: " + replyMessage.toString());
+				Assert.fail("testSuccessfulJobLaunch(): Failed to launch job. Returned message: " + replyMessage.toString());
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.COMPLETED);
-			
 		} catch (Exception e){
 			 // caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			Assert.fail("testSuccessfulJobLaunch(): Caught Exception: "+e.getMessage());
 		}
 	}
 	
@@ -90,28 +87,28 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	 * containing an non-existent batch job
 	 */
 	@Test (groups = "unit-tests-batch-integration", dependsOnMethods="testSuccessfulJobLaunch")
-	public void testFailedJobLaunch1() throws Exception{
+	public void testFailedJobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.JOB_ID, JOB_ID.toString());
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(BATCH_JOB_NAME_WRONG, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
-			logger.debug("Sending message : "+messageToSend.toString());
+			logger.debug("testFailedJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
 			if (replyMessage == null)
-				Assert.fail("Failed to send message " + messageToSend.toString() + " within timeout period");
+				Assert.fail("testFailedJobLaunch(): Failed to send message " + messageToSend.toString() + " within timeout period");
 			if (replyMessage == null)
-				Assert.fail("Timeout waiting to receive message");
+				Assert.fail("testFailedJobLaunch(): Timeout waiting to receive message");
 			if (BatchJobLaunchContext.class.isInstance(replyMessage.getPayload()))
-					Assert.fail("Message bouced");
+					Assert.fail("testFailedJobLaunch(): Message bouced");
 			Assert.assertEquals(replyMessage.getPayload(), WaspStatus.FAILED);
 			if (!replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
-				Assert.fail("Failed to return an exception in the header");
-			logger.debug("Returned an exception as expected in the headers. Value = " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
+				Assert.fail("testFailedJobLaunch(): Failed to return an exception in the header");
+			logger.debug("testFailedJobLaunch(): Returned an exception as expected in the headers. Value = " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
 			
 		} catch (Exception e){
 			 // caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			Assert.fail("testFailedJobLaunch(): Caught Exception: "+e.getMessage());
 		}
 	}
 	

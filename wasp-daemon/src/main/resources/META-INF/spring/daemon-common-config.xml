@@ -24,6 +24,7 @@
 				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
+		<property name="name" value="listenForJobQuotedTasklet" />
 	</bean>
 	
 	<bean id="listenForJobPiApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
@@ -36,6 +37,7 @@
 				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
+		<property name="name" value="listenForJobPiApproveTasklet" />
 	</bean>
 	
 	<bean id="listenForJobAdminApproveTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
@@ -48,6 +50,7 @@
 				<property name="status" value="COMPLETED" />
 			</bean>
 		</constructor-arg>
+		<property name="name" value="listenForJobAdminApproveTasklet" />
 	</bean>
 	
 	

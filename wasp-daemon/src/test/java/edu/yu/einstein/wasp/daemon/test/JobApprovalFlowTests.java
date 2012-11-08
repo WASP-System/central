@@ -12,6 +12,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
@@ -23,9 +24,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -76,7 +79,6 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	@AfterClass 
 	private void tearDown(){
 		listeningChannel.unsubscribe(this);
-		
 	}
 	
 		
@@ -100,34 +102,34 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			template.setTask(WaspJobTask.QUOTE);
 			Message<WaspStatus> quoteApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
+			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(quoteApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.PI_APPROVE);
 			Message<WaspStatus> piApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
+			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
 			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(piApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.ADMIN_APPROVE);
 			Message<WaspStatus> adminApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
+			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
 			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(adminApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
-			// Delay to allow message receiving and transitions. Time out after 40s.
+			// Delay to allow message receiving and transitions. Time out after 10s.
 			int repeat = 0;
-			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
+			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
 			}
 			if (message == null)
-				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.job'");
+				Assert.fail("testJobApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
 			
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
@@ -145,16 +147,16 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// send message to tell exit condition monitoring tasklet that job is finished
 			template.setTask(WaspJobTask.NOTIFY_STATUS);
 			Message<WaspStatus> completeNotificationMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+completeNotificationMessage.toString());
+			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+completeNotificationMessage.toString());
 			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(completeNotificationMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			Thread.sleep(500); // wait for message receiving and job completion events
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.COMPLETED);
 			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.COMPLETED.getExitCode());
-			
+			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());
@@ -183,35 +185,35 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			template.setTask(WaspJobTask.QUOTE);
 			Message<WaspStatus> quoteApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
+			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(quoteApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.ADMIN_APPROVE);
 			Message<WaspStatus> adminApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
+			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
 			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(adminApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.PI_APPROVE);
 			template.setStatus(WaspStatus.ABANDONED);
 			Message<WaspStatus> piApprovedMessage = template.build();
-			logger.info("Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
+			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
 			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(piApprovedMessage);
 			if (replyMessage != null)
-				Assert.fail("Got unexpected reply message: "+ replyMessage.toString());
+				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
-			// Delay to allow message receiving and transitions. Timeout after 40s.
+			// Delay to allow message receiving and transitions. Timeout after 10s.
 			int repeat = 0;
-			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 40){
+			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;
 			}
 			if (message == null)
-				Assert.fail("Timeout waiting to receive message on 'wasp.channel.notification.job'");
+				Assert.fail("testJobNotApproved(): Timeout waiting to receive message on 'wasp.channel.notification.job'");
 			
 			// check headers as expected
 			Assert.assertTrue(message.getHeaders().containsKey(JOB_ID_KEY));
@@ -227,9 +229,10 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
 			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.STOPPED.getExitCode());
+			jobExecution.stop();
 		} catch (Exception e){
 			// caught an unexpected exception
-			Assert.fail("Caught Exception: "+e.getMessage());
+			Assert.fail("testJobNotApproved(): Caught Exception: "+e.getMessage());
 		}
 	}
 	
