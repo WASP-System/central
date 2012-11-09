@@ -13,7 +13,7 @@
 <!-- Could not find transformer for null -->
 <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 <encoder>
-<pattern>%le %-1r [%c{1}] %m%n</pattern>
+<pattern>%d [%c{1}] %m%n</pattern>
 </encoder>
 </appender>
 <logger name="edu.yu.einstein.wasp" level="DEBUG"/>

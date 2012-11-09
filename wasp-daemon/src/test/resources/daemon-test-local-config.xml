@@ -7,8 +7,8 @@
 
 	<context:property-placeholder location="classpath:test_hsqldb.properties, classpath:integration.properties" ignore-unresolvable="true"/>
 
-	<import resource="classpath:META-INF/spring/batch/batch-common-config.xml" />
 	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
+ 	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
 	
 	<!-- import configuration files  -->
 	<import resource="daemon-test-persistence-config.xml" />

@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,17 +87,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public RunCellDao getRunCellDao() {
 		return runCellDao;
-	}
-
-	
-
-	
-	
-	@PostConstruct
-	@Override
-	protected void initialize() {
-		// need to initialize the message channels
-		super.initialize();
 	}
 
 	@Override

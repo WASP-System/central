@@ -14,10 +14,14 @@ import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.integration.Message;
+import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
+import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * WaspBatchJobLauncher. Launch Spring Batch jobs
@@ -55,8 +59,13 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 	}
 
 	@Override
-	public void launch(BatchJobLaunchContext batchJobLaunchContext) throws WaspBatchJobExecutionException{
-		launchBatchJob(batchJobLaunchContext, jobLauncher, jobRegistry);
+	public Message<WaspStatus> launch(BatchJobLaunchContext batchJobLaunchContext){
+		try{
+			launchBatchJob(batchJobLaunchContext, jobLauncher, jobRegistry);
+			return MessageBuilder.withPayload(WaspStatus.COMPLETED).build();
+		} catch (WaspBatchJobExecutionException e){
+			return MessageBuilder.withPayload(WaspStatus.FAILED).setHeader(WaspTask.EXCEPTION, e).build();
+		}
 	}
 	
 	public static JobExecution launchBatchJob(BatchJobLaunchContext batchJobLaunchContext, JobLauncher jobLauncher, JobRegistry jobRegistry) throws WaspBatchJobExecutionException{

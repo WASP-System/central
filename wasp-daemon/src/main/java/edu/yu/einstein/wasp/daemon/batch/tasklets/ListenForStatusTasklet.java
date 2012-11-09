@@ -44,7 +44,17 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 	
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
+	private String name = "";
 	
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name + "#";
+	}
+
 	public void setAdditionalAbortMonitoredTemplates(Set<StatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
 		this.abortMonitoredTemplates.addAll(additionalAbortMessageMonitoredTemplates);
 	}
@@ -93,22 +103,22 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 			}
 		}
 		this.messageQueue.clear(); // clean up in case of restart
-		logger.debug("AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
+		logger.debug(name + "AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
 		return exitStatus;
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		logger.debug("execute() invoked");
+		logger.debug(name + "execute() invoked");
 		if (messageQueue.isEmpty())
-			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay	
+			return delayedRepeatStatusContinuable(1000); // returns RepeatStatus.CONTINUABLE after 1s delay	
 		return RepeatStatus.FINISHED;
 	}
 	
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("handleMessage() invoked). Received message: " + message.toString());
+		logger.debug(name + "handleMessage() invoked. Received message: " + message.toString());
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
@@ -124,8 +134,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, Mess
 		}
 		
 		// then check the message and it's status against the status we are interested in for a reportable match
-		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) )
+		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
 			this.messageQueue.add((Message<WaspStatus>) message);
+			logger.debug(name + "handleMessage() adding found message to be compatible so adding to queue: " + message.toString());
+		}
 	}
 
 	@Override

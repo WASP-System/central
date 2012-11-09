@@ -390,12 +390,6 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public void handleMessage(Message<?> arg0) throws MessagingException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Boolean isSampleReceived(Sample sample) {
 		// TODO Auto-generated method stub
 		return null;

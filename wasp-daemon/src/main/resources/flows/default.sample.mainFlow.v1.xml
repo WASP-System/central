@@ -20,7 +20,7 @@
 	
 	<!-- define sample main flow -->
 	<batch:flow id="wasp.default.sample.mainFlow.v1">
-		<batch:split id="wasp.sample.waitUntilActionable" task-executor="waspTaskExecutor">
+		<batch:split id="wasp.sample.waitUntilActionable" task-executor="taskExecutor">
 			<!-- We need to wait for the sample to be received and for the job to be approved before working on the sample -->
 			<batch:flow>
 				<batch:step id="wasp.sample.step.listenForSampleReceived">
@@ -35,6 +35,7 @@
 									<property name="status" value="CREATED" />
 								</bean>
 							</constructor-arg>
+							<property name="name" value="wasp.sample.step.listenForSampleReceived" />
 						</bean>
 					</batch:tasklet>
 				</batch:step>
@@ -52,6 +53,7 @@
 									<property name="status" value="ACCEPTED" />
 								</bean>
 							</constructor-arg>
+							<property name="name" value="wasp.sample.step.listenForJobApproved" />
 						</bean>
 					</batch:tasklet>
 				</batch:step>
@@ -80,6 +82,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
+					<property name="name" value="wasp.sample.step.sampleQC" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.sample.step.notifySampleAbandoned" />
@@ -152,7 +155,7 @@
 	
 	<!-- for dispatching job, call with parameter 'sampleId' and 'jobId' -->
 	<batch:job id="wasp.sample.jobflow.v1">
-		<batch:split id="wasp.sample.jobFlow.split" task-executor="waspTaskExecutor">
+		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
 			<batch:flow parent="wasp.default.sample.mainFlow.v1" />
 			<batch:flow parent="wasp.default.sample.mainFlow.exitCondition" />
 		</batch:split>

@@ -124,7 +124,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Taskle
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked");
 		if (message == null)
-			return delayedRepeatStatusContinuable(5000); // returns RepeatStatus.CONTINUABLE after 5s delay	
+			return delayedRepeatStatusContinuable(1000); // returns RepeatStatus.CONTINUABLE after 1s delay	
 		return RepeatStatus.FINISHED;
 	}
 	

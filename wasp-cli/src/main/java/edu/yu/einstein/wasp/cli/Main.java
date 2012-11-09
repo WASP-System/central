@@ -36,7 +36,7 @@ public class Main {
 		
 		String host = cl.getOptionValue("H", "localhost");
 		String port = cl.getOptionValue("P", "23532");
-		String rmiUrl = "rmi://" + host + ":" + port + "/org.springframework.integration.rmiGateway.wasp.channel.rmi.secure.inbound0";
+		String rmiUrl = "rmi://" + host + ":" + port + "/org.springframework.integration.rmiGateway.wasp.channel.remoting.secure.inbound";
 		RmiOutboundGateway gw = new RmiOutboundGateway(rmiUrl);
 		try {
 			
