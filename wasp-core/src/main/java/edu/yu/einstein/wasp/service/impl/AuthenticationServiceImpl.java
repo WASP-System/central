@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	private Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);

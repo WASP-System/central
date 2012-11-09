@@ -52,7 +52,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
-@Transactional
+@Transactional("entityManager")
 public class EmailServiceImpl implements EmailService{
 	
 	static {

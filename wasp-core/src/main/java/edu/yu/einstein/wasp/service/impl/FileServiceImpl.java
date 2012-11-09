@@ -30,7 +30,7 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.service.FileService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 

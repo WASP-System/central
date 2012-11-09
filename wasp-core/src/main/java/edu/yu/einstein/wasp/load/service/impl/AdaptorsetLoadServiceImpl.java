@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements AdaptorsetLoadService{
 	
 	@Autowired
@@ -279,7 +279,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	}
 	
 	
-	@Transactional
+	@Transactional("entityManager")
 	@Override 
 	public void update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, String sampleTypeIName, String iname, String name, Integer isActive, List<String> compatibleResourcesByIName){
 	    

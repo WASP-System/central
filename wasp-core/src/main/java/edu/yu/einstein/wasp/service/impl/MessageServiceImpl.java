@@ -18,7 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import edu.yu.einstein.wasp.service.MessageService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class MessageServiceImpl implements MessageService {
 
 	@Autowired

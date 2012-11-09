@@ -88,7 +88,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements SampleService {
 	
 	private static final String LOCK_META_AREA = "lock";
@@ -227,7 +227,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  @Transactional
+	  @Transactional("entityManager")
 	  public void saveSampleWithAssociatedMeta(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  sampleDao.save(sample);

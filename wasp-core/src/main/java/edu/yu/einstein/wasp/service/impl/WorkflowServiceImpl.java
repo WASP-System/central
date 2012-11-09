@@ -17,7 +17,7 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowService{
 	
 	public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";

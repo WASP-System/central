@@ -30,7 +30,7 @@ import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.RoleService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	
 	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {

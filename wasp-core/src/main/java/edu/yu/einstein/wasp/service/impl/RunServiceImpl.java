@@ -38,7 +38,7 @@ import edu.yu.einstein.wasp.service.WorkflowService;
  *
  */
 @Service
-@Transactional
+@Transactional("entityManager")
 public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements RunService {
 	
 	private static Logger logger = LoggerFactory.getLogger(RunServiceImpl.class);
