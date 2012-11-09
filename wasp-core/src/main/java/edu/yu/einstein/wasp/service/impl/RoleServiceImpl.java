@@ -23,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.RoleService;
@@ -39,6 +41,8 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 
 	@Autowired
 	private DepartmentUserDao departmentUserDao;
+	@Autowired
+	private RoleDao roleDao;
 	
 
 
@@ -110,5 +114,9 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		List<String> roles = new ArrayList<String>(rolesAsSet);
 		Collections.sort(roles);
 		return roles;
+	}
+	
+	public Role getRoleByRolename(String roleName){
+		return roleDao.getRoleByRoleName(roleName);
 	}
 }

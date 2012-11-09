@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Role;
 
 @Service
 public interface RoleService extends WaspService {
@@ -37,4 +38,6 @@ public interface RoleService extends WaspService {
 	 * 
 	 */
 	public List<String> getCompleteSortedRoleList(User user);
+	
+	public Role getRoleByRolename(String roleName);
 }

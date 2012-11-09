@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -22,7 +23,10 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
+
+import edu.yu.einstein.wasp.service.RoleService;
 
 
 /**
@@ -33,6 +37,10 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  */
 public class MetaHelper {
 
+	@Autowired
+	private static RoleService roleService;
+
+	private static final String DELIMITER = ";";
 	
 	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
@@ -505,7 +513,7 @@ public class MetaHelper {
 	 * @param value
 	 * @throws MetadataException
 	 */
-	@SuppressWarnings("unchecked")
+	//@SuppressWarnings("unchecked")
 	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
 		if (this.lastList == null)
 			this.lastList = new ArrayList<T>();
@@ -566,4 +574,20 @@ public class MetaHelper {
 				entityMetaId + "," + WordUtils.uncapitalize(this.getAssociatedEntityNameFromClassName()) + "Id=" + 	entityId + ")" );
 	}
 	
+	public static <T extends MetaBase> List<Role> getVisibilityRoleList(T meta){
+		List<Role> roleList = new ArrayList<Role>();
+		if(meta != null){
+			String rolevisibility = meta.getRoleVisibility();
+			if(rolevisibility != null){
+				String[] rolenamesAsStringArray = StringUtils.delimitedListToStringArray(rolevisibility, DELIMITER);
+				for(String rolename : rolenamesAsStringArray){
+					Role role = roleService.getRoleByRolename(rolename);
+					if(role!=null && role.getRoleId()!=null && role.getRoleId().intValue()>0){
+						roleList.add(role);
+					}
+				}
+			}			
+		}
+		return roleList;
+	}
 }
