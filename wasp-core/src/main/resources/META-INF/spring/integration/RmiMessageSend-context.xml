@@ -7,10 +7,12 @@
 		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<int:channel id="wasp.channel.rmi.outbound" />
+	<int:channel id="wasp.channel.remoting.outbound" />
 	<int-rmi:outbound-gateway id="outboundRmiGateway" 
-		remote-channel="wasp.channel.rmi.inbound" 
-		request-channel="wasp.channel.rmi.outbound" 
+		remote-channel="wasp.channel.remoting.inbound" 
+		request-channel="wasp.channel.remoting.outbound" 
+		reply-timeout="1000"
+		request-timeout="1000"
 		host="localhost" 
 		port="23533" />
 </beans>

@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -187,14 +185,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
 	}
-	
-	@PostConstruct
-	@Override
-	protected void initialize() {
-		// need to initialize the message channels
-		super.initialize();
-	}
-	
+
 
 	@Override
 	public Sample getSampleByName(final String name) {

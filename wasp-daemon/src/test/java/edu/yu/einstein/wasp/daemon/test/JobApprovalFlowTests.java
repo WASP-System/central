@@ -17,7 +17,9 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
+import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,10 +49,14 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	private MessageChannelRegistry channelRegistry;
 	
 	@Autowired
-	private RmiOutboundGateway outboundGateway;
+	private MessageChannelRegistry messageChannelRegistry;
 	
 	@Autowired 
 	private JobRegistry jobRegistry;
+	
+	private MessagingTemplate messagingTemplate;
+	
+	private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
 	
 	private final Logger logger = LoggerFactory.getLogger(JobApprovalFlowTests.class);
 	
@@ -70,9 +76,11 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 		Assert.assertNotNull(channelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
-		Assert.assertNotNull(outboundGateway);
+		Assert.assertNotNull(messageChannelRegistry);
 		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
+		messagingTemplate = new MessagingTemplate();
+		messagingTemplate.setReceiveTimeout(2000);
 
 	}
 	
@@ -103,21 +111,21 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			template.setTask(WaspJobTask.QUOTE);
 			Message<WaspStatus> quoteApprovedMessage = template.build();
 			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
-			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(quoteApprovedMessage);
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), quoteApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.PI_APPROVE);
 			Message<WaspStatus> piApprovedMessage = template.build();
 			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(piApprovedMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.ADMIN_APPROVE);
 			Message<WaspStatus> adminApprovedMessage = template.build();
 			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(adminApprovedMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), adminApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -148,7 +156,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			template.setTask(WaspJobTask.NOTIFY_STATUS);
 			Message<WaspStatus> completeNotificationMessage = template.build();
 			logger.info("testJobApproved(): Sending message via 'outbound rmi gateway': "+completeNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(completeNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), completeNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -186,14 +194,14 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			template.setTask(WaspJobTask.QUOTE);
 			Message<WaspStatus> quoteApprovedMessage = template.build();
 			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+quoteApprovedMessage.toString());
-			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(quoteApprovedMessage);
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), quoteApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
 			template.setTask(WaspJobTask.ADMIN_APPROVE);
 			Message<WaspStatus> adminApprovedMessage = template.build();
 			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+adminApprovedMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(adminApprovedMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), adminApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -201,7 +209,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			template.setStatus(WaspStatus.ABANDONED);
 			Message<WaspStatus> piApprovedMessage = template.build();
 			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(piApprovedMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);
 			if (replyMessage != null)
 				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			

@@ -20,32 +20,34 @@
     <int:channel id="wasp.channel.reply" />
     	    	
     <!-- channel for messages to enter from within components of the WASP System -->
-    <int:channel id="wasp.channel.rmi.inbound" />
+    <int:channel id="wasp.channel.remoting.inbound" />
     
         	
     <!-- defines a route to inject messages into the system from within the WASP System-->
     <int-rmi:inbound-gateway id="internalRmiGateway"
-    	request-channel="wasp.channel.rmi.inbound" 
+    	request-channel="wasp.channel.remoting.inbound" 
     	registry-port="23533" 
     	expect-reply="true"
-    	reply-timeout="2000"
+    	reply-timeout="1000"
+    	request-timeout="1000"
  	/>
  	
- 	<int:bridge id="wasp.channel.bridge.rmiInputWithoutAuth" input-channel="wasp.channel.rmi.inbound" output-channel="wasp.channel.Authenticated1" />
+ 	<int:bridge id="wasp.channel.bridge.remoteInputWithoutAuth" input-channel="wasp.channel.remoting.inbound" output-channel="wasp.channel.Authenticated1" />
     	
    	
     
     <!-- channel to port messages requiring authentication from outside the application -->
-    <int:channel id="wasp.channel.rmi.secure.inbound" />
+    <int:channel id="wasp.channel.remoting.secure.inbound" />
     
   
         
     <!-- defines a secure route to inject messages into the system from outside the WASP System-->
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
-    	request-channel="wasp.channel.rmi.secure.inbound" 
+    	request-channel="wasp.channel.remoting.secure.inbound" 
     	registry-port="23532"
     	expect-reply="true"
-    	reply-timeout="2000" />
+    	reply-timeout="1000"
+    	request-timeout="1000" />
     
     
     <!-- channel to return messages when authentication fails -->
@@ -60,7 +62,7 @@
 	<bean id="waspSecurityCheck" class="edu.yu.einstein.wasp.integration.messaging.Security" />
 	
 	<!-- test for proper authentication -->
-    <int:filter input-channel="wasp.channel.rmi.secure.inbound" 
+    <int:filter input-channel="wasp.channel.remoting.secure.inbound" 
 		ref="waspSecurityCheck" 
 		output-channel="wasp.channel.Authenticated0" 
 		discard-channel="wasp.channel.failedLogin" />

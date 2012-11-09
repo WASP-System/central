@@ -8,7 +8,7 @@
 	<batch:job id="dummyBatchJob">
 		<batch:step id="dummyStep" >
 		<tasklet>
-            <bean id="myTasklet" class="edu.yu.einstein.wasp.daemon.test.stubs.dummyTasklet" />
+            <bean id="myTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
         </tasklet>
 		</batch:step>
 	</batch:job>

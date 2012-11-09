@@ -98,7 +98,7 @@ public class RmiInputTests extends AbstractTestNGSpringContextTests implements M
 					.setHeader("platformUnitId", PU_ID)
 					.setPriority(WaspStatus.STARTED.getPriority())
 					.build();
-			logger.info("Sending message via 'wasp.channel.rmi.outbound': "+messageToSend.toString());
+			logger.info("Sending message via 'wasp.channel.remoting.outbound': "+messageToSend.toString());
 			logger.info("Sending message via 'outbound rmi gateway': "+messageToSend.toString());
 			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(messageToSend);
 			if (replyMessage == null)

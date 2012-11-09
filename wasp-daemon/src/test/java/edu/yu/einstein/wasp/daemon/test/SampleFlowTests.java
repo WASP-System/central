@@ -17,7 +17,9 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageHandler;
+import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.SubscribableChannel;
 import org.springframework.integration.rmi.RmiOutboundGateway;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,16 +50,17 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	private JobLauncher jobLauncher;
 	
 	@Autowired
-	private MessageChannelRegistry channelRegistry;
+	private MessageChannelRegistry messageChannelRegistry;
+	
+	private final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
 	
 	@Autowired 
 	private JobRegistry jobRegistry;
 		
 	@Autowired
-	private RmiOutboundGateway outboundGateway;	
-		
-	@Autowired
 	private StubSampleDao stubSampleDao;
+	
+	private MessagingTemplate messagingTemplate;
 	
 	private final Logger logger = LoggerFactory.getLogger(SampleFlowTests.class);
 	
@@ -81,11 +84,13 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
-		Assert.assertNotNull(channelRegistry);
+		Assert.assertNotNull(messageChannelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
-		waspAbortChannel = channelRegistry.getChannel("wasp.channel.notification.abort", SubscribableChannel.class);
+		waspAbortChannel = messageChannelRegistry.getChannel("wasp.channel.notification.abort", SubscribableChannel.class);
 		waspAbortChannel.subscribe(this);
+		messagingTemplate = new MessagingTemplate();
+		messagingTemplate.setReceiveTimeout(2000);
 	}
 	
 	@AfterClass
@@ -106,7 +111,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testDNASampleReceived() throws Exception{
 		try{
-			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
+			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'dna' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
@@ -127,7 +132,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleTemplate.setStatus(WaspStatus.CREATED);
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
-			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(sampleCreatedNotificationMessage);
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -136,7 +141,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			jobTemplate.setStatus(WaspStatus.ACCEPTED);
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(jobAcceptedNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -147,7 +152,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleTemplate.setTask(WaspSampleTask.QC);
 			Message<WaspStatus> qcPassedNotificationMessage = sampleTemplate.build();
 			logger.info("testDNASampleReceived(): Sending message via 'outbound rmi gateway': "+qcPassedNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(qcPassedNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcPassedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testDNASampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -182,7 +187,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testLibrarySampleReceived() throws Exception{
 		try{
-			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
+			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.library", SubscribableChannel.class);
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
@@ -203,7 +208,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleTemplate.setStatus(WaspStatus.CREATED);
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
-			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(sampleCreatedNotificationMessage);
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -212,7 +217,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			jobTemplate.setStatus(WaspStatus.ACCEPTED);
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(jobAcceptedNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -246,7 +251,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Test (groups = "unit-tests-batch-integration")
 	public void testSampleFailedQC() throws Exception{
 		try{
-			listeningChannel = channelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
+			listeningChannel = messageChannelRegistry.getChannel("wasp.channel.notification.sample", SubscribableChannel.class);
 			listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 			// set a sampleType of 'library' for the sample hardwired into the stub SampleDao
 			SampleType sampleType = new SampleType();
@@ -267,7 +272,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			jobTemplate.setStatus(WaspStatus.ACCEPTED);
 			Message<WaspStatus> jobAcceptedNotificationMessage = jobTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+jobAcceptedNotificationMessage.toString());
-			Message<?> replyMessage = (Message<?>) outboundGateway.handleRequestMessage(jobAcceptedNotificationMessage);
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), jobAcceptedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
 			
@@ -276,7 +281,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleTemplate.setStatus(WaspStatus.CREATED);
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(sampleCreatedNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleCreatedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
 						
@@ -287,7 +292,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			sampleTemplate.setTask(WaspSampleTask.QC);
 			Message<WaspStatus> qcFailedNotificationMessage = sampleTemplate.build();
 			logger.info("testSampleFailedQC(): Sending message via 'outbound rmi gateway': "+qcFailedNotificationMessage.toString());
-			replyMessage = (Message<?>) outboundGateway.handleRequestMessage(qcFailedNotificationMessage);
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), qcFailedNotificationMessage);
 			if (replyMessage != null)
 				Assert.fail("testSampleFailedQC(): Got unexpected reply message: "+ replyMessage.toString());
 			
