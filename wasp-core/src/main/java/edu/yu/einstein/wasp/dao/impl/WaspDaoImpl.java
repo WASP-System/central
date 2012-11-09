@@ -230,7 +230,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 			//}
 		}
 		// logger.debug("ROBERT: " + qString);
-		//System.out.println("ROBERT: " + qString);
+		
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
@@ -328,7 +328,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 		
 		// logger.debug("ROBERT: " + qString);
-		//System.out.println("ROBERT: " + qString);
+		
 
 		return q.getResultList();
 	}

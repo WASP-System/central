@@ -8,6 +8,8 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.loader.WebappClassLoader;
 
 import org.apache.catalina.startup.Bootstrap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * WaspTomcatClassLoader
@@ -26,13 +28,15 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 	
 	final String BASEDIR = "waspPlugins";
 	final String JAREXTENSION = "jar";
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public WaspTomcatClassLoader(ClassLoader parent) {
 		super(parent);
 	}
 
 	public void start() throws LifecycleException {
-		System.out.println("WaspClassLoader.start()");
+		logger.debug("WaspClassLoader.start()");
 		addCustomRepositoryOrLocation(Bootstrap.getCatalinaHome() + "/" + BASEDIR);
 		super.start();
 	}
@@ -53,7 +57,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 			// Either dir does not exist or is not a directory  
 
 			// throw exception
-			System.out.println("Wasp Loader Could not find directory " + directory);
+			logger.error("Wasp Loader Could not find directory " + directory);
 
 			throw new LifecycleException(directory + " not found");
 		} 
@@ -64,7 +68,7 @@ public class WaspTomcatClassLoader extends WebappClassLoader {
 
 			try {
 				URL jarUrl = new File(directory + "/" + filename).toURI().toURL();
-				System.out.println("** WaspClassLoader.adding plugin url " + jarUrl);
+				logger.info("** WaspClassLoader.adding plugin url " + jarUrl);
 				addURL(jarUrl);
 
 			} catch (MalformedURLException e) {

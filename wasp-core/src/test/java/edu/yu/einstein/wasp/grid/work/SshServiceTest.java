@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -21,6 +23,8 @@ public class SshServiceTest {
 	SgeWorkService sgeWork;
 	LocalhostTransportService localhost;
 	GridWorkService localhostWork;
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * @throws java.lang.Exception
@@ -74,7 +78,7 @@ public class SshServiceTest {
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			String theString = writer.toString();
-			System.out.println("result: " + theString);
+			logger.debug("result: " + theString);
 			w.getConnection().disconnect();
 			w = new WorkUnit();
 			w.setCommand("sleep 1 && echo $SHELL\necho foo\npwd");
@@ -84,7 +88,7 @@ public class SshServiceTest {
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			w.getConnection().disconnect();
 			theString = writer.toString();
-			System.out.println("result: " + theString);
+			logger.debug("result: " + theString);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("error", e.getCause());
@@ -105,7 +109,7 @@ public class SshServiceTest {
 			e.printStackTrace();
 		}
 		String theString = writer.toString();
-		System.out.println("result: " + theString);
+		logger.debug("result: " + theString);
 	}
 
 	@Test(groups = { "ssh" })
@@ -120,11 +124,11 @@ public class SshServiceTest {
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			String theString = writer.toString();
-			System.out.println("result sge: " + theString);
+			logger.debug("result sge: " + theString);
 			w.getConnection().disconnect();
 			while (!this.sgeWork.isFinished(result)) {
 				Thread.sleep(2000);
-				System.out.println("not finished");
+				logger.debug("not finished");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
