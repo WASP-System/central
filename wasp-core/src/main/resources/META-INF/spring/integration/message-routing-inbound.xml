@@ -44,10 +44,8 @@
     <!-- defines a secure route to inject messages into the system from outside the WASP System-->
     <int-rmi:inbound-gateway id="externalSecureRmiGateway"
     	request-channel="wasp.channel.remoting.secure.inbound" 
-    	registry-port="23532"
-    	expect-reply="true"
-    	reply-timeout="1000"
-    	request-timeout="1000" />
+    	reply-channel="wasp.channel.reply"
+    	registry-port="23532" />
     
     
     <!-- channel to return messages when authentication fails -->
