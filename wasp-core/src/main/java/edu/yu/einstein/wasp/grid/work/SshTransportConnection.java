@@ -49,12 +49,9 @@ public class SshTransportConnection implements GridTransportConnection {
 		try {
 			logger.debug("attempting to configure SSH connection");
 			client.loadKnownHosts();
-			logger.debug("attempting to configure SSH connection 2");
 			KeyProvider key = client.loadKeys(transportService.getIdentityFile().getAbsolutePath());
 			client.connect(transportService.getHostName());
-			logger.debug("attempting to configure SSH connection a");
 			client.authPublickey(transportService.getUserName(), key);
-			logger.debug("attempting to configure SSH connection 3");
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.error("unable to connect to remote host " + transportService.getHostName());
