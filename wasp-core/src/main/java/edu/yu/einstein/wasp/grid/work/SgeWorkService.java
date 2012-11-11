@@ -110,9 +110,10 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 	/**
+	 * Sun Grid Engine implementation of {@link GridWorkService}.  This method wraps a {@link WorkUnit} in a SGE 
+	 * submission and executes using the associated {@link GridTransportService}.
+	 * 
 	 * {@inheritDoc}
-	 * @throws GridUnresolvableHostException 
-	 * @throws GridExecutionException 
 	 */
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {

@@ -75,6 +75,9 @@ public class SshTransportConnection implements GridTransportConnection {
 	}
 
 	/**
+	 * Ssh implementation of {@link GridTransportConnection}.  This method sends the exec to the target host without wrapping
+	 * in the extra methods defined in the {@link GridWorkService} (used by GridWorkService to "execute" work unit).
+	 * 
 	 * {@inheritDoc}
 	 */
 	@Override
