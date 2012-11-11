@@ -50,7 +50,7 @@
 				<executions>
 				<execution>
 				<id>enforce-property</id>
-				<phase>install</phase>
+				<phase>validate</phase>
 				<goals>
 				<goal>enforce</goal>
 				</goals>
