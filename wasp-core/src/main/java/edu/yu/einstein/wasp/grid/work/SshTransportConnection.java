@@ -49,9 +49,6 @@ public class SshTransportConnection implements GridTransportConnection {
 		try {
 			logger.debug("attempting to configure SSH connection");
 			client.loadKnownHosts();
-			//client.addHostKeyVerifier("ce:1d:fc:8d:31:26:8f:19:a3:a3:0d:a4:3f:09:da:fe");
-//			this.identityFile = new OpenSSHKeyFile();
-//			this.identityFile.init(transportService.getIdentityFile());
 			logger.debug("attempting to configure SSH connection 2");
 			KeyProvider key = client.loadKeys(transportService.getIdentityFile().getAbsolutePath());
 			client.connect(transportService.getHostName());
@@ -63,51 +60,10 @@ public class SshTransportConnection implements GridTransportConnection {
 			logger.error("unable to connect to remote host " + transportService.getHostName());
 			throw new GridAccessException("unable to connect to remote", e.getCause());
 		}
-
-		// JSch.setConfig("StrictHostKeyChecking", hostKeyChecking);
-		// JSch jsch = new JSch();
-		// this.transportService = transportService;
-		// try {
-		// jsch.addIdentity(identityFile.getAbsolutePath());
-		// session = jsch.getSession(transportService.getUserName(),
-		// transportService.getHostName());
-		// logger.debug("Attempting to create SshTransportConnection to " +
-		// session.getHost() + " as " + session.getUserName());
-		// session.connect();
-		// session.setHost(transportService.getHostName());
-		// } catch (JSchException e) {
-		// e.printStackTrace();
-		// logger.error("unable to connect to remote host " +
-		// transportService.getHostName());
-		// throw new GridAccessException("unable to connect to remote",
-		// e.getCause());
-		// }
+		
 		logger.debug("adding sshj connection: " + this.client.toString());
 		w.setConnection(this);
 	}
-
-	// public SshTransportConnection(GridTransportService transportService,
-	// String hostKeyChecking, File identityFile)
-	// throws GridAccessException, GridUnresolvableHostException {
-	// this.transportService = transportService;
-	// JSch.setConfig("StrictHostKeyChecking", hostKeyChecking);
-	// JSch jsch = new JSch();
-	// try {
-	// jsch.addIdentity(identityFile.getAbsolutePath());
-	// session = jsch.getSession(transportService.getUserName(),
-	// transportService.getHostName());
-	// logger.debug("Attempting to create SshTransportConnection to " +
-	// session.getHost() + " as " + session.getUserName());
-	// session.connect();
-	// session.setHost(transportService.getHostName());
-	// } catch (JSchException e) {
-	// e.printStackTrace();
-	// logger.error("unable to connect to remote host " +
-	// transportService.getHostName());
-	// throw new GridAccessException("unable to connect to remote",
-	// e.getCause());
-	// }
-	// }
 
 	@Override
 	public void disconnect() throws GridAccessException {
