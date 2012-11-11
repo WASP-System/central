@@ -93,6 +93,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<powermock.version>1.4.12</powermock.version>
+		<excluded.groups>integration-tests,db-tests,a,ssh</excluded.groups>
 	</properties>
 
 	<modules>
@@ -109,43 +110,15 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<build>
 	<plugins>
-	<!--
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-enforcer-plugin</artifactId>
-			<version>${maven.enforcer.plugin}</version>
-			<executions>
-				<execution>
-					<id>enforce-banned-dependencies</id>
-					<goals>
-						<goal>enforce</goal>
-					</goals>
-					<configuration>
-						<rules>
-							<bannedDependencies>
-								<searchTransitive>true</searchTransitive>
-								<excludes>
-									<exclude>commons-logging:1.*</exclude>
-									<exclude>log4j:log4j</exclude>
-									<exclude>org.slf4j:1.5*</exclude>
-									<exclude>org.springframework:2.*</exclude>
-									<exclude>org.springframework:3.0.*</exclude>
-								</excludes>
-							</bannedDependencies>
-							<requireMavenVersion>
-								<version>${maven.version.range}</version>
-							</requireMavenVersion>
-							<requireJavaVersion>
-								<version>${java.version}</version>
-							</requireJavaVersion>
-						</rules>
-						<fail>true</fail>
-					</configuration>
-				</execution>
-			</executions>
+		 <plugin>
+		 	<groupId>org.apache.maven.plugins</groupId>
+		 	<artifactId>maven-surefire-plugin</artifactId>
+		 	<configuration>
+		 	<excludedGroups>${excluded.groups}</excludedGroups>
+		 	</configuration>
 		</plugin>
-		-->
-		<!--
+
+	<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
@@ -925,6 +898,26 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>1.9.0</version> 
 				<scope>test</scope>
 			</dependency>	
+			<dependency>
+			   	<groupId>net.schmizz</groupId>
+			        <artifactId>sshj</artifactId>
+				<version>0.8.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk16</artifactId>
+				<version>1.46</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jcraft</groupId>
+				<artifactId>jzlib</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jcraft</groupId>
+				<artifactId>jsch</artifactId>
+				<version>0.1.48</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -992,6 +985,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<id>version99</id>
 		        <!-- highly available repository serving empty artifacts -->
 			<url>http://version99.qos.ch/</url>
+		</repository>
+		<repository>
+		        <id>sonatype</id>
+			<url>http://oss.sonatype.org/content/groups/public/</url>
 		</repository>
 	</repositories>
 

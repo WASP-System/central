@@ -23,6 +23,12 @@ public class WorkUnit {
 	 * Unique ID for the job
 	 */
 	private String id;
+	
+	/**
+	 * String used for accounting on remote computing environments;
+	 */
+	private String project;
+	
 	/**
 	 * Newline (\n) terminated list of commands to be executed.
 	 */
@@ -273,6 +279,18 @@ public class WorkUnit {
 	 */
 	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {
 		this.softwareDependencies = softwareDependencies;
+	}
+	/**
+	 * @return the project
+	 */
+	public String getProject() {
+		return project;
+	}
+	/**
+	 * @param project the project to set
+	 */
+	public void setProject(String project) {
+		this.project = project;
 	}
 	
 

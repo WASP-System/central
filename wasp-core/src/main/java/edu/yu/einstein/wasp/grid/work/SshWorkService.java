@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.jcraft.jsch.UserInfo;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
+import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -24,11 +25,14 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
  * @author calder
  *
  */
-public class SshService implements GridWorkService, GridTransportService {
+public class SshWorkService implements GridWorkService {
 	
 	private GridTransportService transportService;
 	
-	private GridHostResolver hostResolver;
+	public SshWorkService(GridTransportService transportService) {
+		this.transportService = transportService;
+		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
+	}
 	
 	private String hostKeyChecking = "no";
 	private static File identityFile;
@@ -66,7 +70,7 @@ public class SshService implements GridWorkService, GridTransportService {
 		}
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(SshService.class);
+	private static final Logger logger = LoggerFactory.getLogger(SshWorkService.class);
 
 	@Override
 	public boolean isFinished(GridResult g) throws GridAccessException {
@@ -74,19 +78,8 @@ public class SshService implements GridWorkService, GridTransportService {
 	}
 
 	@Override
-	public void connect(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
-		SshTransportConnection stc = new SshTransportConnection(hostResolver, hostKeyChecking, identityFile, w);
-		w.setConnection(stc);
-	}
-	@Override
-	public GridTransportConnection connect(String hostname) throws GridAccessException, GridUnresolvableHostException {
-		return new SshTransportConnection(this.hostResolver, hostname, hostKeyChecking, identityFile);
-	}
-	
-
-	@Override
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
-		logger.debug("attempting to execute " + w.getId());
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+		logger.debug("attempting to execute " + w.getCommand());
 		transportService.connect(w);
 		GridResult result = w.getConnection().sendExecToRemote(w);
 		return result;
@@ -132,14 +125,6 @@ public class SshService implements GridWorkService, GridTransportService {
 		
 	}
 	
-	public void setTransportService(GridTransportService ts) {
-		this.transportService = ts;
-	}
-	
-	public GridTransportService getTransportService() {
-		return this.transportService;
-	}
-	
 	public void setHostKeyChecking(String s) {
 		if (s == "yes" || s == "true") {
 			hostKeyChecking = "yes";
@@ -150,34 +135,6 @@ public class SshService implements GridWorkService, GridTransportService {
 		String home = System.getProperty("user.home");
 		s = home + s.replaceAll("~(.*)", "$1");
 		identityFile = new File(s).getAbsoluteFile();
-	}
-
-	public void setHostResolver(GridHostResolver hostResolver) {
-		this.hostResolver = hostResolver;
-	}
-	
-	public GridHostResolver getHostResolver() {
-		return this.hostResolver;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
-	public void setSoftwareManager(SoftwareManager softwareManager) {
-		this.softwareManager = softwareManager;
-		
-	}
-	@Override
-	public SoftwareManager getSoftwareManager() {
-		return softwareManager;
 	}
 
 	@Override
@@ -202,18 +159,14 @@ public class SshService implements GridWorkService, GridTransportService {
 	}
 
 	@Override
-	public String getConfiguredSetting(String key) {
-		return settings.get(key);
-	}
-	
-	@Override
-	public boolean isUserDirIsRoot() {
-		return userDirIsRoot;
+	public void setGridFileService(GridFileService gridFileService) {
+		this.gridFileService = gridFileService;
+		
 	}
 
 	@Override
-	public void setUserDirIsRoot(boolean isRoot) {
-		this.userDirIsRoot = isRoot;
+	public GridTransportService getTransportService() {
+		return transportService;
 	}
 
 }
