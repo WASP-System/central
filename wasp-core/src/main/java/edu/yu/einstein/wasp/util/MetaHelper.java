@@ -587,4 +587,32 @@ public class MetaHelper {
 		else{return false;}
 	}
 	
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainAllTheseRoles(List<T> metaDataList, List<Role> roleList, RoleService roleService){
+		if(metaDataList == null || roleList == null || roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			boolean allRolesFound = true;
+			for(Role role : roleList){
+				if(!roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+					allRolesFound = false;
+				}
+			}
+			if(allRolesFound){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainThisRole(List<T> metaDataList, Role role, RoleService roleService){
+		if(metaDataList == null || role == null || role.getRoleName() == null ||  roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			if(roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
 }
