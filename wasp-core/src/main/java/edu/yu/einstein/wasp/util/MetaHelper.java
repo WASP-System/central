@@ -37,11 +37,6 @@ import edu.yu.einstein.wasp.service.RoleService;
  */
 public class MetaHelper {
 
-	@Autowired
-	private static RoleService roleService;
-
-	private static final String DELIMITER = ";";
-	
 	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
 	/**
@@ -574,20 +569,22 @@ public class MetaHelper {
 				entityMetaId + "," + WordUtils.uncapitalize(this.getAssociatedEntityNameFromClassName()) + "Id=" + 	entityId + ")" );
 	}
 	
-	public static <T extends MetaBase> List<Role> getVisibilityRoleList(T meta){
-		List<Role> roleList = new ArrayList<Role>();
-		if(meta != null){
-			String rolevisibility = meta.getRoleVisibility();
-			if(rolevisibility != null){
-				String[] rolenamesAsStringArray = StringUtils.delimitedListToStringArray(rolevisibility, DELIMITER);
-				for(String rolename : rolenamesAsStringArray){
-					Role role = roleService.getRoleByRolename(rolename);
-					if(role!=null && role.getRoleId()!=null && role.getRoleId().intValue()>0){
-						roleList.add(role);
-					}
-				}
-			}			
+	public static <T extends MetaBase> List<Role> convertRoleVisibilityDelimitedStringToRoleList(T meta, RoleService roleService){
+		if(meta != null){	
+			return roleService.convertMetaRoleVisibilityDelimitedStringToRoleList(meta.getRoleVisibility());
 		}
-		return roleList;
+		else{return new ArrayList<Role>();}
 	}
+
+	public static String convertRoleListToRoleVisibilityDelimitedString(List<Role> roleList, RoleService roleService){
+		return roleService.convertRoleListToMetaRoleVisibilityDelimitedString(roleList);
+	}
+
+	public static <T extends MetaBase> boolean roleVisibilityDelimitedStringContainsRole(T meta, Role role, RoleService roleService){
+		if(meta != null){	
+			return roleService.metaRoleVisibilityDelimitedStringContainsRole(meta.getRoleVisibility(), role);
+		}
+		else{return false;}
+	}
+	
 }
