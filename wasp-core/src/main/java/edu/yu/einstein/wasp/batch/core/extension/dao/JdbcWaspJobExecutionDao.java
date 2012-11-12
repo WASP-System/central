@@ -12,7 +12,6 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
@@ -26,7 +25,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	
 	private WaspJobInstanceDao waspJobInstanceDao;
 	
-	private Logger logger = LoggerFactory.getLogger(JdbcWaspJobExecutionDao.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public void setWaspJobInstanceDao(WaspJobInstanceDao waspJobInstanceDao){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be null");
@@ -40,13 +39,14 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	@Override
 	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
-		final List<JobExecution> JobExecutions = new ArrayList<JobExecution>();
+		final List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		
 		
 		String sql = "SELECT E.JOB_EXECUTION_ID from %PREFIX%JOB_EXECUTION E, %PREFIX%JOB_INSTANCE I where "
-			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID and (I.JOB_NAME LIKE :name1 or I.JOB_NAME LIKE :name2)";
+			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID "
+			+ "and (I.JOB_NAME LIKE :name1 or I.JOB_NAME LIKE :name2)";
 		
 		if (name == null)
 			name = "";
@@ -55,11 +55,11 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		
 		if (batchStatus != null){
 			sql += " and STATUS = :status ";
-			parameterSource.addValue("status", batchStatus);
+			parameterSource.addValue("status", batchStatus.toString());
 		}
 		if (exitStatus != null){
 			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString());
 		}
 		if (parameterMap != null){
 			if (exclusive == null)
@@ -71,7 +71,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
 			}
 			if (jobInstanceIds == null || jobInstanceIds.isEmpty())
-				return JobExecutions;
+				return jobExecutions;
 			
 			sql += " and E.JOB_INSTANCE_ID in ( ";
 			
@@ -88,20 +88,23 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
+		
+		
 		RowMapper<JobExecution> mapper = new RowMapper<JobExecution>() {
 			
 			@Override
 			public JobExecution mapRow(ResultSet rs, int rowNum) throws SQLException {
+				logger.debug("Mapping result for row number " + rowNum + " (jobExecutionId=" + rs.getLong(1) + ") to a JobExecution");
 				JobExecution jobExecution = getJobExecution(rs.getLong(1));
 				if (jobExecution == null)
 					throw new SQLException("Failed to map result for row number " + rowNum + "(jobExecutionId=" + rs.getLong(1) + ") to a JobExecution: ");
-				JobExecutions.add(jobExecution);
+				jobExecutions.add(jobExecution);
 				return jobExecution;
 			}
 		};
 		
 		getJdbcTemplate().query(getQuery(sql), mapper, parameterSource);
-		return JobExecutions;
+		return jobExecutions;
 	}
 	
 	/**

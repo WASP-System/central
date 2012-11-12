@@ -148,7 +148,7 @@
 								<property name="status" value="CREATED" />
 							</bean>
 							<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
-								<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 								<property name="status" value="COMPLETED" />
 							</bean>
 						</set>

@@ -31,7 +31,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	
 	private JobExecutionDao jobExecutionDao;
 	
-	private Logger logger = LoggerFactory.getLogger(JdbcWaspStepExecutionDao.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public void setWaspJobInstanceDao(WaspJobInstanceDao waspJobInstanceDao){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be null");
@@ -60,12 +60,12 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 		parameterSource.addValue("name1", "%" + name);
 		parameterSource.addValue("name2", name + "%");
 		if (batchStatus != null){
-			sql += " and STATUS = :status ";
-			parameterSource.addValue("status", batchStatus);
+			sql += " and SE.STATUS = :status ";
+			parameterSource.addValue("status", batchStatus.toString());
 		}
 		if (exitStatus != null){
 			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString());
 		}
 		if (parameterMap != null){
 			if (exclusive == null)

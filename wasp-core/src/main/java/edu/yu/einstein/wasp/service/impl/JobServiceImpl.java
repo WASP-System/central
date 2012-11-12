@@ -288,6 +288,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
 		parameterMap.put(WaspJobParameters.JOB_ID, "*");
 		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
@@ -318,6 +319,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsAwaitingReceivingOfSamples = new ArrayList<Job>();
 		
 		for (Job job: getActiveJobs()){
+			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
 			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
 				jobsAwaitingReceivingOfSamples.add(job);
 		}
