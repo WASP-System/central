@@ -3,7 +3,6 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 import java.util.HashSet;
 import java.util.Set;
 
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -14,7 +13,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -30,9 +28,9 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  * and stops the entire job if a relevant notifying abort message is received at any time. 
  * @author andymac
  */
-public class ListenForExitConditionTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class ListenForExitConditionTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = LoggerFactory.getLogger(ListenForExitConditionTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private Set<StatusMessageTemplate> messageTemplates;
 	

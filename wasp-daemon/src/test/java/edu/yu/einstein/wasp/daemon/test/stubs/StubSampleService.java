@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -519,6 +518,13 @@ public class StubSampleService implements SampleService {
 	public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void initiateBatchJobForSample(Job job, Sample sample,
+			String batchJobName) throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

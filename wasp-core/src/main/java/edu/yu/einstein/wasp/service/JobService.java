@@ -46,7 +46,7 @@ public interface JobService extends WaspMessageHandlingService {
 
 
 	/**
-	 * getSubmittedSamples(Job job)
+	 * get a list of samples for the submitted job. Returns an empty list if none found.
 	 * 
 	 * @param Job
 	 * 
@@ -95,9 +95,9 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Create a Job object from a job draft. Also handle dependencies.
 	 * @param jobdraft
 	 * @return entity-managed Job object
-	 * @throws FileMoveException, WaspMessageBuildingException 
+	 * @throws FileMoveException
 	 */
-	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException, WaspMessageBuildingException;
+	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
 	
 	/**
 	 * getJobsAwaitingLibraryCreation() returns list of unique jobs for which at least one library must be created from a sample.
@@ -209,4 +209,11 @@ public interface JobService extends WaspMessageHandlingService {
 	 * 
 	 */
 	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception;
+
+	/**
+	 * Kick of batch job for job
+	 * @param job
+	 * @throws WaspMessageBuildingException
+	 */
+	public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException;
 }

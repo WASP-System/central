@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 public class NotifyStatusTasklet extends WaspTasklet implements Tasklet {
 	
-	private final Logger logger = LoggerFactory.getLogger(NotifyStatusTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private StatusMessageTemplate messageTemplate;
 	
