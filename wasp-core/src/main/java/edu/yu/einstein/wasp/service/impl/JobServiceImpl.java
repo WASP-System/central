@@ -56,6 +56,7 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
@@ -206,6 +207,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Autowired
 	protected JobFileDao jobFileDao;
 	
+	@Autowired
+	protected WorkflowDao workflowDao;
+	
 	protected JobExplorerWasp batchJobExplorer;
 	
 	@Autowired
@@ -227,8 +231,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : job.getJobSample()){
-				  Sample sample  = jobSample.getSample();//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
+			for(JobSample jobSample : jobSampleDao.getJobSampleByJobId(job.getJobId())){
+				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
+				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
+				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
 				  if(sample.getParent() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParent() != null this indicates a facility-generated library), so add it to the submittedSample list
 					  submittedSamplesList.add(sample);
 				  }
@@ -282,6 +288,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
 		parameterMap.put(WaspJobParameters.JOB_ID, "*");
 		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
@@ -312,6 +319,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsAwaitingReceivingOfSamples = new ArrayList<Job>();
 		
 		for (Job job: getActiveJobs()){
+			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
 			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
 				jobsAwaitingReceivingOfSamples.add(job);
 		}
@@ -511,7 +519,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException, WaspMessageBuildingException{
+	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
 		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
 			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
 			Assert.assertParameterNotNull(user, "No User provided");
@@ -679,20 +687,28 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				jobFile.setFile(file);
 				jobFileDao.save(jobFile);
 			}
-			
-			// send message to initiate job processing
-			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.JOB_ID, jobDb.getJobId().toString());
-			String batchJobName = workflowService.getJobFlowBatchJobName(jobDraft.getWorkflow());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
-			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
-			
+						
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
 			jobDraftDao.save(jobDraft); 
 						
 			return jobDb;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException{
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		// send message to initiate job processing
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+		sendOutboundMessage(batchJobLaunchMessageTemplate.build());
 	  }
 	  
 	/**

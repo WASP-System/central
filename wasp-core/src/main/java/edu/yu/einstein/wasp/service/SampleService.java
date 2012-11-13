@@ -605,5 +605,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws sampleTypeException
 	   */
 	  public LockStatus getPlatformUnitLockStatus(Sample platformunit) throws SampleTypeException;
+
+	  /**
+	   * kick of batch job for sample
+	   * @param job
+	   * @param sample
+	   * @param batchJobName
+	   * @throws WaspMessageBuildingException
+	   */
+	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName)	throws WaspMessageBuildingException;
 	  
 }

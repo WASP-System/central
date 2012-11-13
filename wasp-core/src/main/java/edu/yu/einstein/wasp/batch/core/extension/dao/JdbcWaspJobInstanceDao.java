@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 @Repository
 public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJobInstanceDao, InitializingBean{
 	
-	private Logger logger = LoggerFactory.getLogger(JdbcWaspJobInstanceDao.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * {@inheritDoc}
@@ -55,6 +55,7 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 			
 			@Override
 			public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+				logger.debug("Mapping result for row number " + rowNum + " (jobInstanceId=" + rs.getLong(1) + ") to a Long");
 				Long rowVal = rs.getLong(1);
 				jobInstanceIds.add(rowVal);
 				return rowVal;

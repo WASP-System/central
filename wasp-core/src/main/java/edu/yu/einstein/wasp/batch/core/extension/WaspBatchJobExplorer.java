@@ -12,7 +12,6 @@ import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.repository.dao.ExecutionContextDao;
-import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobExecutionDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;

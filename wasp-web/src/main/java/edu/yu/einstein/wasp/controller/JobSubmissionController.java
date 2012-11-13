@@ -91,6 +91,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -1690,7 +1691,6 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	@Transactional
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -1699,8 +1699,8 @@ public class JobSubmissionController extends WaspController {
 		boolean error = false;
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
+		Job newJob = null;
 		try {
-			Job newJob = null;
 			newJob = jobService.createJobFromJobDraft(jobDraft, me);
 			if(newJob==null || newJob.getJobId()==null || newJob.getJobId().intValue()<=0){
 				logger.warn("Error creating new job");
@@ -1711,6 +1711,14 @@ public class JobSubmissionController extends WaspController {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
+		} 
+		try{
+			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
+			jobService.initiateBatchJobForJobSubmission(newJob);
+			for (Sample sample: jobService.getSubmittedSamples(newJob)){
+				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+				sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
+			}
 		} catch (WaspMessageBuildingException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");

@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
@@ -30,9 +29,9 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  * provided message template.
  * @author andymac
  */
-public class ListenForStatusTasklet extends WaspTasklet implements Tasklet, MessageHandler, StepExecutionListener {
+public class ListenForStatusTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
 	
-	private final Logger logger = LoggerFactory.getLogger(ListenForStatusTasklet.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private StatusMessageTemplate messageTemplate;
 	

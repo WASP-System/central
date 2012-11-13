@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
@@ -57,6 +58,7 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
@@ -418,6 +420,24 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  options.add(convertReceiveSampleStatusForWeb(status));
 		  }
 		  return options;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void initiateBatchJobForSample(Job job, Sample sample, String batchJobName) throws WaspMessageBuildingException{
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNull(sample, "No Sample provided");
+		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNull(batchJobName, "No batchJobName provided");
+		  // send message to initiate job processing
+		  Map<String, String> jobParameters = new HashMap<String, String>();
+		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+		  sendOutboundMessage(batchJobLaunchMessageTemplate.build());
 	  }
 
 	  /**

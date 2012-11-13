@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 
-public abstract class WaspTasklet {
+public abstract class WaspTasklet implements Tasklet{
 	
 	
 	/**
