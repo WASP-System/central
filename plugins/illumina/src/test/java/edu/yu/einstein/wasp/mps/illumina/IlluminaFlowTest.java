@@ -92,7 +92,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 
 		Sample s = PowerMockito.spy(new Sample());
 
-		Mockito.when(s.getName()).thenReturn("blowme");
+		Mockito.when(s.getName()).thenReturn("no");
 
 		logger.info(s.getName());
 
