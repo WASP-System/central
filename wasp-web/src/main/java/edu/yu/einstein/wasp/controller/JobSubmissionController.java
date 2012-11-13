@@ -1712,17 +1712,19 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
 		} 
-		try{
-			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
-			jobService.initiateBatchJobForJobSubmission(newJob);
-			for (Sample sample: jobService.getSubmittedSamples(newJob)){
-				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
-				sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
+		if (!error){
+			try{
+				logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
+				jobService.initiateBatchJobForJobSubmission(newJob);
+				for (Sample sample: jobService.getSubmittedSamples(newJob)){
+					logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+					sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
+				}
+			} catch (WaspMessageBuildingException e) {
+				logger.warn(e.getMessage());
+				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+				error = true;
 			}
-		} catch (WaspMessageBuildingException e) {
-			logger.warn(e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
 		}
 
 		if(error){
