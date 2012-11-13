@@ -281,6 +281,10 @@
 	<definition name="jobsubmit/verify" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/verify.jsp" />
 	</definition>
+	<definition name="jobsubmit/failed" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/failed.jsp" />
+	</definition>
+	
 	<definition name="jobsubmit/ok" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/ok.jsp" />
 	</definition>
