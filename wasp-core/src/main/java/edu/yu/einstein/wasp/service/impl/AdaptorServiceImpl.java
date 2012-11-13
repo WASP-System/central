@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class AdaptorServiceImpl extends WaspServiceImpl implements
 		AdaptorService {
 	

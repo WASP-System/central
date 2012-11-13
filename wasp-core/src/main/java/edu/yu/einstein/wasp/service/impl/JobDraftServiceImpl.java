@@ -189,7 +189,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	* {@inheritDoc}
 	*/
 	@Override
-	@Transactional   
+	@Transactional("entityManager")   
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params){
 		List<JobDraftCellSelection> oldJobDraftCellSelections = jobDraft.getJobDraftCellSelection();
 

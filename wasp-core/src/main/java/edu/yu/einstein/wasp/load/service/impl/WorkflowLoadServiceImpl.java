@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	WorkflowLoadService {
 	
 	@Autowired

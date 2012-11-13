@@ -100,7 +100,7 @@ import edu.yu.einstein.wasp.util.StringHelper;
 
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private JobDao	jobDao;

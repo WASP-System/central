@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class WaspLoadServiceImpl implements WaspLoadService {
 	
 	@Autowired

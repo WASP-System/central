@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.service.StatusMessageService;
  *
  */
 @Service
-@Transactional
+@Transactional("entityManager")
 public class StatusMessageServiceImpl extends WaspServiceImpl implements StatusMessageService{
 	
 	protected Logger logger = LoggerFactory.getLogger(StatusMessageServiceImpl.class);
