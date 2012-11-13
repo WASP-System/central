@@ -1706,27 +1706,28 @@ public class JobSubmissionController extends WaspController {
 				logger.warn("Error creating new job");
 				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 				error = true;
-			}
-		} catch (FileMoveException e) {
-			logger.warn(e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
-		} 
-		if (!error){
-			try{
+			} else {
+				// initiate batch jobs in wasp-daemon
 				logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
 				jobService.initiateBatchJobForJobSubmission(newJob);
 				for (Sample sample: jobService.getSubmittedSamples(newJob)){
 					logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
 					sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
 				}
-			} catch (WaspMessageBuildingException e) {
-				logger.warn(e.getMessage());
-				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-				error = true;
 			}
+		} catch (FileMoveException e) {
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
+		} catch (WaspMessageBuildingException e) {
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
+		} catch (Throwable e){
+			logger.warn("Caught unknown exception" + e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
 		}
-
 		if(error){
 			m.put("jobDraft", jobDraft);
 			return "jobsubmit/failed";
