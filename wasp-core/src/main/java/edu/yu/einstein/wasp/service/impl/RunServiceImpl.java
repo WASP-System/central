@@ -222,4 +222,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return run;
 	}
 
+	@Override
+	public Run getRunById(int runId) {
+		return runDao.findById(runId);
+	}
+
 }

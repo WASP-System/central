@@ -7,7 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class StartDaemon {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory.getLogger(StartDaemon.class);
 
 	public static void main(final String[] args) throws Exception {
 		@SuppressWarnings("unused")

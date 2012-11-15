@@ -897,7 +897,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  if(jobId == null || newViewerEmailAddress == null){
 		  	  throw new Exception("listJobSamples.illegalOperation.label");	
 		  }		
-		  //System.out.println("at 7");	  		
+		  	  		
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
 		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
 			throw new Exception("listJobSamples.jobNotFound.label");			  

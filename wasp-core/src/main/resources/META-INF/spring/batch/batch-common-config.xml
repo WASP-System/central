@@ -62,4 +62,35 @@
             </bean>
         </property>
     </bean>
+    
+    <aop:config>
+		<aop:pointcut id="taskletRetryPointcut" 
+			expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionUntilSuccessful * *(..))" />
+		<aop:advisor pointcut-ref="taskletRetryPointcut" advice-ref="taskletRetryAdvice" />
+	</aop:config>
+
+	<bean id="taskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+		<property name="retryOperations">
+			<bean class="org.springframework.batch.retry.support.RetryTemplate">
+				<property name="retryPolicy">
+					<bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+						<property name="maxAttempts" value="${wasp.batch.retry.backoff.maxattempts:1000000000}" />
+						<property name="retryableExceptions">
+							<map>
+								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
+							</map>
+						</property>
+					</bean>
+				</property>
+				<property name="backOffPolicy">
+					<bean class="org.springframework.batch.retry.backoff.ExponentialBackOffPolicy">
+						<property name="initialInterval" value="${wasp.batch.retry.backoff.initialInterval:5000}" />
+						<property name="maxInterval" value="${wasp.batch.retry.backoff.maxInterval:3600000}" />
+						<property name="multiplier" value="${wasp.batch.retry.backoff.multiplier:2}" />
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+    
 </beans>

@@ -507,7 +507,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  String [] stringList = areaList.split("[\\s,]+");//separates on comma or whitespace
 		  for(String string : stringList){
-			  //System.out.println("The string is: " + string);
+			  
 			  if(string.indexOf("Library") > -1){
 				  area = string;
 			  }
@@ -1305,7 +1305,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if(barcodeName != null && !barcodeName.equals(platformUnit.getName())){
 				platformUnitNameHasBeenChanged = true;
 			}
-			//System.out.println("The name of the pu sample is : " + platformUnit.getName());
+			
 
 			action = new String("update");			
 		}
