@@ -289,6 +289,82 @@ public class TestJobServiceImpl {
 
   }
  
+  @Test
+  public void getSubmittedSamplesNotYetReceived3() {
+	  //jobServiceImpl.setJobExplorer(mockJobExplorer);
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  Job job2 = new Job();
+	  
+	  Sample sample = new Sample();
+	  sample.setSampleId(123);
+	  
+	  Sample sample2= new Sample();
+	  sample2.setSampleId(456);
+	  
+	  Map<String, String> parameterMap = new HashMap<String, String>();
+	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  
+	  StepExecution stepExecution;
+	  JobExecution jobExecution;
+	  JobInstance jobInstance;
+	  JobParameters jobParameters;
+	  //JobParameter jobParameter;	  
+	  //jobParameter = new JobParameter("Param1");
+	  jobParameters = new JobParameters();
+	  
+	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+	  
+	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+	  
+	  JobParameters jobParameters2 = new JobParameters();
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name1");
+	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
+	  StepExecution stepExecution2= new StepExecution("Step Name1", jobExecution2, new Long(12345));
+	  stepExecutions.add(stepExecution2);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
+	  
+	  try {
+		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
+
+	  } catch (ParameterValueRetrievalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(sample);
+	  try {
+			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution2, WaspJobParameters.SAMPLE_ID)).andReturn("456");
+
+	  } catch (ParameterValueRetrievalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  expect(mockSampleDao.getSampleBySampleId(456)).andReturn(sample2);
+	  
+	  replay(mockJobExplorerWasp);
+	  replay(mockSampleDao);
+	  
+	  //expected to return
+	  List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
+	  submittedSamplesNotYetReceivedList.add(sample);
+	  submittedSamplesNotYetReceivedList.add(sample2);
+	  
+	  //Test case: 1: 
+	  Assert.assertEquals(jobServiceImpl.getSubmittedSamplesNotYetReceived(job), submittedSamplesNotYetReceivedList);
+	  
+	  verify(mockJobExplorerWasp);
+	  verify(mockSampleDao);
+
+  }
+
   
   /*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
   @Test
