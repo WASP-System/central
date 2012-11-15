@@ -37,7 +37,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 	public void sendOutboundMessage(final Message<?> message) throws WaspMessageBuildingException{
 		logger.debug("Sending message via '" + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + "': "+message.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(MESSAGE_RECEIVE_TIMEOUT);
+		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		Message<?> replyMessage  = null;
 		try{
 			replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
