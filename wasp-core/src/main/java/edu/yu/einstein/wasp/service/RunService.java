@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -80,4 +81,12 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart);
+
+	/**
+	 * Returns a list of runs which match the provided platform unit
+	 * @param pu
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public List<Run> getRunsForPlatformUnit(Sample pu) throws SampleTypeException;
 }

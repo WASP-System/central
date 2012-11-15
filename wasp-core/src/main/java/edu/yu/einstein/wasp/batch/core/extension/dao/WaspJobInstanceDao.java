@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.core.extension.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.repository.dao.JobInstanceDao;
 
@@ -14,7 +15,7 @@ public interface WaspJobInstanceDao extends JobInstanceDao{
 	 * @param parameterMap<String, String>
 	 * @return
 	 */
-	public List<Long> getJobInstanceIdsByMatchingParameters(Map<String, String> parameterMap);  
+	public List<Long> getJobInstanceIdsByMatchingParameters(Map<String, Set<String>> parameterMap);  
 	
 	/**
 	 * Get the ids of all the job instances that match the parameters provided as a Map.
@@ -24,7 +25,7 @@ public interface WaspJobInstanceDao extends JobInstanceDao{
 	 * @param parameterMap<String, String>
 	 * @return
 	 */
-	public List<Long> getJobInstanceIdsByExclusivelyMatchingParameters(Map<String, String> parameterMap);  
+	public List<Long> getJobInstanceIdsByExclusivelyMatchingParameters(Map<String, Set<String>> parameterMap);  
 	
 	
 	

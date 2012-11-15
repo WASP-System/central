@@ -113,6 +113,17 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
+	public List<Run> getRunsForPlatformUnit(Sample pu) throws SampleTypeException{
+		Assert.assertParameterNotNull(pu, "no platform unit provided (is null)");
+		Assert.assertParameterNotNullNotZero(pu.getSampleId(), "pu is not a valid sample");
+		if (!sampleService.sampleIsPlatformUnit(pu))
+			throw new SampleTypeException("Sample is not of type platformunit");
+		Map<String, Integer> searchMap = new HashMap<String, Integer>();
+		searchMap.put("sampleId", pu.getSampleId());
+		return runDao.findByMap(searchMap);
+	}
+	
+	@Override
 	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException, WaspMessageBuildingException{
 		Assert.assertParameterNotNull(runName, "runName cannot be null");
 		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");

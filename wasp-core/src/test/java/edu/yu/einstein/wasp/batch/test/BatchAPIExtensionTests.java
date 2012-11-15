@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.batch.test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 
 @ContextConfiguration(locations={"classpath:batch/batch-test-context.xml"})
 
@@ -61,9 +64,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest1(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		StepExecution stepExecution = null;
 		try {
 			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
@@ -81,8 +90,12 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest2(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
 		StepExecution stepExecution = null;
 		try {
 			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, true);
@@ -98,8 +111,12 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest3(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
 		Assert.assertEquals(stepExecutions.size(), 1); // expect to be STARTED
 	}
@@ -110,8 +127,12 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest4(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_2.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_2.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions("listenForJobApproved", parameterMap, false, BatchStatus.STARTED);
 		Assert.assertTrue(stepExecutions.isEmpty()); //expect to be COMPLETE
 	}
@@ -130,8 +151,12 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest6(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, "*");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
 		Assert.assertTrue(stepExecutions.isEmpty()); 
 	}
@@ -141,9 +166,16 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest7(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, "*");
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
 		Assert.assertEquals(stepExecutions.size(), 8); 
 	}
@@ -153,9 +185,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionNormalTest8(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_2.toString());
-		parameterMap.put(JOB_ID_KEY,"*");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_2.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = jobExplorer.getStepExecutions(parameterMap, true);
 		Assert.assertEquals(stepExecutions.size(), 5); 
 	}
@@ -169,8 +207,11 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingStepExecutionFailureTest1(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		try {
 			StepExecution stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
 		} catch (BatchDaoDataRetrievalException e) {
@@ -186,9 +227,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
 	public void testGettingParametersFromStepExecution(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		StepExecution stepExecution = null;
 		try {
 			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
@@ -209,9 +256,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingStepExecutionNormalTest1")
 	public void testGettingParametersFromStepExecutionNoKey(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		StepExecution stepExecution = null;
 		try {
 			stepExecution = jobExplorer.getStepExecution("listenForSampleReceived", parameterMap, false);
@@ -253,8 +306,11 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest1(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		JobExecution jobExecution = null;
 		try {
 			jobExecution = jobExplorer.getJobExecution(parameterMap, false, ExitStatus.UNKNOWN);
@@ -287,8 +343,11 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionNormalTest4(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(JOB_ID_KEY, "*");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(parameterMap, false);
 		Assert.assertEquals(jobExecutions.size(), 2); 
 	}
@@ -300,8 +359,11 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests")
 	public void testGettingJobExecutionFailureTest1(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		try {
 			JobExecution jobExecution = jobExplorer.getJobExecution("wasp.sample.jobflow.v1", parameterMap, false);
 		} catch (BatchDaoDataRetrievalException e) {
@@ -316,9 +378,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingJobExecutionNormalTest1")
 	public void testGettingParametersFromJobExecution(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		JobExecution jobExecution = null;
 		try {
 			jobExecution = jobExplorer.getJobExecution("wasp.sample.jobflow.v1", parameterMap, false);
@@ -339,9 +407,15 @@ public class BatchAPIExtensionTests extends AbstractTestNGSpringContextTests {
 	 */
 	@Test(groups = "unit-tests", dependsOnMethods="testGettingJobExecutionNormalTest1")
 	public void testGettingParametersFromJobExecutionNoKey(){
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(SAMPLE_ID_KEY, SAMPLE_ID_1.toString());
-		parameterMap.put(JOB_ID_KEY, JOB_ID_1.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(SAMPLE_ID_1.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(JOB_ID_1.toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		JobExecution JobExecution = null;
 		try {
 			JobExecution = jobExplorer.getJobExecution("wasp.sample.jobflow.v1", parameterMap, false);

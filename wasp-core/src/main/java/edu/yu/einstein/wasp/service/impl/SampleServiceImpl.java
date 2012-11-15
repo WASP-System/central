@@ -85,6 +85,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
@@ -169,6 +170,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 	
+	@Autowired
+	private RunService runService;
 		
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
@@ -297,8 +300,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		  BatchStatus sampleReceivedStatus = BatchStatus.UNKNOWN;
-		  Map<String, String> parameterMap = new HashMap<String, String>();
-		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> sampleIdStringSet = new HashSet<String>();
+		  sampleIdStringSet.add(sample.getSampleId().toString());
+		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 				  batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false)   );
 		  if (stepExecution != null){
@@ -330,8 +335,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		if (isLibrary(sample))
 			return false;
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(sample.getSampleId().toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		JobExecution jobExecution = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(
 				batchJobExplorer.getJobExecutions("wasp.sample.jobflow", parameterMap, false, ExitStatus.COMPLETED)
@@ -558,16 +565,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  return availablePlatformUnits;
 		
 		  // get platform units that are not associated with currently executing or completed runs
-		  Map<String, String> parameterMap = new HashMap<String, String>();
-		  
+		 		  
 		  // get job executions for ALL platform units on all runs and record those associated with runs that are currently executing or have completed
 		  // successfully (COMPLETED) or have failed QC or been rejected (FAILED). If run is in status STOPPED (aborted) the platform unit
 		  // should be made available for adding more libraries. Might want to review this use case!!
 		  
-		  // 'run' batch jobs are provided two parameters, runId and platformUnitId (sampleId value)
+		  // 'run' batch jobs are provided with one parameter, runId
 		  // we can obtain all run job executions by selecting jobs which have these parameters (regardless of the values as specified by "*")
-		  parameterMap.put(WaspJobParameters.RUN_ID, "*");
-		  parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, "*");
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> runIdStringSet = new HashSet<String>();
+		  runIdStringSet.add("*");
+		  parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		  Set<Integer> IdsForPlatformUnitsNotAvailable = new HashSet<Integer>();
 		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
 		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING) );
@@ -1789,8 +1797,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isLibrary(library)){
 			throw new SampleTypeException("Expected a library but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		}
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleId.toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(sampleId.toString());
+		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
+		
 		// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
 		// the job may have many libraries and each library may need to be run more than once
 		Integer libraryAnalysisStepExecutions = batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false).size();
@@ -1814,8 +1825,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!sampleIsPlatformUnit(platformUnit)){
 			throw new SampleTypeException("Expected a platform unit but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		}
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, platformUnit.getSampleId().toString());
+		Set<String> runIds = new HashSet<String>();
+		for (Run run: runService.getRunsForPlatformUnit(platformUnit)){
+			runIds.add(run.getRunId().toString());
+		}
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		parameterMap.put(WaspJobParameters.PLATFORM_UNIT_ID, runIds);
 		
 		// get the most recent run start step associated with this platform unit (i.e. from the most recent run). 
 		// If it exists and has not been abandoned then the platform unit is not awaiting sequence run placement. 

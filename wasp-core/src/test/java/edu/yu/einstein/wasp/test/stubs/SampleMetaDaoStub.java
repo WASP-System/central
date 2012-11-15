@@ -17,12 +17,13 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 
 	@Override
 	public void persist(SampleMeta entity) {
-		// Auto-generated method stub
+		stubSampleMetaList.add(entity);
 
 	}
 
 	@Override
 	public SampleMeta save(SampleMeta entity) {
+		stubSampleMetaList.add(entity);
 		return entity;
 	}
 
