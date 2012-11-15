@@ -36,11 +36,16 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
+
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
+
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
+
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -51,8 +56,12 @@ import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
+
+import edu.yu.einstein.wasp.service.JobService;
+
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -67,7 +76,6 @@ public class AutoCompleteController extends WaspController{
 	  
 	@Autowired
 	private UserMetaDao userMetaDao;
-	
 	
 	@Autowired
 	private UserPendingMetaDao userPendingMetaDao;
@@ -110,6 +118,9 @@ public class AutoCompleteController extends WaspController{
 	
 	@Autowired
 	private AuthenticationService authenticationService;
+
+	@Autowired
+	private JobService jobService;
 
 	/**
 	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
@@ -206,6 +217,8 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	  
+
+
 	/**
 	   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * Used to populate a JQuery autocomplete managed input box
@@ -250,6 +263,7 @@ public class AutoCompleteController extends WaspController{
 	        jsonString = jsonString.replaceAll(",$", "") + "]}";
 	        return jsonString;                
 	  }
+
 	  
 	  /**
 	   * Obtains a json message containing a list of all names from the job list. 
@@ -854,4 +868,24 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	 
+
+
+		@RequestMapping(value="/getJobSampleTreeJson", method = RequestMethod.GET)
+		public @ResponseBody String getJobSampleTreeJson(@RequestParam("jobId") Integer jobId) {
+			  	
+			Job job = this.jobService.getJobDao().getById(jobId);
+
+			String jsonString = new String();
+			jsonString = "{\"name\":\"" + job.getName() + "\", \"jid\":" + jobId + ", \"children\": [";
+
+			List<JobSample> jobSampleList = job.getJobSample();
+			for (JobSample js : jobSampleList) {
+				jsonString = jsonString + "{\"name\":\"" + js.getSample().getName() + "\",\"sid\":" + js.getSampleId() + "},";
+			}
+			jsonString = jsonString.replaceAll(",$", "") + "]}";
+
+			return jsonString;
+//			return "{\"name\":\"testjson\"}";
+		}
+
 }
