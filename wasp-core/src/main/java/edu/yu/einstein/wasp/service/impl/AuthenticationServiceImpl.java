@@ -34,6 +34,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
@@ -336,6 +337,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	  		return password;
 	    }
 	    
+	    /**
+		 * Enables parsing of Spring security expressions against the logged in user's security context. Using the 
+		 * parameter map, parameters can be substituted in the permission string. Consider "hasRole('su') or hasRole('fm') or hasRole('jv-#jobId')".
+		 * If parameterMap contains the parameter "jobId" with value "3" the following will be evaluated: ""
+		 * "hasRole('su') or hasRole('fm') or hasRole('jv-3')"
+		 * 
+		 * See://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html for more expression options
+		 * @param permsission
+		 * @return
+		 * @throws IOException
+		 */
+	    @Override
+	    public boolean hasPermission(String permission, Map<String, Integer> parameterMap) throws IOException {
+	    	Assert.assertParameterNotNull(permission, "permission must be set");
+	    	if (parameterMap != null && !parameterMap.isEmpty()){
+	    		for (String key: parameterMap.keySet()){
+	    			Integer value = parameterMap.get(key);
+	    			permission = permission.replaceAll("#" + key, parameterMap.get(key).toString());
+	    		}
+	    		if (permission.contains("#"))
+	    			throw new IOException("not all placeholders in permission string have been resolved from parameter map");
+	    	}
+	    	return hasPermission(permission);
+	    }
+	    
+	    
 		/**
 		 * Enables parsing of Spring security expressions against the logged in user's security context.
 		 * 
@@ -346,7 +373,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		 * @return
 		 * @throws IOException
 		 */
-		public static boolean hasPermission(String permsission) throws IOException {
+	    @Override
+		public boolean hasPermission(String permsission) throws IOException {
 
 			if (SecurityContextHolder.getContext().getAuthentication() == null) {
 				return false;
