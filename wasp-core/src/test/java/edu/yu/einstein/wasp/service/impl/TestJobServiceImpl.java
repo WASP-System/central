@@ -1,15 +1,58 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.easymock.EasyMock.createMockBuilder;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import org.easymock.EasyMock;
+
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.TaskMappingDao;
+import edu.yu.einstein.wasp.dao.impl.JobSampleDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.Sample;
+
 
 public class TestJobServiceImpl {
-/*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
-  TaskDao mockTaskDao;
+
+  TaskMappingDao mockTaskMappingDao;
+  JobSampleDao mockJobSampleDao;
+  SampleDao mockSampleDao;
+  JobExplorerWasp mockJobExplorerWasp;
+
+  JobExplorer mockJobExplorer;
 	
   JobServiceImpl jobServiceImpl = new JobServiceImpl();
   TaskServiceImpl taskServiceImpl = new TaskServiceImpl();
-  
-
-  
+ 
   //Test when sample.getParent() is NOT null (a facility-generated library)
   @Test
   public void getSubmittedSamples() {
@@ -17,56 +60,237 @@ public class TestJobServiceImpl {
 	  List<JobSample> jobSamples = new ArrayList<JobSample>();
 	 
 	  Job job = new Job();
+	  job.setJobId(1);
 	  Sample sample = new Sample();
+	  sample.setSampleId(1);
 	  Sample sampleParent  = new Sample();
 	  sample.setParent(sampleParent);
+	  sample.setParentId(2);
 	    
 	  JobSample jobSample = new JobSample();
+	  jobSample.setJobSampleId(0001);
+	  jobSample.setJobId(1);
+	  jobSample.setSampleId(1);
 	  jobSample.setSample(sample);
 	  jobSamples.add(jobSample);
-	  job.setJobId(0001);
 	  job.setJobSample(jobSamples);
 	  
 	  //expected
 	  List<Sample> submittedSamplesList = new ArrayList<Sample>();
+	  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
+	  jobServiceImpl.setSampleDao(mockSampleDao);
+	  expect(mockJobSampleDao.getJobSampleByJobId(job.getJobId())).andReturn(jobSamples);
+	  expect(mockSampleDao.getSampleBySampleId(jobSample.getSampleId())).andReturn(sample);
+	    
+	  replay(mockJobSampleDao);
+	  replay(mockSampleDao);
 	  
 	  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(job));
 	  
+	  verify(mockJobSampleDao);
+	  verify(mockSampleDao);
+	  
   }
   
-  //Test when sample.getParent() is null (not a facility-generated library)
-  @Test
+   //Test when sample.getParent() is null (not a facility-generated library)
+   @Test
   public void getSubmittedSamples2() {
-	  
-	  List<JobSample> jobSamples = new ArrayList<JobSample>();
-	  
-	  Job job = new Job();
-	  Sample sample = new Sample();
-	  JobSample jobSample = new JobSample();
-	  jobSample.setSample(sample);
-	  jobSamples.add(jobSample);
-	  job.setJobId(0001);
-	  job.setJobSample(jobSamples);
-	  
-	  //expected
-	  List<Sample> submittedSamplesList = new ArrayList<Sample>();
-	  submittedSamplesList.add(sample);
-	  
-	  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(job));
+		  List<JobSample> jobSamples = new ArrayList<JobSample>();
+			 
+		  Job job = new Job();
+		  job.setJobId(1);
+		  Sample sample = new Sample();
+		  sample.setSampleId(1);
+		    
+		  JobSample jobSample = new JobSample();
+		  jobSample.setJobSampleId(0001);
+		  jobSample.setJobId(1);
+		  jobSample.setSampleId(1);
+		  jobSample.setSample(sample);
+		  jobSamples.add(jobSample);
+		  job.setJobSample(jobSamples);
+		  
+		  //expected
+		  List<Sample> submittedSamplesList = new ArrayList<Sample>();
+		  submittedSamplesList.add(sample);
+		  
+		  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
+		  jobServiceImpl.setSampleDao(mockSampleDao);
+		  
+		  expect(mockJobSampleDao.getJobSampleByJobId(job.getJobId())).andReturn(jobSamples);
+		  expect(mockSampleDao.getSampleBySampleId(jobSample.getSampleId())).andReturn(sample);
+		    
+		  replay(mockJobSampleDao);
+		  replay(mockSampleDao);
+		  
+		  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(job));
+		  
+		  verify(mockJobSampleDao);
+		  verify(mockSampleDao);
 	  
   }
-  
+
   //Test when job is null
   @Test
   public void getSubmittedSamples3() {
 
 	  //expected
-	  List<Sample> submittedSamplesList = new ArrayList<Sample>();
+	  try {
+		  jobServiceImpl.getSubmittedSamples(null);
+	  }
+	  catch (RuntimeException e) {
+		  Assert.assertEquals(e.getMessage(), "No Job provided");
+	  }
 	  
-	  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(null));
 	  
   }
+  
+  //Test when bad job is passed
+  @Test
+  public void getSubmittedSamples4() {
 
+	  Job job = new Job();	  
+	  //expected
+	  try {
+		  jobServiceImpl.getSubmittedSamples(job);
+	  }
+	  catch (RuntimeException e) {
+		  Assert.assertEquals(e.getMessage(), "Invalid Job Provided");
+	  }
+  }
+  
+  @Test
+  public void getSubmittedSamplesNotYetReceived() {
+	  //jobServiceImpl.setJobExplorer(mockJobExplorer);
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  Job job2 = new Job();
+	  
+	  Sample sample = new Sample();
+	  sample.setSampleId(123);
+	  
+	  Map<String, String> parameterMap = new HashMap<String, String>();
+	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  
+	  StepExecution stepExecution;
+	  JobExecution jobExecution;
+	  JobInstance jobInstance;
+	  JobParameters jobParameters;
+	  //JobParameter jobParameter;	  
+	  //jobParameter = new JobParameter("Param1");
+	  jobParameters = new JobParameters();
+	  
+	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+	  
+	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+	  //stepExecution.setId(new Long(123));
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
+	  
+	  try {
+		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
+	  } catch (ParameterValueRetrievalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  
+	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(sample);
+	  
+	  replay(mockJobExplorerWasp);
+	  replay(mockSampleDao);
+	  
+	  //expected to return
+	  List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
+	  submittedSamplesNotYetReceivedList.add(sample);
+	  
+	  //Test case: 1: Job is not null
+	  Assert.assertEquals(jobServiceImpl.getSubmittedSamplesNotYetReceived(job), submittedSamplesNotYetReceivedList);
+	  
+	  //Test case: 2: Job is null
+	  try {
+		  Assert.assertEquals(jobServiceImpl.getSubmittedSamplesNotYetReceived(null), submittedSamplesNotYetReceivedList);
+	  }
+	  catch (RuntimeException e) {
+		  Assert.assertEquals(e.getMessage(), "No Job provided");
+	  }
+	  
+	  //Test case: 3: Job is invalid (jobId is not set or null)
+	  try {
+		  Assert.assertEquals(jobServiceImpl.getSubmittedSamplesNotYetReceived(job2), submittedSamplesNotYetReceivedList);
+	  }
+	  catch (RuntimeException e) {
+		  Assert.assertEquals(e.getMessage(), "Invalid Job Provided");
+	  }
+	  verify(mockJobExplorerWasp);
+	  verify(mockSampleDao);
+
+  }
+  
+  
+  @Test //when Sample is null
+  public void getSubmittedSamplesNotYetReceived2() {
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  Job job2 = new Job();
+	  
+	  Sample sample = new Sample();
+	  sample.setSampleId(123);
+	  
+	  Map<String, String> parameterMap = new HashMap<String, String>();
+	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  
+	  StepExecution stepExecution;
+	  JobExecution jobExecution;
+	  JobInstance jobInstance;
+	  JobParameters jobParameters;
+	  //JobParameter jobParameter;	  
+	  //jobParameter = new JobParameter("Param1");
+	  jobParameters = new JobParameters();
+	  
+	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+	  
+	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+	  //stepExecution.setId(new Long(123));
+	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
+	  
+	  try {
+		expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID)).andReturn("123");
+	  } catch (ParameterValueRetrievalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  
+	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(null);
+	  
+	  replay(mockJobExplorerWasp);
+	  replay(mockSampleDao);
+	  
+	  //expected to return
+	  List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
+	  
+	  //Test case: 1: Sample is null
+	  Assert.assertEquals(jobServiceImpl.getSubmittedSamplesNotYetReceived(job), submittedSamplesNotYetReceivedList);
+  
+	  verify(mockJobExplorerWasp);
+	  verify(mockSampleDao);
+
+  }
+ 
+  
+  /*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
   @Test
   public void getSubmittedSamplesAwaitingSubmission() {
 	  
@@ -109,6 +333,7 @@ public class TestJobServiceImpl {
 	  verify(mockTaskDao);
 	  
   }
+  
   
   @Test
   public void getActiveJobs() {
@@ -504,14 +729,17 @@ public class TestJobServiceImpl {
 	  
   }
 
-  
+  */
   @BeforeMethod
   public void beforeMethod() {
   }
 
   @AfterMethod
   public void afterMethod() {
-	  EasyMock.reset(mockTaskDao);
+	  EasyMock.reset(mockTaskMappingDao);
+	  EasyMock.reset(mockJobSampleDao);
+	  EasyMock.reset(mockSampleDao);
+	  EasyMock.reset(mockJobExplorerWasp);
 
   }
 
@@ -525,13 +753,22 @@ public class TestJobServiceImpl {
 
   @BeforeTest
   public void beforeTest() {
-	  mockTaskDao = createMockBuilder(TaskDaoImpl.class).addMockedMethods(TaskDaoImpl.class.getMethods()).createMock();
-	  	  
-	  Assert.assertNotNull(mockTaskDao);
+	  mockTaskMappingDao = createMockBuilder(TaskMappingDaoImpl.class).addMockedMethods(TaskMappingDaoImpl.class.getMethods()).createMock();
+	  mockJobSampleDao = createMockBuilder(JobSampleDaoImpl.class).addMockedMethods(JobSampleDaoImpl.class.getMethods()).createMock();
+	  mockSampleDao = createMockBuilder(SampleDaoImpl.class).addMockedMethods(SampleDaoImpl.class.getMethods()).createMock();	  
+	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
+	  
+	  Assert.assertNotNull(mockTaskMappingDao);
+	  Assert.assertNotNull(mockJobSampleDao);
+	  Assert.assertNotNull(mockSampleDao);
+	  Assert.assertNotNull(mockJobExplorerWasp);
+
+
+
   }
 
   @AfterTest
   public void afterTest() {
   }
-*/
+
 }
