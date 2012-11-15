@@ -7,14 +7,15 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.MetaBase;
 
 @Service
 public interface MetaMessageService extends WaspService {
 	
 	/**
-	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a key / value pair and a 
-	 * name may be specified (e.g. save("fmMessage", "Quality Control Notes", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
+	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group, name and value 
+	 * (e.g. save("fmMessage", "Quality Control Notes", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
 	 * Multiple entries can be added using the same key (they are returned as a list when read)
 	 * @param key
 	 * @param name
@@ -25,10 +26,10 @@ public interface MetaMessageService extends WaspService {
 	 * @return
 	 * @throws StatusMetaMessagingException
 	 */
-	public <T extends MetaBase> MetaMessage saveWithKey(String key, String name, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
+	public <T extends MetaBase> MetaMessage saveToGroup(String group, String name, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
 	
 	/**
-	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a key / value pair.
+	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group and value.
 	 * (e.g. save("fmMessage", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
 	 * Multiple entries can be added using the same key (they are returned as a list when read)
 	 * @param key
@@ -39,13 +40,13 @@ public interface MetaMessageService extends WaspService {
 	 * @return
 	 * @throws StatusMetaMessagingException
 	 */
-	public <T extends MetaBase> MetaMessage saveWithKey(String key, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
+	public <T extends MetaBase> MetaMessage saveToGroup(String group, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
 	
 	
 	/**
-	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a key / value pair 
-	 * using the default key and a name may be specified (e.g. save("Quality Control Notes", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
-	 * Multiple entries can be added using the same key (they are returned as a list when read)
+	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group and value 
+	 * using the default group and a name may be specified (e.g. save("Quality Control Notes", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
+	 * Multiple entries can be added using the same group (they are returned as a list when read)
 	 * @param name
 	 * @param value
 	 * @param modelParentId
@@ -57,9 +58,9 @@ public interface MetaMessageService extends WaspService {
 	public <T extends MetaBase> MetaMessage save(String name, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
 	
 	/**
-	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a key / value pair 
-	 * using the default key. (e.g. save("Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
-	 * Multiple entries can be added using the same key (they are returned as a list when read)
+	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group and value 
+	 * using the default group. (e.g. save("Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
+	 * Multiple entries can be added using the same group (they are returned as a list when read)
 	 * @param value
 	 * @param modelParentId
 	 * @param clazz
@@ -70,7 +71,7 @@ public interface MetaMessageService extends WaspService {
 	public <T extends MetaBase> MetaMessage save(String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
 	
 	/**
-	 * Returns a list of all messages added using the key specified for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). 
+	 * Returns a list of all messages added to the group specified for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). 
 	 * Returns empty list if no match found.
 	 * @param key
 	 * @param modelParentId
@@ -82,7 +83,7 @@ public interface MetaMessageService extends WaspService {
 	public <T extends MetaBase> List<MetaMessage> read(String key, Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
 	
 	/**
-	 * Returns a status message using the default key for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). Returns null if no match found.
+	 * Returns a status message using the default group for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). Returns null if no match found.
 	 * @param key
 	 * @param modelParentId
 	 * @param clazz
@@ -93,7 +94,7 @@ public interface MetaMessageService extends WaspService {
 	public <T extends MetaBase> List<MetaMessage> read(Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
 	
 	/**
-	 * Returns a Map of key-value pairs for all status messages associated with the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc).
+	 * Returns a list of MetaMessages for all status messages associated with the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc).
 	 * Returns an empty list if no matches found.
 	 * @param modelParentId
 	 * @param clazz 
@@ -102,4 +103,28 @@ public interface MetaMessageService extends WaspService {
 	 * @throws StatusMetaMessagingException
 	 */
 	public <T extends MetaBase> List<MetaMessage> readAll(Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
+
+	/**
+	 * Edit the value of a MetaMessage
+	 * @param message
+	 * @param newValue
+	 * @param modelParentId
+	 * @param clazz
+	 * @param dao
+	 * @return
+	 * @throws WaspException
+	 */
+	public <T extends MetaBase> MetaMessage edit(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException;
+
+	
+	/**
+	 * Delete a MetaMessage
+	 * @param message
+	 * @param newValue
+	 * @param modelParentId
+	 * @param clazz
+	 * @param dao
+	 * @throws WaspException
+	 */
+	public <T extends MetaBase> void delete(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException;
 }
