@@ -67,10 +67,12 @@
 </c:forEach>
 </table>
 </c:if>
-
+<br />
 		
 <div>
 <!-- <h1><fmt:message key="department.detail_labs.label" /></h1> -->
+<!-- I do not believe this grid belongs here. 
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
+-->
 </div>

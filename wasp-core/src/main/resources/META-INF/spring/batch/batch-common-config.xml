@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<batch:job-repository id="jobRepository"  />
+	
+	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
+
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${wasp.batch.corePoolSize:5}" />
+		<property name="maxPoolSize" value="${wasp.batch.maxPoolSize:1000}" />
+		<property name="keepAliveSeconds" value="${wasp.batch.keepAliveSeconds:60}" />
+		<property name="queueCapacity" value="${wasp.batch.queueCapacity:1000}" />
+	</bean>
+	
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="taskExecutor" ref="taskExecutor" />
+	</bean>
+	
+	<!-- Not required, but useful for keeping track of which jobs are available in the context. 
+	Also useful for collecting jobs centrally in an application context when they have been created 
+	elsewhere (e.g. in child contexts). -->
+	<bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	
+	<!-- This is a bean post-processor that can register all jobs as they are created -->
+	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+    	<property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+    
+    <!-- Entry point for browsing executions of running or historical jobs and steps.  -->
+    <bean id="jobExplorer" class="edu.yu.einstein.wasp.batch.core.extension.WaspJobExplorerFactoryBean">
+    	<property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <!-- AOP advice to restart methods with @Retryable annotation-->
+    <aop:config>
+        <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.wasp.batch.annotations.Retryable * *(..))"/>
+        <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />
+    </aop:config>
+
+    <bean id="retryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+        <property name="retryOperations">
+            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+                <property name="retryPolicy">
+                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+                    	<property name="maxAttempts" value="3" />
+                    </bean>
+                </property>
+                <property name="backOffPolicy">
+                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                        <property name="backOffPeriod" value="5000"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+</beans>

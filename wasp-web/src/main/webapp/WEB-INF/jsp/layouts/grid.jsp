@@ -546,7 +546,9 @@
 					gridview: false,
 					<tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
 		
-					autowidth: true,
+					autowidth: false,//set this to true and comment out next two lines (shrinkToFit and width [or leave this one]) for autoset
+					shrinkToFit: true,
+					width: 900,
 					//scroll: false,		// scroll:true will disable the pager on page
 					height: 'auto', 
 					loadui: 'block',

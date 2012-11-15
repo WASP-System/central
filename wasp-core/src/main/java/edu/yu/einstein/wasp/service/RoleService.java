@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Role;
 
 @Service
 public interface RoleService extends WaspService {
@@ -37,4 +38,57 @@ public interface RoleService extends WaspService {
 	 * 
 	 */
 	public List<String> getCompleteSortedRoleList(User user);
+	
+	/**
+	 * convertRoleVisibilityDelimitedStringToRoleList() returns list of roles given a roleVisibility (obtained from some Meta)
+	 * @param String roleVisibility (example: "fm;ft;sa;ga")
+	 * @return List<Role>
+	 * 
+	 */
+	public List<Role> convertMetaRoleVisibilityDelimitedStringToRoleList(String roleVisibility);
+
+	/**
+	 * convertRoleListToMetaRoleVisibilityDelimitedString() returns a meta.roleVisibility given a list of roles
+	 * @param List<Role> roleList 
+	 * @return String roleVisibility (example: "fm;ft;sa;ga")
+	 * 
+	 */
+	public String convertRoleListToMetaRoleVisibilityDelimitedString(List<Role> roleList);
+
+	
+	/**
+	 * getRoleByRolename(String roleName) returns a Role given a roleName (such as fm)
+	 * @param String roleName (example: "fm" which stands for Facility Manager)
+	 * @return Role
+	 * 
+	 */
+	public Role getRoleByRolename(String roleName);
+	
+	/**
+	 * metaRoleVisibilityDelimitedStringContainsRole(finalString roleVisibility, Role role) returns true if role is encoded within the string roleVisibility
+	 * @param String roleVisibility (example: "fm; ft;" which stands for Facility Manager and Facility Tech)
+	 * @param Role role 
+	 * @return boolean
+	 * 
+	 */
+	public boolean metaRoleVisibilityDelimitedStringContainsRole(String roleVisibility, Role role);
+
+	/**
+	 * addRoleToMetaRoleVisibility(String roleVisibility, Role role) returns roleVisibilityString containing the new role (if it was not there before)
+	 * @param String roleVisibility (example: "fm; ft;" which stands for Facility Manager and Facility Tech)
+	 * @param Role role 
+	 * @return String roleVisibility
+	 * 
+	 */
+	public String addRoleToMetaRoleVisibility(String roleVisibility, Role role);
+	
+	/**
+	 * removeRoleFromMetaRoleVisibility(String roleVisibility, Role role) returns roleVisibilityString without role encoded into it (if the role was present)
+	 * @param String roleVisibility (example: "fm; ft;" which stands for Facility Manager and Facility Tech)
+	 * @param Role role 
+	 * @return String roleVisibility
+	 * 
+	 */
+	public String removeRoleFromMetaRoleVisibility(String roleVisibility, Role role);
+
 }

@@ -1,35 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans
-	xsi:schemaLocation=" http://www.springframework.org/schema/beans 
-  http://www.springframework.org/schema/beans/spring-beans.xsd     
-  http://www.springframework.org/schema/context  
-  http://www.springframework.org/schema/context/spring-context.xsd 
-  http://www.springframework.org/schema/integration
-  http://www.springframework.org/schema/integration/spring-integration.xsd
-  http://www.springframework.org/schema/integration/file
-  http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
-  http://www.springframework.org/schema/integration/rmi
-  http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
-  http://www.springframework.org/schema/batch 
-  http://www.springframework.org/schema/batch/spring-batch.xsd
-  http://www.springframework.org/schema/integration/ip
-  http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd
-  "
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:batch="http://www.springframework.org/schema/batch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:si="http://www.springframework.org/schema/integration"
+<beans xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:file="http://www.springframework.org/schema/integration/file"
 	xmlns:rmi="http://www.springframework.org/schema/integration/rmi"
-	xmlns:ip="http://www.springframework.org/schema/integration/ip" xmlns="http://www.springframework.org/schema/beans"
-	default-autowire="byType">
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byType"
+	xmlns:int-ip="http://www.springframework.org/schema/integration/ip"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration/ip http://www.springframework.org/schema/integration/ip/spring-integration-ip.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 <!-- 
 	<context:annotation-config />
 	<context:component-scan base-package="edu.yu.einstein.wasp.cli" />
 
-	<si:gateway id="clientGateway" service-interface="edu.yu.einstein.wasp.cli.TcpGateway"
+	<int:gateway id="clientGateway" service-interface="edu.yu.einstein.wasp.cli.TcpGateway"
 		default-request-channel="inputChannel" />
 
-	<ip:tcp-connection-factory id="clientFactory"
+	<int-ip:tcp-connection-factory id="clientFactory"
 		type="client" 
 		host="localhost" 
 		port="23432" 
@@ -39,16 +32,16 @@
 	<rmi:inbound-gateway id="testola" request-channel="inputChannel"
 		registry-port="11111" />
 
-	<si:channel id="inputChannel" />
+	<int:channel id="inputChannel" />
 
-	<ip:tcp-outbound-gateway id="outboundGateway"
+	<int-ip:tcp-outbound-gateway id="outboundGateway"
 		request-channel="inputChannel" 
 		reply-channel="replyChannel"
 		connection-factory="clientFactory" 
 		request-timeout="10000"
 		reply-timeout="10000" />
 
-	<si:transformer id="clientBytes2String" 
+	<int:transformer id="clientBytes2String" 
 		input-channel="replyChannel"
 		expression="new String(payload)" /> -->
 

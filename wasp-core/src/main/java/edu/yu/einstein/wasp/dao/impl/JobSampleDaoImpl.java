@@ -85,6 +85,25 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 		}
 		return results.get(0);
 	}
+	
+	/**
+	 * getJobSampleByJobId(final int jobId)
+	 *
+	 * @param final int jobId
+	 *
+	 * @return jobSample
+	 */
+
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public List<JobSample> getJobSampleByJobId(final int jobId) {
+    		HashMap m = new HashMap();
+		m.put("jobId", jobId);
+
+		return (List<JobSample>) this.findByMap(m);
+
+	}
 
 	
 }

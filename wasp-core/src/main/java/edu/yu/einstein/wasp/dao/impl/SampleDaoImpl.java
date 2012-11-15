@@ -114,6 +114,17 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 		return this.findByMap(queryMap);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public List<Sample> findAllPlatformUnitsOrderByDescending() {
+		Map queryMap = new HashMap();
+		queryMap.put("sampleType.iName", "platformunit");
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("sampleId");
+		String direction = "desc";
+		return this.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
+	}
+	
 	@Override
 	public List<Sample> getActiveSamples() {
 		Map queryMap = new HashMap();

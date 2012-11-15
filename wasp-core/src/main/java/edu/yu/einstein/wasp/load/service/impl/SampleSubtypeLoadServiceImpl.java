@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.UiField;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements SampleSubtypeLoadService {
 	
 	  @Autowired

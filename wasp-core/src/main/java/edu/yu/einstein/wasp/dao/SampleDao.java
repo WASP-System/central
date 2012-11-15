@@ -25,6 +25,8 @@ public interface SampleDao extends WaspDao<Sample> {
 	public Sample getSampleByName(final String name);
 
 	public List<Sample> findAllPlatformUnits();
+	
+	public List<Sample> findAllPlatformUnitsOrderByDescending();
 
 	public List<Sample> getActiveSamples();
 

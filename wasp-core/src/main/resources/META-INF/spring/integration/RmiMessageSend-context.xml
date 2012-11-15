@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-rmi="http://www.springframework.org/schema/integration/rmi"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<int:channel id="wasp.channel.remoting.outbound" />
+	<int-rmi:outbound-gateway id="outboundRmiGateway" 
+		remote-channel="wasp.channel.remoting.inbound" 
+		request-channel="wasp.channel.remoting.outbound" 
+		reply-timeout="1000"
+		request-timeout="1000"
+		host="localhost" 
+		port="23533" />
+</beans>

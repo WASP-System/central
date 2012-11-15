@@ -6,7 +6,7 @@
         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="byName">
 
-  <bean id="jobWrapTask" class="edu.yu.einstein.wasp.load.TaskLoader">
+  <bean id="jobWrapTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
     <property name="area" value="jobWrapTask" />
     <property name="name" value="Job Task" />
     <property name="uiFields">
@@ -15,7 +15,7 @@
     </property>
   </bean>
 
-  <bean id="sampleWrapTask" class="edu.yu.einstein.wasp.load.TaskLoader">
+  <bean id="sampleWrapTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
     <property name="area" value="sampleWrapTask" />
     <property name="name" value="Sample Task" />
     <property name="uiFields">
@@ -24,7 +24,7 @@
     </property>
   </bean>
 
-  <bean id="runWrapTask" class="edu.yu.einstein.wasp.load.TaskLoader">
+  <bean id="runWrapTask" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
     <property name="area" value="runWrapTask" />
     <property name="name" value="Run Task" />
     <property name="uiFields">
@@ -33,7 +33,7 @@
     </property>
   </bean>
 
-  <bean id="waitForAllJobSamples" class="edu.yu.einstein.wasp.load.TaskLoader">
+  <bean id="waitForAllJobSamples" class="edu.yu.einstein.wasp.load.TaskMappingLoader">
     <property name="area" value="waitForAllJobSamples" />
     <property name="name" value="Wait for All Job Sample Task" />
     <property name="uiFields">

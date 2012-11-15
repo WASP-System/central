@@ -20,10 +20,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -35,6 +43,7 @@ import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.JobSoftwareDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
@@ -46,10 +55,17 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
+import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -66,6 +82,7 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -74,20 +91,21 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.Task;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.util.StringHelper;
+
 
 @Service
-@Transactional
-public class JobServiceImpl extends WaspServiceImpl implements JobService {
+@Transactional("entityManager")
+public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private JobDao	jobDao;
-
+	
 	/**
 	 * setJobDao(JobDao jobDao)
 	 * 
@@ -116,18 +134,24 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
-	
+
 	@Autowired
-	private TaskDao taskDao;
+	private UserDao userDao;
 
 	@Autowired
 	private TaskService taskService;
-	 
+
+	@Autowired
+	private AuthenticationService authenticationService;
+
 	@Autowired
 	private JobMetaDao jobMetaDao;
 
 	@Autowired
 	protected LabDao labDao;
+
+	@Autowired
+	protected LabUserDao labUserDao;
 
 	@Autowired
 	protected JobUserDao jobUserDao;
@@ -163,12 +187,6 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	protected SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
-
-	@Autowired
 	protected SampleSubtypeDao subSampleTypeDao;
 
 	@Autowired
@@ -188,47 +206,75 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	
 	@Autowired
 	protected JobFileDao jobFileDao;
+	
+	@Autowired
+	protected WorkflowDao workflowDao;
+	
+	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
+	
+		
+	@Autowired
+	protected WorkflowService workflowService;
+	
 
 	 /**
 	   * {@inheritDoc}
 	   */
 	@Override
 	public List<Sample> getSubmittedSamples(Job job){
-		
-		List<Sample> submittedSamplesList = new ArrayList();
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : job.getJobSample()){
-				  Sample sample  = jobSample.getSample();//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
+			for(JobSample jobSample : jobSampleDao.getJobSampleByJobId(job.getJobId())){
+				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
+				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
+				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
 				  if(sample.getParent() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParent() != null this indicates a facility-generated library), so add it to the submittedSample list
 					  submittedSamplesList.add(sample);
 				  }
 			  }	
 		}
+		
 		return submittedSamplesList;		
 	}
 	
 	/**
-	   * {@inheritDoc}
-	   */
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<Sample> getSubmittedSamplesAwaitingSubmission(Job job){
+	public List<Sample> getSubmittedSamplesNotYetReceived(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		
-		List<Sample> submittedSamplesAwaitingSubmissionList = new ArrayList<Sample>();
+		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
-		List<Sample> submittedSampleList = getSubmittedSamples(job);
-		
-		Task receiveSampleTask = taskDao.getTaskByIName("Receive Sample");
-		
-		for(Sample sample : submittedSampleList){
-			List<Statesample> stateSampleList = sample.getStatesample();
-			for(Statesample stateSample : stateSampleList){
-				if(stateSample.getState().getTask().getIName().equals(receiveSampleTask.getIName()) && stateSample.getState().getStatus().equals("CREATED")){
-					submittedSamplesAwaitingSubmissionList.add(sample);
-					break;
-				}
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
+		for (StepExecution stepExecution: stepExecutions){
+			Integer sampleId = null;
+			try{
+				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
 			}
+			Sample sample = sampleDao.getSampleBySampleId(sampleId);
+			if (sample == null){
+				logger.warn("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedSamplesNotYetReceivedList.add(sample);
 		}
-		return submittedSamplesAwaitingSubmissionList;
+		return submittedSamplesNotYetReceivedList;
 	}
 	
 	 /**
@@ -238,22 +284,30 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	public List<Job> getActiveJobs(){
 		
 		List<Job> activeJobList = new ArrayList<Job>();
-		
-		List<State> states = taskService.getJobCreatedStates(); //return taskDao.getStatesByTaskIName("Start Job", "CREATED");
-		if(states==null){
-			return activeJobList;
-		}
-		Set<Job> jobsSet = new HashSet<Job>();//to filter out any duplicates
-		for(State state : states){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobsSet.add(stateJob.getJob());
+		// get all job executions from the Batch database which only have one parameter which is job_id but we want all
+		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
+		for (JobExecution jobExecution: jobExecutions){
+			try{
+				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
+				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
+				if (job.getJobId() == 0){
+					logger.warn("Expected a job object with id '"+parameterVal+"' but got none");
+				} else {
+					activeJobList.add(job);
+				}
+			} catch(ParameterValueRetrievalException e){
+				logger.warn(e.getLocalizedMessage());
+			} catch(NumberFormatException e){
+				logger.warn(e.getLocalizedMessage());
 			}
+			
 		}
-		for(Job job : jobsSet){
-			activeJobList.add(job);
-		}
-		
 		sortJobsByJobId(activeJobList);
 		
 		return activeJobList;
@@ -263,43 +317,27 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public List<Job> getJobsAwaitingSubmittedSamples(){
+	public List<Job> getJobsAwaitingReceivingOfSamples(){
 		
-		List<Job> jobsAwaitingSubmittedSamplesList = new ArrayList<Job>();
+		List<Job> jobsAwaitingReceivingOfSamples = new ArrayList<Job>();
 		
-		List<State> states = taskService.getSampleNotYetReceivedStates(); ////////return taskDao.getStatesByTaskIName("Receive Sample", "CREATED");
-		if(states==null){
-			return jobsAwaitingSubmittedSamplesList;
-		}
-		Set<Sample> sampleSet = new HashSet<Sample>();//to filter out any duplicates
-		for(State state : states){
-			List<Statesample> stateSampleList = state.getStatesample();
-			for(Statesample stateSample : stateSampleList){
-				sampleSet.add(stateSample.getSample());//all samples with task receive sample = created
-			}
-		}
-		Set<Job> jobSet = new HashSet<Job>();
-		for(Sample sample : sampleSet){
-			List<JobSample> jobSampleList = sample.getJobSample();
-			for(JobSample jobSample : jobSampleList){
-				jobSet.add(jobSample.getJob());//unique set of jobs that have at least one sample with task receive sample = created
-			}
+		for (Job job: getActiveJobs()){
+			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
+			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+				jobsAwaitingReceivingOfSamples.add(job);
 		}
 		
-		for(Job job : jobSet){
-			jobsAwaitingSubmittedSamplesList.add(job);
-		}
+		sortJobsByJobId(jobsAwaitingReceivingOfSamples);
 		
-		sortJobsByJobId(jobsAwaitingSubmittedSamplesList);
-		
-		return jobsAwaitingSubmittedSamplesList;
+		return jobsAwaitingReceivingOfSamples;
 	}
 	
-	/**
+	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
 	  public void sortJobsByJobId(List<Job> jobs){
+		  Assert.assertParameterNotNull(jobs, "No Job list provided");
 		  class JobIdComparator implements Comparator<Job> {
 			    @Override
 			    public int compare(Job arg0, Job arg1) {
@@ -309,12 +347,71 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 		  Collections.sort(jobs, new JobIdComparator());//sort by job ID 
 	  }
 	  
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingPiApproval(Job job){
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+	
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingDaApproval(Job job){
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Boolean isJobAwaitingQuote(Job job){
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
+				);
+			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+				return true;
+			return false;
+		}
+	  
 	  /**
 	   * {@inheritDoc}
 	   */
 	  @Override
 	  public Map<String, String> getExtraJobDetails(Job job){
-		    
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
@@ -332,66 +429,99 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
 			  }
 		  }
+		  
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> jobIdStringSet = new HashSet<String>();
+		  jobIdStringSet.add(job.getJobId().toString());
+		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
+		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
+		  // should only be one entry returned anyway.
+		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
+		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
 
-		  // 6/11/12 added next section related to DA approval, PI approval, and the quote states
-		  List<Statejob> statejobs = job.getStatejob();
-		  for(Statejob statejob : statejobs){
-			  State state = statejob.getState();
-			  if(state.getTask().getIName().equals("DA Approval")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  extraJobDetailsMap.put("DA Approval", "Approved");
-				  }
-				  else if(state.getStatus().equals("ABANDONED")){
-					  extraJobDetailsMap.put("DA Approval", "Rejected");
-				  }
-				  else{
-					  extraJobDetailsMap.put("DA Approval", "Unknown");
-				  }
-			  }
-			  if(state.getTask().getIName().equals("PI Approval")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  extraJobDetailsMap.put("PI Approval", "Approved");
-				  }
-				  else if(state.getStatus().equals("ABANDONED")){
-					  extraJobDetailsMap.put("PI Approval", "Rejected");
-				  }
-				  else{
-					  extraJobDetailsMap.put("PI Approval", "Unknown");
-				  }
-			  }
-			  if(state.getTask().getIName().equals("Quote Job")){
-				  if(state.getStatus().equals("CREATED")){
-					  extraJobDetailsMap.put("Quote Job Price", "Awaiting Quote");
-				  }
-				  else if(state.getStatus().equals("COMPLETED") || state.getStatus().equals("FINALIZED")){
-					  try{
-						  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-						  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
-					  }
-					  catch(Exception e){
-						  extraJobDetailsMap.put("Quote Job Price", "Unknown"); 
-					  }					  
-				  }
-				  else {
-					  extraJobDetailsMap.put("Quote Job Price", "Unknown");
-				  }
-			  }
-		  }
-		  if(extraJobDetailsMap.containsKey("DA Approval")==false){
-			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
-		  }
-		  if(extraJobDetailsMap.containsKey("PI Approval")==false){
+		  if (stepExecution == null){
 			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
 		  }
-		  if(extraJobDetailsMap.containsKey("Quote Job Price")==false){
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  extraJobDetailsMap.put("PI Approval", "Approved");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("PI Approval", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("PI Approval", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("PI Approval", "Unknown");
+			  }
+		  }
+		  
+		  
+		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				);
+		  if (stepExecution == null){
+			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+		  }
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  extraJobDetailsMap.put("DA Approval", "Approved");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("DA Approval", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("DA Approval", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("DA Approval", "Unknown");
+			  }
+		  }
+		  		  
+		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				  batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
+				);
+		  if (stepExecution == null){
 			  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
 		  }
+		  else {
+			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+				  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+				  try{
+					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
+				  }
+				  catch(Exception e){
+					  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
+					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
+				  }	
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+				  extraJobDetailsMap.put("Quote Job Price", "Rejected");
+			  }
+			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+				  extraJobDetailsMap.put("Quote Job Price", "Abandoned");
+			  }
+			  else{
+				  extraJobDetailsMap.put("Quote Job Price", "Unknown");
+			  }
+		  }
+		 
+
+		 
 		  
 		  return extraJobDetailsMap;	  
 	  }
@@ -401,6 +531,10 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 	   */
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
+		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
+			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
+			Assert.assertParameterNotNull(user, "No User provided");
+			Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
 		  	
 			// Copies JobDraft to a new Job
 			Job job = new Job();
@@ -541,24 +675,6 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				}
 			}
 			
-			State state = new State(); 
-			
-			Task jobCreateTask = taskDao.getTaskByIName("Start Job");
-			state.setTaskId(jobCreateTask.getTaskId());
-			state.setName(jobCreateTask.getName());
-			state.setStartts(new Date());
-			state.setStatus("CREATED"); 
-			stateDao.save(state);
-			
-			Statejob statejob = new Statejob();
-			statejob.setStateId(state.getStateId());
-			statejob.setJobId(job.getJobId());
-			statejobDao.save(statejob);
-			
-			// update the jobdraft
-			jobDraft.setStatus("SUBMITTED");
-			jobDraft.setSubmittedjobId(jobDb.getJobId());
-			jobDraftDao.save(jobDraft); 
 			
 			// jobDraftFile -> jobFile
 			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
@@ -582,58 +698,342 @@ public class JobServiceImpl extends WaspServiceImpl implements JobService {
 				jobFile.setFile(file);
 				jobFileDao.save(jobFile);
 			}
-			
+						
+			// update the jobdraft
+			jobDraft.setStatus("SUBMITTED");
+			jobDraft.setSubmittedjobId(jobDb.getJobId());
+			jobDraftDao.save(jobDraft); 
+						
 			return jobDb;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException{
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		// send message to initiate job processing
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+		sendOutboundMessage(batchJobLaunchMessageTemplate.build());
 	  }
 	  
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsWithLibraryCreatedTask(){
+	public List<Job> getJobsAwaitingLibraryCreation(){
 		
-		Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("Create Library");
-		if(task == null || task.getTaskId() == null){
-			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
-		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> stateList = stateDao.findByMap(stateMap);
+		List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
 		
-		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
-		for(State state : stateList){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobs.add(stateJob.getJob());
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
+		Set<Integer> uniqueJobIds = new HashSet<Integer>(); // just to be sure no duplicates, store the job ids in a Set
+		for (StepExecution stepExecution: stepExecutions){
+			try{
+				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
 			}
 		}
-		return new ArrayList<Job>(jobs);//return as list rather than as set
+		for (Integer jobId: uniqueJobIds){
+			Job job = jobDao.getJobByJobId(jobId);
+			if (job == null){
+				logger.warn("Job with job id '"+jobId+"' does not have a match in the database!");
+				continue;
+			}
+			JobsAwaitingLibraryCreation.add(job);
+		}
+		return JobsAwaitingLibraryCreation;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsWithLibrariesToGoOnFlowCell(){
-		
-		Map stateMap = new HashMap(); 
-		Task task = taskDao.getTaskByIName("assignLibraryToPlatformUnit");
-		if(task == null || task.getTaskId() == null){
-			//waspErrorMessage("platformunit.taskNotFound.error"); maybe throw exception?????
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
+		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
+		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
+			JobResourcecategory jrc = jobResourcecategoryDao.getJobResourcecategoryByResourcecategoryIdJobId(resourceCategory.getResourceCategoryId(), currentJob.getJobId());
+			if(jrc!=null && jrc.getJobResourcecategoryId()!=null && jrc.getJobResourcecategoryId().intValue() != 0)
+				jobsFilteredByResourceCategory.add(currentJob);
 		}
-		stateMap.put("taskId", task.getTaskId()); 	
-		stateMap.put("status", "CREATED"); 
-		List<State> stateList = stateDao.findByMap(stateMap);
-		
-		Set<Job> jobs = new HashSet<Job>();//use set to avoid duplicates
-		for(State state : stateList){
-			List<Statejob> stateJobList = state.getStatejob();
-			for(Statejob stateJob : stateJobList){
-				jobs.add(stateJob.getJob());
+		return jobsFilteredByResourceCategory;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
+		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
+		for (Job job: getActiveJobs()){
+			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
+			// the job may have many libraries and each library may need to be run more than once
+			for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false) ){
+				try{
+					Integer libraryId =  Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
+					// put to list of all sample id's on all analysis flows (librariesInAnalysisFlow)
+					if (librariesForJobWithAnalysisFlow.containsKey(libraryId)){
+						librariesForJobWithAnalysisFlow.put(libraryId, librariesForJobWithAnalysisFlow.get(libraryId) + 1);
+					} else {
+						librariesForJobWithAnalysisFlow.put(libraryId, 1);
+					}
+				} catch (ParameterValueRetrievalException e){
+					logger.warn(e.getMessage());
+					continue;
+				} catch (NumberFormatException e){
+					logger.warn(e.getMessage());
+					continue;
+				}
+				
+				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
+					Sample library = sampleDao.getSampleBySampleId(libraryId);
+					if (library.getSampleId() == 0){
+						logger.warn("Cannot find Sample with id=" + libraryId);
+						continue;
+					}
+					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
+					Integer numberOfLibraryInstancesOnCells = 0;
+					if (sampleSources != null)
+						numberOfLibraryInstancesOnCells = sampleSources.size();
+					
+					Integer numberOfAnalysisFlowsForLibrary = librariesForJobWithAnalysisFlow.get(libraryId);
+					
+					if (numberOfAnalysisFlowsForLibrary > numberOfLibraryInstancesOnCells)
+						jobsWithLibrariesToGoOnFlowCell.add(job);
+					
+				}
 			}
 		}
+		return jobsWithLibrariesToGoOnFlowCell;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getJobsSubmittedOrViewableByUser(User user){
+		Assert.assertParameterNotNull(user, "No User provided");
+		Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
 		
-		return new ArrayList<Job>(jobs);//return as list rather than as set
+		List<Job> jobList = new ArrayList<Job>();
+		List<JobUser> jobUserList = new ArrayList<JobUser>();
+		
+		Map m = new HashMap();
+		m.put("UserId", user.getUserId().intValue());
+		List<String> orderByColumnNames = new ArrayList<String>();
+		orderByColumnNames.add("jobId");
+		
+		jobUserList = this.jobUserDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
+		
+		for(JobUser jobUser : jobUserList){
+			jobList.add(jobUser.getJob());
+		}		
+		
+		return jobList;
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
+		Assert.assertParameterNotNull(sample, "No Sample provided");
+		Integer sampleId = sample.getSampleId();
+		Assert.assertParameterNotNullNotZero(sampleId, "Invalid Sample Provided");
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		boolean sampleIsInJob = false;
+		for (Sample s: job.getSample()){
+			if (s.getSampleId().equals(sampleId)){
+				sampleIsInJob = true;
+				break;
+			}
+		}
+		if (!sampleIsInJob){
+			logger.warn("supplied sample is not associated with supplied job");
+			return false;
+		}
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(sampleId.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		
+		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
+				batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED)
+			);
+		if (stepExecution != null)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.QUOTE);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.ADMIN_APPROVE);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.QUOTE);
+	}
+	
+	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNull(status, "No Status provided");
+		if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
+			throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		
+		Assert.assertParameterNotNull(task, "No Task provided");
+		  
+		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+		messageTemplate.setTask(task);
+		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		sendOutboundMessage(messageTemplate.build());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addJobViewer(Integer jobId, String newViewerEmailAddress) throws Exception{
+		
+		  if(jobId == null || newViewerEmailAddress == null){
+		  	  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }		
+		  //System.out.println("at 7");	  		
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
+			throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToAddJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+			)
+		  {
+			  userPerformingThisActionIsPermittedToAddJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToAddJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
+			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
+		  }
+		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
+		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
+			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
+		  }
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId.intValue(), newViewerToBeAddedToJob.getUserId().intValue());
+		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
+			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
+		  }
+		  Role role = roleDao.getRoleByRoleName("jv");
+		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
+			  throw new Exception("listJobSamples.roleNotFound.label");
+		  }
+		  JobUser newJobUser = new JobUser();
+		  newJobUser.setJob(job);
+		  newJobUser.setUser(newViewerToBeAddedToJob);
+		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
+		  newJobUser.setRole(role);
+		  jobUserDao.save(newJobUser);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeJobViewer(Integer jobId, Integer userId)throws Exception{
+		
+		  if(jobId == null || userId == null){
+			  throw new Exception("listJobSamples.illegalOperation.label");	
+		  }
+		  
+		  Job job = jobDao.getJobByJobId(jobId.intValue());
+		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
+			  throw new Exception("listJobSamples.jobNotFound.label");			  
+		  }
+		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
+		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
+			  throw new Exception("listJobSamples.userNotFound.label");			  
+		  }
+
+		  
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
+			  throw new Exception("listJobSamples.illegalOperation.label");
+		  }
+		  
+		  Boolean userPerformingThisActionIsPermittedToRemoveJobViewers = false;
+		  //does the webviewer have the authority to perform this function?
+		  if(authenticationService.isSuperUser() //webviewer (person performing the action) is superuser so OK
+				  ||  userPerformingThisAction.getUserId().intValue() == job.getUserId().intValue() //webViewer is the job submitter, so OK
+				  || userPerformingThisAction.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()//webViewer is the job PI, so OK
+				  || userPerformingThisAction.getUserId().intValue() == userToBeRemoved.getUserId().intValue()//webViewer is attempting to remove him/her self from list, which is allowed (so long as the webviewer is neither the job submitter or the job's PI).
+			)
+		  {
+			  userPerformingThisActionIsPermittedToRemoveJobViewers = true; //superuser, job's submitter, job's PI
+		  }
+		  if(!userPerformingThisActionIsPermittedToRemoveJobViewers){
+			  throw new Exception("listJobSamples.illegalOperation.label");			  
+		  }
+		  
+		  //we checked that webviewer is authorized to do this. Now make certain that the webviewer is not trying to remove the job submitter or job PI. 
+		  if(userToBeRemoved.getUserId().intValue() == job.getUserId().intValue()){//trying to remove job's submitter as viewer; not allowed
+			  throw new Exception("listJobSamples.submitterRemovalIllegal.label");			  
+		  }
+		  if(userToBeRemoved.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){//trying to remove job pi as viewer; not allowed
+			  throw new Exception("listJobSamples.piRemovalIllegal.label");			  
+		  }
+		  
+		  JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(job.getJobId().intValue(), userToBeRemoved.getUserId().intValue());
+		  if(jobUser.getJobUserId().intValue() <= 0){//jobuser not found for this job and this user in the jobuser table.
+			  throw new Exception("listJobSamples.userNotViewerOfThisJob.label");
+		  }
+		  else{
+			  jobUserDao.remove(jobUser);
+			  jobUserDao.flush(jobUser);
+		  }		
 	}
 }

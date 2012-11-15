@@ -519,8 +519,22 @@ public class UserPendingController extends WaspController {
 	 */
 	protected LabPending getNewLabPending(UserPending userPending) throws MetadataException{
 		MetaHelperWebapp userPendingMetaHelperWebapp=getMetaHelperWebapp();
-		userPendingMetaHelperWebapp.setArea("piPending");
-		userPendingMetaHelperWebapp.syncWithMaster(userPending.getUserPendingMeta());
+		userPendingMetaHelperWebapp.setArea("piPending");		
+		List<UserPendingMeta> userPendingMetaList = null;
+		userPendingMetaList = userPending.getUserPendingMeta();//11-08-12 (Rob): this hibernate-type call will not work if the userPending object was just now created (second request by a PI that has confirmed email address) and not completely committed
+		if(userPendingMetaList==null){
+			Map filterMap = new HashMap();
+			filterMap.put("userPendingId", userPending.getUserPendingId());
+			userPendingMetaList = userPendingMetaDao.findByMap(filterMap);
+			List<UserPendingMeta> toRemoveList = new ArrayList<UserPendingMeta>();
+			for(UserPendingMeta upm : userPendingMetaList){
+				if(!upm.getK().startsWith("piPending")){
+					toRemoveList.add(upm);
+				}
+			}
+			userPendingMetaList.removeAll(toRemoveList);
+		}
+		userPendingMetaHelperWebapp.syncWithMaster(userPendingMetaList);
 		LabPending labPending = new LabPending();
 		labPending.setStatus("PENDING");
 		labPending.setUserpendingId(userPending.getUserPendingId());

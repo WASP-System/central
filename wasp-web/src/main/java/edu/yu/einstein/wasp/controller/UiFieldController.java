@@ -24,8 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,7 +49,7 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 @RequestMapping("/uiField")
 public class UiFieldController extends WaspController {
 
-	Logger log=Logger.getLogger(UiFieldController.class);
+	Logger log=LoggerFactory.getLogger(UiFieldController.class);
 	
 	@Autowired
 	private UiFieldDao uiFieldDao;

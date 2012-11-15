@@ -21,70 +21,93 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>com.goldin.plugins</id>
-	    	<name>maven-copy-plugins</name>
-	    	<url>http://repo1.maven.org/maven2</url>
-		</pluginRepository>
-	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5.1</version>
+				<executions>
+				<execution>
+				<id>copy</id>
+				<phase>install</phase>
+				<goals>
+				<goal>copy</goal>
+				</goals>
+				<configuration>
+				<stripVersion>true</stripVersion>
+				<overWriteIfNewer>true</overWriteIfNewer>
+				<artifactItems>
+					<artifactItem>
+						<groupId>edu.yu.einstein.wasp</groupId>
+						<artifactId>wasp-tomcat-classloader</artifactId>
+						<version>${module.version}</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory> 
+					</artifactItem>
+					<artifactItem>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+						<version>${logback.version}</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory> 
+					</artifactItem>
+					<artifactItem>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-core</artifactId>
+						<version>${logback.version}</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory> 
+					</artifactItem>
+					<artifactItem>
+						<groupId>org.apache.tomcat.extras</groupId>
+						<artifactId>juli-adapters</artifactId>
+						<version>6.0.35</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory> 
+					</artifactItem>
+					<artifactItem>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-api</artifactId>
+						<version>${slf4j.version}</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory>
+					</artifactItem>
+					<artifactItem>
+						<groupId>org.slf4j</groupId>
+						<artifactId>log4j-over-slf4j</artifactId>
+						<version>${slf4j.version}</version>
+						<type>jar</type>
+						<outputDirectory>${catalina.home}/lib</outputDirectory>
+					</artifactItem>
+				</artifactItems>
+				</configuration>
+				</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.3.1</version>
+				<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
-					<execution>
-						<phase>install</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<packaging>jar</packaging>
-							<artifactId>${project.artifactId}</artifactId>
-							<groupId>${project.groupId}</groupId>
-							<version>${project.version}</version>
-							<file>
-								${project.build.directory}/${project.artifactId}-${project.version}.jar
-							</file>
-						</configuration>
-					</execution>
+				<execution>
+				<id>enforce-property</id>
+				<phase>install</phase>
+				<goals>
+				<goal>enforce</goal>
+				</goals>
+				<configuration>
+				<rules>
+				<requireProperty>
+				<property>catalina.home</property>
+				<message>You must set -Dcatalina.home=$CATALINA_HOME to install dependencies.</message>
+				</requireProperty>
+				</rules>
+				<fail>true</fail>
+				</configuration>
+				</execution>
 				</executions>
-			</plugin> 
-			<plugin>
-		    	<groupId>com.github.goldin</groupId>
-				<artifactId>copy-maven-plugin</artifactId>
-				<version>0.2.5</version>
-			    <executions>
-			        <execution>
-			            <id>copy resources</id>
-			            <phase>install</phase>
-			            <goals>
-			                <goal>copy</goal>
-			            </goals>
-			            <configuration>
-			                <resources>
-	
-			                    <resource>
-			                    	<!--   must specify catalina.home when running maven e.g. mvn -Dcatalina.home=/Library/Tomcat/Home install   -->
-	             					<!--  in Eclipse (first time only), right click on project ->  Run As -> Run Configurations... then add -Dcatalina.home=/Library/Tomcat/Home install to goals  -->
-			                        <targetPath>${catalina.home}/lib</targetPath>
-			                        <directory>${project.build.directory}</directory>
-			                        <includes>
-			                            <include>${project.artifactId}-${project.version}.jar</include>
-			                        </includes>
-			                    </resource>
-			                </resources>
-			            </configuration>
-			        </execution>
-			    </executions>
 			</plugin>
+
 		</plugins>
 	</build>
 </project>

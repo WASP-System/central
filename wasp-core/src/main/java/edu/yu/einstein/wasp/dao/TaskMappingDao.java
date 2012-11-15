@@ -20,9 +20,11 @@ public interface TaskMappingDao extends WaspDao<TaskMapping> {
 
   public TaskMapping getTaskMappingByTaskMappingId (final int taskMappingId);
 
-  public List<TaskMapping> getTaskMappingByTaskIdStatus (final int taskId, final String status);
+  public List<TaskMapping> getTaskMappingByBatchStepAndStatus (final String stepName, final String status);
 
-  public List<TaskMapping> getTaskMappingByTaskId(int taskId);
+  public List<TaskMapping> getTaskMappingByBatchStep(final String stepName);
+  
+  public TaskMapping getTaskMappingByIName (final String iName);
 
 
 }

@@ -13,25 +13,36 @@ package edu.yu.einstein.wasp.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ResourceException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 
 @Service
-public interface SampleService extends WaspService {
+public interface SampleService extends WaspMessageHandlingService {
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -113,7 +124,21 @@ public interface SampleService extends WaspService {
 	   * @param Sample
 	   * @return String
 	   */
-	  public String getReceiveSampleStatus(final Sample sample);
+	  public BatchStatus getReceiveSampleStatus(final Sample sample);
+	  
+	  /**
+		 * Returns true if provided sample is received, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleReceived(Sample sample);
+		
+		/**
+		 * Returns true if sample has a library batch flow in state awaiting library creation
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleAwaitingLibraryCreation(Sample sample);
 	  
 	  /**
 	   * Accepts and (in-situ) sorts list of samples by sample name 
@@ -127,14 +152,14 @@ public interface SampleService extends WaspService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertReceiveSampleStatusForWeb(String internalStatus);
-
+	  public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus);
+	  
 	  /**
-	   * Converts sample's Receive Sample status from web meaning (human-comprehensible meaning) to enum consistent value for internal storage
-	   * @param String webStatus
-	   * @return String 
+	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
+	   * @param webStatus
+	   * @return
 	   */
-	  public String convertReceiveSampleStatusForInternalStorage(String webStatus);
+	  public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus);
 
 	  /**
 	   * Gets list of Receive Sample options for web display
@@ -144,12 +169,24 @@ public interface SampleService extends WaspService {
 	  public List<String> getReceiveSampleStatusOptionsForWeb();
 	  
 	  /**
-	   * Updates sample's Receive Sample status
+	   * Updates sample's Receive Sample status. Sends message via Spring Integration
+	   * Status must be either CREATED or ABANDONED
 	   * @param Sample sample
 	   * @param String status (from web)
 	   * @return boolean
 	   */
-	  public boolean updateSampleReceiveStatus(final Sample sample, final String status);
+	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
+	  
+	  /**
+	   * Updates sample's library creation status. Sends message via Spring Integration
+	   * Status must be either CREATED or ABANDONED
+	   * @param Sample sample
+	   * @param String status (from web)
+	   * @return boolean
+	   */
+	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
+	  
+	  
 	  
 	  /**
 	   * Returns boolean informing whether a sample has been processed by the facility
@@ -176,19 +213,28 @@ public interface SampleService extends WaspService {
 	  public Adaptor getLibraryAdaptor(Sample library);
 	  
 	  /**
-	   * Returns list of samples that are flow cells to which libraries can be added [meaning whose task-status is CREATED])
+	   * Returns list of samples that are flow cells to which libraries can be added (no run flow exists, or run flow in 'STOPPED' state and unlocked)
 	   * @param void
 	   * @return List<Sample>
 	   */
-	  public List<Sample> getAvailableFlowCells();
+	  public List<Sample> getAvailablePlatformUnits();
 	  
 	  /**
-	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the parameter job
+	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the supplied {@link ResourceCategory}
+	   * @param ResourceCategory resourceCategory
+	   * @return List<Sample>
+	   * 
+	   */
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(ResourceCategory resourceCategory);
+	  
+	  /**
+	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the supplied job 
+	   * with respect to having a common {@link ResourceCategory}
 	   * @param Job job
 	   * @return List<Sample>
 	   * 
 	   */
-	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job);
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job);
 
 	  
 	  /**
@@ -198,7 +244,15 @@ public interface SampleService extends WaspService {
 	   * @throws SampleTypeException 
 	   */
 	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
-	  
+
+	  /**
+	   * Returns Number Of Indexed Cells (lanes) on a platform unit
+	   * @param platformUnit
+	   * @return Integer numberOfIndexedCells
+	   * @throws SampleTypeException 
+	   */
+	  public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
+
 	  /**
 	   * Adds a cell to a platform unit. Ensures that the index is unique.
 	   * @param platformUnit
@@ -267,19 +321,298 @@ public interface SampleService extends WaspService {
 	   */
 	  public SampleDraft cloneSampleDraft(SampleDraft sampleDraft);
 
-	  /**
-	   * Returns list of samples that are platformUnits with task assignLibraryToPlatformUnit and status = CREATED (so, it's not yet part of a sequence run)
-	   * @param none
-	   * @return List<Sample>
-	   */
-	  public List<Sample> platformUnitsAwaitingLibraries();
 	  
 	  /**
 	   * Get the run on which a given platform unit has been placed. If the platform unit is not currently associated with an active run or is not associated with a run 
 	   * this method returns null
 	   * @param platformUnit
 	   * @return
+	   * @throws SampleTypeException
 	   */
-	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
+	  public Run getCurrentRunForPlatformUnit(Sample platformUnit) throws SampleTypeException;
+	  
+
+	  /**
+	   * returns true if sample is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(SampleDraft sampleDraft);
+		
+	  
+	  /**
+	   * returns true if sample is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(SampleDraft sampleDraft);
+	  
+	  /**
+	   * Determine whether a barcodeName is already in the database. 
+	   * @param String barcodeName
+	   * @return boolean
+	   */
+	  public boolean barcodeNameExists(String barcodeName);
+
+	  /**
+	   * Returns List of SampleSubtypes where SampleType.iname = parameter sampleTypeIName. List ordered ascending by samplesubtype.name. 
+	   * If the SampleType is not found, throw SampleTypeException. If SampleType is valid but not entries in SampleSubtype, then
+	   * return is an empty list (list.size()=0)
+	   * @param String sampleTypeIName
+	   * @return List<SampleSubtype>
+	   */
+	  public List<SampleSubtype> getSampleSubtypesBySampleTypeIName(String sampleTypeIName) throws SampleTypeException;
+
+	  /**
+	   * Returns a SampleSubtype with id of sampleSubtypeId. 
+	   * If the id not in database, return empty object (sampleSubtype.getSampleSubtypeId is null).
+	   * @param Integer sampleSubtypeId
+	   * @return SampleSubtype
+	   */
+	  public SampleSubtype getSampleSubtypeById(Integer sampleSubtypeId);
+
+	  /**
+	   * Returns true if SampleSubtype's SampleType has iname of sampleTypeIName, else return false. 
+	   * @param SampleSubtype sampleSubtype
+	   * @param String sampleTypeIName
+	   * @return boolean
+	   */
+	  public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName);
+	  
+	  /**
+	   * Returns a Sample with id of sampleId. 
+	   * If the id is not in the database, return an empty object (sample.getSampleId is null). 
+	   * @param Integer sampleId
+	   * @return Sample
+	   */
+	  public Sample getSampleById(Integer sampleId);
+
+	  /**
+	   * Returns true if sample.getSampleType().getIName.equals(sampleTypeIName). 
+	   * If sampleTypeIName==null or sample==null or sample.getSampleType()==null or sample.getSampleType().getIName == null, return false.
+	   * @param Sample sample
+	   * @param String sampleTypeIName (such as "platformunit")
+	   * @return boolean
+	   */
+	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName);
+
+	  /**
+	   * Returns true if sample.getSampleSubtype().getIName.equals(sampleSubtypeIName). 
+	   * If sampleSubtypeIName==null or sample==null or sample.getSampleSubtype()==null or sample.getSampleSubtype().getIName == null, return false.
+	   * @param Sample sample
+	   * @param String sampleSubtypeIName (such as "platformunit")
+	   * @return boolean
+	   */
+	  public boolean sampleIsSpecificSampleSubtype(Sample sample, String sampleSubtypeIName);
+
+	  /**
+	   * Returns true if Sample is in database, else returns false
+	   * True defined as sample != null && sample.getSampleId() != null && sample.getSampleId().intVal() > 0
+	   * then use sample.getSampleId().intVal() to pull a sample from the database and the 
+	   * sampleReturnedFromDatabase.getSampleId() != null && sampleReturnedFromDatabase.getSampleId().intVal > 0 
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIsInDatabase(Sample sample);
+
+	  /**
+	   * Returns true if SampleId represents a sample in database, else returns false
+	   * True defined as sampleId != null && sampleId.intVal() > 0
+	   * then use sampleId().intVal() to pull a sample from the database and the 
+	   * sampleReturnedFromDatabase.getSampleId() != null && sampleReturnedFromDatabase.getSampleId().intVal > 0 
+	   * @param Integer sampleId
+	   * @return boolean
+	   */
+	  public boolean sampleIdIsInDatabase(Integer sampleId);
+
+	  /**
+	   * Returns true if sample != null && sample.getSampleId() != null && sample.getSampleId().intVal() > 0, else false
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIdIsValid(Sample sample);
+
+	  /**
+	   * Returns true if Sample is a platform unit (checking both SampleType and SampleSubtype) 
+	   * @param Sample sample
+	   * @return boolean
+	   */
+	  public boolean sampleIsPlatformUnit(Sample sample);
+
+	  /**
+	   * Returns Sample if it exists in database and if it is a platform unit (its sampletype and samplesubtype both have inames of platformunit) 
+	   * If sample not found in database or it is not a platformunit in sampletype and samplesubtype, throw NumberFormatException, SampleException, SampleTypeException, or SampleSubtype Exception. 
+	   * @param Sample sample
+	   * @return Sample
+	   */
+	  public Sample getPlatformUnit(Integer sampleId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+
+	  /**
+	   * Returns SampleSubtype if it exists in database and if its sampletype is a platform unit 
+	   * If sampleSubtype not found in database or if it is not of sampletype platformunit, throws NumberFormatException or SampleSubtype Exception. 
+	   * @param SampleSubtype sampleSubtype
+	   * @return SampleSubtype
+	   */
+	  public SampleSubtype getSampleSubtypeConfirmedForPlatformunit(Integer sampleSubtypeId) throws NumberFormatException, SampleSubtypeException;
+
+	  
+	  /**
+	   * Returns an ordered (ascending) List Of Integers of the number of lanes that are available on a particular type of platformunit (flowcell). 
+	   * If the SampleSubtype is not in the database or is not of type platformunit, throw SampleSubtypeException or SampleTypeException, respectively.
+	   * If the SampleSubtypeMetadata for maxCellNumber is not found throw a SampleSubtypeException.
+	   * If the values for maxCellNumber, and if found multiplicationFactor, are not convertable to numbers, throw NumberFormatException.
+	   * If the values for maxCellNumber and if found multiplicationFactor, are unable to generate a list throw a SampleSubtypeException
+	   * @param SampleSubtype sampleSubtype
+	   * @return List<Integer>
+	   */
+	  public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException;
+
+	  /**
+	   * Returns true if requested reduction in number of cells of a platformunit will lead to loss of lanes containing libraries 
+	   * @param Sample sample
+	   * @param Integer numberOfLanesRequested
+	   * @return boolean
+	   */
+	  public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
+	 
+	  /**
+	   * Create or update platform unit. If platformUnitId==null or platformUnitId.intVal()<=0, create new platformunit, otherwise update.
+	   * If create/update is unsuccessful, throw exception, else return void. Under transactional control. 
+	   * If this is an update and numberOfLanesRequested > numberOfLanesInDatabase, then add additional lanes.
+	   * If this is an update and  numberOfLanesRequested < numberOfLanesInDatabase, then remove extra lanes ONLY IF THE LANES TO BE REMOVED DO NOT CONTAIN LIBRARIES.
+	   * @param Sample platformUnit
+	   * @param Sample barcodeName
+	   * @param Integer numberOfLanesRequested
+	   * @param List<SampleMeta> sampleMetaList
+	   * @param SampleSubtype sampleSubtype
+	   * @return void
+	   */
+	  public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException;
+		
+	  /**
+	   * Deletes platform unit 
+	   * @param Sample sample
+	   * @return void
+	   */
+	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+	  
+	  /**
+		 * Returns true if provided library sample is in a state of awaiting placement on a platform unit, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException;
+		
+		/**
+		 * Returns true if provided platform unit sample is in a state of awaiting placement on a sequencing run, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException;
+
+	  /**
+	   * Gets list of all massively-parallel sequencing machines 
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getAllMassivelyParallelSequencingMachines();
+	  
+	  /**
+	   * Gets list of all massively-parallel sequencing machines compatible with platformUnit (actually compatible with the platformUnit's sampleSubtype)
+	   * @param Sample platformUnit
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException;
+
+	  /**
+	   * Gets sequencing machine (resource) given resourceId
+	   * @param Integer resourceId
+	   * @return Resource
+	   */
+	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
+
+	  /**
+	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
+	   * @param Integer runId
+	   * @return Run run
+	   */
+	  public Run getSequenceRun(Integer runId) throws RunException;
+	   
+	  /**
+	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
+	   * @param Run runInstance
+	   * @param List<RunMeta> runMetaList
+	   * @param Integer platformUnitId (for a sample)
+	   * @param Integer resourceId (for a resource)
+	   * @return void
+	   */
+	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	  
+	  /**
+	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine
+	   * @param Sample platformUnit
+	   * @param Resource sequencingMachineInstance
+	   * @return boolean
+	   */
+	  public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
+	  
+	  /**
+	   * Delete sequence run
+	   * @param Run run
+	   * @return void
+	   */
+	  public void deleteSequenceRun(Run run)throws Exception;
+
+	  /**
+	   * is sampleDraft a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(SampleDraft sampleDraft);
+	  
+	  /**
+	   * is sample a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(Sample sample);
+	  
+	  /**
+	   * set the lock status of a platform unit
+	   * @param platformunit
+	   * @param lockStatus
+	   * @throws SampleTypeException
+	   */
+	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException;
+	  
+	  /**
+	   * Get the current lock status for a platform unit or LockStatus.UNKNOWN if not set
+	   * @param platformunit
+	   * @return
+	   * @throws sampleTypeException
+	   */
+	  public LockStatus getPlatformUnitLockStatus(Sample platformunit) throws SampleTypeException;
+
+	  /**
+	   * kick of batch job for sample
+	   * @param job
+	   * @param sample
+	   * @param batchJobName
+	   * @throws WaspMessageBuildingException
+	   */
+	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName)	throws WaspMessageBuildingException;
 	  
 }

@@ -825,7 +825,7 @@ insert into sampletype values
 (7, 1, 'protein', 'Protein'),
 (8, 1, 'cellPrimary', 'Primary Cell'),
 (9, 1, 'cellLine', 'Cell Line'),
-(10, 1, 'facilityLibrary', 'Library');
+(10, 1, 'facilityLibrary', 'Facility Library');
 
 
 
@@ -1764,22 +1764,17 @@ join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
 create table taskmapping (
   taskmappingid int(10) primary key not null auto_increment,
-  taskid int(10) not null,
+  iname varchar(50),
+  name varchar(50),
+  stepname varchar(255)  not null,
   status varchar(50) not null,
   listmap varchar(255) default null,
-  detailmap varchar(255) default null,
   permission varchar(255) not null,
   dashboardsortorder int(10),
-
-  foreign key fk_taskmapping_tid (taskid) references task(taskid),
-  constraint unique index u_taskmapping_t_s (taskid, status, permission)
+  isactive int(1),
+  UNIQUE KEY `u_taskmapping_issp` (`iname`,`stepname`,`status`,`permission`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
-
-insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
-SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', t.taskid
-FROM task t
-JOIN state s ON t.taskid = s.taskid;
 
 insert into user
 values
@@ -1789,3 +1784,27 @@ insert into userrole values (1, 1, 11, now(), 1);
 insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
 insert into labuser values (1, 1, 1, 6, now(), 1);
 
+ALTER TABLE acct_quotemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE adaptormeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE adaptorsetmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE filemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE jobdraftmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE jobmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE jobsamplemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE labmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE labpendingmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE meta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE resourcecategorymeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE resourcemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE runmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE sampledraftmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE samplemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE samplesourcemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE samplesubtypemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE softwaremeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE statemeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE usermeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE userpendingmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE workflowmeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE workflowresourcecategorymeta ADD rolevisibility VARCHAR(250) AFTER position;
+ALTER TABLE workflowsoftwaremeta ADD rolevisibility VARCHAR(250) AFTER position;

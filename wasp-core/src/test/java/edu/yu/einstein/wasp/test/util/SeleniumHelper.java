@@ -6,7 +6,8 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,7 +20,7 @@ import org.testng.Reporter;
  */
 public class SeleniumHelper {
 	
-	private static final Logger logger = Logger.getLogger(SeleniumHelper.class);
+	private static final Logger logger = LoggerFactory.getLogger(SeleniumHelper.class);
 	
 	/**
 	* 

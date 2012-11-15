@@ -14,9 +14,7 @@ import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
@@ -42,9 +40,7 @@ public class DashboardController extends WaspController {
 
 	@Autowired
 	private LabPendingDao labPendingDao;
-	
-	@Autowired
-	private TaskDao taskDao;
+
 	
 	@Autowired
 	private TaskService taskService;
@@ -59,6 +55,7 @@ public class DashboardController extends WaspController {
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
 		List<Lab> labList = new ArrayList<Lab>();
+		int labCount = 0;
 		int jobViewableCount = 0;
 		int jobsAllCount = 0;
 		int jobDraftCount = 0;
@@ -88,27 +85,16 @@ public class DashboardController extends WaspController {
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
+		labCount = labList.size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 				
 		m.addAttribute("labs", labList);
+		m.addAttribute("labCount", labCount);
 		m.addAttribute("jobViewableCount", jobViewableCount);
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		
-		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
-	
-		List<TaskMapping> taskMappingsAll=taskDao.getTaskMappings();
-		for(TaskMapping tm:taskMappingsAll) {
-			List<State> states=taskService.filterStatesByStatusAndPermission(tm.getTask().getState(),tm.getStatus(), tm.getPermission());
-		
-			if (states!=null && !states.isEmpty()) {
-				tm.setStateCount(states.size());
-				//5-31-12: Dubin added next if statement to prevent dashboard display of task PI Approval, as it's count and link will be taken care of explicitly through numberOfLabManagerPendingTasks
-				if( ! tm.getTask().getIName().equals("PI Approval")){
-					taskMappings.add(tm);
-				}
-			}
-		}
+		List<TaskMapping> taskMappings = taskService.getMappedTasksForCurrentUser();
 		
 		m.addAttribute("tasks",taskMappings);
 		

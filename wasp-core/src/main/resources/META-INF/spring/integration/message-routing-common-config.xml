@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- registry to store and access message channel beans -->
+	<bean id="messageRegistry" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry" />
+	
+	<!-- This is a custom bean post-processor that can register all message channels to the messageRegistry as they are created -->
+	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistryBeanPostProcessor">
+    	<property name="messageRegistry" ref="messageRegistry"/>
+	</bean>
+	
+	<!-- Main channel to send replies via gateway. Messages will be routed to correct gateway -->
+    <int:channel id="wasp.channel.primaryReply" >
+    	<int:interceptors>
+	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
+	    </int:interceptors>
+    </int:channel>
+	
+	<!--  Wasp plugin registry and message channel -->
+	<int:channel id="wasp.channel.pluginRegistry" />
+	<int:service-activator input-channel="wasp.channel.pluginRegistry"
+		ref="wasp.pluginRegistry" method="process" /> 
+	<bean id="wasp.pluginRegistry" class="edu.yu.einstein.wasp.plugin.WaspPluginRegistry" />	
+	<!-- default logging channel -->
+	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
+	
+	<!-- default logging channel -->
+	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
+			
+</beans>
+

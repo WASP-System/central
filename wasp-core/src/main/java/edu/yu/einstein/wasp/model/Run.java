@@ -547,7 +547,7 @@ public class Run extends WaspModel {
 	 * @param sample
 	 *
 	 */
-	public void setSample (Sample sample) {
+	public void setPlatformUnit (Sample sample) {
 		this.sample = sample;
 		this.sampleId = sample.sampleId;
 	}
@@ -559,7 +559,7 @@ public class Run extends WaspModel {
 	 *
 	 */
 	
-	public Sample getSample () {
+	public Sample getPlatformUnit () {
 		return this.sample;
 	}
 
@@ -694,40 +694,6 @@ public class Run extends WaspModel {
 	 */
 	public void setRunFile (List<RunFile> runFile) {
 		this.runFile = runFile;
-	}
-
-
-
-	/** 
-	 * staterun
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="runid", insertable=false, updatable=false)
-	protected List<Staterun> staterun;
-
-
-	/** 
-	 * getStaterun()
-	 *
-	 * @return staterun
-	 *
-	 */
-	@JsonIgnore
-	public List<Staterun> getStaterun() {
-		return this.staterun;
-	}
-
-
-	/** 
-	 * setStaterun
-	 *
-	 * @param staterun
-	 *
-	 */
-	public void setStaterun (List<Staterun> staterun) {
-		this.staterun = staterun;
 	}
 
 

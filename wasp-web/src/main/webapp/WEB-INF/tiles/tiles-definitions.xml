@@ -210,7 +210,10 @@
 	<definition name="run/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
 	</definition>
-
+	<definition name="run/createUpdateRun" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/run/createUpdateRun.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/run/createUpdateRun.jsp" />
+	</definition>
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>
@@ -278,15 +281,16 @@
 	<definition name="jobsubmit/verify" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/verify.jsp" />
 	</definition>
+	<definition name="jobsubmit/failed" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/failed.jsp" />
+	</definition>
+	
 	<definition name="jobsubmit/ok" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/ok.jsp" />
 	</definition>
 	<definition name="job/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/detail.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/detail.jsp" />
-	</definition>
-	<definition name="job/pendingjob/detail_ro" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/pendingjob/detail_ro.jsp" />
 	</definition>
 	<definition name="job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.jsp" />
@@ -299,6 +303,9 @@
 	</definition>
 	<definition name="facility/platformunit/assign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/assignform.jsp" />
+	</definition>
+		<definition name="facility/platformunit/createUpdatePlatformUnit" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/createUpdatePlatformUnit.jsp" />
 	</definition>
 	<definition name="facility/platformunit/limitPriorToAssign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToAssignForm.jsp" />
@@ -355,8 +362,15 @@
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/uiField/grid_columns.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/uiField/list.jsp" />
 	</definition>
-	
+
 	<definition name="facility/platformunit/list" extends="template-grid">
+		<put-attribute name="area" value="platformunit" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/grid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/grid_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/list.jsp" />
+	</definition>
+	
+	<definition name="facility/platformunit/list_______DUBINDUBINDUBINDUBINDUBIN***************" extends="template-grid">
 		<put-attribute name="area" value="platformunit" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_columns.jsp" />
 		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_customAttributes.jsp" />

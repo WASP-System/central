@@ -19,13 +19,13 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 /*
@@ -38,8 +38,11 @@ public class JQFieldTag extends BodyTagSupport {
 	//name of the request attribute to fetch area name from
 	public static final String AREA_ATTR="_area";
 	
-	Logger log=Logger.getLogger(JQFieldTag.class);
+	Logger log=LoggerFactory.getLogger(JQFieldTag.class);
 	
+	//width of a column; not required
+	private String columnWidth;
+	private Integer columnWidthAsInteger;
 	
 	//field name
 	private String name;
@@ -191,6 +194,11 @@ public class JQFieldTag extends BodyTagSupport {
 		this.defaultSelect = ds;
 	}
 	
+	public void setColumnWidth(String w) {
+		
+		this.columnWidth = w;
+	}
+	
 	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
@@ -225,7 +233,7 @@ public class JQFieldTag extends BodyTagSupport {
 			String area=object;
 			
 			if(area.equals("platformunit") || area.equals("platformunitInstance") || area.equals("platformunitById")) clazz=Sample.class;			
-			else if(area.equals("fmpayment")) clazz=State.class;
+			//else if(area.equals("fmpayment")) clazz=State.class;
 			else {
 				try {
 					String path="edu.yu.einstein.wasp.model."+WordUtils.capitalize(area);	
@@ -302,6 +310,12 @@ public class JQFieldTag extends BodyTagSupport {
 				editrules="{custom:true,custom_func:_validate_regexp}";
 			}
 			
+			try{
+				columnWidthAsInteger = new Integer(columnWidth);
+			}
+			catch(Exception e){
+					columnWidthAsInteger = new Integer(200);
+			}
 			
 			//init js column definition 
 			String buf="var "+jsName+"={\n"+
@@ -312,7 +326,8 @@ public class JQFieldTag extends BodyTagSupport {
 		     "jq:{\n"+
 			 		"	name:'"+name+"', \n"+
 			 		"	index:'"+name+"', \n"+
-					"	width:80, \n"+
+					//"	width:80, \n"+
+					"	width:"+columnWidthAsInteger.toString()+", \n"+
 					"	align:'left',\n"+
 					"	sortable:false,\n"+	
 					"	editHidden:false,\n"+	

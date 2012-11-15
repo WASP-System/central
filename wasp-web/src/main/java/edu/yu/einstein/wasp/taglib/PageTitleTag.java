@@ -11,7 +11,8 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  */
 public class PageTitleTag extends BodyTagSupport {
 	
-	private static final Logger log=Logger.getLogger(PageTitleTag.class);
+	private static final Logger log=LoggerFactory.getLogger(PageTitleTag.class);
 	
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {

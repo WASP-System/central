@@ -3,8 +3,8 @@ package edu.yu.einstein.wasp.grid.file;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -22,14 +22,19 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
  */
 public class SshFileService implements GridFileService {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private GridHostResolver hostResolver;
 
 	private String hostKeyChecking = "no";
 	private static File identityFile;
+	private static boolean userDirIsRoot = true;
 	private int timeout = 10000; // milliseconds
 	private int retries = 6;
+	
+	public void setUserDirIsRoot(boolean isRoot) {
+		this.userDirIsRoot = isRoot;
+	}
 
 	@Override
 	public void put(File localFile, String host, String remoteFile)
@@ -55,6 +60,7 @@ public class SshFileService implements GridFileService {
 			logger.debug(localFile.getAbsolutePath() + " copied to " + remote);
 
 		} catch (Exception e) {
+			logger.error("problem copying file: " + e.getLocalizedMessage());
 			throw new RuntimeException(e);
 		} finally {
 			manager.close();
@@ -85,6 +91,7 @@ public class SshFileService implements GridFileService {
 			logger.debug( remote + " copied to " + localFile.getAbsolutePath());
 
 		} catch (Exception e) {
+			logger.error("problem getting file: " + e.getLocalizedMessage());
 			throw new RuntimeException(e);
 		} finally {
 			manager.close();
@@ -117,24 +124,25 @@ public class SshFileService implements GridFileService {
 				file = manager.resolveFile(
 						getRemoteFileString(host, remoteFile), createDefaultOptions(hostKeyChecking, timeout));
 
-				logger.debug(file + " exists: " + file.exists());
-
 				result = file.exists();
 				
 				// no exception, return result
-				attempt = retries;
+				break;
 				
 			} catch (Exception e) {
+				logger.debug("caught exception in retry block: " + e.getLocalizedMessage());
 				if (attempt <= retries) {
 					logger.debug("failed, retrying: " + e.getCause().toString());
 					// ignore exception, try again
 					continue;
 				}
+				logger.error(e.getLocalizedMessage());
 				throw new RuntimeException(e);
 			} finally {
 				manager.close();
 			}
 		}
+		logger.debug(remoteFile + " exists: " + result);
 		return result;
 	}
 
@@ -156,6 +164,7 @@ public class SshFileService implements GridFileService {
 	            logger.debug("Deleted " + remoteFile + "@" + host);
 	        }
 	    } catch (Exception e) {
+	    	logger.error("problem deleting file: " + e.getLocalizedMessage());
 	        throw new RuntimeException(e);
 	    } finally {
 	        manager.close();
@@ -175,7 +184,7 @@ public class SshFileService implements GridFileService {
 
 		SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(
 				opts, hostKeyChecking);
-		SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, true);
+		SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, userDirIsRoot);
 		SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, timeout);
 
 		File[] ifs = new File[1];
@@ -217,6 +226,7 @@ public class SshFileService implements GridFileService {
 			logger.debug(destination.getName().getPath() + " created on " + remote);
 
 		} catch (Exception e) {
+			logger.error("problem touching file: " + e.getLocalizedMessage());
 			throw new RuntimeException(e);
 		} finally {
 			manager.close();

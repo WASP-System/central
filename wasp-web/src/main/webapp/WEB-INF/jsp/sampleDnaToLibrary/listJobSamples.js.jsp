@@ -43,6 +43,25 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 		editboxPico.value = "";
 	}	
 }
+function validate_email(){
+
+	var emailFormat=new RegExp("^\\s*[\\w\\-\\+_]+(\\.[\\w\\-\\+_]+)*\\@[\\w\\-\\+_]+\\.[\\w\\-\\+_]+(\\.[\\w\\-\\+_]+)*\\s*$");
+	var email = $('#newViewerEmailAddress').val();//may not always be defined 
+	if(typeof(email) !== 'undefined' && email != null){
+		//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
+		if(email.length==0){
+			alert("<fmt:message key="listJobSamples.missingEmailAddress.label" />");
+			$('#newViewerEmailAddress').focus();
+			return false;//do not perform search 
+		}
+		else if(email.length>0 && !emailFormat.test(email)){
+			alert("<fmt:message key="listJobSamples.invalidFormatEmailAddress.label" />");
+			$('#newViewerEmailAddress').focus();
+			return false;//do not perform search 
+		}
+	}
+	return true;
+};
 function validate(obj){
 	if(obj.value==0){
 		alert("<fmt:message key="listJobSamples.youMustSelectCell_alert.label" />");
