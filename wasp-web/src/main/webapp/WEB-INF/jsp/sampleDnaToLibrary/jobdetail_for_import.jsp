@@ -40,4 +40,5 @@
 		</td>
 	</tr>
 </c:if>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobComments.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="/sampleDnaToLibrary/jobComments/${job.jobId}.do"><fmt:message key="jobdetail_for_import.jobCommentsAnchor.label" /></a> </td></tr>
 </table>
