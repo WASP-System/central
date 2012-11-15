@@ -73,14 +73,14 @@ public interface MetaMessageService extends WaspService {
 	/**
 	 * Returns a list of all messages added to the group specified for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). 
 	 * Returns empty list if no match found.
-	 * @param key
+	 * @param group
 	 * @param modelParentId
 	 * @param clazz
 	 * @param dao
 	 * @return
 	 * @throws StatusMetaMessagingException
 	 */
-	public <T extends MetaBase> List<MetaMessage> read(String key, Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
+	public <T extends MetaBase> List<MetaMessage> read(String group, Integer modelParentId, Class<T> clazz, WaspDao<T> dao);
 	
 	/**
 	 * Returns a status message using the default group for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). Returns null if no match found.
