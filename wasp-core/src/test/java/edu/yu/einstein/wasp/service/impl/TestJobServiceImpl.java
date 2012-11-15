@@ -2,8 +2,10 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.easymock.EasyMock.createMockBuilder;
 import static org.easymock.EasyMock.expect;
@@ -172,8 +174,13 @@ public class TestJobServiceImpl {
 	  Sample sample = new Sample();
 	  sample.setSampleId(123);
 	  
-	  Map<String, String> parameterMap = new HashMap<String, String>();
-	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  //Map<String, String> parameterMap = new HashMap<String, String>();
+	  //parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
 	  StepExecution stepExecution;
 	  JobExecution jobExecution;
@@ -245,8 +252,10 @@ public class TestJobServiceImpl {
 	  Sample sample = new Sample();
 	  sample.setSampleId(123);
 	  
-	  Map<String, String> parameterMap = new HashMap<String, String>();
-	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
 	  StepExecution stepExecution;
 	  JobExecution jobExecution;
@@ -305,8 +314,10 @@ public class TestJobServiceImpl {
 	  Sample sample2= new Sample();
 	  sample2.setSampleId(456);
 	  
-	  Map<String, String> parameterMap = new HashMap<String, String>();
-	  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
 	  StepExecution stepExecution;
 	  JobExecution jobExecution;
