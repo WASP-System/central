@@ -5,10 +5,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codehaus.plexus.util.StringUtils;
 import org.springframework.batch.core.repository.dao.JdbcJobInstanceDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
@@ -26,25 +26,34 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Long> getJobInstanceIdsByMatchingParameters(Map<String, String> parameterMap){
+	public List<Long> getJobInstanceIdsByMatchingParameters(Map<String, Set<String>> parameterMap){
 		Assert.notNull(parameterMap, "parameterMap must not be null");
 		if (parameterMap.isEmpty())
 			return null;
 		final List<Long> jobInstanceIds = new ArrayList<Long>();
 		String sql = "select distinct JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where TYPE_CD = 'STRING'";
-		int index = 1;
+		int keyIndex = 1;
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		for (String key: parameterMap.keySet()){
-			sql += " and JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where KEY_NAME = :key"+index+" and STRING_VAL ";
-			if (parameterMap.get(key).equals("*")){
+			sql += " and (JOB_INSTANCE_ID in (select JOB_INSTANCE_ID from %PREFIX%JOB_PARAMS where KEY_NAME = :key"+keyIndex+" and STRING_VAL ";
+			if (parameterMap.get(key).contains("*")){
 				sql += "LIKE '%' )";
 			} else {
-				sql += "= :val"+index+" )";
-				parameterSource.addValue("val"+index, parameterMap.get(key));
-			}		
-			parameterSource.addValue("key"+index, key);
-			
-			index++;
+				sql += "in (";
+				int valIndex =1;
+				for (String val: parameterMap.get(key)){
+					String compositeValIndex = keyIndex + "_" + valIndex;
+					if (valIndex > 1)
+						sql += ",";
+					sql += " :val" + compositeValIndex;
+					parameterSource.addValue("val" + compositeValIndex, val);		
+					valIndex++;
+				}
+				sql += " ) )";
+			}
+			parameterSource.addValue("key"+keyIndex, key);
+			sql += " )";
+			keyIndex++;
 		}
 		logger.debug("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
@@ -70,7 +79,7 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Long> getJobInstanceIdsByExclusivelyMatchingParameters(Map<String, String> parameterMap){
+	public List<Long> getJobInstanceIdsByExclusivelyMatchingParameters(Map<String, Set<String>> parameterMap){
 		List<Long> jobInstanceIds = getJobInstanceIdsByMatchingParameters(parameterMap);
 		List<Long> exclusiveJobInstanceIds = new ArrayList<Long>();
 		for (Long id: jobInstanceIds){

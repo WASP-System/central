@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.core.extension.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 import org.springframework.batch.core.BatchStatus;
@@ -28,7 +29,7 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 	 * @return
 	 */
 
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
 	 * Obtains the list of job parameters for a given JobExecution

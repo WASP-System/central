@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.core.extension.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -25,7 +26,7 @@ public interface WaspStepExecutionDao extends StepExecutionDao{
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 
 	
 	/**

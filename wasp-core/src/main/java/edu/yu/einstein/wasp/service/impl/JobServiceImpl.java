@@ -262,8 +262,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		List<Sample> submittedSamplesNotYetReceivedList = new ArrayList<Sample>();
 		
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
 		for (StepExecution stepExecution: stepExecutions){
 			Integer sampleId = null;
@@ -290,11 +292,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<Job> getActiveJobs(){
 		
 		List<Job> activeJobList = new ArrayList<Job>();
-		
-		Map<String, String> parameterMap = new HashMap<String, String>();
 		// get all job executions from the Batch database which only have one parameter which is job_id but we want all
 		// jobIds (so use '*'). Also only get those with a BatchStatus of STARTED. Then get the value of the job ids from the parameter
-		parameterMap.put(WaspJobParameters.JOB_ID, "*");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
@@ -359,8 +362,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		public Boolean isJobAwaitingPiApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-			Map<String, String> parameterMap = new HashMap<String, String>();
-			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
 				);
@@ -377,8 +382,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		public Boolean isJobAwaitingDaApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-			Map<String, String> parameterMap = new HashMap<String, String>();
-			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
 				);
@@ -394,8 +401,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		public Boolean isJobAwaitingQuote(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-			Map<String, String> parameterMap = new HashMap<String, String>();
-			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
 				);
@@ -429,8 +438,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  }
 		  }
 		  
-		  Map<String, String> parameterMap = new HashMap<String, String>();
-		  parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> jobIdStringSet = new HashSet<String>();
+		  jobIdStringSet.add(job.getJobId().toString());
+		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
 		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
 		  // should only be one entry returned anyway.
@@ -770,8 +781,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
 			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
-			Map<String, String> parameterMap = new HashMap<String, String>();
-			parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
 			// the job may have many libraries and each library may need to be run more than once
 			for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false) ){
@@ -860,9 +873,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			logger.warn("supplied sample is not associated with supplied job");
 			return false;
 		}
-		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleId.toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(sampleId.toString());
+		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		
 		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 				batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED)
 			);

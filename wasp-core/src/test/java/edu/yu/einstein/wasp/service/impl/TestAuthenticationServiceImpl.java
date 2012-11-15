@@ -6,12 +6,15 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -36,6 +39,8 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 public class TestAuthenticationServiceImpl {
+	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	UserDao mockUserDao;
 	UserPendingDao mockUserPendingDao;
@@ -249,6 +254,42 @@ public class TestAuthenticationServiceImpl {
 	  }
 	  
 	  verify(mockUserDao);
+  }
+  
+  @Test
+  public void testHasPermissionNormal1(){
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-3')"));
+	} catch (IOException e) {
+		Assert.fail("Caught IOException", e);
+	}
+  }
+  
+  @Test
+  public void testHasPermissionNormal2(){
+	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+	  parameterMap.put("jobId", 4);
+	  parameterMap.put("sampleId", 22);
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
+	} catch (IOException e) {
+		Assert.fail("Caught IOException", e);
+	}
+  }
+  
+  @Test
+  public void testHasPermissionFail1(){
+	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+	  parameterMap.put("jobId", 4);
+	  parameterMap.put("sampleId", 22);
+	  String exception = "";
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm-#unexpected') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
+	  } catch (IOException e) {
+		logger.debug("Caught IOException as expected: " + e.getMessage());
+		exception = e.getMessage();
+	  }
+	  Assert.assertEquals(exception, "not all placeholders in permission string have been resolved from parameter map");
   }
   
   @BeforeTest

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
 		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
 		final List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 		

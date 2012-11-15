@@ -148,7 +148,8 @@ public class TaskController extends WaspController {
 		  }
 	  } catch (WaspMessageBuildingException e){
 		  logger.warn(e.getLocalizedMessage());
-		  waspMessage("task.samplereceive_message.error");
+		  waspErrorMessage("task.samplereceive_message.error");
+		  return "redirect:/task/samplereceive/list.do";
 	  }
 	  waspMessage("task.samplereceive_update_success.label");	
 	  return "redirect:/task/samplereceive/list.do";

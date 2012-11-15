@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
+import org.springframework.integration.MessageHandlingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessagingTemplate;
 
@@ -29,16 +30,21 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 		logger.debug("Sending message via '" + OUTBOUND_MESSAGE_CHANNEL + "': "+message.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(MESSAGE_RECEIVE_TIMEOUT);
-		Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
+		Message<?> replyMessage  = null;
+		try{
+			replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
+		} catch(MessageHandlingException e){
+			throw new WaspMessageBuildingException("Problem encountered sending message '" + message.toString() + ": " + e.getLocalizedMessage());
+		}
 		if(replyMessage == null){
 			// TODO: send exception
 			logger.warn("Did not receive a reply on sending outbound message :"+ message.toString());
 			return;
 		}
 		if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
-			throw new WaspMessageBuildingException("Problem encountered sending message '" + replyMessage.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
+			throw new WaspMessageBuildingException("Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
 		if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))
-			throw new WaspMessageBuildingException("Problem encountered sending message'" + replyMessage.toString() + "': no exception returned but status was FAILED");
+			throw new WaspMessageBuildingException("Problem encountered sending message'" + message.toString() + "': no exception returned but status was FAILED");
 	}	
 
 }
