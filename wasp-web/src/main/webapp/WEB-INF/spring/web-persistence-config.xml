@@ -31,12 +31,14 @@
 		<property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
 	</bean>
 
+	<!-- use @Transactional("entityManager") for transactions on the core database (e.g. service methods in the core) -->
 	<bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<qualifier value="entityManager"/>
 	</bean>
         
 	<!-- Enable @Transactional support -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<tx:annotation-driven />
 
 	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
 

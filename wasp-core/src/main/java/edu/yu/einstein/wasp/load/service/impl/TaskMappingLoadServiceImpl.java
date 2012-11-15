@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.load.service.TaskMappingLoadService;
 import edu.yu.einstein.wasp.model.TaskMapping;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class TaskMappingLoadServiceImpl extends WaspLoadServiceImpl implements	TaskMappingLoadService {
 	
 	@Autowired

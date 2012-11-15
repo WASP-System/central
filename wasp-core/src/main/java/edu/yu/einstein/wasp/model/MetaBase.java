@@ -62,6 +62,17 @@ public class MetaBase extends WaspModel {
 		return this.position;
 	}
 
+	@Column(name="rolevisibility")
+	private String roleVisibility;
+	
+	public void setRoleVisibility(String roleVisibility) {
+		this.roleVisibility = roleVisibility;
+	}
+
+	public String getRoleVisibility() {
+		return this.roleVisibility;
+	}
+	
 	@Column(name = "lastupdts")
 	private Date lastUpdTs;
 

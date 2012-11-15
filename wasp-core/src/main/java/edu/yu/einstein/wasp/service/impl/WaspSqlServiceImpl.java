@@ -10,7 +10,7 @@ import edu.yu.einstein.wasp.dao.impl.WaspPersistenceDao;
 import edu.yu.einstein.wasp.service.WaspSqlService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class WaspSqlServiceImpl implements WaspSqlService{
 
 	@Autowired

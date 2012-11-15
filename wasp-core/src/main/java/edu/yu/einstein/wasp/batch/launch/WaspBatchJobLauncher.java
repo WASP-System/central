@@ -3,6 +3,9 @@ package edu.yu.einstein.wasp.batch.launch;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.plexus.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameter;
@@ -34,7 +37,7 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 	
 	private JobRegistry jobRegistry;
 	
-	
+	private static Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
 	
 	public WaspBatchJobLauncher(JobLauncher jobLauncher, JobRegistry jobRegistry) {
 		this.jobLauncher = jobLauncher;
@@ -86,8 +89,12 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 			throw new WaspBatchJobExecutionException("Unable to find a job with name '" + jobName + "' in the job registry");
 		}
 		Map<String, JobParameter> jobParameters = new HashMap<String, JobParameter>();
-		for (String paramName: batchJobLaunchContext.getJobParameters().keySet())
+		String logMessage = "Starting batch job '" + jobName + "' with parameters: ";
+		for (String paramName: batchJobLaunchContext.getJobParameters().keySet()){
 			jobParameters.put(paramName, new JobParameter(batchJobLaunchContext.getJobParameters().get(paramName)));
+			logMessage += paramName + "=" + batchJobLaunchContext.getJobParameters().get(paramName) + ",";
+		}
+		logger.debug(StringUtils.chop(logMessage));
 		try {
 			return jobLauncher.run(job, new JobParameters(jobParameters));
 		} catch (JobExecutionAlreadyRunningException e) {

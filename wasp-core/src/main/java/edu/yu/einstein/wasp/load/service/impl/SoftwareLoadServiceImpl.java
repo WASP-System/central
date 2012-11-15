@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	SoftwareLoadService {
 	
 	@Autowired

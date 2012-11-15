@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.daemon.test.stubs;
 
+import java.io.IOException;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
@@ -134,6 +137,19 @@ public class StubAuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public boolean isOnlyDepartmentAdministrator() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasPermission(String permission,
+			Map<String, Integer> parameterMap) throws IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasPermission(String permsission) throws IOException {
 		// TODO Auto-generated method stub
 		return false;
 	}

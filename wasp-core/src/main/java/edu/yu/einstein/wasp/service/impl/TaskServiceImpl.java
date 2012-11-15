@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	private TaskMappingDao	taskMappingDao;

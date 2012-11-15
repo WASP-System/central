@@ -80,6 +80,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -90,6 +91,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -1689,31 +1691,57 @@ public class JobSubmissionController extends WaspController {
 	}
 
 
-	@Transactional
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		User me = authenticationService.getAuthenticatedUser();
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		boolean error = false;
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
+		Job newJob = null;
 		try {
-			jobService.createJobFromJobDraft(jobDraft, me);
+			newJob = jobService.createJobFromJobDraft(jobDraft, me);
+			if(newJob==null || newJob.getJobId()==null || newJob.getJobId().intValue()<=0){
+				logger.warn("Error creating new job");
+				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+				error = true;
+			} else {
+				// initiate batch jobs in wasp-daemon
+				logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
+				jobService.initiateBatchJobForJobSubmission(newJob);
+				for (Sample sample: jobService.getSubmittedSamples(newJob)){
+					logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+					sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
+				}
+			}
 		} catch (FileMoveException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
 		} catch (WaspMessageBuildingException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
+		} catch (Throwable e){
+			logger.warn("Caught unknown exception" + e.getMessage());
+			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+			error = true;
 		}
-
+		if(error){
+			m.put("jobDraft", jobDraft);
+			return "jobsubmit/failed";
+		}
+		
 		// Adds new Job to Authorized List
 		doReauth();
 
-		return nextPage(jobDraft);
+		return nextPage(jobDraft);//currently goes do submitjob/ok
 	}
 
 
+	
+	
 	
 	/*
 	 * Returns adaptors by adaptorsetID 

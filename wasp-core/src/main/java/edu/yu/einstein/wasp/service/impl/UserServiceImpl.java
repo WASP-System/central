@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class UserServiceImpl extends WaspServiceImpl implements UserService {
 	
  private UserDao userDao;

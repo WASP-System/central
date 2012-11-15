@@ -15,13 +15,17 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
+
+import edu.yu.einstein.wasp.service.RoleService;
 
 
 /**
@@ -32,7 +36,6 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  */
 public class MetaHelper {
 
-	
 	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
 	/**
@@ -504,7 +507,7 @@ public class MetaHelper {
 	 * @param value
 	 * @throws MetadataException
 	 */
-	@SuppressWarnings("unchecked")
+	//@SuppressWarnings("unchecked")
 	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
 		if (this.lastList == null)
 			this.lastList = new ArrayList<T>();
@@ -546,4 +549,50 @@ public class MetaHelper {
 				entityMetaId + "," + WordUtils.uncapitalize(this.getAssociatedEntityNameFromClassName()) + "Id=" + 	entityId + ")" );
 	}
 	
+	public static <T extends MetaBase> List<Role> convertRoleVisibilityDelimitedStringToRoleList(T meta, RoleService roleService){
+		if(meta != null){	
+			return roleService.convertMetaRoleVisibilityDelimitedStringToRoleList(meta.getRoleVisibility());
+		}
+		else{return new ArrayList<Role>();}
+	}
+
+	public static String convertRoleListToRoleVisibilityDelimitedString(List<Role> roleList, RoleService roleService){
+		return roleService.convertRoleListToMetaRoleVisibilityDelimitedString(roleList);
+	}
+
+	public static <T extends MetaBase> boolean roleVisibilityDelimitedStringContainsRole(T meta, Role role, RoleService roleService){
+		if(meta != null){	
+			return roleService.metaRoleVisibilityDelimitedStringContainsRole(meta.getRoleVisibility(), role);
+		}
+		else{return false;}
+	}
+	
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainAllTheseRoles(List<T> metaDataList, List<Role> roleList, RoleService roleService){
+		if(metaDataList == null || roleList == null || roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			boolean allRolesFound = true;
+			for(Role role : roleList){
+				if(!roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+					allRolesFound = false;
+				}
+			}
+			if(allRolesFound){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainThisRole(List<T> metaDataList, Role role, RoleService roleService){
+		if(metaDataList == null || role == null || role.getRoleName() == null ||  roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			if(roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
 }

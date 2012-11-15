@@ -56,6 +56,7 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
@@ -64,6 +65,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -100,7 +102,9 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleSubtypeDao sampleSubtypeDao;
   @Autowired
   private JobSampleDao jobSampleDao;
-
+  
+  @Autowired
+  private RoleService roleService; 
   @Autowired
   private SampleService sampleService;
   @Autowired

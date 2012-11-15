@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class FilterServiceImpl implements FilterService {
 	
 	private Logger logger = LoggerFactory.getLogger(FilterServiceImpl.class);

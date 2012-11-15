@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -75,6 +76,11 @@ public class WaspPluginSupport implements ServletContextAware {
 	 */
 	@PostConstruct
 	public void extractFiles() throws IOException {
+		String fs = System.getProperty("file.separator");
+		if (fs.equals("\\")) {
+			resourceUrlFilter = resourceUrlFilter.replace("\\", "/");
+		}
+		
 		// get list of applicable jars
 		Map<String,List<URL>> filteredResourceUrls = new HashMap<String,List<URL>>();
 		logger.debug("WaspPluginSupport: Resource URL filter: "+resourceUrlFilter);
@@ -82,7 +88,9 @@ public class WaspPluginSupport implements ServletContextAware {
 			Enumeration<URL> resources = this.getClass().getClassLoader().getResources(resourceDirectory);
 			while (resources.hasMoreElements()) {
 				URL url = resources.nextElement(); 
-				if (!url.getPath().contains(resourceUrlFilter))
+				String path = URLDecoder.decode(url.getPath(), "UTF-8");//replace '%20' with space
+				
+				if (!path.contains(resourceUrlFilter))
 					break; // we're looking in a jar that is not a waspPlugin jar
 				if (!filteredResourceUrls.containsKey(resourceDirectory))
 					filteredResourceUrls.put(resourceDirectory, new ArrayList<URL>());

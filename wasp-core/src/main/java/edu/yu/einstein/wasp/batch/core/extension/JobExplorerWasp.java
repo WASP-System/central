@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.core.extension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -30,7 +31,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(String name, Map<String, String> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE StepExecution for the batch step identified by the provided parameters. Returns null if
@@ -42,7 +43,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(Map<String, String> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -56,7 +57,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -68,7 +69,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive);
+	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name. 
@@ -100,7 +101,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE StepExecution for the batch step identified by the provided parameters. Returns null if
@@ -115,7 +116,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -130,7 +131,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -144,7 +145,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if no results obtained.
@@ -181,7 +182,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE StepExecution for the batch step identified by the provided parameters. Returns null if
@@ -195,7 +196,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -211,7 +212,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -224,7 +225,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if
@@ -264,7 +265,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE StepExecution for the batch step identified by the provided parameters. Returns null if
@@ -278,7 +279,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public StepExecution getStepExecution(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public StepExecution getStepExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -294,7 +295,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -307,7 +308,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<StepExecution> getStepExecutions(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	public List<StepExecution> getStepExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL StepExecutions for the batch step identified by the provided step name. Returns empty list if
@@ -342,7 +343,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(String name, Map<String, String> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE JobExecution for the batch step identified by the provided parameters. Returns null if
@@ -354,7 +355,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(Map<String, String> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap, Boolean exclusive) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -368,7 +369,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -380,7 +381,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exclusive
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive);
+	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name. 
@@ -412,7 +413,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE JobExecution for the batch step identified by the provided parameters. Returns null if
@@ -427,7 +428,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -444,7 +445,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -458,7 +459,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL JobExecution for the batch step identified by the provided job name. Returns empty list if no results obtained.
@@ -497,7 +498,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE JobExecution for the batch step identified by the provided parameters. Returns null if
@@ -511,7 +512,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -527,7 +528,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -540,7 +541,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param batchStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, BatchStatus batchStatus);
+	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided job name. Returns empty list if
@@ -580,7 +581,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Expects a SINGLE JobExecution for the batch step identified by the provided parameters. Returns null if
@@ -594,7 +595,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 * @throws BatchDaoDataRetrievalException
 	 */
-	public JobExecution getJobExecution(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
+	public JobExecution getJobExecution(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus) throws BatchDaoDataRetrievalException;
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided step name and matching the provided parameters. Returns empty list if
@@ -610,7 +611,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(String name, Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided parameters. Returns empty list if
@@ -623,7 +624,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param exitStatus (may be null)
 	 * @return
 	 */
-	public List<JobExecution> getJobExecutions(Map<String, String> parameterMap, Boolean exclusive, ExitStatus exitStatus);
+	public List<JobExecution> getJobExecutions(Map<String, Set<String>> parameterMap, Boolean exclusive, ExitStatus exitStatus);
 	
 	/**
 	 * Get ALL JobExecutions for the batch step identified by the provided job name. Returns empty list if
@@ -653,7 +654,7 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @param parameterMap
 	 * @return
 	 */
-	public List<JobInstance> getJobInstancesMatchingParameters(Map<String, String> parameterMap);
+	public List<JobInstance> getJobInstancesMatchingParameters(Map<String, Set<String>> parameterMap);
 	
 	/**
 	 * Given a parameter map key, attempt to get the requested parameter and cast to requested type.

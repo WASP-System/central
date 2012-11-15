@@ -133,6 +133,7 @@
 						<set>
 							<ref bean="wasp.channel.notification.sample" />
 							<ref bean="wasp.channel.notification.library" />
+							<ref bean="wasp.channel.notification.job" />
 						</set>
 					</constructor-arg>
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
@@ -145,6 +146,10 @@
 							<bean class="edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate">
 								<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
 								<property name="status" value="CREATED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="status" value="COMPLETED" />
 							</bean>
 						</set>
 					</constructor-arg>
