@@ -151,7 +151,7 @@ public interface AuthenticationService {
 		 * @return
 		 * @throws IOException
 		 */
-	    public boolean hasPermission(String permsission) throws IOException;
+	    public boolean hasPermission(String permission) throws IOException;
 	    
 	
 	

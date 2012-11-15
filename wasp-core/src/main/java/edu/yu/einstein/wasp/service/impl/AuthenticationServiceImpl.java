@@ -374,15 +374,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		 * @throws IOException
 		 */
 	    @Override
-		public boolean hasPermission(String permsission) throws IOException {
-
+		public boolean hasPermission(String permission) throws IOException {
+	    	logger.debug("Evaluating permission string: " + permission);
 			if (SecurityContextHolder.getContext().getAuthentication() == null) {
 				return false;
 			}
 			SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
 			Expression accessExpression;
 			try {
-				accessExpression = handler.getExpressionParser().parseExpression(permsission);
+				accessExpression = handler.getExpressionParser().parseExpression(permission);
 			} catch (ParseException e) {
 				IOException ioException = new IOException();
 				ioException.initCause(e);
