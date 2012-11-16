@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -127,6 +128,54 @@ public class JobController extends WaspController {
 	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
+	}
+
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
+	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		
+		//TODO get the commentsList from jobMeta and add to m
+		List<MetaMessage> chronologicallyOrderedMetaMessageList = jobService.getAllFacilityJobComments(jobId);
+		List<String> facilityJobCommentsList = new ArrayList();
+		for (MetaMessage metaMessage: chronologicallyOrderedMetaMessageList){
+			System.out.println(metaMessage.getName() + " = " +  metaMessage.getValue());
+			facilityJobCommentsList.add(metaMessage.getValue());
+		}
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		return "job/comments";
+	}
+
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
+	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}
+
+		String trimmedComment = comment==null?null:comment.trim();
+		if(trimmedComment==null||trimmedComment.length()==0){
+			waspErrorMessage("jobComment.jobCommentEmpty.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		try{
+			jobService.setFacilityJobComment(jobId, trimmedComment);
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobComment.jobCommentCreate.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		waspMessage("jobComment.jobCommentAdded.label");
+		return "redirect:/job/comments/"+jobId+".do";
 	}
 
 	@RequestMapping("/list")
