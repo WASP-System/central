@@ -23,6 +23,14 @@ public class WaspIlluminaPlugin extends WaspPlugin {
 	 * 
 	 */
 	private static final long serialVersionUID = -654454985142070980L;
+	
+	public static final String FLOW_NAME = "wasp-illumina.jobFlow";
+	
+	public static final String STEP_NOTIFY_RUN_START = "wasp-illumina.mainFlow.notifyRunStart";
+	public static final String STEP_LISTEN_FOR_RUN_START = "wasp-illumina.mainFlow.listenForRunStart";
+	public static final String STEP_LISTEN_FOR_RUN_COMPLETION = "wasp-illumina.mainFlow.listenForRunCompletion";
+	public static final String STEP_LISTEN_FOR_QC = "wasp-illumina.mainFlow.listenForQCCompletion";
+	public static final String STEP_CREATE_SAMPLE_SHEET = "wasp-illumina.mainFlow.createSampleSheet";
 
 
 	public WaspIlluminaPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
@@ -35,8 +43,9 @@ public class WaspIlluminaPlugin extends WaspPlugin {
 
 	@Override
 	public Set<String> getBatchJobNames() {
-		// TODO Auto-generated method stub
-		return null;
+		HashSet<String> names = new HashSet<String>();
+		names.add(FLOW_NAME);
+		return names;
 	}
 
 	@Override

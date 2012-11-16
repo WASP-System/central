@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -28,13 +27,11 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.SoftwareComponent;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -53,22 +50,27 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	private SampleService sampleService;
 
 	@Autowired
-	private SampleSourceDao sampleSourceDao;
-
-	@Autowired
 	private AdaptorService adaptorService;
+	
+	@Autowired
+	private GridHostResolver hostResolver;
 
 	/**
-	 * {@inheritDoc}
-	 * @throws GridUnresolvableHostException, GridAccessException, GridExecutionException 
+	 * Called first to set up analysis run.
+	 * 
+	 * @param platformUnit
+	 * @param ghs
+	 * @throws GridExecutionException
+	 * @throws GridAccessException
+	 * @throws GridUnresolvableHostException
 	 */
-	@Override
-	public void preProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
+	public void doSampleSheet(Run run) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		WorkUnit w = new WorkUnit();
 				
 		Sample platformUnit = run.getPlatformUnit();
 		
 		if (sampleService.sampleIsPlatformUnit(platformUnit)) {
+			// isPlatformUnit?
 			logger.debug("platform unit: " + platformUnit.getName());
 		} else {
 			logger.error("Not a platform unit: " + platformUnit.getName());
@@ -81,9 +83,9 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		w.setSoftwareDependencies(sp);
 		w.setProcessMode(ProcessMode.SINGLE);
 		
-		GridWorkService gws = ghs.getGridWorkService(w);
+		GridWorkService gws = hostResolver.getGridWorkService(w);
 		GridFileService gfs = gws.getGridFileService();
-		String hostname = ghs.getHostname(w);
+		String hostname = hostResolver.getHostname(w);
 		logger.debug("sending illumina processing job to " + hostname);
 		
 		String directory = "";
@@ -92,7 +94,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			directory = gws.getTransportService().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(platformUnit);
-			gfs.put(f, hostname, directory + "/" + "SampleSheet.csv");
+			gfs.put(f, directory + "/" + "SampleSheet.csv");
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
 		} catch (Exception e) {
@@ -102,7 +104,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		
 		logger.debug("touching remote file");
 		w.setWorkingDirectory(directory);		
-		GridResult result = ghs.execute(w);
+		GridResult result = hostResolver.execute(w);
 		
 		while (!gws.isFinished(result)) {
 			try {
@@ -123,9 +125,8 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * 
 	 */
-	@Override
 	public void processSequenceRun(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 
@@ -134,7 +135,6 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void postProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 
@@ -143,7 +143,6 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public void stage(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		// TODO Auto-generated method stub
 

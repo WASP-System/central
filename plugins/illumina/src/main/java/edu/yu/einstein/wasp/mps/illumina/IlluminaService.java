@@ -78,7 +78,7 @@ public class IlluminaService implements ClientMessageI {
 						run = runService.getRunDao().findById(new Integer(id));	
 					}
 					logger.debug("going to try to initiate processing on " + run.getName());
-					illuminaSequenceRunProcessor.preProcess(run, waspGridHostResolver);
+					illuminaSequenceRunProcessor.doSampleSheet(run);
 				} catch (GridUnresolvableHostException e) {
 					logger.error("Unable to locate the correct host to process bcl2fastq: " + e.getMessage());
 					return MessageBuilder.withPayload("Unable to locate the correct host to process bcl2fastq").build();

@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:s="http://www.springframework.org/schema/security"
-	default-autowire="byName"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	xmlns:mockito="http://www.mockito.org/spring/mockito"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd"
+	default-autowire="byName">
+	
+	<import resource="classpath*:/daemon-test-launch-context.xml" />
+	<import resource="classpath*:/RmiMessageSend-context.xml" /> 
+	<import resource="classpath:flows/wasp-illumina.mainFlow.v1.xml" />
 
-	<!-- import local configuration -->
-	<import resource="classpath*:/daemon-test-local-config.xml" />
-
-	<!-- import common configuration  -->
-	<import resource="classpath*:/META-INF/spring/daemon-common-config.xml" />
-
-	<import resource="classpath*:batch-common-config.xml" />
-
-	<bean id="propertyPlaceholderConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
+	
+	<bean id="jltu" class="org.springframework.batch.test.JobLauncherTestUtils">
+		<property name="job" ref="wasp-illumina.jobFlow" />
+	</bean>
 
-
+	<mockito:mock id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />
+	
+	<mockito:mock id="hostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />
+	
+	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.RunService" />
+	
 </beans>
