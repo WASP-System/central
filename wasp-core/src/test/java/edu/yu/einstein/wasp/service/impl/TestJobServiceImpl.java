@@ -380,11 +380,6 @@ public class TestJobServiceImpl {
 	  verify(mockSampleDao);
 
   }
-
-  
- 
-
-  
   
   @Test
   public void getActiveJobs() {	  
@@ -498,7 +493,7 @@ public class TestJobServiceImpl {
 		
 		replay(mockJobExplorerWasp);
 		
-		Assert.assertTrue(jobServiceImpl.isJobAwaitingPiApproval(job));
+		Assert.assertTrue(jobServiceImpl.isJobAwaitingDaApproval(job));
 		
 	    verify(mockJobExplorerWasp);
 	  
