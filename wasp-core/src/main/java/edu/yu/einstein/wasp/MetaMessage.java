@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp;
 
-
+/**
+ * Encapsulates metadata messages for attaching to entities e.g. facility manager notes and status reports from wasp-daemon
+ * @author andymac
+ *
+ */
 public class MetaMessage{
 	
 	private String group;

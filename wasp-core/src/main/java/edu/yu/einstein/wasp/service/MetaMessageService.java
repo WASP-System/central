@@ -17,7 +17,7 @@ public interface MetaMessageService extends WaspService {
 	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group, name and value 
 	 * (e.g. save("fmMessage", "Quality Control Notes", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
 	 * Multiple entries can be added using the same group (they are returned as a list when read)
-	 * @param key
+	 * @param group
 	 * @param name
 	 * @param value
 	 * @param modelParentId
@@ -32,7 +32,7 @@ public interface MetaMessageService extends WaspService {
 	 * Save status message in MetaBase derived model specified (clazz) via provided DAO (e.g.UserMetaDao). Message is defined with a group and value.
 	 * (e.g. save("fmMessage", "Job ran without problem", jobId, JobMeta.class, jobMetaDao); ) 
 	 * Multiple entries can be added using the same group (they are returned as a list when read)
-	 * @param key
+	 * @param group
 	 * @param value
 	 * @param modelParentId
 	 * @param clazz
@@ -84,7 +84,6 @@ public interface MetaMessageService extends WaspService {
 	
 	/**
 	 * Returns a status message using the default group for the modelParentId specified (UserId to UserMeta or JobId to JobMeta etc). Returns null if no match found.
-	 * @param key
 	 * @param modelParentId
 	 * @param clazz
 	 * @param dao
