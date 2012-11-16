@@ -1,0 +1,175 @@
+/**
+ * 
+ */
+package edu.yu.einstein.wasp.daemon.batch.tasklets.illumina;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionUntilSuccessful;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.ModulesManager;
+import edu.yu.einstein.wasp.grid.work.SoftwareManager;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
+import edu.yu.einstein.wasp.util.PropertyHelper;
+
+/**
+ * Determine if the Illumina pipeline is already running.  If not, create a new Work unit and monitor.??? TODO:
+ * 
+ * @author calder
+ *
+ */
+@Component
+public class PipelineTasklet extends WaspTasklet {
+	
+	private RunService runService;
+
+	private int runId;
+	private Run run;
+	
+	@Autowired
+	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private IlluminaSequenceRunProcessor casava;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	/**
+	 * 
+	 */
+	public PipelineTasklet(int runId) {
+		this.runId = runId;
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
+	 */
+	@Override
+	@RetryOnExceptionUntilSuccessful
+	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		
+		
+		// if the work has already been started, then check to see if it is finished
+		// if not, throw an exception that is caught by the repeat policy.
+		if (isGridWorkUnitStarted(context)) {
+			GridResult result = getStartedResult(context);
+			GridWorkService gws = hostResolver.getGridWorkService(result);
+			if (gws.isFinished(result))
+				return RepeatStatus.FINISHED;
+			throw new TaskletRetryException(result.getUuid() + " not complete.");
+		}
+		
+		// this is our first try
+		run = runService.getRunById(runId);
+		
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(casava);
+		
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.FIXED);
+		w.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(w);
+		SoftwareManager sm = gws.getTransportService().getSoftwareManager();
+		String p = sm.getConfiguredSetting("casava.env.processors");
+		Integer procs = 1;
+		if (PropertyHelper.isSet(p)) {
+			procs = new Integer(p);
+		}
+		w.setProcessorRequirements(procs);
+		w.setWorkingDirectory(gws.getTransportService().getConfiguredSetting("illumina.data.dir") 
+				+ "/" + run.getName() 
+				+ gws.getTransportService().getConfiguredSetting("illumina.data.workdir") );
+		
+		w.setCommand(getConfigureBclToFastqString(sm, procs));
+
+		GridResult result = gws.execute(w);
+		
+		logger.debug("started illumina pipeline: " + result.getUuid());
+		
+		//place the grid result in the step context
+		WaspTasklet.storeStartedResult(context, result);
+		
+		return RepeatStatus.CONTINUABLE;
+	}
+	
+	private String getConfigureBclToFastqString(SoftwareManager sm, int proc) {
+		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
+		String mismatches = sm.getConfiguredSetting("casava.mismatches");
+		String missingStats = sm.getConfiguredSetting("casava.ignore-missing-stats");
+		String missingBcl = sm.getConfiguredSetting("casava.ignore-missing-bcl");
+		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
+		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
+		
+		String retval = "";
+		
+		retval="loc=\"_pos.txt\"\n" + 
+				"if [ -e ../s_1_1101.clocs ]; then\n" +
+				"  loc=.clocs\n" +
+				"elif [ -e ../s_1_1101.locs ]; then\n" +
+				"  loc=.locs\n" +
+				"fi\n\n";
+		
+		retval += "configureBclToFastq.pl --positions-format ${loc} ";
+		
+		if (PropertyHelper.isSet(failed) && failed == "true")
+			retval += "--with-failed-reads ";
+		if (PropertyHelper.isSet(mismatches)) {
+			int mm = new Integer(mismatches).intValue();
+			if (mm == 0 || mm == 1) 
+				retval += "--mismatches=" + mm + " ";
+		}
+		if (PropertyHelper.isSet(missingStats) && missingStats == "true")
+			retval += "--ignore-missing-stats ";
+		if (PropertyHelper.isSet(missingBcl) && missingBcl == "true")
+			retval += "--ignore-missing-bcl ";
+		if (PropertyHelper.isSet(missingControl) && missingControl == "true")
+			retval += "--ignore-missing-control ";
+		if (PropertyHelper.isSet(fastqNclusters)) {
+			int fqc = new Integer(fastqNclusters).intValue();
+			retval += "--ignore-missing-stats ";
+		}
+		
+		retval += "\n\n";
+		
+		retval += "make -j " + proc + "\n";
+
+		return retval;
+	}
+
+
+	/**
+	 * @return the runService
+	 */
+	public RunService getRunService() {
+		return runService;
+	}
+
+	/**
+	 * @param runService the runService to set
+	 */
+	@Autowired
+	public void setRunService(RunService runService) {
+		this.runService = runService;
+	}
+
+}
