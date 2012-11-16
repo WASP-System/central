@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -44,6 +45,13 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public JobDao getJobDao();
 
+	/**
+	 * getJobByJobId();
+	 * 
+	 * @return Job
+	 * 
+	 */
+	public Job getJobByJobId(Integer jobId);
 
 	/**
 	 * get a list of samples for the submitted job. Returns an empty list if none found.
@@ -216,4 +224,20 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws WaspMessageBuildingException
 	 */
 	public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException;
+	
+	/**
+	 * save a Facility-generated Job Comment
+	 * @param Integer jobId
+	 * @param String comment
+	 * @return void
+	 * @throws Exception
+	 */
+	public void setFacilityJobComment(Integer jobId, String comment)throws Exception;
+	
+	/**
+	 * get all facility job comments (supposedly chronologically ordered)
+	 * @param Integer jobId
+	 * @return List<MetaMessage>
+	 */
+	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
 }
