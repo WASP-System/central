@@ -57,6 +57,13 @@ public interface GridHostResolver {
 	public GridWorkService getGridWorkService(WorkUnit w);
 	
 	/**
+	 * Get the work service that is working on the result
+	 * @param w
+	 * @return
+	 */
+	public GridWorkService getGridWorkService(GridResult r);
+	
+	/**
 	 * get {@link GridWorkSercice}s.
 	 * @param gws
 	 */

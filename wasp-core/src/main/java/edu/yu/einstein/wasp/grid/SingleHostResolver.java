@@ -101,4 +101,9 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 		return gws.isFinished(g);
 	}
 
+	@Override
+	public GridWorkService getGridWorkService(GridResult r) {
+		return gws;
+	}
+
 }

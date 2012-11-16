@@ -19,12 +19,10 @@ public class NoneManager implements SoftwareManager {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.work.SoftwareManager#configure(java.lang.String)
-	 */
 	@Override
-	public void configure(String s) {
-
+	public String getConfiguredSetting(String key) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

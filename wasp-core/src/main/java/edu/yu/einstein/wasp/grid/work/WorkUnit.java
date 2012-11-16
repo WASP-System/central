@@ -240,14 +240,14 @@ public class WorkUnit {
 	/**
 	 * @param connection the connection to set
 	 */
-	public void setConnection(GridTransportConnection connection) {
+	protected void setConnection(GridTransportConnection connection) {
 		this.connection = connection;
 	}
 
 	/**
 	 * @return the wrapperCommand
 	 */
-	public String getWrapperCommand() {
+	protected String getWrapperCommand() {
 		return wrapperCommand;
 	}
 
@@ -255,7 +255,7 @@ public class WorkUnit {
 	 * Command set by the GridService to dispatch the actual command.
 	 * @param wrapperCommand the wrapperCommand to set
 	 */
-	public void setWrapperCommand(String wrapperCommand) {
+	protected void setWrapperCommand(String wrapperCommand) {
 		this.wrapperCommand = wrapperCommand;
 	}
 	
@@ -283,13 +283,13 @@ public class WorkUnit {
 	/**
 	 * @return the project
 	 */
-	public String getProject() {
+	protected String getProject() {
 		return project;
 	}
 	/**
 	 * @param project the project to set
 	 */
-	public void setProject(String project) {
+	protected void setProject(String project) {
 		this.project = project;
 	}
 	

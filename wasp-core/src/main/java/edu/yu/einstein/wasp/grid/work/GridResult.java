@@ -10,6 +10,8 @@ import java.util.UUID;
  */
 public interface GridResult {
 	
+	public static final String GRID_RESULT_KEY ="gridResult";
+	
 	/**
 	 * Exit code from running on {@link GridWorkService}. In the case of a simple exec, this is the exit code
 	 * of the command.  In the case of a scheduler, meta-scheduler or other execution engine, it is the exit
