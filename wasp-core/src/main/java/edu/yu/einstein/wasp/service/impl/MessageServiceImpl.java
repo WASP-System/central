@@ -28,36 +28,25 @@ public class MessageServiceImpl implements MessageService {
 
 	@Override
 	public String getMessage(String key) {
-		String message = null;
+		String message = key; // returns the original string by default
 		try {
 
 			/*
-			 * get request from ThreadLocal (where Spring MVC keeps it; cannot
-			 * use @Autowire feature because it makes it require Tomcat
-			 * container) Sasha
+			 * get request from ThreadLocal (where Spring MVC keeps it; cannot use @Autowire feature because it makes it require 
+			 * Tomcat container) Sasha
 			 */
-			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-					.currentRequestAttributes()).getRequest();
-			LocalizationContext nb = (LocalizationContext) Config.get(
-					request.getSession(), Config.FMT_LOCALIZATION_CONTEXT);
+			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			LocalizationContext nb = (LocalizationContext) Config.get(request.getSession(), Config.FMT_LOCALIZATION_CONTEXT);
 			message = (String) nb.getResourceBundle().getObject(key);
 		} catch (Throwable e) {
-			logger.warn("Cannot resolve message '" + key
-					+ "' from resource bundle (" + e.getMessage()
-					+ "), will fallback to US locale");
+			logger.warn("Cannot resolve message '" + key + "' from resource bundle (" + e.getMessage() + "), will fallback to US locale");
 		}
 
-		if (message == null) {
+		if (message.equals(key)) {
 			try {
-				message = messageSource.getMessage(key, null, Locale.US); // try
-																			// to
-																			// fallback
-																			// to
-																			// US
-																			// locale
+				message = messageSource.getMessage(key, null, Locale.US); // try to fallback to US locale
 			} catch (Throwable e) {
-				logger.warn("Cannot resolve message '" + key
-						+ "' from messageSource (" + e.getMessage() + ")");
+				logger.warn("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
 			}
 		}
 		return message;
@@ -65,12 +54,11 @@ public class MessageServiceImpl implements MessageService {
 
 	@Override
 	public String getMessage(String key, Locale locale) {
-		String message = null;
+		String message = key; // returns the original string by default
 		try {
 			message = messageSource.getMessage(key, null, locale);
 		} catch (Throwable e) {
-			logger.warn("Cannot resolve message '" + key
-					+ "' from messageSource (" + e.getMessage() + ")");
+			logger.warn("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
 		}
 		return message;
 	}

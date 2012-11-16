@@ -332,6 +332,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return jobsAwaitingReceivingOfSamples;
 	}
 	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingReceivingOfSamples(){
+		return getJobsAwaitingReceivingOfSamples().size() > 0;
+	}
+	
 	  /**
 	   * {@inheritDoc}
 	   */

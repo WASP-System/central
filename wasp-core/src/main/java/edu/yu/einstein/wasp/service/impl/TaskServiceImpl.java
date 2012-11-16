@@ -345,17 +345,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	
 	// TODO: Everything above here needs to be refactored
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<TaskMapping> getMappedTasksForCurrentUser(){
-		// TODO: add code
-		return new ArrayList<TaskMapping>();
-	}
-	
-
-	
+		
 
 	
 	
