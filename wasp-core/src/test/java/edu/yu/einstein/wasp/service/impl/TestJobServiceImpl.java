@@ -14,6 +14,7 @@ import static org.easymock.EasyMock.verify;
 import org.easymock.EasyMock;
 
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameter;
@@ -29,10 +30,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import com.jcraft.jsch.Logger;
+
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
+import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
+import edu.yu.einstein.wasp.dao.impl.JobDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobSampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
@@ -48,6 +53,7 @@ public class TestJobServiceImpl {
   TaskMappingDao mockTaskMappingDao;
   JobSampleDao mockJobSampleDao;
   SampleDao mockSampleDao;
+  JobDao mockJobDao;
   JobExplorerWasp mockJobExplorerWasp;
 
   JobExplorer mockJobExplorer;
@@ -334,7 +340,6 @@ public class TestJobServiceImpl {
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 	  
-	  
 	  JobParameters jobParameters2 = new JobParameters();
 	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name1");
 	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
@@ -377,79 +382,129 @@ public class TestJobServiceImpl {
   }
 
   
-  /*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
-  @Test
-  public void getSubmittedSamplesAwaitingSubmission() {
-	  
-	  List<JobSample> jobSamples = new ArrayList<JobSample>();
-	  List<Statesample> stateSamples = new ArrayList<Statesample>();
-	  Statesample stateSample = new Statesample();
-	  State state = new State();
-	  state.setStatus("CREATED");
-	  Task task = new Task();
-	  task.setIName("abc");
-	  state.setTask(task);
-	  stateSample.setState(state);
-	  stateSamples.add(stateSample);
-	  
-	  Sample sample = new Sample();
-	  //Sample sampleParent  = new Sample();
-	  //sample.setParent(sampleParent);
-	  sample.setStatesample(stateSamples);
-	  
-	  JobSample jobSample = new JobSample();
-	  jobSample.setSample(sample);
-	  jobSamples.add(jobSample);
-	  Job job = new Job();
-	  job.setJobId(0001);
-	  job.setJobSample(jobSamples);
-	  	  
-	  Task receiveSampleTask = new Task();
-	  receiveSampleTask.setIName("abc");
-	  
-	  jobServiceImpl.setTaskDao(mockTaskDao);
-	  expect(mockTaskDao.getTaskByIName("Receive Sample")).andReturn(receiveSampleTask);
-	  replay(mockTaskDao);
  
-	  //expected
-	  List<Sample> submittedSamplesAwaitingSubmissionList = new ArrayList<Sample>();
-	  submittedSamplesAwaitingSubmissionList.add(sample);
-	  
-	  Assert.assertEquals(submittedSamplesAwaitingSubmissionList, jobServiceImpl.getSubmittedSamplesAwaitingSubmission(job));
-	  
-	  verify(mockTaskDao);
-	  
-  }
+
   
   
   @Test
-  public void getActiveJobs() {
-	  
-	  
-	  //mockDao returns
-	  List<State> states = new ArrayList<State>();
-	  List<Statejob> stateJobs = new ArrayList<Statejob>();
-	  Statejob stateJob = new Statejob();
-	  Job job = new Job();
-	  stateJob.setJob(job);
-	  stateJobs.add(stateJob);
-	  State state = new State();
-	  state.setStatejob(stateJobs);
-	  states.add(state);
-	  
-	  taskServiceImpl.setTaskDao(mockTaskDao);
-	  jobServiceImpl.setTaskService(taskServiceImpl);
-	  expect(mockTaskDao.getStatesByTaskIName("Start Job", "CREATED")).andReturn(states);
-	  replay(mockTaskDao);
-	  
-	  //expected
+  public void getActiveJobs() {	  
 	  List<Job> activeJobList = new ArrayList<Job>();
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add("*");
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+
+	  JobParameters jobParameters = new JobParameters();
+	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  
+	  JobParameters jobParameters2 = new JobParameters();
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name2");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(2345));
+	  
+	  List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
+	  jobExecutions.add(jobExecution);
+	  jobExecutions.add(jobExecution2);
+	  
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+	  
+	  expect(mockJobExplorerWasp.getJobExecutions(parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
+	    
+	  try {
+		expect(mockJobExplorerWasp.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID)).andReturn("123");
+
+	  } catch (ParameterValueRetrievalException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  jobServiceImpl.setJobDao(mockJobDao);
+	  expect(mockJobDao.getJobByJobId(Integer.valueOf("123"))).andReturn(job);
+	  
+	  replay(mockJobExplorerWasp);
+	  replay(mockJobDao);
 	  activeJobList.add(job);
-	  Assert.assertEquals(activeJobList, jobServiceImpl.getActiveJobs());
-	  verify(mockTaskDao);
+	  //Test case: 1: 
+	  Assert.assertEquals(jobServiceImpl.getActiveJobs(), activeJobList);
+	  
+	  verify(mockJobExplorerWasp);
+	  verify(mockJobDao);
+
+  }
+  
+  @Test 
+  public void isJobAwaitingPiApproval() {
+		
+	  	Job job = new Job();
+	  	job.setJobId(1);
+	  
+	  	Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  	
+		StepExecution stepExecution;
+		JobExecution jobExecution;
+	    JobInstance jobInstance;
+		JobParameters jobParameters;
+		jobParameters = new JobParameters();
+		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+		stepExecution.setExitStatus(ExitStatus.EXECUTING);
+		
+		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+		stepExecutions.add(stepExecution);
+
+		expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions);
+		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+		
+		replay(mockJobExplorerWasp);
+		
+		Assert.assertTrue(jobServiceImpl.isJobAwaitingPiApproval(job));
+		
+	    verify(mockJobExplorerWasp);
 	  
   }
   
+  @Test 
+  public void isJobAwaitingDaApproval() {
+		
+	  	Job job = new Job();
+	  	job.setJobId(1);
+	  
+	  	Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  	
+		StepExecution stepExecution;
+		JobExecution jobExecution;
+	    JobInstance jobInstance;
+		JobParameters jobParameters;
+		jobParameters = new JobParameters();
+		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+		stepExecution.setExitStatus(ExitStatus.EXECUTING);
+		
+		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+		stepExecutions.add(stepExecution);
+
+		expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions);
+		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+		
+		replay(mockJobExplorerWasp);
+		
+		Assert.assertTrue(jobServiceImpl.isJobAwaitingPiApproval(job));
+		
+	    verify(mockJobExplorerWasp);
+	  
+  }
+  
+  /* Method removed from JobServiceImpl.java
   //Test when state is set to null
   @Test
   public void getActiveJobs_StateIsNull() {
@@ -467,6 +522,7 @@ public class TestJobServiceImpl {
 	  verify(mockTaskDao);
 	  
   }
+
   
   @Test
   public void getJobsAwaitingSubmittedSamples() {
@@ -501,6 +557,9 @@ public class TestJobServiceImpl {
 	  
   }
   
+  */
+  
+  /*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
   @Test
   public void getJobsAwaitingSubmittedSamples_StateIsNull() {
 	  List<State> states = null;
@@ -826,6 +885,7 @@ public class TestJobServiceImpl {
 	  EasyMock.reset(mockTaskMappingDao);
 	  EasyMock.reset(mockJobSampleDao);
 	  EasyMock.reset(mockSampleDao);
+	  EasyMock.reset(mockJobDao);
 	  EasyMock.reset(mockJobExplorerWasp);
 
   }
@@ -843,11 +903,13 @@ public class TestJobServiceImpl {
 	  mockTaskMappingDao = createMockBuilder(TaskMappingDaoImpl.class).addMockedMethods(TaskMappingDaoImpl.class.getMethods()).createMock();
 	  mockJobSampleDao = createMockBuilder(JobSampleDaoImpl.class).addMockedMethods(JobSampleDaoImpl.class.getMethods()).createMock();
 	  mockSampleDao = createMockBuilder(SampleDaoImpl.class).addMockedMethods(SampleDaoImpl.class.getMethods()).createMock();	  
+	  mockJobDao = createMockBuilder(JobDaoImpl.class).addMockedMethods(JobDaoImpl.class.getMethods()).createMock();
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
 	  
 	  Assert.assertNotNull(mockTaskMappingDao);
 	  Assert.assertNotNull(mockJobSampleDao);
 	  Assert.assertNotNull(mockSampleDao);
+	  Assert.assertNotNull(mockJobDao);
 	  Assert.assertNotNull(mockJobExplorerWasp);
 
 
