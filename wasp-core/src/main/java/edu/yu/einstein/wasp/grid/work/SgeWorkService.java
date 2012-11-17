@@ -48,8 +48,11 @@ public class SgeWorkService implements GridWorkService {
 
 	private GridTransportService transportService;
 	
+	private DirectoryPlaceholderRewriter directoryPlaceholderRewriter;
+	
 	public SgeWorkService(GridTransportService transportService) {
 		this.transportService = transportService;
+		this.directoryPlaceholderRewriter = new DefaultDirectoryPlaceholderRewriter();
 		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
 	}
 	
@@ -117,8 +120,11 @@ public class SgeWorkService implements GridWorkService {
 	 */
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
-		if (w.getWorkingDirectory() == null)
+		if (w.getWorkingDirectory() == null || w.getWorkingDirectory() == "/")
 			throw new GridAccessException("must set working directory");
+		if (w.getResultsDirectory() == null || w.getResultsDirectory() == "/")
+			throw new GridAccessException("must set results directory");
+		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(transportService, w);
 		logger.debug("executing WorkUnit: " + w.toString());
 		return startJob(w);
 	}

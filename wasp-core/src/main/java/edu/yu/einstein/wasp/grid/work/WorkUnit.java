@@ -58,10 +58,17 @@ public class WorkUnit {
 	 * Execution mode, currently only as a process.
 	 */
 	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
 	/**
-	 * Number of processors per node, required for determining parallel environment, etc.
+	 * Scratch directory for job execution
 	 */
 	private String workingDirectory;
+	
+	/**
+	 * Directory to write results to
+	 */
+	private String resultsDirectory;
+	
 	/**
 	 * Transport specific connection
 	 */
@@ -230,6 +237,17 @@ public class WorkUnit {
 		this.workingDirectory = workingDirectory;
 		if (!this.workingDirectory.endsWith("/")) {
 			this.workingDirectory += "/";
+		}
+	}
+	
+	public String getResultsDirectory() {
+		return resultsDirectory;
+	}
+
+	public void setResultsDirectory(String resultsDirectory) {
+		this.resultsDirectory = resultsDirectory;
+		if (!this.resultsDirectory.endsWith("/")) {
+			this.resultsDirectory += "/";
 		}
 	}
 
