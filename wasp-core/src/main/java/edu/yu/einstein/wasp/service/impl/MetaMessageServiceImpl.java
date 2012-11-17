@@ -154,7 +154,10 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 		List<T> metaMatches = dao.findByMapOrderBy(searchMap, orderByColumnNames, "ASC");
 		if (metaMatches != null &&  !metaMatches.isEmpty()){
 			for (T meta: metaMatches){
-				results.add(getMetaMessage(meta));
+				MetaMessage mm = getMetaMessage(meta);
+				if(mm != null){
+					results.add(mm);
+				}
 			}
 		}
 		return results;
