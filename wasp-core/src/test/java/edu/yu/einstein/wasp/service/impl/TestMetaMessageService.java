@@ -116,7 +116,7 @@ public class TestMetaMessageService {
 		sampleMetaDaoStub.stubSampleMetaList.add(sampleMeta3);
 		
 		List<MetaMessage> messages = metaMessageService.readAll(SAMPLE_ID1, SampleMeta.class, sampleMetaDaoStub);
-		Assert.assertEquals(messages.size(), 3);
+		Assert.assertEquals(messages.size(), 2);
 	}
 	
 	/**
