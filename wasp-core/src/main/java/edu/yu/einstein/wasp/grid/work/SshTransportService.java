@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
  */
 public class SshTransportService implements GridTransportService {
 
+	private String identityFileName;
 	private static File identityFile;
 
 	private String name;
@@ -102,11 +103,13 @@ public class SshTransportService implements GridTransportService {
 
 	}
 
-	public void setIdentityFile(String s) {
-		String home = System.getProperty("user.home");
-		s = home + s.replaceAll("~(.*)", "$1");
-		identityFile = new File(s).getAbsoluteFile();
-		logger.debug("set identity file to: " + identityFile.getAbsolutePath());
+	public void setIdentityFileName(String s) {
+		this.identityFileName = s;
+		setIdentityFile(s);
+	}
+	
+	public String getIdentityFileName() {
+		return identityFileName;
 	}
 
 	@Override
@@ -168,6 +171,16 @@ public class SshTransportService implements GridTransportService {
 	@Override
 	public void setUserDirIsRoot(boolean isRoot) {
 		this.userDirIsRoot = isRoot;
+	}
+
+	@Override
+	public void setIdentityFile(String s) {
+
+		String home = System.getProperty("user.home");
+		s = home + s.replaceAll("~(.*)", "$1");
+		identityFile = new File(s).getAbsoluteFile();
+		logger.debug("set identity file to: " + identityFile.getAbsolutePath());
+		
 	}
 
 }
