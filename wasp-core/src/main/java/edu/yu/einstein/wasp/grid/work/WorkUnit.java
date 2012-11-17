@@ -19,6 +19,9 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class WorkUnit {
 	
+	public static final String SCRATCH_DIR = "<<<SCRATCH_DIR>>>";
+	public static final String RESULTS_DIR = "<<<RESULTS_DIR>>>";
+	
 	/**
 	 * Unique ID for the job
 	 */
