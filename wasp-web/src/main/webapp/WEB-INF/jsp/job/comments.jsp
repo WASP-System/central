@@ -2,18 +2,37 @@
 <br />
 <title><fmt:message key="pageTitle.job/comments.label"/></title>
 <h1><fmt:message key="pageTitle.job/comments.label"/> - J<c:out value="${job.jobId}" /></h1>
+<table class="data" style="margin: 0px 0">
+	<c:if test='${permissionToAddEditComment==true}'>
+		<tr  ><td class="label" style="background-color:#FAF2D6" nowrap><fmt:message key="jobComment.addNewJobComment.label" /></td></tr>
+		<tr><td align="center"><form  method='post' name='commentForm' action="<c:url value="/job/comments/${job.jobId}.do" />" onsubmit="return validate();">
+		<textarea id="comment" name="comment" cols="70" rows="4"></textarea><br />
+		<input type='submit' value='<fmt:message key="jobComment.submitNewComment.label" />'/></form></td></tr>
+	</c:if>
+		<tr  ><td class="label" style="background-color:#FAF2D6" nowrap><fmt:message key="pageTitle.job/comments.label"/></td></tr>
+		<c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
+		<tr><td style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:20px; "><c:out value="${facilityJobComment}" /></td></tr>
+		</c:forEach>
+	
 
-<form  method='post' name='commentForm' action="<c:url value="/job/comments/${job.jobId}.do" />" onsubmit="return validate();">
-	<table class="data" style="margin: 0px 0">
-		<tr  ><td class="label-centered" style="background-color:#FAF2D6" nowrap><fmt:message key="jobComment.addNewJobComment.label" /></td></tr>
-		<tr><td align="center"><textarea id="comment" name="comment" cols="70" rows="4"></textarea><br />
-		<input type='submit' value='<fmt:message key="jobComment.submitNewComment.label" />'/></td></tr>
-	</table>
-</form>
+</table>
+<%-- 
 <c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
 <br />
 <c:out value="${facilityJobComment}" />
-</c:forEach>		
+</c:forEach>
+<br />
+--%>
+<%-- 
+<table class="data" style="margin: 0px 0">
+		<tr  ><td style="background-color:#FAF2D6;font-weight:bold" nowrap><fmt:message key="pageTitle.job/comments.label"/></td></tr>
+		<c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
+		<tr><td><c:out value="${facilityJobComment}" /></td></tr>
+		</c:forEach>
+</table>
+--%>
+
+		
 		<%-- 
 		<tr ><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
 		<tr ><td ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>
