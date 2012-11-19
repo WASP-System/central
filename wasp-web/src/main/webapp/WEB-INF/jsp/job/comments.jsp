@@ -9,9 +9,11 @@
 		<textarea id="comment" name="comment" cols="70" rows="4"></textarea><br />
 		<input type='submit' value='<fmt:message key="jobComment.submitNewComment.label" />'/></form></td></tr>
 	</c:if>
+	<c:if test='${fn:length(facilityJobCommentsList) > 0}'>
 		<tr  ><td class="label" style="background-color:#FAF2D6" nowrap><fmt:message key="pageTitle.job/comments.label"/></td></tr>
+	</c:if>
 		<c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
-		<tr><td style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:20px; "><c:out value="${facilityJobComment}" /></td></tr>
+			<tr><td style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:20px; "><c:out value="${facilityJobComment}" /></td></tr>
 		</c:forEach>
 	
 
