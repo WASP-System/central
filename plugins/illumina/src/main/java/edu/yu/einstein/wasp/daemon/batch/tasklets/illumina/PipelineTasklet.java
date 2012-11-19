@@ -85,7 +85,9 @@ public class PipelineTasklet extends WaspTasklet {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
 		
-		WorkUnit w = new WorkUnit();
+		
+		// creating a work unit this way sets the runID from the jobparameters
+		WorkUnit w = hostResolver.createWorkUnit();
 		w.setProcessMode(ProcessMode.FIXED);
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
@@ -123,9 +125,9 @@ public class PipelineTasklet extends WaspTasklet {
 		String retval = "";
 		
 		retval="loc=\"_pos.txt\"\n" + 
-				"if [ -e ../s_1_1101.clocs ]; then\n" +
+				"if [ -e ../L001/s_1_1101.clocs ]; then\n" +
 				"  loc=.clocs\n" +
-				"elif [ -e ../s_1_1101.locs ]; then\n" +
+				"elif [ -e ../L001/s_1_1101.locs ]; then\n" +
 				"  loc=.locs\n" +
 				"fi\n\n";
 		
@@ -136,7 +138,7 @@ public class PipelineTasklet extends WaspTasklet {
 		if (PropertyHelper.isSet(mismatches)) {
 			int mm = new Integer(mismatches).intValue();
 			if (mm == 0 || mm == 1) 
-				retval += "--mismatches=" + mm + " ";
+				retval += "--mismatches " + mm + " ";
 		}
 		if (PropertyHelper.isSet(missingStats) && missingStats == "true")
 			retval += "--ignore-missing-stats ";

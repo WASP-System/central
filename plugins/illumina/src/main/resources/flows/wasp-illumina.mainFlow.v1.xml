@@ -50,7 +50,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.startIlluminaPipeline" next="wasp-illumina.mainFlow.waitForPipelineCompletion">
+		<batch:step id="wasp-illumina.mainFlow.startIlluminaPipeline" next="wasp-illumina.mainFlow.stageResults">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.PipelineTasklet" scope="step">

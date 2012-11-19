@@ -12,11 +12,7 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.wasp-illumina" />
 
-	<int:service-activator input-channel="wasp.channel.wasp-illumina"
-		ref="wasp-illumina.WaspPluginBean" method="process" />
-		<!-- output-channel="wasp.channel.rmi.outbound.reply" --> 
-		
-	<!-- <bean id="wasp-illumina.SequenceRunProcessor" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />  -->
+	<int:service-activator input-channel="wasp.channel.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
 	
 	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin">
 		<constructor-arg type="java.lang.String">
