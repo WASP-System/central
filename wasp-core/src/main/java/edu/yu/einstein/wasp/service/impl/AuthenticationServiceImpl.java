@@ -8,6 +8,7 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,29 +154,43 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	@Override
 	public boolean hasRole(String theRole) {
-		
-		for (String role: this.getRoles()) {
-			if(role.equals(theRole)){return true;}//in case theRole is something like da-*
-			String[] splitRole = role.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
-			if(splitRole[0].equals(theRole)){
-				return true;
-			}	
-		}
-		return false;
+		String[] theRoleList = new String[1];
+		theRoleList[0] = theRole;
+		return hasRoleInRoleArray(theRoleList, this.getRoles());
 	}
 	
 	@Override
 	public boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline) {
 		for (String testRole: rolesToCompare){
+			if (testRole == null)
+				continue;
 			for (String myrole: rolesBaseline) {
-				if(myrole.equals(testRole)){return true;}//in case theRole is something like da-*
-				String[] splitRole = myrole.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
-				if(splitRole[0].equals(testRole)){
+				if (myrole == null)
+					continue;
+				if(myrole.equals(testRole))
 					return true;
-				}	
+				if(testRole.endsWith("*") && myrole.contains(StringUtils.substringBefore(testRole, "-") + "-"))
+					return true; // e.g. theRole = "lm-*" and role = "lm-7"
 			}
 		}
 		return false;
+	}
+	
+	@Override public Integer getRoleValue(String role){
+		String[] splitRole = role.split("-");
+		if (splitRole.length != 2) {
+			return null;
+		}
+		if (splitRole[1].equals("*")) {
+			return null;
+		}
+		Integer value = null;
+		try {
+			value = Integer.parseInt(splitRole[1]);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+		return value;
 	}
 	
 	@Override
