@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -124,9 +125,12 @@ public class SgeWorkService implements GridWorkService {
 			throw new GridAccessException("must set working directory");
 		if (w.getResultsDirectory() == null || w.getResultsDirectory() == "/")
 			throw new GridAccessException("must set results directory");
-		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(transportService, w);
 		logger.debug("executing WorkUnit: " + w.toString());
-		return startJob(w);
+		try {
+			return startJob(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			throw new GridAccessException("Misconfigured work unit", e);
+		}
 	}
 
 	/**
@@ -283,10 +287,17 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 
-	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	private GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridAccessException, GridUnresolvableHostException, GridExecutionException {
 
 		UUID resultID = UUID.randomUUID();
 		w.setId(resultID.toString());
+		
+		// This step needs to take place after the workunit's id has been set.
+		// if the results directory is set to the default and there is no runId set
+		// (in jobParameters if object was created from the GridHostResolver lookup method 
+		// "createWorkUnit") it will throw an exception. 
+		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(transportService, w);
+		
 		if (isJobExists(w)) {
 			throw new GridAccessException("UUID already exists");
 		}
@@ -345,6 +356,7 @@ public class SgeWorkService implements GridWorkService {
 		GridResultImpl result = (GridResultImpl) w.getConnection().sendExecToRemote(w);
 		result.setUuid(resultID);
 		result.setWorkingDirectory(w.getWorkingDirectory());
+		result.setResultsDirectory(w.getResultsDirectory());
 		result.setHostname(transportService.getHostName());
 		try {
 			Thread.sleep(5000);

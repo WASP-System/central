@@ -48,6 +48,12 @@ public interface GridResult {
 	public String getWorkingDirectory();
 	
 	/**
+	 * The working directory defined in the {@link WorkUnit}
+	 * @return
+	 */
+	public String getResultsDirectory();
+	
+	/**
 	 * The name of the host where the work was performed.
 	 * @return
 	 */

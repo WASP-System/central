@@ -91,7 +91,7 @@ public class ExternalFileExistsTasklet extends WaspTasklet {
 	@RetryOnExceptionUntilSuccessful
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		
-		WorkUnit w = new WorkUnit();
+		WorkUnit w = gridHostResolver.createWorkUnit();
 		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 		software.add(softwarePackage);
 		w.setSoftwareDependencies(software);

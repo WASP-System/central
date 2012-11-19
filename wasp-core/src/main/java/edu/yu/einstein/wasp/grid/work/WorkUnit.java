@@ -19,8 +19,10 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class WorkUnit {
 	
-	public static final String SCRATCH_DIR = "<<<SCRATCH_DIR>>>";
-	public static final String RESULTS_DIR = "<<<RESULTS_DIR>>>";
+	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
+	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
+	
+	private Integer runId;
 	
 	/**
 	 * Unique ID for the job
@@ -118,6 +120,21 @@ public class WorkUnit {
 	private ProcessMode processMode = ProcessMode.MAX;
 	
 	/**
+	 * Run ID is required when using default results directory.
+	 * @return the runId
+	 */
+	public Integer getRunId() {
+		return runId;
+	}
+	/**
+	 * Run ID is required when using default results directory.
+	 * 
+	 * @param runId the runId to set
+	 */
+	public void setRunId(Integer runId) {
+		this.runId = runId;
+	}
+	/**
 	 * get the ProcessMode
 	 * @return
 	 */
@@ -173,6 +190,8 @@ public class WorkUnit {
 	public WorkUnit() {
 		this.executionEnvironments = new LinkedHashSet<String>();
 		this.executionEnvironments.add("default");
+		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
+		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
 	}
 
 	public String getId() {

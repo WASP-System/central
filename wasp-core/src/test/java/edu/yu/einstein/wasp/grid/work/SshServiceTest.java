@@ -66,6 +66,8 @@ public class SshServiceTest {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setCommand("hostname -f");
+			w.setWorkingDirectory("/testing/");
+			w.setResultsDirectory("/testing/");
 			GridResult result = sshws.execute(w);
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
@@ -73,6 +75,8 @@ public class SshServiceTest {
 			logger.debug("result: " + theString);
 			w.getConnection().disconnect();
 			w = new WorkUnit();
+			w.setWorkingDirectory("/testing/");
+			w.setResultsDirectory("/testing/");
 			w.setCommand("sleep 1 && echo $SHELL\necho foo\npwd");
 			w.addCommand("w");
 			result = sshws.execute(w);
@@ -92,6 +96,8 @@ public class SshServiceTest {
 	public void executeLocal() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		WorkUnit w = new WorkUnit();
 		w.setCommand("hostname -f");
+		w.setWorkingDirectory("/testing/");
+		w.setResultsDirectory("/testing/");
 		GridResult result = this.localhostWork.execute(w);
 		StringWriter writer = new StringWriter();
 		try {
@@ -109,6 +115,7 @@ public class SshServiceTest {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setWorkingDirectory("testing");
+			w.setResultsDirectory("/testing/");
 			w.setCommand("hostname -f");
 			w.addCommand("ls -1 /apps1");
 			w.addCommand("sleep 10");
