@@ -386,6 +386,13 @@ TABLE.data TD.label	{
 	font-weight: bold;
 	}
 
+TABLE.data TH.label	{
+	background: #FAF2D6;
+	border-right: 1px solid #ccc;
+	font-weight: bold;
+	text-align: center;
+	}
+
 
 TD.top-heading, TH.top-heading	{
 	text-align: center;
