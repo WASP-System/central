@@ -217,10 +217,5 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();
 	}
 	
-	// TODO: Everything above here needs to be refactored
-	
-		
-
-	
 	
 }

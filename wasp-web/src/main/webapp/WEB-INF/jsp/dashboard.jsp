@@ -207,12 +207,18 @@
 	</sec:authorize>
 	<div id="tabs-taskList">
 		<ul class="navTabs">
-			<c:forEach items="${tasks}" var="task">
-				<li>
-					<a href='<c:url value="${task.getTargetLink()}"/>'>${task.getLocalizedLabel()}</a>
-				</li>
-	
-			</c:forEach>
+			<div class="instructions">
+				<fmt:message key="task.instructions.label" />
+			</div>
+			<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
+			<c:if test="${isTasks == true}">
+				<c:forEach items="${tasks}" var="task">
+					<li>
+						<a href='<c:url value="${task.getTargetLink()}"/>'>${task.getLocalizedLabel()}</a>
+					</li>
+		
+				</c:forEach>
+			</c:if>
 			
 		</ul>
 	</div>
