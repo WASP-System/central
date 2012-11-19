@@ -131,6 +131,7 @@ public class JobController extends WaspController {
 	}
 
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
 	
 		Job job = jobService.getJobByJobId(jobId);
@@ -148,10 +149,20 @@ public class JobController extends WaspController {
 			facilityJobCommentsList.add(metaMessage.getValue());
 		}
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+		}catch(Exception e){
+			waspErrorMessage("jobComment.jobCommentAuth.error");
+			return "redirect:/dashboard.do";
+		}
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
 		return "job/comments";
 	}
 
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
 	
 		Job job = jobService.getJobByJobId(jobId);
