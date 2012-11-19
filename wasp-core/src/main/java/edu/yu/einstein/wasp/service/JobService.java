@@ -224,6 +224,14 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws WaspMessageBuildingException
 	 */
 	public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException;
+
+
+	/**
+	 * Returns true if there a re jobs awaiting receiving of sample
+	 * @return
+	 */
+	public boolean isJobsAwaitingReceivingOfSamples();
+
 	
 	/**
 	 * save a Facility-generated Job Comment
@@ -240,4 +248,5 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<MetaMessage>
 	 */
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
+
 }

@@ -142,11 +142,9 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		
 		//TODO get the commentsList from jobMeta and add to m
-		List<MetaMessage> chronologicallyOrderedMetaMessageList = jobService.getAllFacilityJobComments(jobId);
-		List<String> facilityJobCommentsList = new ArrayList();
-		for (MetaMessage metaMessage: chronologicallyOrderedMetaMessageList){
-			System.out.println(metaMessage.getName() + " = " +  metaMessage.getValue());
-			facilityJobCommentsList.add(metaMessage.getValue());
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			logger.debug(metaMessage.getName() + " = " +  metaMessage.getValue());
 		}
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		

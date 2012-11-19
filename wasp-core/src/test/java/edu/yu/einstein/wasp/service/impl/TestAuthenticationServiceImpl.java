@@ -81,7 +81,12 @@ public class TestAuthenticationServiceImpl {
 	  Assert.assertEquals(authServiceImpl.getRoles(), roles);
   }
   
-  
+  @Test
+  public void getRoleValue(){
+	  Assert.assertEquals(authServiceImpl.getRoleValue("jv-8"), new Integer(8));
+	  Assert.assertNull(authServiceImpl.getRoleValue("jv-*"));
+	  Assert.assertNull(authServiceImpl.getRoleValue("su"));
+  }
 	
   /**
    * Test scenario when login name already chosen by someone with a different email address
@@ -144,9 +149,6 @@ public class TestAuthenticationServiceImpl {
 	  Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare3, rolesBaseline3));
 	  
 	  //Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare4, rolesBaseline4));
-
-
-
   }
   
   @Test
@@ -154,14 +156,17 @@ public class TestAuthenticationServiceImpl {
 	  
 	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 	  authorities.add(new GrantedAuthorityImpl("da"));
+	  authorities.add(new GrantedAuthorityImpl("lm-7"));
 	  
 	  SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken("","", authorities));
 	  
 	  Assert.assertTrue(authServiceImpl.hasRole("da"));
+	  Assert.assertTrue(authServiceImpl.hasRole("lm-*"));
 	  Assert.assertFalse(authServiceImpl.hasRole("asd"));
 
   }
+  
   
   @Test
   public void isFacilityMember() {

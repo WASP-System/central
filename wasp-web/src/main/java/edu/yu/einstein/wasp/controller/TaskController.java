@@ -64,7 +64,7 @@ public class TaskController extends WaspController {
 	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
 	  
 	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
-	  sampleService.sortSamplesBySampleName(activePlatformUnits);	  
+	  sampleService.sortSamplesBySampleName(activePlatformUnits);
 	  m.addAttribute("activePlatformUnits", activePlatformUnits);
 	  
 	  List<String> barcodes = new ArrayList<String>();
