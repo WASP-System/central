@@ -13,7 +13,7 @@
   	<constructor-arg><value>illuminaHiSeq2000</value></constructor-arg>
   </bean>
 
-  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaUiFieldWrapper">
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2000UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="#{illuminaHiSeq2000Area}" />
   </bean>
@@ -37,7 +37,7 @@
 
     <property name="uiFieldsFromWrapper">
       <list>
-        <bean parent="illuminaUiFieldWrapper">
+        <bean parent="illuminaHiSeq2000UiFieldWrapper">
           <property name="baseName" value="readLength" />
           <property name="metaposition" value="10" />
           <property name="label" value="Read Length" />
@@ -46,7 +46,7 @@
           <property name="error" value="You must choose a read length" />
         </bean>
 
-        <bean parent="illuminaUiFieldWrapper">
+        <bean parent="illuminaHiSeq2000UiFieldWrapper">
           <property name="baseName" value="readType" />
           <property name="metaposition" value="20" />
           <property name="label" value="Read Type" />
