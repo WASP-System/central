@@ -193,23 +193,18 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 			// get list of departmentId values for this authenticated user
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for (String role : authenticationService.getRoles()) {
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) {
-					continue;
-				}
-				if (splitRole[1].equals("*")) {
-					continue;
-				}
-				if ("da".equals(splitRole[0])) {// department administrator
-					try {
-						departmentIdList.add(Integer.parseInt(splitRole[1]));
-					} catch (Exception e) {
-						continue;
-					}
+				if (role.startsWith("da-")){
+					Integer deptId = authenticationService.getRoleValue(role);
+					if (deptId != null)
+						departmentIdList.add(deptId);
 				}
 			}
 			if (departmentIdList.size() > 0) {
+				Map<String, Object> searchMap = new HashMap<String, Object>();
+				searchMap.put("status", "PENDING");
 				for (int departmentId : departmentIdList) {
+					searchMap.put("departmentId", departmentId); 
+					labsPendingDaApprovalList.addAll(labPendingDao.findByMap(searchMap));
 					for (Job job : allJobsPendingDaApproval){
 						if (job.getLab().getDepartmentId().intValue() == departmentId) {
 							jobsPendingDaApprovalList.add(job);
