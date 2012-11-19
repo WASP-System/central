@@ -134,19 +134,10 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 			// get list of departmentId values for this authenticated user
 			List<Integer> labIdList = new ArrayList<Integer>();
 			for (String role : authenticationService.getRoles()) {
-				String[] splitRole = role.split("-");
-				if (splitRole.length != 2) {
-					continue;
-				}
-				if (splitRole[1].equals("*")) {
-					continue;
-				}
-				if ("lm".equals(splitRole[0])) {// lab manager (which also includes any PIs)
-					try {
-						labIdList.add(Integer.parseInt(splitRole[1]));
-					} catch (Exception e) {
-						continue;
-					}
+				if (role.startsWith("lm-")){
+					Integer labId = authenticationService.getRoleValue(role);
+					if (labId != null)
+						labIdList.add(labId);
 				}
 			}
 			

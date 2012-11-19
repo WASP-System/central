@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.TaskService;
 
-public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
+public class DaApprovalsTaskMapping extends WaspTaskMapping {
 	
 	private TaskService taskService;
 
@@ -14,7 +14,7 @@ public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
 		this.taskService = taskService;
 	}
 	
-	public LmAndPiApprovalsTaskMapping(String localizedLabelKey, String targetLink, String permission) {
+	public DaApprovalsTaskMapping(String localizedLabelKey, String targetLink, String permission) {
 		super(localizedLabelKey, targetLink, permission);
 	}
 
@@ -23,7 +23,7 @@ public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
 	 */
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
-		return taskService.getLabManagerPendingTasks() > 0;
+		return taskService.getDepartmentAdminPendingTasks() > 0;
 	}
 
 }

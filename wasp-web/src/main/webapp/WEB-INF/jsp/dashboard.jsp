@@ -214,21 +214,6 @@
 	
 			</c:forEach>
 			
-			<sec:authorize	access="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('pi-*') or hasRole('lm-*') ">
-			<c:if test="${numberOfLabManagerPendingTasks > 0}">
-			<li>
-				<a href='<c:url value="/lab/pendinglmapproval/list.do"/>'>Lab Management Tasks</a>&nbsp; (${numberOfLabManagerPendingTasks})
-			</li>
-			</c:if>
-			<c:if test="${numberOfDepartmentAdminPendingTasks > 0}">
-			<li>
-				<a href='<c:url value="/department/dapendingtasklist.do"/>'>Department Administration Tasks</a>&nbsp; (${numberOfDepartmentAdminPendingTasks})
-			</li>
-			</c:if>
-			</sec:authorize>
-			
-			
-			
 		</ul>
 	</div>
 </div>

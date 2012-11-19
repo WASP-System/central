@@ -77,11 +77,27 @@
 		<property name="messageRegistry" ref="taskMappingRegistry" />
 	</bean>
 	
-	<bean id="sampleReceiveTaskMapping" class="edu.yu.einstein.wasp.taskMapping.SampleReceiveTaskMapping">
+	<!-- define common task mapping beans -->
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.SampleReceiveTaskMapping">
 		<constructor-arg name="localizedLabelKey"  value="task.samplereceive_title.label" />
 		<constructor-arg name="targetLink" value="/task/samplereceive/list.do" />
 		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
 	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.LmAndPiApprovalsTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.labManager.label" />
+		<constructor-arg name="targetLink" value="/lab/pendinglmapproval/list.do" />
+		<constructor-arg name="permission" value="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('pi-*') or hasRole('lm-*')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.DaApprovalsTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.departmentAdmin.label" />
+		<constructor-arg name="targetLink" value="/department/dapendingtasklist.do" />
+		<constructor-arg name="permission" value="hasRole('da-*') or hasRole('su') or hasRole('ga-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('pi-*') or hasRole('lm-*')" />
+	</bean>
+	
+	
   
   
  </beans>
