@@ -66,7 +66,7 @@
     <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
         <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="batchJobRetry" advice-ref="fixedBackoffTaskletRetryAdvice" />
+        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" />
     </aop:config>
 
     <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
@@ -84,7 +84,7 @@
                 </property>
                 <property name="backOffPolicy">
                     <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
-                    	<property name="backOffPeriod" value="${wasp.batch.retry.backoff.initialInterval:1000}"/>
+                    	<property name="backOffPeriod" value="${wasp.batch.retry.backoff.initialInterval:1000}" />
                     </bean>
                 </property>
             </bean>
@@ -96,7 +96,7 @@
     <aop:config>
 		<aop:pointcut id="taskletRetryExponentialPointcut" 
 			expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential * *(..))" />
-		<aop:advisor pointcut-ref="taskletRetryPointcut" advice-ref="exponentialBackoffTaskletRetryAdvice" />
+		<aop:advisor pointcut-ref="taskletRetryExponentialPointcut" advice-ref="exponentialBackoffTaskletRetryAdvice" />
 	</aop:config>
 
 	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">

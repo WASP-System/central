@@ -20,6 +20,8 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
@@ -43,18 +45,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	
 	private boolean stopJobNotificationReceived = false;
 	
-	private int delayInMillis = 10000;
-	
-	/**
-	 * Set the delay between execution steps, default 10000 (10s).
-	 * 
-	 * @param delayInMillis
-	 */
-	@Value(value="${wasp.task.delay:10000}")
-	public void setDelayInMillis(int delayInMillis) {
-		this.delayInMillis = delayInMillis;
-	}
-	
+		
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();
 		this.messageTemplates.add(messageTemplate);
@@ -132,10 +123,11 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	}
 
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked");
 		if (message == null)
-			return delayedRepeatStatusContinuable(delayInMillis); // returns RepeatStatus.CONTINUABLE after 1s delay	
+			throw new TaskletRetryException("tasklet did not recieved any message to proccess this time round");
 		return RepeatStatus.FINISHED;
 	}
 	

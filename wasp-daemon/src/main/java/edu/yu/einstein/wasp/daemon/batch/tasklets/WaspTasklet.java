@@ -21,21 +21,6 @@ public abstract class WaspTasklet implements Tasklet {
 	public abstract RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception;
 
 	/**
-	 * Returns a status of RepeatStatus.CONTINUABLE after specified timeout
-	 * @param ms
-	 * @return
-	 */
-	protected RepeatStatus delayedRepeatStatusContinuable(Integer ms){
-		try {
-			Thread.sleep(ms); 
-		} catch (InterruptedException e) {
-			logger.debug("caught sleeping");
-			// do nothing here just proceed to the return
-		}
-		return RepeatStatus.CONTINUABLE; // we're not done with this step yet
-	}
-	
-	/**
 	 * Check to see if a grid result has been stored by a previous execution of the current step.
 	 * @param context
 	 * @return
