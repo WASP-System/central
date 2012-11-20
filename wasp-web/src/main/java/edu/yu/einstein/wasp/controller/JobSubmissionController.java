@@ -702,7 +702,7 @@ public class JobSubmissionController extends WaspController {
 			return "jobsubmit/metaform";
 		}
 
-		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobDraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -842,7 +842,7 @@ public class JobSubmissionController extends WaspController {
 			if (changeResource.intValue() == -1) // nothing selected
 				return "redirect:/jobsubmit/resource/" + resourceTypeIName + "/" + jobDraftId + ".do";
 			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
-			newJdr.setJobdraftId(jobDraftId);
+			newJdr.setJobDraftId(jobDraftId);
 			newJdr.setResourcecategoryId(changeResource);
 			jobDraftresourcecategoryDao.save(newJdr);
 
@@ -879,7 +879,7 @@ public class JobSubmissionController extends WaspController {
 		}
 
 
-		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobDraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -1024,7 +1024,7 @@ public class JobSubmissionController extends WaspController {
 			if (changeResource.intValue() == -1) // nothing selected
 				return "redirect:/jobsubmit/software/" + resourceTypeIName + "/" + jobDraftId + ".do";
 			JobDraftSoftware newJdr = new JobDraftSoftware();
-			newJdr.setJobdraftId(jobDraftId);
+			newJdr.setJobDraftId(jobDraftId);
 			newJdr.setSoftwareId(changeResource);
 			jobDraftSoftwareDao.save(newJdr);
 
@@ -1061,7 +1061,7 @@ public class JobSubmissionController extends WaspController {
 			return returnPage;
 		}
 
-		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobDraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 	}
@@ -1156,10 +1156,10 @@ public class JobSubmissionController extends WaspController {
 
 		// sync meta data in DB (e.g.removes old aligners)
 		for (MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
-			jobDraftMetaDao.replaceByJobdraftId(opt.getValue(), jobDraftId, new ArrayList());
+			jobDraftMetaDao.replaceByJobDraftId(opt.getValue(), jobDraftId, new ArrayList());
 		}
 
-		jobDraftMetaDao.replaceByJobdraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
+		jobDraftMetaDao.replaceByJobDraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
 
 		return nextPage(jobDraft);
 
@@ -1465,7 +1465,7 @@ public class JobSubmissionController extends WaspController {
 		// all ok so save
 		sampleDraftForm.setLabId(jobDraft.getLabId());
 		sampleDraftForm.setUserId(jobDraft.getUserId());
-		sampleDraftForm.setJobdraftId(jobDraftId);
+		sampleDraftForm.setJobDraftId(jobDraftId);
 		SampleDraft sampleDraftDb = sampleDraftDao.save(sampleDraftForm);
 		sampleDraftMetaDao.updateBySampledraftId(sampleDraftDb.getSampleDraftId(), metaFromForm);
 		waspMessage("sampleDetail.updated_success.label");
@@ -1640,7 +1640,52 @@ public class JobSubmissionController extends WaspController {
 		jobDraftService.createUpdateJobDraftCells(jobDraft, params);//update and commit to database (the service method is transactional)
 		return nextPage(jobDraft);		
 	}
+	
+	@Transactional
+	@RequestMapping(value="/comment/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String commentJobDraft(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		m.put("jobDraft", jobDraft);
+		System.out.println("At A");
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));//for some unknown reason, this line must precede the next line. odd!
+		System.out.println("At B jobDraftId = " + jobDraftId.intValue());
+		System.out.println("At B2 jobDraft.getJobDraftId() = " + jobDraft.getJobDraftId().intValue());
+		String comment = jobDraftService.getUserJobDraftComment(jobDraftId);
+		System.out.println("At C jobDraftId = " + jobDraftId.intValue());
+		System.out.println("At C2 jobDraft.getJobDraftId() = " + jobDraft.getJobDraftId().intValue());
 
+		//String comment = new String("test comment by rob");
+		//comment = null;
+		m.put("comment", comment==null?"":comment);
+		return "jobsubmit/comment";
+	}
+
+
+	@Transactional
+	@RequestMapping(value="/comment/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String commentJobDraftPost(@PathVariable("jobDraftId") Integer jobDraftId, 
+			@RequestParam(value="comment", required=false) String comment, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+
+		String trimmedComment = comment==null?"":comment.trim();
+		
+		try{
+			jobDraftService.saveUserJobDraftComment(jobDraftId, trimmedComment);
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobDraft.commentCreate.error");
+			//return "redirect:/jobsubmit/comment/"+jobDraftId+".do";//forget this, just go to next page
+		}
+
+		return nextPage(jobDraft);
+	}
+	
 	@Transactional
 	@RequestMapping(value="/verify/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")

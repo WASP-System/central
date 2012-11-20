@@ -119,11 +119,10 @@ public interface MetaMessageService extends WaspService {
 	/**
 	 * Delete a MetaMessage
 	 * @param message
-	 * @param newValue
 	 * @param modelParentId
 	 * @param clazz
 	 * @param dao
 	 * @throws WaspException
 	 */
-	public <T extends MetaBase> void delete(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException;
+	public <T extends MetaBase> void delete(MetaMessage message, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException;
 }

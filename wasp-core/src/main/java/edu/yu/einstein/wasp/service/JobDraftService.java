@@ -78,4 +78,20 @@ public interface JobDraftService extends WaspService {
 	 * @return Map<SampleDraft, Adaptor>
 	 */
 	public Map<SampleDraft, Adaptor> getAdaptorsOnSampleDrafts(List<SampleDraft> sampleDraftList);
+	
+	/**
+	 * save a User-generated JobDraft Comment; only one such comment permitted per jobDraft.
+	 * @param Integer jobDraftId
+	 * @param String comment
+	 * @return void
+	 * @throws Exception
+	 */
+	public void saveUserJobDraftComment(Integer jobDraftId, String comment) throws Exception;
+	
+	/**
+	 * get the (sole) User-generated JobDraft Comment if it exists; if not return null.
+	 * @param Integer jobDraftId
+	 * @return String 
+	 */
+	public String getUserJobDraftComment(Integer jobDraftId);
 }

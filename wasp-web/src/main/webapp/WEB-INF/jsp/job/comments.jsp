@@ -16,8 +16,8 @@
 		</tr>	
 		<c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
 		<tr>
-			<td style="padding-top:20px;padding-bottom:20px;padding-left:10px;padding-right:20px; " width="10%"><fmt:formatDate value="${facilityJobComment.getDate()}" pattern="MM-dd-yyyy" /></td>
-			<td style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:10px; " width="90%"><c:out value="${facilityJobComment.getValue()}" /></td>
+			<td style="padding-top:20px;padding-bottom:20px;padding-left:10px;padding-right:20px; " width="20%"><fmt:formatDate value="${facilityJobComment.getDate()}" pattern="MM-dd-yyyy" /></td>
+			<td style="padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:10px; " width="80%"><c:out value="${facilityJobComment.getValue()}" /></td>
 		</tr>
 		</c:forEach>
 	</c:if>

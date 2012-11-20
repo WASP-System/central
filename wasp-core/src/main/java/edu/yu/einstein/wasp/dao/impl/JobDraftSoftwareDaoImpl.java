@@ -62,9 +62,9 @@ public class JobDraftSoftwareDaoImpl extends WaspDaoImpl<JobDraftSoftware> imple
 
 
 	/**
-	 * getJobDraftSoftwareBySoftwareIdJobdraftId(final Integer softwareId, final Integer jobdraftId)
+	 * getJobDraftSoftwareBySoftwareIdJobDraftId(final Integer softwareId, final Integer jobDraftId)
 	 *
-	 * @param final Integer softwareId, final Integer jobdraftId
+	 * @param final Integer softwareId, final Integer jobDraftId
 	 *
 	 * @return jobDraftSoftware
 	 */
@@ -72,10 +72,10 @@ public class JobDraftSoftwareDaoImpl extends WaspDaoImpl<JobDraftSoftware> imple
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobdraftId (final Integer softwareId, final Integer jobdraftId) {
+	public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobDraftId (final Integer softwareId, final Integer jobDraftId) {
     		HashMap m = new HashMap();
 		m.put("softwareId", softwareId);
-		m.put("jobdraftId", jobdraftId);
+		m.put("jobDraftId", jobDraftId);
 
 		List<JobDraftSoftware> results = this.findByMap(m);
 
