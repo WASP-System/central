@@ -122,7 +122,7 @@ public class SeleniumHelper {
 	        } catch (org.openqa.selenium.NoSuchElementException Ex) {
 	            if (displayCustomMessage) {
 	                if (!customMessage.equals("")) {
-	                    System.out.print(customMessage);
+	                    logger.debug(customMessage);
 	                }
 	            } else {
 	                logger.debug("Unable to locate Element: " + xpathLocator);

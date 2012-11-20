@@ -5,6 +5,7 @@ import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -47,48 +48,8 @@ public interface GridHostResolver {
 	 */
 	public String getUsername(String hostname) throws GridUnresolvableHostException;
 	
-	/**
-	 * return a host specific string for the job queue specification.
-	 * @param w
-	 * @return queue or null
-	 */
-	public String getQueue(WorkUnit w);
 	
-	/**
-	 * return a host specific string for the job maximum runtime.
-	 * @param w
-	 * @return runtime or null
-	 */
-	public String getMaxRunTime(WorkUnit w);
-	
-	/**
-	 * return a host specific string for the account under which to run the job.
-	 * @param w
-	 * @return account or null
-	 */
-	public String getAccount(WorkUnit w);
-	
-	/**
-	 * return a host specific string for the project.
-	 * @param w
-	 * @return project or null
-	 */
-	public String getProject(WorkUnit w);
-	
-	/**
-	 * return a host specific string for email notification recipients.
-	 * @param w
-	 * @return email list or null
-	 */
-	public String getMailRecipient(WorkUnit w);
-	
-	/**
-	 * return a host specific string for the curcumstances for sending email notifications.
-	 * @param w
-	 * @return notifications or null
-	 */
-	public String getMailCircumstances(WorkUnit w);
-	
+		
 	/**
 	 * Given a work unit, return the appropriate work service.  
 	 * @param w
@@ -96,10 +57,17 @@ public interface GridHostResolver {
 	public GridWorkService getGridWorkService(WorkUnit w);
 	
 	/**
-	 * Set up the host resolver with {@link GridWorkSercice}s.
+	 * Get the work service that is working on the result
+	 * @param w
+	 * @return
+	 */
+	public GridWorkService getGridWorkService(GridResult r);
+	
+	/**
+	 * get {@link GridWorkSercice}s.
 	 * @param gws
 	 */
-	public void setAvailableWorkServices(List<GridWorkService> gws);
+	public List getAvailableWorkServices();
 	
 	/**
 	 * return an appropriate parallel environment string for the host. Should be requested only when required.
@@ -128,5 +96,13 @@ public interface GridHostResolver {
 	 */
 	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
+	/**
+	 * Instances of GridHostResolver must declare the following method as abstract.  This provides a mechanism for 
+	 * obtaining {@link WorkUnit}s that are configured with a runId from job parameters at runtime using
+	 * Spring lookup method injection. The WorkUnit prototype bean is declared in daemon-common-config.xml.
+	 * 
+	 * @return
+	 */
+	public abstract WorkUnit createWorkUnit();
 	
 }

@@ -22,9 +22,9 @@ public interface SoftwareManager {
 	public abstract String getConfiguration(WorkUnit w) throws GridExecutionException;
 	
 	/**
-	 * On setup, configure software manager.  Should log events and report failures.
+	 * Get configured software properties.
 	 * @param s
 	 */
-	public abstract void configure(String s);
+	public abstract String getConfiguredSetting(String key);
 
 }

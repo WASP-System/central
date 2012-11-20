@@ -19,19 +19,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
  *
  */
 public interface GridWorkService {
-	
-	/**
-	 * Configure the underlying mechanism for transmitting of work exec.
-	 * @param ts
-	 */
-	public void setTransportService(GridTransportService ts);
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public GridTransportService getTransportService();
-	
+		
 	/**
 	 * Execute a {@link WorkUnit}.
 	 * @param w
@@ -53,17 +41,6 @@ public interface GridWorkService {
 	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
 	/**
-	 * Set the name of the server.  This is the hook for configuration of software on this server.
-	 * @param name
-	 */
-	public void setName(String name);
-	
-	/**
-	 * @return WASP name for this server
-	 */
-	public String getName();
-	
-	/**
 	 * Prefix for the names of jobs that are sent to the scheduler. 
 	 * @param name Defaults to WASP.
 	 */
@@ -77,7 +54,16 @@ public interface GridWorkService {
 	
 	public List<String> getAvailableParallelEnvironments();
 	
+	/**
+	 * Set the grid file service.
+	 * 
+	 * @param gridFileService
+	 */
+	public void setGridFileService(GridFileService gridFileService);
+	
 	public GridFileService getGridFileService();
+	
+	public GridTransportService getTransportService();
 	
 
 }

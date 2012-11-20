@@ -50,6 +50,14 @@ public interface RunService extends WaspMessageHandlingService {
 	 */
 	public Run getRunByName(String name);
 	
+	/**
+	 * Get a run by its ID.
+	 * 
+	 * @param runId
+	 * @return
+	 */
+	public Run getRunById(int runId);
+	
 	public RunMetaDao getRunMetaDao();
 	
 	public RunCellDao getRunCellDao();

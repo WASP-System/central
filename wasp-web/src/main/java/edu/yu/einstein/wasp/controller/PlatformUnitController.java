@@ -221,7 +221,7 @@ public class PlatformUnitController extends WaspController {
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 		
 		return "facility/platformunit/list";
 	}
@@ -1585,7 +1585,7 @@ public class PlatformUnitController extends WaspController {
 	public String showSelectedSampleListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitById");
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		return "facility/platformunit/selid/list";
 	}
@@ -1710,7 +1710,7 @@ public class PlatformUnitController extends WaspController {
 	public String showPlatformunitInstanceListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebappPlatformUnitInstance().getMasterList(SampleMeta.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunitInstance");
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 		
 		prepareSelectListData(m);
 

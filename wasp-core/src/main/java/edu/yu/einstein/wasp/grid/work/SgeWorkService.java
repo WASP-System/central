@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -48,43 +49,88 @@ public class SgeWorkService implements GridWorkService {
 
 	private GridTransportService transportService;
 	
+	private DirectoryPlaceholderRewriter directoryPlaceholderRewriter;
+	
+	public SgeWorkService(GridTransportService transportService) {
+		this.transportService = transportService;
+		this.directoryPlaceholderRewriter = new DefaultDirectoryPlaceholderRewriter();
+		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
+	}
+	
 	private GridFileService gridFileService;
 	
 	private String name;
 	
 	private List<String> parallelEnvironments;
-
-	@Autowired
-	protected GridFileService waspGridFileService;
-
+	
+	private String queue;
+	private String maxRunTime;
+	private String account;
+	private String project;
+	private String mailRecipient;
+	private String mailCircumstances;
+	
+	public void setQueue(String queue) {
+		this.queue = queue;
+	}
+	public String getQueue() {
+		return queue;
+	}
+	public void setMaxRunTime(String maxRunTime) {
+		this.maxRunTime = maxRunTime;
+	}
+	public String getMaxRunTime() {
+		return maxRunTime;
+	}
+	public void setAccount(String account) {
+		this.account = account;
+	}
+	public String getAccount() {
+		return account;
+	}
+	
 	/**
-	 * {@inheritDoc}
+	 * Set the project.  If the project is not set, it can be set on the work unit, in which case it will override
+	 * the WorkServices setting and fail if the project is not available.
+	 * @param project name
 	 */
-	@Override
-	public void setTransportService(GridTransportService ts) {
-		this.transportService = ts;
-
+	public void setProject(String project) {
+		this.project = project;
+	}
+	public String getProject() {
+		return project;
+	}
+	public void setMailRecipient(String mailRecipient) {
+		this.mailRecipient = mailRecipient;
+	}
+	public String getMailRecipient() {
+		return mailRecipient;
+	}
+	public void setMailCircumstances(String mailCircumstances) {
+		this.mailCircumstances = mailCircumstances;
+	}
+	public String getMailCircumstances() {
+		return mailCircumstances;
 	}
 
 	/**
+	 * Sun Grid Engine implementation of {@link GridWorkService}.  This method wraps a {@link WorkUnit} in a SGE 
+	 * submission and executes using the associated {@link GridTransportService}.
+	 * 
 	 * {@inheritDoc}
-	 */
-	@Override
-	public GridTransportService getTransportService() {
-		return this.transportService;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @throws GridUnresolvableHostException 
-	 * @throws GridExecutionException 
 	 */
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
-		if (w.getWorkingDirectory() == null)
+		if (w.getWorkingDirectory() == null || w.getWorkingDirectory() == "/")
 			throw new GridAccessException("must set working directory");
+		if (w.getResultsDirectory() == null || w.getResultsDirectory() == "/")
+			throw new GridAccessException("must set results directory");
 		logger.debug("executing WorkUnit: " + w.toString());
-		return startJob(w);
+		try {
+			return startJob(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			throw new GridAccessException("Misconfigured work unit", e);
+		}
 	}
 
 	/**
@@ -98,11 +144,10 @@ public class SgeWorkService implements GridWorkService {
 		
 		logger.debug("testing for completion of " + jobname);
 		
-		GridTransportConnection conn = transportService.connect(g.getHostname());
 		WorkUnit w = new WorkUnit();
-		w.setConnection(conn);
-		w.setCommand("qstat -xml -j " + jobname + " | sed 's/<\\([/]\\)*>/<\\1a>/g'");
-		GridResult result = conn.sendExecToRemote(w);
+		w.setCommand("qstat -xml -j " + jobname + " 2>&1 | sed 's/<\\([/]\\)*>/<\\1a>/g'");
+		transportService.connect(w);
+		GridResult result = w.getConnection().sendExecToRemote(w);
 		
 		boolean ended = isJobEnded(g);
 		boolean started = isJobStarted(g);
@@ -174,36 +219,36 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 	private boolean isJobExists(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
-		return isJobExists(transportService.getHostResolver().getHostname(w), w.getWorkingDirectory(), w.getId());
+		return isJobExists(w.getWorkingDirectory(), w.getId());
 	}
 
 	private boolean isJobExists(GridResult g) throws GridAccessException {
-		return isJobExists(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString());
+		return isJobExists(g.getWorkingDirectory(), g.getUuid().toString());
 	}
 
-	private boolean isJobExists(String hostname, String workingDirectory, String id) throws GridAccessException {
-		return testSgeFileExists(hostname, workingDirectory, id, "sh");
+	private boolean isJobExists(String workingDirectory, String id) throws GridAccessException {
+		return testSgeFileExists(workingDirectory, id, "sh");
 	}
 
 	private boolean isJobEnded(GridResult g) throws GridAccessException {
-		return testSgeFileExists(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString(), "end");
+		return testSgeFileExists(g.getWorkingDirectory(), g.getUuid().toString(), "end");
 	}
 
 	private boolean isJobStarted(GridResult g) throws GridAccessException {
-		return testSgeFileExists(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString(), "start");
+		return testSgeFileExists(g.getWorkingDirectory(), g.getUuid().toString(), "start");
 	}
 
-	private boolean testSgeFileExists(String hostname, String workingDirectory, String id, String suffix) throws GridAccessException {
+	private boolean testSgeFileExists(String workingDirectory, String id, String suffix) throws GridAccessException {
 		try {
 			String root = workingDirectory + jobNamePrefix + id ;
 			if (suffix == "sh") {
-				boolean completed = waspGridFileService.exists(hostname, root + ".tar.gz");
-				boolean failed = waspGridFileService.exists(hostname, root + "-FAILED.tar.gz");
+				boolean completed = gridFileService.exists(root + ".tar.gz");
+				boolean failed = gridFileService.exists(root + "-FAILED.tar.gz");
 				if (completed || failed) return true;
 			}
 			String remote = root + "." + suffix;
-			boolean exists = waspGridFileService.exists(hostname, remote);
-			logger.debug("testing exists: " + hostname + ":" + remote + " = " + exists);
+			boolean exists = gridFileService.exists(remote);
+			logger.debug("testing exists: " + transportService.getHostName() + ":" + remote + " = " + exists);
 			return exists;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -211,42 +256,48 @@ public class SgeWorkService implements GridWorkService {
 		}
 	}
 	
-	private void cleanUpCompletedJob(GridResult g) throws GridAccessException, GridUnresolvableHostException {
+	private void cleanUpCompletedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString());
 	}
 
-	private void cleanUpCompletedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridUnresolvableHostException {
-		logger.debug("Cleaning successful job " + id + " at " + hostname + ":" + workingDirectory);
-		GridTransportConnection conn = transportService.connect(hostname);
+	private void cleanUpCompletedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+		logger.debug("Cleaning successful job " + id + " at " + transportService.getHostName() + ":" + workingDirectory);
+		
 		WorkUnit w = new WorkUnit();
-		w.setConnection(conn);
 		String prefix = "";
-		if (getTransportService().isUserDirIsRoot()) prefix = "$HOME/";
+		if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
 		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + ".tar.gz " + jobNamePrefix + id + ".*");
-		conn.sendExecToRemote(w);
+		transportService.connect(w);
+		w.getConnection().sendExecToRemote(w);
 	}
 	
-	private void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridUnresolvableHostException {
+	private void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		cleanUpAbnormallyTerminatedJob(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString());
 	}
 	
-	private void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridUnresolvableHostException {
+	private void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.info("Cleaning FAILED job " + id + " at " + hostname + ":" + workingDirectory);
-		GridTransportConnection conn = transportService.connect(hostname);
+		
 		WorkUnit w = new WorkUnit();
-		w.setConnection(conn);
 		String prefix = "";
-		if (getTransportService().isUserDirIsRoot()) prefix = "$HOME/";
+		if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
 		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + "-FAILED.tar.gz " + jobNamePrefix + id + ".*");
-		conn.sendExecToRemote(w);
+		transportService.connect(w);
+		w.getConnection().sendExecToRemote(w);
 	}
 
 
-	private GridResult startJob(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	private GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridAccessException, GridUnresolvableHostException, GridExecutionException {
 
-		String host;
 		UUID resultID = UUID.randomUUID();
 		w.setId(resultID.toString());
+		
+		// This step needs to take place after the workunit's id has been set.
+		// if the results directory is set to the default and there is no runId set
+		// (in jobParameters if object was created from the GridHostResolver lookup method 
+		// "createWorkUnit") it will throw an exception. 
+		directoryPlaceholderRewriter.replaceDirectoryPlaceholders(transportService, w);
+		
 		if (isJobExists(w)) {
 			throw new GridAccessException("UUID already exists");
 		}
@@ -257,27 +308,29 @@ public class SgeWorkService implements GridWorkService {
 			logger.debug("creating temporary local sge script: " + script.getAbsolutePath().toString());
 			BufferedWriter scriptHandle = new BufferedWriter(new FileWriter(script));
 			SgeSubmissionScript sss = new SgeSubmissionScript(w);
-			GridHostResolver ghr = transportService.getHostResolver();
-			if (ghr.getAccount(w) != null)
-				sss.setAccount(ghr.getAccount(w));
-			if(ghr.getMailRecipient(w) != null)
-				sss.setMailRecipient(ghr.getMailRecipient(w));
-			if(ghr.getMailCircumstances(w) != null)
-				sss.setMailCircumstances(ghr.getMailCircumstances(w));
-			if(ghr.getMaxRunTime(w) != null)
-				sss.setMaxRunTime(ghr.getMaxRunTime(w));
-			if(ghr.getParallelEnvironmentString(w) != null)
-				sss.setParallelEnvironment(ghr.getParallelEnvironmentString(w), w.getProcessorRequirements());
-			if(ghr.getProject(w) != null)
-				sss.setProject(ghr.getProject(w));
-			if(ghr.getQueue(w) != null)
-				sss.setQueue(ghr.getQueue(w));
+			
+			if (getAccount() != null)
+				sss.setAccount(getAccount());
+			if(getMailRecipient() != null)
+				sss.setMailRecipient(getMailRecipient());
+			if(getMailCircumstances() != null)
+				sss.setMailCircumstances(getMailCircumstances());
+			if(getMaxRunTime() != null)
+				sss.setMaxRunTime(getMaxRunTime());
+			// TODO: PE
+			//if(getAvailableParallelEnvironments().size() > 0)
+			//	sss.setParallelEnvironment("", w.getProcessorRequirements());
+			if(getProject() != null)
+				sss.setProject(getProject());
+			else if (w.getProject() != null)
+				// if the host does not have a project set, attempt to set from the work unit (for accounting).
+				sss.setProject(w.getProject());
+			if(getQueue() != null)
+				sss.setQueue(getQueue());
 			if (w.getMemoryRequirements()!= null) 
 				sss.setMemory(w.getMemoryRequirements());
 			if (w.getProcessorRequirements() != null)
 				sss.setProcs(w.getProcessorRequirements());
-			
-			
 			scriptHandle.write(sss.toString());
 			scriptHandle.close();
 		} catch (IOException e) {
@@ -286,8 +339,7 @@ public class SgeWorkService implements GridWorkService {
 			throw new GridAccessException("unable to get local temp file ", e.getCause());
 		}
 		try {
-			host = transportService.getHostResolver().getHostname(w);
-			waspGridFileService.put(script, host, w.getWorkingDirectory() + jobNamePrefix + w.getId() + ".sh");
+			gridFileService.put(script, w.getWorkingDirectory() + jobNamePrefix + w.getId() + ".sh");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("unable to begin grid transaction ", e.getCause());
@@ -298,13 +350,14 @@ public class SgeWorkService implements GridWorkService {
 
 		transportService.connect(w);
 		String prefix = "";
-		if (getTransportService().isUserDirIsRoot()) prefix = "~/";
-		String submit = "cd " + prefix + w.getWorkingDirectory() + " && qsub " + jobNamePrefix + w.getId() + ".sh";
+		if (transportService.isUserDirIsRoot()) prefix = "~/";
+		String submit = "cd " + prefix + w.getWorkingDirectory() + " && qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) w.getConnection().sendExecToRemote(w);
 		result.setUuid(resultID);
 		result.setWorkingDirectory(w.getWorkingDirectory());
-		result.setHostname(host);
+		result.setResultsDirectory(w.getResultsDirectory());
+		result.setHostname(transportService.getHostName());
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -361,7 +414,7 @@ public class SgeWorkService implements GridWorkService {
 			this.w = w;
 			this.name = w.getId();
 			String prefix = "";
-			if (getTransportService().isUserDirIsRoot()) prefix = "$HOME/";
+			if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
 			header = "#!/bin/bash\n#\n" +
 					"#$ -N " + jobNamePrefix + name + "\n" +
 					"#$ -S /bin/bash\n" +
@@ -383,7 +436,12 @@ public class SgeWorkService implements GridWorkService {
 			if (PropertyHelper.isSet(env)) {
 				configuration = env + "\n";
 			}
-			configuration += transportService.getSoftwareManager().getConfiguration(w);
+			if (transportService.getSoftwareManager() != null) {
+				String config = transportService.getSoftwareManager().getConfiguration(w);
+				if (config != null) {
+					configuration += config;
+				}
+			} 
 			command = w.getCommand();
 			postscript = "echo \"##### begin ${WASPNAME}\" > " + jobNamePrefix + "${WASPNAME}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + jobNamePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + jobNamePrefix + "${WASPNAME}.command\n" +
@@ -540,22 +598,16 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	@Override
 	public GridFileService getGridFileService() {
 		return gridFileService;
 	}
 	
 	public void setGridFileService(GridFileService gridFileService) {
 		this.gridFileService = gridFileService;
+	}
+	@Override
+	public GridTransportService getTransportService() {
+		return transportService;
 	}
 	
 }
