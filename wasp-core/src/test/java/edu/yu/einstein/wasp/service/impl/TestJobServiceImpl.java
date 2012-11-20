@@ -169,8 +169,6 @@ public class TestJobServiceImpl {
   
   @Test
   public void getSubmittedSamplesNotYetReceived() {
-	  //jobServiceImpl.setJobExplorer(mockJobExplorer);
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
 	  Job job = new Job();
 	  job.setJobId(1);
@@ -248,7 +246,6 @@ public class TestJobServiceImpl {
   
   @Test //when Sample is null
   public void getSubmittedSamplesNotYetReceived2() {
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
 	  Job job = new Job();
 	  job.setJobId(1);
@@ -404,9 +401,7 @@ public class TestJobServiceImpl {
 	  List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 	  jobExecutions.add(jobExecution);
 	  jobExecutions.add(jobExecution2);
-	  
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-	  
+	  	  
 	  expect(mockJobExplorerWasp.getJobExecutions(parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
 	    
 	  try {
@@ -454,8 +449,6 @@ public class TestJobServiceImpl {
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
 		
-		jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-
 		expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions);
 		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
 		
@@ -490,9 +483,7 @@ public class TestJobServiceImpl {
 		
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
-		
-		jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-		
+			
 		expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions);
 		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
 		
@@ -527,8 +518,6 @@ public class TestJobServiceImpl {
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 		 
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-
 	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
 	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
 		
@@ -914,6 +903,8 @@ public class TestJobServiceImpl {
   */
   @BeforeMethod
   public void beforeMethod() {
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
   }
 
   @AfterMethod
@@ -947,7 +938,7 @@ public class TestJobServiceImpl {
 	  Assert.assertNotNull(mockSampleDao);
 	  Assert.assertNotNull(mockJobDao);
 	  Assert.assertNotNull(mockJobExplorerWasp);
-
+	  
 
 
   }
