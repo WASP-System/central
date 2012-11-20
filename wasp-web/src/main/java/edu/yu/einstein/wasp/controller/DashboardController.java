@@ -18,6 +18,8 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
+import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
 
 @Controller
 @Transactional
@@ -44,6 +46,9 @@ public class DashboardController extends WaspController {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private TaskMappingRegistry taskMappingRegistry;
 
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -94,17 +99,26 @@ public class DashboardController extends WaspController {
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		
-		List<TaskMapping> taskMappings = taskService.getMappedTasksForCurrentUser();
+		List<WaspTaskMapping> taskMappingsToDisplay = new ArrayList<WaspTaskMapping>();
+		for (String name: taskMappingRegistry.getNames()){
+			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
+			if (taskMapping == null){
+				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
+				continue;
+			}
+			if (taskMapping.isLinkToBeShown())
+				taskMappingsToDisplay.add(taskMapping);
+		}
 		
-		m.addAttribute("tasks",taskMappings);
+		m.addAttribute("tasks",taskMappingsToDisplay);
 		
 		int numberOfLabManagerPendingTasks = taskService.getLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
 		m.addAttribute("numberOfLabManagerPendingTasks", numberOfLabManagerPendingTasks);
 		int numberOfDepartmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//if da, then number is dependent on the department(s) the da covers, otherwise all such da tasks
 		m.addAttribute("numberOfDepartmentAdminPendingTasks", numberOfDepartmentAdminPendingTasks);
 
-		int totalNumberOfTypesOfTasks = taskMappings.size() + (numberOfLabManagerPendingTasks>0?1:0) + (numberOfDepartmentAdminPendingTasks>0?1:0);
-		m.addAttribute("totalNumberOfTypesOfTasks", totalNumberOfTypesOfTasks);
+		boolean isTasks = (taskMappingsToDisplay.size() + numberOfLabManagerPendingTasks + numberOfDepartmentAdminPendingTasks) > 0;
+		m.addAttribute("isTasks", isTasks);
 		
 		return "dashboard";
 	}

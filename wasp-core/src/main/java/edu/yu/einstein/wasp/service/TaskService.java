@@ -30,15 +30,6 @@ public interface TaskService extends WaspService {
 	public int getDepartmentAdminPendingTasks();
 
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
-	
 		
-	/**
-	 * Obtains a list of task-mappings, with the stateCount attribute set to the number of taskMappings, for 
-	 * named batch steps in the preset state which have at least one match in the Batch database. Only task-mappings that the current 
-	 * user has permissions to see are returned.
-	 * @return
-	 */
-	public List<TaskMapping> getMappedTasksForCurrentUser();
-	
 	
 }

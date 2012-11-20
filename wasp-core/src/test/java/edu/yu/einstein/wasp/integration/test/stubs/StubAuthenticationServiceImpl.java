@@ -154,4 +154,10 @@ public class StubAuthenticationServiceImpl implements AuthenticationService {
 		return false;
 	}
 
+	@Override
+	public Integer getRoleValue(String role) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

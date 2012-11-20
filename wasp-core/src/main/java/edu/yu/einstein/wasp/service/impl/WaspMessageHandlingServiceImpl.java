@@ -33,8 +33,8 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 		Message<?> replyMessage  = null;
 		try{
 			replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
-		} catch(MessageHandlingException e){
-			throw new WaspMessageBuildingException("Problem encountered sending message '" + message.toString() + ": " + e.getLocalizedMessage());
+		} catch(Throwable t){
+			throw new WaspMessageBuildingException("Problem encountered sending message '" + message.toString() + ": " + t.getLocalizedMessage());
 		}
 		if(replyMessage == null){
 			// TODO: send exception
