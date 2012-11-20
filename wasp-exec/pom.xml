@@ -44,11 +44,11 @@
 				</transformers>
 				<filters>
 				<filter>
-				<artifact>edu.yu.einstein.wasp:wasp-cli</artifact>
+				<artifact>*:*</artifact>
 				<excludes>
-				<exclude>commons-logging.properties</exclude>
-				<exclude>simplelog.properties</exclude>
-				<exclude>logback.xml</exclude>
+				<exclude>META-INF/*.SF</exclude>
+				<exclude>META-INF/*.DSA</exclude>
+				<exclude>META-INF/*.RSA</exclude>                                       
 				</excludes>
 				</filter>
 				</filters>

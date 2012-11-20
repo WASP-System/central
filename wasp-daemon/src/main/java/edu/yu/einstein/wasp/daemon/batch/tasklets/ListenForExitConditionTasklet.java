@@ -14,6 +14,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
@@ -41,6 +42,18 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	private Message<WaspStatus> message = null;
 	
 	private boolean stopJobNotificationReceived = false;
+	
+	private int delayInMillis = 10000;
+	
+	/**
+	 * Set the delay between execution steps, default 10000 (10s).
+	 * 
+	 * @param delayInMillis
+	 */
+	@Value(value="${wasp.task.delay:10000}")
+	public void setDelayInMillis(int delayInMillis) {
+		this.delayInMillis = delayInMillis;
+	}
 	
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();
@@ -122,7 +135,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.debug("execute() invoked");
 		if (message == null)
-			return delayedRepeatStatusContinuable(1000); // returns RepeatStatus.CONTINUABLE after 1s delay	
+			return delayedRepeatStatusContinuable(delayInMillis); // returns RepeatStatus.CONTINUABLE after 1s delay	
 		return RepeatStatus.FINISHED;
 	}
 	

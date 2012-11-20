@@ -16,6 +16,17 @@ public class MessageChannelRegistry {
 
 	private Map<String, MessageChannel> messageChannels;
 	
+	
+	public static final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
+	public static final String REPLY_MESSAGE_CHANNEL = "wasp.channel.reply";
+
+	public static final String JOB_MESSAGE_CHANNEL = "wasp.channel.notification.job";
+	public static final String RUN_MESSAGE_CHANNEL = "wasp.channel.notification.run";
+	public static final String SAMPLE_MESSAGE_CHANNEL = "wasp.channel.notification.sample";
+	public static final String LIBRARY_MESSAGE_CHANNEL = "wasp.channel.notification.library";
+	public static final String DEFAULT_MESSAGE_CHANNEL = "wasp.channel.notification.default";
+	public static final String ABORT_MESSAGE_CHANNEL = "wasp.channel.notification.abort";
+	
 	/**
 	 * Constructor
 	 */
