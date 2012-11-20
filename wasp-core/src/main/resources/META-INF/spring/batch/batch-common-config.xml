@@ -63,13 +63,43 @@
         </property>
     </bean>
     
+    <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
-		<aop:pointcut id="taskletRetryPointcut" 
-			expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionUntilSuccessful * *(..))" />
-		<aop:advisor pointcut-ref="taskletRetryPointcut" advice-ref="taskletRetryAdvice" />
+        <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
+        <aop:advisor pointcut-ref="batchJobRetry" advice-ref="fixedBackoffTaskletRetryAdvice" />
+    </aop:config>
+
+    <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+        <property name="retryOperations">
+            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+                <property name="retryPolicy">
+                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+                    	<property name="maxAttempts" value="${wasp.batch.retry.backoff.maxattempts:1000000000}" />
+                    	<property name="retryableExceptions">
+							<map>
+								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
+							</map>
+						</property>
+                    </bean>
+                </property>
+                <property name="backOffPolicy">
+                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                    	<property name="backOffPeriod" value="${wasp.batch.retry.backoff.initialInterval:1000}"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+    <!-- AOP advice to restart methods with @RetryOnExceptionExponential annotation-->
+    
+    <aop:config>
+		<aop:pointcut id="taskletRetryExponentialPointcut" 
+			expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential * *(..))" />
+		<aop:advisor pointcut-ref="taskletRetryPointcut" advice-ref="exponentialBackoffTaskletRetryAdvice" />
 	</aop:config>
 
-	<bean id="taskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
 		<property name="retryOperations">
 			<bean class="org.springframework.batch.retry.support.RetryTemplate">
 				<property name="retryPolicy">

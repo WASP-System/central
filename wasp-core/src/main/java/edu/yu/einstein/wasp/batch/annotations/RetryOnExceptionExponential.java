@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
-public @interface RetryOnExceptionUntilSuccessful {
+public @interface RetryOnExceptionExponential {
 	
 //	
 //	/**

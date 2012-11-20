@@ -14,7 +14,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionUntilSuccessful;
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -88,7 +88,7 @@ public class ExternalFileExistsTasklet extends WaspTasklet {
 
 	
 	@Override
-	@RetryOnExceptionUntilSuccessful
+	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		
 		WorkUnit w = gridHostResolver.createWorkUnit();
