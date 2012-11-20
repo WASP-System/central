@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
@@ -114,6 +115,14 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	@Override
 	public JobParameters getJobParameters(JobExecution jobExecution){
 		return (waspJobInstanceDao.getJobInstance(jobExecution).getJobParameters());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobName(JobExecution jobExecution){
+		return (waspJobInstanceDao.getJobInstance(jobExecution).getJobName());
 	}
 
 	

@@ -61,6 +61,9 @@ public class WaspBatchJobLauncher implements BatchJobLauncher{
 		this.jobLauncher = jobLauncher;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Message<WaspStatus> launch(BatchJobLaunchContext batchJobLaunchContext){
 		try{
