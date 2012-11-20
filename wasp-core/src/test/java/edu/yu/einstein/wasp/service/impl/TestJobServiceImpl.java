@@ -541,7 +541,7 @@ public class TestJobServiceImpl {
 	  verify(mockJobExplorerWasp);
 	  
   }
-  
+  /*
   @Test
   public void getExtraJobDetails() {
 	  Job job = new Job();
@@ -679,6 +679,8 @@ public class TestJobServiceImpl {
 	  
 	  
   }
+  
+  */
   
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
