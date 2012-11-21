@@ -92,6 +92,7 @@ public interface JobDraftService extends WaspService {
 	 * get the (sole) User-generated JobDraft Comment if it exists; if not return null.
 	 * @param Integer jobDraftId
 	 * @return String 
+	 * @throws Exception
 	 */
-	public String getUserJobDraftComment(Integer jobDraftId);
+	public String getUserJobDraftComment(Integer jobDraftId) throws Exception;
 }

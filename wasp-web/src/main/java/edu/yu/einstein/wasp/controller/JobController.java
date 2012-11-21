@@ -141,10 +141,19 @@ public class JobController extends WaspController {
 		}		
 		m.addAttribute("job", job);
 		
-		//TODO get the commentsList from jobMeta and add to m
+		//get the user-submitted job comment (if any); should be zero or one
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			logger.debug(metaMessage.getName() + " = " +  metaMessage.getValue());
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return to htmlLineBreak
+		}
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any)
 		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
 		for (MetaMessage metaMessage: facilityJobCommentsList){
 			logger.debug(metaMessage.getName() + " = " +  metaMessage.getValue());
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
 		}
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		

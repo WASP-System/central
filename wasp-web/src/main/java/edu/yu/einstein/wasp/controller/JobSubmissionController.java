@@ -1649,16 +1649,12 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		m.put("jobDraft", jobDraft);
-		System.out.println("At A");
-		m.put("pageFlowMap", getPageFlowMap(jobDraft));//for some unknown reason, this line must precede the next line. odd!
-		System.out.println("At B jobDraftId = " + jobDraftId.intValue());
-		System.out.println("At B2 jobDraft.getJobDraftId() = " + jobDraft.getJobDraftId().intValue());
-		String comment = jobDraftService.getUserJobDraftComment(jobDraftId);
-		System.out.println("At C jobDraftId = " + jobDraftId.intValue());
-		System.out.println("At C2 jobDraft.getJobDraftId() = " + jobDraft.getJobDraftId().intValue());
-
-		//String comment = new String("test comment by rob");
-		//comment = null;
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		String comment=null;
+		try{
+			comment = jobDraftService.getUserJobDraftComment(jobDraftId);
+		}
+		catch(Exception e){logger.warn(e.getMessage()); waspErrorMessage("jobDraft.commentFetch.error");}
 		m.put("comment", comment==null?"":comment);
 		return "jobsubmit/comment";
 	}

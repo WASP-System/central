@@ -298,43 +298,36 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	public void saveUserJobDraftComment(Integer jobDraftId, String comment) throws Exception{
 		String trimmedComment = comment==null?"":comment;
 		try{
-			System.out.println("In 1");
 			List<MetaMessage> metaMessageList = metaMessageService.read(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
-			System.out.println("In 2");
 			if(metaMessageList.size()>0){//already exists, so get it. edit it (if trimmedComment.size()>0) or delete it if size==0
 				MetaMessage metaMessage = metaMessageList.get(0);//there will only be one
 				if("".equals(trimmedComment)){
-					System.out.println("In 3");
 					metaMessageService.delete(metaMessage, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
 				}
 				else{
-					System.out.println("In 4");
 					metaMessageService.edit(metaMessage, trimmedComment, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
 				}
 			}
 			else if(metaMessageList.size()==0 && ! "".equals(trimmedComment)){//need to create new entry
-				System.out.println("In 5");
 				metaMessageService.saveToGroup(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT, trimmedComment, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
-				System.out.println("In 6");
 			}			
-		}catch(Exception e){ System.out.println("In 7"); throw new Exception(e.getMessage());}		
+		}catch(Exception e){ throw new Exception(e.getMessage());}		
 	}
 	
 	/**
 	* {@inheritDoc}
 	*/
 	@Override
-	public String getUserJobDraftComment(Integer jobDraftId){
+	public String getUserJobDraftComment(Integer jobDraftId) throws Exception{
 		String comment = null;//if(1==1){return new String("new string message to avoid exception");}
 		try{
-			System.out.println("In 100");
 			List<MetaMessage> metaMessageList = metaMessageService.read(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
-			System.out.println("In 200");
 			if(metaMessageList.size()>0){//only one allowed
 				comment = metaMessageList.get(0).getValue();
 			}
 		}catch(Exception e){
 			logger.warn("caught unexpected exception in getUserJobDraftComment(): " + e.getLocalizedMessage());
+			throw new Exception(e.getMessage());
 		}
 		return comment;
 	}
