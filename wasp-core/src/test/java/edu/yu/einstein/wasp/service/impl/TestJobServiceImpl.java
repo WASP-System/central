@@ -169,8 +169,6 @@ public class TestJobServiceImpl {
   
   @Test
   public void getSubmittedSamplesNotYetReceived() {
-	  //jobServiceImpl.setJobExplorer(mockJobExplorer);
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
 	  Job job = new Job();
 	  job.setJobId(1);
@@ -212,7 +210,7 @@ public class TestJobServiceImpl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 	  }
-	  
+	  jobServiceImpl.setSampleDao(mockSampleDao);
 	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(sample);
 	  
 	  replay(mockJobExplorerWasp);
@@ -248,7 +246,6 @@ public class TestJobServiceImpl {
   
   @Test //when Sample is null
   public void getSubmittedSamplesNotYetReceived2() {
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
 	  Job job = new Job();
 	  job.setJobId(1);
@@ -287,7 +284,7 @@ public class TestJobServiceImpl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 	  }
-	  
+	  jobServiceImpl.setSampleDao(mockSampleDao);
 	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(null);
 	  
 	  replay(mockJobExplorerWasp);
@@ -306,8 +303,6 @@ public class TestJobServiceImpl {
  
   @Test
   public void getSubmittedSamplesNotYetReceived3() {
-	  //jobServiceImpl.setJobExplorer(mockJobExplorer);
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
 
 	  Job job = new Job();
 	  job.setJobId(1);
@@ -345,7 +340,9 @@ public class TestJobServiceImpl {
 	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
 	  StepExecution stepExecution2= new StepExecution("Step Name1", jobExecution2, new Long(12345));
 	  stepExecutions.add(stepExecution2);
-	  
+
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
 	  expect(mockJobExplorerWasp.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED)).andReturn(stepExecutions);
 	  
 	  try {
@@ -355,6 +352,7 @@ public class TestJobServiceImpl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 	  }
+	  jobServiceImpl.setSampleDao(mockSampleDao);
 	  expect(mockSampleDao.getSampleBySampleId(123)).andReturn(sample);
 	  try {
 			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution2, WaspJobParameters.SAMPLE_ID)).andReturn("456");
@@ -403,9 +401,7 @@ public class TestJobServiceImpl {
 	  List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 	  jobExecutions.add(jobExecution);
 	  jobExecutions.add(jobExecution2);
-	  
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-	  
+	  	  
 	  expect(mockJobExplorerWasp.getJobExecutions(parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
 	    
 	  try {
@@ -452,7 +448,7 @@ public class TestJobServiceImpl {
 		
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
-
+		
 		expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions);
 		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
 		
@@ -487,7 +483,7 @@ public class TestJobServiceImpl {
 		
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
-
+			
 		expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions);
 		expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
 		
@@ -496,6 +492,40 @@ public class TestJobServiceImpl {
 		Assert.assertTrue(jobServiceImpl.isJobAwaitingDaApproval(job));
 		
 	    verify(mockJobExplorerWasp);
+	  
+  }
+  
+  @Test
+  public void isJobAwaitingQuote(){
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  
+	  StepExecution stepExecution;
+	  JobExecution jobExecution;
+	  JobInstance jobInstance;
+	  JobParameters jobParameters;
+	  jobParameters = new JobParameters();
+	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution.setExitStatus(ExitStatus.EXECUTING);
+			
+	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+		 
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+		
+	  replay(mockJobExplorerWasp);
+	
+	  Assert.assertTrue(jobServiceImpl.isJobAwaitingQuote(job));
+		
+	  verify(mockJobExplorerWasp);
 	  
   }
   
@@ -873,6 +903,8 @@ public class TestJobServiceImpl {
   */
   @BeforeMethod
   public void beforeMethod() {
+	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+
   }
 
   @AfterMethod
@@ -906,7 +938,7 @@ public class TestJobServiceImpl {
 	  Assert.assertNotNull(mockSampleDao);
 	  Assert.assertNotNull(mockJobDao);
 	  Assert.assertNotNull(mockJobExplorerWasp);
-
+	  
 
 
   }

@@ -88,10 +88,10 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.version}</version>
 				<configuration>
-				<excludedGroups>integration-tests,db-tests,a,ssh</excludedGroups>
 				<includes>
 					<include>%regex[.*Test.*\.class]</include>
 				</includes>

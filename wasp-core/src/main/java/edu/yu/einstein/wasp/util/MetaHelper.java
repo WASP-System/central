@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
@@ -526,25 +525,6 @@ public class MetaHelper {
 			meta.setV(value);
 			((List<T>) this.lastList).add(meta);
 		}
-	}
-	
-	/**
-	 * Gets list of metadata messages for locale of supplied HttpSession
-	 * @param session
-	 * @return Map of name : message pairs
-	 */
-	public static Map<String, String> getMetadataMessages(HttpSession session){
-		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
-		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		Map<String, String> messageMap = new HashMap<String, String>();
-		for(String k: keys) {
-			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
-			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
-			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
-			String name=path[1]; // e.g. 'login' using above example
-			messageMap.put(name, currentMessage);
-		}
-		return messageMap;
 	}
 	
 	/**

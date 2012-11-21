@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +36,6 @@ public class LocalhostTransportService implements GridTransportService {
 	}
 
 	@Override
-	public GridTransportConnection connect(String hostname) {
-		return new LocalhostTransportConnection();
-	}
-
-	@Override
-	public GridHostResolver getHostResolver() {
-		return new SingleHostResolver("localhost", System.getProperty("user.name").toString());
-	}
-
-	@Override
 	public void setSoftwareManager(SoftwareManager swm) {
 		this.softwareManager = swm;
 	}
@@ -67,6 +59,38 @@ public class LocalhostTransportService implements GridTransportService {
 	@Override
 	public void setUserDirIsRoot(boolean isRoot) {
 		this.userDirIsRoot = isRoot;
+	}
+
+	@Override
+	public void setName(String name) {}
+
+	@Override
+	public void setHostName(String hostname) {}
+
+	@Override
+	public void setUserName(String username) {}
+
+	@Override
+	public void setIdentityFile(String identityFile) {}
+
+	@Override
+	public String getName() {
+		return "localhost";
+	}
+
+	@Override
+	public String getHostName() {
+		return "localhost";
+	}
+
+	@Override
+	public String getUserName() {
+		return System.getProperty("user.name");
+	}
+
+	@Override
+	public File getIdentityFile() {
+		return null;
 	}
 
 }

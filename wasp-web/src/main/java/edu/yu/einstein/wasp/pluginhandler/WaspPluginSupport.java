@@ -21,6 +21,8 @@ import java.util.jar.JarFile;
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.ServletContextAware;
 
@@ -38,6 +40,8 @@ public class WaspPluginSupport implements ServletContextAware {
 	private ServletContext servletContext;
 	private AntPathMatcher pathMatcher = new AntPathMatcher();
 	private String resourceUrlFilter;
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * Creates a new instance of the JarFileResourcesExtractor
@@ -79,6 +83,7 @@ public class WaspPluginSupport implements ServletContextAware {
 		
 		// get list of applicable jars
 		Map<String,List<URL>> filteredResourceUrls = new HashMap<String,List<URL>>();
+		logger.debug("WaspPluginSupport: Resource URL filter: "+resourceUrlFilter);
 		for (String resourceDirectory: this.resourceDirectoryList){
 			Enumeration<URL> resources = this.getClass().getClassLoader().getResources(resourceDirectory);
 			while (resources.hasMoreElements()) {
@@ -93,7 +98,7 @@ public class WaspPluginSupport implements ServletContextAware {
 			}
 		}
 		if (filteredResourceUrls.isEmpty()){
-			System.out.println("WaspPluginSupport: No WASP plugin jars contained files in any resource directory provided");
+			logger.debug("WaspPluginSupport: No WASP plugin jars contained files in any resource directory provided");
 			return;
 		}
 		for (String resourceDirectory: filteredResourceUrls.keySet()){
@@ -101,7 +106,7 @@ public class WaspPluginSupport implements ServletContextAware {
 				try {
 					JarURLConnection conn = (JarURLConnection)resourceUrl.openConnection();
 					JarFile jarFile = conn.getJarFile();
-					System.out.println("WaspPluginSupport: Extracting resources from "+resourceUrl.getPath());
+					logger.debug("WaspPluginSupport: Extracting resources from "+resourceUrl.getPath());
 					Enumeration<JarEntry> entries = jarFile.entries();
 					while (entries.hasMoreElements()) {
 						JarEntry entry = entries.nextElement();

@@ -19,6 +19,7 @@ public class GridResultImpl implements GridResult {
 	private String hostname;
 	private String username;
 	private String workingDirectory;
+	private String resultsDirectory;
 	protected int finalStatus = 0;
 	protected String finalOutput = "";
 
@@ -96,6 +97,18 @@ public class GridResultImpl implements GridResult {
 	 */
 	public void setWorkingDirectory(String workingDirectory) {
 		this.workingDirectory = workingDirectory;
+	}
+	
+	/**
+	 * @see edu.yu.einstein.wasp.grid.work.GridResult#getResultsDirectory()
+	 */
+	@Override
+	public String getResultsDirectory() {
+		return resultsDirectory;
+	}
+	
+	public void setResultsDirectory(String resultsDirectory) {
+		this.resultsDirectory = resultsDirectory;
 	}
 	
 	public void setUsername(String username) {

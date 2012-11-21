@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.File;
+
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -25,21 +27,6 @@ public interface GridTransportService {
 	public void connect(WorkUnit w) throws GridAccessException, GridUnresolvableHostException;
 	
 	/**
-	 * Obtain a connection to a known host.  The primary use of this function is to do work on a host that is
-	 * independent of the {@link GridWorkService} implementation.
-	 * 
-	 * @param hostname
-	 * @return
-	 * @throws GridUnresolvableHostException 
-	 */
-	public GridTransportConnection connect(String hostname) throws GridAccessException, GridUnresolvableHostException;
-	
-	/**
-	 * @return
-	 */
-	public GridHostResolver getHostResolver();
-	
-	/**
 	 * configure a bean for resolving versions of software
 	 * @param swm
 	 */
@@ -52,5 +39,14 @@ public interface GridTransportService {
 	public boolean isUserDirIsRoot();
 	
 	public void setUserDirIsRoot(boolean isRoot);
+	
+	public void setName(String name);
+	public String getName();
+	public void setHostName(String hostname);
+	public String getHostName();
+	public void setUserName(String username);
+	public String getUserName();
+	public void setIdentityFile(String identityFile);
+	public File getIdentityFile();
 
 }
