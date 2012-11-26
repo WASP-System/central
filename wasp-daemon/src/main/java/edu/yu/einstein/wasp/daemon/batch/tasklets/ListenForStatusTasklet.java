@@ -70,6 +70,8 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		this.abortMonitoredTemplates.add(messageTemplate);
 	}
 	
+	public ListenForStatusTasklet(){}
+	
 	@PostConstruct
 	protected void init() throws MessagingException{
 		if (messageTemplate.getStatus() == null)

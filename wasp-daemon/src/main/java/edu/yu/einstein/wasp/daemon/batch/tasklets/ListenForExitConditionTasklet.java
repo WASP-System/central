@@ -45,6 +45,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	
 	private boolean stopJobNotificationReceived = false;
 	
+	public ListenForExitConditionTasklet(){}	
 		
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();

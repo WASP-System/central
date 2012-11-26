@@ -280,6 +280,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
 		for (StepExecution stepExecution: stepExecutions){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
 			Integer sampleId = null;
 			try{
 				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));

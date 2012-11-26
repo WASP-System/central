@@ -132,6 +132,7 @@
 	</bean>
 	
 	<bean id="batchRelaunchRunningJobsOnStartup" class="edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup">
+		<constructor-arg name="jobRepository" ref="jobRepository" />
 		<constructor-arg name="jobOperator" ref="jobOperator" />
 		<constructor-arg name="jobExplorer" ref="jobExplorer" />
 	</bean>
