@@ -74,7 +74,7 @@
     <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
         <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" />
+        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" order="-1" />
     </aop:config>
 
     <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
