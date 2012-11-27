@@ -691,8 +691,6 @@ public class TestJobServiceImpl {
 
 	  verify(mockJobExplorerWasp);
 	  
-	  
-	  
   }
   // Admin Approve
   @Test
@@ -731,7 +729,6 @@ public class TestJobServiceImpl {
 	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
 	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  //extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
 	  
 	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
 	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
@@ -995,6 +992,8 @@ public class TestJobServiceImpl {
 	  
   }
   
+
+  
   //Test different quote amounts
   @Test
   public void getExtraJobDetails4() {
@@ -1127,9 +1126,6 @@ public class TestJobServiceImpl {
 	  
   }
 
-
-
-  
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
   @Test
