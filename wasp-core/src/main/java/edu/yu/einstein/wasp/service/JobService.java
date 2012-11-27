@@ -175,7 +175,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job Quote Status for job.
-	 * Status must be either CREATED or ABANDONED
+	 * Status must be either COMPLETED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -184,7 +184,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job DA approval Status for job
-	 * Status must be either CREATED or ABANDONED
+	 * Status must be either COMPLETED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException
@@ -193,7 +193,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	/**
 	 * Updates the Job Pi Approval Status for job
-	 * Status must be either CREATED or ABANDONED
+	 * Status must be either COMPLETED or ABANDONED
 	 * @param jobId
 	 * @param status
 	 * @throws WaspMessageBuildingException

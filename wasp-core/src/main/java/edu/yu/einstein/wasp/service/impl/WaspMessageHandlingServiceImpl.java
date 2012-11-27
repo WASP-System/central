@@ -25,10 +25,15 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 		this.messageTimeoutInMillis = messageTimeout;
 	}
 	
-	@Autowired
-	@Qualifier(MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL)
+	
 	private DirectChannel outboundRemotingChannel; // channel to send messages out of system
 	
+	@Autowired
+	@Qualifier(MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL)
+	public void setOutboundRemotingChannel(DirectChannel outboundRemotingChannel) {
+		this.outboundRemotingChannel = outboundRemotingChannel;
+	}
+
 	/**
 	 * Send an outbound message via Spring Integration
 	 * @param message
@@ -37,7 +42,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 	public void sendOutboundMessage(final Message<?> message) throws WaspMessageBuildingException{
 		logger.debug("Sending message via '" + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + "': "+message.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
+		messagingTemplate.setReceiveTimeout(40000);
 		Message<?> replyMessage  = null;
 		try{
 			replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
@@ -49,6 +54,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 			logger.warn("Did not receive a reply on sending outbound message :"+ message.toString());
 			return;
 		}
+		logger.debug("Recieved reply  :"+ replyMessage.toString());
 		if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
 			throw new WaspMessageBuildingException("Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
 		if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))

@@ -14,14 +14,11 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
@@ -45,8 +42,6 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	
 	private boolean stopJobNotificationReceived = false;
 	
-	public ListenForExitConditionTasklet(){}	
-		
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();
 		this.messageTemplates.add(messageTemplate);
@@ -124,18 +119,17 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	}
 
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		logger.debug("execute() invoked");
+		logger.trace("execute() invoked");
 		if (message == null)
-			throw new TaskletRetryException("tasklet did not recieved any message to proccess this time round");
+			return RepeatStatus.CONTINUABLE;
 		return RepeatStatus.FINISHED;
 	}
 	
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("handleMessage() invoked). Received message: " + message.toString());
+		logger.trace("handleMessage() invoked). Received message: " + message.toString());
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();

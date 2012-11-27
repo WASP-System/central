@@ -343,7 +343,7 @@ public class Job2QuoteController extends WaspController {
 			acctJobquotecurrentDao.persist(acctJobquotecurrent);
 		}
 		try{
-			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.CREATED);
+			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
 		} catch (WaspMessageBuildingException e){
 			logger.warn(e.getMessage());
 			try {

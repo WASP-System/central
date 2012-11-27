@@ -935,7 +935,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE);
+		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
 	}
 	
 	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
@@ -943,14 +943,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		Assert.assertParameterNotNull(status, "No Status provided");
-		if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
-			throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
+			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		
 		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
-		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
 		sendOutboundMessage(messageTemplate.build());
 	}
 
