@@ -32,7 +32,8 @@
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
 		<value>/jobsubmit/software/aligner/{n}</value>
 		<value>/jobsubmit/software/peakcaller/{n}</value>
-		<!--  <value>/jobsubmit/verify/{n}</value> -->
+		<value>/jobsubmit/comment/{n}</value> 
+		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
       </list>
@@ -90,6 +91,11 @@
           <property name="baseName" value="jobsubmit/software/peakcaller" />
           <property name="label" value="Peak Calling Software Selection" />
         </bean>
+         <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="Comments" />
+        </bean>
+        
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
           <property name="label" value="Verify Submission" />

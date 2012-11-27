@@ -53,7 +53,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 
 		Set<String> selectedSamplePairs = new HashSet<String>();
 		String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraftId);
 		if (samplePairsTvsC.getJobDraftMetaId() != null){
 			for(String pair: samplePairsTvsC.getV().split(";")){
 				String[] pairList = pair.split(":");
@@ -85,7 +85,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 	    
 	    // remove old paired sample for jobdraft
 	    String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobdraftId(samplePairsKey, jobDraftId);
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraftId);
 		if (samplePairsTvsC.getJobDraftMetaId() != null){
 			jobDraftMetaDao.remove(samplePairsTvsC);
 			jobDraftMetaDao.flush(samplePairsTvsC);
@@ -112,7 +112,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		if (!pairMetaString.isEmpty()){
 			// persist pair meta string
 			JobDraftMeta jdm = new JobDraftMeta(); 
-			jdm.setJobdraftId(jobDraftDb.getJobDraftId());
+			jdm.setJobDraftId(jobDraftDb.getJobDraftId());
 			jdm.setK(samplePairsKey);
 			jdm.setV(pairMetaString); 
 			jobDraftMetaDao.save(jdm);
