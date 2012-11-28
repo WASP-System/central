@@ -149,7 +149,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param job
 	 * @return
 	 */
-	public Boolean isJobAwaitingPiApproval(Job job);
+	public boolean isJobAwaitingPiApproval(Job job);
 
 	
 	/**
@@ -157,21 +157,21 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param job
 	 * @return
 	 */
-	public Boolean isJobAwaitingDaApproval(Job job);
+	public boolean isJobAwaitingDaApproval(Job job);
 	
 	/**
 	 * Returns true if provided job is awaiting quoting, otherwise returns false
 	 * @param job
 	 * @return
 	 */
-	public Boolean isJobAwaitingQuote(Job job);
+	public boolean isJobAwaitingQuote(Job job);
 	
 	/**
 	 * Returns true if provided sample is received, otherwise returns false
 	 * @param sample
 	 * @return
 	 */
-	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample);
+	public boolean isJobAwaitingLibraryCreation(Job job, Sample sample);
 	
 	/**
 	 * Updates the Job Quote Status for job.
@@ -248,5 +248,17 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<MetaMessage>
 	 */
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
+
+	/**
+	 * get a list of all jobs awaiting quoting (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingQuote();
+
+	/**
+	 * returns true if one or more jobs are awaiting quoting
+	 * @return
+	 */
+	public boolean isJobsAwaitingQuote();
 
 }

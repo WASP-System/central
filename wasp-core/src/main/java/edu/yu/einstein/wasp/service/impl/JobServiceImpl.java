@@ -386,7 +386,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingPiApproval(Job job){
+		public boolean isJobAwaitingPiApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -406,7 +406,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingDaApproval(Job job){
+		public boolean isJobAwaitingDaApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -425,7 +425,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingQuote(Job job){
+		public boolean isJobAwaitingQuote(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -438,6 +438,26 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
 				return true;
 			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public List<Job> getJobsAwaitingQuote(){
+			List<Job> jobsAwaitingQuote = new ArrayList<Job>();
+			for (Job job : getActiveJobs())
+				if (isJobAwaitingQuote(job))
+					jobsAwaitingQuote.add(job);
+			return jobsAwaitingQuote;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobsAwaitingQuote(){
+			return getJobsAwaitingQuote().size() > 0;
 		}
 	  
 	  /**
@@ -898,7 +918,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
+	public boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Integer sampleId = sample.getSampleId();
 		Assert.assertParameterNotNullNotZero(sampleId, "Invalid Sample Provided");
@@ -1091,7 +1111,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setFacilityJobComment(Integer jobId, String comment)throws Exception{
+	public void setFacilityJobComment(Integer jobId, String comment) throws Exception{
 		try{
 			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
