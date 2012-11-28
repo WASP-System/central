@@ -26,6 +26,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +98,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -154,6 +156,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -558,6 +563,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  
 	  /**
 	   * {@inheritDoc}
+	 * @throws WaspMessageBuildingException 
 	   */
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
@@ -643,6 +649,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 			
 			// Create Samples
+			List<Sample> samples = new ArrayList<Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
 				// existing sample...
 				Sample sampleDb;
@@ -662,6 +669,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sample.setIsActive(1);
 			
 					sampleDb = sampleDao.save(sample); 
+					samples.add(sampleDb);
 			
 					// sample file
 					if (sd.getFileId() != null) {
@@ -733,7 +741,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
 			jobDraftDao.save(jobDraft); 
-						
+			
+			// initiate batch jobs in wasp-daemon
+			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + jobDb.getJobId() + "'");
+			initiateBatchJobForJobSubmission(jobDb);
+			for (Sample sample: samples){
+				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+				sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+			}
+			
 			return jobDb;
 	  }
 	  
@@ -741,7 +757,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException{
+	  public void initiateBatchJobForJobSubmission(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		// send message to initiate job processing
@@ -749,7 +765,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
-		sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		try {
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
 	  }
 	  
 	/**

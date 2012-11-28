@@ -27,6 +27,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -433,7 +434,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public void initiateBatchJobForSample(Job job, Sample sample, String batchJobName) throws WaspMessageBuildingException{
+	  public void initiateBatchJobForSample(Job job, Sample sample, String batchJobName){
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
@@ -444,7 +445,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
 		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
-		  sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		  try {
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
 	  }
 
 	  /**
