@@ -41,6 +41,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -100,7 +101,10 @@ public class DepartmentController extends WaspController {
 	
 	@Autowired
 	private JobService jobService;
-	
+
+	@Autowired
+	private MessageService messageService;
+
 	@Autowired
 	private SampleService sampleService;
 
@@ -519,7 +523,7 @@ public class DepartmentController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));
+					sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
 				}
 			}			
 		}

@@ -1,7 +1,5 @@
-
-
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
-
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script>
 
  <script type="text/javascript">
      $(document).ready(function() {            
@@ -14,18 +12,19 @@
      	}
 	    }
  </script>
- <script language="JavaScript">
+ <script type="text/javascript">
 		<!--
 		function validate(param){
-			var error = false;			
+			var error = false;
+			var message = "";
 			if(param == 'createAdmin' && document.f.adminName.value == ""){
 				error = true;
-				var message = '<fmt:message key="department.detail_missingparam.error" />';
+				message = '<fmt:message key="department.detail_missingparam.error" />';
 				document.f.adminName.focus();
 			}
 			else if(param == 'updateDept' && document.update_form.name.value == ""){
 				error = true;
-				var message = '<fmt:message key="department.detail_update_missingparam.error" />';
+				message = '<fmt:message key="department.detail_update_missingparam.error" />';
 				document.update_form.name.focus();
 			}
 			if(error){ alert(message); return false; }

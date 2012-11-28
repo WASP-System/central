@@ -15,7 +15,7 @@
 			</tr>
 			<tr class="FormData">
 				<td class="DataTD">&nbsp;</td>
-				<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1">Active &nbsp; <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0">Inactive</td>
+				<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==1?'CHECKED':''}" /> value="1"> <fmt:message key="department.detail_active.label" /> &nbsp; <input class="FormElement ui-widget-content ui-corner-all" type="radio" name="isActive" <c:out value="${department.isActive==0?'CHECKED':''}" />	value="0"> <fmt:message key="department.detail_inactive.label" /></td>
 			</tr>
 		</table>
 		<div class="submit">
@@ -70,9 +70,8 @@
 <br />
 		
 <div>
-<!-- <h1><fmt:message key="department.detail_labs.label" /></h1> -->
-<!-- I do not believe this grid belongs here. 
-<table id="grid_id"></table> 
-<div id="gridpager"></div>
--->
+ <%-- I do not believe this grid belongs here. --%>
+ <%-- <h1><fmt:message key="department.detail_labs.label" /></h1>  
+ <%-- <table id="grid_id"></table> 
+ <div id="gridpager"></div>--%>
 </div>
