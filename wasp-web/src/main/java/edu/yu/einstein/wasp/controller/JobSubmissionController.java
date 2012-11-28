@@ -319,29 +319,49 @@ public class JobSubmissionController extends WaspController {
 		String sidx = request.getParameter("sidx");
 		
 		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");
+		String labId = request.getParameter("labId");//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<JobDraft> jobDraftList;
+		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();//empty list
 		
-		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobDraftList = sidx.isEmpty() ? this.jobDraftDao.getPendingJobDrafts() : this.jobDraftDao.getPendingJobDraftsOrderBy(sidx, sord);
-		} else {
-			  Map m = new HashMap();
+		User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+		
+		if (userId.isEmpty()) {//all drafts are being requested; must be facility personnel to view them
+			if(authenticationService.isFacilityMember()){
+				jobDraftList = sidx.isEmpty() ? this.jobDraftDao.getPendingJobDrafts() : this.jobDraftDao.getPendingJobDraftsOrderBy(sidx, sord);
+			}			
+		} 
+		else{
+			
+			Integer userIdAsInteger = null;
+			
+			try{
+				userIdAsInteger = Integer.parseInt(userId);
+			}catch(NumberFormatException e){/*waspErrorMessage("wasp.parseint_error.error");*/}//error won't be visible; this is a jason call!
+			
+			if(userIdAsInteger!=null){
 			  
-			  if (search.equals("true") && !searchStr.isEmpty())
-				  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  
-			  if (!userId.isEmpty())
-				  m.put("UserId", Integer.parseInt(userId));
-			  
-			  if (!labId.isEmpty())
-				  m.put("labId", Integer.parseInt(labId));
-			  
-			  m.put("status", "PENDING");
-			  jobDraftList = this.jobDraftDao.findByMap(m);
+				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getUserId().intValue() ) ){
+				
+					Map m = new HashMap();	
+				
+					//if (search.equals("true") && !searchStr.isEmpty()){
+					//	m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+					//}
+					//if (!labId.isEmpty())
+					//	  m.put("labId", Integer.parseInt(labId));//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
+
+					m.put("status", "PENDING");
+					m.put("UserId", userIdAsInteger);				  	  
+					jobDraftList = this.jobDraftDao.findByMap(m);
+				}
+			}
+			else{
+				//error won't be visible as this is a json call
+				//waspErrorMessage("wasp.permission_error.error");//regular user asking to view someone else's records.
+			}
 		}
 
 		try {
