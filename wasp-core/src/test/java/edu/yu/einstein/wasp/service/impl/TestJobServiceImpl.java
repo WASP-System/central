@@ -43,8 +43,14 @@ import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
 
 
@@ -505,30 +511,621 @@ public class TestJobServiceImpl {
 	  jobIdStringSet.add(job.getJobId().toString());
 	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
-	  StepExecution stepExecution;
-	  JobExecution jobExecution;
-	  JobInstance jobInstance;
-	  JobParameters jobParameters;
-	  jobParameters = new JobParameters();
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+	  JobParameters jobParameters = new JobParameters();
+	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
       stepExecution.setExitStatus(ExitStatus.EXECUTING);
 			
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
-		 
+	  
+	  StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution2.setExitStatus(ExitStatus.FAILED);
+
+	  List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
+	  stepExecutions2.add(stepExecution);
+	  
+	  //Test case 1: Returns TRUE if stepExecution != null and ExitStatus.EXECUTING
 	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
 	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+
+	  //Test case 2: Returns FALSE if stepExecution != null and ExitStatus != EXECUTING
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions2);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
 		
 	  replay(mockJobExplorerWasp);
 	
 	  Assert.assertTrue(jobServiceImpl.isJobAwaitingQuote(job));
+	  Assert.assertFalse(jobServiceImpl.isJobAwaitingQuote(job));
+
 		
 	  verify(mockJobExplorerWasp);
 	  
   }
+
+  //PI Approve
+  @Test
+  public void getExtraJobDetails() {
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
+	  jobResourcecategory.setJobResourcecategoryId(1);
+	  ResourceCategory resourceCategory = new ResourceCategory();
+	  ResourceType resourceType = new ResourceType();
+	  resourceType.setResourceTypeId(1);
+	  resourceType.setIName("mps");
+	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setResourceType(resourceType);
+	  jobResourcecategory.setResourceCategory(resourceCategory);
+	    
+	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
+	  jobResourceCategoryList.add(jobResourcecategory);
+	  job.setJobResourcecategory(jobResourceCategoryList);
+	  
+	  JobMeta jobMeta = new JobMeta();
+	  jobMeta.setK("readLength");
+	  jobMeta.setV("1");
+	  //jobMeta.setK("readType");
+	  //jobMeta.setV("abc");
+	  
+	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
+	  jobMetaList.add(jobMeta);
+	  job.setJobMeta(jobMetaList);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  
+	  JobParameters jobParameters = new JobParameters();
+	  //Test case 1: EXECUTING
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+	  //extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+	  
+	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution.setExitStatus(ExitStatus.EXECUTING);
+            
+      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+      List<StepExecution> stepExecutions_test = new ArrayList<StepExecution>();
+
+	  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
+
+      
+      //Test Case 2: COMPLETED
+	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
+	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
+      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
+      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
+			
+      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
+	  stepExecutions2.add(stepExecution2);
+	  extraJobDetailsMap2.put("PI Approval", "Approved");
+	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 3: FAILED
+	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
+	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
+      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
+      stepExecution3.setExitStatus(ExitStatus.FAILED);
+			
+      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
+	  stepExecutions3.add(stepExecution3);
+	  extraJobDetailsMap3.put("PI Approval", "Rejected");
+	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 4: ABANDONED
+	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
+	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
+      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
+      stepExecution4.setExitStatus(ExitStatus.STOPPED);
+			
+      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
+	  stepExecutions4.add(stepExecution4);
+	  extraJobDetailsMap4.put("PI Approval", "Abandoned");
+	  extraJobDetailsMap4.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 5: UNKNOWN
+	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
+	  extraJobDetailsMap5.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap5.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
+      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
+      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
+			
+      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
+	  stepExecutions5.add(stepExecution5);
+	  extraJobDetailsMap5.put("PI Approval", "Unknown");
+	  extraJobDetailsMap5.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap5.put("Quote Job Price", "Not Yet Set");
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions2);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions3);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions3)).andReturn(stepExecution3);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions4);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions4)).andReturn(stepExecution4);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.piApprove", parameterMap, true)).andReturn(stepExecutions5);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions5)).andReturn(stepExecution5);
+
+	  replay(mockJobExplorerWasp);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
+
+
+	  verify(mockJobExplorerWasp);
+	  
+  }
+  // Admin Approve
+  @Test
+  public void getExtraJobDetails2() {
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
+	  jobResourcecategory.setJobResourcecategoryId(1);
+	  ResourceCategory resourceCategory = new ResourceCategory();
+	  ResourceType resourceType = new ResourceType();
+	  resourceType.setResourceTypeId(1);
+	  resourceType.setIName("mps");
+	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setResourceType(resourceType);
+	  jobResourcecategory.setResourceCategory(resourceCategory);
+	    
+	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
+	  jobResourceCategoryList.add(jobResourcecategory);
+	  job.setJobResourcecategory(jobResourceCategoryList);
+	  
+	  JobMeta jobMeta = new JobMeta();
+	  jobMeta.setK("readLength");
+	  jobMeta.setV("1");
+	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
+	  jobMetaList.add(jobMeta);
+	  job.setJobMeta(jobMetaList);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  
+	  JobParameters jobParameters = new JobParameters();
+	  //Test case 1: EXECUTING
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+	  
+	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution.setExitStatus(ExitStatus.EXECUTING);
+            
+      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+      List<StepExecution> stepExecutions_test = new ArrayList<StepExecution>();
+
+	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+	  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
+
+      
+      //Test Case 2: COMPLETED
+	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
+	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
+      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
+      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
+			
+      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
+	  stepExecutions2.add(stepExecution2);
+	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("DA Approval", "Approved");
+	  extraJobDetailsMap2.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 3: FAILED
+	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
+	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
+      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
+      stepExecution3.setExitStatus(ExitStatus.FAILED);
+			
+      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
+	  stepExecutions3.add(stepExecution3);
+	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("DA Approval", "Rejected");
+	  extraJobDetailsMap3.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 4: ABANDONED
+	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
+	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
+      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
+      stepExecution4.setExitStatus(ExitStatus.STOPPED);
+			
+      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
+	  stepExecutions4.add(stepExecution4);
+	  extraJobDetailsMap4.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("DA Approval", "Abandoned");
+	  extraJobDetailsMap4.put("Quote Job Price", "Not Yet Set");
+	  
+	  //Test Case 5: UNKNOWN
+	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
+	  extraJobDetailsMap5.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap5.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
+      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
+      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
+			
+      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
+	  stepExecutions5.add(stepExecution5);
+	  extraJobDetailsMap5.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap5.put("DA Approval", "Unknown");
+	  extraJobDetailsMap5.put("Quote Job Price", "Not Yet Set");
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions2);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions3);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions3)).andReturn(stepExecution3);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions4);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions4)).andReturn(stepExecution4);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions5);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions5)).andReturn(stepExecution5);
+
+	  replay(mockJobExplorerWasp);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
+
+
+	  verify(mockJobExplorerWasp);
+	  
+  }
   
+  //Quote
+  @Test
+  public void getExtraJobDetails3() {
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
+	  jobResourcecategory.setJobResourcecategoryId(1);
+	  ResourceCategory resourceCategory = new ResourceCategory();
+	  ResourceType resourceType = new ResourceType();
+	  resourceType.setResourceTypeId(1);
+	  resourceType.setIName("mps");
+	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setResourceType(resourceType);
+	  jobResourcecategory.setResourceCategory(resourceCategory);
+	    
+	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
+	  jobResourceCategoryList.add(jobResourcecategory);
+	  job.setJobResourcecategory(jobResourceCategoryList);
+	  
+	  JobMeta jobMeta = new JobMeta();
+	  jobMeta.setK("readLength");
+	  jobMeta.setV("1");
+	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
+	  jobMetaList.add(jobMeta);
+	  job.setJobMeta(jobMetaList);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  
+	  JobParameters jobParameters = new JobParameters();
+	  //Test case 1: EXECUTING
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+	  //extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+	  
+	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution.setExitStatus(ExitStatus.EXECUTING);
+            
+      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+      List<StepExecution> stepExecutions_test = new ArrayList<StepExecution>();
+
+	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
+
+      
+      //Test Case 2: COMPLETED
+	  Float price = new Float(123.45);
+	  AcctQuote acctQuote = new AcctQuote();
+	  acctQuote.setAmount(new Float(123.45));
+	  
+	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+
+	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
+	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
+      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
+      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
+			
+      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
+	  stepExecutions2.add(stepExecution2);
+	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("Quote Job Price", "$"+String.format("%.2f", price));
+	  
+	  //Test Case 3: FAILED
+	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
+	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
+      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
+      stepExecution3.setExitStatus(ExitStatus.FAILED);
+			
+      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
+	  stepExecutions3.add(stepExecution3);
+	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("Quote Job Price", "Rejected");
+	  
+	  //Test Case 4: ABANDONED
+	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
+	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
+      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
+      stepExecution4.setExitStatus(ExitStatus.STOPPED);
+			
+      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
+	  stepExecutions4.add(stepExecution4);
+	  extraJobDetailsMap4.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("Quote Job Price", "Abandoned");
+	  
+	  //Test Case 5: UNKNOWN
+	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
+	  extraJobDetailsMap5.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap5.put("Read Length", jobMeta.getV());
+	  
+      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
+      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
+      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
+			
+      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
+	  stepExecutions5.add(stepExecution5);
+	  extraJobDetailsMap5.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap5.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap5.put("Quote Job Price", "Unknown");
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions2);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions3);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions3)).andReturn(stepExecution3);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions4);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions4)).andReturn(stepExecution4);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions5);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions5)).andReturn(stepExecution5);
+
+	  replay(mockJobExplorerWasp);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
+
+	  verify(mockJobExplorerWasp);
+	  
+  }
+  
+
+  
+  //Test different quote amounts
+  @Test
+  public void getExtraJobDetails4() {
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
+	  jobResourcecategory.setJobResourcecategoryId(1);
+	  ResourceCategory resourceCategory = new ResourceCategory();
+	  ResourceType resourceType = new ResourceType();
+	  resourceType.setResourceTypeId(1);
+	  resourceType.setIName("mps");
+	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setResourceType(resourceType);
+	  jobResourcecategory.setResourceCategory(resourceCategory);
+	    
+	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
+	  jobResourceCategoryList.add(jobResourcecategory);
+	  job.setJobResourcecategory(jobResourceCategoryList);
+	  
+	  JobMeta jobMeta = new JobMeta();
+	  jobMeta.setK("readLength");
+	  jobMeta.setV("1");
+	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
+	  jobMetaList.add(jobMeta);
+	  job.setJobMeta(jobMetaList);
+	  
+	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+	  Set<String> jobIdStringSet = new HashSet<String>();
+	  jobIdStringSet.add(job.getJobId().toString());
+	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+	  
+	  JobParameters jobParameters = new JobParameters();
+
+      JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+      StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
+      stepExecution.setExitStatus(ExitStatus.COMPLETED);
+			
+      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+	  stepExecutions.add(stepExecution);
+	  
+      //Test Case 1: 
+	  Float price = new Float(123.45);
+	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap.put("Read Length", jobMeta.getV());	  
+	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
+	  
+      //Test Case 2
+	  Float price2 = new Float(0);
+	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
+	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());	  
+	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap2.put("Quote Job Price", "$"+String.format("%.2f", price2));
+	  
+	  //Test Case 3
+	  Float price3 = new Float(123);
+	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
+	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());	  
+	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap3.put("Quote Job Price", "$"+String.format("%.2f", price3));
+	  
+	  //Test Case 4
+	  Float price4 = new Float(999999999.99999999);
+	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
+	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
+	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());	  
+	  extraJobDetailsMap4.put("PI Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("DA Approval", "Not Yet Set");
+	  extraJobDetailsMap4.put("Quote Job Price", "$"+String.format("%.2f", price4));
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
+
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+	  
+	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
+	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);
+	  
+	  replay(mockJobExplorerWasp);
+	  
+	  AcctQuote acctQuote = new AcctQuote();
+	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
+	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
+
+	  //Test case 1
+	  acctQuote.setAmount(price);	  
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
+	  
+	  //Test case 2
+	  acctQuote.setAmount(price2);	  
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
+	  
+	  //Test case 3
+	  acctQuote.setAmount(price3);	  
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
+	  
+	  //Test case 4
+	  acctQuote.setAmount(price4);	  
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
+
+	  verify(mockJobExplorerWasp);
+	  
+  }
+
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
   @Test
