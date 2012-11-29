@@ -383,6 +383,8 @@ insert into resourcetype values (3, 'aligner', 'Aligner');
 insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
 insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
 insert into resourcetype values (6, 'helptagPipeline', 'HELP-tag Pipeline'); 
+insert into resourcetype values (7, 'bisulseqPipeline', 'Bi-sulphite-seq Pipeline'); 
+insert into resourcetype values (8, 'sequenceRunProcessor', 'Sequence Run Processor'); 
 
 --
 -- RESOURCE

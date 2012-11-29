@@ -668,7 +668,7 @@ public class JobController extends WaspController {
 	  Job job = jobService.getJobDao().getJobByJobId(jobId);
 	  WaspStatus status = WaspStatus.UNKNOWN;
 	  if("approve".equals(action)){
-		  status = WaspStatus.CREATED;
+		  status = WaspStatus.COMPLETED;
 	  }
 	  else if("reject".equals(action)){
 		  status = WaspStatus.ABANDONED;
@@ -689,7 +689,7 @@ public class JobController extends WaspController {
 	  Job job = jobService.getJobDao().getJobByJobId(jobId);
 	  WaspStatus status = WaspStatus.UNKNOWN;
 	  if("approve".equals(action)){
-		  status = WaspStatus.CREATED;
+		  status = WaspStatus.COMPLETED;
 	  }
 	  else if("reject".equals(action)){
 		  status = WaspStatus.ABANDONED;

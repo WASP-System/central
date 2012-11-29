@@ -5,7 +5,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -20,6 +19,7 @@ public abstract class WaspTasklet implements Tasklet {
 	@Override
 	public abstract RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception;
 
+	
 	/**
 	 * Check to see if a grid result has been stored by a previous execution of the current step.
 	 * @param context

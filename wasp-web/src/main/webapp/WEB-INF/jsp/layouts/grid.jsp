@@ -110,11 +110,13 @@
 		<%-- toggles on/off filter toolbar at the top --%>
 		var _enableFilterToolbar=false;
 		
+		var _area="<tiles:insertAttribute name="area" />";
+		
 		<%-- URL to fetch JSON-formatted data from server --%>
-		var _url='/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}';
+		var _url='/wasp/' + _area + '/listJSON.do?selId=${param.selId}';
 		
 		<%-- URL to submit CUD requests to the server --%>
-		var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
+		var _editurl='/wasp/' + _area + '/detail_rw/updateJSON.do';
 		
 		<%--  structure to define L&F of "edit row" functionality --%> 
 		var _editAttr={

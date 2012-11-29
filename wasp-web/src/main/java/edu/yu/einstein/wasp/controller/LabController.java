@@ -313,54 +313,13 @@ public class LabController extends WaspController {
 
 		List<LabUser> users = labDb.getLabUser();
 
-/*		List<Project> projects = labDb.getProject();
 
-		List<Sample> samples = labDb.getSample();
-
-		List<AcctGrant> accGrants = labDb.getAcctGrant();
-
-		List<SampleLab> sampleLabs = labDb.getSampleLab();
-
-		List<Job> jobs = labDb.getJob();
-
-		// get max lenth of the previous 4 lists
-		int max = Math.max(Math.max(users.size(), projects.size()),	Math.max(samples.size(), accGrants.size()));
-		max = Math.max(max, Math.max(sampleLabs.size(), jobs.size()));
-
-		if (max == 0) {
-			LabUser lUser = new LabUser();
-			lUser.setUser(new User());
-			users.add(lUser);
-
-			projects.add(new Project());
-
-			samples.add(new Sample());
-
-			accGrants.add(new AcctGrant());
-
-			SampleLab sampleLab = new SampleLab();
-			sampleLab.setLab(new Lab());
-			sampleLabs.add(sampleLab);
-
-			jobs.add(new Job());
-
-			max = 1;
-		}
-*/
 		int max = users.size();
-		//String[][] mtrx = new String[max][6];
 		String [] mtrx = new String [max];
 
-//		ObjectMapper mapper = new ObjectMapper();
 
 		String text;
 		try {
-			// String labs = mapper.writeValueAsString(labList);
-//			jqgrid.put("page", "1");
-//			jqgrid.put("records", max + "");
-//			jqgrid.put("total", max + "");
-
-//			int i = 0;
 			int j = 0;
 			for (LabUser user : users) {
 
@@ -369,46 +328,10 @@ public class LabController extends WaspController {
 								+ user.getUserId() + ">"
 								+ user.getUser().getFirstName() + " "
 								+ user.getUser().getLastName() + "</a>";
-//				mtrx[j][i] = text;
 				mtrx[j] = text;
 				j++;
 			}
-/*			i++;
-			j = 0;
-			for (Project project : projects) {
-				text = project.getProjectId() == null ? "No Projects" : project.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (Sample sample : samples) {
-				text = sample.getSampleId() == null ? "No Samples" : sample.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (AcctGrant acc : accGrants) {
-				text = acc.getGrantId() == null ? "No Acc Grants" : acc.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (SampleLab sampleLab : sampleLabs) {
-				text = sampleLab.getLab().getLabId() == null ? "No Sample Labs" : sampleLab.getLab().getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (Job job : jobs) {
-				text = job.getJobId() == null ? "No Jobs" : job.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-*/
+
 			List<Map> rows = new ArrayList<Map>();
 
 			for (j = 0; j < max; j++) {
@@ -1388,7 +1311,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-*') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')")
+	@PreAuthorize("hasRole('su') or hasRole('pi-*') or hasRole('lm-*')")
 	public String pendingLmApprovalList(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();

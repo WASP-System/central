@@ -77,7 +77,7 @@
 	</batch:flow>
 	
 	<!-- for dispatching job, call with parameter 'jobId' -->
-	<batch:job id="default.waspJob.jobflow.v1">
+	<batch:job id="default.waspJob.jobflow.v1" restartable="true">
 		<batch:split id="default.waspJob.jobFlow.split" task-executor="taskExecutor">
 			<batch:flow parent="default.waspJob.flow.approvals.v1" />
 			<batch:flow parent="default.waspJob.flow.exitCondition" />

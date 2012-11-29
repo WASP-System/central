@@ -82,7 +82,7 @@
 					<a href='<c:url value="/lab/list.do"/>'>Lab Utils</a>
 				</li>
 				<li>
-						<a href='<c:url value="/job2quote/list.do"/>'>List Job Quotes</a>
+						<a href='<c:url value="/job2quote/list_all.do"/>'>List Job Quotes</a>
 					</li>
 				</sec:authorize>
 			</ul>
@@ -150,13 +150,13 @@
 	</div>
 
 	<br />
-	<sec:authorize access="hasRole('fm') or hasRole('ft')">
+	<sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('ft')">
 		<div id="tabs-facilityUtils">
 			<h2>Job Quoting</h2>
 			<ul class="navTabs">
-				<sec:authorize access="hasRole('fm')">
+				<sec:authorize access="hasRole('su') or hasRole('fm')">
 					<li>
-						<a href='<c:url value="/job2quote/list.do"/>'>List All Job Quotes</a>
+						<a href='<c:url value="/job2quote/list_all.do"/>'>List All Job Quotes</a>
 					</li>
 				</sec:authorize>
 			</ul>
