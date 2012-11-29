@@ -382,7 +382,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public void sendOutboundMessage(Message<?> message) {
+	public void sendOutboundMessage(Message<?> message, boolean isReplyExpected) {
 		// TODO Auto-generated method stub
 		
 	}

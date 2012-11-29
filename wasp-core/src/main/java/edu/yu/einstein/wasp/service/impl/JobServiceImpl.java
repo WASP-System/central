@@ -786,7 +786,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		try {
-			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 		} catch (WaspMessageBuildingException e) {
 			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
@@ -991,7 +991,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
-		sendOutboundMessage(messageTemplate.build());
+		sendOutboundMessage(messageTemplate.build(), false);
 	}
 
 	/**

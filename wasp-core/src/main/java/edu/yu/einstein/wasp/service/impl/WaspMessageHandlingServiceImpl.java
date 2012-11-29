@@ -37,26 +37,28 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 	 * Send an outbound message via Spring Integration
 	 * @param message
 	 */
-	public void sendOutboundMessage(final Message<?> message){
+	public void sendOutboundMessage(final Message<?> message, boolean isReplyExpected){
 		logger.debug("Sending message via '" + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + "': "+message.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		Message<?> replyMessage  = null;
 		try{
-			replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
+			if (isReplyExpected){
+				replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
+				if(replyMessage == null)
+					throw new MessageHandlingException(message, "Did not receive a reply on sending outbound message :"+ message.toString());
+				logger.debug("Recieved reply  :"+ replyMessage.toString());
+				if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
+					throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
+				if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))
+					throw new MessageHandlingException(message,"Problem encountered sending message'" + message.toString() + "': no exception returned but status was FAILED");
+			} else {
+				messagingTemplate.send(outboundRemotingChannel, message);
+			}
 		} catch(Throwable t){
 			throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + ": " + t.getLocalizedMessage());
 		}
-		if(replyMessage == null){
-			// TODO: send exception
-			logger.warn("Did not receive a reply on sending outbound message :"+ message.toString());
-			return;
-		}
-		logger.debug("Recieved reply  :"+ replyMessage.toString());
-		if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
-			throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
-		if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))
-			throw new MessageHandlingException(message,"Problem encountered sending message'" + message.toString() + "': no exception returned but status was FAILED");
+		
 	}	
 
 }

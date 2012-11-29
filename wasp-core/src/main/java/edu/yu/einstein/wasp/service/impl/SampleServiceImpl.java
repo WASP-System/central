@@ -446,7 +446,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
 		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		  try {
-			sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 		} catch (WaspMessageBuildingException e) {
 			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
@@ -467,7 +467,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  SampleStatusMessageTemplate messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  sendOutboundMessage(messageTemplate.build());
+		  sendOutboundMessage(messageTemplate.build(), false);
 	  }
 	  
 	  /**
@@ -484,7 +484,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  LibraryStatusMessageTemplate messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  sendOutboundMessage(messageTemplate.build());
+		  sendOutboundMessage(messageTemplate.build(), false);
 	  }
 	  
 	  /**
