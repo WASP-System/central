@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1398,15 +1399,30 @@ public class LabController extends WaspController {
 		
 		//finish up with pending jobs		
 		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
+		
+		
+		//for testing only: next 6 lines, just to fill it up and see something on the jsp
+		newUsersPendingLmApprovalList.clear();
+		newUsersPendingLmApprovalList.add(userPendingDao.findById(3));
+		existingUsersPendingLmApprovalList.clear();
+		existingUsersPendingLmApprovalList.add(labUserDao.findById(14));
+		jobsPendingLmApprovalList.clear();
+		jobsPendingLmApprovalList.add(jobService.getJobDao().findById(1));
+
+		
+		
 		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
 		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
 		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
 		
 		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+
 		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
 		for(Job job : jobsPendingLmApprovalList){
 			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
@@ -1426,6 +1442,7 @@ public class LabController extends WaspController {
 			
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
 		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
 		

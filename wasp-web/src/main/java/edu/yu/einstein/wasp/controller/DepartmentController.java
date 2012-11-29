@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -503,13 +504,21 @@ public class DepartmentController extends WaspController {
 		
 		//finish up with pending jobs		
 		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
+		
+		//for testing only: next two lines, just to fill it up and see something on the jsp
+		jobsPendingDaApprovalList.clear();
+		jobsPendingDaApprovalList = jobService.getJobDao().findAll();
+		
+		
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		
 		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
 		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
 		for(Job job : jobsPendingDaApprovalList){
 			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
@@ -528,6 +537,7 @@ public class DepartmentController extends WaspController {
 			}			
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
 		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
 		

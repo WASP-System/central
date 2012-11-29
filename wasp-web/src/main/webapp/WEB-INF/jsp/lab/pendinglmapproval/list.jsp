@@ -11,30 +11,30 @@
        <h2><fmt:message key="lmpendingtask.subtitle1.label" /></h2> 
 	   <div id="accordion">
       		<c:forEach items="${newuserspendinglist}" var="up">
-      		 	<h4><a href="#"><c:out value="${up.firstName} ${up.lastName}" /> (PI: <c:out value="${up.getLab().getUser().getNameFstLst()}" />) </a> </h4> <!--a href="<c:url value="/lab/userpending/approve/${lab.labId}/${up.userPendingId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/userpending/reject/${lab.labId}/${up.userPendingId}.do"/>">REJECT</a-->    
+      		 	<h4><a href="#"><c:out value="${up.firstName} ${up.lastName}" /> (<fmt:message key="lmpendingtask.pi.label" />: <c:out value="${up.getLab().getUser().getNameFstLst()}" />) </a> </h4>     
             	<div> 
-            	Name: <c:out value="${up.firstName} ${up.lastName}" /><br />
-            	Email: <c:out value="${up.email}" /><br />
+            	<fmt:message key="lmpendingtask.name.label" />: <c:out value="${up.firstName} ${up.lastName}" /><br />
+            	<fmt:message key="lmpendingtask.email.label" />: <c:out value="${up.email}" /><br />
             	         	
       	      		<c:forEach items="${up.userPendingMeta}" var="meta"> 
         	 			<c:if test="${meta.k == 'userPending.building_room' || meta.k == 'userPending.address' || meta.k == 'userPending.phone'}">
  							<c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
         	 			</c:if>
       				</c:forEach>  
-      				<br /><div class="submit"><a href="<c:url value="/lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>">REJECT</a></div>    
+      				<br /><div class="submit"><a href="<c:url value="/lab/userpending/approve/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/userpending/reject/${up.lab.labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>    
       			</div>       
      		</c:forEach>
      		<c:forEach items="${existinguserspendinglist}" var="lu">
-     			<h4><a href="#"><c:out value="${lu.user.firstName} ${lu.user.lastName}" /> (PI: <c:out value="${lu.getLab().getUser().getNameFstLst()}" />) </a>  </h4> <!-- a href="<c:url value="/lab/labuserpending/approve/${lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lab.labId}/${lu.labUserId}.do"/>">REJECT</a-->
+     			<h4><a href="#"><c:out value="${lu.user.firstName} ${lu.user.lastName}" /> (<fmt:message key="lmpendingtask.pi.label" />: <c:out value="${lu.getLab().getUser().getNameFstLst()}" />) </a>  </h4> 
       		    <div> 
-      		    Name: <c:out value="${lu.user.firstName} ${lu.user.lastName}" /><br />
-      		    Email: <c:out value="${lu.user.email}" /><br />
+      		    <fmt:message key="lmpendingtask.name.label" />: <c:out value="${lu.user.firstName} ${lu.user.lastName}" /><br />
+      		    <fmt:message key="lmpendingtask.email.label" />: <c:out value="${lu.user.email}" /><br />
       				<c:forEach items="${lu.user.userMeta}" var="meta"> 
       				   <c:if test="${meta.k == 'user.building_room' || meta.k == 'user.address' || meta.k == 'user.phone'}">
           			      <c:set var="optionName" value="${meta.k}.label" /><fmt:message key="${optionName}" />:&nbsp;<c:out value="${meta.v}" /><br />
             		   </c:if>
             		</c:forEach>
-      				<br />  <div class="submit"><a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>">APPROVE</a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>">REJECT</a></div>
+      				<br />  <div class="submit"><a href="<c:url value="/lab/labuserpending/approve/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/labuserpending/reject/${lu.lab.labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>
       			</div>      
     		</c:forEach> 
     	</div>   
@@ -49,24 +49,28 @@
     	<h2><fmt:message key="lmpendingtask.subtitle2.label" /></h2>  
 		<div id="accordion2">         
     	<c:forEach items="${jobspendinglist}" var="job">      
-      		<h4><a href="#">Job ID J<c:out value="${job.jobId}" /> (Submitter: <c:out value="${job.getUser().getNameFstLst()}" />; PI: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
+      		<h4><a href="#">Job ID J<c:out value="${job.jobId}" /> (<fmt:message key="lmpendingtask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" />; <fmt:message key="lmpendingtask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
       		<div>
-      			Job ID: J<c:out value="${job.jobId}" /><br />
-      			Job Name: <c:out value="${job.getName()}" /><br />
-      			Submitter: <c:out value="${job.getUser().getNameFstLst()}" /><br />
-      			PI: <c:out value="${job.getLab().getUser().getNameFstLst()}" /><br />
+      			<fmt:message key="lmpendingtask.jobId.label" />: J<c:out value="${job.jobId}" /><br />
+      			<fmt:message key="lmpendingtask.jobName.label" />: <c:out value="${job.getName()}" /><br />
+      			<fmt:message key="lmpendingtask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" /><br />
+      			<fmt:message key="lmpendingtask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" /><br />
+      			<fmt:message key="lmpendingtask.workflow.label" />: <c:out value="${job.getWorkflow().getName()}" /><br />      			     			
       			<c:set var="extraJobDetailsMap" value="${jobExtraJobDetailsMap.get(job)}" />
       			<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
-      				<c:out value="${detailKey}" />: <c:out value="${extraJobDetailsMap.get(detailKey)}" /><br />
-      			</c:forEach>      			
-    			Workflow: <c:out value="${job.getWorkflow().getName()}" /><br />      			
+      				<fmt:message key="${detailKey}" />: <c:out value="${extraJobDetailsMap.get(detailKey)}" /><br />
+      			</c:forEach> 
+      			<c:set var="approvalsMap" value="${jobApprovalsMap.get(job)}" />
+      			<c:forEach items="${approvalsMap.keySet()}" var="detailKey2">
+       				<fmt:message key="${detailKey2}" />: <fmt:message key="${approvalsMap.get(detailKey2)}" /><br />
+      			</c:forEach>     			
       			<c:set var="submittedSamplesList" value="${jobSubmittedSamplesMap.get(job)}" />
-      			Samples [<c:out value="${submittedSamplesList.size()}" />]:<br />	
+      			<fmt:message key="lmpendingtask.samples.label" /> [<c:out value="${submittedSamplesList.size()}" />]:<br />	
       			<c:forEach items="${submittedSamplesList}" var="sample">
       				--<c:out value="${sample.getName()}" /> (<c:out value="${sample.getSampleType().getName()}" />, <c:out value="${sampleSpeciesMap.get(sample)}" />)<br />      				
       			</c:forEach>
       			
-      			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>">APPROVE</a> <a href="<c:url value="/job/pendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>">REJECT</a></div>    
+      			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/job/pendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>    
       		</div>      
    		 </c:forEach>
     	</div> 

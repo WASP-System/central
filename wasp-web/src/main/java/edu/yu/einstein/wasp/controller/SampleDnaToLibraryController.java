@@ -308,8 +308,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);

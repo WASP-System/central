@@ -61,11 +61,15 @@
       			<fmt:message key="dapendingtask.jobName.label"/>: <c:out value="${job.getName()}" /><br />
       			<fmt:message key="dapendingtask.submitter.label"/>: <c:out value="${job.getUser().getNameFstLst()}" /><br />
       			<fmt:message key="dapendingtask.pi.label"/>: <c:out value="${job.getLab().getUser().getNameFstLst()}" /><br />
+      			<fmt:message key="dapendingtask.workflow.label"/>: <c:out value="${job.getWorkflow().getName()}" /><br />      			
       			<c:set var="extraJobDetailsMap" value="${jobExtraJobDetailsMap.get(job)}" />
       			<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
-      				<c:out value="${detailKey}" />: <c:out value="${extraJobDetailsMap.get(detailKey)}" /><br />
-      			</c:forEach>      			
-    			<fmt:message key="dapendingtask.workflow.label"/>: <c:out value="${job.getWorkflow().getName()}" /><br />      			
+      				<fmt:message key="${detailKey}" />: <c:out value="${extraJobDetailsMap.get(detailKey)}" /><br />
+      			</c:forEach> 
+      			<c:set var="approvalsMap" value="${jobApprovalsMap.get(job)}" />
+      			<c:forEach items="${approvalsMap.keySet()}" var="detailKey2">
+       				<fmt:message key="${detailKey2}" />: <fmt:message key="${approvalsMap.get(detailKey2)}" /><br />
+      			</c:forEach>     			
       			<c:set var="submittedSamplesList" value="${jobSubmittedSamplesMap.get(job)}" />
       			<fmt:message key="dapendingtask.samples.label"/> [<c:out value="${submittedSamplesList.size()}" />]:<br />	
       			<c:forEach items="${submittedSamplesList}" var="sample">
