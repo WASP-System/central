@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.integration.MessageHandlingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -1768,20 +1769,12 @@ public class JobSubmissionController extends WaspController {
 				logger.warn("Error creating new job");
 				waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 				error = true;
-			} else {
-				// initiate batch jobs in wasp-daemon
-				logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + newJob.getJobId() + "'");
-				jobService.initiateBatchJobForJobSubmission(newJob);
-				for (Sample sample: jobService.getSubmittedSamples(newJob)){
-					logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
-					sampleService.initiateBatchJobForSample(newJob, sample, "wasp.sample.jobflow.v1");
-				}
-			}
+			} 
 		} catch (FileMoveException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
-		} catch (WaspMessageBuildingException e) {
+		} catch (MessageHandlingException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;

@@ -611,8 +611,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param job
 	   * @param sample
 	   * @param batchJobName
-	   * @throws WaspMessageBuildingException
 	   */
-	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName)	throws WaspMessageBuildingException;
+	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName);
 	  
 }

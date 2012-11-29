@@ -21,9 +21,6 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
-import edu.yu.einstein.wasp.batch.annotations.Retryable;
-import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
@@ -110,18 +107,17 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	}
 
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		logger.debug(name + "execute() invoked");
+		logger.trace(name + "execute() invoked");
 		if (messageQueue.isEmpty())
-			throw new TaskletRetryException("tasklet did not recieved any message to proccess this time round");
+			return RepeatStatus.CONTINUABLE;	
 		return RepeatStatus.FINISHED;
 	}
 	
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug(name + "handleMessage() invoked. Received message: " + message.toString());
+		logger.trace(name + "handleMessage() invoked. Received message: " + message.toString());
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();

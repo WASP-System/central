@@ -174,7 +174,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
 		jobParameters.put(WaspJobParameters.PLATFORM_UNIT_ID, platformUnit.getSampleId().toString());
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext("wasp.run.jobflow", jobParameters) );
-		sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 		return newRun;
 	}
 	

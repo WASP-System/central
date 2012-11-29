@@ -493,7 +493,7 @@ public class DepartmentController extends WaspController {
 	}
 
 	@RequestMapping(value = "/dapendingtasklist", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('fm-*') or hasRole('ft-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
 	public String departmentAdminPendingTaskList(ModelMap m) {
 
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();

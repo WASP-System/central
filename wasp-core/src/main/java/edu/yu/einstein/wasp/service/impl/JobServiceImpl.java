@@ -27,6 +27,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,6 +99,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -155,6 +157,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -281,6 +286,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
 		for (StepExecution stepExecution: stepExecutions){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
 			Integer sampleId = null;
 			try{
 				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
@@ -380,7 +387,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingPiApproval(Job job){
+		public boolean isJobAwaitingPiApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -400,7 +407,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingDaApproval(Job job){
+		public boolean isJobAwaitingDaApproval(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -419,7 +426,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Boolean isJobAwaitingQuote(Job job){
+		public boolean isJobAwaitingQuote(Job job){
 			Assert.assertParameterNotNull(job, "No Job provided");
 			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -432,6 +439,26 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
 				return true;
 			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public List<Job> getJobsAwaitingQuote(){
+			List<Job> jobsAwaitingQuote = new ArrayList<Job>();
+			for (Job job : getActiveJobs())
+				if (isJobAwaitingQuote(job))
+					jobsAwaitingQuote.add(job);
+			return jobsAwaitingQuote;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobsAwaitingQuote(){
+			return getJobsAwaitingQuote().size() > 0;
 		}
 	  
 	  /**
@@ -544,6 +571,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  }
 	  /**
 	   * {@inheritDoc}
+	 * @throws WaspMessageBuildingException 
 	   */
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
@@ -629,6 +657,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 			
 			// Create Samples
+			List<Sample> samples = new ArrayList<Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
 				// existing sample...
 				Sample sampleDb;
@@ -648,6 +677,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sample.setIsActive(1);
 			
 					sampleDb = sampleDao.save(sample); 
+					samples.add(sampleDb);
 			
 					// sample file
 					if (sd.getFileId() != null) {
@@ -719,7 +749,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
 			jobDraftDao.save(jobDraft); 
-						
+			
+			// initiate batch jobs in wasp-daemon
+			logger.debug("calling initiateBatchJobForJobSubmission() for job with id='" + jobDb.getJobId() + "'");
+			initiateBatchJobForJobSubmission(jobDb);
+			for (Sample sample: samples){
+				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
+				sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+			}
+			
 			return jobDb;
 	  }
 	  
@@ -727,7 +765,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException{
+	  public void initiateBatchJobForJobSubmission(Job job){
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		// send message to initiate job processing
@@ -735,7 +773,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 		String batchJobName = workflowService.getJobFlowBatchJobName(workflowDao.getWorkflowByWorkflowId(job.getWorkflowId()));
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
-		sendOutboundMessage(batchJobLaunchMessageTemplate.build());
+		try {
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
 	  }
 	  
 	/**
@@ -864,7 +906,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
+	public boolean isJobAwaitingLibraryCreation(Job job, Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Integer sampleId = sample.getSampleId();
 		Assert.assertParameterNotNullNotZero(sampleId, "Invalid Sample Provided");
@@ -921,7 +963,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE);
+		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
 	}
 	
 	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
@@ -929,15 +971,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		Assert.assertParameterNotNull(status, "No Status provided");
-		if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
-			throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
+		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
+			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		
 		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
-		messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		sendOutboundMessage(messageTemplate.build());
+		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
+		sendOutboundMessage(messageTemplate.build(), false);
 	}
 
 	/**
@@ -1057,7 +1099,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setFacilityJobComment(Integer jobId, String comment)throws Exception{
+	public void setFacilityJobComment(Integer jobId, String comment) throws Exception{
 		try{
 			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}

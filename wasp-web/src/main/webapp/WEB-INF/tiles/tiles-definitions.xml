@@ -249,10 +249,17 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/acctquote/list.jsp" />
 	</definition>
 
+	<definition name="job2quote/list_all" extends="template-grid">
+		<put-attribute name="area" value="job2quote" />
+		<put-attribute name="grid-columns" value="/WEB-INF/jsp/job2quote/grid_columns.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/job2quote/grid_listAll_customAttributes.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job2quote/list_all.jsp" />
+	</definition>
+	
 	<definition name="job2quote/list" extends="template-grid">
 		<put-attribute name="area" value="job2quote" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/job2quote/grid_columns.jsp" />
-		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/job2quote/grid_customAttributes.jsp" />
+		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/job2quote/grid_list_customAttributes.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job2quote/list.jsp" />
 	</definition>
 

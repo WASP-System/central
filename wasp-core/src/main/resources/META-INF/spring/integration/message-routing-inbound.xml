@@ -27,9 +27,7 @@
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.remoting.inbound" 
     	registry-port="23533" 
-    	expect-reply="true"
-    	reply-timeout="1000"
-    	request-timeout="1000"
+
  	/>
  	
  	<int:bridge id="wasp.channel.bridge.remoteInputWithoutAuth" input-channel="wasp.channel.remoting.inbound" output-channel="wasp.channel.Authenticated1" />
