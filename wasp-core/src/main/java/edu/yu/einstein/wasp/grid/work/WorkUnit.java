@@ -19,10 +19,21 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class WorkUnit {
 	
+	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
+	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
+	
+	private Integer runId;
+	
 	/**
 	 * Unique ID for the job
 	 */
 	private String id;
+	
+	/**
+	 * String used for accounting on remote computing environments;
+	 */
+	private String project;
+	
 	/**
 	 * Newline (\n) terminated list of commands to be executed.
 	 */
@@ -49,10 +60,17 @@ public class WorkUnit {
 	 * Execution mode, currently only as a process.
 	 */
 	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
 	/**
-	 * Number of processors per node, required for determining parallel environment, etc.
+	 * Scratch directory for job execution
 	 */
 	private String workingDirectory;
+	
+	/**
+	 * Directory to write results to
+	 */
+	private String resultsDirectory;
+	
 	/**
 	 * Transport specific connection
 	 */
@@ -101,6 +119,21 @@ public class WorkUnit {
 	 */
 	private ProcessMode processMode = ProcessMode.MAX;
 	
+	/**
+	 * Run ID is required when using default results directory.
+	 * @return the runId
+	 */
+	public Integer getRunId() {
+		return runId;
+	}
+	/**
+	 * Run ID is required when using default results directory.
+	 * 
+	 * @param runId the runId to set
+	 */
+	public void setRunId(Integer runId) {
+		this.runId = runId;
+	}
 	/**
 	 * get the ProcessMode
 	 * @return
@@ -157,6 +190,8 @@ public class WorkUnit {
 	public WorkUnit() {
 		this.executionEnvironments = new LinkedHashSet<String>();
 		this.executionEnvironments.add("default");
+		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
+		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
 	}
 
 	public String getId() {
@@ -223,6 +258,17 @@ public class WorkUnit {
 			this.workingDirectory += "/";
 		}
 	}
+	
+	public String getResultsDirectory() {
+		return resultsDirectory;
+	}
+
+	public void setResultsDirectory(String resultsDirectory) {
+		this.resultsDirectory = resultsDirectory;
+		if (!this.resultsDirectory.endsWith("/")) {
+			this.resultsDirectory += "/";
+		}
+	}
 
 	/**
 	 * @return the connection
@@ -234,14 +280,14 @@ public class WorkUnit {
 	/**
 	 * @param connection the connection to set
 	 */
-	public void setConnection(GridTransportConnection connection) {
+	protected void setConnection(GridTransportConnection connection) {
 		this.connection = connection;
 	}
 
 	/**
 	 * @return the wrapperCommand
 	 */
-	public String getWrapperCommand() {
+	protected String getWrapperCommand() {
 		return wrapperCommand;
 	}
 
@@ -249,7 +295,7 @@ public class WorkUnit {
 	 * Command set by the GridService to dispatch the actual command.
 	 * @param wrapperCommand the wrapperCommand to set
 	 */
-	public void setWrapperCommand(String wrapperCommand) {
+	protected void setWrapperCommand(String wrapperCommand) {
 		this.wrapperCommand = wrapperCommand;
 	}
 	
@@ -273,6 +319,18 @@ public class WorkUnit {
 	 */
 	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {
 		this.softwareDependencies = softwareDependencies;
+	}
+	/**
+	 * @return the project
+	 */
+	protected String getProject() {
+		return project;
+	}
+	/**
+	 * @param project the project to set
+	 */
+	protected void setProject(String project) {
+		this.project = project;
 	}
 	
 

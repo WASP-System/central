@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -129,6 +130,63 @@ public class JobController extends WaspController {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
+	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		
+		//TODO get the commentsList from jobMeta and add to m
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			logger.debug(metaMessage.getName() + " = " +  metaMessage.getValue());
+		}
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+		}catch(Exception e){
+			waspErrorMessage("jobComment.jobCommentAuth.error");
+			return "redirect:/dashboard.do";
+		}
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
+		return "job/comments";
+	}
+
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}
+
+		String trimmedComment = comment==null?null:comment.trim();
+		if(trimmedComment==null||trimmedComment.length()==0){
+			waspErrorMessage("jobComment.jobCommentEmpty.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		try{
+			jobService.setFacilityJobComment(jobId, trimmedComment);
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobComment.jobCommentCreate.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		waspMessage("jobComment.jobCommentAdded.label");
+		return "redirect:/job/comments/"+jobId+".do";
+	}
+
 	@RequestMapping("/list")
 	public String list(ModelMap m) {
 		//List<Job> jobList = this.getJobDao().findAll();
@@ -137,7 +195,7 @@ public class JobController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 		

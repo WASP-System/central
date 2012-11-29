@@ -15,8 +15,8 @@
 	<div style="padding-left:0.5cm; overflow:hidden">
 	
 		<form  method='post' name='addJobViewer' action="<c:url value="/sampleDnaToLibrary/addJobViewer.do" />" onsubmit="return validate_email();">
-		<table class="data EditTable ui-widget ui-widget-content" style="margin: 0px 0">
-		<tr  ><td colspan="2" class="label-centered" style="background-color:#FAF2D6" nowrap><fmt:message key="listJobSamples.jobViewers.label" /></td></tr>
+		<table class="data" style="margin: 0px 0">
+		<tr  ><th colspan="2" class="label" nowrap><fmt:message key="listJobSamples.jobViewers.label" /></th></tr>
 		<tr ><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
 		<tr ><td ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>
 
@@ -24,14 +24,14 @@
 			<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
 			<td>
 				<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
-					<a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'>remove</a>
+					<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'>remove</a>
 				</c:if>
 			</td>
 		</c:forEach>
 		
 		<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true}'>
  			<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>			 				
-			<tr ><td colspan="2"  class="label-centered" style="background-color:#FAF2D6" nowrap><fmt:message key="listJobSamples.addNewViewer.label" /></td></tr>
+			<tr ><th colspan="2"  class="label" nowrap><fmt:message key="listJobSamples.addNewViewer.label" /></th></tr>
  			<tr><td ><fmt:message key="listJobSamples.newViewerEmailAddress.label" />: </td><td ><input type='text' name='newViewerEmailAddress' id="newViewerEmailAddress" size='20' maxlength='50'></td></tr>
 			<tr><td colspan="2" align="center"><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/></td></tr>
 			

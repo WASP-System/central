@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
  * @author calder
  *
  */
-public abstract class AbstractGridHostResolver {
+public abstract class AbstractGridHostResolver implements GridHostResolver {
 	
 	private UnresolvableStrategy unresolvableStrategy = UnresolvableStrategy.DEFAULT; 
 	

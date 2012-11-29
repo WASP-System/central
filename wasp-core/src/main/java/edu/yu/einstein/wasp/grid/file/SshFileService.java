@@ -14,17 +14,20 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
 
 /**
- * Implementation of {@link GridFileService} that manages file transfer over SFTP using Apache Commons VFS2/jsch.
+ * Implementation of {@link GridFileService} that manages file transfer over
+ * SFTP using Apache Commons VFS2/jsch.
+ * 
  * @author calder
- *
+ * 
  */
 public class SshFileService implements GridFileService {
-
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private GridHostResolver hostResolver;
+	private GridTransportService transportService;
+
+	private final static Logger logger = LoggerFactory.getLogger(SshFileService.class);
 
 	private String hostKeyChecking = "no";
 	private static File identityFile;
@@ -32,16 +35,29 @@ public class SshFileService implements GridFileService {
 	private int timeout = 10000; // milliseconds
 	private int retries = 6;
 	
+	public void setTimeout(int millis) {
+		this.timeout = millis;
+	}
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+
+	public SshFileService(GridTransportService transportService) {
+		this.transportService = transportService;
+		identityFile = transportService.getIdentityFile();
+		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
+	}
+
 	public void setUserDirIsRoot(boolean isRoot) {
 		this.userDirIsRoot = isRoot;
 	}
 
 	@Override
-	public void put(File localFile, String host, String remoteFile)
+	public void put(File localFile, String remoteFile)
 			throws IOException {
-		
-		logger.debug("put called: " + localFile + " to " + host + " as " + remoteFile);
-		
+
+		logger.debug("put called: " + localFile + " to " + transportService.getHostName() + " as " + remoteFile);
+
 		if (!localFile.exists())
 			throw new RuntimeException("File " + localFile.getAbsolutePath()
 					+ " not found");
@@ -52,9 +68,10 @@ public class SshFileService implements GridFileService {
 			manager.init();
 
 			FileObject file = manager.resolveFile(localFile.getAbsolutePath());
-			String remote = getRemoteFileString(host, remoteFile);
-			FileObject destination = manager.resolveFile(remote,
-					createDefaultOptions(hostKeyChecking, timeout));
+			String remote = getRemoteFileURL(remoteFile);
+			logger.debug("preparing to copy: " + file.toString() + " to: " + remote);
+			FileSystemOptions options = createDefaultOptions(hostKeyChecking, timeout);
+			FileObject destination = manager.resolveFile(remote, options);
 
 			destination.copyFrom(file, Selectors.SELECT_SELF);
 			logger.debug(localFile.getAbsolutePath() + " copied to " + remote);
@@ -68,27 +85,27 @@ public class SshFileService implements GridFileService {
 	}
 
 	@Override
-	public void get(String host, String remoteFile, File localFile)
+	public void get(String remoteFile, File localFile)
 			throws IOException {
 
-		logger.debug("get called: " + remoteFile + " from " + host + " as " + localFile);
-		
-		if (!exists(host, remoteFile))
-			throw new RuntimeException("File " + remoteFile + "@" + host + " not found");
+		logger.debug("get called: " + remoteFile + " from " + transportService.getHostName() + " as " + localFile);
+
+		if (!exists(remoteFile))
+			throw new RuntimeException("File " + remoteFile + "@" + transportService.getHostName() + " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		try {
 			manager.init();
 
-			String remote = getRemoteFileString(host, remoteFile);
+			String remote = getRemoteFileURL(remoteFile);
 			FileObject file = manager.resolveFile(remote,
 					createDefaultOptions(hostKeyChecking, timeout));
 			FileObject destination = manager.resolveFile(localFile.getAbsolutePath());
 
 			destination.copyFrom(file, Selectors.SELECT_SELF);
 
-			logger.debug( remote + " copied to " + localFile.getAbsolutePath());
+			logger.debug(remote + " copied to " + localFile.getAbsolutePath());
 
 		} catch (Exception e) {
 			logger.error("problem getting file: " + e.getLocalizedMessage());
@@ -99,18 +116,18 @@ public class SshFileService implements GridFileService {
 	}
 
 	/**
-	 * Test for the existence of a file on a server with default attempts and timeout.
+	 * Test for the existence of a file on a server with default attempts and
+	 * timeout.
 	 */
 	@Override
-	public boolean exists(String host, String remoteFile) throws IOException {
-		return exists(host, remoteFile, retries, timeout);
+	public boolean exists(String remoteFile) throws IOException {
+		return exists(remoteFile, retries, timeout);
 	}
-	
-	
-	public boolean exists(String host, String remoteFile, int attempts, int delayMillis) {
 
-		logger.debug("exists called: " + remoteFile + " at " + host);
-		
+	public boolean exists(String remoteFile, int attempts, int delayMillis) {
+
+		logger.debug("exists called: " + remoteFile + " at " + transportService.getHostName());
+
 		int attempt = 0;
 		FileObject file;
 		boolean result = false;
@@ -122,13 +139,13 @@ public class SshFileService implements GridFileService {
 				manager.init();
 				// Create remote object
 				file = manager.resolveFile(
-						getRemoteFileString(host, remoteFile), createDefaultOptions(hostKeyChecking, timeout));
+						getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
 
 				result = file.exists();
-				
+
 				// no exception, return result
 				break;
-				
+
 			} catch (Exception e) {
 				logger.debug("caught exception in retry block: " + e.getLocalizedMessage());
 				if (attempt <= retries) {
@@ -147,49 +164,48 @@ public class SshFileService implements GridFileService {
 	}
 
 	@Override
-	public void delete(String host, String remoteFile) throws IOException {
+	public void delete(String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
-		 
-		logger.debug("delete called: " + remoteFile + " at " + host);
-		
-	    try {
-	        manager.init();
-	 
-	        // Create remote object
-	        FileObject file = manager.resolveFile(
-	                getRemoteFileString(host, remoteFile), createDefaultOptions(hostKeyChecking, timeout));
-	 
-	        if (file.exists()) {
-	            file.delete();
-	            logger.debug("Deleted " + remoteFile + "@" + host);
-	        }
-	    } catch (Exception e) {
-	    	logger.error("problem deleting file: " + e.getLocalizedMessage());
-	        throw new RuntimeException(e);
-	    } finally {
-	        manager.close();
-	    }
+
+		logger.debug("delete called: " + remoteFile + " at " + transportService.getHostName());
+
+		try {
+			manager.init();
+
+			// Create remote object
+			FileObject file = manager.resolveFile(
+					getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
+
+			if (file.exists()) {
+				file.delete();
+				logger.debug("Deleted " + remoteFile + "@" + transportService.getHostName());
+			}
+		} catch (Exception e) {
+			logger.error("problem deleting file: " + e.getLocalizedMessage());
+			throw new RuntimeException(e);
+		} finally {
+			manager.close();
+		}
 	}
 
-	private String getRemoteFileString(String host, String path) throws GridUnresolvableHostException {
-		String remote = "sftp://" + this.hostResolver.getUsername(host) + "@" + host + "/" + path;
+	private String getRemoteFileURL(String path) throws GridUnresolvableHostException {
+		String remote = "sftp://" + transportService.getUserName() + "@" + transportService.getHostName() + "/" + path;
 		logger.debug("constructed remote file string: " + remote);
 		return remote;
 	}
 
-	private static FileSystemOptions createDefaultOptions(
-			String hostKeyChecking, int timeout) throws FileSystemException {
+	private static FileSystemOptions createDefaultOptions(String hostKeyChecking, int timeout) throws FileSystemException {
 
 		FileSystemOptions opts = new FileSystemOptions();
 
-		SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(
-				opts, hostKeyChecking);
+		SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(opts, hostKeyChecking);
 		SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, userDirIsRoot);
 		SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, timeout);
 
 		File[] ifs = new File[1];
 		ifs[0] = identityFile.getAbsoluteFile();
 		SftpFileSystemConfigBuilder.getInstance().setIdentities(opts, ifs);
+		logger.debug(opts.toString());
 		return opts;
 	}
 
@@ -199,10 +215,6 @@ public class SshFileService implements GridFileService {
 		}
 	}
 
-	public void setTimeout(int millis) {
-		this.timeout = millis;
-	}
-
 	public void setIdentityFile(String s) {
 		String home = System.getProperty("user.home");
 		s = home + s.replaceAll("~(.*)", "$1");
@@ -210,15 +222,15 @@ public class SshFileService implements GridFileService {
 	}
 
 	@Override
-	public void touch(String host, String remoteFile) throws IOException {
+	public void touch(String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
-		logger.debug("touch called: " + remoteFile + " at " + host);
-		
+		logger.debug("touch called: " + remoteFile + " at " + transportService.getHostName());
+
 		try {
 			manager.init();
 
-			String remote = getRemoteFileString(host, remoteFile);
+			String remote = getRemoteFileURL(remoteFile);
 			FileObject destination = manager.resolveFile(remote,
 					createDefaultOptions(hostKeyChecking, timeout));
 
@@ -231,15 +243,7 @@ public class SshFileService implements GridFileService {
 		} finally {
 			manager.close();
 		}
-		
-	}
 
-	public GridHostResolver getHostResolver() {
-		return hostResolver;
-	}
-
-	public void setHostResolver(GridHostResolver hostResolver) {
-		this.hostResolver = hostResolver;
 	}
 
 }

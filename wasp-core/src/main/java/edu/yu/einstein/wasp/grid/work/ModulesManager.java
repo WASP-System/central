@@ -114,11 +114,16 @@ public class ModulesManager extends HashMap<String, String> implements
 		
 		return result;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.grid.work.SoftwareManager#getConfiguredSetting(java.lang.String)
+	 */
 	@Override
-	public void configure(String s) {
-		// TODO Auto-generated method stub
-
+	public String getConfiguredSetting(String key) {
+		if (this.containsKey(key)) {
+			return this.get(key);
+		}
+		return null;
 	}
 
 }

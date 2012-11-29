@@ -152,6 +152,13 @@ public interface AuthenticationService {
 		 * @throws IOException
 		 */
 	    public boolean hasPermission(String permission) throws IOException;
+
+	    /**
+	     * Get value associates with a role or null if none. E.g. providing a role of "fm-7" returns 7, whereas "fm-*" or "fm" returns null
+	     * @param role
+	     * @return
+	     */
+	    public Integer getRoleValue(String role);
 	    
 	
 	

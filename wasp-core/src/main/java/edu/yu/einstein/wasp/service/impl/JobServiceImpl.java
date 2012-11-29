@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.FileDao;
@@ -95,6 +96,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -128,9 +130,21 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public JobDao getJobDao() {
 		return this.jobDao;
 	}
+	
+	public void setJobSampleDao(JobSampleDao jobSampleDao) {
+		this.jobSampleDao = jobSampleDao;
+	}
 
+	public void setSampleDao(SampleDao sampleDao) {
+		this.sampleDao = sampleDao;
+	}
+	
 	@Autowired
 	private JobDraftDao jobDraftDao;
+	
+	@Autowired
+	private MetaMessageService metaMessageService;
+
 	
 	@Autowired
 	private SampleMetaDao sampleMetaDao;
@@ -221,7 +235,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Autowired
 	protected WorkflowService workflowService;
 	
-
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public Job getJobByJobId(Integer jobId){
+		return jobDao.getJobByJobId(jobId.intValue());
+	}
 	 /**
 	   * {@inheritDoc}
 	   */
@@ -330,6 +350,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		sortJobsByJobId(jobsAwaitingReceivingOfSamples);
 		
 		return jobsAwaitingReceivingOfSamples;
+	}
+	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingReceivingOfSamples(){
+		return getJobsAwaitingReceivingOfSamples().size() > 0;
 	}
 	
 	  /**
@@ -933,7 +961,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  if(jobId == null || newViewerEmailAddress == null){
 		  	  throw new Exception("listJobSamples.illegalOperation.label");	
 		  }		
-		  //System.out.println("at 7");	  		
+		  	  		
 		  Job job = jobDao.getJobByJobId(jobId.intValue());
 		  if(job.getJobId()==null || job.getJobId().intValue() <= 0){
 			throw new Exception("listJobSamples.jobNotFound.label");			  
@@ -1035,5 +1063,23 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  jobUserDao.remove(jobUser);
 			  jobUserDao.flush(jobUser);
 		  }		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setFacilityJobComment(Integer jobId, String comment)throws Exception{
+		try{
+			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getAllFacilityJobComments(Integer jobId){
+		return metaMessageService.read("facilityJobComments", jobId, JobMeta.class, jobMetaDao);
 	}
 }

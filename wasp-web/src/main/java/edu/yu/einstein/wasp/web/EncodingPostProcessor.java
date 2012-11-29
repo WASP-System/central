@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp;
+package edu.yu.einstein.wasp.web;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
