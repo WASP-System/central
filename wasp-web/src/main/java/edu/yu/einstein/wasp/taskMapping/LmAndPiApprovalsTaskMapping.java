@@ -23,7 +23,7 @@ public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
 	 */
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
-		return taskService.getLabManagerPendingTasks() > 0;
+		return taskService.isLabManagerPendingTasks();
 	}
 
 }
