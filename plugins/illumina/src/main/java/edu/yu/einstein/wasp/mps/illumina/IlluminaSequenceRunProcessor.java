@@ -93,7 +93,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		try {
 			directory = gws.getTransportService().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
-			File f = createSampleSheet(platformUnit);
+			File f = createSampleSheet(run);
 			gfs.put(f, directory + "/" + "SampleSheet.csv");
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
@@ -159,21 +159,29 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 * @throws MetadataException
 	 * @throws SampleTypeException
 	 */
-	private File createSampleSheet(Sample platformUnit) throws IOException,
+	private File createSampleSheet(Run run) throws IOException,
 			MetadataException, SampleTypeException {
 
 		File f = File.createTempFile("wasp_iss", ".txt");
 		logger.debug("created temporary file: " + f.getAbsolutePath().toString());
 		BufferedWriter bw = new BufferedWriter(new FileWriter(f, false));
-		bw.write(getSampleSheetHeader());
-		bw.newLine();
+		
+		bw.write(getSampleSheet(run));
+		
+		bw.close();
+		return f;
+	}
+	
+	public String getSampleSheet(Run run) throws SampleTypeException, MetadataException {
+
+		String sampleSheet = getSampleSheetHeader() + "\n";
+		
+		Sample platformUnit = run.getPlatformUnit();
 		
 		// throws SampleTypeException
-		Map<Integer, Sample> cells = sampleService
-				.getIndexedCellsOnPlatformUnit(platformUnit);
+		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 
-		for (Integer cellid : cells.keySet()) { // for each cell in platform
-												// unit
+		for (Integer cellid : cells.keySet()) { // for each cell in platform unit
 			Sample cell = cells.get(cellid);
 
 			// throws SampleTypeException
@@ -203,12 +211,11 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				String control = "N";
 				String recipe = "recipe";
 
-				String line = buildLine(cell, genome, adaptor, sample, control, recipe, jobname);
+				String line = buildLine(cell, genome, adaptor, sample, control, recipe);
 
 				logger.debug("sample sheet: " + line);
 
-				bw.write(line);
-				bw.newLine();
+				sampleSheet += line + "\n";
 			}
 						
 			// if there is one control sample in the lane and no libraries, set the control flag
@@ -219,26 +226,25 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				s.setName("control");
 				s.setSampleId(-1);
 				
-				String line = buildLine(cell, "PhiX", a, s, "Y", "control", "control");
-				bw.write(line);
-				bw.newLine();
+				String line = buildLine(cell, "PhiX", a, s, "Y", "control");
+				sampleSheet += line + "\n";
 			}
 		}
-		bw.close();
-		return f;
+		return sampleSheet;
+		
 	}
 
-	private String buildLine(Sample cell, String genome, Adaptor adaptor, Sample sample, String control, String recipe, String jobname) {
+	private String buildLine(Sample cell, String genome, Adaptor adaptor, Sample sample, String control, String recipe) {
 		return new StringBuilder()
 						.append(cell.getName() + ",")
 						.append(sample.getSampleId() + ",")
 						.append(genome + ",")
 						.append(adaptor.getBarcodesequence() + ",")
 						.append(sample.getName() + ",")
-						.append("control" + ",") // TODO:control
+						.append(control + ",")
 						.append("recipe" + ",") // TODO:recipe
 						.append("WASP" + ",")
-						.append(jobname)
+						.append("WASP")
 						.toString();
 	}
 
