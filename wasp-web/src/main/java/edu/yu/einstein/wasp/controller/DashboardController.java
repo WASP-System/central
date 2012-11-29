@@ -111,14 +111,7 @@ public class DashboardController extends WaspController {
 		}
 		
 		m.addAttribute("tasks",taskMappingsToDisplay);
-		
-		int numberOfLabManagerPendingTasks = taskService.getLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
-		m.addAttribute("numberOfLabManagerPendingTasks", numberOfLabManagerPendingTasks);
-		int numberOfDepartmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//if da, then number is dependent on the department(s) the da covers, otherwise all such da tasks
-		m.addAttribute("numberOfDepartmentAdminPendingTasks", numberOfDepartmentAdminPendingTasks);
-
-		boolean isTasks = (taskMappingsToDisplay.size() + numberOfLabManagerPendingTasks + numberOfDepartmentAdminPendingTasks) > 0;
-		m.addAttribute("isTasks", isTasks);
+		m.addAttribute("isTasks", taskMappingsToDisplay.size() > 0);
 		
 		return "dashboard";
 	}

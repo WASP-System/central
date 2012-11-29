@@ -1,10 +1,13 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -406,6 +409,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));
 
 		}
+	    
+	    /**
+	     * {@inheritDoc}
+	     * @return
+	     */
+	    @Override
+	    public Set<Integer> idsOfDepartmentsManagedByCurrentUser(){
+	    	Set<Integer> departmentIdList = new HashSet<Integer>();
+	    	if (! hasRole("da-*") )
+	    		return departmentIdList;
+			// get list of departmentId values for this authenticated user
+			
+			for (String role : getRoles()) {
+				if (role.startsWith("da-")){
+					Integer deptId = getRoleValue(role);
+					if (deptId != null)
+						departmentIdList.add(deptId);
+				}
+			}
+			return departmentIdList;
+	    }
+	    
+	    /**
+	     * {@inheritDoc}
+	     * @return
+	     */
+	    @Override
+	    public Set<Integer> idsOfLabsManagedByCurrentUser(){
+	    	Set<Integer> labIdList = new HashSet<Integer>();
+	    	if (! (hasRole("lm-*") || hasRole("pi-*")))
+	    		return labIdList;
+			for (String role : getRoles()) {
+				if (role.startsWith("lm-") || role.startsWith("pi-")){
+					Integer labId = getRoleValue(role);
+					if (labId != null)
+						labIdList.add(labId);
+				}
+			}
+			return labIdList;
+	    }
+	    
+	    
 
 		private static SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
 			ApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getHttpServletRequest().getSession().getServletContext());
