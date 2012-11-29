@@ -12,7 +12,6 @@
 
 <wasp:field name="submitted_on"  type="text" sortable="true" searchable="false" editable="false"/>
 
-_url='/wasp/job2quote/listJSON.do?showall=${param.showall}';
   
 _navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,beforeRefresh: 
 		function () { 
