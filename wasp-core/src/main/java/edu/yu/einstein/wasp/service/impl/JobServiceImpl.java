@@ -12,12 +12,14 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -494,11 +496,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  
 		  try{
 			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", "$"+String.format("%.2f", price));
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  catch(Exception e){
 			  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", "$?.??"); 
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
 		  
 		  return extraJobDetailsMap;	  
