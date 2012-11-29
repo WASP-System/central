@@ -364,7 +364,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   */
 	@Override
 	public boolean isJobsAwaitingReceivingOfSamples(){
-		return getJobsAwaitingReceivingOfSamples().size() > 0;
+		for (Job job: getActiveJobs())
+			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+				return true;
+		return false;
 	}
 	
 	  /**
@@ -457,7 +460,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		 */
 		@Override
 		public boolean isJobsAwaitingQuote(){
-			return getJobsAwaitingQuote().size() > 0;
+			for (Job job : getActiveJobs())
+				if (isJobAwaitingQuote(job))
+					return true;
+			return false;
 		}
 	  
 	  /**

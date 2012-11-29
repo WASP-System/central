@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
@@ -30,6 +29,10 @@ public interface TaskService extends WaspService {
 	public int getDepartmentAdminPendingTasks();
 
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList);
+
+	public boolean isDepartmentAdminPendingTasks();
+
+	public boolean isLabManagerPendingTasks();
 		
 	
 }

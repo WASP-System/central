@@ -10,11 +10,13 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,50 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	private JobService jobService;
 	
 	@Override
+	public boolean isLabManagerPendingTasks() {
+		List<Job> allJobsAwaitingLmApproval = new ArrayList<Job>();
+		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
+		for (Job job: jobService.getActiveJobs()){
+			if (jobService.isJobAwaitingPiApproval(job)){
+				if (authenticationService.isSuperUser())
+					return true;
+				allJobsAwaitingLmApproval.add(job);
+			}
+		}
+		Map<String, Object> userSearchMap = new HashMap<String, Object>();
+		userSearchMap.put("status", "PENDING");
+		
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		for (UserPending up : userPendingDao.findByMap(userSearchMap)){
+			if (up.getLabId() != null){
+				if (authenticationService.isSuperUser())
+					return true;
+				newUsersPendingLmApprovalList.add(up);
+			}
+		}
+		
+		Map<String, Object> roleSearchMap = new HashMap<String, Object>();
+		roleSearchMap.put("roleId", pendingLabmemberRole.getRoleId());
+		if (authenticationService.isSuperUser() && !labUserDao.findByMap(roleSearchMap).isEmpty())
+			return true;
+		
+		for(int labId : authenticationService.idsOfLabsManagedByCurrentUser()){
+			Lab lab = labDao.getLabByLabId(labId);
+			for (UserPending userPending : lab.getUserPending()) 
+				if ("PENDING".equals(userPending.getStatus())) 
+					return true;
+			for (LabUser labUser : lab.getLabUser())
+				if (labUser.getRole().getRoleName().equals(pendingLabmemberRole.getRoleName()))
+					return true;
+			for (Job job: allJobsAwaitingLmApproval){
+				if (job.getLabId().intValue() == labId)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public int getLabManagerPendingTasks() {
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
@@ -94,83 +140,75 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		// 2. approve or reject existing users that have applied to join a lab
 		// 3. approve or reject a new job submission
 		// however if the user is superuser, ft, fm, and ga, then don't filter by lab_id
+		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
+		
 		List<Job> allJobsAwaitingLmApproval = new ArrayList<Job>();
 		for (Job job: jobService.getActiveJobs())
 			if (jobService.isJobAwaitingPiApproval(job))
 				allJobsAwaitingLmApproval.add(job);
 		
-		if (authenticationService.isSuperUser() || authenticationService.hasRole("fm-*") || authenticationService.hasRole("ft-*") || authenticationService.hasRole("ga-*")) {
-
-			Map<String, Object> themap = new HashMap<String, Object>();
-			themap.put("status", "PENDING");
-			List<UserPending> tempNewUsersPendingLmApprovalList = userPendingDao.findByMap(themap);
+		if (authenticationService.isSuperUser()) {
+		
 			// remove those with labId being NULL (as these are new PI's and will be
 			// dealt with at the DepartmentAdmin level (approving a new lab)
-			for (Iterator<UserPending> iter = tempNewUsersPendingLmApprovalList.iterator(); iter.hasNext();) {
-				// must go through iterator if want to remove object, or else get
-				// exception (http://www.rgagnon.com/javadetails/java-0619.html)
-				UserPending up = iter.next();
-				if (up.getLabId() != null) {
+			Map<String, Object> userSearchMap = new HashMap<String, Object>();
+			userSearchMap.put("status", "PENDING");
+			
+			for (UserPending up : userPendingDao.findByMap(userSearchMap))
+				if (up.getLabId() != null)
 					newUsersPendingLmApprovalList.add(up);
-				}
-			}
 
 			// 2 pending existing users
-			Role role = roleDao.getRoleByName("Lab Member Pending");
-			themap.clear();
-			themap.put("roleId", role.getRoleId());
-			List<LabUser> tempExistingUsersPendingLmApprovalList = labUserDao.findByMap(themap);
-			for (LabUser lu : tempExistingUsersPendingLmApprovalList) {
-				existingUsersPendingLmApprovalList.add(lu);
-			}
+			Map<String, Object> roleSearchMap = new HashMap<String, Object>();
+			roleSearchMap.put("roleId", pendingLabmemberRole.getRoleId());
+			existingUsersPendingLmApprovalList.addAll(labUserDao.findByMap(roleSearchMap));
 
 			// 3 jobs awaiting PI approval
 			jobsPendingLmApprovalList.addAll(allJobsAwaitingLmApproval);
 
-		}else if (authenticationService.hasRole("pi-*") || authenticationService.hasRole("lm-*") ){
-			//determine the lab(s) these PI's or lm represent and get info according to their lab(s)
-			//recall that any PI also has role of lm, so it is sufficient to ask for lm
-		
-			// get list of departmentId values for this authenticated user
-			List<Integer> labIdList = new ArrayList<Integer>();
-			for (String role : authenticationService.getRoles()) {
-				if (role.startsWith("lm-")){
-					Integer labId = authenticationService.getRoleValue(role);
-					if (labId != null)
-						labIdList.add(labId);
-				}
-			}
-			
-			for(int labId : labIdList){
+		}else{
+			for(int labId : authenticationService.idsOfLabsManagedByCurrentUser()){
 				// 1 pending new users
 				Lab lab = labDao.getLabByLabId(labId);
+				
 				// usersPendingLmApprovalList.addAll(lab.getUserPending());
-				for (UserPending userPending : lab.getUserPending()) {
-					if ("PENDING".equals(userPending.getStatus())) {
+				for (UserPending userPending : lab.getUserPending()) 
+					if ("PENDING".equals(userPending.getStatus())) 
 						newUsersPendingLmApprovalList.add(userPending);
-					}
-				}
 
 				// 2 pending existing users
-				Role role = roleDao.getRoleByName("Lab Member Pending");
-				if (role.getRoleId() == null) {
-					// TODO: throw exception
-				}
-				for (LabUser labUser : lab.getLabUser()) {
-					if (labUser.getRole().getRoleName().equals(role.getRoleName())) {
+				for (LabUser labUser : lab.getLabUser())
+					if (labUser.getRole().getRoleName().equals(pendingLabmemberRole.getRoleName()))
 						existingUsersPendingLmApprovalList.add(labUser);
-					}
-				}
 
 				// 3 pending jobs
 				for (Job job: allJobsAwaitingLmApproval){
-					if (job.getLabId().intValue() == labId) {
+					if (job.getLabId().intValue() == labId)
 						jobsPendingLmApprovalList.add(job);
-					}
 				}
 			}
 		}
 		return newUsersPendingLmApprovalList.size() + existingUsersPendingLmApprovalList.size() + jobsPendingLmApprovalList.size();
+	}
+	
+	@Override
+	public boolean isDepartmentAdminPendingTasks() {
+		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
+		labPendingSearchMap.put("status", "PENDING");
+		Set<Integer> departmentIdList = authenticationService.idsOfDepartmentsManagedByCurrentUser();
+		for (Job job : jobService.getActiveJobs()){
+			boolean jobIsAwaitingDaApproval = jobService.isJobAwaitingDaApproval(job);
+			if (jobIsAwaitingDaApproval && (authenticationService.isSuperUser() || authenticationService.hasRole("ga")))
+				return true;
+			for (int departmentId : departmentIdList) {
+				labPendingSearchMap.put("departmentId", departmentId); 
+				if (!labPendingDao.findByMap(labPendingSearchMap).isEmpty())
+					return true;
+				if (job.getLab().getDepartmentId().intValue() == departmentId)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -182,29 +220,24 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Override
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList) {
-
 		List<Job> allJobsPendingDaApproval = new ArrayList<Job>();
 		for (Job job : jobService.getActiveJobs())
 			if (jobService.isJobAwaitingDaApproval(job))
 				allJobsPendingDaApproval.add(job);
-		if (authenticationService.isSuperUser() || authenticationService.hasRole("fm-*") || authenticationService.hasRole("ft-*") || authenticationService.hasRole("ga")) {
+		
+		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
+		labPendingSearchMap.put("status", "PENDING");
+		
+		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")){
 			jobsPendingDaApprovalList.addAll(allJobsPendingDaApproval);
-		} else if (authenticationService.hasRole("da-*") ){//if a departmental administrator
+			labsPendingDaApprovalList.addAll(labPendingDao.findByMap(labPendingSearchMap));
+		} else {
 			// get list of departmentId values for this authenticated user
-			List<Integer> departmentIdList = new ArrayList<Integer>();
-			for (String role : authenticationService.getRoles()) {
-				if (role.startsWith("da-")){
-					Integer deptId = authenticationService.getRoleValue(role);
-					if (deptId != null)
-						departmentIdList.add(deptId);
-				}
-			}
-			if (departmentIdList.size() > 0) {
-				Map<String, Object> searchMap = new HashMap<String, Object>();
-				searchMap.put("status", "PENDING");
+			Set<Integer> departmentIdList = authenticationService.idsOfDepartmentsManagedByCurrentUser();
+			if (! departmentIdList.isEmpty()){
 				for (int departmentId : departmentIdList) {
-					searchMap.put("departmentId", departmentId); 
-					labsPendingDaApprovalList.addAll(labPendingDao.findByMap(searchMap));
+					labPendingSearchMap.put("departmentId", departmentId); 
+					labsPendingDaApprovalList.addAll(labPendingDao.findByMap(labPendingSearchMap));
 					for (Job job : allJobsPendingDaApproval){
 						if (job.getLab().getDepartmentId().intValue() == departmentId) {
 							jobsPendingDaApprovalList.add(job);
