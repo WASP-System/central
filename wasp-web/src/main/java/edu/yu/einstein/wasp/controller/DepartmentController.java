@@ -506,8 +506,8 @@ public class DepartmentController extends WaspController {
 		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
 		
 		//for testing only: next two lines, just to fill it up and see something on the jsp
-		jobsPendingDaApprovalList.clear();
-		jobsPendingDaApprovalList = jobService.getJobDao().findAll();
+		//jobsPendingDaApprovalList.clear();
+		//jobsPendingDaApprovalList = jobService.getJobDao().findAll();
 		
 		
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);

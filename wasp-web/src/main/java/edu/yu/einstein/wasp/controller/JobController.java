@@ -463,6 +463,7 @@ public class JobController extends WaspController {
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
 				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
 				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				String quoteAsString = amount==0 ? "?.??" : String.format("%.2f", amount);
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
@@ -471,7 +472,8 @@ public class JobController extends WaspController {
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
-							String.format("%.2f", amount),
+							//String.format("%.2f", amount),
+							quoteAsString,
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 

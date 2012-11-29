@@ -1325,12 +1325,12 @@ public class LabController extends WaspController {
 		
 		
 		//for testing only: next 6 lines, just to fill it up and see something on the jsp
-		newUsersPendingLmApprovalList.clear();
-		newUsersPendingLmApprovalList.add(userPendingDao.findById(3));
-		existingUsersPendingLmApprovalList.clear();
-		existingUsersPendingLmApprovalList.add(labUserDao.findById(14));
-		jobsPendingLmApprovalList.clear();
-		jobsPendingLmApprovalList.add(jobService.getJobDao().findById(1));
+		//newUsersPendingLmApprovalList.clear();
+		//newUsersPendingLmApprovalList.add(userPendingDao.findById(3));
+		//existingUsersPendingLmApprovalList.clear();
+		//existingUsersPendingLmApprovalList.add(labUserDao.findById(14));
+		//jobsPendingLmApprovalList.clear();
+		//jobsPendingLmApprovalList.add(jobService.getJobDao().findById(1));
 
 		
 		
