@@ -248,6 +248,13 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<MetaMessage>
 	 */
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
+	
+	/**
+	 * get user-submitted job comment (there will be zero or one only)
+	 * @param Integer jobId
+	 * @return List<MetaMessage>
+	 */
+	public List<MetaMessage> getUserSubmittedJobComment(Integer jobId);
 
 	/**
 	 * get a list of all jobs awaiting quoting (returns an empty list if none)

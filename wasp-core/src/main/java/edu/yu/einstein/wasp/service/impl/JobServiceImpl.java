@@ -1124,4 +1124,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId){
 		return metaMessageService.read("facilityJobComments", jobId, JobMeta.class, jobMetaDao);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getUserSubmittedJobComment(Integer jobId){
+		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
+	}
+
 }

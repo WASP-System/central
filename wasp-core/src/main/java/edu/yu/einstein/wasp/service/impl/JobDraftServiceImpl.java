@@ -20,28 +20,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.JobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 //import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 //import edu.yu.einstein.wasp.taglib.JQFieldTag;
 //
 
 @Service
+@Transactional("entityManager")
 public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftService {
 	
 	final private int DEFAULT_MAX_COLUMNS = 25;
-
+	
+	final private String META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT = "userSubmittedJobComment";
+	final private String META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT = "User-submitted Job Comment";
+	
 	@Autowired
 	protected AdaptorDao adaptorDao;
 
@@ -60,6 +69,12 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	@Autowired
 	protected JobDraftDao jobDraftDao;
 	
+	@Autowired
+	protected JobDraftMetaDao jobDraftMetaDao;
+
+	@Autowired
+	protected MetaMessageService metaMessageService;
+
 	/**
 	* {@inheritDoc}
 	*/
@@ -220,7 +235,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			boolean cellfound = false;
 
 			JobDraftCellSelection thisJobDraftCellSelection = new JobDraftCellSelection();
-			thisJobDraftCellSelection.setJobdraftId(jobDraft.getJobDraftId());
+			thisJobDraftCellSelection.setJobDraftId(jobDraft.getJobDraftId());
 			thisJobDraftCellSelection.setCellIndex(cellindex + 1);
 
 			for (SampleDraft sd: samples) {
@@ -276,4 +291,44 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		return map;
 	}
 	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void saveUserJobDraftComment(Integer jobDraftId, String comment) throws Exception{
+		String trimmedComment = comment==null?"":comment;
+		try{
+			List<MetaMessage> metaMessageList = metaMessageService.read(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
+			if(metaMessageList.size()>0){//already exists, so get it. edit it (if trimmedComment.size()>0) or delete it if size==0
+				MetaMessage metaMessage = metaMessageList.get(0);//there will only be one
+				if("".equals(trimmedComment)){
+					metaMessageService.delete(metaMessage, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
+				}
+				else{
+					metaMessageService.edit(metaMessage, trimmedComment, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
+				}
+			}
+			else if(metaMessageList.size()==0 && ! "".equals(trimmedComment)){//need to create new entry
+				metaMessageService.saveToGroup(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT, trimmedComment, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
+			}			
+		}catch(Exception e){ throw new Exception(e.getMessage());}		
+	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public String getUserJobDraftComment(Integer jobDraftId) throws Exception{
+		String comment = null;//if(1==1){return new String("new string message to avoid exception");}
+		try{
+			List<MetaMessage> metaMessageList = metaMessageService.read(META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT, jobDraftId, JobDraftMeta.class, jobDraftMetaDao);
+			if(metaMessageList.size()>0){//only one allowed
+				comment = metaMessageList.get(0).getValue();
+			}
+		}catch(Exception e){
+			logger.warn("caught unexpected exception in getUserJobDraftComment(): " + e.getLocalizedMessage());
+			throw new Exception(e.getMessage());
+		}
+		return comment;
+	}
 }

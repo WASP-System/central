@@ -285,6 +285,10 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/cell.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/cell.jsp" />
 	</definition>
+	<definition name="jobsubmit/comment" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/comment.jsp" />
+	</definition>
+	
 	<definition name="jobsubmit/verify" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/verify.jsp" />
 	</definition>
