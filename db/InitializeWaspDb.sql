@@ -20,14 +20,14 @@ create table meta (
 
   property varchar(250) , 
   k varchar(250) , -- internal value?
-  v varchar(250) , -- external label?
+  v TEXT , -- external label?
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  constraint unique index u_meta_p_k (property, k),
-  constraint unique index u_meta_p_v (property, v)
+  constraint unique index u_meta_p_k (property, k)
 ) ENGINE=InnoDB charset=utf8;
 
 
@@ -64,8 +64,9 @@ create table usermeta (
   userid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -241,8 +242,9 @@ create table labmeta (
   labid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -302,8 +304,9 @@ create table userpendingmeta (
   userpendingid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -337,8 +340,9 @@ create table labpendingmeta (
   labpendingid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -410,8 +414,9 @@ create table resourcecategorymeta (
   resourcecategoryid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -457,8 +462,9 @@ create table softwaremeta (
   softwareid int(10) ,
 
   k varchar(250), 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -473,8 +479,9 @@ create table resourcemeta (
   resourceid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -529,6 +536,7 @@ create table workflowmeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -572,6 +580,7 @@ create table jobmeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -664,8 +673,9 @@ create table jobdraftmeta (
   jobdraftid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -782,6 +792,7 @@ create table filemeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -850,8 +861,9 @@ create table samplesubtypemeta (
   samplesubtypeid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -928,6 +940,7 @@ create table workflowresourcecategorymeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -954,6 +967,7 @@ create table workflowsoftwaremeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -999,8 +1013,9 @@ create table samplemeta (
   sampleid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1032,8 +1047,9 @@ create table samplesourcemeta (
   samplesourceid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1110,8 +1126,9 @@ create table sampledraftmeta (
   sampledraftid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1169,8 +1186,9 @@ create table jobsamplemeta (
   jobsampleid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1237,8 +1255,9 @@ create table acct_quotemeta (
   quoteid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1405,8 +1424,9 @@ create table adaptorsetmeta (
   adaptorsetid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1445,8 +1465,9 @@ create table adaptormeta (
   adaptorid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1511,8 +1532,9 @@ create table runmeta (
   runid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1636,8 +1658,9 @@ create table statemeta (
   stateid int(10) ,
 
   k varchar(250) ,
-  v varchar(250),
+  v TEXT,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1765,53 +1788,3 @@ values
 insert into userrole values (1, 1, 11, now(), 1);
 insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
 insert into labuser values (1, 1, 1, 6, now(), 1);
-
-ALTER TABLE acct_quotemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE adaptormeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE adaptorsetmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE filemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE jobdraftmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE jobmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE jobsamplemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE labmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE labpendingmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE meta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE resourcecategorymeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE resourcemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE runmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE sampledraftmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE samplemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE samplesourcemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE samplesubtypemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE softwaremeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE statemeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE usermeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE userpendingmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE workflowmeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE workflowresourcecategorymeta ADD rolevisibility VARCHAR(250) AFTER position;
-ALTER TABLE workflowsoftwaremeta ADD rolevisibility VARCHAR(250) AFTER position;
-
-ALTER TABLE acct_quotemeta MODIFY v TEXT;
-ALTER TABLE adaptormeta MODIFY v TEXT;
-ALTER TABLE adaptorsetmeta MODIFY v TEXT;
-ALTER TABLE filemeta MODIFY v TEXT;
-ALTER TABLE jobdraftmeta MODIFY v TEXT;
-ALTER TABLE jobmeta MODIFY v TEXT;
-ALTER TABLE jobsamplemeta MODIFY v TEXT;
-ALTER TABLE labmeta MODIFY v TEXT;
-ALTER TABLE labpendingmeta MODIFY v TEXT;
-ALTER TABLE meta MODIFY v TEXT;
-ALTER TABLE resourcecategorymeta MODIFY v TEXT;
-ALTER TABLE resourcemeta MODIFY v TEXT;
-ALTER TABLE runmeta MODIFY v TEXT;
-ALTER TABLE sampledraftmeta MODIFY v TEXT;
-ALTER TABLE samplemeta MODIFY v TEXT;
-ALTER TABLE samplesourcemeta MODIFY v TEXT;
-ALTER TABLE samplesubtypemeta MODIFY v TEXT;
-ALTER TABLE softwaremeta MODIFY v TEXT;
-ALTER TABLE statemeta MODIFY v TEXT;
-ALTER TABLE usermeta MODIFY v TEXT;
-ALTER TABLE userpendingmeta MODIFY v TEXT;
-ALTER TABLE workflowmeta MODIFY v TEXT;
-ALTER TABLE workflowresourcecategorymeta MODIFY v TEXT;
-ALTER TABLE workflowsoftwaremeta MODIFY v TEXT;

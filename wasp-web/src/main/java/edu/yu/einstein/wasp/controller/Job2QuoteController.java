@@ -86,6 +86,18 @@ public class Job2QuoteController extends WaspController {
 		return "job2quote/list";
 	}
 	
+	@RequestMapping("/list_all")
+	public String listAll(ModelMap m) {
+
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
+
+		prepareSelectListData(m);
+
+		return "job2quote/list_all";
+	}
+	
 	private Map<String, Object> getQuoteListJGrid(List<Job> restrictedJobList){
 		List<Job> job2quoteList = new ArrayList();
 		

@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
@@ -159,6 +161,18 @@ public interface AuthenticationService {
 	     * @return
 	     */
 	    public Integer getRoleValue(String role);
+
+	    /**
+	     * Gets a list of the ids of deparments managed by the currently logged in user or returns an empty list if none.
+	     * @return
+	     */
+		public Set<Integer> idsOfDepartmentsManagedByCurrentUser();
+
+		/**
+		 * Gets a list of the ids of labse managed by the currently logged in user or returns an empty list if none.
+		 * @return
+		 */
+		public Set<Integer> idsOfLabsManagedByCurrentUser();
 	    
 	
 	
