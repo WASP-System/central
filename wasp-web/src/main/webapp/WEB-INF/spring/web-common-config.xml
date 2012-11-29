@@ -52,13 +52,6 @@
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
 		<property name="maxUploadSize" value="10000000" />
 	</bean>
- 
-
-	<!-- endpoint to submit draft files for processing -->
-	<bean id="jobRunnerHost" class="java.net.URI">
-    	<constructor-arg index="0" value="http://localhost:18083" />
-	</bean>
-
     
 	<!-- spring plugin definitions -->
 	<import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
