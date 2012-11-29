@@ -18,7 +18,7 @@ public interface JobDraftresourcecategoryDao extends WaspDao<JobDraftresourcecat
 
   public JobDraftresourcecategory getJobDraftresourcecategoryByJobDraftresourcecategoryId (final Integer jobDraftresourcecategoryId);
 
-  public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobdraftId (final Integer resourcecategoryId, final Integer jobdraftId);
+  public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobDraftId (final Integer resourcecategoryId, final Integer jobDraftId);
 
 
 }

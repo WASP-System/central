@@ -383,6 +383,8 @@ insert into resourcetype values (3, 'aligner', 'Aligner');
 insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
 insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
 insert into resourcetype values (6, 'helptagPipeline', 'HELP-tag Pipeline'); 
+insert into resourcetype values (7, 'bisulseqPipeline', 'Bi-sulphite-seq Pipeline'); 
+insert into resourcetype values (8, 'sequenceRunProcessor', 'Sequence Run Processor'); 
 
 --
 -- RESOURCE
@@ -1788,3 +1790,28 @@ ALTER TABLE userpendingmeta ADD rolevisibility VARCHAR(250) AFTER position;
 ALTER TABLE workflowmeta ADD rolevisibility VARCHAR(250) AFTER position;
 ALTER TABLE workflowresourcecategorymeta ADD rolevisibility VARCHAR(250) AFTER position;
 ALTER TABLE workflowsoftwaremeta ADD rolevisibility VARCHAR(250) AFTER position;
+
+ALTER TABLE acct_quotemeta MODIFY v TEXT;
+ALTER TABLE adaptormeta MODIFY v TEXT;
+ALTER TABLE adaptorsetmeta MODIFY v TEXT;
+ALTER TABLE filemeta MODIFY v TEXT;
+ALTER TABLE jobdraftmeta MODIFY v TEXT;
+ALTER TABLE jobmeta MODIFY v TEXT;
+ALTER TABLE jobsamplemeta MODIFY v TEXT;
+ALTER TABLE labmeta MODIFY v TEXT;
+ALTER TABLE labpendingmeta MODIFY v TEXT;
+ALTER TABLE meta MODIFY v TEXT;
+ALTER TABLE resourcecategorymeta MODIFY v TEXT;
+ALTER TABLE resourcemeta MODIFY v TEXT;
+ALTER TABLE runmeta MODIFY v TEXT;
+ALTER TABLE sampledraftmeta MODIFY v TEXT;
+ALTER TABLE samplemeta MODIFY v TEXT;
+ALTER TABLE samplesourcemeta MODIFY v TEXT;
+ALTER TABLE samplesubtypemeta MODIFY v TEXT;
+ALTER TABLE softwaremeta MODIFY v TEXT;
+ALTER TABLE statemeta MODIFY v TEXT;
+ALTER TABLE usermeta MODIFY v TEXT;
+ALTER TABLE userpendingmeta MODIFY v TEXT;
+ALTER TABLE workflowmeta MODIFY v TEXT;
+ALTER TABLE workflowresourcecategorymeta MODIFY v TEXT;
+ALTER TABLE workflowsoftwaremeta MODIFY v TEXT;

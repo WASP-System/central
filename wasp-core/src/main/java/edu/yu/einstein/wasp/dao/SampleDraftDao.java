@@ -20,7 +20,7 @@ public interface SampleDraftDao extends WaspDao<SampleDraft> {
 
   public SampleDraft getSampleDraftBySampleDraftId (final int sampleDraftId);
 
-  List<SampleDraft> getSampleDraftByJobId (final int jobdraftId);
+  List<SampleDraft> getSampleDraftByJobId (final int jobDraftId);
   
 }
 

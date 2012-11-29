@@ -179,7 +179,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T extends MetaBase> void delete(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException{
+	public <T extends MetaBase> void delete(MetaMessage message, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException{
 		dao.remove(getUniqueMeta(message, modelParentId, clazz, dao));
 	}
 	

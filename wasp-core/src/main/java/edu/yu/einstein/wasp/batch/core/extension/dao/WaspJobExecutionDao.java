@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JobExecutionDao;
 
@@ -37,4 +38,11 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 	 * @return
 	 */
 	public JobParameters getJobParameters(JobExecution jobExecution);
+	
+	/**
+	 * Obtains job name for a given JobExecution
+	 * @param jobExecution
+	 * @return
+	 */
+	public String getJobName(JobExecution jobExecution);
 }

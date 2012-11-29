@@ -10,6 +10,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.repository.dao.ExecutionContextDao;
@@ -476,7 +477,23 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 		return jobExecution;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JobParameters getJobParameters(JobExecution jobExecution) {
+		return jobExecutionDao.getJobParameters(jobExecution);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobName(JobExecution jobExecution) {
+		return jobExecutionDao.getJobName(jobExecution);
+	}
+
+	
 
 
 

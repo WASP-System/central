@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,7 +46,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 		
 		
-		String sql = "SELECT E.JOB_EXECUTION_ID from %PREFIX%JOB_EXECUTION E, %PREFIX%JOB_INSTANCE I where "
+		String sql = "SELECT E.JOB_EXECUTION_ID, E.JOB_INSTANCE_ID from %PREFIX%JOB_EXECUTION E, %PREFIX%JOB_INSTANCE I where "
 			+ "E.JOB_INSTANCE_ID=I.JOB_INSTANCE_ID "
 			+ "and (I.JOB_NAME LIKE :name1 or I.JOB_NAME LIKE :name2)";
 		
@@ -95,10 +96,11 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 			
 			@Override
 			public JobExecution mapRow(ResultSet rs, int rowNum) throws SQLException {
-				logger.debug("Mapping result for row number " + rowNum + " (jobExecutionId=" + rs.getLong(1) + ") to a JobExecution");
+				logger.debug("Mapping result for row number " + rowNum + " (jobExecutionId=" + rs.getLong(1) + ", jobInstanceId=" + rs.getLong(2) + ") to a JobExecution");
 				JobExecution jobExecution = getJobExecution(rs.getLong(1));
 				if (jobExecution == null)
 					throw new SQLException("Failed to map result for row number " + rowNum + "(jobExecutionId=" + rs.getLong(1) + ") to a JobExecution: ");
+				jobExecution.setJobInstance(waspJobInstanceDao.getJobInstance(rs.getLong(2)));
 				jobExecutions.add(jobExecution);
 				return jobExecution;
 			}
@@ -113,7 +115,19 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 	 */
 	@Override
 	public JobParameters getJobParameters(JobExecution jobExecution){
+		if (jobExecution.getJobInstance() != null)
+			return jobExecution.getJobInstance().getJobParameters();
 		return (waspJobInstanceDao.getJobInstance(jobExecution).getJobParameters());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobName(JobExecution jobExecution){
+		if (jobExecution.getJobInstance() != null)
+			return jobExecution.getJobInstance().getJobName();
+		return (waspJobInstanceDao.getJobInstance(jobExecution).getJobName());
 	}
 
 	
