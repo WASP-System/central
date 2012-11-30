@@ -23,7 +23,7 @@ public class DaApprovalsTaskMapping extends WaspTaskMapping {
 	 */
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
-		return taskService.getDepartmentAdminPendingTasks() > 0;
+		return taskService.isDepartmentAdminPendingTasks();
 	}
 
 }

@@ -40,7 +40,7 @@ public class MetaBase extends WaspModel {
 		return this.k;
 	}
 
-	@Column(name = "v")
+	@Column(name = "v", columnDefinition="TEXT")
 	private String v;
 
 	public void setV(String v) {

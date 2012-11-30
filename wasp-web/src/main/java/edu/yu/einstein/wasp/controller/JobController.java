@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -141,10 +142,17 @@ public class JobController extends WaspController {
 		}		
 		m.addAttribute("job", job);
 		
-		//TODO get the commentsList from jobMeta and add to m
+		//get the user-submitted job comment (if any); should be zero or one
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+		}
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any)
 		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
 		for (MetaMessage metaMessage: facilityJobCommentsList){
-			logger.debug(metaMessage.getName() + " = " +  metaMessage.getValue());
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
 		}
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		
@@ -169,7 +177,7 @@ public class JobController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 
-		String trimmedComment = comment==null?null:comment.trim();
+		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
 		if(trimmedComment==null||trimmedComment.length()==0){
 			waspErrorMessage("jobComment.jobCommentEmpty.error");
 			return "redirect:/job/comments/"+jobId+".do";
@@ -660,7 +668,7 @@ public class JobController extends WaspController {
 	  Job job = jobService.getJobDao().getJobByJobId(jobId);
 	  WaspStatus status = WaspStatus.UNKNOWN;
 	  if("approve".equals(action)){
-		  status = WaspStatus.CREATED;
+		  status = WaspStatus.COMPLETED;
 	  }
 	  else if("reject".equals(action)){
 		  status = WaspStatus.ABANDONED;
@@ -681,7 +689,7 @@ public class JobController extends WaspController {
 	  Job job = jobService.getJobDao().getJobByJobId(jobId);
 	  WaspStatus status = WaspStatus.UNKNOWN;
 	  if("approve".equals(action)){
-		  status = WaspStatus.CREATED;
+		  status = WaspStatus.COMPLETED;
 	  }
 	  else if("reject".equals(action)){
 		  status = WaspStatus.ABANDONED;

@@ -40,6 +40,14 @@
     	<property name="dataSource" ref="dataSource" />
     </bean>
     
+    
+    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+    	<property name="jobExplorer" ref="jobExplorer" />
+    	<property name="jobLauncher" ref="jobLauncher" />
+    	<property name="jobRegistry" ref="jobRegistry" />
+    	<property name="jobRepository" ref="jobRepository" />
+    </bean>
+    
     <!-- AOP advice to restart methods with @Retryable annotation-->
     <aop:config>
         <aop:pointcut id="batchJobRetry" expression="execution(@edu.yu.einstein.wasp.batch.annotations.Retryable * *(..))"/>
@@ -66,7 +74,7 @@
     <!-- AOP advice to restart methods with @RetryOnExceptionFixed annotation-->
     <aop:config>
         <aop:pointcut id="taskletRetryFixedPointcut" expression="execution(@edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed * *(..))"/>
-        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" />
+        <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" order="-1" />
     </aop:config>
 
     <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
@@ -121,6 +129,12 @@
 				</property>
 			</bean>
 		</property>
+	</bean>
+	
+	<bean id="batchRelaunchRunningJobsOnStartup" class="edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup">
+		<constructor-arg name="jobRepository" ref="jobRepository" />
+		<constructor-arg name="jobOperator" ref="jobOperator" />
+		<constructor-arg name="jobExplorer" ref="jobExplorer" />
 	</bean>
     
 </beans>

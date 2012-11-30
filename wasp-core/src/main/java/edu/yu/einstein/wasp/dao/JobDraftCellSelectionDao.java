@@ -18,7 +18,7 @@ public interface JobDraftCellSelectionDao extends WaspDao<JobDraftCellSelection>
 
   public JobDraftCellSelection getJobDraftCellSelectionByJobDraftCellSelectionId (final Integer jobDraftCellSelectionId);
 
-  public JobDraftCellSelection getJobDraftCellSelectionByJobdraftIdCellIndex (final Integer jobdraftId, final Integer cellIndex);
+  public JobDraftCellSelection getJobDraftCellSelectionByJobDraftIdCellIndex (final Integer jobDraftId, final Integer cellIndex);
 
 
 }

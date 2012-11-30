@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.daemon.test.stubs;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -156,6 +157,18 @@ public class StubAuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public Integer getRoleValue(String role) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Integer> idsOfDepartmentsManagedByCurrentUser() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Integer> idsOfLabsManagedByCurrentUser() {
 		// TODO Auto-generated method stub
 		return null;
 	}

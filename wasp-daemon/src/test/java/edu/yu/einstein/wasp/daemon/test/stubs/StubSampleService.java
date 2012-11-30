@@ -382,8 +382,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public void sendOutboundMessage(Message<?> message)
-			throws WaspMessageBuildingException {
+	public void sendOutboundMessage(Message<?> message, boolean isReplyExpected) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -522,7 +521,7 @@ public class StubSampleService implements SampleService {
 
 	@Override
 	public void initiateBatchJobForSample(Job job, Sample sample,
-			String batchJobName) throws WaspMessageBuildingException {
+			String batchJobName) {
 		// TODO Auto-generated method stub
 		
 	}

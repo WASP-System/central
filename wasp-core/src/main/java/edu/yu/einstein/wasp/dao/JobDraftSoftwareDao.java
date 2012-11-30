@@ -18,7 +18,7 @@ public interface JobDraftSoftwareDao extends WaspDao<JobDraftSoftware> {
 
   public JobDraftSoftware getJobDraftSoftwareByJobDraftSoftwareId (final Integer jobDraftSoftwareId);
 
-  public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobdraftId (final Integer softwareId, final Integer jobdraftId);
+  public JobDraftSoftware getJobDraftSoftwareBySoftwareIdJobDraftId (final Integer softwareId, final Integer jobDraftId);
 
 
 }

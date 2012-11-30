@@ -8,6 +8,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<int:channel id="wasp.channel.remoting.outbound" />
+	
 	<int-rmi:outbound-gateway id="outboundRmiGateway" 
 		remote-channel="wasp.channel.remoting.inbound" 
 		request-channel="wasp.channel.remoting.outbound" 

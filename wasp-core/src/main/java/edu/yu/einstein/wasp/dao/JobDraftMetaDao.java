@@ -20,11 +20,11 @@ public interface JobDraftMetaDao extends WaspDao<JobDraftMeta> {
 
   public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId);
 
-  public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final Integer jobdraftId);
+  public JobDraftMeta getJobDraftMetaByKJobDraftId (final String k, final Integer jobDraftId);
 
-  public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList);
+  public void updateByJobDraftId (final int jobDraftId, final List<JobDraftMeta> metaList);
 
-  public void replaceByJobdraftId(String area, int jobdraftId, List<JobDraftMeta> metaList);
+  public void replaceByJobDraftId(String area, int jobDraftId, List<JobDraftMeta> metaList);
 
 
 

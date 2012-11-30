@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
@@ -159,7 +160,7 @@
 	</batch:flow>
 	
 	<!-- for dispatching job, call with parameter 'sampleId' and 'jobId' -->
-	<batch:job id="wasp.sample.jobflow.v1">
+	<batch:job id="wasp.sample.jobflow.v1" restartable="true">
 		<batch:split id="wasp.sample.jobFlow.split" task-executor="taskExecutor">
 			<batch:flow parent="wasp.default.sample.mainFlow.v1" />
 			<batch:flow parent="wasp.default.sample.mainFlow.exitCondition" />

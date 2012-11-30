@@ -43,7 +43,6 @@ import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -86,11 +85,22 @@ public class Job2QuoteController extends WaspController {
 
 		return "job2quote/list";
 	}
+	
+	@RequestMapping("/list_all")
+	public String listAll(ModelMap m) {
 
-	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
-	public String getListJSON(HttpServletResponse response) {
+		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
+		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
-		// result
+		prepareSelectListData(m);
+
+		return "job2quote/list_all";
+	}
+	
+	private Map<String, Object> getQuoteListJGrid(List<Job> restrictedJobList){
+		List<Job> job2quoteList = new ArrayList();
+		
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		String search = request.getParameter("_search");
@@ -174,8 +184,7 @@ public class Job2QuoteController extends WaspController {
 			}	
 		}
 		
-		List<Job> jobList = new ArrayList();
-		List<Job> job2quoteList = new ArrayList();
+		
 		
 		Map m = new HashMap();
 		if(jobId != null){
@@ -215,107 +224,123 @@ public class Job2QuoteController extends WaspController {
 			orderByColumnAndDirection.add("jobId desc");
 		}
 		
-		jobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+		if (restrictedJobList != null && !restrictedJobList.isEmpty())
+			workingJobList.retainAll(restrictedJobList);
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
-			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
-			jobList.retainAll(jobsToKeep);
+			List<Job> jobsToKeep = filterService.filterJobListForDA(workingJobList);
+			workingJobList.retainAll(jobsToKeep);
 		}
 
 		//orderby amount is special; must be done by comparator
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			
 			if(sidx.equals("amount")){
-				Collections.sort(jobList, new QuoteAmountComparator());	
+				Collections.sort(workingJobList, new QuoteAmountComparator());	
 				if(sord.equals("desc")){
-					Collections.reverse(jobList);
+					Collections.reverse(workingJobList);
 				}
 			}						
 		}
 	
-		job2quoteList.addAll(jobList);
+		job2quoteList.addAll(workingJobList);
 
-		try {
-			// index of page
-			int pageIndex = Integer.parseInt(request.getParameter("page")); 
-			// number of rows in one page
-			int pageRowNum = Integer.parseInt(request.getParameter("rows")); 
-			// total number of rows
-			int rowNum = job2quoteList.size(); 
-			// total number of pages
-			int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; 
+		
+		// index of page
+		int pageIndex = Integer.parseInt(request.getParameter("page")); 
+		// number of rows in one page
+		int pageRowNum = Integer.parseInt(request.getParameter("rows")); 
+		// total number of rows
+		int rowNum = job2quoteList.size(); 
+		// total number of pages
+		int pageNum = (rowNum + pageRowNum - 1) / pageRowNum; 
 
-			jqgrid.put("records", rowNum + "");
-			jqgrid.put("total", pageNum + "");
-			jqgrid.put("page", pageIndex + "");
+		jqgrid.put("records", rowNum + "");
+		jqgrid.put("total", pageNum + "");
+		jqgrid.put("page", pageIndex + "");
 
-			Map<String, String> userData = new HashMap<String, String>();
-			userData.put("page", pageIndex + "");
-			userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
-			jqgrid.put("userdata", userData);
+		Map<String, String> userData = new HashMap<String, String>();
+		userData.put("page", pageIndex + "");
+		userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
+		jqgrid.put("userdata", userData);
 
-			List<Map> rows = new ArrayList<Map>();
+		List<Map> rows = new ArrayList<Map>();
 
-			int frId = pageRowNum * (pageIndex - 1);
-			int toId = pageRowNum * pageIndex;
-			toId = toId <= rowNum ? toId : rowNum;
+		int frId = pageRowNum * (pageIndex - 1);
+		int toId = pageRowNum * pageIndex;
+		toId = toId <= rowNum ? toId : rowNum;
 
-			/*
-			 * if the selId is set, change the page index to the one contains
-			 * the selId
-			 */
-			if (!StringUtils.isEmpty(request.getParameter("selId"))) {
-				int selId = Integer.parseInt(request.getParameter("selId"));
-				int selIndex = job2quoteList.indexOf(jobService.getJobDao().findById(selId));
-				frId = selIndex;
-				toId = frId + 1;
+		/*
+		 * if the selId is set, change the page index to the one contains
+		 * the selId
+		 */
+		if (!StringUtils.isEmpty(request.getParameter("selId"))) {
+			int selId = Integer.parseInt(request.getParameter("selId"));
+			int selIndex = job2quoteList.indexOf(jobService.getJobDao().findById(selId));
+			frId = selIndex;
+			toId = frId + 1;
 
-				jqgrid.put("records", "1");
-				jqgrid.put("total", "1");
-				jqgrid.put("page", "1");
-			}
-
-			List<Job> page = job2quoteList.subList(frId, toId);
-			for (Job item : page) {
-				Map cell = new HashMap();
-				cell.put("id", item.getJobId());
-
-				User user = userDao.getById(item.getUserId());
-				List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
-				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
-
-				List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList() : 
-					getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
-				
-				Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");
-				
-				List<String> cellList = new ArrayList<String>(
-					Arrays.asList(new String[] { 
-						"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
-						item.getName(),
-						String.format("%.2f", amount),
-						user.getNameFstLst(), 
-						item.getLab().getUser().getNameFstLst(),
-						formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 
-					}));
-
-				for (AcctQuoteMeta meta : itemMetaList) {
-					cellList.add(meta.getV());
-				}
-
-				cell.put("cell", cellList);
-
-				rows.add(cell);
-			}
-
-			jqgrid.put("rows", rows);
-
-			return outputJSON(jqgrid, response);
-
-		} catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON " + job2quoteList, e);
+			jqgrid.put("records", "1");
+			jqgrid.put("total", "1");
+			jqgrid.put("page", "1");
 		}
+
+		List<Job> page = job2quoteList.subList(frId, toId);
+		for (Job item : page) {
+			Map cell = new HashMap();
+			cell.put("id", item.getJobId());
+
+			User user = userDao.getById(item.getUserId());
+			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
+			float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+
+			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList() : 
+				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
+			
+			Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");
+			
+			List<String> cellList = new ArrayList<String>(
+				Arrays.asList(new String[] { 
+					"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
+					item.getName(),
+					String.format("%.2f", amount),
+					user.getNameFstLst(), 
+					item.getLab().getUser().getNameFstLst(),
+					formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 
+				}));
+
+			for (AcctQuoteMeta meta : itemMetaList) {
+				cellList.add(meta.getV());
+			}
+
+			cell.put("cell", cellList);
+
+			rows.add(cell);
+		}
+
+		jqgrid.put("rows", rows);
+		return jqgrid;
+	}
+
+	@RequestMapping(value = "/listAllJSON", method = RequestMethod.GET)
+	public String getListAllJSON(HttpServletResponse response){
+		try {
+			return outputJSON(getQuoteListJGrid(new ArrayList<Job>()), response);
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON ", e);
+		}	
+	}
+	
+	@RequestMapping(value = "/listJSON", method = RequestMethod.GET)
+	public String getListJSON(HttpServletResponse response){
+		List<Job> jobsToBeQuoted = jobService.getJobsAwaitingQuote();
+		try {
+			return outputJSON(getQuoteListJGrid(jobsToBeQuoted), response);
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON ", e);
+		}	
 	}
 
 	/**
@@ -343,7 +368,7 @@ public class Job2QuoteController extends WaspController {
 			acctJobquotecurrentDao.persist(acctJobquotecurrent);
 		}
 		try{
-			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.CREATED);
+			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
 		} catch (WaspMessageBuildingException e){
 			logger.warn(e.getMessage());
 			try {
