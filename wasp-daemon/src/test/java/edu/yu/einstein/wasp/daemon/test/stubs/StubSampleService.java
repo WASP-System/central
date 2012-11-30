@@ -394,7 +394,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus) {
+	public String convertSampleStatusForWeb(BatchStatus internalStatus) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -514,7 +514,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus) {
+	public WaspStatus convertSampleStatusFromWeb(String webStatus) {
 		// TODO Auto-generated method stub
 		return null;
 	}

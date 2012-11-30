@@ -176,7 +176,7 @@ public class TaskController extends WaspController {
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
 	  for(Sample sample : submittedSamplesList){	
 		  BatchStatus status = sampleService.getReceiveSampleStatus(sample);		  
-		  receiveSampleStatusList.add(sampleService.convertReceiveSampleStatusForWeb(status));	
+		  receiveSampleStatusList.add(sampleService.convertSampleStatusForWeb(status));	
 		  
 		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
 		  sampleHasBeenProcessedList.add(new Boolean(sampleHasBeenProcessedByFacility));
@@ -221,7 +221,7 @@ public class TaskController extends WaspController {
 		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 		  if(sample.getSampleId() > 0 && ! sampleService.submittedSampleHasBeenProcessedByFacility(sample)){
 			  try{
-				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertReceiveSampleStatusFromWeb(receivedStatusList.get(index++)));
+				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertSampleStatusFromWeb(receivedStatusList.get(index++)));
 			  } catch (WaspMessageBuildingException e){
 				  logger.warn(e.getLocalizedMessage());
 				  waspMessage("task.samplereceive_message.error");

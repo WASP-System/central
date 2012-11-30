@@ -347,7 +347,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn("Unable to identify species for sampleId " + sample.getSampleId());
 				//print a message and get outta here
 			}
-			receivedStatusMap.put(sample, sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+			receivedStatusMap.put(sample, sampleService.convertSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			//for each task, determine if it's status is CREATED (if it has many states for a single status, simply determine if at least one is CREATED) 
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));

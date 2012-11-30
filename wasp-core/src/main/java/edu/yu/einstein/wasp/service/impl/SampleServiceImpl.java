@@ -373,7 +373,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertReceiveSampleStatusForWeb(BatchStatus internalStatus){
+	  public String convertSampleStatusForWeb(BatchStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
 		  if(internalStatus.equals(BatchStatus.STARTED)){
@@ -397,7 +397,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public WaspStatus convertReceiveSampleStatusFromWeb(String webStatus){
+	  public WaspStatus convertSampleStatusFromWeb(String webStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
 		  	if(webStatus.equals("RECEIVED")){
@@ -425,7 +425,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  BatchStatus [] statusList = {BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED};
 		  List<String> options = new ArrayList<String>();
 		  for(BatchStatus status : statusList){
-			  options.add(convertReceiveSampleStatusForWeb(status));
+			  options.add(convertSampleStatusForWeb(status));
 		  }
 		  return options;
 	  }
