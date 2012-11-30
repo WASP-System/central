@@ -160,13 +160,13 @@ $(document).ready(function() {
 		var numberFormat=new RegExp("^[0-9]+$");
 		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
 			if(!numberFormat.test(readlength)){
-				alert("Readlength must be an integer");
+				alert("<fmt:message key="grid.readLengthInteger.label" />");
 				return true;//do not perform search 
 			}
 		}
 		if(typeof(lanecount) !== 'undefined' && lanecount != null && lanecount.length>0){
 			if(!numberFormat.test(lanecount)){
-				alert("Lanes must be an integer");
+				alert("<fmt:message key="grid.lanesInteger.label" />");
 				return true;//do not perform search 
 			}
 		}
@@ -176,7 +176,7 @@ $(document).ready(function() {
 		if(typeof(date) !== 'undefined' && date != null && date.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(date)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("<fmt:message key="grid.dateFormat.label" />");
 				return true;//do not perform search 
 			}
 		}
