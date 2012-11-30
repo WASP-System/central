@@ -951,12 +951,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		
-		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED)
-			);
-		if (stepExecution != null)
-			return true;
-		return false;
+		return (batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED).isEmpty()) ? false : true;
+			
 	}
 	
 	/**
