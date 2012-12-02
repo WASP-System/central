@@ -407,17 +407,17 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library)
+	public boolean isLibraryAwaitingPlatformUnitPlacement(Sample library)
 			throws SampleTypeException {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	@Override
-	public Boolean isPlatformUnitAwaitingSequenceRunPlacement(
+	public boolean isPlatformUnitAwaitingSequenceRunPlacement(
 			Sample platformUnit) throws SampleTypeException {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}
 
 	@Override
@@ -524,6 +524,25 @@ public class StubSampleService implements SampleService {
 			String batchJobName) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public List<Sample> getCellsForLibrary(Sample library)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getRequestedSampleCoverage(Sample sample) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List<Sample> getRunningOrSuccessfullyRunPlatformUnits() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

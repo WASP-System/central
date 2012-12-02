@@ -134,7 +134,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		public Boolean isSampleReceived(Sample sample);
 		
 		/**
-		 * Returns true if sample has a library batch flow in state awaiting library creation
+		 * Returns true if sample and no library recorded as currently being processed or successfully made 
 		 * @param sample
 		 * @return
 		 */
@@ -511,18 +511,18 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
 	  
 	  /**
-		 * Returns true if provided library sample is in a state of awaiting placement on a platform unit, otherwise returns false
+		 * Returns true if the actual coverage of provided library sample on currently running or successfully completed flowcells is less than the requested coverage. 
 		 * @param sample
 		 * @return
 		 */
-		public Boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException;
+		public boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException;
 		
 		/**
 		 * Returns true if provided platform unit sample is in a state of awaiting placement on a sequencing run, otherwise returns false
 		 * @param sample
 		 * @return
 		 */
-		public Boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException;
+		public boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException;
 
 	  /**
 	   * Gets list of all massively-parallel sequencing machines 
@@ -613,5 +613,26 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param batchJobName
 	   */
 	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName);
+
+	  /**
+	   * Get cells onto which the current library is placed
+	   * @param library
+	   * @return
+	 * @throws SampleTypeException 
+	   */
+	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException;
+
+	  /**
+	   * Gets the requested coverage for the specified sample i.e. how many cells is the sample to be run on
+	   * @param sample
+	   * @return
+	   */
+	  public int getRequestedSampleCoverage(Sample sample);
+
+	  /**
+	   * returns a list of currently running or successfully run platform units
+	   * @return
+	   */
+	  public List<Sample> getRunningOrSuccessfullyRunPlatformUnits();
 	  
 }

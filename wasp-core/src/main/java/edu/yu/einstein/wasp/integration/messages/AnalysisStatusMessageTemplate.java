@@ -13,19 +13,19 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  */
 public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
-	protected Integer sampleId; // id of library being analysed
+	protected Integer libraryId; // id of library being analysed
 	
-	public Integer getsampleId() {
-		return sampleId;
+	public Integer getlibraryId() {
+		return libraryId;
 	}
 
-	public void setsampleId(Integer sampleId) {
-		this.sampleId = sampleId;
+	public void setlibraryId(Integer libraryId) {
+		this.libraryId = libraryId;
 	}
 	
-	public AnalysisStatusMessageTemplate(Integer sampleId){
+	public AnalysisStatusMessageTemplate(Integer libraryId){
 		super();
-		this.sampleId = sampleId;
+		this.libraryId = libraryId;
 	}
 	
 	
@@ -44,14 +44,14 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
@@ -63,7 +63,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied sampleId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied libraryId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task
@@ -72,22 +72,22 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	@Override
 	public boolean actUponMessage(Message<?> message){
 		if (this.task == null)
-			return actUponMessage(message, this.sampleId);
-		return actUponMessage(message, this.sampleId, this.task);
+			return actUponMessage(message, this.libraryId);
+		return actUponMessage(message, this.libraryId, this.task);
 	}
 	
 	// Statics.........
 	
 	/**
-	 * Takes a message and checks its headers against the supplied sampleId value to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied libraryId value to see if the message should be acted upon or not
 	 * @param message
-	 * @param sampleId 
+	 * @param libraryId 
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer sampleId ){
-		if (sampleId != null &&
-				message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID)).equals(sampleId) &&
+	public static boolean actUponMessage(Message<?> message, Integer libraryId ){
+		if (libraryId != null &&
+				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
 				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS))
 			return true;
@@ -95,14 +95,14 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied sampleId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied libraryId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer sampleId, String task ){
-		if (! actUponMessage(message, sampleId) )
+	public static boolean actUponMessage(Message<?> message, Integer libraryId, String task ){
+		if (! actUponMessage(message, libraryId) )
 			return false;
 		if (task != null && 
 				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 

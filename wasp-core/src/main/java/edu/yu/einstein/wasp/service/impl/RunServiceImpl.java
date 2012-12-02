@@ -5,20 +5,27 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
@@ -43,13 +50,20 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	
 	private static Logger logger = LoggerFactory.getLogger(RunServiceImpl.class);
 	
-	private RunDao runDao;
+	protected RunDao runDao;
 	
 	@Autowired
-	SampleService sampleService;
+	protected SampleService sampleService;
 	
 	@Autowired
-	WorkflowService workflowService;
+	protected WorkflowService workflowService;
+	
+	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 	
 
 	@Override
@@ -71,6 +85,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public void setRunMetaDao(RunMetaDao runMetaDao) {
 		this.runMetaDao = runMetaDao;
 	}
+	
+	
 	
 	@Override
 	public RunMetaDao getRunMetaDao() {
@@ -236,6 +252,50 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Run getRunById(int runId) {
 		return runDao.findById(runId);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Run> getCurrentlyActiveRuns(){
+		Set<Run> runs = new HashSet<Run>();
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		for(JobExecution jobExecution: jobExecutions){
+			try{
+				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
+				runs.add(runDao.getRunByRunId(runId));
+			} catch (Exception e) {
+				logger.warn("unable to proccess a run Id as a parameter for job execution: "+ jobExecution.toString());
+			}
+		}
+		return runs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Run> getSuccessfullyCompletedRuns(){
+		Set<Run> runs = new HashSet<Run>();
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.COMPLETED);
+		for(JobExecution jobExecution: jobExecutions){
+			try {
+				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
+				runs.add(runDao.getRunByRunId(runId));
+			} catch (Exception e) {
+				logger.warn("unable to proccess a run Id as a parameter for job execution: "+ jobExecution.toString());
+			}
+		}
+		return runs;
 	}
 
 }

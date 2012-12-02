@@ -93,11 +93,11 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -228,6 +228,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -284,6 +285,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
+		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED));
 		for (StepExecution stepExecution: stepExecutions){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
@@ -773,7 +775,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			initiateBatchJobForJobSubmission(jobDb);
 			for (Sample sample: samples){
 				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
-				sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+				if (sampleService.isLibrary(sample)){
+					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.userLibrary.jobflow.v1");
+				} else {
+					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+				}
 			}
 			
 			return jobDb;
@@ -803,26 +809,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Job> getJobsAwaitingLibraryCreation(){
-		
 		List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
-		
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
-		Set<Integer> uniqueJobIds = new HashSet<Integer>(); // just to be sure no duplicates, store the job ids in a Set
-		for (StepExecution stepExecution: stepExecutions){
-			try{
-				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
-			} catch (ParameterValueRetrievalException e){
-				logger.warn(e.getMessage());
-				continue;
+		for (Job job : getActiveJobs()){
+			for (Sample sample: job.getSample()){
+				if (sampleService.isSampleAwaitingLibraryCreation(sample)){
+					JobsAwaitingLibraryCreation.add(job);
+					break;
+				}
 			}
-		}
-		for (Integer jobId: uniqueJobIds){
-			Job job = jobDao.getJobByJobId(jobId);
-			if (job == null){
-				logger.warn("Job with job id '"+jobId+"' does not have a match in the database!");
-				continue;
-			}
-			JobsAwaitingLibraryCreation.add(job);
 		}
 		return JobsAwaitingLibraryCreation;
 	}
@@ -846,48 +840,27 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
+		// jobs with libraries created for which the number of lanes on non-failed flowcells is less than the requested coverage
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
-			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
-			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
-			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
-			// the job may have many libraries and each library may need to be run more than once
-			for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false) ){
-				try{
-					Integer libraryId =  Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
-					// put to list of all sample id's on all analysis flows (librariesInAnalysisFlow)
-					if (librariesForJobWithAnalysisFlow.containsKey(libraryId)){
-						librariesForJobWithAnalysisFlow.put(libraryId, librariesForJobWithAnalysisFlow.get(libraryId) + 1);
-					} else {
-						librariesForJobWithAnalysisFlow.put(libraryId, 1);
+			for (Sample sample: job.getSample()){
+				int sampleActualCoverage = 0;
+				if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
+					continue;
+				for (Sample library: sample.getChildren()){
+					try{
+						for (Sample cell : sampleService.getCellsForLibrary(library)){
+							if (sampleService.getRunningOrSuccessfullyRunPlatformUnits().contains(sampleService.getPlatformUnitForCell(cell))){
+								sampleActualCoverage++;
+							}
+						}
+					} catch(Exception e){
+						logger.warn(e.getLocalizedMessage());
 					}
-				} catch (ParameterValueRetrievalException e){
-					logger.warn(e.getMessage());
-					continue;
-				} catch (NumberFormatException e){
-					logger.warn(e.getMessage());
-					continue;
 				}
-				
-				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
-					Sample library = sampleDao.getSampleBySampleId(libraryId);
-					if (library.getSampleId() == 0){
-						logger.warn("Cannot find Sample with id=" + libraryId);
-						continue;
-					}
-					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
-					Integer numberOfLibraryInstancesOnCells = 0;
-					if (sampleSources != null)
-						numberOfLibraryInstancesOnCells = sampleSources.size();
-					
-					Integer numberOfAnalysisFlowsForLibrary = librariesForJobWithAnalysisFlow.get(libraryId);
-					
-					if (numberOfAnalysisFlowsForLibrary > numberOfLibraryInstancesOnCells)
-						jobsWithLibrariesToGoOnFlowCell.add(job);
-					
+				if (sampleActualCoverage < sampleService.getRequestedSampleCoverage(sample)){
+					jobsWithLibrariesToGoOnFlowCell.add(job);
+					break;
 				}
 			}
 		}
@@ -941,18 +914,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			logger.warn("supplied sample is not associated with supplied job");
 			return false;
 		}
-		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		
-		Set<String> sampleIdStringSet = new HashSet<String>();
-		sampleIdStringSet.add(sampleId.toString());
-		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
-		
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		
-		return (batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED).isEmpty()) ? false : true;
-			
+		return sampleService.isSampleAwaitingLibraryCreation(sample);
 	}
 	
 	/**
