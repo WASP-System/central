@@ -4,21 +4,21 @@
  * FileDao.java 
  * @author echeng (table2type.pl)
  *  
- * the File Dao 
+ * the FileHandle Dao 
  *
  *
  **/
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 
-public interface FileDao extends WaspDao<File> {
+public interface FileDao extends WaspDao<FileHandle> {
 
-  public File getFileByFileId (final Integer fileId);
+  public FileHandle getFileByFileId (final Integer fileId);
 
-  public File getFileByFilelocation (final String filelocation);
+  public FileHandle getFileByFilelocation (final String filelocation);
 
 
 }

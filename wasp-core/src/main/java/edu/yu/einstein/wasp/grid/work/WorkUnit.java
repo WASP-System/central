@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -79,10 +79,10 @@ public class WorkUnit {
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
 	 */
-	private Set<File> requiredFiles;
+	private Set<FileHandle> requiredFiles;
 	
 	/**
-	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link File} objects
+	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link FileHandle} objects
 	 * upon successful completion of the WorkUnit.
 	 */
 	private Set<String> resultFiles;

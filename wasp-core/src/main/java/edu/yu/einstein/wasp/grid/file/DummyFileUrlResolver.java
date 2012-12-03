@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * @author calder
@@ -22,10 +22,10 @@ public class DummyFileUrlResolver implements FileUrlResolver {
 	}
 
 	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.File, edu.yu.einstein.wasp.model.User)
+	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle, edu.yu.einstein.wasp.model.User)
 	 */
 	@Override
-	public URL getURL(File file) throws SecurityException, LoginNameException {
+	public URL getURL(FileHandle file) throws SecurityException, LoginNameException {
 		try {
 			return new URL(getUrl());
 		} catch (MalformedURLException e) {

@@ -3,16 +3,15 @@ package edu.yu.einstein.wasp.grid.file;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridTransportService;
 
@@ -59,7 +58,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("put called: " + localFile + " to " + transportService.getHostName() + " as " + remoteFile);
 
 		if (!localFile.exists())
-			throw new RuntimeException("File " + localFile.getAbsolutePath()
+			throw new RuntimeException("FileHandle " + localFile.getAbsolutePath()
 					+ " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
@@ -74,7 +73,7 @@ public class SshFileService implements GridFileService {
 			FileObject destination = manager.resolveFile(remote, options);
 
 			destination.copyFrom(file, Selectors.SELECT_SELF);
-			logger.debug(localFile.getAbsolutePath() + " copied to " + remote);
+			logger.debug(localFile.getAbsolutePath() + " copied to " + remote + " (" + destination.getName().getFriendlyURI() + ")");
 
 		} catch (Exception e) {
 			logger.error("problem copying file: " + e.getLocalizedMessage());
@@ -91,7 +90,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("get called: " + remoteFile + " from " + transportService.getHostName() + " as " + localFile);
 
 		if (!exists(remoteFile))
-			throw new RuntimeException("File " + remoteFile + "@" + transportService.getHostName() + " not found");
+			throw new RuntimeException("FileHandle " + remoteFile + "@" + transportService.getHostName() + " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 

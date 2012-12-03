@@ -4,7 +4,7 @@
  * FileDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the File Dao Impl
+ * the FileHandle Dao Impl
  *
  *
  **/
@@ -17,12 +17,12 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wasp.dao.FileDao {
+public class FileDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einstein.wasp.dao.FileDao {
 
 	/**
 	 * FileDaoImpl() Constructor
@@ -31,7 +31,7 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 */
 	public FileDaoImpl() {
 		super();
-		this.entityClass = File.class;
+		this.entityClass = FileHandle.class;
 	}
 
 
@@ -46,14 +46,14 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public File getFileByFileId (final Integer fileId) {
+	public FileHandle getFileByFileId (final Integer fileId) {
     		HashMap m = new HashMap();
 		m.put("fileId", fileId);
 
-		List<File> results = this.findByMap(m);
+		List<FileHandle> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			File rt = new File();
+			FileHandle rt = new FileHandle();
 			return rt;
 		}
 		return results.get(0);
@@ -72,14 +72,14 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public File getFileByFilelocation (final String filelocation) {
+	public FileHandle getFileByFilelocation (final String filelocation) {
     		HashMap m = new HashMap();
 		m.put("filelocation", filelocation);
 
-		List<File> results = this.findByMap(m);
+		List<FileHandle> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			File rt = new File();
+			FileHandle rt = new FileHandle();
 			return rt;
 		}
 		return results.get(0);

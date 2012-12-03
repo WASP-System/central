@@ -38,7 +38,7 @@ public class FileController {
 	@RequestMapping(method = RequestMethod.GET, value = "/file/{id}")
 	public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
 //		try {
-//			edu.yu.einstein.wasp.model.File wf = fileService.getFileByFileId(i);
+//			edu.yu.einstein.wasp.model.FileHandle wf = fileService.getFileByFileId(i);
 //			String content = new MediaType("application", "octet-stream").toString();
 //			if (wf.getContentType() != null && wf.getContentType() != "")
 //				content = wf.getContentType();
@@ -50,7 +50,7 @@ public class FileController {
 //			
 //			
 //			
-//			File f = new File("~/" + wf) ;
+//			FileHandle f = new FileHandle("~/" + wf) ;
 //			
 //			InputStream is = new FileInputStream(f);
 //			// copy it to response's OutputStream

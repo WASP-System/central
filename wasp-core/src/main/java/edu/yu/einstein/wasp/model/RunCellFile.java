@@ -317,15 +317,15 @@ public class RunCellFile extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	protected FileHandle file;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileHandle file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
+	public void setFile (FileHandle file) {
 		this.file = file;
 		this.fileId = file.fileId;
 	}
@@ -337,7 +337,7 @@ public class RunCellFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
+	public FileHandle getFile () {
 		return this.file;
 	}
 

@@ -211,9 +211,9 @@ public class PbsWorkService { // implements GridWorkService {
 //			throw new GridAccessException("UUID already exists");
 //		}
 //
-//		File script;
+//		FileHandle script;
 //		try {
-//			script = File.createTempFile("wasp-", ".sge");
+//			script = FileHandle.createTempFile("wasp-", ".sge");
 //			BufferedWriter scriptHandle = new BufferedWriter(new FileWriter(script));
 //			PbsSubmissionScript sss = new PbsSubmissionScript(w);
 //			GridHostResolver ghr = transportService.getHostResolver();

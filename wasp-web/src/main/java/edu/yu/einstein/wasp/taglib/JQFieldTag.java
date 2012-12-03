@@ -379,7 +379,7 @@ public class JQFieldTag extends BodyTagSupport {
 					jsName + ".jq['edittype']='file';\n" + 
 					jsName + ".jq['hidden']=false;\n" + 
 					jsName + ".jq['search']=false;\n" + 
-					jsName + ".jq['editoptions']['alt']='Select Sample File to upload';\n" + 
+					jsName + ".jq['editoptions']['alt']='Select Sample FileHandle to upload';\n" + 
 					jsName + ".jq['editrules']['edithidden']=true;\n";
 			} else if (type==Type.checkbox) {
 				buf = buf + 

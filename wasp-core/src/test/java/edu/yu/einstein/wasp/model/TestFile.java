@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.model;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -14,7 +17,7 @@ public class TestFile{
 	// paths to test
 	private static final String TestPath1 = "foo/file1.txt";
 	private static final String TestPath2 = "/foo/bar/file2.txt";
-	private static final String TestPath3 = "\\file3.txt"; // need to escape the \
+	private static final String TestPath3 = "/file3.txt";
 	private static final String TestPath4 = "file4.txt";
 	private static final String TestPath5 = "/foo/bar/file5.txt.345543";
 	
@@ -23,70 +26,51 @@ public class TestFile{
 	private static final String File2 = "file2.txt";
 	private static final String File3 = "file3.txt";
 	private static final String File4 = "file4.txt";
-	private static final String File5 = "file5.txt";
+	private static final String File5 = "file5.txt.345543";
 	
-	// expected PathsToFolder
-	private static final String PathToFolder1 = "foo";
-	private static final String PathToFolder2 = "/foo/bar";
-	private static final String PathToFolder3 = "";
-	private static final String PathToFolder4 = "";
-	private File[] files;
+	private FileHandle[] files;
 	
 	@BeforeTest
-	public void setupTest(){
-		files = new File[5];
-		files[0] = new File();
-		files[1] = new File();
-		files[2] = new File();
-		files[3] = new File();
-		files[4] = new File();
-		files[0].setAbsolutePath(TestPath1);
-		files[1].setAbsolutePath(TestPath2);
-		files[2].setAbsolutePath(TestPath3);
-		files[3].setAbsolutePath(TestPath4);
-		files[4].setAbsolutePath(TestPath5);
+	public void setupTest() throws Exception{
+		files = new FileHandle[5];
+		files[0] = new FileHandle();
+		files[1] = new FileHandle();
+		files[2] = new FileHandle();
+		files[3] = new FileHandle();
+		files[4] = new FileHandle();
+		files[0].setFileURI(new URI(TestPath1));
+		files[1].setFileURI(new URI(TestPath2));
+		files[2].setFileURI(new URI(TestPath3));
+		files[3].setFileURI(new URI(TestPath4));
+		files[4].setFileURI(new URI(TestPath5));
 	}
 	
 	@Test (groups = "unit-tests")
 	public void TestGetFileName() {
-		String fileName = files[0].getFileName();
+		String fileName = files[0].getFileURI().getPath();
+		fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File1);
 		
-		fileName = files[1].getFileName();
+		fileName = files[1].getFileURI().getPath();
+		fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File2);
 		
-		fileName = files[2].getFileName();
+		fileName = files[2].getFileURI().getPath();
+		fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File3);
 		
-		fileName = files[3].getFileName();
+		fileName = files[3].getFileURI().getPath();
+		fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File4);
 		
-		fileName = files[4].getFileName();
+		fileName = files[4].getFileURI().getPath();
+		fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
 		Assert.assertNotNull(fileName);
 		Assert.assertEquals(fileName, File5);
-	}
-	
-	@Test (groups = "unit-tests")
-	public void TestGetAbsolutePathToFileFolder() {
-		String fileName = files[0].getAbsolutePathToFileFolder();
-		Assert.assertNotNull(fileName);
-		Assert.assertEquals(fileName, PathToFolder1);
-		
-		fileName = files[1].getAbsolutePathToFileFolder();
-		Assert.assertNotNull(fileName);
-		Assert.assertEquals(fileName, PathToFolder2);
-		
-		fileName = files[2].getAbsolutePathToFileFolder();
-		Assert.assertNotNull(fileName);
-		Assert.assertEquals(fileName, PathToFolder3);
-		
-		fileName = files[3].getAbsolutePathToFileFolder();
-		Assert.assertNotNull(fileName);
-		Assert.assertEquals(fileName, PathToFolder4);
 	}
   
 

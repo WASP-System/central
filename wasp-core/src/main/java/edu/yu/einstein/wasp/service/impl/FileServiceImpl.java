@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.service.FileService;
@@ -70,60 +70,25 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public File getFileByFileId (final int fileId) {
+	public FileHandle getFileByFileId (final int fileId) {
 		return this.getFileDao().getFileByFileId(fileId);
 	}
   
-	  //returns File object with contentType/md5hash and sizek fields populated.
-	  @Override
-	  public File getMetaInformation(String filePath) throws java.io.IOException {
-		  	File file = new File();
-		  	file.setContentType(getMimeType(filePath));
-		  	file.setMd5hash(getMD5(filePath));
-		  	file.setSizek(getFileSizeKb(filePath));
-		  	file.setAbsolutePath(filePath);
-		  	return file;
-	  }
-	
-	  	//Returns mime type based on file extension. If extension is unknown, returns  "content/unknown"
-	  	//To add new "extension/content type" mapping use /wasp/uiField/list.do admin screen.
-	    //For example, to map ".pdf" extension to "application/pdf" content type add this property (to English locale):
-	    //contentTypeMap.pdf.data=application/pdf
-		private String getMimeType(String filePath) throws java.io.IOException {
-			
-			int dot = filePath.lastIndexOf(".");
-		    String ext=filePath.substring(dot + 1);
-					
-		    WaspMessageSourceImpl src=(WaspMessageSourceImpl)messageSource;
-		    return src.getUSMessage("contentTypeMap."+ext+".data","content/unknown"); 
-	
-		}
-	
-		
-		private String getMD5(String filePath) throws IOException {
-			byte[] data=FileUtils.readFileToByteArray(new java.io.File(filePath));
-			return DigestUtils.md5Hex(data);		
-		}
-	
-		
-		private int getFileSizeKb(String filePath) throws IOException {
-			java.io.File file = new java.io.File(filePath);
-			return (int)file.length()/1024;
-		}
  
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public File getFileByFilelocation (final String filelocation) {
+	public FileHandle getFileByFilelocation (final String filelocation) {
 		return this.getFileDao().getFileByFilelocation(filelocation);
 	}
 	
 	/**
+	 * TODO: CLEAN UP THIS HORRIBLE TURD
 	 * {@inheritDoc}
 	 */
 	@Override 
-	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
+	public FileHandle processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		//String absolutePath = destPath+"/"+mpFile.getOriginalFilename();
 		String absolutePath = destPath+"/"+noSpacesFileName;
@@ -132,7 +97,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			try{
 				pathFile.mkdir();
 			} catch(Exception e){
-				throw new FileUploadException("File upload failure trying to create '"+destPath+"': "+e.getMessage());
+				throw new FileUploadException("FileHandle upload failure trying to create '"+destPath+"': "+e.getMessage());
 			}
 		}
 						
@@ -152,11 +117,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		try{
 			mpFile.transferTo(newFile);
 		} catch(Exception e){
-			throw new FileUploadException("File upload failure trying to save '"+absolutePath+"': "+e.getMessage());
+			throw new FileUploadException("FileHandle upload failure trying to save '"+absolutePath+"': "+e.getMessage());
 		}
-		File file = new File();
+		FileHandle file = new FileHandle();
 		file.setDescription(description);
-		file.setAbsolutePath(absolutePath);
+		//file.setFileURI(absolutePath);
 		file.setIsActive(1);
 		file.setContentType(contentType);
 		file.setMd5hash(md5Hash);
@@ -168,7 +133,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft){
+	public JobDraftFile linkFileWithJobDraft(FileHandle file, JobDraft jobDraft){
 		JobDraftFile jobDraftFile = new JobDraftFile();
 		jobDraftFile.setFile(file);
 		jobDraftFile.setJobDraft(jobDraft);

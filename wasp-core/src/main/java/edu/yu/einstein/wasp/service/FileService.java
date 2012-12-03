@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 
@@ -44,17 +44,14 @@ public interface FileService extends WaspService {
 	 * @param fileId
 	 * @return
 	 */
-    public File getFileByFileId (final int fileId);
-
-    //returns File object with contentType/md5hash and sizek fields populated.
-    public File getMetaInformation(String filePath) throws java.io.IOException;
+    public FileHandle getFileByFileId (final int fileId);
 
     /**
      * Get a file based on its location
      * @param filelocation
      * @return
      */
-	public File getFileByFilelocation (final String filelocation);
+	public FileHandle getFileByFilelocation (final String filelocation);
 
 	/**
 	 * 
@@ -65,7 +62,7 @@ public interface FileService extends WaspService {
 	 * @return entity-managed file object
 	 * @throws FileUploadException
 	 */
-	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException;
+	public FileHandle processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException;
 
 	
 	/**
@@ -74,7 +71,7 @@ public interface FileService extends WaspService {
 	 * @param jobDraft
 	 * @return the entity-managed JobDraftFile object created
 	 */
-	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft);
+	public JobDraftFile linkFileWithJobDraft(FileHandle file, JobDraft jobDraft);
 
 }
 
