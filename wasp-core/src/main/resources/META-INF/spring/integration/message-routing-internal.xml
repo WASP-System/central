@@ -90,11 +90,12 @@
 	
 	<int:channel id="wasp.channel.batch.success" />
 	
-	<int:recipient-list-router id="splitSuccessAndFailureMessages" input-channel="wasp.channel.batch" >
-		<int:recipient channel="wasp.channel.notification.abort" selector-expression="payload.equals('ABANDONED') or payload.equals('FAILED')" />
-		<int:recipient channel="wasp.channel.batch.success" selector-expression="!payload.equals('ABANDONED') and !payload.equals('FAILED')" />
-	</int:recipient-list-router>
-	
+	<int:router id="splitSuccessAndNotifyAbortMessages" input-channel="wasp.channel.batch">
+		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.messages.router.SuccessOrAbortMessageRouter">
+			<constructor-arg name="successChannel" ref="wasp.channel.batch.success" />
+			<constructor-arg name="abortChannel" ref="wasp.channel.notification.abort" />
+		</bean>
+	</int:router>	
 		
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
 	
