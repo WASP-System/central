@@ -8,7 +8,6 @@ import java.net.URL;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.User;
 
 /**
  * @author calder
@@ -26,7 +25,7 @@ public class DummyFileUrlResolver implements FileUrlResolver {
 	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.File, edu.yu.einstein.wasp.model.User)
 	 */
 	@Override
-	public URL getURL(File file, User user) throws SecurityException, LoginNameException {
+	public URL getURL(File file) throws SecurityException, LoginNameException {
 		try {
 			return new URL(getUrl());
 		} catch (MalformedURLException e) {
