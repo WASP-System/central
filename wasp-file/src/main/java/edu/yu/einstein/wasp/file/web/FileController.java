@@ -37,30 +37,30 @@ public class FileController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/file/{id}")
 	public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
-		try {
-			edu.yu.einstein.wasp.model.File wf = fileService.getFileByFileId(i);
-			String content = new MediaType("application", "octet-stream").toString();
-			if (wf.getContentType() != null && wf.getContentType() != "")
-				content = wf.getContentType();
-			response.setContentType(content);
-			String filename = "";
-			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-			
-			int i = new Integer(id).intValue();
-			
-			
-			
-			File f = new File("~/" + wf) ;
-			
-			InputStream is = new FileInputStream(f);
-			// copy it to response's OutputStream
-			IOUtils.copy(is, response.getOutputStream());
-			response.flushBuffer();
-			is.close();
-		} catch (IOException ex) {
-			logger.warn("Error writing file " + id + "to output stream.");
-			throw new RuntimeException("IOError writing file to output stream");
-		}
+//		try {
+//			edu.yu.einstein.wasp.model.File wf = fileService.getFileByFileId(i);
+//			String content = new MediaType("application", "octet-stream").toString();
+//			if (wf.getContentType() != null && wf.getContentType() != "")
+//				content = wf.getContentType();
+//			response.setContentType(content);
+//			String filename = "";
+//			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+//			
+//			int i = new Integer(id).intValue();
+//			
+//			
+//			
+//			File f = new File("~/" + wf) ;
+//			
+//			InputStream is = new FileInputStream(f);
+//			// copy it to response's OutputStream
+//			IOUtils.copy(is, response.getOutputStream());
+//			response.flushBuffer();
+//			is.close();
+//		} catch (IOException ex) {
+//			logger.warn("Error writing file " + id + "to output stream.");
+//			throw new RuntimeException("IOError writing file to output stream");
+//		}
 
 	}
 }
