@@ -105,7 +105,7 @@ validate = function(){
 	if(typeof(jobId) !== 'undefined' && jobId != null && jobId.length>0){
 		var numberFormat=new RegExp("^[0-9]+$");
 		if(!numberFormat.test(jobId)){
-			alert("Required jobId format: all digits");
+			alert("<fmt:message key="grid.jobIdFormat.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -118,7 +118,7 @@ validate = function(){
 	if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0){
 		//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
 		if(!properNameAndLoginFormat.test(submitter)){
-			alert("Required Submitter format: firstname lastname (login). It is best to select name from list.");
+			alert("<fmt:message key="grid.submitterFormat.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -127,7 +127,7 @@ validate = function(){
 	if(typeof(pi) !== 'undefined' && pi != null && pi.length>0){
 		//could have subsituted if(typeof(pi) !== 'undefined' && pi != null && pi.length>0) with if(pi && pi.length>0)  
 		if(!properNameAndLoginFormat.test(pi)){
-			alert("Required PI format: firstname lastname (login). It is best to select name from list.");
+			alert("<fmt:message key="grid.piFormat.label"/>");
 			return true;//do not perform search 
 		}
 	}
@@ -135,7 +135,7 @@ validate = function(){
 	if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
 		var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 		if(!dateFormat.test(createts)){
-			alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+			alert("<fmt:message key="grid.dateFormat.label"/>");
 			return true;//do not perform search 
 		}
 	}
