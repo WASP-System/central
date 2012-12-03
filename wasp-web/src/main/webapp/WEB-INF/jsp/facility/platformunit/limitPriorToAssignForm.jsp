@@ -28,7 +28,7 @@
 		<select class="FormElement ui-widget-content ui-corner-all" name="jobsToWorkWith" size="1">
 			<option value="0">--<fmt:message key="puLimitPriorToAssign.selectJob.label"/>--
 			<c:if test='${fn:length(jobList) > "1"}'>
-				<option value="<c:out value="-1" />"><c:out value="<fmt:message key="puLimitPriorToAssign.allAvailableJobs.label"/>" /> 
+				<option value="<c:out value="-1" />"><fmt:message key="puLimitPriorToAssign.allAvailableJobs.label"/> 
 			</c:if>
 			<c:forEach items="${jobList}" var="j">
 				<option value="<c:out value="${j.jobId}" />"><fmt:message key="puLimitPriorToAssign.job.label"/> J<c:out value="${j.jobId}" /> 
