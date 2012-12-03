@@ -65,6 +65,7 @@ import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
@@ -495,7 +496,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
 			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
 		  
-		  SampleStatusMessageTemplate messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+		  WaspStatusMessageTemplate messageTemplate;
+		  if (isLibrary(sample)){
+			  messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
+		  } else {
+			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		  sendOutboundMessage(messageTemplate.build(), false);
 	  }

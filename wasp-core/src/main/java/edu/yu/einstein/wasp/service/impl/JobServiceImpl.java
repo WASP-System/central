@@ -399,9 +399,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
+					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, BatchStatus.STARTED)
 				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if(stepExecution != null)
 				return true;
 			return false;
 		}
@@ -419,9 +419,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true, BatchStatus.STARTED)
 				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if(stepExecution != null)
 				return true;
 			return false;
 		}
@@ -438,9 +438,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
+					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED)
 				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if(stepExecution != null)
 				return true;
 			return false;
 		}
