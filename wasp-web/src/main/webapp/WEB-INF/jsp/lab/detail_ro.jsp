@@ -43,7 +43,7 @@
 	</table>
 
   <c:if test="${!  empty( job ) }">   
-    <h2>Jobs</h2>
+    <h2><fmt:message key="lab.jobs.label"/></h2>
 		<table class="EditTable ui-widget ui-widget-content">
     <c:forEach items="${job}" var="j">
 			<tr class="FormData">

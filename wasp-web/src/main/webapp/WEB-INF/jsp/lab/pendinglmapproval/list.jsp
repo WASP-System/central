@@ -49,7 +49,7 @@
     	<h2><fmt:message key="lmpendingtask.subtitle2.label" /></h2>  
 		<div id="accordion2">         
     	<c:forEach items="${jobspendinglist}" var="job">      
-      		<h4><a href="#">Job ID J<c:out value="${job.jobId}" /> (<fmt:message key="lmpendingtask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" />; <fmt:message key="lmpendingtask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
+      		<h4><a href="#"><fmt:message key="lmpendingtask.jobId.label" />: J<c:out value="${job.jobId}" /> (<fmt:message key="lmpendingtask.submitter.label" />: <c:out value="${job.getUser().getNameFstLst()}" />; <fmt:message key="lmpendingtask.pi.label" />: <c:out value="${job.getLab().getUser().getNameFstLst()}" />)</a></h4>
       		<div>
       			<fmt:message key="lmpendingtask.jobId.label" />: J<c:out value="${job.jobId}" /><br />
       			<fmt:message key="lmpendingtask.jobName.label" />: <c:out value="${job.getName()}" /><br />
