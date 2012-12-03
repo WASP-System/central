@@ -16,6 +16,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,7 +141,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException, WaspMessageBuildingException{
+	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException{
 		Assert.assertParameterNotNull(runName, "runName cannot be null");
 		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
@@ -188,9 +189,12 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
-		jobParameters.put(WaspJobParameters.PLATFORM_UNIT_ID, platformUnit.getSampleId().toString());
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext("wasp.run.jobflow", jobParameters) );
-		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		try{
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e){
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
 		return newRun;
 	}
 	

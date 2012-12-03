@@ -16,6 +16,7 @@
 <pattern>%d [%c{1}] %m%n</pattern>
 </encoder>
 </appender>
+<logger name="org.springframework.integration" level="DEBUG"/>
 <logger name="edu.yu.einstein.wasp" level="DEBUG"/>
 <root level="INFO">
 <appender-ref ref="stdout"/>

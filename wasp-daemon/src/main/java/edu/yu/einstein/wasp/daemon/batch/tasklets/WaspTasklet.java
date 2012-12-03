@@ -8,13 +8,17 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.grid.work.GridResult;
 
 
 public abstract class WaspTasklet implements Tasklet {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Value("${wasp.task.delay:50}")
+	protected Long executeRepeatDelay;
 	
 	@Override
 	public abstract RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception;

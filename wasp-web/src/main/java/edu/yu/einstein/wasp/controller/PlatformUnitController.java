@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -1544,7 +1545,7 @@ public class PlatformUnitController extends WaspController {
 			} catch (SampleTypeException e) {
 				waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
 				logger.warn(e.getLocalizedMessage());
-			} catch (WaspMessageBuildingException e) {
+			} catch (MessagingException e) {
 				waspErrorMessage("wasp.integration_message_send.error");
 				logger.warn(e.getLocalizedMessage());
 			}

@@ -1874,7 +1874,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		} catch(Exception e){
 			logger.warn(e.getLocalizedMessage());
 		}
-		if (sampleActualCoverage < getRequestedSampleCoverage(library.getParent()))
+		int requestedCoverage = 0;
+		if (library.getParent() != null)
+			requestedCoverage = getRequestedSampleCoverage(library.getParent());
+		else
+			requestedCoverage = getRequestedSampleCoverage(library);
+		if (sampleActualCoverage < requestedCoverage)
 			return true;
 		return false;
 	}

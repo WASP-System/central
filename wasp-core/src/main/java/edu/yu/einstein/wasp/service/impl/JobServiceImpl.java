@@ -325,7 +325,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
 				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
-				if (job.getJobId() == 0){
+				if (job == null || job.getJobId() == null){
 					logger.warn("Expected a job object with id '"+parameterVal+"' but got none");
 				} else {
 					activeJobList.add(job);
@@ -679,50 +679,42 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			// Create Samples
 			List<Sample> samples = new ArrayList<Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
-				// existing sample...
-				Sample sampleDb;
-			
-				if (sd.getSourceSampleId() != null) {
-					sampleDb = sampleDao.getSampleBySampleId(sd.getSourceSampleId());
-				} else { 
-			
-					Sample sample = new Sample();
-					sample.setName(sd.getName()); 
-					sample.setSampleTypeId(sd.getSampleTypeId()); 
-					sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
-					sample.setSubmitterLabId(jobDb.getLabId()); 
-					sample.setSubmitterUserId(user.getUserId()); 
-					sample.setSubmitterJobId(jobDb.getJobId()); 
-					sample.setIsReceived(0);
-					sample.setIsActive(1);
-			
-					sampleDb = sampleDao.save(sample); 
-					samples.add(sampleDb);
-			
-					// sample file
-					if (sd.getFileId() != null) {
-						SampleFile sampleFile = new SampleFile();
-						sampleFile.setSampleId(sampleDb.getSampleId());
-						sampleFile.setFileId(sd.getFileId());
-			
-						sampleFile.setIsActive(1);
-			
-						// TODO ADD NAME AND INAME
-			
-						sampleFileDao.save(sampleFile);
-					}
-			
-					// Sample Draft Meta Data
-					for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
-						SampleMeta sampleMeta = new SampleMeta();
-			
-						sampleMeta.setSampleId(sampleDb.getSampleId());	
-						sampleMeta.setK(sdm.getK());	
-						sampleMeta.setV(sdm.getV());	
-						sampleMeta.setPosition(sdm.getPosition());	
-			
-						sampleMetaDao.save(sampleMeta); 
-					}
+				Sample sample = new Sample();
+				sample.setName(sd.getName()); 
+				sample.setSampleTypeId(sd.getSampleTypeId()); 
+				sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
+				sample.setSubmitterLabId(jobDb.getLabId()); 
+				sample.setSubmitterUserId(user.getUserId()); 
+				sample.setSubmitterJobId(jobDb.getJobId()); 
+				sample.setIsReceived(0);
+				sample.setIsActive(1);
+		
+				Sample sampleDb = sampleDao.save(sample); 
+				samples.add(sampleDb);
+		
+				// sample file
+				if (sd.getFileId() != null) {
+					SampleFile sampleFile = new SampleFile();
+					sampleFile.setSampleId(sampleDb.getSampleId());
+					sampleFile.setFileId(sd.getFileId());
+		
+					sampleFile.setIsActive(1);
+		
+					// TODO ADD NAME AND INAME
+		
+					sampleFileDao.save(sampleFile);
+				}
+		
+				// Sample Draft Meta Data
+				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
+					SampleMeta sampleMeta = new SampleMeta();
+		
+					sampleMeta.setSampleId(sampleDb.getSampleId());	
+					sampleMeta.setK(sdm.getK());	
+					sampleMeta.setV(sdm.getV());	
+					sampleMeta.setPosition(sdm.getPosition());	
+		
+					sampleMetaDao.save(sampleMeta); 
 				}
 			
 				// Job Sample
@@ -775,7 +767,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			initiateBatchJobForJobSubmission(jobDb);
 			for (Sample sample: samples){
 				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
-				if (sampleService.isLibrary(sample)){
+				if (sampleTypeDao.getSampleTypeBySampleTypeId(sample.getSampleTypeId()).getIName().equals("library")){
 					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.userLibrary.jobflow.v1");
 				} else {
 					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
@@ -955,7 +947,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
-		sendOutboundMessage(messageTemplate.build(), false);
+		try{
+			sendOutboundMessage(messageTemplate.build(), false);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
 	}
 
 	/**

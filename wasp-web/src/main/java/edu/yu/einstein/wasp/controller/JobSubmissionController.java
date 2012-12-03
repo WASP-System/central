@@ -1755,11 +1755,11 @@ public class JobSubmissionController extends WaspController {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
-		} catch (Throwable e){
-			logger.warn("Caught unknown exception" + e.getMessage());
-			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
-			error = true;
-		}
+		} //catch (Throwable e){
+//			logger.warn("Caught unknown exception: " + e.getMessage());
+//			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
+//			error = true;
+//		}
 		if(error){
 			m.put("jobDraft", jobDraft);
 			return "jobsubmit/failed";

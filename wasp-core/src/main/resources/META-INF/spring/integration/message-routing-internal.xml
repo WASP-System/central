@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:int="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
@@ -90,9 +90,7 @@
 	
 	<int:channel id="wasp.channel.batch.success" />
 	
-	<int:recipient-list-router id="splitSuccessAndFailureMessages"
-		input-channel="wasp.channel.batch"
-		resolution-required="true">
+	<int:recipient-list-router id="splitSuccessAndFailureMessages" input-channel="wasp.channel.batch" >
 		<int:recipient channel="wasp.channel.notification.abort" selector-expression="payload.equals('ABANDONED') or payload.equals('FAILED')" />
 		<int:recipient channel="wasp.channel.batch.success" selector-expression="!payload.equals('ABANDONED') and !payload.equals('FAILED')" />
 	</int:recipient-list-router>
