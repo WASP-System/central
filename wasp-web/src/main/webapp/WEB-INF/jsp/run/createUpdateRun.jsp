@@ -10,7 +10,7 @@
 	</c:otherwise>
 </c:choose> 
 
-<div id="containerForTables" style="width:100%">
+<div id="containerForTables" style="width:100%;overflow:hidden" >
 
 <div id="left" style="float:left; margin-right:10px">
 <table class="EditTable ui-widget ui-widget-content">
@@ -24,10 +24,12 @@
 </div>
 
 
-<div id="right" >
+<div id="right" style="overflow:hidden">
 
 <table class="EditTable ui-widget ui-widget-content">
+
 <tr class="FormData">
+		
 	<td class="CaptionTD"><fmt:message key="runInstance.chooseResource.label"/>:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/run/createUpdateRun.do" />">
@@ -45,11 +47,12 @@
 				<option value='<c:out value="${resource.getResourceId()}" />'    <c:out value="${selectedFlag2}" />     ><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
 
 			</c:forEach>
-		 </select>
-		 <span class="requiredField">*</span>
-	</form> 	
+		 </select>		 
+		 <%-- <span class="requiredField">*</span>--%>
+	</form>
 	</td>
-	<td>&nbsp;</td>
+	<td class="CaptionTD error"></td>
+	 	
 </tr>
 
 <c:if test='${resourceId > "0"}'>
@@ -63,10 +66,9 @@
   
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
-        <td class="DataTD"><c:out value="${run.name}" /><span class="requiredField"></span></td>
-        <td class="CaptionTD error"><form:errors path="name" /></td>
+        <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all"  type="text" name = "name" id="name" size="25" maxlength="250" value="${run.name}" /><span class="requiredField">*</span></td>
+        <td class="CaptionTD error"><form:errors path="name" /></td> 
 	</tr>
-	<form:hidden path="name" value="${run.name}" />
 
 	<c:set var="_area" value = "run" scope="request"/>
 	<c:set var="_metaArea" value = "runInstance" scope="request"/>
