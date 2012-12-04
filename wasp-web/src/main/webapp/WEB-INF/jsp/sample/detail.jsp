@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
 <html>
   <h1><c:out value="${sample.name}"/></h1>

@@ -6,14 +6,14 @@
     </h1>
 
     <p>
-      Lab
+      <fmt:message key="job.detail_lab.label" />
       <a href="<c:url value="/lab/detail_ro/${job.lab.departmentId}/${job.lab.labId}.do"/>">
         <c:out value="${job.lab.name}"/>
       </a>
     </p>
 
     <p>
-      Submitting User
+      <fmt:message key="job.detail_submittingUser.label" />
       <a href="<c:url value="/user/detail_ro/${job.user.userId}.do"/>">
         <c:out value="${job.user.login}"/>
       </a>
@@ -22,7 +22,7 @@
     </p>
 
 
-    Job Viewer 
+    <fmt:message key="job.detail_jobViewer.label" />
     <c:forEach items="${jobuser}" var="u">
       <p>
       <c:if test="${u.role.roleName == 'jv'}">
@@ -30,7 +30,7 @@
         <c:out value="${u.user.firstName}" />
         <c:out value="${u.user.lastName}" />
           <a href="/wasp/job/user/roleRemove/<c:out value="${job.labId}" />/<c:out value="${job.jobId}" />/<c:out value="${u.user.userId}" />.do">
-          Remove
+           <fmt:message key="job.detail_remove.label" />
           </a>
       </c:if>
       </p>
@@ -39,11 +39,11 @@
     <sec:authorize access="hasRole('su') or hasRole('lm-${job.lab.labId}') or hasRole('js-${job.jobId}')">
     
     <form name="f" action="<c:url value='/job/user/roleAdd.do'/>" method="POST" onsubmit="return validate();" >
-      Login Name:
+      <fmt:message key="job.detail_loginName.label" />:
       <input type='hidden' name='labId' value='<c:out value="${job.lab.labId}" />'/>
       <input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>
       <input class="FormElement ui-widget-content ui-corner-all" type='text' id='login' name='login' value=''/>
-      <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Add Job Viewer" />
+      <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="job.detail_addJobViewer.label" />" />
     </form>
 	</sec:authorize>	
 
@@ -55,7 +55,7 @@
     </c:forEach>
 
 
-    <h2>SAMPLES</h2>
+    <h2><fmt:message key="job.detail_samples.label" /></h2>
     <c:forEach items="${jobsample}" var="s">
       <p>
       <c:out value="${s.sample.sampleType.name}"/>
@@ -65,7 +65,7 @@
       </p>
     </c:forEach>
 
-    <h2>FILES</h2>
+    <h2><fmt:message key="job.detail_files.label" /></h2>
     <c:forEach items="${jobfile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>
