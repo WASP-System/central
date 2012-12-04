@@ -11,10 +11,9 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,8 +23,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -64,68 +63,58 @@ public class File extends WaspModel {
 	}
 
 
-
-
+	@Transient
+	private transient String transientName;
+	
+	public String getTransientName() {
+		return this.transientName;
+	}
+	
+	public void setTransientName(String transientName) {
+		this.transientName = transientName;
+	}
+	
 	/** 
-	 * absolutePath
+	 * fileURI
 	 *
 	 */
-	@Column(name="absolute_path")
-	protected String absolutePath;
+	@Column(name="file_uri")
+	protected String fileURI;
 
 	/**
-	 * setAbsolutePath(String absolutePath)
+	 * setFileURI(String fileURI) 
+	 * 
+	 * When the file is known to the current system (i.e. represents an actual file on a configured work host,
+	 * this is set to a file URL (e.g. file://remote.host.fqdn.net/path/to/file) where the path to file is configured
+	 * as the remote host would expect.  The path may either be absolute from the root or absolute from the wasp user's home 
+	 * directory. When the file represents a resource located on a remote host, the value is a URN defining an authority and a mechanism
+	 * for resolving the file.  When URN-based files are used, the file should be resolved, then tested for a local
+	 * temporary copy, then downloaded if necessary.
 	 *
-	 * @param absolutePath
+	 * @param fileURI
 	 *
 	 */
 	
-	public void setAbsolutePath (String absolutePath) {
-		this.absolutePath = absolutePath;
+	public void setFileURI(URI fileURI) {
+		this.fileURI = fileURI.toString();
 	}
 
 	/**
-	 * getAbsolutePath()
+	 * getFileURI() 
+	 * 
+	 * When the file is known to the current system (i.e. represents an actual file on a configured work host,
+	 * this is set to a file URL (e.g. file://remote.host.fqdn.net/path/to/file) where the path to file is configured
+	 * as the remote host would expect.  The path may either be absolute from the root or absolute from the wasp user's home 
+	 * directory. When the file represents a resource located on a remote host, the value is a URN defining an authority and a mechanism
+	 * for resolving the file.  When URN-based files are used, the file should be resolved, then tested for a local
+	 * temporary copy, then downloaded if necessary.
 	 *
-	 * @return absolutePath
+	 * @return fileURI
 	 *
 	 */
-	public String getAbsolutePath () {
-		return this.absolutePath;
+	public URI getFileURI () {
+		return URI.create(this.fileURI);
 	}
-	
-	/**
-	 * Return filename.
-	 * Returns null if absolute path cannot be parsed.
-	 * @return filename (or null)
-	 */
-	public String getFileName(){
-		Pattern pattern = Pattern.compile("^(.*[\\/|\\\\])?(.+?)($|\\.[0-9]+)");
-		Matcher matcher = pattern.matcher(this.absolutePath);
-		if (matcher.find() && matcher.groupCount() == 3)
-			return matcher.group(2);
-		return null;
-	}
-	
-	/**
-	 * Return absolute path to folder containing the file (or empty string).
-	 * Trailing '\' or '/' characters are removed
-	 * Returns null if absolute path cannot be parsed
-	 * @return path to folder (or null)
-	 */
-	public String getAbsolutePathToFileFolder(){
-		Pattern pattern = Pattern.compile("^(.*[\\\\\\/])*(.+)$");
-		Matcher matcher = pattern.matcher(this.absolutePath);
-		if (matcher.find() && matcher.groupCount() == 2){
-			if (matcher.group(1) == null)
-					return "";
-			return StringUtils.chop(matcher.group(1)); // remove trailing / or \
-		}
-		return null;
-	}
-
-
-
 
 	/** 
 	 * contentType

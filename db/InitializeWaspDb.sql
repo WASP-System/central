@@ -770,7 +770,7 @@ create table resourcebarcode (
 --
 create table file (
   fileid int(10)  primary key auto_increment,
-  absolute_path varchar(2048) , 
+  file_uri varchar(2048) , 
   contenttype varchar(250) , 
   sizek int(10) ,
   md5hash varchar(250) ,

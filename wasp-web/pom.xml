@@ -111,7 +111,7 @@
 			<artifactId>oro</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javassist</groupId>
+			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 		</dependency>
 		<dependency>
@@ -201,7 +201,7 @@
 -->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
+			<artifactId>spring-webmvc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -371,10 +371,12 @@
 			<groupId>net.sourceforge.jexcelapi</groupId>
 			<artifactId>jxl</artifactId>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-firefox-driver</artifactId>

@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.grid.file;
 import java.net.URL;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.File;
 
 /**
@@ -26,6 +27,6 @@ public interface FileUrlResolver {
 	 * @throws SecurityException
 	 * @throws LoginNameException
 	 */
-	public URL getURL(File file) throws SecurityException, LoginNameException;
+	public URL getURL(File file) throws GridUnresolvableHostException;
 
 }

@@ -64,7 +64,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
+			<!-- <artifactId>org.springframework.web.servlet</artifactId> -->
+			<artifactId>spring-webmvc</artifactId>
 		</dependency>
 
 		<dependency>
@@ -87,10 +88,12 @@
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>commons-collections</groupId>
 				<artifactId>commons-collections</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>commons-dbcp</groupId>
 				<artifactId>commons-dbcp</artifactId>
@@ -115,10 +118,12 @@
 				<groupId>asm</groupId>
 				<artifactId>asm</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>aopalliance</groupId>
 				<artifactId>aopalliance</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>dom4j</groupId>
 				<artifactId>dom4j</artifactId>
@@ -163,42 +168,55 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>jstl</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>javax.transaction</groupId>
 				<artifactId>jta</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-asm</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aspects</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
 			</dependency>
+			-->
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
 			</dependency>
+			
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
 			</dependency>
+			-->
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
 			</dependency>
+			-->
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument</artifactId>
@@ -231,10 +249,12 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -349,6 +369,12 @@
 				<groupId>org.easymock</groupId>
 				<artifactId>easymock</artifactId>
 				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+					<groupId>cglib</groupId>
+					<artifactId>cglib-nodep</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.objenesis</groupId>
@@ -358,15 +384,24 @@
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 			</dependency>
-			<!--
 			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib</artifactId>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
 			</dependency>
-			-->
+			<dependency>
+			        <groupId>cglib</groupId>
+			        <artifactId>cglib</artifactId>
+			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-firefox-driver</artifactId>
+				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>cglib</groupId>
+						<artifactId>cglib-nodep</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>

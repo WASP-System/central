@@ -36,9 +36,15 @@ public class FileController extends WaspController{
 	 * @param response
 	 * @return
 	 * @throws IOException
+	 * 
+	 * TODO: This needs to be refactored to use wasp-file.
+	 * 
 	 */
 	@RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)	
+	@Deprecated
 	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) throws FileDownloadException {
+		
+		logger.error("THIS METHOD IS DEPRECATED AND DOES NOT DO WHAT YOU THINK IT DOES.");
 		
 		final int FILEBUFFERSIZE=1000000; //megabyte
 		
@@ -51,42 +57,42 @@ public class FileController extends WaspController{
 				referrer.replaceAll("\\/$", "");
 				return "redirect:/"+referrer;
 		}
-		ServletOutputStream out = null;
-		InputStream in = null;
-		try {
-			out = response.getOutputStream();
-			
-			java.io.File diskFile=new java.io.File(file.getAbsolutePath());
-			in = new FileInputStream(diskFile);
-			
-			String mimeType = file.getContentType();
-			byte[] bytes = new byte[FILEBUFFERSIZE];
-			int bytesRead;
-
-			response.setContentType(mimeType);
-			
-			response.setContentLength( (int)diskFile.length() );
-			
-			String fileName=diskFile.getName();
-				
-			response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
-
-			while ((bytesRead = in.read(bytes)) != -1) {
-				out.write(bytes, 0, bytesRead);
-			}
-			
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant download file id "+fileId+": "+e.getMessage());
-		} finally {
-			try {
-				if (in != null)
-					in.close();
-				if (out != null)
-					out.close();
-			} catch (IOException e) {
-				throw new FileDownloadException(e.getMessage());
-			}
-		}
+//		ServletOutputStream out = null;
+//		InputStream in = null;
+//		try {
+//			out = response.getOutputStream();
+//			
+//			java.io.File diskFile=new java.io.File(file.getAbsolutePath());
+//			in = new FileInputStream(diskFile);
+//			
+//			String mimeType = file.getContentType();
+//			byte[] bytes = new byte[FILEBUFFERSIZE];
+//			int bytesRead;
+//
+//			response.setContentType(mimeType);
+//			
+//			response.setContentLength( (int)diskFile.length() );
+//			
+//			String fileName=diskFile.getName();
+//				
+//			response.setHeader( "Content-Disposition", "attachment; filename=\"" + fileName + "\"" );
+//
+//			while ((bytesRead = in.read(bytes)) != -1) {
+//				out.write(bytes, 0, bytesRead);
+//			}
+//			
+//		} catch (Throwable e) {
+//			throw new IllegalStateException("Cant download file id "+fileId+": "+e.getMessage());
+//		} finally {
+//			try {
+//				if (in != null)
+//					in.close();
+//				if (out != null)
+//					out.close();
+//			} catch (IOException e) {
+//				throw new FileDownloadException(e.getMessage());
+//			}
+//		}
 		return null;
 	}
 	
