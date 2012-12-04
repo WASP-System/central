@@ -358,7 +358,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, BatchStatus.STARTED)){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
 			Integer libraryId = null;

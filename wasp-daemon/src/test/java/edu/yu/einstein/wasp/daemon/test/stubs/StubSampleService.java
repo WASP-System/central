@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 @Transactional
@@ -474,13 +475,6 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public void updateLibraryCreatedStatus(Sample sample, WaspStatus status)
-			throws WaspMessageBuildingException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public boolean isDnaOrRna(SampleDraft sampleDraft) {
 		// TODO Auto-generated method stub
 		return false;
@@ -560,6 +554,20 @@ public class StubSampleService implements SampleService {
 	@Override
 	public void updateQCStatus(Sample sample, WaspStatus status)
 			throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void initiateBatchJobForLibrary(Job job, Sample library,
+			String batchJobName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createFacilityLibraryFromMacro(Job job,
+			SampleWrapper managedLibrary, List<SampleMeta> libraryMetaList) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -84,7 +84,7 @@
 	</tr>
 	<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
 		<c:set value="${facilityLibraryMap.get(userSubmittedMacromolecule)}" var="facilityLibrariesForThisMacromoleculeList" scope="page" />
-		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
+		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" /> 
 		<c:set var="rowSpan" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
 		<c:if test="${rowSpan == 0}">
 			<c:set var="rowSpan" value="${rowSpan + 1}" scope="page" />

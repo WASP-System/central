@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
@@ -74,6 +75,7 @@ import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
@@ -95,6 +97,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 @Transactional("entityManager")
@@ -168,6 +171,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	@Autowired
 	private RunDao runDao;
+	
+	@Autowired
+	private JobSampleDao jobSampleDao;
 	
 	@Autowired
 	private JobCellSelectionDao jobCellSelectionDao;
@@ -517,6 +523,28 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
 	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void initiateBatchJobForLibrary(Job job, Sample library, String batchJobName){
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNull(library, "No Library provided");
+		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		  Assert.assertParameterNotNull(batchJobName, "No batchJobName provided");
+		  // send message to initiate job processing
+		  Map<String, String> jobParameters = new HashMap<String, String>();
+		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		  jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getSampleId().toString());
+		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+		  try {
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
+	  }
 
 	  /**
 	   * {@inheritDoc}
@@ -572,22 +600,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
-		  // TODO: Write test!!
-		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		  Assert.assertParameterNotNull(status, "No Status provided");
-		  if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
-			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
-		  
-		  LibraryStatusMessageTemplate messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
-		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  sendOutboundMessage(messageTemplate.build(), false);
-	  }
+	  
 	  
 	  /**
 	   * {@inheritDoc}
@@ -612,11 +625,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		  SampleType libraryType = sampleTypeDao.getSampleTypeByIName("library");
 		  List<Sample> libraryList = new ArrayList<Sample>();
 		  if (sample.getChildren() != null){
 			  for (Sample childSample : sample.getChildren()){
-				  if (childSample.getSampleType().equals(libraryType)){
+				  if (isLibrary(childSample)){
 					  libraryList.add(childSample);
 				  }
 			  }
@@ -2060,5 +2072,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public void setSampleSourceDao(SampleSourceDao sampleSourceDao) {
 		this.sampleSourceDao = sampleSourceDao;
 	}
-
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	@Override
+	public void createFacilityLibraryFromMacro(Job job, SampleWrapper managedLibrary, List<SampleMeta> libraryMetaList){
+		managedLibrary.updateMetaToList(libraryMetaList, sampleMetaDao);
+		managedLibrary.saveAll(this);
+		
+		//add entry to jobsample table to link new library to job
+		JobSample newJobSample = new JobSample();
+		newJobSample.setJob(job);
+		newJobSample.setSample(managedLibrary.getSampleObject());
+		newJobSample = jobSampleDao.save(newJobSample);
+		initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
+	}
+	
 }
