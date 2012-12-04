@@ -234,9 +234,6 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected JobCellSelectionDao jobCellSelectionDao;
-
-	@Autowired
-	protected java.net.URI jobRunnerHost;
 	
 	@Autowired
 	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
