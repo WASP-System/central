@@ -139,9 +139,9 @@ public class WaspPluginSupport implements ServletContextAware {
 				JarEntry entry = entries.nextElement();
 				if (pathMatcher.match(resourcePathPattern, entry.getName())) {
 					String fileName = entry.getName().replaceFirst(".*\\/", "");
-					FileHandle destinationFolder = new FileHandle(servletContext.getRealPath(destination));
+					File destinationFolder = new File(servletContext.getRealPath(destination));
 					InputStream inputStream = jarFile.getInputStream(entry);
-					FileHandle materializedJsp = new FileHandle(destinationFolder, fileName);
+					File materializedJsp = new File(destinationFolder, fileName);
 					FileOutputStream outputStream = new FileOutputStream(materializedJsp);
 					copyAndClose(inputStream, outputStream);
 				}

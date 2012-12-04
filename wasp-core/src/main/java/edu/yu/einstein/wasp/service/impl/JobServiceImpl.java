@@ -68,7 +68,7 @@ import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -736,7 +736,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 //			TODO: CLEAN UP THIS HORRIBLE SHITE
 //			// jobDraftFile -> jobFile
 //			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-//				FileHandle file = jdf.getFile();
+//				File file = jdf.getFile();
 //				String folderPath = file.getAbsolutePathToFileFolder();
 //				String absPath = file.getAbsolutePath();
 //				java.io.File folder = new java.io.File(folderPath);

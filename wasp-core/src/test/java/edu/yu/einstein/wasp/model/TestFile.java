@@ -28,16 +28,16 @@ public class TestFile{
 	private static final String File4 = "file4.txt";
 	private static final String File5 = "file5.txt.345543";
 	
-	private FileHandle[] files;
+	private File[] files;
 	
 	@BeforeTest
 	public void setupTest() throws Exception{
-		files = new FileHandle[5];
-		files[0] = new FileHandle();
-		files[1] = new FileHandle();
-		files[2] = new FileHandle();
-		files[3] = new FileHandle();
-		files[4] = new FileHandle();
+		files = new File[5];
+		files[0] = new File();
+		files[1] = new File();
+		files[2] = new File();
+		files[3] = new File();
+		files[4] = new File();
 		files[0].setFileURI(new URI(TestPath1));
 		files[1].setFileURI(new URI(TestPath2));
 		files[2].setFileURI(new URI(TestPath3));

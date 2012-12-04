@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.grid.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -58,7 +59,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("put called: " + localFile + " to " + transportService.getHostName() + " as " + remoteFile);
 
 		if (!localFile.exists())
-			throw new RuntimeException("FileHandle " + localFile.getAbsolutePath()
+			throw new RuntimeException("File " + localFile.getAbsolutePath()
 					+ " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
@@ -90,7 +91,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("get called: " + remoteFile + " from " + transportService.getHostName() + " as " + localFile);
 
 		if (!exists(remoteFile))
-			throw new RuntimeException("FileHandle " + remoteFile + "@" + transportService.getHostName() + " not found");
+			throw new RuntimeException("File " + remoteFile + "@" + transportService.getHostName() + " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
@@ -243,6 +244,24 @@ public class SshFileService implements GridFileService {
 			manager.close();
 		}
 
+	}
+	
+	@Override
+	public URI remoteFileRepresentationToLocalURI(String file) {
+		String fileURI;
+		if (file.startsWith("sftp://")) {
+			if (file.contains("@")) {
+				fileURI = "file://" + file.substring(file.indexOf("@") + 1);
+			} else {
+				fileURI = file.replace("sftp://", "file://");
+			}
+		} else {
+			logger.debug("creating host-based file url of: " + file.toString());
+			fileURI = "file://" + transportService.getHostName() + "/" + file;
+		}
+		URI result = URI.create(fileURI).normalize();
+		logger.debug("remote file URI: " + result.toString());
+		return result;
 	}
 
 }

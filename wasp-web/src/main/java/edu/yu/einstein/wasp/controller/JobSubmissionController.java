@@ -81,7 +81,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
@@ -1175,7 +1175,7 @@ public class JobSubmissionController extends WaspController {
 		String[] roles = new String[1];
 		roles[0] = "lu";
 		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<FileHandle> files = new ArrayList<FileHandle>();
+		List<File> files = new ArrayList<File>();
 		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
 			files.add(jdf.getFile());
 		m.addAttribute("jobDraft", jobDraft);
@@ -1209,7 +1209,7 @@ public class JobSubmissionController extends WaspController {
 					continue;
 				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					FileHandle file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
+					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
 					fileService.linkFileWithJobDraft(file, jobDraft);
 				} catch(FileUploadException e){
 					logger.warn(e.getMessage());

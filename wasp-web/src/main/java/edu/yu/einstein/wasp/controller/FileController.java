@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 
 @Controller
 @Transactional
@@ -48,7 +48,7 @@ public class FileController extends WaspController{
 		
 		final int FILEBUFFERSIZE=1000000; //megabyte
 		
-		FileHandle file=fileDao.findById(fileId);
+		File file=fileDao.findById(fileId);
 		
 		if (file==null) {
 				waspErrorMessage("file.not_found.error");

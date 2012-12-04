@@ -1,10 +1,10 @@
 
 /**
  *
- * FileHandle.java 
+ * File.java 
  * @author echeng (table2type.pl)
  *  
- * the FileHandle
+ * the File
  *
  *
  */
@@ -31,13 +31,9 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="filehandle")
-public class FileHandle extends WaspModel {
+@Table(name="file")
+public class File extends WaspModel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7539972312570111901L;
 	/** 
 	 * fileId
 	 *

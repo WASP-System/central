@@ -4,7 +4,7 @@
  * FileDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the FileHandle Dao Impl
+ * the File Dao Impl
  *
  *
  **/
@@ -17,12 +17,12 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class FileDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einstein.wasp.dao.FileDao {
+public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wasp.dao.FileDao {
 
 	/**
 	 * FileDaoImpl() Constructor
@@ -31,7 +31,7 @@ public class FileDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einst
 	 */
 	public FileDaoImpl() {
 		super();
-		this.entityClass = FileHandle.class;
+		this.entityClass = File.class;
 	}
 
 
@@ -46,14 +46,14 @@ public class FileDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einst
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public FileHandle getFileByFileId (final Integer fileId) {
+	public File getFileByFileId (final Integer fileId) {
     		HashMap m = new HashMap();
 		m.put("fileId", fileId);
 
-		List<FileHandle> results = this.findByMap(m);
+		List<File> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			FileHandle rt = new FileHandle();
+			File rt = new File();
 			return rt;
 		}
 		return results.get(0);
@@ -72,14 +72,14 @@ public class FileDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einst
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public FileHandle getFileByFilelocation (final String filelocation) {
+	public File getFileByFilelocation (final String filelocation) {
     		HashMap m = new HashMap();
 		m.put("filelocation", filelocation);
 
-		List<FileHandle> results = this.findByMap(m);
+		List<File> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			FileHandle rt = new FileHandle();
+			File rt = new File();
 			return rt;
 		}
 		return results.get(0);

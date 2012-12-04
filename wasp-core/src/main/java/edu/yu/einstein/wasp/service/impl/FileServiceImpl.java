@@ -14,7 +14,6 @@ package edu.yu.einstein.wasp.service.impl;
 import java.io.IOException;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.service.FileService;
@@ -70,7 +69,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FileHandle getFileByFileId (final int fileId) {
+	public File getFileByFileId (final int fileId) {
 		return this.getFileDao().getFileByFileId(fileId);
 	}
   
@@ -79,7 +78,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FileHandle getFileByFilelocation (final String filelocation) {
+	public File getFileByFilelocation (final String filelocation) {
 		return this.getFileDao().getFileByFilelocation(filelocation);
 	}
 	
@@ -88,7 +87,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override 
-	public FileHandle processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
+	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		//String absolutePath = destPath+"/"+mpFile.getOriginalFilename();
 		String absolutePath = destPath+"/"+noSpacesFileName;
@@ -97,7 +96,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			try{
 				pathFile.mkdir();
 			} catch(Exception e){
-				throw new FileUploadException("FileHandle upload failure trying to create '"+destPath+"': "+e.getMessage());
+				throw new FileUploadException("File upload failure trying to create '"+destPath+"': "+e.getMessage());
 			}
 		}
 						
@@ -117,9 +116,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		try{
 			mpFile.transferTo(newFile);
 		} catch(Exception e){
-			throw new FileUploadException("FileHandle upload failure trying to save '"+absolutePath+"': "+e.getMessage());
+			throw new FileUploadException("File upload failure trying to save '"+absolutePath+"': "+e.getMessage());
 		}
-		FileHandle file = new FileHandle();
+		File file = new File();
 		file.setDescription(description);
 		//file.setFileURI(absolutePath);
 		file.setIsActive(1);
@@ -133,7 +132,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JobDraftFile linkFileWithJobDraft(FileHandle file, JobDraft jobDraft){
+	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft){
 		JobDraftFile jobDraftFile = new JobDraftFile();
 		jobDraftFile.setFile(file);
 		jobDraftFile.setJobDraft(jobDraft);

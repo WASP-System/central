@@ -48,7 +48,7 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
-import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -431,7 +431,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 		
 		// get files associated with this job
-		List<FileHandle> files = new ArrayList<FileHandle>();
+		List<File> files = new ArrayList<File>();
 		for (JobFile jf: job.getJobFile())
 			files.add(jf.getFile());
 		

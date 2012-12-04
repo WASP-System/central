@@ -560,15 +560,15 @@ processed
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected FileHandle file;
+	protected File file;
 
 	/**
-	 * setFile (FileHandle file)
+	 * setFile (File file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (FileHandle file) {
+	public void setFile (File file) {
 		this.file = file;
 		this.fileId = file.fileId;
 	}
@@ -580,7 +580,7 @@ processed
 	 *
 	 */
 	
-	public FileHandle getFile () {
+	public File getFile () {
 		return this.file;
 	}
 
