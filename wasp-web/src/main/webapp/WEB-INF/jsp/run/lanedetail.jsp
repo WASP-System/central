@@ -10,17 +10,17 @@
     </h1>
 
     <div>
-      Resource: <a href="/resource/detail/<c:out value="${runcell.run.resourceId}"/>.do"><c:out value="${rl.run.resource.name}"/></a>
+      <fmt:message key="run.lanedetailResource.label"/>: <a href="/resource/detail/<c:out value="${runcell.run.resourceId}"/>.do"><c:out value="${rl.run.resource.name}"/></a>
     </div>
 
     <p>
-      Sample 
+      <fmt:message key="run.lanedetailSample.label"/> 
       <a href="/wasp/sample/detail/<c:out value="${runcell.sampleId}"/>.do">
         <c:out value="${runcell.sample.name}"/>
       </a>
     </p>
 
-    <h2>FILES</h2>
+    <h2><fmt:message key="run.lanedetailFiles.label"/></h2>
     <c:forEach items="${runcellfile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>

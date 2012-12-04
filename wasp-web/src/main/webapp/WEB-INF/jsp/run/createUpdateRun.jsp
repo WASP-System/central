@@ -28,7 +28,7 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-	<td class="CaptionTD">Choose A Resource:</td>
+	<td class="CaptionTD"><fmt:message key="runInstance.chooseResource.label"/>:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/run/createUpdateRun.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" value="<c:out value="${runId}" />" />

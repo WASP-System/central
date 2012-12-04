@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,9 +135,16 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * getExtraJobDetails
 	 * @param Job job
-	 * @return Map<String,String> for easy display on web
+	 * @return Map<String,String> for easy display on web. first string is a fmt:message stored in messages.properties which acts as a label; second string is displayed value, such as a cost value or a machine name
 	 */
-	public Map<String, String> getExtraJobDetails(Job job);
+	public LinkedHashMap<String, String> getExtraJobDetails(Job job);
+
+	/**
+	 * getJobApprovals
+	 * @param Job job
+	 * @return Map<String,String> for easy display on web. both strings are fmt:message stored in messages.properties file
+	 */
+	public LinkedHashMap<String, String> getJobApprovals(Job job);
 
 	/**
 	 * Create a Job object from a job draft. Also handle dependencies.

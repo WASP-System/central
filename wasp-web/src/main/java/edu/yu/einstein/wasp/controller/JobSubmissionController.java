@@ -293,7 +293,7 @@ public class JobSubmissionController extends WaspController {
 	
 	@Transactional
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public String list(ModelMap m) {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
