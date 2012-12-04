@@ -22,7 +22,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -739,7 +741,8 @@ public class RunController extends WaspController {
 				
 				if(runId < 1){//most likely 0
 					runInstance = new Run();
-					runInstance.setName("COMPLETED_BY_SYSTEM_" + platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
+					//runInstance.setName("COMPLETED_BY_SYSTEM_" + platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
+					runInstance.setName("");
 					//for testing the select box only runInstance.setUserId(new Integer(2));
 					runInstance.setRunMeta(metaHelperWebapp.getMasterList(RunMeta.class));
 				}
@@ -826,17 +829,26 @@ public class RunController extends WaspController {
 
 			boolean otherErrorsExist = false;
 			
-			/* PLEASE PLEASE KEEP CODE FOR LATER (I need it for reference: it was removed as per Andy, platformunit name will be assigned with barcode; it's not on the form anymore
-			//SAVE THIS CODE, JUST IN CASE WE WANT TO PUT NAME BACK ONTO THE FORM
-			//check whether name has been used; note that @Valid has already checked for name being the empty 
-			if (! result.hasFieldErrors("name")){
-				if(sampleService.platformUnitNameUsedByAnother(platformunitInstance, platformunitInstance.getName())==true){
+			 
+			//note that @Valid should have  checked for name being the empty, 
+			//but it doesn't appear to be working, so I'll test directly) 
+			
+			if(runInstance.getName().isEmpty() || runInstance.getName().trim().isEmpty()){
+				Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+				errors.rejectValue("name", metaHelperWebapp.getArea()+".name.error", metaHelperWebapp.getArea()+".name.error");
+				result.addAllErrors(errors);
+			}
+			if (! result.hasFieldErrors("name")){//also check whether run's name has been used
+				Map<String,String> queryMap = new HashMap<String,String>();
+				queryMap.put("name", runInstance.getName().trim());
+				List<Run> runList = runDao.findByMap(queryMap);
+				if(runList.size()>0){
 					Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
 					errors.rejectValue("name", metaHelperWebapp.getArea()+".name_exists.error", metaHelperWebapp.getArea()+".name_exists.error");
 					result.addAllErrors(errors);
 				}
 			}
-			 */
+			
 			
 			Date dateRunStartedAsDateObject = null;
 			
