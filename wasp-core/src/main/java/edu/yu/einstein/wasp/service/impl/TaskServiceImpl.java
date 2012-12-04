@@ -195,15 +195,20 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	public boolean isDepartmentAdminPendingTasks() {
 		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
 		labPendingSearchMap.put("status", "PENDING");
+		if ( (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) && 
+				!labPendingDao.findByMap(labPendingSearchMap).isEmpty() )
+			return true;
 		Set<Integer> departmentIdList = authenticationService.idsOfDepartmentsManagedByCurrentUser();
+		for (int departmentId : departmentIdList) {
+			labPendingSearchMap.put("departmentId", departmentId); 
+			if (!labPendingDao.findByMap(labPendingSearchMap).isEmpty())
+				return true;
+		}
 		for (Job job : jobService.getActiveJobs()){
 			boolean jobIsAwaitingDaApproval = jobService.isJobAwaitingDaApproval(job);
 			if (jobIsAwaitingDaApproval && (authenticationService.isSuperUser() || authenticationService.hasRole("ga")))
 				return true;
 			for (int departmentId : departmentIdList) {
-				labPendingSearchMap.put("departmentId", departmentId); 
-				if (!labPendingDao.findByMap(labPendingSearchMap).isEmpty())
-					return true;
 				if (job.getLab().getDepartmentId().intValue() == departmentId)
 					return true;
 			}
