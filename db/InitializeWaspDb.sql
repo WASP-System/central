@@ -756,9 +756,9 @@ create table resourcebarcode (
 -- FILE
 --   mysql max out at 767 bytes for indexable length
 --
-create table file (
+create table filehandle (
   fileid int(10)  primary key auto_increment,
-  absolute_path varchar(2048) , 
+  file_uri varchar(2048) , 
   contenttype varchar(250) , 
   sizek int(10) ,
   md5hash varchar(250) ,
@@ -784,7 +784,7 @@ create table filemeta (
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  foreign key fk_filemeta_fileid (fileid) references file(fileid),
+  foreign key fk_filemeta_fileid (fileid) references filehandle(fileid),
 
   constraint unique index u_filemeta_k_jid (k, fileid)
 ) ENGINE=InnoDB charset=utf8;
@@ -880,7 +880,7 @@ create table jobdraftfile (
   lastupduser int(10)  default 0,
 
   foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_jobdraftfile_fid (fileid) references filehandle(fileid) -- ,
 
   -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1100,7 +1100,7 @@ create table sampledraft (
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
   foreign key fk_sampledraft_suid (userid) references user(userid),
-  foreign key fk_sampledraft_fid (fileid) references file(fileid)
+  foreign key fk_sampledraft_fid (fileid) references filehandle(fileid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table sampledraftmeta (
@@ -1356,7 +1356,7 @@ create table jobfile (
   lastupduser int(10)  default 0,
 
   foreign key fk_jobfile_jid (jobid) references job(jobid),
-  foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_jobfile_fid (fileid) references filehandle(fileid) -- ,
 
   -- constraint unique index u_jobfile_iname_jid (iname, jobid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1377,7 +1377,7 @@ create table samplefile (
   lastupduser int(10)  default 0,
 
   foreign key fk_samplefile_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_samplefile_fid (fileid) references filehandle(fileid) -- ,
 
   -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1555,7 +1555,7 @@ create table runfile (
   lastupduser int(10)  default 0,
 
   foreign key fk_rfile_rid (runid) references run(runid),
-  foreign key fk_rfile_fid (fileid) references file(fileid),
+  foreign key fk_rfile_fid (fileid) references filehandle(fileid),
 
   constraint unique index u_rlfile_fileid (fileid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1573,7 +1573,7 @@ create table runcellfile (
   lastupduser int(10)  default 0,
 
   foreign key fk_rlfile_rlid (runcellid) references runcell(runcellid),
-  foreign key fk_rlfile_fileid (fileid) references file(fileid),
+  foreign key fk_rlfile_fileid (fileid) references filehandle(fileid),
 
   constraint unique index u_rlfile_fileid (fileid)
 ) ENGINE=InnoDB charset=utf8;
