@@ -152,14 +152,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertSampleStatusForWeb(BatchStatus internalStatus);
+	  public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus);
 	  
 	  /**
 	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
 	   * @param webStatus
 	   * @return
 	   */
-	  public WaspStatus convertSampleStatusFromWeb(String webStatus);
+	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus);
 
 	  /**
 	   * Gets list of Receive Sample options for web display
@@ -167,6 +167,20 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return List<String> containing the list of Receive Sample Options for web display 
 	   */
 	  public List<String> getReceiveSampleStatusOptionsForWeb();
+	  
+	  /**
+	   * Converts sample's Receive Sample status from database storage meaning to human-comprehensible meaning for viewing on the web
+	   * @param String status
+	   * @return String 
+	   */
+	  public String convertSampleQCStatusForWeb(BatchStatus internalStatus);
+	  
+	  /**
+	   * Converts sample's QC Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
+	   * @param webStatus
+	   * @return
+	   */
+	  public WaspStatus convertSampleQCStatusFromWeb(String webStatus);
 	  
 	  /**
 	   * Updates sample's Receive Sample status. Sends message via Spring Integration
@@ -634,5 +648,17 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public List<Sample> getRunningOrSuccessfullyRunPlatformUnits();
+
+	  /**
+	   * updates QC status of a sample / library
+	   * @param sample
+	   * @param status
+	   * @throws WaspMessageBuildingException
+	   */
+	  public void updateQCStatus(Sample sample, WaspStatus status) throws WaspMessageBuildingException;
+
+	 
+	  
+	  
 	  
 }

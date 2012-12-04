@@ -394,7 +394,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public String convertSampleStatusForWeb(BatchStatus internalStatus) {
+	public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -514,7 +514,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public WaspStatus convertSampleStatusFromWeb(String webStatus) {
+	public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -543,6 +543,25 @@ public class StubSampleService implements SampleService {
 	public List<Sample> getRunningOrSuccessfullyRunPlatformUnits() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String convertSampleQCStatusForWeb(BatchStatus internalStatus) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WaspStatus convertSampleQCStatusFromWeb(String webStatus) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateQCStatus(Sample sample, WaspStatus status)
+			throws WaspMessageBuildingException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

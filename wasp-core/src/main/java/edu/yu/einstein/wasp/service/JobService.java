@@ -68,6 +68,20 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<Sample>
 	 */
 	public List<Sample> getSubmittedSamplesNotYetReceived(Job job);
+	
+	/**
+	 * getSubmittedSamplesNotYetQC
+	 * @param Job 
+	 * @return List<Sample>
+	 */
+	public List<Sample> getSubmittedSamplesNotYetQC(Job job);
+	
+	/**
+	 * getLibrariesNotYetReceived
+	 * @param Job 
+	 * @return List<Sample>
+	 */
+	public List<Sample> getLibrariesNotYetQC(Job job);
 
 	/**
 	 * getActive Jobs() returns list of active jobs (executing)
@@ -84,6 +98,31 @@ public interface JobService extends WaspMessageHandlingService {
 	 * 
 	 */
 	public List<Job> getJobsAwaitingReceivingOfSamples();
+	
+	/**
+	 * returns list of jobs awaiting QC of at least one Sample
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingSampleQC();
+
+	/**
+	 * returns true if any jobs exist which are awaiting QC of a Sample
+	 * @return
+	 */
+	public boolean isJobsAwaitingSampleQC();
+
+	/**
+	 * returns list of jobs awaiting QC of at least one Library
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingLibraryQC();
+
+	/**
+	 * returns true if any jobs exist which are awaiting QC of a library
+	 * @return
+	 */
+	public boolean isJobsAwaitingLibraryQC();
+
 	
 	/**
 	 * sortJobsByJobId 
@@ -268,4 +307,5 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public boolean isJobsAwaitingQuote();
 
+	
 }

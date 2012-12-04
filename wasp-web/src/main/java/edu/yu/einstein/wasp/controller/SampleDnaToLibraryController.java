@@ -333,7 +333,9 @@ public class SampleDnaToLibraryController extends WaspController {
 				macromoleculeSubmittedSamplesList.add(sample);
 				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromolecule
 				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);
-				createLibraryStatusMap.put(sample, sampleService.isSampleAwaitingLibraryCreation(sample));
+				boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(sample);
+				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
+				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
 			}
 			else if(sampleService.isLibrary(sample)){
 				librarySubmittedSamplesList.add(sample);
@@ -347,7 +349,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn("Unable to identify species for sampleId " + sample.getSampleId());
 				//print a message and get outta here
 			}
-			receivedStatusMap.put(sample, sampleService.convertSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			//for each task, determine if it's status is CREATED (if it has many states for a single status, simply determine if at least one is CREATED) 
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));

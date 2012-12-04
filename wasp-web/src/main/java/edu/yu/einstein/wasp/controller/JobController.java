@@ -541,7 +541,7 @@ public class JobController extends WaspController {
 											sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
-										sampleService.convertSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample))
+										sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample))
 								}
 						)
 				);

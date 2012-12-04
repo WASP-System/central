@@ -65,6 +65,8 @@ import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
+import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -365,8 +367,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Set<String> libraryIdStringSet = new HashSet<String>();
 			libraryIdStringSet.add(library.getSampleId().toString());
 			parameterMap.put(WaspJobParameters.LIBRARY_ID, libraryIdStringSet);
-			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.userLibrary.jobflow.v1", parameterMap, false);
-			jobExecutions.addAll(batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow.v1", parameterMap, false));
+			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.userLibrary.jobflow", parameterMap, false);
+			jobExecutions.addAll(batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false));
 			
 			for (JobExecution jobExecution: jobExecutions){
 				if (jobExecution.getStatus().equals(BatchStatus.STARTING) || 
@@ -404,7 +406,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertSampleStatusForWeb(BatchStatus internalStatus){
+	  public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
 		  if(internalStatus.equals(BatchStatus.STARTED)){
@@ -412,9 +414,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 			else if(internalStatus.equals(BatchStatus.COMPLETED)){
 				return "RECEIVED";
-			}
-			else if(internalStatus.equals(BatchStatus.FAILED)){
-				return "FAILED QC";
 			}
 			else if(internalStatus.equals(BatchStatus.STOPPED)){
 				return "WITHDRAWN";
@@ -428,17 +427,53 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public WaspStatus convertSampleStatusFromWeb(String webStatus){
+	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
 		  	if(webStatus.equals("RECEIVED")){
 				return WaspStatus.CREATED;
 			}
-			else if(webStatus.equals("FAILED QC")){
-				return WaspStatus.FAILED;
-			}
 			else if(webStatus.equals("WITHDRAWN")){
 				return WaspStatus.ABANDONED;
+			}
+			else {
+				return WaspStatus.UNKNOWN;
+			}
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public String convertSampleQCStatusForWeb(BatchStatus internalStatus){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
+		  if(internalStatus.equals(BatchStatus.STARTED)){
+			  return "AWAITING QC";
+			}
+			else if(internalStatus.equals(BatchStatus.COMPLETED)){
+				return "PASSED";
+			}
+			else if(internalStatus.equals(BatchStatus.FAILED)){
+				return "FAILED";
+			}
+			else {
+				return "UNKNOWN";
+			}
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public WaspStatus convertSampleQCStatusFromWeb(String webStatus){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
+		  	if(webStatus.equals("PASSED")){
+				return WaspStatus.COMPLETED;
+			}
+			else if(webStatus.equals("FAILED")){
+				return WaspStatus.FAILED;
 			}
 			else {
 				return WaspStatus.UNKNOWN;
@@ -456,7 +491,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  BatchStatus [] statusList = {BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED};
 		  List<String> options = new ArrayList<String>();
 		  for(BatchStatus status : statusList){
-			  options.add(convertSampleStatusForWeb(status));
+			  options.add(convertSampleReceivedStatusForWeb(status));
 		  }
 		  return options;
 	  }
@@ -485,7 +520,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 
 	  /**
 	   * {@inheritDoc}
-
 	   */
 	  @Override
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
@@ -503,6 +537,30 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
 		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
+		  sendOutboundMessage(messageTemplate.build(), false);
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void updateQCStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(sample, "No Sample provided");
+		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNull(status, "No Status provided");
+		  if (status != WaspStatus.COMPLETED && status != WaspStatus.FAILED)
+			  throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or FAILED");
+		  
+		  WaspStatusMessageTemplate messageTemplate;
+		  if (isLibrary(sample)){
+			  messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate.setTask(WaspLibraryTask.QC);
+		  } else {
+			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate.setTask(WaspSampleTask.QC);
+		  }
+		  messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (FAILED)
 		  sendOutboundMessage(messageTemplate.build(), false);
 	  }
 	  

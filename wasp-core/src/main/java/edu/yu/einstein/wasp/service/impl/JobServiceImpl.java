@@ -269,6 +269,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		return submittedSamplesList;		
 	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -305,6 +306,75 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		}
 		return submittedSamplesNotYetReceivedList;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getSubmittedSamplesNotYetQC(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		
+		List<Sample> submittedSamplesNotYetQCList = new ArrayList<Sample>();
+		
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
+			Integer sampleId = null;
+			try{
+				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
+			}
+			Sample sample = sampleDao.getSampleBySampleId(sampleId);
+			if (sample == null){
+				logger.warn("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedSamplesNotYetQCList.add(sample);
+		}
+		return submittedSamplesNotYetQCList;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getLibrariesNotYetQC(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		
+		List<Sample> submittedLibrariesNotYetQCList = new ArrayList<Sample>();
+		
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
+			Integer libraryId = null;
+			try{
+				libraryId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
+			}
+			Sample library = sampleDao.getSampleBySampleId(libraryId);
+			if (library == null){
+				logger.warn("Library with sample id '"+libraryId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedLibrariesNotYetQCList.add(library);
+		}
+		return submittedLibrariesNotYetQCList;
+	}
+	
 	
 	 /**
 	   * {@inheritDoc}
@@ -368,6 +438,66 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public boolean isJobsAwaitingReceivingOfSamples(){
 		for (Job job: getActiveJobs())
 			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+				return true;
+		return false;
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingSampleQC(){
+		
+		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
+			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet QCd
+				jobsAwaitingQCOfSamples.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfSamples);
+		
+		return jobsAwaitingQCOfSamples;
+	}
+	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingSampleQC(){
+		for (Job job: getActiveJobs())
+			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet received
+				return true;
+		return false;
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingLibraryQC(){
+		
+		List<Job> jobsAwaitingQCOfLibraries = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining library QC status of job with id='" + job.getJobId() + "'");
+			if (! getLibrariesNotYetQC(job).isEmpty()) // some samples not yet QCd
+				jobsAwaitingQCOfLibraries.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfLibraries);
+		
+		return jobsAwaitingQCOfLibraries;
+	}
+	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingLibraryQC(){
+		for (Job job: getActiveJobs())
+			if (! getLibrariesNotYetQC(job).isEmpty()) // some libraries not yet received
 				return true;
 		return false;
 	}
