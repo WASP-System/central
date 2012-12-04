@@ -127,7 +127,7 @@ public class TaskController extends WaspController {
       @RequestParam("receivedStatus") String receivedStatus,
       ModelMap m) {
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId().intValue()==0){
+	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.samplereceive_invalid_sample.error");
 		  return "redirect:/task/samplereceive/list.do";
 	  }
@@ -150,7 +150,7 @@ public class TaskController extends WaspController {
 		  logger.warn(e.getLocalizedMessage());
 		  waspErrorMessage("task.samplereceive_message.error");
 		  return "redirect:/task/samplereceive/list.do";
-	  }
+	  } 
 	  waspMessage("task.samplereceive_update_success.label");	
 	  return "redirect:/task/samplereceive/list.do";
   }
@@ -255,7 +255,7 @@ public class TaskController extends WaspController {
     m.addAttribute("jobList", jobsActiveAndAwaitingSampleQC);
     m.addAttribute("jobAndSamplesMap", jobAndSampleMap);
     
-    return "task/samplereceive/list";
+    return "task/sampleqc/list";
   }
 
   @RequestMapping(value = "/sampleqc/qc", method = RequestMethod.POST)
@@ -265,13 +265,13 @@ public class TaskController extends WaspController {
       @RequestParam("qcStatus") String qcStatus,
       ModelMap m) {
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId().intValue()==0){
+	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.sampleqc_invalid_sample.error");
-		  return "redirect:/task/samplereceive/list.do";
+		  return "redirect:/task/sampleqc/list.do";
 	  }
 	  if(qcStatus == null ||  qcStatus.equals("")){
-		  waspErrorMessage("task.sampleqc_receivedstatus_empty.error");
-		  return "redirect:/task/samplereceive/list.do";
+		  waspErrorMessage("task.sampleqc_status_empty.error");
+		  return "redirect:/task/sampleqc/list.do";
 	  }
 	  try{
 		  if(qcStatus.equals("PASSED")){
@@ -281,7 +281,7 @@ public class TaskController extends WaspController {
 			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
 		  }
 		  else{
-			  waspErrorMessage("task.sampleqc_receivedstatus_invalid.error");
+			  waspErrorMessage("task.sampleqc_status_invalid.error");
 			  return "redirect:/task/sampleqc/list.do";
 		  }
 	  } catch (WaspMessageBuildingException e){
@@ -316,7 +316,7 @@ public class TaskController extends WaspController {
     m.addAttribute("jobList", jobsActiveAndAwaitingLibraryQC);
     m.addAttribute("jobAndSamplesMap", jobAndSampleMap);
     
-    return "task/libraryreceive/list";
+    return "task/libraryqc/list";
   }
 
   @RequestMapping(value = "/libraryqc/qc", method = RequestMethod.POST)
@@ -326,13 +326,13 @@ public class TaskController extends WaspController {
       @RequestParam("qcStatus") String qcStatus,
       ModelMap m) {
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId().intValue()==0){
+	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.libraryqc_invalid_sample.error");
-		  return "redirect:/task/libraryreceive/list.do";
+		  return "redirect:/task/libraryqc/list.do";
 	  }
 	  if(qcStatus == null ||  qcStatus.equals("")){
-		  waspErrorMessage("task.libraryqc_receivedstatus_empty.error");
-		  return "redirect:/task/libraryreceive/list.do";
+		  waspErrorMessage("task.libraryqc_status_empty.error");
+		  return "redirect:/task/libraryqc/list.do";
 	  }
 	  try{
 		  if(qcStatus.equals("PASSED")){
@@ -342,7 +342,7 @@ public class TaskController extends WaspController {
 			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
 		  }
 		  else{
-			  waspErrorMessage("task.libraryqc_receivedstatus_invalid.error");
+			  waspErrorMessage("task.libraryqc_status_invalid.error");
 			  return "redirect:/task/libraryqc/list.do";
 		  }
 	  } catch (WaspMessageBuildingException e){

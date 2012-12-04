@@ -225,12 +225,12 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/updateSampleReceive.jsp" />
 	</definition>
 	<definition name="task/sampleqc/list" extends="template-base">
-	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/sampleqc/list.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/sampleqc/list.jsp" />
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/sampleQC/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/sampleQC/list.jsp" />
 	</definition>
 	<definition name="task/libraryqc/list" extends="template-base">
-	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryqc/list.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryqc/list.jsp" />
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryQC/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryQC/list.jsp" />
 	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />

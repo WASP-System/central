@@ -537,7 +537,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
 		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  sendOutboundMessage(messageTemplate.build(), false);
+		  try{
+			  sendOutboundMessage(messageTemplate.build(), false);
+		  } catch (MessagingException e){
+			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		  }
 	  }
 	  
 	  /**
@@ -561,7 +565,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  messageTemplate.setTask(WaspSampleTask.QC);
 		  }
 		  messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (FAILED)
-		  sendOutboundMessage(messageTemplate.build(), false);
+		  try{
+			  sendOutboundMessage(messageTemplate.build(), false);
+		  } catch (MessagingException e){
+			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		  }
 	  }
 	  
 	  /**
