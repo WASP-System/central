@@ -69,6 +69,20 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return List<Sample>
 	 */
 	public List<Sample> getSubmittedSamplesNotYetReceived(Job job);
+	
+	/**
+	 * getSubmittedSamplesNotYetQC
+	 * @param Job 
+	 * @return List<Sample>
+	 */
+	public List<Sample> getSubmittedSamplesNotYetQC(Job job);
+	
+	/**
+	 * getLibrariesNotYetReceived
+	 * @param Job 
+	 * @return List<Sample>
+	 */
+	public List<Sample> getLibrariesNotYetQC(Job job);
 
 	/**
 	 * getActive Jobs() returns list of active jobs (executing)
@@ -85,6 +99,31 @@ public interface JobService extends WaspMessageHandlingService {
 	 * 
 	 */
 	public List<Job> getJobsAwaitingReceivingOfSamples();
+	
+	/**
+	 * returns list of jobs awaiting QC of at least one Sample
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingSampleQC();
+
+	/**
+	 * returns true if any jobs exist which are awaiting QC of a Sample
+	 * @return
+	 */
+	public boolean isJobsAwaitingSampleQC();
+
+	/**
+	 * returns list of jobs awaiting QC of at least one Library
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingLibraryQC();
+
+	/**
+	 * returns true if any jobs exist which are awaiting QC of a library
+	 * @return
+	 */
+	public boolean isJobsAwaitingLibraryQC();
+
 	
 	/**
 	 * sortJobsByJobId 
@@ -124,8 +163,8 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
-	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
-	 * are registered as awaiting analysis but not yet assigned to a cell. Only returns those jobs for which the resource category matches that specified.
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created for which the actual coverage on
+	 * currently running or successfully completed flowcells is less than the requested coverage. Only returns those jobs for which the resource category matches that specified.
 	 * @param ResourceCategory
 	 * @return List<Job>
 	 * 
@@ -133,8 +172,8 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory);
 	
 	/**
-	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs where one or more of the job's samples (either facility library or user-submitted library) 
-	 * are registered as awaiting analysis but not yet assigned to a cell
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created for which the actual coverage on
+	 * currently running or successfully completed flowcells is less than the requested coverage.
 	 * @param none
 	 * @return List<Job>
 	 * 
@@ -175,7 +214,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public boolean isJobAwaitingQuote(Job job);
 	
 	/**
-	 * Returns true if provided sample is received, otherwise returns false
+	 * Returns true if provided sample has no library has been made yet, otherwise returns false
 	 * @param sample
 	 * @return
 	 */
@@ -276,4 +315,5 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public boolean isJobsAwaitingQuote();
 
+	
 }

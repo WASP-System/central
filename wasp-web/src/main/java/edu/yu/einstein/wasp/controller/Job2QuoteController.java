@@ -98,6 +98,11 @@ public class Job2QuoteController extends WaspController {
 		return "job2quote/list_all";
 	}
 	
+	/**
+	 * If a job list is provided, only jobs within the list are considered, otherwise if null, all jobs are considered
+	 * @param restrictedJobList
+	 * @return
+	 */
 	private Map<String, Object> getQuoteListJGrid(List<Job> restrictedJobList){
 		List<Job> job2quoteList = new ArrayList();
 		
@@ -225,7 +230,7 @@ public class Job2QuoteController extends WaspController {
 		}
 		
 		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
-		if (restrictedJobList != null && !restrictedJobList.isEmpty())
+		if (restrictedJobList != null)
 			workingJobList.retainAll(restrictedJobList);
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
@@ -342,7 +347,7 @@ public class Job2QuoteController extends WaspController {
 	@RequestMapping(value = "/listAllJSON", method = RequestMethod.GET)
 	public String getListAllJSON(HttpServletResponse response){
 		try {
-			return outputJSON(getQuoteListJGrid(new ArrayList<Job>()), response);
+			return outputJSON(getQuoteListJGrid(null), response);
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON ", e);
 		}	

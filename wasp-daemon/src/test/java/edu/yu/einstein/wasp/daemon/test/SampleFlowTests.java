@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
 import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
@@ -196,7 +197,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			stubSampleDao.sample.setSampleType(sampleType);
 			
 			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
-			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
+			Job job = jobRegistry.getJob("wasp.userLibrary.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			parameterMap.put( SAMPLE_ID_KEY, new JobParameter(SAMPLE_ID2.toString()) );
@@ -204,7 +205,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			Thread.sleep(1000); // allow some time for flow initialization
 			
 			// send CREATED sample message (simulating button presses in web view when sample received)
-			SampleStatusMessageTemplate sampleTemplate = new SampleStatusMessageTemplate(SAMPLE_ID2);
+			LibraryStatusMessageTemplate sampleTemplate = new LibraryStatusMessageTemplate(SAMPLE_ID2);
 			sampleTemplate.setStatus(WaspStatus.CREATED);
 			Message<WaspStatus> sampleCreatedNotificationMessage = sampleTemplate.build();
 			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+sampleCreatedNotificationMessage.toString());
@@ -221,10 +222,18 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			if (replyMessage != null)
 				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
 			
+			sampleTemplate.setTask(WaspLibraryTask.QC);
+			sampleTemplate.setStatus(WaspStatus.COMPLETED);
+			Message<WaspStatus> sampleQCNotificationMessage = sampleTemplate.build();
+			logger.info("testLibrarySampleReceived(): Sending message via 'outbound rmi gateway': "+sampleQCNotificationMessage.toString());
+			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), sampleQCNotificationMessage);
+			if (replyMessage != null)
+				Assert.fail("testLibrarySampleReceived(): Got unexpected reply message: "+ replyMessage.toString());
+			
 			int repeat = 0;
 			while ((message == null || 
 					(! LibraryStatusMessageTemplate.actUponMessage(message, SAMPLE_ID2, WaspJobTask.NOTIFY_STATUS)) || 
-					!message.getPayload().equals(WaspStatus.CREATED)) && repeat < 10){
+					!message.getPayload().equals(WaspStatus.ACCEPTED)) && repeat < 10){
 				message = null;
 				Thread.sleep(1000);
 				repeat++;

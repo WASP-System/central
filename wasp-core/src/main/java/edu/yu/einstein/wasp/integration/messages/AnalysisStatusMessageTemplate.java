@@ -7,13 +7,13 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
- * Handling Wasp Library Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
+ * Handling Wasp Analysis Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
  * @author andymac
  *
  */
-public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
+public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
-	protected Integer libraryId; // id of library
+	protected Integer libraryId; // id of library being analysed
 	
 	public Integer getlibraryId() {
 		return libraryId;
@@ -23,14 +23,14 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		this.libraryId = libraryId;
 	}
 	
-	public LibraryStatusMessageTemplate(Integer libraryId){
+	public AnalysisStatusMessageTemplate(Integer libraryId){
 		super();
 		this.libraryId = libraryId;
 	}
 	
 	
 	/**
-	 * Build a Spring Integration Message using the LIBRARY header, task header if not null, and the WaspStatus as payload .
+	 * Build a Spring Integration Message using the ANALYSIS header, task header if not null, and the WaspStatus as payload .
 	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
@@ -42,14 +42,14 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
@@ -89,7 +89,7 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.LIBRARY))
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS))
 			return true;
 		return false;
 	}
