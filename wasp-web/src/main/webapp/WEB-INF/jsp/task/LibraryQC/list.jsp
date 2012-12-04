@@ -11,7 +11,7 @@
 
 <c:set var="currentJobId" value="-1" scope="page" />
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">JobID</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Job Name</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Submitter</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Sample</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Molecule</th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6">Action</th></tr>
+<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_jobId.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_jobName.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_submitter.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_sample.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_molecule.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.libraryqc_action.label" /></th></tr>
 
 <c:forEach items="${jobList}" var="job">
 	<c:if test='${currentJobId != "-1" && currentJobId !=  job.getJobId()}'>
@@ -28,8 +28,8 @@
 		<td style='text-align:center'>
 			
 		<form action="<c:url value="/task/libraryqc/qc.do"/>" method="POST" onsubmit="return validate(this)">
- 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="libraryId" value="${library.getSampleId()}"> 
- 		<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED">Passed&nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED">failed &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="Submit">
+ 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="libraryId" value="${sample.getSampleId()}"> 
+ 		<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.libraryqc_passed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.libraryqc_failed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.libraryqc_submit.label" />">
 		</form>
 				
 		</td>

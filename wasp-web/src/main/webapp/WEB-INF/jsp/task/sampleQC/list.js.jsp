@@ -9,7 +9,7 @@
 		//alert("test"); return false;
 		//var radio = getElementById(theform.qcStatus);
 		if(!theform.qcStatus[0].checked && !theform.qcStatus[1].checked){
-			alert("Please select either Sample QC Passed or Failed");
+			alert("<fmt:message key="task.sampleqc_validateAlert.label" />");
 			return false;
 		}	
 		return true;
