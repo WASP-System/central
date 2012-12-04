@@ -294,7 +294,21 @@ public class Job2QuoteController extends WaspController {
 
 			User user = userDao.getById(item.getUserId());
 			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
-			float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+			////float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
+			if(ajqcList.isEmpty()){
+				quoteAsString = "?.??";
+			}
+			else{
+				try{
+					  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+					  quoteAsString = String.format("%.2f", price);
+				}
+				catch(Exception e){
+					  logger.warn("JobController: jobList : " + e);
+					  quoteAsString = "?.??"; 
+				}					
+			}
 
 			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList() : 
 				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
@@ -305,7 +319,8 @@ public class Job2QuoteController extends WaspController {
 				Arrays.asList(new String[] { 
 					"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
 					item.getName(),
-					String.format("%.2f", amount),
+					//String.format("%.2f", amount),
+					quoteAsString,
 					user.getNameFstLst(), 
 					item.getLab().getUser().getNameFstLst(),
 					formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 

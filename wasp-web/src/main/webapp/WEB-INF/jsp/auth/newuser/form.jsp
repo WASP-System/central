@@ -49,7 +49,7 @@
               <c:forEach var="localeEntry" items="${locales}">
                 <c:set var="localeValue" value="${localeEntry.key}"/>
                 <c:set var="localeLabel" value="${localeEntry.value}"/>     
-                <option value=${localeValue} <c:if test="${userPending.locale == localeValue}">selected</c:if>>${localeLabel}</option>
+                <option value='${localeValue}' <c:if test="${userPending.locale == localeValue}">selected</c:if>>${localeLabel}</option>
               </c:forEach>
             </select><span class="requiredField">*</span>
           </td>

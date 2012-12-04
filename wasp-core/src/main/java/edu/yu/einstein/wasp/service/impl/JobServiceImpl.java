@@ -12,11 +12,14 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -470,26 +473,47 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Map<String, String> getExtraJobDetails(Job job){
+	  public LinkedHashMap<String, String> getExtraJobDetails(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+		  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
-				  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
+				  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 				  break;
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
 			  if(jobMeta.getK().indexOf("readLength") != -1){
-				  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+				  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 			  }
 			  if(jobMeta.getK().indexOf("readType") != -1){
-				  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+				  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta.getV().toUpperCase());
 			  }
 		  }
+		  
+		  try{
+			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+		  }
+		  catch(Exception e){
+			  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
+		  }	
+		  
+		  return extraJobDetailsMap;	  
+	  }
+
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public LinkedHashMap<String, String> getJobApprovals(Job job){
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> jobIdStringSet = new HashSet<String>();
@@ -501,92 +525,58 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
 
+		  String piStatusLabel = "status.piApproval.label";
 		  if (stepExecution == null){
-			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+			  jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+				  jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  extraJobDetailsMap.put("PI Approval", "Approved");
+				  jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("PI Approval", "Rejected");
+				  jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("PI Approval", "Abandoned");
+				  jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 			  }
 			  else{
-				  extraJobDetailsMap.put("PI Approval", "Unknown");
+				  jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
 			  }
 		  }
 		  
-		  
+		  String daStatusLabel = "status.daApproval.label";
 		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
 				);
 		  if (stepExecution == null){
-			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+			  jobApprovalsMap.put(daStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+				  jobApprovalsMap.put(daStatusLabel, "status.awaitingResponse.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  extraJobDetailsMap.put("DA Approval", "Approved");
+				  jobApprovalsMap.put(daStatusLabel, "status.approved.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("DA Approval", "Rejected");
+				  jobApprovalsMap.put(daStatusLabel, "status.rejected.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("DA Approval", "Abandoned");
+				  jobApprovalsMap.put(daStatusLabel, "status.abandoned.label");
 			  }
 			  else{
-				  extraJobDetailsMap.put("DA Approval", "Unknown");
+				  jobApprovalsMap.put(daStatusLabel, "status.unknown.label");
 			  }
 		  }
-		  		  
-		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
-				);
-		  if (stepExecution == null){
-			  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
-		  }
-		  else {
-			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  try{
-					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
-				  }
-				  catch(Exception e){
-					  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
-					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
-				  }	
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("Quote Job Price", "Rejected");
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("Quote Job Price", "Abandoned");
-			  }
-			  else{
-				  extraJobDetailsMap.put("Quote Job Price", "Unknown");
-			  }
-		  }
-		 
-
-		 
 		  
-		  return extraJobDetailsMap;	  
+		  return jobApprovalsMap;
+
 	  }
-	  
 	  /**
 	   * {@inheritDoc}
 	 * @throws WaspMessageBuildingException 
