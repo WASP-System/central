@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.exception.WaspException;
  * @author calder
  *
  */
-public interface ReferenceBasedAligner {
+public interface ReferenceGenomeConsumer {
 	
 	/**
 	 * Test to see if this reference based aligner has built a version of its index for the reference genome 
@@ -46,4 +46,5 @@ public interface ReferenceBasedAligner {
 	 * @throws WaspException
 	 */
 	public void buildMetadata(String genome) throws WaspException;
+	
 }
