@@ -3,7 +3,6 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-	<display-name>wasp-file</display-name>
 
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
@@ -19,16 +18,19 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>rest</servlet-name>
-		<servlet-class>
-			org.springframework.web.servlet.DispatcherServlet
-		</servlet-class>
+		<servlet-name>file</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>rest</servlet-name>
-		<url-pattern>/file/*</url-pattern>
+		<servlet-name>file</servlet-name>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/error/404.html</location>
+	</error-page>
 
 </web-app>

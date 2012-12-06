@@ -9,7 +9,7 @@
 		//alert("test"); return false;
 		//var radio = getElementById(theform.qcStatus);
 		if(!theform.qcStatus[0].checked && !theform.qcStatus[1].checked){
-			alert("<fmt:message key="task.libraryreceive_validateAlert.label" />");
+			alert("<fmt:message key="task.libraryqc_validateAlert.label" />");
 			return false;
 		}	
 		return true;

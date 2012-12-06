@@ -157,6 +157,7 @@ public class TestSampleServiceImpl {
   
   @Test (groups = "unit-tests-service-objects")
   public void getPlatformUnitForCell(){
+	  sampleServiceImpl.setSampleSourceDao(mockSampleSourceDao);
 	  SampleType puSampleType = new SampleType();
 	  puSampleType.setIName("platformunit");
 	  
@@ -175,17 +176,33 @@ public class TestSampleServiceImpl {
 	  pu2.setSampleId(3);
 	  pu2.setSampleType(puSampleType);
 	  
-	  List<SampleSource> puCells = new ArrayList<SampleSource>();
+	  List<SampleSource> puCells1 = new ArrayList<SampleSource>();
+	  List<SampleSource> puCells2 = new ArrayList<SampleSource>();
+	  List<SampleSource> puCells3 = new ArrayList<SampleSource>();
 	  SampleSource puCell1 = new SampleSource();
 	  puCell1.setSampleSourceId(1);
 	  puCell1.setSample(pu);
 	  puCell1.setIndex(1);
 	  puCell1.setSourceSample(cell1);
-	  puCells.add(puCell1);
 	  
-	  cell1.setSampleSource(puCells);
+	  SampleSource pu2Cell1 = new SampleSource();
+	  pu2Cell1.setSampleSourceId(2);
+	  pu2Cell1.setSample(pu2);
+	  pu2Cell1.setIndex(1);
+	  pu2Cell1.setSourceSample(cell1);
 	  
 	  
+	  puCells1.add(puCell1);
+	  
+	  puCells2.add(puCell1);
+	  puCells2.add(pu2Cell1);
+	  
+	  Map<String,Integer> q = new HashMap<String,Integer>();
+	  q.put("sourceSampleId", cell1.getSampleId());
+	  expect(mockSampleSourceDao.findByMap(q)).andReturn(puCells1);
+	  expect(mockSampleSourceDao.findByMap(q)).andReturn(puCells2);
+	  expect(mockSampleSourceDao.findByMap(q)).andReturn(puCells3);
+	  replay(mockSampleSourceDao);
 	  
 	  try {
 		Assert.assertEquals(sampleServiceImpl.getPlatformUnitForCell(cell1), pu);
@@ -205,12 +222,7 @@ public class TestSampleServiceImpl {
 	  }
 	  Assert.assertEquals(exceptionMessage, "Expected 'cell' but got Sample of type 'platformunit' instead.");
 	  
-	  SampleSource pu2Cell1 = new SampleSource();
-	  pu2Cell1.setSampleSourceId(2);
-	  pu2Cell1.setSample(pu2);
-	  pu2Cell1.setIndex(1);
-	  pu2Cell1.setSourceSample(cell1);
-	  puCells.add(pu2Cell1);
+	  
 	  
 	  exceptionMessage="";
 	  try {
@@ -223,7 +235,6 @@ public class TestSampleServiceImpl {
 	  Assert.assertEquals(exceptionMessage, "Cell '2' is associated with more than one flowcell");
 	  
 	  cell1.setSampleSource(null);
-	  puCells.remove(pu2Cell1);
 	  exceptionMessage="";
 	  try {
 			sampleServiceImpl.getPlatformUnitForCell(cell1);
@@ -233,7 +244,7 @@ public class TestSampleServiceImpl {
 		  Assert.fail("Caught unexpected SampleTypeException: "+ e.getMessage());
 	  }
 	  Assert.assertEquals(exceptionMessage, "Cell '2' is associated with no flowcells");
-	  
+	  verify(mockSampleSourceDao);
   }
   
   @Test (groups = "unit-tests-service-object")

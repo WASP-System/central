@@ -32,11 +32,11 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 //import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 //import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -74,6 +74,9 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 
 	@Autowired
 	protected MetaMessageService metaMessageService;
+	
+	@Autowired
+	protected SampleService sampleService;
 
 	/**
 	* {@inheritDoc}
@@ -148,7 +151,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			List<SampleDraft> sdList = cellMap.get(index);
 			Set<String> adaptorsOnCell = new HashSet<String>();
 			for(SampleDraft sd : sdList){
-				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){//include facilityLib incase this is a resubmit
+				if( sampleService.isLibrary(sd)){//include facilityLib incase this is a resubmit
 					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
 					Integer adaptorId;
 					try{
@@ -181,7 +184,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			}
 			//next, check all cells that have 2 or more samples per cell. (any NONE barcode found is illegal on these cells!) 
 			for(SampleDraft sd : sdList){//check each sample (macromolecule and library) on this cell
-				if( sd.getSampleType().getIName().equals("library") || sd.getSampleType().getIName().equals("facilityLibrary") ){//include facilityLib incase this is a resubmit
+				if( sampleService.isLibrary(sd) ){//include facilityLib incase this is a resubmit
 					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
 					Integer adaptorId;
 					try{
@@ -277,7 +280,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	public Map<SampleDraft, Adaptor> getAdaptorsOnSampleDrafts(List<SampleDraft> sampleDraftList){
 		Map<SampleDraft, Adaptor> map = new HashMap<SampleDraft, Adaptor>();
 		for(SampleDraft sd : sampleDraftList){
-			if( sd.getSampleType().getIName().equals("library") ){
+			if( sampleService.isLibrary(sd) ){
 				try{
 					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
 					Integer adaptorId = Integer.parseInt(adaptorIdAsString);				

@@ -358,7 +358,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, BatchStatus.STARTED)){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
 			Integer libraryId = null;
@@ -844,30 +844,30 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 			}
 			
-			
-			// jobDraftFile -> jobFile
-			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-				File file = jdf.getFile();
-				String folderPath = file.getAbsolutePathToFileFolder();
-				String absPath = file.getAbsolutePath();
-				java.io.File folder = new java.io.File(folderPath);
-				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
-				if (destPath.equals(folderPath)){
-					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
-				}
-				try{
-					folder.renameTo(new java.io.File(destPath));
-				} catch (Exception e){
-					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
-				}
-				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
-				file.setAbsolutePath(newAbsolutePath);
-				JobFile jobFile = new JobFile();
-				jobFile.setJob(jobDb);
-				jobFile.setFile(file);
-				jobFileDao.save(jobFile);
-			}
-						
+//			TODO: CLEAN UP THIS HORRIBLE SHITE
+//			// jobDraftFile -> jobFile
+//			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
+//				File file = jdf.getFile();
+//				String folderPath = file.getAbsolutePathToFileFolder();
+//				String absPath = file.getAbsolutePath();
+//				java.io.File folder = new java.io.File(folderPath);
+//				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
+//				if (destPath.equals(folderPath)){
+//					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
+//				}
+//				try{
+//					folder.renameTo(new java.io.File(destPath));
+//				} catch (Exception e){
+//					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
+//				}
+//				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
+//				file.setFileURI(newAbsolutePath);
+//				JobFile jobFile = new JobFile();
+//				jobFile.setJob(jobDb);
+//				jobFile.setFile(file);
+//				jobFileDao.save(jobFile);
+//			}
+//						
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
