@@ -28,7 +28,7 @@
 		<td style='text-align:center'>
 			
 		<form action="<c:url value="/task/libraryqc/qc.do"/>" method="POST" onsubmit="return validate(this)">
- 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="libraryId" value="${sample.getSampleId()}"> 
+ 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${library.getSampleId()}"> 
  		<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.libraryqc_passed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.libraryqc_failed.label" /> &nbsp;<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.libraryqc_submit.label" />">
 		</form>
 				

@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 public interface SampleService extends WaspMessageHandlingService {
@@ -120,11 +121,25 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void saveSampleWithAssociatedMeta(Sample sample);
 
 	  /**
-	   * Returns string containing the status of a sample's Receive Sample state
+	   * Returns status of a sample's Receive Sample step
 	   * @param Sample
 	   * @return String
 	   */
 	  public BatchStatus getReceiveSampleStatus(final Sample sample);
+	  
+	  /**
+	   * Returns status of a sample's QC Sample step
+	   * @param sample
+	   * @return
+	   */
+	  public BatchStatus getSampleQCStatus(Sample sample);
+	  
+	  /**
+	   * Returns status of a library's QC Sample step
+	   * @param library
+	   * @return
+	   */
+	  public BatchStatus getLibraryQCStatus(Sample library);
 	  
 	  /**
 		 * Returns true if provided sample is received, otherwise returns false
@@ -190,17 +205,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return boolean
 	   */
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
-	  
-	  /**
-	   * Updates sample's library creation status. Sends message via Spring Integration
-	   * Status must be either CREATED or ABANDONED
-	   * @param Sample sample
-	   * @param String status (from web)
-	   * @return boolean
-	   */
-	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
-	  
-	  
+	    
 	  
 	  /**
 	   * Returns boolean informing whether a sample has been processed by the facility
@@ -627,12 +632,20 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param batchJobName
 	   */
 	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName);
+	  
+	  /**
+	   * Kick off batch job for library
+	   * @param job
+	   * @param library
+	   * @param batchJobName
+	   */
+	  public void initiateBatchJobForLibrary(Job job, Sample library, String batchJobName);
 
 	  /**
 	   * Get cells onto which the current library is placed
 	   * @param library
 	   * @return
-	 * @throws SampleTypeException 
+	   * @throws SampleTypeException 
 	   */
 	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException;
 
@@ -656,6 +669,38 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws WaspMessageBuildingException
 	   */
 	  public void updateQCStatus(Sample sample, WaspStatus status) throws WaspMessageBuildingException;
+
+	  /**
+	   * Adds facility library to the database and starts a library flow for it in the wasp-daemon
+	   * @param job
+	   * @param managedLibrary
+	   * @param libraryMetaList
+	   */
+	  public void createFacilityLibraryFromMacro(Job job, SampleWrapper managedLibrary,	List<SampleMeta> libraryMetaList);
+
+	  /**
+	   * Returns true if there is a sample QC task for the given sample and it is batch state 'completed'
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isSamplePassQC(Sample sample);
+
+	  /**
+	   * Returns true if there is a library QC task for the given sample and it is batch state 'completed'
+	   * @param library
+	   * @return
+	   */
+	  public boolean isLibraryPassQC(Sample library);
+
+	  /**
+	   * Returns a list of platform units that are not currently put on a run
+	   * @return
+	   */
+	  public List<Sample> getPlatformUnitsNotYetRun();
+
+	  
+
+	  
 
 	 
 	  

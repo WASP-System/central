@@ -1098,7 +1098,7 @@ public class PlatformUnitController extends WaspController {
 		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
 			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
 		}
-		else if ( ! librarySample.getSampleType().getIName().equals("library")) {
+		else if ( ! sampleService.isLibrary(librarySample)) {
 			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
 		}
 		else if ( ! laneSample.getSampleType().getIName().equals("cell")) { 
