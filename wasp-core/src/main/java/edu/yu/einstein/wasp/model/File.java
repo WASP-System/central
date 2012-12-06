@@ -113,6 +113,8 @@ public class File extends WaspModel {
 	 *
 	 */
 	public URI getFileURI () {
+		if (this.fileURI == null)
+			return null;
 		return URI.create(this.fileURI);
 	}
 
