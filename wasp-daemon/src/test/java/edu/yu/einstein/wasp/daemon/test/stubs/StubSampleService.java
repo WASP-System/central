@@ -572,4 +572,34 @@ public class StubSampleService implements SampleService {
 		
 	}
 
+	@Override
+	public boolean isSamplePassQC(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLibraryPassQC(Sample library) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public BatchStatus getSampleQCStatus(Sample sample) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BatchStatus getLibraryQCStatus(Sample library) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Sample> getPlatformUnitsNotYetRun() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

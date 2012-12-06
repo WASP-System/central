@@ -101,7 +101,7 @@
 					<a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
 				</c:if>
 				</sec:authorize><br />
-				
+				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/><br />
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
 					<c:if test='${not empty createLibraryStatusMap.get(userSubmittedMacromolecule) and createLibraryStatusMap.get(userSubmittedMacromolecule) == true}'>
@@ -127,7 +127,7 @@
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-														
+							<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/><br />							
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
@@ -232,7 +232,9 @@
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
+			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
+			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
+			<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">

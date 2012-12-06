@@ -324,6 +324,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
 	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, Boolean> receiveSampleStatusMap = new HashMap<Sample, Boolean>();// created 5/7/12
 	  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
 	  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
@@ -339,10 +340,16 @@ public class SampleDnaToLibraryController extends WaspController {
 				boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(sample);
 				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
 				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
+				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
+				for (Sample facilityLibrary: facilityGeneratedLibrariesList){
+					qcStatusMap.put(facilityLibrary, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(facilityLibrary)));
+					assignLibraryToPlatformUnitStatusMap.put(facilityLibrary, sampleService.isLibraryAwaitingPlatformUnitPlacement(facilityLibrary));
+				}
 			}
 			else if(sampleService.isLibrary(sample)){
 				librarySubmittedSamplesList.add(sample);
 				assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample));
+				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
@@ -445,6 +452,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
+		m.addAttribute("qcStatusMap", qcStatusMap);
 		m.addAttribute("receiveSampleStatusMap", receiveSampleStatusMap);
 		m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);

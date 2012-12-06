@@ -329,6 +329,70 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  return sampleReceivedStatus;
 	  }
 	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public BatchStatus getSampleQCStatus(final Sample sample){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(sample, "No Sample provided");
+		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> sampleIdStringSet = new HashSet<String>();
+		  sampleIdStringSet.add(sample.getSampleId().toString());
+		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false);
+		  BatchStatus sampleQCStatus = BatchStatus.UNKNOWN;
+		  if (!stepExecutions.isEmpty())
+			  sampleQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getStatus();
+		  return sampleQCStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public BatchStatus getLibraryQCStatus(final Sample library){
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(library, "No library provided");
+		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(library.getSampleId().toString());
+		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false);
+		BatchStatus libraryQCStatus = BatchStatus.UNKNOWN;
+		if (!stepExecutions.isEmpty())
+			libraryQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getStatus();
+		return libraryQCStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isSamplePassQC(final Sample sample){
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(sample, "No Sample provided");
+		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		if (getSampleQCStatus(sample).equals(BatchStatus.COMPLETED))
+			return true;
+		return false;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isLibraryPassQC(final Sample library){
+		// TODO: Write test!!
+		  Assert.assertParameterNotNull(library, "No library provided");
+		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		  if (getLibraryQCStatus(library).equals(BatchStatus.COMPLETED))
+				return true;
+			return false;
+	  }
+	  
 	/**
 	 * {@inheritDoc}
 	 */
@@ -352,14 +416,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		if (isLibrary(sample))
 			return false;
+		if (!isSamplePassQC(sample))
+			return false;
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> sampleIdStringSet = new HashSet<String>();
 		sampleIdStringSet.add(sample.getSampleId().toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
-		
-		// check sample flow is complete - don't want to display samples that are not ready for library creation
-		if ( batchJobExplorer.getJobExecutions("wasp.sample.jobflow", parameterMap, false, ExitStatus.COMPLETED).isEmpty() )
-			return false;
 		
 		List<Sample> librariesExisting = sample.getChildren();
 		if (librariesExisting == null || librariesExisting.isEmpty())
@@ -454,7 +516,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public String convertSampleQCStatusForWeb(BatchStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(BatchStatus.STARTED)){
+		  if(internalStatus.equals(BatchStatus.STARTED) || internalStatus.equals(BatchStatus.UNKNOWN)){
 			  return "AWAITING QC";
 			}
 			else if(internalStatus.equals(BatchStatus.COMPLETED)){
@@ -783,11 +845,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (!cell.getSampleType().getIName().equals("cell")){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
-		  if (cell.getSampleSource()==null || cell.getSampleSource().isEmpty())
+		  Map<String,Integer> q = new HashMap<String,Integer>();
+		  q.put("sourceSampleId", cell.getSampleId());
+		  List<SampleSource> sampleSourceList = getSampleSourceDao().findByMap(q);
+			  
+		  if (sampleSourceList==null || sampleSourceList.isEmpty())
 			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with no flowcells");
-		  if (cell.getSampleSource().size() > 1)
+		  if (sampleSourceList.size() > 1)
 			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with more than one flowcell");
-		  SampleSource ss = cell.getSampleSource().get(0);
+		  SampleSource ss = sampleSourceList.get(0);
+		  logger.debug("Returning platform unit id=" + ss.getSample().getSampleId() + " for cell id=" + cell.getSampleId() + " (SampleSource id=" + ss.getSampleSourceId() + ")");
 		  return ss.getSample();
 	  }
 	  
@@ -1076,7 +1143,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException{
 		  Assert.assertParameterNotNull(library, "No library provided");
 		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
-		  if (!library.getSampleType().getIName().equals("library")){
+		  if (!isLibrary(library)){
 			  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		  }
 		  List<Sample> cells = new ArrayList<Sample>();
@@ -1876,7 +1943,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(cellLibraryLink, "Invalid cellLibraryLink provided");
 		Assert.assertParameterNotNullNotZero(cellLibraryLink.getSampleSourceId(), "Invalid cellLibraryLink provided");
-		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
+		if (!isLibrary(cellLibraryLink.getSourceSample())){
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
 		}
 		if (!cellLibraryLink.getSample().getSampleType().getIName().equals("cell")){
@@ -1948,12 +2015,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isLibrary(library)){
 			throw new SampleTypeException("Expected a library but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		}
+		if (!isLibraryPassQC(library))
+			return false;
 		int sampleActualCoverage = 0;
+		Set<Sample> platformUnitsToConsider = new HashSet<Sample>();
+		platformUnitsToConsider.addAll(getPlatformUnitsNotYetRun());
+		platformUnitsToConsider.addAll(getRunningOrSuccessfullyRunPlatformUnits());
 		try{
 			for (Sample cell : getCellsForLibrary(library)){
-				if (getRunningOrSuccessfullyRunPlatformUnits().contains(getPlatformUnitForCell(cell))){
+				if (platformUnitsToConsider.contains(getPlatformUnitForCell(cell)))
 					sampleActualCoverage++;
-				}
 			}
 		} catch(Exception e){
 			logger.warn(e.getLocalizedMessage());
@@ -1963,9 +2034,27 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			requestedCoverage = getRequestedSampleCoverage(library.getParent());
 		else
 			requestedCoverage = getRequestedSampleCoverage(library);
+		logger.debug("Library id=" + library.getSampleId() + ", name=" + library.getName() + " has requested coverage=" + requestedCoverage + " and actual coverage=" + sampleActualCoverage);
 		if (sampleActualCoverage < requestedCoverage)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getPlatformUnitsNotYetRun(){
+		List<Sample> platformUnitsNotYetRun = new ArrayList<Sample>();
+		for (Sample pu : findAllPlatformUnits()){
+			try {
+				if (getCurrentRunForPlatformUnit(pu) == null)
+					platformUnitsNotYetRun.add(pu);
+			} catch (SampleTypeException e) {
+				logger.warn(e.getLocalizedMessage());
+			}
+		}
+		return platformUnitsNotYetRun;
 	}
 	
 	/**
