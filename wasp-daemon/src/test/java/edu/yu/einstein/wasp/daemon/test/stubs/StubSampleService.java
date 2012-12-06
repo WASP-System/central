@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -600,6 +601,20 @@ public class StubSampleService implements SampleService {
 	public List<Sample> getPlatformUnitsNotYetRun() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library)
+			throws SampleTypeException, SampleParentChildException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

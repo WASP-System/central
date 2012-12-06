@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
@@ -697,6 +698,21 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public List<Sample> getPlatformUnitsNotYetRun();
+
+	  /**
+	   * Removes library from cell of a platform unit
+	   * @param cellLibraryLink
+	   * @throws SampleTypeException
+	   */
+	  void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink) throws SampleTypeException;
+	  
+	  /**
+	   * Removes library from cell of a platform unit
+	   * @param cellLibraryLink
+	   * @throws SampleTypeException
+	   * @throws SampleParentChildException 
+	   */
+	  void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException;
 
 	  
 

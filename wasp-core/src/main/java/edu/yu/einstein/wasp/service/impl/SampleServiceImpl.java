@@ -1940,7 +1940,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return;
 	}
 	
-	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink) throws SampleTypeException{
 		Assert.assertParameterNotNull(cellLibraryLink, "Invalid cellLibraryLink provided");
 		Assert.assertParameterNotNullNotZero(cellLibraryLink.getSampleSourceId(), "Invalid cellLibraryLink provided");
 		if (!isLibrary(cellLibraryLink.getSourceSample())){
@@ -1951,6 +1955,29 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		}
 		this.deleteSampleSourceAndItsMeta(cellLibraryLink);//currently the cellLibraryLink meta represents the pM applied and the jobId
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException {
+		Assert.assertParameterNotNull(cell, "No Cell provided");
+		Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
+		Assert.assertParameterNotNull(library, "No Library provided");
+		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		if (!cell.getSampleType().getIName().equals("cell"))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		if (!isLibrary(library))
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		Map<String,Integer> q = new HashMap<String,Integer>();
+		q.put("sourceSampleId", library.getSampleId());
+		q.put("sampleId", cell.getSampleId());
+		List<SampleSource> cellLibraryLinks = sampleSourceDao.findByMap(q);
+		if (cellLibraryLinks == null || cellLibraryLinks.isEmpty())
+			throw new SampleParentChildException("Cell is=" + cell.getSampleId() + " and library id=" + library.getSampleId() + " are not linked");
+		removeLibraryFromCellOfPlatformUnit(cellLibraryLinks.get(0));
+	}
+	
 	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
@@ -1964,6 +1991,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleSourceAndItsMeta(puCellLink);//first, remove the samplesource link (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 		this.deleteSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 	}
+	
 	private void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
