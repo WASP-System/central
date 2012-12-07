@@ -472,7 +472,7 @@ public class JobController extends WaspController {
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
 							String.format("%.2f", amount),
-							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							"<a href=/wasp/"+"/jobresults/"+job.getWorkflow().getIName()+job.getJobId()+".do>View Job Results</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {

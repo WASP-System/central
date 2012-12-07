@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -871,21 +873,43 @@ public class AutoCompleteController extends WaspController{
 
 
 		@RequestMapping(value="/getJobSampleTreeJson", method = RequestMethod.GET)
-		public @ResponseBody String getJobSampleTreeJson(@RequestParam("jobId") Integer jobId) {
+		public @ResponseBody String getJobSampleTreeJson(@RequestParam("jobId") Integer jobId,  HttpServletResponse response ) {
 			  	
+			Map <String, Object> jsTree = new HashMap<String, Object>();
+			
 			Job job = this.jobService.getJobDao().getById(jobId);
+			if(job == null){
+				return "";
+			}
+			
+			jsTree.put("name", job.getName());
+			jsTree.put("jid", jobId);
+			
+			List<Map> children = new ArrayList<Map>();
 
-			String jsonString = new String();
-			jsonString = "{\"name\":\"" + job.getName() + "\", \"jid\":" + jobId + ", \"children\": [";
+			//String jsonString = new String();
+			//jsonString = "{\"name\":\"" + job.getName() + "\", \"jid\":" + jobId + ", \"children\": [";
 
 			List<JobSample> jobSampleList = job.getJobSample();
 			for (JobSample js : jobSampleList) {
-				jsonString = jsonString + "{\"name\":\"" + js.getSample().getName() + "\",\"sid\":" + js.getSampleId() + "},";
+				//jsonString = jsonString + "{\"name\":\"" + js.getSample().getName() + "\",\"sid\":" + js.getSampleId() + "},";
+				Map sample = new HashMap();
+				sample.put("name", js.getSample().getName());
+				sample.put("sid", js.getSampleId());
+				children.add(sample);
 			}
-			jsonString = jsonString.replaceAll(",$", "") + "]}";
+			//jsonString = jsonString.replaceAll(",$", "") + "]}";
 
-			return jsonString;
+			//return jsonString;
 //			return "{\"name\":\"testjson\"}";
+			jsTree.put("children",children);
+			
+			try {
+				return outputJSON(jsTree, response); 	
+			} 
+			catch (Throwable e) {
+				throw new IllegalStateException("Can't marshall to JSON " + job,e);
+			}	
 		}
 
 }
