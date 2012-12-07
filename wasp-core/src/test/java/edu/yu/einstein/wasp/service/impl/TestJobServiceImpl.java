@@ -45,6 +45,7 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.impl.JobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobDaoImpl;
@@ -56,6 +57,7 @@ import edu.yu.einstein.wasp.dao.impl.JobUserDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.LabDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.RoleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.SampleJobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
@@ -63,10 +65,12 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
@@ -81,6 +85,8 @@ import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
+import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.User;
 
 
@@ -97,7 +103,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
   JobUserDao mockJobUserDao;
   LabDao mockLabDao;
   JobCellSelectionDao mockJobCellSelectionDao;
-
+  SampleJobCellSelectionDao mockSampleJobCellSelectionDao;
 
   JobExplorerWasp mockJobExplorerWasp;
   JobExplorer mockJobExplorer;
@@ -1178,28 +1184,29 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		  
 	  }
   }
-  /*
+
 
   @Test (description="") 
   public void createJobFromJobDraft () {
 	  User user = new User();
 	  user.setUserId(123);
 	  JobDraft jobDraft = new JobDraft();
+	  jobDraft.setJobDraftId(1);
 	  jobDraft.setLabId(123);
 	  jobDraft.setName("my job");
-	  jobDraft.setWorkflowId(new Integer(1));
+	  jobDraft.setWorkflowId(1);
+	  
 	  // Copies JobDraft to a new Job
 	  Job job = new Job();
-	  job.setJobId(123);
+
 	  job.setUserId(user.getUserId());
 	  job.setLabId(jobDraft.getLabId());
 	  job.setName(jobDraft.getName());
 	  job.setWorkflowId(jobDraft.getWorkflowId());
 	  job.setIsActive(1);
 	  job.setCreatets(new Date());
-	
 	  job.setViewablebylab(0); // TODO: get from lab? Not being used yet
-	  
+
 	  JobDraftMeta jobDraftMeta = new JobDraftMeta();
 	  jobDraftMeta.setK("chipSeq.samplePairsTvsC");
 	  jobDraftMeta.setV("1:2;2:1;");
@@ -1252,12 +1259,24 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jdc.setJobDraftCellSelectionId(1);
 	  List <JobDraftCellSelection> jdcList = new ArrayList <JobDraftCellSelection>();
 	  jdcList.add(jdc);
+	  jobDraft.setJobDraftCellSelection(jdcList);
 	  
 	  JobCellSelection jobCellSelection = new JobCellSelection();
 	  jobCellSelection.setJobId(job.getJobId());
 	  jobCellSelection.setCellIndex(jdc.getCellIndex());	
+	  jobCellSelection.setJobCellSelectionId(1);
 	  
+
+	  
+	  
+	  SampleDraftJobDraftCellSelection sdjdc = new SampleDraftJobDraftCellSelection();
+	  sdjdc.setJobDraftCellSelectionId(1);
+	  sdjdc.setLibraryIndex(1);
+	  
+	  List <SampleDraftJobDraftCellSelection> sdjdcList = new ArrayList <SampleDraftJobDraftCellSelection>();
+	  sdjdcList.add(sdjdc);
 	  SampleDraft sd = new SampleDraft();
+	  sd.setSampleDraftJobDraftCellSelection(sdjdcList);
 	  sd.setSampleDraftId(new Integer(1));
 	  
 	  // TODO: write test for when SourceSampleId is null
@@ -1265,37 +1284,65 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  sd.setSourceSampleId(new Integer(1));
 	  List <SampleDraft> sdList = new ArrayList <SampleDraft>();
 	  sdList.add(sd);
+	  jobDraft.setSampleDraft(sdList);
+
+	  Sample sample = new Sample();
+	  sample.setSampleId(1);
 	  
+	  // Job Sample
 	  
+	  SampleJobCellSelection sampleJobCellSelection = new SampleJobCellSelection();
+
+	  JobSample jobSample = new JobSample();
+	  jobSample.setJobId(job.getJobId());
+	  jobSample.setSampleId(sample.getSampleId());
 	  
-	  expect(mockJobDao.save(job)).andReturn(job);
+	  //JobDraftFile
+	  JobDraftFile jobDraftFile = new JobDraftFile();
+	  File file = new File();
+	  file.
+	  jobDraftFile.setFile(new File());
+	  List <JobDraftFile> jobDraftFileList = new ArrayList <JobDraftFile>();
+	  jobDraftFileList.add(jobDraftFile);
+
+	  jobDraft.setJobDraftFile(jobDraftFileList);
+
+	  
+	  	  
+	  expect(mockJobDao.save(EasyMock.isA(Job.class))).andReturn(job); 
 	  replay(mockJobDao);
-	  
-	  expect(mockJobMetaDao.save(jobMeta)).andReturn(jobMeta);
+
+	  expect(mockJobMetaDao.save(EasyMock.isA(JobMeta.class))).andReturn(jobMeta);
 	  replay(mockJobMetaDao);
 	  
-	  expect(mockJobSoftwareDao.save(jobSoftware)).andReturn(jobSoftware);
+	  expect(mockJobSoftwareDao.save(EasyMock.isA(JobSoftware.class))).andReturn(jobSoftware);
 	  replay(mockJobSoftwareDao);
 	  
-	  expect(mockJobResourcecategoryDao.save(jobResourceCategory)).andReturn(jobResourceCategory);
+	  expect(mockJobResourcecategoryDao.save(EasyMock.isA(JobResourcecategory.class))).andReturn(jobResourceCategory);
 	  replay(mockJobResourcecategoryDao);
 	  
 	  expect(mockRoleDao.getRoleByRoleName("js")).andReturn(role);
 	  replay(mockRoleDao);
 	  
-	  expect(mockJobUserDao.save(jobUser)).andReturn(jobUser);
+	  expect(mockJobUserDao.save(EasyMock.isA(JobUser.class))).andReturn(jobUser);
 	  replay(mockJobUserDao);
 	  
-	  expect(mockLabDao.save(lab)).andReturn(lab);
+	  expect(mockLabDao.getLabByLabId(job.getLabId())).andReturn(lab);
 	  replay(mockLabDao);
 	  
-	  expect(mockJobCellSelectionDao.save(jobCellSelection)).andReturn(jobCellSelection);
+	  expect(mockJobCellSelectionDao.save(EasyMock.isA(JobCellSelection.class))).andReturn(jobCellSelection);
 	  replay(mockJobCellSelectionDao);
-	  
-	  Sample sample = new Sample();
-	  
+	  	  
 	  expect(mockSampleDao.getSampleBySampleId(sd.getSourceSampleId())).andReturn(sample);
 	  replay(mockSampleDao);
+	  
+	  expect(mockJobSampleDao.save(EasyMock.isA(JobSample.class))).andReturn(jobSample);
+	  replay(mockJobSampleDao);
+	  
+	  expect(mockSampleJobCellSelectionDao.save(EasyMock.isA(SampleJobCellSelection.class))).andReturn(sampleJobCellSelection);
+	  replay(mockSampleJobCellSelectionDao);
+	  
+	  
 
 
 	  try {
@@ -1313,13 +1360,9 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  verify(mockJobUserDao);
 	  verify(mockLabDao);
 	  verify(mockJobCellSelectionDao);
-
-
-	  
 	  
   }
-	
-*/	
+
 
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
@@ -1704,6 +1747,9 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setJobUserDao(mockJobUserDao);
 	  jobServiceImpl.setLabDao(mockLabDao);
 	  jobServiceImpl.setJobCellSelectionDao(mockJobCellSelectionDao);
+	  jobServiceImpl.setSampleDao(mockSampleDao);
+	  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
+	  jobServiceImpl.setSampleJobCellSelectionDao(mockSampleJobCellSelectionDao);
 
 
   }
@@ -1722,7 +1768,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockJobResourcecategoryDao);
 	  EasyMock.reset(mockRoleDao);
 	  EasyMock.reset(mockJobUserDao);
-	  
+	  EasyMock.reset(mockRoleDao);
+	  EasyMock.reset(mockJobCellSelectionDao);
+	  EasyMock.reset(mockSampleJobCellSelectionDao);
+
+
 
 	  
 	  //resetAll();//resets all registered mock controls
@@ -1751,6 +1801,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobUserDao = createMockBuilder(JobUserDaoImpl.class).addMockedMethods(JobUserDaoImpl.class.getMethods()).createMock();
 	  mockLabDao = createMockBuilder(LabDaoImpl.class).addMockedMethods(LabDaoImpl.class.getMethods()).createMock();
 	  mockJobCellSelectionDao = createMockBuilder(JobCellSelectionDaoImpl.class).addMockedMethods(JobCellSelectionDaoImpl.class.getMethods()).createMock();
+	  mockSampleJobCellSelectionDao = createMockBuilder(SampleJobCellSelectionDaoImpl.class).addMockedMethods(SampleJobCellSelectionDaoImpl.class.getMethods()).createMock();
 
 	  
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);

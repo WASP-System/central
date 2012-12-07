@@ -168,6 +168,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		this.jobCellSelectionDao = jobCellSelectionDao;
 	}
 	
+	public void setSampleJobCellSelectionDao(SampleJobCellSelectionDao sampleJobCellSelectionDao) {
+		this.sampleJobCellSelectionDao = sampleJobCellSelectionDao;
+	}
+	
 	@Autowired
 	private JobDraftDao jobDraftDao;
 	
