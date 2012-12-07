@@ -53,11 +53,16 @@ public class BreadcrumbsTag extends BodyTagSupport {
 		} 
 		
 		String breadcrumbs = (String) session.getAttribute("breadcrumbs");
+		if (breadcrumbs == null)
+			breadcrumbs = "";
+		try {
+			this.pageContext.getOut().print( breadcrumbs );
+		} catch (IOException e) {
+			throw new JspTagException(e.getMessage());
+		}
 		String newBreadcrubs = "";
 		if (request.getAttribute("forcePageTitle") == null){
 			// forcePageTitle is only used with job submission and this has its own trail
-			if (breadcrumbs == null)
-				breadcrumbs = "";
 			String[] breadcrumbList = breadcrumbs.split(" &gt;&gt; ");
 			boolean isFirst = true;
 			for (String breadcrumb : breadcrumbList){
@@ -84,12 +89,6 @@ public class BreadcrumbsTag extends BodyTagSupport {
 			newBreadcrubs = breadcrumbs;
 		}
 		
-				
-		try {
-			this.pageContext.getOut().print( newBreadcrubs );
-		} catch (IOException e) {
-			throw new JspTagException(e.getMessage());
-		}
 		
 		return EVAL_BODY_INCLUDE;
 	}
