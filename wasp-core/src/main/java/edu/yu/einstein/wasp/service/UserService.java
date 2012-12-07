@@ -16,7 +16,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
-import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -36,6 +35,12 @@ public interface UserService extends WaspService {
 	 * @return void
 	 */
   public void reverseSortUsersByUserId(List<User> users);
+  
+  /**
+	 * get list of facility technicians (distinct list of users with role of fm or ft).
+	 * @return List<User>
+	 */
+  public List<User> getFacilityTechnicians();
   
 }
 

@@ -43,22 +43,22 @@ function validate(){
 	//alert("test");
 	document.form.name.value = document.form.name.value.trim();
 	if(document.form.name.value == ""){
-		alert("Please provide a name for this control");
+		alert("<fmt:message key="sample.updateControlLib_nameAlert.label" />");
 		document.form.name.focus();
 		return false;
 	}
 	if(document.form.adaptorsetId.value ==""){
-		alert("Please select an Adaptor Set");
+		alert("<fmt:message key="sample.updateControlLib_adaptorSetAlert.label" />");
 		document.form.adaptorsetId.focus();
 		return false;
 	}
 	if(document.form.adaptorId.value ==""){
-		alert("Please select an Adaptor");
+		alert("<fmt:message key="sample.updateControlLib_adaptorAlert.label" />");
 		document.form.adaptorId.focus();
 		return false;
 	}
 	if(document.form.active[0].value=="" && document.form.active[1].value==""){
-		alert("Please select Active or Inactive for this control");
+		alert("<fmt:message key="sample.updateControlLib_activeAlert.label" />");
 		return false;
 	}
 	document.form.submit();

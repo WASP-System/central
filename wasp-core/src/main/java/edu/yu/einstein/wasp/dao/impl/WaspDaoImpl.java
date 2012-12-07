@@ -20,12 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
@@ -33,14 +32,11 @@ import org.springframework.stereotype.Repository;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.
-	protected static Logger logger = Logger.getLogger(WaspDaoImpl.class.getName());
-
-	@PersistenceContext
-	protected EntityManager		entityManager;
+	private Logger logger = LoggerFactory.getLogger(WaspDaoImpl.class.getName());
 
 	@Override
 	public void persist(final E entity) {
@@ -163,7 +159,8 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
 		return q.getResultList();
 	}
-
+	
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
@@ -223,14 +220,17 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 					qString += ", ";
 				}
 				qString += "h." + orderByColumnName;
+				if (direction != null && !"".equals(direction)) {
+					qString += " " + direction;
+				}
 				firstOrderBy = false;
 			}
-			if (firstOrderBy == false && direction != null && !"".equals(direction)) {
-				qString += " " + direction;
-			}
+			//if (firstOrderBy == false && direction != null && !"".equals(direction)) {
+			//	qString += " " + direction;
+			//}
 		}
 		// logger.debug("ROBERT: " + qString);
-
+		
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
@@ -239,7 +239,100 @@ public abstract class WaspDaoImpl<E extends Serializable> implements edu.yu.eins
 
 		return q.getResultList();
 	}
+	
+	@Override
+	public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction) {
+		return findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
+	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
+		boolean where = false;
+		//boolean firstMap = true;
+		boolean firstDistinct = true;
+		boolean firstOrderBy = true;
+
+		String qString = "SELECT h FROM " + entityClass.getName() + " h";
+
+		for (Object key : m.keySet()) {
+			if (where == false) {
+				qString += " WHERE ";				
+			} 
+			else{
+				qString += " and ";
+			}
+			qString += "h." + key.toString() + " = :" + key.toString().replaceAll("\\W+", "");
+			where = true;
+		}		
+		for (Object key : dateMap.keySet()) {
+			if (where == false){
+				qString += " WHERE ";				
+			} 
+			else{
+				qString += " and ";
+			}
+			qString += "DATE(h." + key.toString() + ") = :" + key.toString().replaceAll("\\W+", "");
+			where = true;
+		}
+		if (distinctColumnNames != null && !"".equals(distinctColumnNames)) {
+			for (String distinctColumnName : distinctColumnNames) {
+				if (where == false) {
+					qString += " WHERE (";
+					where = true;
+				} else if (firstDistinct == true) {
+					qString += " AND (";
+				} else if (firstDistinct == false) {
+					qString += ", ";
+				}
+
+				qString += "h." + distinctColumnName;
+				firstDistinct = false;
+			}
+			if (firstDistinct == false) {
+				qString += ") IN (SELECT DISTINCT";
+				firstDistinct = true;
+
+				for (String distinctColumnName : distinctColumnNames) {
+
+					if (firstDistinct == false) {
+						qString += ", ";
+					}
+					qString += " j." + distinctColumnName;
+					firstDistinct = false;
+				}
+			}
+			if (firstDistinct == false) {
+				qString += " FROM " + entityClass.getName() + " j) ";
+			}
+		}
+		if (orderByColumnAndDirectionList != null && !orderByColumnAndDirectionList.isEmpty()) {
+			for (String orderByColumnAndDirection : orderByColumnAndDirectionList) {
+				if (firstOrderBy == true) {
+					qString += " ORDER BY ";
+				} else if (firstOrderBy == false) {
+					qString += ", ";
+				}
+				qString += "h." + orderByColumnAndDirection;
+				firstOrderBy = false;
+			}
+		}
+		
+		Query q = entityManager.createQuery(qString);
+
+		for (Object key : m.keySet()) {
+			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
+		}
+		for (Object key : dateMap.keySet()) {
+			q.setParameter(key.toString().replaceAll("\\W+", ""), dateMap.get(key));
+		}
+		
+		// logger.debug("ROBERT: " + qString);
+		
+
+		return q.getResultList();
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {

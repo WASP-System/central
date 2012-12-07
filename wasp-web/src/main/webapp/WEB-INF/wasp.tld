@@ -35,6 +35,14 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
+            <p>Handles breadcrumb trail</p>
+        ]]></description>
+		<name>breadcrumbs</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.BreadcrumbsTag</tag-class>
+		<body-content>JSP</body-content>
+	</tag>
+	<tag>
+		<description><![CDATA[
             <p>Builds jqGrid-compatible JavaScript object to describe a field; </p>
         ]]></description>
 		<name>field</name>
@@ -47,6 +55,14 @@
              -->
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue> 
+		</attribute>
+		<attribute>
+            <!-- 
+			<description>Width of grid column field if set</description>
+            -->
+			<name>columnWidth</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
 			<name>object</name>

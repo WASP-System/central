@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -12,49 +14,43 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.SingleHostResolver;
+import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
+import edu.yu.einstein.wasp.grid.work.SshTransportService;
 
 public class SshServiceTest {
 
-	GridWorkService sshwork;
-	SshService sshtrans;
-	SgeWorkService sgeWork;
+	GridTransportService gts;
+	GridFileService gfs;
+	GridWorkService sshws;
+	GridWorkService sgews;
 	LocalhostTransportService localhost;
 	GridWorkService localhostWork;
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeTest(groups = { "ssh" })
 	public void setUp() throws Exception {
-		sshtrans = new SshService();
-		SingleHostResolver shr = new SingleHostResolver();
-		shr.setHostname("frankfurt.aecom.yu.edu");
-		shr.setUsername("wasp");
-		sshtrans.setHostResolver(shr);
-		sshtrans.setIdentityFile("~/.ssh/id_rsa.testing");
-		sshwork = new SshService();
-		sshwork.setTransportService((GridTransportService) sshtrans);
-
-		SingleHostResolver shr2 = new SingleHostResolver();
-		shr2.setHostname("albert.einstein.yu.edu");
-		shr2.setUsername("wasp");
+		gts = new SshTransportService();
+		gts.setName("frankfurt");
+		gts.setHostName("frankfurt.aecom.yu.edu");
+		gts.setUserName("wasp");
+		gts.setIdentityFile("~/.ssh/id_rsa.testing");
+		gts.setUserDirIsRoot(true);
+		gts.setSoftwareManager(new NoneManager());
 		
-		SshFileService sfs = new SshFileService();
-		sfs.setHostResolver(shr2);
-		sfs.setIdentityFile("~/.ssh/id_rsa.testing");
+		gfs = new SshFileService(gts);
 		
-		sgeWork = new SgeWorkService();
-		sgeWork.setTransportService((GridTransportService) sshtrans);
-		sgeWork.waspGridFileService = sfs;
-		SshService sshtrans2 = new SshService();		
-		sshtrans2.setHostResolver(shr2);
-		sshtrans2.setIdentityFile("~/.ssh/id_rsa.testing");
+		sshws = new SshWorkService(gts);
+		sshws.setGridFileService(gfs);
 		
-		sgeWork.setTransportService(sshtrans2);
+		sgews = new SgeWorkService(gts);
+		sgews.setGridFileService(gfs);
 		
-		localhostWork = new SshService();
-		localhostWork.setTransportService(new LocalhostTransportService());
+		localhostWork = new SshWorkService(new LocalhostTransportService());
 	}
 
 	/**
@@ -66,25 +62,29 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void execute() throws GridAccessException, GridUnresolvableHostException {
+	public void execute() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setCommand("hostname -f");
-			GridResult result = this.sshwork.execute(w);
+			w.setWorkingDirectory("/testing/");
+			w.setResultsDirectory("/testing/");
+			GridResult result = sshws.execute(w);
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			String theString = writer.toString();
-			System.out.println("result: " + theString);
+			logger.debug("result: " + theString);
 			w.getConnection().disconnect();
 			w = new WorkUnit();
+			w.setWorkingDirectory("/testing/");
+			w.setResultsDirectory("/testing/");
 			w.setCommand("sleep 1 && echo $SHELL\necho foo\npwd");
 			w.addCommand("w");
-			result = this.sshwork.execute(w);
+			result = sshws.execute(w);
 			writer = new StringWriter();
 			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
 			w.getConnection().disconnect();
 			theString = writer.toString();
-			System.out.println("result: " + theString);
+			logger.debug("result: " + theString);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("error", e.getCause());
@@ -93,9 +93,11 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void executeLocal() throws GridAccessException, GridUnresolvableHostException {
+	public void executeLocal() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
 		WorkUnit w = new WorkUnit();
 		w.setCommand("hostname -f");
+		w.setWorkingDirectory("/testing/");
+		w.setResultsDirectory("/testing/");
 		GridResult result = this.localhostWork.execute(w);
 		StringWriter writer = new StringWriter();
 		try {
@@ -105,7 +107,7 @@ public class SshServiceTest {
 			e.printStackTrace();
 		}
 		String theString = writer.toString();
-		System.out.println("result: " + theString);
+		logger.debug("result: " + theString);
 	}
 
 	@Test(groups = { "ssh" })
@@ -113,19 +115,21 @@ public class SshServiceTest {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setWorkingDirectory("testing");
+			w.setResultsDirectory("/testing/");
 			w.setCommand("hostname -f");
 			w.addCommand("ls -1 /apps1");
 			w.addCommand("sleep 10");
-			GridResult result = this.sgeWork.execute(w);
+			GridResult result = sgews.execute(w);
 			StringWriter writer = new StringWriter();
-			IOUtils.copy(result.getStdOutStream(), writer, "UTF-8");
+			IOUtils.copy(result.getStdErrStream(), writer, "UTF-8");
 			String theString = writer.toString();
-			System.out.println("result sge: " + theString);
-			w.getConnection().disconnect();
-			while (!this.sgeWork.isFinished(result)) {
+			logger.debug("result sge: " + theString);
+			while (!sgews.isFinished(result)) {
 				Thread.sleep(2000);
-				System.out.println("not finished");
+				logger.debug("not finished");
 			}
+			w.getConnection().disconnect();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GridAccessException("error", e.getCause());
@@ -133,6 +137,7 @@ public class SshServiceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 }

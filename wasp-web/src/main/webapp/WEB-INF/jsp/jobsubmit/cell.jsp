@@ -39,7 +39,11 @@
 	<c:forEach items="${sampleDrafts}" var="sd">
 	
 	<tr class="row">
-	<td class="CaptionTD"><c:out value="${sd.name}" /></td>
+	<td class="CaptionTD"><c:out value="${sd.name}" />
+		<c:if test="${not empty adptorsOnSampleDrafts.get(sd)}">
+			(<fmt:message key="jobDraft.libIndex.label" /> <c:out value="${adptorsOnSampleDrafts.get(sd).getBarcodenumber()}" />)
+		</c:if>
+	</td>
 	  <c:forEach var="i" begin="1" end="15">
 	    <td name="column_${i}" class="input-centered" style="display:none">
 	      <!-- ${sd.sampleDraftId}_${i} -->

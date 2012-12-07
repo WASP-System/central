@@ -211,7 +211,7 @@ table.EditTable{
 }
 
 	
-input[type="submit"],
+input[type="submit"], input[type="reset"],
 .button, 
 div.submit A,
 td.submit A,
@@ -240,7 +240,7 @@ td.submit A,
 	text-decoration: none;
 	}
 
-input[type="submit"]:hover,
+input[type="submit"]:hover, input[type="reset"]:hover,
 .button:hover, 
 .fm-button:hover,
 div.submit a:hover,
@@ -384,6 +384,13 @@ TABLE.data TD.label	{
 	background: #f7f7f7;
 	border-right: 1px solid #ccc;
 	font-weight: bold;
+	}
+
+TABLE.data TH.label	{
+	background: #FAF2D6;
+	border-right: 1px solid #ccc;
+	font-weight: bold;
+	text-align: center;
 	}
 
 

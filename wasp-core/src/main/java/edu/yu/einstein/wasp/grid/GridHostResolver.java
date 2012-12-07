@@ -1,7 +1,12 @@
 package edu.yu.einstein.wasp.grid;
 
+import java.util.List;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
 /**
@@ -43,25 +48,26 @@ public interface GridHostResolver {
 	 */
 	public String getUsername(String hostname) throws GridUnresolvableHostException;
 	
+	
+		
 	/**
-	 * return a host specific string for the job queue specification.
+	 * Given a work unit, return the appropriate work service.  
 	 * @param w
-	 * @return queue or null
 	 */
-	public String getQueue(WorkUnit w);
+	public GridWorkService getGridWorkService(WorkUnit w);
 	
 	/**
-	 * return a host specific string for the job maximum runtime.
+	 * Get the work service that is working on the result
 	 * @param w
-	 * @return runtime or null
+	 * @return
 	 */
-	public String getMaxRunTime(WorkUnit w);
+	public GridWorkService getGridWorkService(GridResult r);
 	
 	/**
-	 * Set the parallel environment strings.
-	 * @param pe
+	 * get {@link GridWorkSercice}s.
+	 * @param gws
 	 */
-	public void setAvailableParallelEnvironments(Set<String> pe);
+	public List getAvailableWorkServices();
 	
 	/**
 	 * return an appropriate parallel environment string for the host. Should be requested only when required.
@@ -71,31 +77,32 @@ public interface GridHostResolver {
 	public String getParallelEnvironmentString(WorkUnit w);
 	
 	/**
-	 * return a host specific string for the account under which to run the job.
+	 * Pass through method to execute a {@link WorkUnit}.
 	 * @param w
-	 * @return account or null
+	 * @return
+	 * @throws GridAccessException
+	 * @throws GridUnresolvableHostException
+	 * @throws GridExecutionException 
 	 */
-	public String getAccount(WorkUnit w);
+	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
 	
 	/**
-	 * return a host specific string for the project.
-	 * @param w
-	 * @return project or null
+	 * Pass through method to Test to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
+	 * if it is not running or did not complete.
+	 * @param g
+	 * @return
+	 * @throws GridUnresolvableHostException 
+	 * @throws GridException
 	 */
-	public String getProject(WorkUnit w);
+	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
 	/**
-	 * return a host specific string for email notification recipients.
-	 * @param w
-	 * @return email list or null
+	 * Instances of GridHostResolver must declare the following method as abstract.  This provides a mechanism for 
+	 * obtaining {@link WorkUnit}s that are configured with a runId from job parameters at runtime using
+	 * Spring lookup method injection. The WorkUnit prototype bean is declared in daemon-common-config.xml.
+	 * 
+	 * @return
 	 */
-	public String getMailRecipient(WorkUnit w);
+	public abstract WorkUnit createWorkUnit();
 	
-	/**
-	 * return a host specific string for the curcumstances for sending email notifications.
-	 * @param w
-	 * @return notifications or null
-	 */
-	public String getMailCircumstances(WorkUnit w);
-
 }

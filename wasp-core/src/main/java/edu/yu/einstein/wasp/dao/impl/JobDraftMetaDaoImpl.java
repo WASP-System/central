@@ -62,9 +62,9 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 
 
 	/**
-	 * getJobDraftMetaByKJobdraftId(final String k, final Integer jobdraftId)
+	 * getJobDraftMetaByKJobDraftId(final String k, final Integer jobDraftId)
 	 *
-	 * @param final String k, final Integer jobdraftId
+	 * @param final String k, final Integer jobDraftId
 	 *
 	 * @return jobDraftMeta
 	 */
@@ -72,10 +72,10 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftMeta getJobDraftMetaByKJobdraftId (final String k, final Integer jobdraftId) {
+	public JobDraftMeta getJobDraftMetaByKJobDraftId (final String k, final Integer jobDraftId) {
     		HashMap m = new HashMap();
 		m.put("k", k);
-		m.put("jobdraftId", jobdraftId);
+		m.put("jobDraftId", jobDraftId);
 
 		List<JobDraftMeta> results = this.findByMap(m);
 
@@ -89,41 +89,41 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 
 
 	/**
-	 * updateByJobdraftId (final string area, final int jobdraftId, final List<JobDraftMeta> metaList)
+	 * updateByJobDraftId (final string area, final int jobDraftId, final List<JobDraftMeta> metaList)
 	 *
-	 * @param jobdraftId
+	 * @param jobDraftId
 	 * @param metaList
 	 *
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public void replaceByJobdraftId (final String area, final int jobdraftId, final List<JobDraftMeta> metaList) {
-		entityManager.createNativeQuery("delete from jobdraftmeta where jobdraftId=:jobdraftId and k like :area").setParameter("jobdraftId", jobdraftId).setParameter("area", area + ".%").executeUpdate();
+	public void replaceByJobDraftId (final String area, final int jobDraftId, final List<JobDraftMeta> metaList) {
+		entityManager.createNativeQuery("delete from jobdraftmeta where jobDraftId=:jobDraftId and k like :area").setParameter("jobDraftId", jobDraftId).setParameter("area", area + ".%").executeUpdate();
 
 		for (JobDraftMeta m:metaList) {
-			m.setJobdraftId(jobdraftId);
+			m.setJobDraftId(jobDraftId);
 			entityManager.persist(m);
 		}
 	}
 
 
 	/**
-	 * updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList)
+	 * updateByJobDraftId (final int jobDraftId, final List<JobDraftMeta> metaList)
 	 *
-	 * @param jobdraftId
+	 * @param jobDraftId
 	 * @param metaList
 	 *
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public void updateByJobdraftId (final int jobdraftId, final List<JobDraftMeta> metaList) {
+	public void updateByJobDraftId (final int jobDraftId, final List<JobDraftMeta> metaList) {
 		for (JobDraftMeta m:metaList) {
-			JobDraftMeta currentMeta = getJobDraftMetaByKJobdraftId(m.getK(), jobdraftId);
+			JobDraftMeta currentMeta = getJobDraftMetaByKJobDraftId(m.getK(), jobDraftId);
 			if (currentMeta.getJobDraftMetaId() == null){
 				// metadata value not in database yet
-				m.setJobdraftId(jobdraftId);
+				m.setJobDraftId(jobDraftId);
 				entityManager.persist(m);
 			} else if (!currentMeta.getV().equals(m.getV())){
 				// meta exists already but value has changed

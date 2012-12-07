@@ -47,9 +47,9 @@ public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.
   @Override
 @SuppressWarnings("unchecked")
   @Transactional
-  public List<SampleDraft> getSampleDraftByJobId (final int jobdraftId) {
+  public List<SampleDraft> getSampleDraftByJobId (final int jobDraftId) {
     HashMap m = new HashMap();
-    m.put("jobdraftId", jobdraftId);
+    m.put("jobDraftId", jobDraftId);
    List<SampleDraft> results = this.findByMap(m);
    return results;
   }

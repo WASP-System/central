@@ -4,10 +4,12 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Basic unit of work to be executed.   
@@ -17,10 +19,21 @@ import edu.yu.einstein.wasp.model.File;
  */
 public class WorkUnit {
 	
+	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
+	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
+	
+	private Integer runId;
+	
 	/**
 	 * Unique ID for the job
 	 */
 	private String id;
+	
+	/**
+	 * String used for accounting on remote computing environments;
+	 */
+	private String project;
+	
 	/**
 	 * Newline (\n) terminated list of commands to be executed.
 	 */
@@ -47,10 +60,17 @@ public class WorkUnit {
 	 * Execution mode, currently only as a process.
 	 */
 	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
 	/**
-	 * Number of processors per node, required for determining parallel environment, etc.
+	 * Scratch directory for job execution
 	 */
 	private String workingDirectory;
+	
+	/**
+	 * Directory to write results to
+	 */
+	private String resultsDirectory;
+	
 	/**
 	 * Transport specific connection
 	 */
@@ -68,6 +88,11 @@ public class WorkUnit {
 	private Set<String> resultFiles;
 	
 	/**
+	 * List of software packages that need to be configured by a {@link SoftwareManager}.
+	 */
+	private List<SoftwarePackage> softwareDependencies;
+	
+	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
 	private Set<String> pluginDependencies;
@@ -75,7 +100,7 @@ public class WorkUnit {
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
-	private boolean clean = false;
+	private boolean clean = true;
 	
 	/**
 	 * whether or not to copy results files to the remote archive upon completion.  Execution of subsequent steps on the 
@@ -83,6 +108,46 @@ public class WorkUnit {
 	 */
 	private boolean provisionResults = false;
 	
+	/**
+	 * String representation of the user requesting the unit of work
+	 */
+	private String user;
+	
+	
+	/**
+	 * Method for determining how many processors are necessary to execute this task.
+	 */
+	private ProcessMode processMode = ProcessMode.MAX;
+	
+	/**
+	 * Run ID is required when using default results directory.
+	 * @return the runId
+	 */
+	public Integer getRunId() {
+		return runId;
+	}
+	/**
+	 * Run ID is required when using default results directory.
+	 * 
+	 * @param runId the runId to set
+	 */
+	public void setRunId(Integer runId) {
+		this.runId = runId;
+	}
+	/**
+	 * get the ProcessMode
+	 * @return
+	 */
+	public ProcessMode getProcessMode() {
+		return processMode;
+	}
+	/**
+	 * set the ProcessMode
+	 * @param mode
+	 */
+	public void setProcessMode(ProcessMode mode) {
+		this.processMode = mode;
+	}
 	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
@@ -99,12 +164,34 @@ public class WorkUnit {
 	}
 	
 	/**
+	 * How a remote system should determine the number of processors used. 
+	 * 
+	 *  SINGLE: WorkUnit will run in a single thread.
+	 *  FIXED:  WorkUnit will require one or more processors, specified by the work unit.  It is possible that some
+	 *  	work units will never be executed it this value is set higher than the largest machine on the grid.
+	 *  MAX:	(DEFAULT) The GridHostResolver determines the number of processors to allocate.  Choosing the maximum value
+	 *  	of all configured software. e.g. if host.software.foo.env.processors=8, a work unit declaring a
+	 *  	dependency of foo will use 8 processors.
+	 *  SUM:	The GridHostResolver sums up all of the configured software requirements to determine the number
+	 *      of required processors
+	 *  MPI:	The GridHostResolver must determine a number of processes and parallel environment.   
+	 * 
+	 * @author calder
+	 *
+	 */
+	public enum ProcessMode {
+		SINGLE, FIXED, MAX, SUM, MPI;    
+	}
+	
+	/**
 	 * Automatically populate the WorkUnit with executionEnvironment "default".  This is the minimum that a
 	 * {@link GridHostResolver} needs to implement.
 	 */
 	public WorkUnit() {
 		this.executionEnvironments = new LinkedHashSet<String>();
 		this.executionEnvironments.add("default");
+		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
+		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
 	}
 
 	public String getId() {
@@ -145,7 +232,8 @@ public class WorkUnit {
 	}
 
 	/**
-	 * Set the number of processors/threads required.
+	 * Set the number of processors/threads required. It is possible to set this manually, however this
+	 * value will override any default setting made in configuration.
 	 * @param processors
 	 */
 	public void setProcessorRequirements(Integer processorRequirements) {
@@ -170,6 +258,17 @@ public class WorkUnit {
 			this.workingDirectory += "/";
 		}
 	}
+	
+	public String getResultsDirectory() {
+		return resultsDirectory;
+	}
+
+	public void setResultsDirectory(String resultsDirectory) {
+		this.resultsDirectory = resultsDirectory;
+		if (!this.resultsDirectory.endsWith("/")) {
+			this.resultsDirectory += "/";
+		}
+	}
 
 	/**
 	 * @return the connection
@@ -181,14 +280,14 @@ public class WorkUnit {
 	/**
 	 * @param connection the connection to set
 	 */
-	public void setConnection(GridTransportConnection connection) {
+	protected void setConnection(GridTransportConnection connection) {
 		this.connection = connection;
 	}
 
 	/**
 	 * @return the wrapperCommand
 	 */
-	public String getWrapperCommand() {
+	protected String getWrapperCommand() {
 		return wrapperCommand;
 	}
 
@@ -196,8 +295,42 @@ public class WorkUnit {
 	 * Command set by the GridService to dispatch the actual command.
 	 * @param wrapperCommand the wrapperCommand to set
 	 */
-	public void setWrapperCommand(String wrapperCommand) {
+	protected void setWrapperCommand(String wrapperCommand) {
 		this.wrapperCommand = wrapperCommand;
+	}
+	
+	public String getUser() {
+		return user;
+	}
+	
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	/**
+	 * @return the softwareDependencies
+	 */
+	public List<SoftwarePackage> getSoftwareDependencies() {
+		return softwareDependencies;
+	}
+
+	/**
+	 * @param softwareDependencies the softwareDependencies to set
+	 */
+	public void setSoftwareDependencies(List<SoftwarePackage> softwareDependencies) {
+		this.softwareDependencies = softwareDependencies;
+	}
+	/**
+	 * @return the project
+	 */
+	protected String getProject() {
+		return project;
+	}
+	/**
+	 * @param project the project to set
+	 */
+	protected void setProject(String project) {
+		this.project = project;
 	}
 	
 

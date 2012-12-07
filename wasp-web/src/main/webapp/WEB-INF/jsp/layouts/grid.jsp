@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
  <%--  Template for pages containing JQGrid table  --%> 
-<%@ page import="edu.yu.einstein.wasp.dao.impl.DBResourceBundle" %>
+<%@ page import="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -110,11 +110,13 @@
 		<%-- toggles on/off filter toolbar at the top --%>
 		var _enableFilterToolbar=false;
 		
+		var _area="<tiles:insertAttribute name="area" />";
+		
 		<%-- URL to fetch JSON-formatted data from server --%>
-		var _url='/wasp/<tiles:insertAttribute name="area" />/listJSON.do?selId=${param.selId}';
+		var _url='/wasp/' + _area + '/listJSON.do?selId=${param.selId}';
 		
 		<%-- URL to submit CUD requests to the server --%>
-		var _editurl='/wasp/<tiles:insertAttribute name="area" />/detail_rw/updateJSON.do';
+		var _editurl='/wasp/' + _area + '/detail_rw/updateJSON.do';
 		
 		<%--  structure to define L&F of "edit row" functionality --%> 
 		var _editAttr={
@@ -546,7 +548,9 @@
 					gridview: false,
 					<tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
 		
-					autowidth: true,
+					autowidth: false,//set this to true and comment out next two lines (shrinkToFit and width [or leave this one]) for autoset
+					shrinkToFit: true,
+					width: 900,
 					//scroll: false,		// scroll:true will disable the pager on page
 					height: 'auto', 
 					loadui: 'block',
@@ -626,6 +630,7 @@
 			<tiles:insertAttribute name="banner-content" />
 		</div>
   		<div id="content">
+  			<wasp:breadcrumbs />
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

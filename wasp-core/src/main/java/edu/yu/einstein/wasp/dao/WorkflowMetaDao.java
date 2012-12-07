@@ -24,7 +24,7 @@ public interface WorkflowMetaDao extends WaspDao<WorkflowMeta> {
 
   public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList);
 
-
+  public void updateByWorkflowId(int workflowId, WorkflowMeta m);
 
 
 }

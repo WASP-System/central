@@ -14,12 +14,12 @@ import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.State;
 import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
+import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
 
 @Controller
 @Transactional
@@ -42,12 +42,13 @@ public class DashboardController extends WaspController {
 
 	@Autowired
 	private LabPendingDao labPendingDao;
-	
-	@Autowired
-	private TaskDao taskDao;
+
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private TaskMappingRegistry taskMappingRegistry;
 
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -59,6 +60,7 @@ public class DashboardController extends WaspController {
 	@RequestMapping("/dashboard")
 	public String list(ModelMap m) {
 		List<Lab> labList = new ArrayList<Lab>();
+		int labCount = 0;
 		int jobViewableCount = 0;
 		int jobsAllCount = 0;
 		int jobDraftCount = 0;
@@ -88,37 +90,28 @@ public class DashboardController extends WaspController {
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
+		labCount = labList.size();
 		m.addAttribute("me", authenticationService.getAuthenticatedUser());
 				
 		m.addAttribute("labs", labList);
+		m.addAttribute("labCount", labCount);
 		m.addAttribute("jobViewableCount", jobViewableCount);
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		
-		List<TaskMapping> taskMappings= new ArrayList<TaskMapping>();
-	
-		List<TaskMapping> taskMappingsAll=taskDao.getTaskMappings();
-		for(TaskMapping tm:taskMappingsAll) {
-			List<State> states=taskService.filterStatesByStatusAndPermission(tm.getTask().getState(),tm.getStatus(), tm.getPermission());
-		
-			if (states!=null && !states.isEmpty()) {
-				tm.setStateCount(states.size());
-				//5-31-12: Dubin added next if statement to prevent dashboard display of task PI Approval, as it's count and link will be taken care of explicitly through numberOfLabManagerPendingTasks
-				if( ! tm.getTask().getIName().equals("PI Approval")){
-					taskMappings.add(tm);
-				}
+		List<WaspTaskMapping> taskMappingsToDisplay = new ArrayList<WaspTaskMapping>();
+		for (String name: taskMappingRegistry.getNames()){
+			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
+			if (taskMapping == null){
+				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
+				continue;
 			}
+			if (taskMapping.isLinkToBeShown())
+				taskMappingsToDisplay.add(taskMapping);
 		}
 		
-		m.addAttribute("tasks",taskMappings);
-		
-		int numberOfLabManagerPendingTasks = taskService.getLabManagerPendingTasks();//if pi or lm, then number is dependent on labId(s), otherwise all such pi/lm tasks
-		m.addAttribute("numberOfLabManagerPendingTasks", numberOfLabManagerPendingTasks);
-		int numberOfDepartmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();//if da, then number is dependent on the department(s) the da covers, otherwise all such da tasks
-		m.addAttribute("numberOfDepartmentAdminPendingTasks", numberOfDepartmentAdminPendingTasks);
-
-		int totalNumberOfTypesOfTasks = taskMappings.size() + (numberOfLabManagerPendingTasks>0?1:0) + (numberOfDepartmentAdminPendingTasks>0?1:0);
-		m.addAttribute("totalNumberOfTypesOfTasks", totalNumberOfTypesOfTasks);
+		m.addAttribute("tasks",taskMappingsToDisplay);
+		m.addAttribute("isTasks", taskMappingsToDisplay.size() > 0);
 		
 		return "dashboard";
 	}

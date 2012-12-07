@@ -10,7 +10,8 @@ import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
-@Transactional
+@Transactional("entityManager")
 public class EmailServiceImpl implements EmailService{
 	
 	static {
@@ -85,7 +86,7 @@ public class EmailServiceImpl implements EmailService{
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 
-	private static Logger logger = Logger.getLogger("EmailServiceImpl");
+	private static Logger logger = LoggerFactory.getLogger("EmailServiceImpl");
 	
 
 

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- priority channels -->
+	<int:channel id="wasp.channel.priority.job">
+		<int:priority-queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.priority.run">
+		<int:priority-queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.priority.sample">
+		<int:priority-queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.priority.library">
+		<int:priority-queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.priority.analysis">
+		<int:priority-queue />
+	</int:channel>
+	
+	<int:channel id="wasp.channel.priority.default">
+		<int:priority-queue />
+	</int:channel>
+	
+	<!-- other queue channels -->
+	<int:channel id="wasp.channel.queue.launch">
+		<int:queue />
+	</int:channel>
+	
+	
+	<!-- publish-subscribe channels for broadcasting messages -->	
+	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.run" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.sample" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.library" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.analysis" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.default" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.abort" />
+	
+	
+	
+	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
+	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.run" input-channel="wasp.channel.priority.run" output-channel="wasp.channel.notification.run">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.sample"  input-channel="wasp.channel.priority.sample" output-channel="wasp.channel.notification.sample">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.library"  input-channel="wasp.channel.priority.library" output-channel="wasp.channel.notification.library">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.analysis"  input-channel="wasp.channel.priority.analysis" output-channel="wasp.channel.notification.analysis">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+		
+	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+	</int:bridge>
+	
+	
+	<!-- channel for receiving messages intended for batch system.  -->
+	<!-- messages can be routed here by injecting into internal or secure message gateway with header 'target' = 'batch' -->
+	<int:channel id="wasp.channel.batch" >
+		<int:interceptors>
+	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
+	    </int:interceptors>
+	</int:channel>
+	
+	<int:channel id="wasp.channel.batch.success" />
+	
+	<int:router id="splitSuccessAndNotifyAbortMessages" input-channel="wasp.channel.batch">
+		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.messages.router.SuccessOrAbortMessageRouter">
+			<constructor-arg name="successChannel" ref="wasp.channel.batch.success" />
+			<constructor-arg name="abortChannel" ref="wasp.channel.notification.abort" />
+		</bean>
+	</int:router>	
+		
+	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
+	
+	<!-- header-router to sort inbound messages into appropriate channels -->
+	<int:header-value-router id="waspMessageTypeRouter" 
+		header-name="#{waspMessageType.HEADER_KEY}" 
+		input-channel="wasp.channel.batch.success" 
+		default-output-channel="wasp.channel.priority.default"
+		resolution-required="false" >
+		<int:mapping value="#{waspMessageType.LAUNCH_BATCH_JOB}" channel="wasp.channel.queue.launch"/>
+		<int:mapping value="#{waspMessageType.JOB}" channel="wasp.channel.priority.job"/>
+		<int:mapping value="#{waspMessageType.RUN}" channel="wasp.channel.priority.run"/>
+		<int:mapping value="#{waspMessageType.SAMPLE}" channel="wasp.channel.priority.sample"/>
+		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>
+		<int:mapping value="#{waspMessageType.ANALYSIS}" channel="wasp.channel.priority.analysis"/>
+		<int:mapping value="#{waspMessageType.GENERIC}" channel="wasp.channel.priority.default"/>
+	</int:header-value-router>
+		
+</beans>

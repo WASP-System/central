@@ -13,15 +13,19 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
+
+import edu.yu.einstein.wasp.service.RoleService;
 
 
 /**
@@ -32,8 +36,7 @@ import edu.yu.einstein.wasp.model.MetaUtil;
  */
 public class MetaHelper {
 
-	
-	protected final Logger logger = Logger.getLogger(MetaHelper.class);
+	protected final Logger logger = LoggerFactory.getLogger(MetaHelper.class);
 	
 	/**
 	 * Constructor
@@ -434,8 +437,8 @@ public class MetaHelper {
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the provided list
 	 * @param name
-	 * @return {@link MetaBase} derived object or null if not found 
-	 * @throws MetadataException 
+	 * @return {@link MetaBase} derived object or exception if not found 
+	 * @throws MetadataException if not found
 	 */
 	public static <T extends MetaBase> T getMetaObjectFromList(String area, String name, List<T> list) throws MetadataException{
 		for (T meta : list) {
@@ -482,8 +485,8 @@ public class MetaHelper {
 	/**
 	 * Finds a {@link MetaBase} derived object by name in the last list generated and returns its value
 	 * @param name
-	 * @return {@link MetaBase} or null if not found 
-	 * @throws MetadataException
+	 * @return {@link MetaBase} or exception if not found
+	 * @throws MetadataException if not found
 	 */
 	public  String getMetaValueByName(String name) throws MetadataException{
 		return getMetaObjectFromList(this.area, name, this.lastList).getV();
@@ -521,7 +524,7 @@ public class MetaHelper {
 	 * @param value
 	 * @throws MetadataException
 	 */
-	@SuppressWarnings("unchecked")
+	//@SuppressWarnings("unchecked")
 	public <T extends MetaBase> void setMetaValueByName(String name,  String value) throws MetadataException{
 		if (this.lastList == null)
 			this.lastList = new ArrayList<T>();
@@ -539,25 +542,6 @@ public class MetaHelper {
 			meta.setV(value);
 			((List<T>) this.lastList).add(meta);
 		}
-	}
-	
-	/**
-	 * Gets list of metadata messages for locale of supplied HttpSession
-	 * @param session
-	 * @return Map of name : message pairs
-	 */
-	public static Map<String, String> getMetadataMessages(HttpSession session){
-		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
-		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-		Map<String, String> messageMap = new HashMap<String, String>();
-		for(String k: keys) {
-			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
-			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
-			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
-			String name=path[1]; // e.g. 'login' using above example
-			messageMap.put(name, currentMessage);
-		}
-		return messageMap;
 	}
 	
 	/**
@@ -582,4 +566,50 @@ public class MetaHelper {
 				entityMetaId + "," + WordUtils.uncapitalize(this.getAssociatedEntityNameFromClassName()) + "Id=" + 	entityId + ")" );
 	}
 	
+	public static <T extends MetaBase> List<Role> convertRoleVisibilityDelimitedStringToRoleList(T meta, RoleService roleService){
+		if(meta != null){	
+			return roleService.convertMetaRoleVisibilityDelimitedStringToRoleList(meta.getRoleVisibility());
+		}
+		else{return new ArrayList<Role>();}
+	}
+
+	public static String convertRoleListToRoleVisibilityDelimitedString(List<Role> roleList, RoleService roleService){
+		return roleService.convertRoleListToMetaRoleVisibilityDelimitedString(roleList);
+	}
+
+	public static <T extends MetaBase> boolean roleVisibilityDelimitedStringContainsRole(T meta, Role role, RoleService roleService){
+		if(meta != null){	
+			return roleService.metaRoleVisibilityDelimitedStringContainsRole(meta.getRoleVisibility(), role);
+		}
+		else{return false;}
+	}
+	
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainAllTheseRoles(List<T> metaDataList, List<Role> roleList, RoleService roleService){
+		if(metaDataList == null || roleList == null || roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			boolean allRolesFound = true;
+			for(Role role : roleList){
+				if(!roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+					allRolesFound = false;
+				}
+			}
+			if(allRolesFound){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
+	public static <T extends MetaBase> List<T> filterMetaDataMustContainThisRole(List<T> metaDataList, Role role, RoleService roleService){
+		if(metaDataList == null || role == null || role.getRoleName() == null ||  roleService == null){return metaDataList;}
+		List<T> newMetaDataList = new ArrayList<T>();
+		for(T t : metaDataList){
+			if(roleService.metaRoleVisibilityDelimitedStringContainsRole(t.getRoleVisibility(), role)){
+				newMetaDataList.add(t);
+			}
+		}
+		return newMetaDataList;
+	}
+
 }

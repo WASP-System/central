@@ -62,9 +62,9 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 
 
 	/**
-	 * getJobDraftresourcecategoryByResourcecategoryIdJobdraftId(final Integer resourcecategoryId, final Integer jobdraftId)
+	 * getJobDraftresourcecategoryByResourcecategoryIdJobDraftId(final Integer resourcecategoryId, final Integer jobDraftId)
 	 *
-	 * @param final Integer resourcecategoryId, final Integer jobdraftId
+	 * @param final Integer resourcecategoryId, final Integer jobDraftId
 	 *
 	 * @return jobDraftresourcecategory
 	 */
@@ -72,10 +72,10 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobdraftId (final Integer resourcecategoryId, final Integer jobdraftId) {
+	public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobDraftId (final Integer resourcecategoryId, final Integer jobDraftId) {
     		HashMap m = new HashMap();
 		m.put("resourcecategoryId", resourcecategoryId);
-		m.put("jobdraftId", jobdraftId);
+		m.put("jobDraftId", jobDraftId);
 
 		List<JobDraftresourcecategory> results = this.findByMap(m);
 

@@ -4,19 +4,18 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-	    	<groupId>edu.yu.einstein.wasp</groupId>
-	        <version>1.0.0</version>
+	    <groupId>edu.yu.einstein.wasp</groupId>
+	    <version>0.1.0-SNAPSHOT</version>
 		<artifactId>bom</artifactId>
 	</parent>
 
-	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.0-SNAPSHOT</version>
 	<name>Wasp System</name>
 	
 	<description>Wiki-based automated sequence processor</description>
 	<url>http://waspsystem.org</url>
+
 	<issueManagement>
 		<system>JIRA</system>
 		<url>http://wasp.einstein.yu.edu/jira</url>
@@ -87,23 +86,40 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
-		<module.version>0.1.0-SNAPSHOT</module.version>
-		<spring.version>3.1.2.RELEASE</spring.version>
-		<springsec.version>3.1.1.RELEASE</springsec.version>
+		<spring.framework.version>3.1.3.RELEASE</spring.framework.version>
+		<springsec.version>3.1.3.RELEASE</springsec.version>
+		<spring.batch.version>2.1.9.RELEASE</spring.batch.version>
+		<spring.integration.version>2.2.0.RELEASE</spring.integration.version>
+		<logback.version>1.0.7</logback.version>
+		<slf4j.version>1.7.2</slf4j.version>
+		<powermock.version>1.4.12</powermock.version>
+		<excluded.groups>integration-tests,db-tests,a,ssh</excluded.groups>
 	</properties>
 
 	<modules>
+		<module>../wasp-daemon</module>
 		<module>../wasp-core</module>
+		<module>../wasp-interface</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
-		<!--<module>../wasp-illumina</module>-->
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
+		<module>../wasp-plugin</module>
+		<module>../wasp-exec</module>
+		<module>../wasp-file</module>
 	</modules>
 
 	<build>
-		<plugins>
-		<!--
+	<plugins>
+		 <plugin>
+		 	<groupId>org.apache.maven.plugins</groupId>
+		 	<artifactId>maven-surefire-plugin</artifactId>
+		 	<configuration>
+		 	<excludedGroups>${excluded.groups}</excludedGroups>
+		 	</configuration>
+		</plugin>
+
+	<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
@@ -124,12 +140,33 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		</plugins>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.8.1</version>
+					<executions>
+					<execution>
+					<id>aggregate</id>
+					<goals>
+					<goal>aggregate</goal>
+					</goals>
+					<phase>site</phase>
+					<configuration>
+					<!-- Specific configuration for the aggregate report -->
+					</configuration>
+					</execution>
+					</executions>
+				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
 					<configuration>
-						<!-- <webXml>${basedir}/WEB-INF/jspweb.xml</webXml> -->
 						<webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
 					</configuration>
 				</plugin>
@@ -259,15 +296,18 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-integration</artifactId>
 		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-interface</artifactId>
+				<version>${module.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-core</artifactId>
@@ -284,14 +324,31 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>${module.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-daemon</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-config</artifactId>
+				<version>${module.version}</version>
+			</dependency>
+			<!--  if you use aspects in your spring config with, say, jdbc:initalize-database configuration clause, most likely you’ll get assertion error in your JUnit test.
+			The possible workaround would be to switch to aspectjweaver of version 1.6.9. (not latest version 1.6.12) -->
+			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
-				<version>1.6.12</version>
+				<version>1.6.9</version>
 			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.6.12</version>
+				<version>1.6.9</version>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>1.8.0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
@@ -323,18 +380,43 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<artifactId>commons-lang</artifactId>
 				<version>2.6</version>
 			</dependency>
+		<!-- logging, slf4j + logback -->
 			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-				<version>1.1.1</version>
-				<!-- 	<scope>provided</scope>  -->
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>99-empty</version>
+		 	</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jcl-over-slf4j</artifactId>
-				<version>1.6.2</version>
-				<!-- 	<scope>provided</scope>  -->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
 			</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-access</artifactId>
+			<version>${logback.version}</version>
+			</dependency>
+		<!-- end logging -->
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
@@ -373,22 +455,22 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator</artifactId>
-				<version>4.3.0.Final</version>
+				<version>4.3.1.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-validator-annotation-processor</artifactId>
-				<version>4.3.0.Final</version>
+				<version>4.3.1.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>4.1.4.Final</version>
+				<version>4.1.8.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-envers</artifactId>
-				<version>4.1.4.Final</version>
+				<version>4.1.8.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
@@ -406,9 +488,9 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>2.0.8</version>
 			</dependency>
 			<dependency>
-				<groupId>javassist</groupId>
+				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
-				<version>3.12.1.GA</version>
+				<version>3.15.0-GA</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet.jsp</groupId>
@@ -426,11 +508,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>1.1</version>
 			</dependency>
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.16</version>
-			</dependency>
-			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.18</version>
@@ -438,119 +515,99 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-asm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aspects</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-context-support</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-instrument-tomcat</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jdbc</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-jms</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-orm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-oxm</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
-				<version>${spring.version}</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
-<!-- 			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.portlet</artifactId>
-				<version>3.1.0.RC2</version>
-			</dependency>
--->
 			<dependency> 
 				<groupId>org.springframework</groupId> 
-				<artifactId>org.springframework.web.servlet</artifactId> 
-				<version>3.1.0.RC2</version> 
+				<artifactId>spring-webmvc</artifactId>
+				<!-- <artifactId>org.springframework.web.servlet</artifactId> -->
+				<version>${spring.framework.version}</version> 
+				<exclusions>
+				        <exclusion>
+				                <groupId>org.aopalliance</groupId>
+				                <artifactId>com.springsource.org.aopalliance</artifactId>
+				        </exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
-				<version>${spring.version}</version>
-			</dependency>
-<!--			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.transaction</artifactId>
-				<version>3.1.0.RC2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>org.springframework.web.struts</artifactId>
-				<version>3.1.0.RC2</version>
-			</dependency>
--->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.6.2</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-simple</artifactId>
-				<version>1.6.2</version>
+				<version>${spring.framework.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
@@ -680,42 +737,48 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-core</artifactId>
-				<version>2.1.0.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-ip</artifactId>
-				<version>2.1.1.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-file</artifactId>
-				<version>2.1.0.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-rmi</artifactId>
-				<version>2.1.1.RELEASE</version>
+				<version>${spring.integration.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-core</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-infrastructure</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-test</artifactId>
-				<version>2.1.8.RELEASE</version>
+				<version>${spring.batch.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.batch</groupId>
 				<artifactId>spring-batch-integration</artifactId>
-				<version>1.2.0.RELEASE</version>
+				<version>1.2.1.RELEASE</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -726,7 +789,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>
-				<version>6.3</version>
+				<version>6.3.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -734,6 +797,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<artifactId>easymock</artifactId>
 				<version>3.0</version>
 				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>cglib</groupId>
+						<artifactId>cglib-nodep</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.objenesis</groupId>
@@ -744,6 +813,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>net.sourceforge.jexcelapi</groupId>
 				<artifactId>jxl</artifactId>
 				<version>2.6.12</version>
+				<exclusions>
+					<exclusion>
+				        	<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>cglib</groupId>
@@ -754,6 +829,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-firefox-driver</artifactId>
 				<version>2.15.0</version>
+				<exclusions>
+					<exclusion>
+						<groupId>cglib</groupId>
+						<artifactId>cglib-nodep</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
@@ -812,6 +893,50 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>11.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-testng</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>  
+			<dependency>
+				<groupId>org.powermock</groupId>
+			        <artifactId>powermock-api-easymock</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>  
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>  
+				<version>1.9.0</version> 
+				<scope>test</scope>
+			</dependency>	
+			<dependency>
+			   	<groupId>net.schmizz</groupId>
+			        <artifactId>sshj</artifactId>
+				<version>0.8.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcprov-jdk16</artifactId>
+				<version>1.46</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jcraft</groupId>
+				<artifactId>jzlib</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jcraft</groupId>
+				<artifactId>jsch</artifactId>
+				<version>0.1.48</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -876,7 +1001,17 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<name>JBoss Thirdparty Releases</name>
 			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
 		</repository>
+		<repository>
+			<id>version99</id>
+		        <!-- highly available repository serving empty artifacts -->
+			<url>http://version99.qos.ch/</url>
+		</repository>
+		<repository>
+		        <id>sonatype</id>
+			<url>http://oss.sonatype.org/content/groups/public/</url>
+		</repository>
 	</repositories>
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>maven</id>
@@ -893,7 +1028,25 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<name>Apache maven repo</name>
 			<url>https://repository.apache.org/content/groups/public/</url>
 		</pluginRepository>
+		<pluginRepository>
+			<id>Codehaus</id>
+			<url>http://repository.codehaus.org/</url>
+			<snapshots>             
+			<enabled>false</enabled>
+			</snapshots>            
+		</pluginRepository>
+		<pluginRepository>
+			<id>com.goldin.plugins</id>
+			<name>maven-copy-plugins</name>
+			<url>http://evgenyg.artifactoryonline.com/evgenyg/plugins-releases</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>com.goldin</id>
+			<name>goldin.libs</name>
+			<url>http://evgenyg.artifactoryonline.com/evgenyg/libs-releases</url>
+		</pluginRepository>
 	</pluginRepositories>
+
 	<distributionManagement>
 		<site>
 			<id>private.waspsystem.org</id>
@@ -905,4 +1058,5 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<url>scpexe://wasp@frankfurt.aecom.yu.edu/var/www_default/repository/</url>
 		</repository>
 	</distributionManagement>
+
 </project>

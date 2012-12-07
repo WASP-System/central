@@ -1,21 +1,28 @@
 package edu.yu.einstein.wasp.controller.util;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -221,6 +228,29 @@ public class MetaHelperWebapp extends MetaHelper {
 	}
 	
 	/**
+	 * Adds an error message to and existing meta field regardless of whether there is normally a constraint on it or not.
+	 * @param name
+	 * @param errorMessageKey
+	 * @param result
+	 * @throws MetadataException
+	 */
+	public void addValidationError(String name, String errorMessageKey, BindingResult result) throws MetadataException{
+		Errors errors=new BindException(result.getTarget(), parentArea); 
+		
+		for(int i=0;i<this.lastList.size();i++) {
+			MetaBase meta=this.lastList.get(i);
+			if (meta.getProperty().getFormVisibility().equals(MetaAttribute.FormVisibility.ignore)) continue;
+			if (!meta.getK().equals(area + "." + name)) continue;
+			String errorFieldName = parentArea+"Meta["+i+"].k";
+			String defaultMessage = errorMessageKey+" (no message has been defined for this property)";
+			errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
+			result.addAllErrors(errors);
+			return;
+		}
+		throw new MetadataException("Cannot find metadata with name: "+name);
+	}
+	
+	/**
 	 * Validates any metadata with constraints in the supplied list using {@link MetaValidatorImpl}
 	 * @param area
 	 * @param list
@@ -251,6 +281,25 @@ public class MetaHelperWebapp extends MetaHelper {
 	 */
 	public static MetaValidator getMetaValidator() {
 		return getMetaValidator(MetaValidatorImpl.class);
+	}
+	
+	/**
+	 * Gets list of metadata messages for locale of supplied HttpSession
+	 * @param session
+	 * @return Map of name : message pairs
+	 */
+	public static Map<String, String> getMetadataMessages(HttpSession session){
+		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
+		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		Map<String, String> messageMap = new HashMap<String, String>();
+		for(String k: keys) {
+			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
+			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
+			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
+			String name=path[1]; // e.g. 'login' using above example
+			messageMap.put(name, currentMessage);
+		}
+		return messageMap;
 	}
 	
 }

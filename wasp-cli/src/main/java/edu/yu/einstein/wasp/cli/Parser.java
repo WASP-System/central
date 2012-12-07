@@ -9,12 +9,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Parser {
 
-	private final static Log logger = LogFactory.getLog(Parser.class);
+	private final static Logger logger = LoggerFactory.getLogger(Parser.class);
 
 	private Options options = new Options();
 	private CommandLine cl;
@@ -25,7 +25,8 @@ public class Parser {
 	public Parser(String[] args) {
 		options.addOption(new Option("h", "help", false, "print this help message"));
 		options.addOption(new Option("u", "user", true, "username"));
-		options.addOption(new Option("t", "target", true, "message target"));
+		options.addOption(new Option("T", "target", true, "message target"));
+		options.addOption(new Option("t", "task", true, "task to run"));
 		options.addOption(new Option("H", "host", true, "host (default localhost)"));
 		options.addOption(new Option("l", "list", false, "list available targets"));
 		options.addOption(new Option("m", "message", true, "message to send"));
@@ -57,7 +58,7 @@ public class Parser {
 	}
 
 	private void help() {
-		if (cl.hasOption("h") || cl.getOptions().length == 0) {
+		if ((cl.hasOption("h") && ! cl.hasOption("T") ) || cl.getOptions().length == 0) {
 			formatHelp();
 			System.exit(0);
 		}

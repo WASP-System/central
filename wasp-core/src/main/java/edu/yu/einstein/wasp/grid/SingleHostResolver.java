@@ -3,11 +3,16 @@
  */
 package edu.yu.einstein.wasp.grid;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
 /**
@@ -17,60 +22,37 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
  * @author calder
  *
  */
-public class SingleHostResolver extends AbstractGridHostResolver implements GridHostResolver {
+public class SingleHostResolver extends AbstractGridHostResolver {
 	
-	private String hostname;
-	private String username;
 	private String account;
 	
-	private final Log logger = LogFactory.getLog(getClass());
-	private String queue;
-	private String maxRunTime;
-	private String project;
-	private String mailRecipient;
-	private String mailCircumstances;
-	private Set<String> parallelEnvironments;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	public SingleHostResolver() {
-	}
+	private GridWorkService gws;
 	
-	public SingleHostResolver(String host, String username) {
-		this.hostname = host;
-		this.username = username;
+	public SingleHostResolver(GridWorkService gridWorkService) {
+		this.gws = gridWorkService;
 	}
 
 	public String getHostname(WorkUnit w) {
-		return hostname;
-	}
-
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
-		
-		logger.debug("set remote host execution to: " + hostname);
+		return gws.getTransportService().getHostName();
 	}
 
 	/**
 	 * @return the username
 	 */
 	public String getUsername() {
-		return username;
-	}
-
-	/**
-	 * @param username the username to set
-	 */
-	public void setUsername(String username) {
-		this.username = username;
+		return gws.getTransportService().getUserName();
 	}
 
 	@Override
 	public String getUsername(WorkUnit w) {
-		return username;
+		return gws.getTransportService().getUserName();
 	}
 
 	@Override
 	public String getUsername(String hostname) {
-		return username;
+		return this.gws.getTransportService().getUserName();
 	}
 
 	public String getAccount() {
@@ -85,78 +67,52 @@ public class SingleHostResolver extends AbstractGridHostResolver implements Grid
 		this.account = account;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getQueue(WorkUnit w) {
-		return queue;
-	}
-	public void setQueue(String queue) {
-		this.queue = queue;
-	}
+	
+	
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public String getMaxRunTime(WorkUnit w) {
-		return maxRunTime;
-	}
-	public void setMaxRunTime(String max) {
-		this.maxRunTime = max;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getAccount(WorkUnit w) {
-		return account;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getProject(WorkUnit w) {
-		return project;
-	}
-	public void setProject(String proj) {
-		this.project = proj;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getMailRecipient(WorkUnit w) {
-		return mailRecipient;
-	}
-	public void setMailRecipient(String mail) {
-		this.mailRecipient = mail;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getMailCircumstances(WorkUnit w) {
-		return mailCircumstances;
-	}
-	public void setMailCircumstances(String circ) {
-		this.mailCircumstances = circ;
+	public GridWorkService getGridWorkService(WorkUnit w) {
+		return gws;
 	}
 
 	@Override
-	public void setAvailableParallelEnvironments(Set<String> pe) {
-		this.parallelEnvironments = pe;
-		
+	public List getAvailableWorkServices() {
+		List<GridWorkService> l = new ArrayList<GridWorkService>();
+		l.add(gws);
+		return l;
 	}
 
 	@Override
 	public String getParallelEnvironmentString(WorkUnit w) {
-		return (String) parallelEnvironments.toArray()[0];
+		// TODO: too simplistic, only works with one PE
+		return (String) gws.getAvailableParallelEnvironments().toArray()[0];
+	}
+
+	@Override
+	public GridResult execute(WorkUnit w) throws GridAccessException,
+			GridUnresolvableHostException, GridExecutionException {
+		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getTransportService().getName());
+		return getGridWorkService(w).execute(w);
+	}
+
+	@Override
+	public boolean isFinished(GridResult g) throws GridAccessException,
+			GridExecutionException, GridUnresolvableHostException {
+		return gws.isFinished(g);
+	}
+
+	@Override
+	public GridWorkService getGridWorkService(GridResult r) {
+		return gws;
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.grid.GridHostResolver#getWorkUnit()
+	 */
+	@Override
+	public WorkUnit createWorkUnit() {
+		//do nothing method overridden by spring
+		return null;
 	}
 
 }

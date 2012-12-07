@@ -1,14 +1,27 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParseException;
+import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
@@ -17,12 +30,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
@@ -33,10 +49,10 @@ import edu.yu.einstein.wasp.service.MessageService;
 
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class AuthenticationServiceImpl implements AuthenticationService {
 	
-	private static final Logger logger = Logger.getLogger(AuthenticationServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
 	@Autowired
 	private UserDao userDao;
@@ -64,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 //	@Autowired
 //	HttpServletRequest request;
 
-	protected HttpServletRequest getHttpServletRequest() {
+	public static HttpServletRequest getHttpServletRequest() {
 		try {
 			HttpServletRequest request =
 				((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -141,29 +157,43 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	@Override
 	public boolean hasRole(String theRole) {
-		
-		for (String role: this.getRoles()) {
-			if(role.equals(theRole)){return true;}//in case theRole is something like da-*
-			String[] splitRole = role.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
-			if(splitRole[0].equals(theRole)){
-				return true;
-			}	
-		}
-		return false;
+		String[] theRoleList = new String[1];
+		theRoleList[0] = theRole;
+		return hasRoleInRoleArray(theRoleList, this.getRoles());
 	}
 	
 	@Override
 	public boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline) {
 		for (String testRole: rolesToCompare){
+			if (testRole == null)
+				continue;
 			for (String myrole: rolesBaseline) {
-				if(myrole.equals(testRole)){return true;}//in case theRole is something like da-*
-				String[] splitRole = myrole.split("-");//if no "-" is within role, then splitRole[0] contains entire original string
-				if(splitRole[0].equals(testRole)){
+				if (myrole == null)
+					continue;
+				if(myrole.equals(testRole))
 					return true;
-				}	
+				if(testRole.endsWith("*") && myrole.contains(StringUtils.substringBefore(testRole, "-") + "-"))
+					return true; // e.g. theRole = "lm-*" and role = "lm-7"
 			}
 		}
 		return false;
+	}
+	
+	@Override public Integer getRoleValue(String role){
+		String[] splitRole = role.split("-");
+		if (splitRole.length != 2) {
+			return null;
+		}
+		if (splitRole[1].equals("*")) {
+			return null;
+		}
+		Integer value = null;
+		try {
+			value = Integer.parseInt(splitRole[1]);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+		return value;
 	}
 	
 	@Override
@@ -181,6 +211,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return false;
 	}
 	
+	@Override
+	public boolean isFacilityMember() {
+		for (String role: this.getRoles()){
+			if (role.equals("su") || role.equals("fm") || role.equals("ft") || role.equals("sa") || role.equals("ga") || role.equals("da")){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isOnlyDepartmentAdministrator() {
+		boolean isDA = false;
+		boolean isFacilityMemberOtherThanDA = false;
+		for (String role: this.getRoles()){
+			if (role.equals("da-*")){
+				isDA = true;
+			}
+			if (role.equals("su") || role.equals("fm") || role.equals("ft") || role.equals("sa") || role.equals("ga")){
+				isFacilityMemberOtherThanDA = true;
+			}
+		}
+		if(isDA == true && isFacilityMemberOtherThanDA == false){return true;}
+		return false;
+	}
+		
 	@Override
 	public boolean authenticate(String name, String password){
 		try {
@@ -298,4 +354,121 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	  		}
 	  		return password;
 	    }
+	    
+	    /**
+		 * Enables parsing of Spring security expressions against the logged in user's security context. Using the 
+		 * parameter map, parameters can be substituted in the permission string. Consider "hasRole('su') or hasRole('fm') or hasRole('jv-#jobId')".
+		 * If parameterMap contains the parameter "jobId" with value "3" the following will be evaluated: ""
+		 * "hasRole('su') or hasRole('fm') or hasRole('jv-3')"
+		 * 
+		 * See://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html for more expression options
+		 * @param permsission
+		 * @return
+		 * @throws IOException
+		 */
+	    @Override
+	    public boolean hasPermission(String permission, Map<String, Integer> parameterMap) throws IOException {
+	    	Assert.assertParameterNotNull(permission, "permission must be set");
+	    	if (parameterMap != null && !parameterMap.isEmpty()){
+	    		for (String key: parameterMap.keySet()){
+	    			Integer value = parameterMap.get(key);
+	    			permission = permission.replaceAll("#" + key, parameterMap.get(key).toString());
+	    		}
+	    		if (permission.contains("#"))
+	    			throw new IOException("not all placeholders in permission string have been resolved from parameter map");
+	    	}
+	    	return hasPermission(permission);
+	    }
+	    
+	    
+		/**
+		 * Enables parsing of Spring security expressions against the logged in user's security context.
+		 * 
+		 * Can parse a string such as "hasRole('su') or hasRole('fm') or hasRole('ft')".
+		 * 
+		 * See://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html for more expression options
+		 * @param permsission
+		 * @return
+		 * @throws IOException
+		 */
+	    @Override
+		public boolean hasPermission(String permission) throws IOException {
+	    	logger.debug("Evaluating permission string: " + permission);
+			if (SecurityContextHolder.getContext().getAuthentication() == null) {
+				return false;
+			}
+			SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
+			Expression accessExpression;
+			try {
+				accessExpression = handler.getExpressionParser().parseExpression(permission);
+			} catch (ParseException e) {
+				IOException ioException = new IOException();
+				ioException.initCause(e);
+				throw ioException;
+			}
+			return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));
+
+		}
+	    
+	    /**
+	     * {@inheritDoc}
+	     * @return
+	     */
+	    @Override
+	    public Set<Integer> idsOfDepartmentsManagedByCurrentUser(){
+	    	Set<Integer> departmentIdList = new HashSet<Integer>();
+	    	if (! hasRole("da-*") )
+	    		return departmentIdList;
+			// get list of departmentId values for this authenticated user
+			
+			for (String role : getRoles()) {
+				if (role.startsWith("da-")){
+					Integer deptId = getRoleValue(role);
+					if (deptId != null)
+						departmentIdList.add(deptId);
+				}
+			}
+			return departmentIdList;
+	    }
+	    
+	    /**
+	     * {@inheritDoc}
+	     * @return
+	     */
+	    @Override
+	    public Set<Integer> idsOfLabsManagedByCurrentUser(){
+	    	Set<Integer> labIdList = new HashSet<Integer>();
+	    	if (! (hasRole("lm-*") || hasRole("pi-*")))
+	    		return labIdList;
+			for (String role : getRoles()) {
+				if (role.startsWith("lm-") || role.startsWith("pi-")){
+					Integer labId = getRoleValue(role);
+					if (labId != null)
+						labIdList.add(labId);
+				}
+			}
+			return labIdList;
+	    }
+	    
+	    
+
+		private static SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
+			ApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getHttpServletRequest().getSession().getServletContext());
+			for (SecurityExpressionHandler<FilterInvocation> handler : appContext.getBeansOfType(SecurityExpressionHandler.class).values()) {
+				if (FilterInvocation.class.equals(GenericTypeResolver.resolveTypeArgument(handler.getClass(),
+				SecurityExpressionHandler.class))) {
+					return handler;
+				}
+			}
+			throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
+			+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
+		}
+
+
+		private static EvaluationContext createExpressionEvaluationContext(SecurityExpressionHandler<FilterInvocation> handler) {
+			HttpServletRequest request = getHttpServletRequest();
+			FilterInvocation f = new FilterInvocation(request.getServletPath(), request.getMethod());
+			return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
+
+		}
 }

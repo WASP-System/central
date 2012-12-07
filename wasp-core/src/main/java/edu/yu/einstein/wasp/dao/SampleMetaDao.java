@@ -22,11 +22,11 @@ public interface SampleMetaDao extends WaspDao<SampleMeta> {
 
   public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId);
 
-  List<SampleMeta> getSamplesMetaBySampleId (final int sampleId);
+  public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId);
+  
+  public void updateBySampleId (final int sampleId, final SampleMeta m);
 
   public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList);
-
-
 
 
 }

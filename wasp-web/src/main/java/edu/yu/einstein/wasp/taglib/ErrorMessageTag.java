@@ -11,10 +11,11 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 /*
  * Displays localized messages using list of keys stored in session under name "_feedback"
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
  */
 public class ErrorMessageTag extends BodyTagSupport {
 	
-	Logger log=Logger.getLogger(ErrorMessageTag.class);
+	Logger log = LoggerFactory.getLogger(ErrorMessageTag.class);
 	
 	public static final String FEEDBACK_SESSION_ATTRIBUTE_NAME="_feedbackError";
 	

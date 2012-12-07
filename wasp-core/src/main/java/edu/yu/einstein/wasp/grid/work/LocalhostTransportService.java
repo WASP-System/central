@@ -3,8 +3,10 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -18,7 +20,11 @@ import edu.yu.einstein.wasp.grid.SingleHostResolver;
  */
 public class LocalhostTransportService implements GridTransportService {
 	
-	private static final Log logger = LogFactory.getLog(SshService.class);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private SoftwareManager softwareManager;
+	
+	private boolean userDirIsRoot;
 
 	/**
 	 * {@inheritDoc}
@@ -30,13 +36,61 @@ public class LocalhostTransportService implements GridTransportService {
 	}
 
 	@Override
-	public GridTransportConnection connect(String hostname) {
-		return new LocalhostTransportConnection();
+	public void setSoftwareManager(SoftwareManager swm) {
+		this.softwareManager = swm;
 	}
 
 	@Override
-	public GridHostResolver getHostResolver() {
-		return new SingleHostResolver("localhost", System.getProperty("user.name").toString());
+	public SoftwareManager getSoftwareManager() {
+		return softwareManager;
+	}
+
+	@Override
+	public String getConfiguredSetting(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isUserDirIsRoot() {
+		return userDirIsRoot;
+	}
+
+	@Override
+	public void setUserDirIsRoot(boolean isRoot) {
+		this.userDirIsRoot = isRoot;
+	}
+
+	@Override
+	public void setName(String name) {}
+
+	@Override
+	public void setHostName(String hostname) {}
+
+	@Override
+	public void setUserName(String username) {}
+
+	@Override
+	public void setIdentityFile(String identityFile) {}
+
+	@Override
+	public String getName() {
+		return "localhost";
+	}
+
+	@Override
+	public String getHostName() {
+		return "localhost";
+	}
+
+	@Override
+	public String getUserName() {
+		return System.getProperty("user.name");
+	}
+
+	@Override
+	public File getIdentityFile() {
+		return null;
 	}
 
 }

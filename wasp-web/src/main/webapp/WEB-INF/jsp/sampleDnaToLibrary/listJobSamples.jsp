@@ -2,38 +2,77 @@
 <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></h1>
-<c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
-<br />
+<%-- for divs side by side see http://stackoverflow.com/questions/5803023/how-to-place-two-divs-next-to-each-other --%>
 
+<div style="width=100%; overflow:hidden">
+
+	<div style="float:left">
+	 
+	   <c:import url="/WEB-INF/jsp/sampleDnaToLibrary/jobdetail_for_import.jsp" />
+	 
+	</div>
+
+	<div style="padding-left:0.5cm; overflow:hidden">
+	
+		<form  method='post' name='addJobViewer' action="<c:url value="/sampleDnaToLibrary/addJobViewer.do" />" onsubmit="return validate_email();">
+		<table class="data" style="margin: 0px 0">
+		<tr  ><th colspan="2" class="label" nowrap><fmt:message key="listJobSamples.jobViewers.label" /></th></tr>
+		<tr ><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
+		<tr ><td ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>
+
+		<c:forEach items="${additionalJobViewers}" var="additionalJobViewer">
+			<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
+			<td>
+				<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
+					<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'><fmt:message key="listJobSamples.remove.label" /></a>
+				</c:if>
+			</td>
+		</c:forEach>
+		
+		<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true}'>
+ 			<input type='hidden' name='jobId' value='<c:out value="${job.jobId}" />'/>			 				
+			<tr ><th colspan="2"  class="label" nowrap><fmt:message key="listJobSamples.addNewViewer.label" /></th></tr>
+ 			<tr><td ><fmt:message key="listJobSamples.newViewerEmailAddress.label" />: </td><td ><input type='text' name='newViewerEmailAddress' id="newViewerEmailAddress" size='20' maxlength='50'></td></tr>
+			<tr><td colspan="2" align="center"><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/></td></tr>
+			
+		</c:if>
+		
+		</table>
+		</form>
+		
+	</div>
+
+</div>
+
+<br />
 <div>
 <input  class="button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
-</div>
-<div id="user_requested_coverage_data" style="display:none">
-
-<table class="data">
-<tr class="FormData">
-	<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
-</tr>
-<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+</div>		
+<div id="user_requested_coverage_data" style="display:none">		
+	<table class="data">
 	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6" >
-			<c:out value="${coverageItem.getName()}" />
-		</td>
-		<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
-		<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
-   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
-   				<c:choose>
-   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
-   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
-   				</c:choose>   
-  			</td>   
-		</c:forEach>
+		<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
 	</tr>
-</c:forEach>
-</table>
+	<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6" >
+				<c:out value="${coverageItem.getName()}" />
+			</td>
+			<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
+			<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+	   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+	   				<c:choose>
+	   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+	   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+	   				</c:choose>   
+	  			</td>   
+			</c:forEach>
+		</tr>
+	</c:forEach>
+	</table>
 </div>
-
 <br />
+
 <c:set var="idCounter" value="1000" scope="page" />
 <table class="data"> 
 
@@ -45,7 +84,7 @@
 	</tr>
 	<c:forEach items="${macromoleculeSubmittedSamplesList}" var="userSubmittedMacromolecule">
 		<c:set value="${facilityLibraryMap.get(userSubmittedMacromolecule)}" var="facilityLibrariesForThisMacromoleculeList" scope="page" />
-		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
+		<c:set var="numberLibrariesForThisMacromolecule" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" /> 
 		<c:set var="rowSpan" value="${facilityLibrariesForThisMacromoleculeList.size()}" scope="page" />
 		<c:if test="${rowSpan == 0}">
 			<c:set var="rowSpan" value="${rowSpan + 1}" scope="page" />
@@ -58,14 +97,14 @@
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;
 				<%--  please leave, may be useful later <a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%>
-				<c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
+				<c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule) == true}'>
 					<a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
 				</c:if>
 				</sec:authorize><br />
-				
+				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/><br />
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
-					<c:if test='${createLibraryStatusMap.get(userSubmittedMacromolecule)=="CREATED"}'>
+					<c:if test='${not empty createLibraryStatusMap.get(userSubmittedMacromolecule) and createLibraryStatusMap.get(userSubmittedMacromolecule) == true}'>
 						<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.createLibrary.label" />"  onClick="window.location='<c:url value="/sampleDnaToLibrary/createLibraryFromMacro/${job.jobId}/${userSubmittedMacromolecule.sampleId}.do"/>'" />
 			 	 	</c:if>
 		 	 	</c:if>
@@ -88,12 +127,12 @@
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-														
+							<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/><br />							
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
 
-						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule)=="CREATED"}'> 
+						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule) == true}'> 
 				 				<input class="fm-button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 						</c:if> 
 
@@ -193,13 +232,15 @@
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/><sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary)=="CREATED"}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
+			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
+			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
+			<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<div id="showButton_<c:out value="${idCounter}" />" >
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>	
-			  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary)=="CREATED"}'> 
+			  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(userSubmittedLibrary) == true}'> 
 					<input class="button" type="button" value="<fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" />" onclick='toggleDisplayOfAddLibraryForm("show", <c:out value="${idCounter}" />)' />				
 			  </c:if> 
 			</c:if>  

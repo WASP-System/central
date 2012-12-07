@@ -1,0 +1,145 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>wasp-parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../wasp-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>wasp-plugin</artifactId>
+	<packaging>pom</packaging>
+	<name>WASP plugin parent POM</name>
+
+	<dependencyManagement>
+	<dependencies>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>bom</artifactId>
+	<version>${module.version}</version>
+	<type>pom</type>
+	<scope>import</scope>
+	</dependency>
+	</dependencies>
+	</dependencyManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<excluded.groups>integration-tests</excluded.groups>
+	</properties>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.version}</version>
+				<configuration>
+				<excludedGroups>${excluded.groups}</excludedGroups>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+				<execution>
+				<id>enforce-property</id>
+				<phase>validate</phase>
+				<goals>
+				<goal>enforce</goal>
+				</goals>
+				<configuration>
+				<rules>
+				<requireProperty>
+				<property>catalina.home</property>                                     
+				<message>You must set -Dcatalina.home=$CATALINA_HOME to install a plugin.</message>
+				</requireProperty>
+				</rules>
+				<fail>true</fail>           
+				</configuration>
+				</execution> 
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5.1</version>
+				<executions>
+				<execution>
+				<id>copy</id>
+				<phase>install</phase>
+				<goals>
+				<goal>copy</goal>
+				</goals>
+				<configuration>
+				<stripVersion>false</stripVersion>
+				<overWriteIfNewer>true</overWriteIfNewer>
+				<overWriteReleases>true</overWriteReleases>
+				<overWriteSnapshots>true</overWriteSnapshots>
+				<artifactItems>
+				<artifactItem>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>${project.artifactId}</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+				<outputDirectory>${catalina.home}/waspPlugins</outputDirectory>
+				</artifactItem>
+				</artifactItems>
+				</configuration>
+				</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-core</artifactId>
+		</dependency>
+		<dependency>
+		        <groupId>edu.yu.einstein.wasp</groupId>
+		        <artifactId>wasp-daemon</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-daemon</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-interface</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-integration</artifactId>
+			<exclusions>
+			<exclusion>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			</exclusion>
+			<exclusion>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.kubek2k</groupId>
+			<artifactId>springockito</artifactId>
+			<version>1.0.4</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>

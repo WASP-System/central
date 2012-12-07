@@ -20,14 +20,14 @@ create table meta (
 
   property varchar(250) , 
   k varchar(250) , -- internal value?
-  v varchar(250) , -- external label?
+  v TEXT , -- external label?
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
-  constraint unique index u_meta_p_k (property, k),
-  constraint unique index u_meta_p_v (property, v)
+  constraint unique index u_meta_p_k (property, k)
 ) ENGINE=InnoDB charset=utf8;
 
 
@@ -64,8 +64,9 @@ create table usermeta (
   userid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -241,8 +242,9 @@ create table labmeta (
   labid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -302,8 +304,9 @@ create table userpendingmeta (
   userpendingid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -337,8 +340,9 @@ create table labpendingmeta (
   labpendingid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -383,6 +387,8 @@ insert into resourcetype values (3, 'aligner', 'Aligner');
 insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
 insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
 insert into resourcetype values (6, 'helptagPipeline', 'HELP-tag Pipeline'); 
+insert into resourcetype values (7, 'bisulseqPipeline', 'Bi-sulphite-seq Pipeline'); 
+insert into resourcetype values (8, 'sequenceRunProcessor', 'Sequence Run Processor'); 
 
 --
 -- RESOURCE
@@ -408,8 +414,9 @@ create table resourcecategorymeta (
   resourcecategoryid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -455,8 +462,9 @@ create table softwaremeta (
   softwareid int(10) ,
 
   k varchar(250), 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -471,8 +479,9 @@ create table resourcemeta (
   resourceid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -527,6 +536,7 @@ create table workflowmeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -570,6 +580,7 @@ create table jobmeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -662,8 +673,9 @@ create table jobdraftmeta (
   jobdraftid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -758,7 +770,7 @@ create table resourcebarcode (
 --
 create table file (
   fileid int(10)  primary key auto_increment,
-  absolute_path varchar(2048) , 
+  file_uri varchar(2048) , 
   contenttype varchar(250) , 
   sizek int(10) ,
   md5hash varchar(250) ,
@@ -780,6 +792,7 @@ create table filemeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -825,7 +838,7 @@ insert into sampletype values
 (7, 1, 'protein', 'Protein'),
 (8, 1, 'cellPrimary', 'Primary Cell'),
 (9, 1, 'cellLine', 'Cell Line'),
-(10, 1, 'facilityLibrary', 'Library');
+(10, 1, 'facilityLibrary', 'Facility Library');
 
 
 
@@ -848,8 +861,9 @@ create table samplesubtypemeta (
   samplesubtypeid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -926,6 +940,7 @@ create table workflowresourcecategorymeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -952,6 +967,7 @@ create table workflowsoftwaremeta (
   k varchar(250) , 
   v text,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -997,8 +1013,9 @@ create table samplemeta (
   sampleid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1030,8 +1047,9 @@ create table samplesourcemeta (
   samplesourceid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1108,8 +1126,9 @@ create table sampledraftmeta (
   sampledraftid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1167,8 +1186,9 @@ create table jobsamplemeta (
   jobsampleid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1235,8 +1255,9 @@ create table acct_quotemeta (
   quoteid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1403,8 +1424,9 @@ create table adaptorsetmeta (
   adaptorsetid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1443,8 +1465,9 @@ create table adaptormeta (
   adaptorid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1509,8 +1532,9 @@ create table runmeta (
   runid int(10) ,
 
   k varchar(250) , 
-  v varchar(250), 
+  v TEXT, 
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1634,8 +1658,9 @@ create table statemeta (
   stateid int(10) ,
 
   k varchar(250) ,
-  v varchar(250),
+  v TEXT,
   position int(10)  default 0,
+  rolevisibility VARCHAR(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
@@ -1744,22 +1769,17 @@ join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
 
 create table taskmapping (
   taskmappingid int(10) primary key not null auto_increment,
-  taskid int(10) not null,
+  iname varchar(50),
+  name varchar(50),
+  stepname varchar(255)  not null,
   status varchar(50) not null,
   listmap varchar(255) default null,
-  detailmap varchar(255) default null,
   permission varchar(255) not null,
   dashboardsortorder int(10),
-
-  foreign key fk_taskmapping_tid (taskid) references task(taskid),
-  constraint unique index u_taskmapping_t_s (taskid, status, permission)
+  isactive int(1),
+  UNIQUE KEY `u_taskmapping_issp` (`iname`,`stepname`,`status`,`permission`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
-
-insert into taskmapping (taskid ,status,listmap,detailmap,permission,dashboardsortorder )
-SELECT DISTINCT t.taskid, s.status,  '/path/to/list',  '/path/to/detail',  'hasRole(''lu'')', t.taskid
-FROM task t
-JOIN state s ON t.taskid = s.taskid;
 
 insert into user
 values
@@ -1768,4 +1788,3 @@ values
 insert into userrole values (1, 1, 11, now(), 1);
 insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
 insert into labuser values (1, 1, 1, 6, now(), 1);
-

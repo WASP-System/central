@@ -6,11 +6,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.wasp.dao.impl.DBResourceBundle;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
 
 /**
@@ -21,7 +22,7 @@ import edu.yu.einstein.wasp.model.MetaAttribute.Control;
  */
 public final class MetaUtil {
 	
-		private static final Logger logger = Logger.getLogger(MetaUtil.class);
+		private Logger logger = LoggerFactory.getLogger(MetaUtil.class);
 			
 		
 		/**

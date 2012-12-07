@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-
 <h1><fmt:message key="pageTitle.sysrole/list.label" /></h1>
 
 <div class="instructions">
@@ -9,9 +8,9 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-  	<th class="top-heading">Name (Login Name)</td>
-  	<th class="top-heading">Role</td>
-  	<th class="top-heading">Action</td>
+  	<th class="top-heading"><fmt:message key="sysrole.list_name.label" /></th>
+  	<th class="top-heading"><fmt:message key="sysrole.list_role.label" /></th>
+  	<th class="top-heading"><fmt:message key="sysrole.list_action.label" /></th>
 </tr>
 
   <c:forEach items="${userRoleMap}" var="rs">
@@ -21,10 +20,10 @@
 		    <td class="DataTD"><c:out value="${r.role.name}" /></td>
 		    <c:choose>
 		    <c:when test='${rs.key == "User, Super (super)" && r.role.name == "Super User" }'>
-		    	<td class="DataTD value-centered">Unchangeable</td>
+		    	<td class="DataTD value-centered"><fmt:message key="sysrole.list_unchangeable.label" /></td>
 		    </c:when>
 		    <c:otherwise>
-		    	<td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />">Remove Role</a></td>
+		    	<td class="submit value-centered"><a href="<c:url value="/sysrole/remove/${r.userId}/${r.role.roleName}.do" />"><fmt:message key="sysrole.list_remove.label" /></a></td>
 		    </c:otherwise>
 		    </c:choose>
 	    </tr>

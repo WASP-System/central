@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<!-- component scan -->
+  	<context:component-scan base-package="edu.yu.einstein.wasp.controller" />
+
+	<!-- import common configuration from core -->
+	<import resource="classpath*:META-INF/spring/core-common-config.xml" />
+	
+	<!-- import configuration for sending messages to wasp-daemon and checking status of batch jobs -->
+	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />
+	
+	<!-- import local security context -->
+	<import resource="security-context-local.xml"/>
+
+	<mvc:annotation-driven /> 
+
+	<!-- locale -->
+	<mvc:interceptors>
+	<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+     	<property name="paramName"><value>setUserLocale</value></property>
+    </bean>
+      
+    <bean class="edu.yu.einstein.wasp.controller.UserLocaleInterceptor" />            
+    
+	</mvc:interceptors>
+  
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+  
+	<!-- Import Tiles-related configuration -->
+	<import resource="tiles-context.xml" />
+
+	<bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="jacksonMessageConverter"/>
+			</list>
+		</property>
+	</bean> 
+
+ 
+	<!-- Enable file upload functionality for Spring MVC. Set max file size to 10Mb  -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
+		<property name="maxUploadSize" value="10000000" />
+	</bean>
+    
+	<!-- spring plugin definitions -->
+	<import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
+
+
+	<!-- extracts plugin's precompiled jsp files --> 
+	<bean id="jspSupport" class="edu.yu.einstein.wasp.pluginhandler.WaspPluginSupport">
+		<constructor-arg index="0" value="WEB-INF/jsp"/>
+		<constructor-arg index="1" value="${catalina.home}/waspPlugins"/>
+		<constructor-arg index="2" value="**/*.*"/>
+	</bean>
+	
+	<bean id="taskMappingRegistry" class="edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry" />
+	
+	<bean id="taskMappingRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.taskMapping.TaskMappingRegistryBeanPostProcessor" >
+		<property name="messageRegistry" ref="taskMappingRegistry" />
+	</bean>
+	
+	<!-- define common task mapping beans -->
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.SampleReceiveTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.samplereceive_title.label" />
+		<constructor-arg name="targetLink" value="/task/samplereceive/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.LmAndPiApprovalsTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.labManager.label" />
+		<constructor-arg name="targetLink" value="/lab/pendinglmapproval/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('pi-*') or hasRole('lm-*')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.DaApprovalsTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.departmentAdmin.label" />
+		<constructor-arg name="targetLink" value="/department/dapendingtasklist.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('da-*') or hasRole('ga-*')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.QuoteJobTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.jobQuote.label" />
+		<constructor-arg name="targetLink" value="job2quote/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('da-*') or hasRole('ga-*')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.SampleQCTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.sampleqc_title.label" />
+		<constructor-arg name="targetLink" value="/task/sampleqc/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.LibraryQCTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.libraryqc_title.label" />
+		<constructor-arg name="targetLink" value="/task/libraryqc/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+	</bean>
+  
+  
+ </beans>

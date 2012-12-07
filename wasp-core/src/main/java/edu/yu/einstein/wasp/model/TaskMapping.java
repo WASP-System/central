@@ -16,13 +16,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
@@ -33,8 +30,14 @@ public class TaskMapping extends WaspModel {
 	@Column(name="taskmappingid")
 	private Integer taskMappingId;
 	
-	@Column(name="taskid")
-	private Integer taskId;
+	@Column(name="iname")
+	private String iName;
+	
+	@Column(name="name")
+	private String name;
+	
+	@Column(name="stepname")
+	private String stepName;
 
 	@Column(name="status")
 	private String status;
@@ -42,44 +45,18 @@ public class TaskMapping extends WaspModel {
 	@Column(name="listmap")
 	private String listMap;
 	
-	@Column(name="detailmap")
-	private String detailMap;
-
 	@Column(name="permission")
 	private String permission;
 	
 	@Column(name="dashboardsortorder")
 	private Integer dashboardSortOrder;
+	
+	@Column(name="isactive")
+	private Integer isActive;
 
 	@Transient
 	private Integer stateCount;
 
-	@NotAudited
-	@ManyToOne
-	@JoinColumn(name="taskid", insertable=false, updatable=false)
-	protected Task task;
-
-	/**
-	 * setTask (Task task)
-	 *
-	 * @param task
-	 *
-	 */
-	public void setTask (Task task) {
-		this.task = task;
-		this.taskId = task.taskId;
-	}
-
-	/**
-	 * getTask ()
-	 *
-	 * @return task
-	 *
-	 */
-	
-	public Task getTask () {
-		return this.task;
-	}
 	
 	public Integer getTaskMappingId() {
 		return taskMappingId;
@@ -88,13 +65,30 @@ public class TaskMapping extends WaspModel {
 	public void setTaskMappingId(Integer taskMappingId) {
 		this.taskMappingId = taskMappingId;
 	}
-
-	public Integer getTaskId() {
-		return taskId;
+	
+	public void setIName (String iName) {
+		this.iName = iName;
 	}
 
-	public void setTaskId(Integer taskId) {
-		this.taskId = taskId;
+	public String getIName () {
+		return this.iName;
+	}
+	
+	public void setName (String name) {
+		this.name = name;
+	}
+
+	public String getName () {
+		return this.name;
+	}
+
+
+	public String getStepName() {
+		return stepName;
+	}
+
+	public void setStepName(String stepName) {
+		this.stepName = stepName;
 	}
 
 	public String getStatus() {
@@ -111,14 +105,6 @@ public class TaskMapping extends WaspModel {
 
 	public void setListMap(String listMap) {
 		this.listMap = listMap;
-	}
-
-	public String getDetailMap() {
-		return detailMap;
-	}
-
-	public void setDetailMap(String detailMap) {
-		this.detailMap = detailMap;
 	}
 
 	public String getPermission() {
@@ -143,6 +129,14 @@ public class TaskMapping extends WaspModel {
 
 	public void setStateCount(Integer stateCount) {
 		this.stateCount = stateCount;
+	}
+
+	public Integer getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Integer isActive) {
+		this.isActive = isActive;
 	}
 
 	@Override

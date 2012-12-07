@@ -20,7 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.exception.ModelCopyException;
 
@@ -29,7 +30,7 @@ public abstract class WaspModel implements Serializable {
   /**
    * generic logger included with every class.
    */
-  protected static final Logger logger = Logger.getLogger(WaspModel.class);
+  protected static Logger logger = LoggerFactory.getLogger(WaspModel.class);
   
   
   /**

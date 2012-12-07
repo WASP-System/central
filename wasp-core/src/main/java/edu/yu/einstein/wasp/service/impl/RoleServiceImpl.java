@@ -12,8 +12,6 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,156 +21,34 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
-import edu.yu.einstein.wasp.dao.FileDao;
-import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.JobDraftDao;
-import edu.yu.einstein.wasp.dao.JobFileDao;
-import edu.yu.einstein.wasp.dao.JobMetaDao;
-import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
-import edu.yu.einstein.wasp.dao.JobSampleDao;
-import edu.yu.einstein.wasp.dao.JobSoftwareDao;
-import edu.yu.einstein.wasp.dao.JobUserDao;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
-import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
-import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
-import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.SoftwareDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.StatejobDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
-import edu.yu.einstein.wasp.exception.FileMoveException;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.DepartmentUser;
-import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCellSelection;
-import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftCellSelection;
-import edu.yu.einstein.wasp.model.JobDraftFile;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
-import edu.yu.einstein.wasp.model.JobDraftSoftware;
-import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
-import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.JobSoftware;
-import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
-import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
-import edu.yu.einstein.wasp.model.SampleJobCellSelection;
-import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Statesample;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
-import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
-import edu.yu.einstein.wasp.service.TaskService;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
+	
+	private final String DELIMITER = ";";
+
+	public void setDepartmentUserDao(DepartmentUserDao departmentUserDao) {
+		this.departmentUserDao = departmentUserDao;
+	}
 
 	@Autowired
 	private DepartmentUserDao departmentUserDao;
+	@Autowired
+	private RoleDao roleDao;
 	
-	@Autowired
-	private JobDraftDao jobDraftDao;
-	
-	@Autowired
-	private SampleMetaDao sampleMetaDao;
-	
-	@Autowired
-	private TaskDao taskDao;
 
-	@Autowired
-	private TaskService taskService;
-	 
-	@Autowired
-	private JobMetaDao jobMetaDao;
-
-	@Autowired
-	protected LabDao labDao;
-
-	@Autowired
-	protected JobUserDao jobUserDao;
-
-	@Autowired
-	protected RoleDao roleDao;
-
-	@Autowired
-	protected ResourceDao resourceDao;
-
-	@Autowired
-	protected ResourceCategoryDao resourceCategoryDao;
-
-	@Autowired
-	protected SoftwareDao softwareDao;
-
-	@Autowired
-	protected ResourceTypeDao resourceTypeDao;
-
-	@Autowired
-	protected SampleDao sampleDao;
-
-	@Autowired
-	protected SampleFileDao sampleFileDao;
-
-	@Autowired
-	protected JobSampleDao jobSampleDao;
-	
-	@Autowired
-	protected SampleTypeDao sampleTypeDao;
-	
-	@Autowired
-	protected SampleSubtypeDao sampleSubtypeDao;
-
-	@Autowired
-	protected StatejobDao statejobDao;
-
-	@Autowired
-	protected StateDao stateDao;
-
-	@Autowired
-	protected SampleSubtypeDao subSampleTypeDao;
-
-	@Autowired
-	protected FileDao fileDao;
-
-	@Autowired
-	protected JobCellSelectionDao jobCellSelectionDao;
-	
-	@Autowired
-	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
-	
-	@Autowired
-	protected JobSoftwareDao jobSoftwareDao;
-	
-	@Autowired
-	protected JobResourcecategoryDao jobResourcecategoryDao;
-	
-	@Autowired
-	protected JobFileDao jobFileDao;
 
 	 /**
 	   * {@inheritDoc}
@@ -242,5 +118,100 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		List<String> roles = new ArrayList<String>(rolesAsSet);
 		Collections.sort(roles);
 		return roles;
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Role> convertMetaRoleVisibilityDelimitedStringToRoleList(String roleVisibility){
+		List<Role> roleList = new ArrayList<Role>();
+		if(roleVisibility != null){
+			String[] rolenamesAsStringArray = StringUtils.delimitedListToStringArray(roleVisibility, DELIMITER);
+			for(String rolename : rolenamesAsStringArray){
+				Role role = this.getRoleByRolename(rolename);
+				if(role!=null && role.getRoleId()!=null && role.getRoleId().intValue()>0){
+					roleList.add(role);
+				}
+			}
+		}			
+		return roleList;
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public Role getRoleByRolename(String roleName){
+		return roleDao.getRoleByRoleName(roleName);
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public String convertRoleListToMetaRoleVisibilityDelimitedString(List<Role> roleList){
+		
+		StringBuilder roleVisibilitySB = new StringBuilder("");		
+		for(Role role : roleList){
+			if(role.getRoleName() != null){
+				roleVisibilitySB.append(role.getRoleName() + DELIMITER);
+			}
+		}
+		return new String(roleVisibilitySB);		
+	}
+
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean metaRoleVisibilityDelimitedStringContainsRole(String roleVisibility, Role role){
+		
+		if(roleVisibility == null || role == null || role.getRoleName() == null){ return false; }
+		
+		List<Role> roleList = this.convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
+		return roleInRoleList(role, roleList);
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public String addRoleToMetaRoleVisibility(String roleVisibility, Role role){
+
+		if(roleVisibility == null || role == null || role.getRoleName() == null || metaRoleVisibilityDelimitedStringContainsRole(roleVisibility, role)){
+			return roleVisibility;
+		}
+		
+		return new String(roleVisibility + role.getRoleName() + DELIMITER);		
+	}
+
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public String removeRoleFromMetaRoleVisibility(String roleVisibility, Role role){
+
+		if(roleVisibility == null || role == null || role.getRoleName() == null || ! metaRoleVisibilityDelimitedStringContainsRole(roleVisibility, role)){
+			return roleVisibility;
+		}
+		
+		List<Role> roleList = convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
+		StringBuilder modifiedRoleVisibilitySB = new StringBuilder("");
+		for(Role roleInList : roleList){
+			if(!role.getRoleName().equals(roleInList.getRoleName())){
+				modifiedRoleVisibilitySB.append(roleInList.getRoleName() + DELIMITER);
+			}
+		}		
+		return new String(modifiedRoleVisibilitySB);		
+	}
+	
+	private boolean roleInRoleList(Role role, List<Role> roleList){
+		for(Role roleFromList : roleList){
+			if(role.getRoleName().equals(roleFromList.getRoleName())){
+				return true;
+			}
+		}
+		return false;
 	}
 }
