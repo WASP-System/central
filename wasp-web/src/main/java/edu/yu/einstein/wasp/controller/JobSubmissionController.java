@@ -1213,10 +1213,6 @@ public class JobSubmissionController extends WaspController {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		if (jobDraft.getSampleDraft().isEmpty()){
-			waspErrorMessage("jobDraft.noSamples.error");
-			return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
-		}
 		
 		if (mpFiles != null){
 			int fileCount = -1;
@@ -1233,6 +1229,10 @@ public class JobSubmissionController extends WaspController {
 					waspErrorMessage("jobDraft.upload_file.error");
 				}
 			}
+		}
+		if (jobDraft.getSampleDraft().isEmpty()){
+			waspErrorMessage("jobDraft.noSamples.error");
+			return "redirect:/jobsubmit/samples/"+jobDraftId+".do"; 
 		}
 		return nextPage(jobDraft);
 	}
