@@ -1363,7 +1363,8 @@ public class JobSubmissionController extends WaspController {
 		sampleDraftDao.save(sampleDraft);
 		sampleDraftMetaDao.updateBySampledraftId(sampleDraft.getSampleDraftId(), metaFromForm);
 		waspMessage("sampleDetail.updated_success.label");
-		return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftId+".do";
+		//replaced 12-7-12; WASP-181   return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftId+".do";
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
 	
 	@Transactional
