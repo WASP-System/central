@@ -199,8 +199,7 @@ public class TaskController extends WaspController {
 	  List<String> receiveSampleStatusList = new ArrayList<String>();
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
 	  for(Sample sample : submittedSamplesList){	
-		  BatchStatus status = sampleService.getReceiveSampleStatus(sample);		  
-		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(status));	
+		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));	
 		  
 		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
 		  sampleHasBeenProcessedList.add(new Boolean(sampleHasBeenProcessedByFacility));
