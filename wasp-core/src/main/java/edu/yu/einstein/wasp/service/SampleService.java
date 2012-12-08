@@ -13,7 +13,7 @@ package edu.yu.einstein.wasp.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.SampleDao;
@@ -126,21 +126,21 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Sample
 	   * @return String
 	   */
-	  public BatchStatus getReceiveSampleStatus(final Sample sample);
+	  public ExitStatus getReceiveSampleStatus(final Sample sample);
 	  
 	  /**
 	   * Returns status of a sample's QC Sample step
 	   * @param sample
 	   * @return
 	   */
-	  public BatchStatus getSampleQCStatus(Sample sample);
+	  public ExitStatus getSampleQCStatus(Sample sample);
 	  
 	  /**
 	   * Returns status of a library's QC Sample step
 	   * @param library
 	   * @return
 	   */
-	  public BatchStatus getLibraryQCStatus(Sample library);
+	  public ExitStatus getLibraryQCStatus(Sample library);
 	  
 	  /**
 		 * Returns true if provided sample is received, otherwise returns false
@@ -168,7 +168,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus);
+	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus);
 	  
 	  /**
 	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
@@ -189,7 +189,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertSampleQCStatusForWeb(BatchStatus internalStatus);
+	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus);
 	  
 	  /**
 	   * Converts sample's QC Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
