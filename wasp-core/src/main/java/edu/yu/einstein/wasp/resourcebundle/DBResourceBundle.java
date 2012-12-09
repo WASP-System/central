@@ -57,6 +57,8 @@ public class DBResourceBundle implements ApplicationContextAware{
 	
 	private String sqlInitFile;
 	
+	private String messageFilePattern;
+	
 
 
 	@Override
@@ -64,6 +66,11 @@ public class DBResourceBundle implements ApplicationContextAware{
 		this.applicationContext=applicationContext;
 	}
 	
+	
+	public DBResourceBundle(String messageFilePattern) {
+		this.messageFilePattern = messageFilePattern;
+	}
+
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -102,10 +109,10 @@ public class DBResourceBundle implements ApplicationContextAware{
 		}
 		List<Resource> messageFiles = new ArrayList<Resource>();
 		try{
-			for (Resource messageFile: this.applicationContext.getResources("classpath*:/i18n/**/*messages_*.properties"))
+			for (Resource messageFile: this.applicationContext.getResources(messageFilePattern))
 				messageFiles.add(messageFile);
 		} catch(IOException e){
-			throw new WaspMessageInitializationException("IO problem encountered getting resources from 'classpath*:/i18n/**/*messages_*.properties': "+e.getMessage());
+			throw new WaspMessageInitializationException("IO problem encountered getting resources from '" + messageFilePattern + "': "+e.getMessage());
 		}
 					
 		for (Resource messageFile: messageFiles){
@@ -199,6 +206,16 @@ public class DBResourceBundle implements ApplicationContextAware{
 
 	public void setSqlInitFile(String sqlInitFile) {
 		this.sqlInitFile = sqlInitFile;
+	}
+
+
+	public String getMessageFilePattern() {
+		return messageFilePattern;
+	}
+
+
+	public void setMessageFilePattern(String messageFilePattern) {
+		this.messageFilePattern = messageFilePattern;
 	}
 	
 

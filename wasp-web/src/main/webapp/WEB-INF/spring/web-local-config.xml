@@ -11,6 +11,7 @@
   	
   	<!-- import internationalized messaging. Initialize database first-->
   	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle">
+  		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" /> 
   		<property name="runSQL" value="true" />
   		<property name="sqlInitFile" value="classpath:/uifield_init.sql" />
   	</bean>
