@@ -60,8 +60,20 @@ public class BreadcrumbsTag extends BodyTagSupport {
 		} catch (IOException e) {
 			throw new JspTagException(e.getMessage());
 		}
-		String newBreadcrubs = "";
-		if (request.getAttribute("forcePageTitle") == null){
+		String newBreadcrumbs = "";
+		String viewName = (String) request.getAttribute("waspViewName");
+		String waspViewUrl = (String) request.getAttribute("waspViewUrl");
+		if (viewName == null || waspViewUrl == null) 
+			throw new JspTagException("Cannot get tiles view name or url");
+		Locale locale = (Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		String code = "pageTitle." + viewName + ".label";
+		String title = DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
+		String newBreadcrumb = "<a href='" + waspViewUrl + "'>" + title + "</a>";
+		if (request.getAttribute("forcePageTitle") == null &&
+				!breadcrumbs.endsWith(newBreadcrumb) &&
+				( !waspViewUrl.contains("/jobsubmit/") ||
+						waspViewUrl.contains("/jobsubmit/create") ||
+						waspViewUrl.contains("/jobsubmit/modify") )	){
 			// forcePageTitle is only used with job submission and this has its own trail
 			String[] breadcrumbList = breadcrumbs.split(" &gt;&gt; ");
 			boolean isFirst = true;
@@ -72,21 +84,13 @@ public class BreadcrumbsTag extends BodyTagSupport {
 					isFirst = false;
 					continue; // don't include the first item in the new list if >=4 elements
 				}
-				newBreadcrubs += breadcrumb + " &gt;&gt; ";
+				newBreadcrumbs += breadcrumb + " &gt;&gt; ";
 			}
-			
-			String viewName = (String) request.getAttribute("waspViewName");
-			String waspViewUrl = (String) request.getAttribute("waspViewUrl");
-			if (viewName == null || waspViewUrl == null) 
-				throw new JspTagException("Cannot get tiles view name or url");
-			Locale locale = (Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
-			String code = "pageTitle." + viewName + ".label";
-			String title = DBResourceBundle.MESSAGE_SOURCE.getMessage(code, null, locale);
-			newBreadcrubs += "<a href='" + waspViewUrl + "'>" + title + "</a>";
-			session.setAttribute("breadcrumbs", newBreadcrubs);
+			newBreadcrumbs += newBreadcrumb;
+			session.setAttribute("breadcrumbs", newBreadcrumbs);
 		} else {
 			// keep the same
-			newBreadcrubs = breadcrumbs;
+			newBreadcrumbs = breadcrumbs;
 		}
 		
 		
