@@ -123,16 +123,23 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public String payment(@RequestParam("jobId") Integer jobId,
-		  				@RequestParam("sampleId") List<Integer> sampleIdList,
+  public String recordSampleReceive(@RequestParam("sampleId") List<Integer> sampleIdList,
 		  				ModelMap m) 
   {
-	  String [] receivedStatusArray = request.getParameterValues("receivedStatus" + jobId.toString());
-	  List<String> receivedStatusList = Arrays.asList(receivedStatusArray);
+	  List<String> receivedStatusList = new ArrayList<String>(); //Arrays.asList(receivedStatusArray);
+	  for(Integer id : sampleIdList){
+			String val = request.getParameter("receivedStatus" + id.toString());
+			if(val == null){
+				waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+				return "redirect:/task/samplereceive/list.do";
+			}
+			receivedStatusList.add(val);
+	  }	  
 	  boolean atLeastOneSampleSelectedForUpdate = false;
 	  for(String status: receivedStatusList){
 		  if("RECEIVED".equals(status) || "WITHDRAWN".equals(status)){
 			  atLeastOneSampleSelectedForUpdate = true;
+			  break;
 		  }
 	  }
 	  if(atLeastOneSampleSelectedForUpdate==false){
@@ -144,7 +151,7 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
 		  return "redirect:/task/samplereceive/list.do";		  
 	  }
-	  
+	 	  
 	  for(int i = 0; i < receivedStatusList.size(); i++){
 		  if(!receivedStatusList.get(i).isEmpty()){
 			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
@@ -174,7 +181,6 @@ public class TaskController extends WaspController {
 		  }
 	  }
 	  waspMessage("task.samplereceive_update_success.label");
-	  logger.debug("DUBIN leaving post");
 	  return "redirect:/task/samplereceive/list.do";
 
   }

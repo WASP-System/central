@@ -25,12 +25,11 @@
 	</tr>
 	<c:set var="samplesList" value="${jobAndSamplesMap.get(job)}" scope="page" />
 	<form action="<c:url value="/task/samplereceive/receive.do"/>" name="theForm<c:out value="${job.getJobId()}" />" id="theForm<c:out value="${job.getJobId()}" />" method="POST" onsubmit="return validate(this);">
-	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
 	<c:forEach items="${samplesList}" var="sample" varStatus="status">	
 		<tr class="FormData">
 			<c:choose>
 				<c:when test="${currentJobId !=  job.getJobId()}">
-					<td style='text-align:center'><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
+					<td style='text-align:center;'><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">J<c:out value="${job.getJobId()}" /></a></td>          
 					<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 					<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 				</c:when>
@@ -44,7 +43,7 @@
 			<td style='text-align:center'><c:out value="${sample.getName()}" /> (<c:out value="${sample.getSampleId()}" />)</td>
 			<td style='text-align:center'>
 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${sample.getSampleId()}"> 
-	 			<select class="FormElement ui-widget-content ui-corner-all" name="receivedStatus<c:out value="${job.getJobId()}" />" size="1" >
+	 			<select class="FormElement ui-widget-content ui-corner-all" name="receivedStatus<c:out value="${sample.getSampleId()}" />" size="1" >
 	 				<option value=""><fmt:message key="task.samplereceive_select.label" />
 	 				<option value="RECEIVED"><fmt:message key="task.samplereceive_received.label" />
 	 				<option value="WITHDRAWN"><fmt:message key="task.samplereceive_withdrawn.label" />
