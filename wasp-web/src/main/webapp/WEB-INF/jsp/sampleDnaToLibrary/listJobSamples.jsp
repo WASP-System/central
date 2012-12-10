@@ -185,12 +185,12 @@
 						
 					</td>						
 					<td>
-					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSample()}" scope="page" />
 							<c:choose>
 								<c:when test="${sampleSourceList.size() > 0}">
 									<c:forEach items="${sampleSourceList}" var="sampleSource">
 										<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-										<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
+										<c:set var="sampleSourceList2" value="${cell.getSourceSample()}" scope="page" />
 										<c:forEach items="${sampleSourceList2}" var="sampleSource2">
 											<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 											<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
@@ -293,12 +293,12 @@
 			</c:if> 
 		</td>
 		<td>
-		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSampleId()}" scope="page" />
+		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSample()}" scope="page" />
 		<c:choose>
 			<c:when test="${sampleSourceList.size() > 0}">
 				<c:forEach items="${sampleSourceList}" var="sampleSource">
 					<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-					<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList2" value="${cell.getSourceSample()}" scope="page" />
 					<c:forEach items="${sampleSourceList2}" var="sampleSource2">
 						<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 						<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
