@@ -71,6 +71,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	
 	private SubscribableChannel listeningChannel;
 	
+	private SubscribableChannel abortChannel;
+	
 	@BeforeClass
 	private void setup(){
 		Assert.assertNotNull(channelRegistry);
@@ -79,6 +81,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 		Assert.assertNotNull(messageChannelRegistry);
 		listeningChannel = channelRegistry.getChannel("wasp.channel.notification.job", SubscribableChannel.class);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
+		abortChannel = channelRegistry.getChannel("wasp.channel.notification.abort", SubscribableChannel.class);
+		abortChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
 
@@ -87,6 +91,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 	@AfterClass 
 	private void tearDown(){
 		listeningChannel.unsubscribe(this);
+		abortChannel.unsubscribe(this);
 	}
 	
 		

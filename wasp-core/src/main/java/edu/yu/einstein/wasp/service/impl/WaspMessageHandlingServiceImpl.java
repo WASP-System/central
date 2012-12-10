@@ -55,8 +55,8 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 			} else {
 				messagingTemplate.send(outboundRemotingChannel, message);
 			}
-		} catch(Throwable t){
-			throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + ": " + t.getLocalizedMessage());
+		} catch(Exception e){
+			throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + ": " + e.getLocalizedMessage());
 		}
 		
 	}	

@@ -5,11 +5,13 @@ package edu.yu.einstein.wasp.grid.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -112,6 +114,17 @@ public class SshFileServiceTest {
 	public void testDelete() throws IOException {
 		gfs.delete("testing/test.txt");
 		gfs.delete("testing/test2.txt");
+	}
+	
+	@Test
+	public void testURI() throws Exception {
+		URI remotefile = gfs.remoteFileRepresentationToLocalURI("/illumina/test.txt");
+		URI remoteuri = gfs.remoteFileRepresentationToLocalURI("sftp://wasp@remotehost.net/folder/file.txt");
+		Assert.assertEquals(remotefile.toString(), "file://" + gts.getHostName() + "/illumina/test.txt");
+		
+		// This is the correct behavior, but the remote host should be set by the transport connection
+		// not the user. 
+		Assert.assertEquals(remoteuri.toString(), "file://remotehost.net/folder/file.txt");
 	}
 
 }

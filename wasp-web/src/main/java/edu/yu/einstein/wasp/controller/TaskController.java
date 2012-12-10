@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,37 +123,60 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public String payment(
-      @RequestParam("sampleId") Integer sampleId,
-      @RequestParam("receivedStatus") String receivedStatus,
-      ModelMap m) {
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId().intValue()==0){
-		  waspErrorMessage("task.samplereceive_invalid_sample.error");
-		  return "redirect:/task/samplereceive/list.do";
+  public String payment(@RequestParam("jobId") Integer jobId,
+		  				@RequestParam("sampleId") List<Integer> sampleIdList,
+		  				ModelMap m) 
+  {
+	  String [] receivedStatusArray = request.getParameterValues("receivedStatus" + jobId.toString());
+	  List<String> receivedStatusList = Arrays.asList(receivedStatusArray);
+	  boolean atLeastOneSampleSelectedForUpdate = false;
+	  for(String status: receivedStatusList){
+		  if("RECEIVED".equals(status) || "WITHDRAWN".equals(status)){
+			  atLeastOneSampleSelectedForUpdate = true;
+		  }
 	  }
-	  if(receivedStatus == null ||  receivedStatus.equals("")){
+	  if(atLeastOneSampleSelectedForUpdate==false){
 		  waspErrorMessage("task.samplereceive_receivedstatus_empty.error");
 		  return "redirect:/task/samplereceive/list.do";
 	  }
-	  try{
-		  if(receivedStatus.equals("RECEIVED")){
-			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
-		  }
-		  else if(receivedStatus.equals("WITHDRAWN")){
-			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
-		  }
-		  else{
-			  waspErrorMessage("task.samplereceive_receivedstatus_invalid.error");
-			  return "redirect:/task/samplereceive/list.do";
-		  }
-	  } catch (WaspMessageBuildingException e){
-		  logger.warn(e.getLocalizedMessage());
-		  waspErrorMessage("task.samplereceive_message.error");
-		  return "redirect:/task/samplereceive/list.do";
+	  if(sampleIdList.size() != receivedStatusList.size()){
+		  logger.debug(sampleIdList.size() + " != " + receivedStatusList.size());
+		  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+		  return "redirect:/task/samplereceive/list.do";		  
 	  }
-	  waspMessage("task.samplereceive_update_success.label");	
+	  
+	  for(int i = 0; i < receivedStatusList.size(); i++){
+		  if(!receivedStatusList.get(i).isEmpty()){
+			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
+			  if(sample.getSampleId()<=0){
+				  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+				  logger.warn("unable to find sampleId " + sampleIdList.get(i).intValue() + " in task/samplereceive/receive - POST");
+				  return "redirect:/task/samplereceive/list.do";
+			  }
+			  try{
+				  if(receivedStatusList.get(i).equals("RECEIVED")){	
+					  logger.debug("Received Sample = " + sample.getName());
+					  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
+				  }
+				  else if(receivedStatusList.get(i).equals("WITHDRAWN")){
+					  logger.debug("Withdrawn Sample = " + sample.getName());
+					  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
+				  }
+				  else{logger.debug("neither received nor withdrawn. very unexpected");}
+			  }catch (WaspMessageBuildingException e){
+				  logger.warn(e.getLocalizedMessage());
+				  waspErrorMessage("task.samplereceive_message.error");
+				  return "redirect:/task/samplereceive/list.do";
+			  } 
+		  }	
+		  else{
+			  logger.debug("SampleId " + sampleIdList.get(i) + " is not being updated now");
+		  }
+	  }
+	  waspMessage("task.samplereceive_update_success.label");
+	  logger.debug("DUBIN leaving post");
 	  return "redirect:/task/samplereceive/list.do";
+
   }
 
   
@@ -176,7 +200,7 @@ public class TaskController extends WaspController {
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
 	  for(Sample sample : submittedSamplesList){	
 		  BatchStatus status = sampleService.getReceiveSampleStatus(sample);		  
-		  receiveSampleStatusList.add(sampleService.convertReceiveSampleStatusForWeb(status));	
+		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(status));	
 		  
 		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
 		  sampleHasBeenProcessedList.add(new Boolean(sampleHasBeenProcessedByFacility));
@@ -221,7 +245,7 @@ public class TaskController extends WaspController {
 		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 		  if(sample.getSampleId() > 0 && ! sampleService.submittedSampleHasBeenProcessedByFacility(sample)){
 			  try{
-				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertReceiveSampleStatusFromWeb(receivedStatusList.get(index++)));
+				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertSampleReceivedStatusFromWeb(receivedStatusList.get(index++)));
 			  } catch (WaspMessageBuildingException e){
 				  logger.warn(e.getLocalizedMessage());
 				  waspMessage("task.samplereceive_message.error");
@@ -230,6 +254,128 @@ public class TaskController extends WaspController {
 	  }
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  
+  }
+  
+  @RequestMapping(value = "/sampleqc/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String listSampleQC(ModelMap m) {
+
+    List<Job> jobsActiveAndAwaitingSampleQC = jobService.getJobsAwaitingSampleQC();
+        
+    Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
+    for(Job job : jobsActiveAndAwaitingSampleQC){
+    	logger.debug("processing samples for job with id='" + job.getJobId() + "'");
+    	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
+    	for (Sample sample: newSampleList)
+    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    	sampleService.sortSamplesBySampleName(newSampleList);    	
+    	jobAndSampleMap.put(job, newSampleList);
+    }
+    
+    if(jobsActiveAndAwaitingSampleQC.size() != jobAndSampleMap.size()){
+    	//message and get out of here
+    }
+    
+    m.addAttribute("jobList", jobsActiveAndAwaitingSampleQC);
+    m.addAttribute("jobAndSamplesMap", jobAndSampleMap);
+    
+    return "task/sampleqc/list";
+  }
+
+  @RequestMapping(value = "/sampleqc/qc", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String updateSampleQC(
+      @RequestParam("sampleId") Integer sampleId,
+      @RequestParam("qcStatus") String qcStatus,
+      ModelMap m) {
+	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
+	  if(sample.getSampleId()==null){
+		  waspErrorMessage("task.sampleqc_invalid_sample.error");
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+	  if(qcStatus == null ||  qcStatus.equals("")){
+		  waspErrorMessage("task.sampleqc_status_empty.error");
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+	  try{
+		  if(qcStatus.equals("PASSED")){
+			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
+		  }
+		  else if(qcStatus.equals("FAILED")){
+			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
+		  }
+		  else{
+			  waspErrorMessage("task.sampleqc_status_invalid.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+	  } catch (WaspMessageBuildingException e){
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("task.sampleqc_message.error");
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+	  waspMessage("task.sampleqc_update_success.label");	
+	  return "redirect:/task/sampleqc/list.do";
+  }
+  
+  @RequestMapping(value = "/libraryqc/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String listLibraryQC(ModelMap m) {
+
+    List<Job> jobsActiveAndAwaitingLibraryQC = jobService.getJobsAwaitingLibraryQC();
+        
+    Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
+    for(Job job : jobsActiveAndAwaitingLibraryQC){
+    	logger.debug("processing libraries for job with id='" + job.getJobId() + "'");
+    	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
+    	for (Sample sample: newLibraryList)
+    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    	sampleService.sortSamplesBySampleName(newLibraryList);    	
+    	jobAndSampleMap.put(job, newLibraryList);
+    }
+    
+    if(jobsActiveAndAwaitingLibraryQC.size() != jobAndSampleMap.size()){
+    	//message and get out of here
+    }
+    
+    m.addAttribute("jobList", jobsActiveAndAwaitingLibraryQC);
+    m.addAttribute("jobAndSamplesMap", jobAndSampleMap);
+    
+    return "task/libraryqc/list";
+  }
+
+  @RequestMapping(value = "/libraryqc/qc", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String updateLibraryQC(
+      @RequestParam("sampleId") Integer sampleId,
+      @RequestParam("qcStatus") String qcStatus,
+      ModelMap m) {
+	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
+	  if(sample.getSampleId()==null){
+		  waspErrorMessage("task.libraryqc_invalid_sample.error");
+		  return "redirect:/task/libraryqc/list.do";
+	  }
+	  if(qcStatus == null ||  qcStatus.equals("")){
+		  waspErrorMessage("task.libraryqc_status_empty.error");
+		  return "redirect:/task/libraryqc/list.do";
+	  }
+	  try{
+		  if(qcStatus.equals("PASSED")){
+			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
+		  }
+		  else if(qcStatus.equals("FAILED")){
+			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
+		  }
+		  else{
+			  waspErrorMessage("task.libraryqc_status_invalid.error");
+			  return "redirect:/task/libraryqc/list.do";
+		  }
+	  } catch (WaspMessageBuildingException e){
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("task.libraryqc_message.error");
+		  return "redirect:/task/libraryqc/list.do";
+	  }
+	  waspMessage("task.libraryqc_update_success.label");	
+	  return "redirect:/task/libraryqc/list.do";
   }
   
  

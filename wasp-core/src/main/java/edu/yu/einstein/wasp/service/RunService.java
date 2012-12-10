@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -74,7 +75,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 * @throws SampleTypeException, WaspMessageBuildingException
 	 */
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException, WaspMessageBuildingException;
+	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException;
 
 	/**
 	 * Update details of existing sequencing run
@@ -97,4 +98,16 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @throws SampleTypeException
 	 */
 	public List<Run> getRunsForPlatformUnit(Sample pu) throws SampleTypeException;
+
+	/**
+	 * Returns a set of currently active runs
+	 * @return
+	 */
+	public Set<Run> getCurrentlyActiveRuns();
+
+	/**
+	 * Returns a set of runs that completed normally
+	 * @return
+	 */
+	public Set<Run> getSuccessfullyCompletedRuns();
 }

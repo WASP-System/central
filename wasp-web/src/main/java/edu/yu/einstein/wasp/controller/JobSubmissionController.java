@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.integration.MessageHandlingException;
+import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,14 +77,12 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
@@ -93,7 +91,6 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -296,7 +293,7 @@ public class JobSubmissionController extends WaspController {
 	
 	@Transactional
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
+	@PreAuthorize("hasRole('lu-*') or hasRole('su') or hasRole('ft-*') or hasRole('fm-*')")
 	public String list(ModelMap m) {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -317,29 +314,49 @@ public class JobSubmissionController extends WaspController {
 		String sidx = request.getParameter("sidx");
 		
 		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");
+		String labId = request.getParameter("labId");//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 		
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		List<JobDraft> jobDraftList;
+		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();//empty list
 		
-		if (!search.equals("true")	&& userId.isEmpty()	&& labId.isEmpty()) {
-			jobDraftList = sidx.isEmpty() ? this.jobDraftDao.getPendingJobDrafts() : this.jobDraftDao.getPendingJobDraftsOrderBy(sidx, sord);
-		} else {
-			  Map m = new HashMap();
+		User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+		
+		if (userId.isEmpty()) {//all drafts are being requested; must be facility personnel to view them
+			if(authenticationService.isFacilityMember()){
+				jobDraftList = sidx.isEmpty() ? this.jobDraftDao.getPendingJobDrafts() : this.jobDraftDao.getPendingJobDraftsOrderBy(sidx, sord);
+			}			
+		} 
+		else{
+			
+			Integer userIdAsInteger = null;
+			
+			try{
+				userIdAsInteger = Integer.parseInt(userId);
+			}catch(NumberFormatException e){/*waspErrorMessage("wasp.parseint_error.error");*/}//error won't be visible; this is a jason call!
+			
+			if(userIdAsInteger!=null){
 			  
-			  if (search.equals("true") && !searchStr.isEmpty())
-				  m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-			  
-			  if (!userId.isEmpty())
-				  m.put("UserId", Integer.parseInt(userId));
-			  
-			  if (!labId.isEmpty())
-				  m.put("labId", Integer.parseInt(labId));
-			  
-			  m.put("status", "PENDING");
-			  jobDraftList = this.jobDraftDao.findByMap(m);
+				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getUserId().intValue() ) ){
+				
+					Map m = new HashMap();	
+				
+					//if (search.equals("true") && !searchStr.isEmpty()){
+					//	m.put(request.getParameter("searchField"), request.getParameter("searchString"));
+					//}
+					//if (!labId.isEmpty())
+					//	  m.put("labId", Integer.parseInt(labId));//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
+
+					m.put("status", "PENDING");
+					m.put("UserId", userIdAsInteger);				  	  
+					jobDraftList = this.jobDraftDao.findByMap(m);
+				}
+			}
+			else{
+				//error won't be visible as this is a json call
+				//waspErrorMessage("wasp.permission_error.error");//regular user asking to view someone else's records.
+			}
 		}
 
 		try {
@@ -1751,12 +1768,12 @@ public class JobSubmissionController extends WaspController {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
-		} catch (MessageHandlingException e) {
+		} catch (MessagingException e) {
 			logger.warn(e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
-		} catch (Throwable e){
-			logger.warn("Caught unknown exception" + e.getMessage());
+		} catch (Exception e){
+			logger.warn("Caught unknown exception: " + e.getMessage());
 			waspErrorMessage("jobDraft.createJobFromJobDraft.error");
 			error = true;
 		}

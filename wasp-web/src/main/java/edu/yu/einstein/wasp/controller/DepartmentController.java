@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -100,7 +102,10 @@ public class DepartmentController extends WaspController {
 	
 	@Autowired
 	private JobService jobService;
-	
+
+	@Autowired
+	private MessageService messageService;
+
 	@Autowired
 	private SampleService sampleService;
 
@@ -499,13 +504,21 @@ public class DepartmentController extends WaspController {
 		
 		//finish up with pending jobs		
 		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
+		
+		//for testing only: next two lines, just to fill it up and see something on the jsp
+		//jobsPendingDaApprovalList.clear();
+		//jobsPendingDaApprovalList = jobService.getJobDao().findAll();
+		
+		
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		
 		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
 		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
 		for(Job job : jobsPendingDaApprovalList){
 			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
@@ -519,11 +532,12 @@ public class DepartmentController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));
+					sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
 				}
 			}			
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
 		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
 		

@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,10 +69,10 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 
 @Controller
-@Transactional
 @RequestMapping("/sampleDnaToLibrary")
 public class SampleDnaToLibraryController extends WaspController {
 
@@ -308,8 +309,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);
@@ -321,6 +324,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
 	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, Boolean> receiveSampleStatusMap = new HashMap<Sample, Boolean>();// created 5/7/12
 	  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
 	  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
@@ -333,11 +337,19 @@ public class SampleDnaToLibraryController extends WaspController {
 				macromoleculeSubmittedSamplesList.add(sample);
 				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromolecule
 				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);
-				createLibraryStatusMap.put(sample, sampleService.isSampleAwaitingLibraryCreation(sample));
+				boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(sample);
+				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
+				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
+				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
+				for (Sample facilityLibrary: facilityGeneratedLibrariesList){
+					qcStatusMap.put(facilityLibrary, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(facilityLibrary)));
+					assignLibraryToPlatformUnitStatusMap.put(facilityLibrary, sampleService.isLibraryAwaitingPlatformUnitPlacement(facilityLibrary));
+				}
 			}
 			else if(sampleService.isLibrary(sample)){
 				librarySubmittedSamplesList.add(sample);
 				assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample));
+				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
@@ -347,7 +359,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn("Unable to identify species for sampleId " + sample.getSampleId());
 				//print a message and get outta here
 			}
-			receivedStatusMap.put(sample, sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			//for each task, determine if it's status is CREATED (if it has many states for a single status, simply determine if at least one is CREATED) 
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
@@ -440,6 +452,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
+		m.addAttribute("qcStatusMap", qcStatusMap);
 		m.addAttribute("receiveSampleStatusMap", receiveSampleStatusMap);
 		m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
@@ -529,8 +542,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return returnString;
 
 	  Job job = jobDao.getJobByJobId(jobId);
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
 
@@ -579,8 +594,8 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Sample parentMacromolecule = sampleDao.getSampleBySampleId(macromolSampleId);
 	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(jobForThisSample);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(jobForThisSample));
+	  m.addAttribute("jobApprovalsMap", jobService.getJobApprovals(jobForThisSample));
 
 	  libraryForm.setName(libraryForm.getName().trim());
 	  //confirm that this new library's name is different from all other sample.name in this job for samples of the same sample type (library)
@@ -610,26 +625,16 @@ public class SampleDnaToLibraryController extends WaspController {
 	  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
 	  libraryForm.setIsActive(new Integer(1));
 	  libraryForm.setLastUpdTs(new Date());
-	  SampleWrapperWebapp managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
-	  try {
+	  SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
+	   try {
 		  managedLibraryFromForm.setParent(parentMacromolecule);
-	  } catch (SampleParentChildException e) {
-		  e.printStackTrace();
-	  }
-	  managedLibraryFromForm.updateMetaToList(sampleMetaListFromForm, sampleMetaDao);
-	  managedLibraryFromForm.saveAll(sampleService);
-	  
-	  //add entry to jobsample table to link new library to job
-	  JobSample newJobSample = new JobSample();
-	  newJobSample.setJob(jobForThisSample);
-	  newJobSample.setSample(libraryForm);
-	  newJobSample = jobSampleDao.save(newJobSample);
-
-	  try {
-		  sampleService.updateLibraryCreatedStatus(parentMacromolecule, WaspStatus.CREATED);
+		  sampleService.createFacilityLibraryFromMacro(jobForThisSample, managedLibraryFromForm, sampleMetaListFromForm);
 		  waspMessage("libraryCreated.created_success.label");
-		  logger.warn("Library created successfully but there was a failure to send status message to wasp-daemon");
-	  } catch (WaspMessageBuildingException e) {
+	  } catch (SampleParentChildException e) {
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("libraryCreated.sample_problem.error");
+	  } catch (MessagingException e) {
+		  logger.warn(e.getLocalizedMessage());
 		  waspErrorMessage("libraryCreated.message_fail.error");
 	  } 
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -768,6 +773,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
 		m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(job));
+		m.addAttribute("jobApprovalsMap", jobService.getJobApprovals(job));
+
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
@@ -796,9 +803,11 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return returnString;
 	  
 	  Job job = jobDao.getJobByJobId(jobId);
-	  	  
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
 	  //confirm these two objects exist and part of same job
@@ -829,8 +838,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 	  
-	  Map<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(jobForThisSample);
-	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(jobForThisSample);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(jobForThisSample);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		  	  		  
 	  sampleForm.setName(sampleForm.getName().trim());//from the form
 	  validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
@@ -857,7 +868,7 @@ public class SampleDnaToLibraryController extends WaspController {
   
   private Map<String, String> getExtraJobDetails(Job job){
 	  
-	  //replaced by JobService.getExtraJobDetails(job)
+	  //replaced by JobService.getExtraJobDetails(job); should be able to remove safely
 	  
 	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 

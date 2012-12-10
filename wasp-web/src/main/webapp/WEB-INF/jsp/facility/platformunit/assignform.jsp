@@ -18,29 +18,29 @@ function showAssignForm(e) {
 
 
 <br /> 
-<h1>Assigning Libraries For A Run On: <c:out value="${machineName}" /></h1>
+<h1><fmt:message key="platformunit_assign.assignLibToRun.label"/>: <c:out value="${machineName}" /></h1>
 <div class="assignmentContent">
 	<div class="sampleSide">
 	 <c:choose>
 	 <c:when test='${fn:length(jobs) > "0"}'>
 	  <c:forEach items="${jobs}" var="j">
 	    <div class="job">
-	      <label>Job <c:out value="${j.jobId}" /></label>
-	      <c:out value="${j.name}" /> [Analysis: <c:out value="${j.workflow.name}" />] 
+	      <label><fmt:message key="platformunit_assign.job.label"/> <c:out value="${j.jobId}" /></label>
+	      <c:out value="${j.name}" /> [<fmt:message key="platformunit_assign.analysis.label"/>: <c:out value="${j.workflow.name}" />] 
 	      <c:forEach items="${j.jobCellSelection}" var="jc">
 	        <div class="jobcell">
-	          Job Cell: <c:out value="${jc.cellIndex}" /> 
+	          <fmt:message key="platformunit_assign.jobCell.label"/>: <c:out value="${jc.cellIndex}" /> 
 	          <c:forEach items="${jc.sampleJobCellSelection}" var="sc">
 	            <div class="samplecell">
-	              Sample Cell: <c:out value="${sc.libraryIndex}" /> 
+	              <fmt:message key="platformunit_assign.sampleCell.label"/>: <c:out value="${sc.libraryIndex}" /> 
 	               <div class="sample">
 	                
 	                        <c:choose>
 	                         <c:when test="${sc.sample.sampleType.IName == 'library'}">
-	                  			<label>User-submitted Library </label>
+	                  			<label><fmt:message key="platformunit_assign.userSubmittedLibrary.label"/> </label>
 	                		</c:when>
 	                		<c:otherwise>
-	                			<label>User-submitted <c:out value="${sc.sample.sampleType.name}"/> </label>
+	                			<label><fmt:message key="platformunit_assign.userSubmitted.label"/> <c:out value="${sc.sample.sampleType.name}"/> </label>
 	                		</c:otherwise>
 	                		</c:choose>
 	                  <c:out value="${sc.sample.name}"/>
@@ -48,7 +48,7 @@ function showAssignForm(e) {
 	                  <c:if test="${sc.sample.sampleType.IName == 'library'}">
 	                  	<c:forEach items="${sc.sample.sampleMeta}" var="sm">
 	                   		<c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
-	                    		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+	                    		<div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
 	                    	</c:if> 
 	                   </c:forEach>  
 					   <div>
@@ -59,7 +59,7 @@ function showAssignForm(e) {
 	  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
 	  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
 	  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-	  							Final Conc.(pM): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
+	  							<fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
 	  						<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
 	  						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 						</form>
@@ -70,12 +70,12 @@ function showAssignForm(e) {
 	                  <c:forEach items="${sc.sample.sourceSampleId}" var="schild">
 	                    <div class="samplechild">
 	                    <c:if test="${schild.sample.sampleType.IName == 'library'}">
-	                        <label>Facility-generated Library</label>
+	                        <label><fmt:message key="platformunit_assign.facilityGenLib.label"/></label>
 	                        <c:out value="${schild.sample.name}" />
 	                        [<c:out value="${schild.sample.sampleType.name}"/>]
 	                       <c:forEach items="${schild.sample.sampleMeta}" var="sm">
 	                   		  <c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptorid'}">
-	                    		<div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+	                    		<div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
 	                    	  </c:if> 
 	                  		</c:forEach> 
 	        				<div>
@@ -86,7 +86,7 @@ function showAssignForm(e) {
 	  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
 	  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
 	  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-	 								Final Conc.(pM): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
+	 								   <fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
 	  								<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
 	  								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 								</form>
@@ -94,7 +94,7 @@ function showAssignForm(e) {
 							</div>
 	                    </c:if>
 	                    <c:if test="${schild.sample.sampleType.IName == 'lane'}">
-	                        <label>One Deep Lane</label>
+	                        <label><fmt:message key="platformunit_assign.oneDeepLane.label"/></label>
 	                        <c:out value="${schild.sample.name}" />
 							<div>
 							<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
@@ -109,7 +109,7 @@ function showAssignForm(e) {
 	                      <c:forEach items="${schild.sample.sourceSampleId}" var="schild2">
 	                        <c:if test="${schild2.sample.sampleType.IName == 'lane'}">
 	                          <div class="samplechild2">
-	                            <label>Two Deep</label>
+	                            <label><fmt:message key="platformunit_assign.twoDeep.label"/></label>
 	                              <c:out value="${schild2.sample.name}" />
 									<div>
 									<a href="javascript:{}" onclick="showAssignForm(this)">(-)</a>
@@ -134,7 +134,7 @@ function showAssignForm(e) {
 	  </c:forEach>
 	 </c:when>
 	 <c:otherwise>
-	 No Libraries Waiting For <c:out value="${machineName}" />
+	 <fmt:message key="platformunit_assign.noLibWaitingFor.label"/> <c:out value="${machineName}" />
 	 </c:otherwise>
 	 </c:choose> 
 	</div>
@@ -144,26 +144,26 @@ function showAssignForm(e) {
 	 <c:when test='${fn:length(platformUnits) > "0"}'>
 	  <c:forEach items="${platformUnits}" var="pu">
 	    <div class="platformunit">
-	      <label>Flow Cell</label>
+	      <label><fmt:message key="platformunit_assign.platformUnit.label"/></label>
 	      <c:out value="${pu.name}" /> 
 	      <c:forEach items="${pu.sampleSource}" var="puparent">
 	         <div class="cell">
-	           <label>Lane</label>
+	           <label><fmt:message key="platformunit_assign.lane.label"/></label>
 	      <!--       <c:out value="${puparent.sampleSourceId}" />  -->
 	           <c:out value="${puparent.sourceSample.name}" /> 
 	
 	           <c:forEach items="${puparent.sourceSample.sampleSource}" var="lib">
 	             <div class="library">
-	               <label>Library</label> <c:out value="${lib.sourceSample.name}" />
+	               <label><fmt:message key="platformunit_assign.library.label"/></label> <c:out value="${lib.sourceSample.name}" />
 	               
 	               
 	               <c:if test="${lib.sourceSample.sampleType.IName == 'library'}">
 	                  <c:forEach items="${lib.sourceSample.sampleMeta}" var="sm">
 	                   <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-	                    <div><label>Adaptor</label> <c:out value="${adaptors[sm.v]}"/></div>
+	                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
 	                    </c:if> 
 	                  </c:forEach> 
-	                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>">Remove From Lane</a></div>
+	                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromLane.label"/></a></div>
 	              </c:if>
 	             </div>
 	           </c:forEach>
@@ -173,7 +173,7 @@ function showAssignForm(e) {
 	  </c:forEach>
 	  </c:when>
 	  <c:otherwise>
-	  No FlowCells Waiting For <c:out value="${machineName}" />
+	  <fmt:message key="platformunit_assign.noPUWaitingFor.label"/> <c:out value="${machineName}" />
 	 </c:otherwise>
 	 </c:choose> 
 	</div>

@@ -228,6 +228,14 @@
 	<definition name="task/samplereceive/updateSampleReceive" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/updateSampleReceive.jsp" />
 	</definition>
+	<definition name="task/sampleqc/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/sampleQC/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/sampleQC/list.jsp" />
+	</definition>
+	<definition name="task/libraryqc/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryQC/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryQC/list.jsp" />
+	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />
@@ -244,13 +252,6 @@
 	<definition name="sysrole/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sysrole/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sysrole/list.jsp" />
-	</definition>
-
-	<definition name="acctquote/list" extends="template-grid">
-		<put-attribute name="area" value="acctquote" />
-		<put-attribute name="grid-columns" value="/WEB-INF/jsp/acctquote/grid_columns.jsp" />
-		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/acctquote/grid_customAttributes.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/acctquote/list.jsp" />
 	</definition>
 
 	<definition name="job2quote/list_all" extends="template-grid">
@@ -389,12 +390,6 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/list.jsp" />
 	</definition>
 	
-	<definition name="facility/platformunit/list_______DUBINDUBINDUBINDUBINDUBIN***************" extends="template-grid">
-		<put-attribute name="area" value="platformunit" />
-		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_columns.jsp" />
-		<put-attribute name="grid-customAttributes" value="/WEB-INF/jsp/facility/platformunit/allplatformunit_grid_customAttributes.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/sample.jsp" />
-	</definition>
 	<definition name="facility/platformunit/instance/list" extends="template-grid">
 		<put-attribute name="area" value="platformunitInstance" />
 		<put-attribute name="grid-columns" value="/WEB-INF/jsp/facility/platformunit/platformunitInstance_grid_columns.jsp" />

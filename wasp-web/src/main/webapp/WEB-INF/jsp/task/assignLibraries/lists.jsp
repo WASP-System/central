@@ -11,12 +11,12 @@
 
 <c:choose>
 <c:when test="${jobList.size()==0}">
-		<tr class="FormData"><td colspan="4" style='text-align:center'>None</td></tr>
+		<tr class="FormData"><td colspan="4" style='text-align:center'><fmt:message key="jobListAssignLibrary.none.label" /></td></tr>
 </c:when>
 <c:otherwise>
 <c:forEach items="${jobList}" var="job">	
 		<tr class="FormData">
-		<td style='text-align:center'>J<c:out value="${job.getJobId()}" /> [<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />">view</a>]</td>          
+		<td style='text-align:center'>J<c:out value="${job.getJobId()}" /> [<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.getJobId()}.do" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${job.getName()}" /></td>
 		<td style='text-align:center'><c:out value="${job.getUser().getFirstName()}" /> <c:out value="${job.getUser().getLastName()}" /></td>
 		<td style='text-align:center'><c:out value="${job.getLab().getUser().getFirstName()}" /> <c:out value="${job.getLab().getUser().getLastName()}" /></td>
@@ -33,12 +33,12 @@
 
 <c:choose>
 <c:when test="${activePlatformUnits.size()==0}">
-		<tr class="FormData"><td colspan="4" style='text-align:center'>None</td></tr>
+		<tr class="FormData"><td colspan="4" style='text-align:center'><fmt:message key="jobListAssignLibrary.none.label" /></td></tr>
 </c:when>
 <c:otherwise>
 <c:forEach items="${activePlatformUnits}" var="platformUnit" varStatus="status">	
 		<tr class="FormData">
-		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />">view</a>]</td>          
+		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${barcodes[status.index]}" /></td>
 		<td style='text-align:center'><c:out value="${platformUnit.getSampleSubtype().getName()}" /> </td>
 		<td style='text-align:center'><c:out value="${lanes[status.index]}" /></td>

@@ -5,12 +5,12 @@
 	<h2><fmt:message key="labuser.current.label"/></h2>
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
-		  	<td class="CaptionTD top-heading">Name (Login Name)</td>
-		  	<td class="CaptionTD top-heading">Name</td>
-		  	<td class="CaptionTD top-heading">Email</td>
-		  	<td class="CaptionTD top-heading">Status</td>
-		  	<td class="CaptionTD top-heading">Role</td>
-		  	<td class="CaptionTD top-heading">Actions</td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.loginName.label"/></td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.name.label"/></td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.email.label"/></td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.status.label"/></td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.role.label"/></td>
+		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.actions.label"/></td>
 		</tr>
 	    <c:forEach items="${labuser}" var="ul">
 	      <tr class="FormData">

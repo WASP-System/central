@@ -109,8 +109,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (messageQueue.isEmpty())
-			return RepeatStatus.CONTINUABLE;	
+		if (messageQueue.isEmpty()){
+			Thread.sleep(executeRepeatDelay);
+			return RepeatStatus.CONTINUABLE;
+		}	
 		return RepeatStatus.FINISHED;
 	}
 	

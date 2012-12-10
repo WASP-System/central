@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
  
-<h1>Update Resource Details</h1>
+<h1><fmt:message key="resource.updateResourceDetails.label" /></h1>
 
 
 

@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
@@ -84,7 +85,7 @@ public class HelpTagResultViewController extends WaspController {
 	private SampleService sampleService;
 	
 	@Autowired
-	private FileUrlResolver fileUrlResolver;
+	private DummyFileUrlResolver fileUrlResolver;
 
 	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
