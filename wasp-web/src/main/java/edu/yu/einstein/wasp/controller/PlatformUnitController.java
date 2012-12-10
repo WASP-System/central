@@ -988,6 +988,8 @@ public class PlatformUnitController extends WaspController {
 		
 		List<Sample> puList = sampleService.getAvailableAndCompatiblePlatformUnits(resourceCategory);
 		Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
+		Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 
 		// picks up jobs
 		
@@ -1009,16 +1011,20 @@ public class PlatformUnitController extends WaspController {
 		// for all libraries associated with job, check they have passed QC and are awaiting platformunit placement
 		for (Job job: jobs){
 			for (Sample sample: job.getSample()){
+				receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 				if (sampleService.isLibrary(sample)){
+					qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 					try {
 						assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample));
 					} catch (SampleTypeException e){
 						logger.warn(e.getLocalizedMessage());
 					}
-				} else {
+				} else if(sampleService.isDnaOrRna(sample)){
+					qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
 					if (sample.getChildren() == null) // no libraries made 
 						continue;
 					for (Sample library: sample.getChildren()){
+						qcStatusMap.put(library, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(library)));
 						try{
 							assignLibraryToPlatformUnitStatusMap.put(library, sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library));
 						} catch (SampleTypeException e){
@@ -1051,6 +1057,8 @@ public class PlatformUnitController extends WaspController {
 		m.put("jobs", jobs); 
 		m.put("adaptors", adaptors);
 		m.put("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
+		m.put("receivedStatusMap", receivedStatusMap);
+		m.put("qcStatusMap", qcStatusMap);
 		m.put("platformUnits", puList);
 		
 		return "facility/platformunit/assign"; 

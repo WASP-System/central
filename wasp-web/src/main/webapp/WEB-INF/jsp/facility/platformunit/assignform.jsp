@@ -34,12 +34,18 @@ function showAssignForm(e) {
                  <label><fmt:message key="platformunit_assign.userSubmitted.label"/> <c:out value="${sample.sampleType.name}"/> </label>
                  <c:out value="${sample.name}"/>
                  [<c:out value="${sample.sampleType.name}"/>]
+                 <c:if test='${receivedStatusMap.get(sample)!="RECEIVED"}'>
+                	<div><label><fmt:message key="platformunit_assign.recievedStatus.label"/></label>: <c:out value="${receivedStatusMap.get(sample)}"/></div>
+                 </c:if>
+                 <c:if test='${receivedStatusMap.get(sample)=="RECEIVED"}'>
+                 	<div><label><fmt:message key="platformunit_assign.qcStatus.label"/></label>: <c:out value="${qcStatusMap.get(sample)}"/></div>
+                 </c:if> 
                  <c:if test="${sample.sampleType.IName == 'library'}">
 	                  <c:forEach items="${sample.sampleMeta}" var="sm">
 	                  		<c:if test="${fn:substringAfter(sm.k, '.library.') == 'adaptor'}">
-	                   			<div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
-	                  		</c:if> 
-	                  </c:forEach>  
+	                   			<div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
+	                  		</c:if>
+	                  </c:forEach> 
 	                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(sample) == true}'> 
 					   <div>
 							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
@@ -63,14 +69,14 @@ function showAssignForm(e) {
                 <c:forEach items="${sample.getChildren()}" var="schild">
                   <div class="samplechild">
 	                  <c:if test="${schild.sampleType.IName == 'facilityLibrary'}">
-	                      <label><c:out value="${schild.sampleType.name}"/></label>
-	                      <c:out value="${schild.name}" />
+	                      <label><c:out value="${schild.sampleType.name}"/></label> <c:out value="${schild.name}" />
+	                       <div><label><fmt:message key="platformunit_assign.qcStatus.label"/></label>: <c:out value="${qcStatusMap.get(schild)}"/></div>
 	                       <c:forEach items="${schild.sampleMeta}" var="sm">
 			                   <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
+			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
 			                    </c:if> 
 			                  </c:forEach> 
-	                		<c:if test='${assignLibraryToPlatformUnitStatusMap.get(schild) == true}'> 
+			                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(schild) == true}'> 
 		        				<div>
 									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
 									<div style="display:none">
@@ -124,7 +130,7 @@ function showAssignForm(e) {
 			               <c:if test="${lib.sourceSample.sampleType.IName == 'library' || lib.sourceSample.sampleType.IName == 'facilityLibrary'}">
 			                  <c:forEach items="${lib.sourceSample.sampleMeta}" var="sm">
 			                   <c:if test="${fn:substringAfter(sm.k, 'Library.') == 'adaptor'}">
-			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label> <c:out value="${adaptors[sm.v]}"/></div>
+			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
 			                    </c:if> 
 			                  </c:forEach> 
 			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromLane.label"/></a></div>
