@@ -987,7 +987,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		List<Sample> puList = sampleService.getAvailableAndCompatiblePlatformUnits(resourceCategory);
-
+		Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
 
 		// picks up jobs
 		
@@ -999,15 +999,34 @@ public class PlatformUnitController extends WaspController {
 				waspErrorMessage("platformunit.jobNotFound.error");
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
-			for (Job currentValidJob: jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory)){
-				if (job.getJobId().equals(currentValidJob.getJobId())){
-					jobs.add(job);
-					break;
-				}
-			}
+			if (jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory).contains(job))
+				jobs.add(job);
 		}
 		else if(jobsToWorkWith.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId and state criteria; so parameter jobsToWorkWith has a value > -1 which means it's asking for all available jobs that meet state and resourceCategory criteria
 			jobs =  jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory);
+		}
+		
+		// for all libraries associated with job, check they have passed QC and are awaiting platformunit placement
+		for (Job job: jobs){
+			for (Sample sample: job.getSample()){
+				if (sampleService.isLibrary(sample)){
+					try {
+						assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample));
+					} catch (SampleTypeException e){
+						logger.warn(e.getLocalizedMessage());
+					}
+				} else {
+					if (sample.getChildren() == null) // no libraries made 
+						continue;
+					for (Sample library: sample.getChildren()){
+						try{
+							assignLibraryToPlatformUnitStatusMap.put(library, sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library));
+						} catch (SampleTypeException e){
+							logger.warn(e.getLocalizedMessage());
+						}
+					}
+				}
+			}
 		}
 	
 		//map of adaptors for display; this really needs to be a part of the library sample
@@ -1031,6 +1050,7 @@ public class PlatformUnitController extends WaspController {
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("jobs", jobs); 
 		m.put("adaptors", adaptors);
+		m.put("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		m.put("platformUnits", puList);
 		
 		return "facility/platformunit/assign"; 
@@ -1130,7 +1150,7 @@ public class PlatformUnitController extends WaspController {
 		
 		boolean puIsAvailable = false;
 				
-		List<SampleSource> parentSampleSources = laneSample.getSourceSampleId();//should be one
+		List<SampleSource> parentSampleSources = laneSample.getSourceSample();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
 			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
