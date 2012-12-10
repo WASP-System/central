@@ -40,7 +40,7 @@
 				</c:otherwise>
 			</c:choose>
 			<td style='text-align:center'><c:out value="${sample.getSampleType().getName()}" /></td>
-			<td style='text-align:center'><c:out value="${sample.getName()}" /> (<c:out value="${sample.getSampleId()}" />)</td>
+			<td style='text-align:center'><c:out value="${sample.getName()}" /> </td>
 			<td style='text-align:center'>
 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${sample.getSampleId()}"> 
 	 			<select class="FormElement ui-widget-content ui-corner-all" name="receivedStatus<c:out value="${sample.getSampleId()}" />" size="1" >
