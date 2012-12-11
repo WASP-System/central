@@ -121,8 +121,10 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace("execute() invoked");
-		if (message == null)
+		if (message == null){
+			Thread.sleep(executeRepeatDelay);
 			return RepeatStatus.CONTINUABLE;
+		}
 		return RepeatStatus.FINISHED;
 	}
 	
@@ -135,17 +137,19 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
 		// only single messages with unsuccessful status if they are general notifications (i.e. not for specific tasks)
 		boolean stopJobNotificationPreviouslyReceived = stopJobNotificationReceived;
-		if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
-			stopJobNotificationReceived = true;
 		
 		for (StatusMessageTemplate messageTemplate: messageTemplates){
-			if (messageTemplate.actUponMessage(message) && (stopJobNotificationReceived || statusFromMessage.equals(messageTemplate.getStatus()) ) ){
-				if (this.message == null || stopJobNotificationReceived){
-					this.message = (Message<WaspStatus>) message;
-				} else if (!stopJobNotificationPreviouslyReceived){
-					throw new MessagingException("Received an applicable message before previous message processed");
-				} else{
-					logger.warn("Recieved a message with non-unsuccessful status whilst an existing received job-stopping message is pending processing");
+			if (messageTemplate.actUponMessage(message)){
+				if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
+					stopJobNotificationReceived = true;
+				if (stopJobNotificationReceived || statusFromMessage.equals(messageTemplate.getStatus()) ){
+					if (this.message == null || stopJobNotificationReceived){
+						this.message = (Message<WaspStatus>) message;
+					} else if (!stopJobNotificationPreviouslyReceived){
+						throw new MessagingException("Received an applicable message before previous message processed");
+					} else{
+						logger.warn("Recieved a message with non-unsuccessful status whilst an existing received job-stopping message is pending processing");
+					}
 				}
 			}
 		}

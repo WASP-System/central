@@ -6,7 +6,6 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	
-	
 	<!-- create beans for classes containing constants -->
 	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspJobParameters" />
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.integration.messages.WaspJobTask" />
@@ -55,9 +54,10 @@
 	
 	
 	<!-- import batch flows -->
-	<import resource="classpath:flows/*Flow.xml" />
+	<!-- import resource="classpath*:flows/*.xml" / -->
 	<import resource="classpath:flows/default.waspJob.mainFlow.v1.xml" />
 	<import resource="classpath:flows/default.sample.mainFlow.v1.xml" />
+	<import resource="classpath:flows/default.library.mainFlow.v1.xml" />
 	
 	<!-- loads all the plugin root contexts -->
   	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />

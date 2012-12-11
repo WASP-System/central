@@ -2,17 +2,17 @@ package edu.yu.einstein.wasp.grid.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridTransportService;
 
@@ -74,7 +74,7 @@ public class SshFileService implements GridFileService {
 			FileObject destination = manager.resolveFile(remote, options);
 
 			destination.copyFrom(file, Selectors.SELECT_SELF);
-			logger.debug(localFile.getAbsolutePath() + " copied to " + remote);
+			logger.debug(localFile.getAbsolutePath() + " copied to " + remote + " (" + destination.getName().getFriendlyURI() + ")");
 
 		} catch (Exception e) {
 			logger.error("problem copying file: " + e.getLocalizedMessage());
@@ -244,6 +244,24 @@ public class SshFileService implements GridFileService {
 			manager.close();
 		}
 
+	}
+	
+	@Override
+	public URI remoteFileRepresentationToLocalURI(String file) {
+		String fileURI;
+		if (file.startsWith("sftp://")) {
+			if (file.contains("@")) {
+				fileURI = "file://" + file.substring(file.indexOf("@") + 1);
+			} else {
+				fileURI = file.replace("sftp://", "file://");
+			}
+		} else {
+			logger.debug("creating host-based file url of: " + file.toString());
+			fileURI = "file://" + transportService.getHostName() + "/" + file;
+		}
+		URI result = URI.create(fileURI).normalize();
+		logger.debug("remote file URI: " + result.toString());
+		return result;
 	}
 
 }

@@ -44,7 +44,7 @@
 	<c:forEach items="${department}" var="d">
 		<tr class="FormData">
 		<td class="DataTD"><a href="/wasp/department/detail/<c:out value="${d.departmentId}" />.do"><c:out value="${d.name}" /></a></td>
-		<td class="DataTD"><c:choose><c:when test="${d.isActive == 1}"> active</c:when><c:otherwise> inactive</c:otherwise></c:choose></td>
+		<td class="DataTD"><c:choose><c:when test="${d.isActive == 1}"> <fmt:message key="department.active.label" /></c:when><c:otherwise> <fmt:message key="department.inactive.label" /></c:otherwise></c:choose></td>
 		</tr>
 	</c:forEach>
 </table>

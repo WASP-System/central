@@ -2,15 +2,15 @@
 
 <form method="POST" action="<c:out value="${c}"/>/user/mypassword.do">
   <div>
-  Old Password
-  <input class="FormElement ui-widget-content ui-corner-all" type="name" name="username">
+  <fmt:message key="lab.oldPassword.label" />
+  <input class="FormElement ui-widget-content ui-corner-all" type="text" name="username">
   </div>
   <div>
-  New Password
+  <fmt:message key="lab.newPassword.label" />
   <input class="FormElement ui-widget-content ui-corner-all" type="password" name="password">
   </div>
   <div>
-  New Password Once Again
+  <fmt:message key="lab.newPasswordConfirm.label" />
   <input class="FormElement ui-widget-content ui-corner-all" type="password" name="password2">
   </div>
 

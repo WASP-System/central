@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<title><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></title>
 <c:choose>
 	<c:when test='${sampleId == "0"}'>
 		<h1><fmt:message key="platformunitInstance.headerCreate.label"/></h1>
@@ -12,7 +11,7 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-	<td class="CaptionTD">Choose A Type Of Flow Cell:</td>
+	<td class="CaptionTD"><fmt:message key="platformunitInstance.platUnitType.label"/>:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/facility/platformunit/createUpdatePlatformUnit.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />

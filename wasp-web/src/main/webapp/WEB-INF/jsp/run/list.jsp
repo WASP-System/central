@@ -153,7 +153,7 @@ $(document).ready(function() {
 		var numberFormat=new RegExp("^[0-9]+$");
 		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
 			if(!numberFormat.test(readlength)){
-				alert("Readlength must be an integer");
+				alert("<fmt:message key="grid.readLengthInteger.label"/>");
 				return true;//do not perform search 
 			}
 		}
@@ -163,7 +163,7 @@ $(document).ready(function() {
 		if(typeof(dateRunStarted) !== 'undefined' && dateRunStarted != null && dateRunStarted.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(dateRunStarted)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("<fmt:message key="grid.dateFormat.label"/>");
 				return true;//do not perform search 
 			}
 		}
@@ -172,7 +172,7 @@ $(document).ready(function() {
 		if(typeof(dateRunEnded) !== 'undefined' && dateRunEnded != null && dateRunEnded.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(dateRunEnded)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("<fmt:message key="grid.dateFormat.label"/>");
 				return true;//do not perform search 
 			}
 		}
@@ -185,7 +185,7 @@ $(document).ready(function() {
 //add filtertoolbar to grid 
 jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"eq", beforeSearch: validate }); 
 //add search icon to navgrid and link it's being clicked to filterToolbar (so that filterToolbar search begins when the search icon is pressed (or the default, which is when ENTER is pressed)) 
-jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"Search", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
+jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
 //add a new run - we cannot have Add New Run Button on this grid, since new runs are dependent on platformUnit 
 //this next line is simply example code located on the platformUnit grid: to navigate to page to add a platform unit 

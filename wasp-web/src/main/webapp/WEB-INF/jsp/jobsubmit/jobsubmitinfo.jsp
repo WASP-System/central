@@ -2,15 +2,15 @@
 <section id="jobDetails">
   <div class="info">
     <div class="item">
-      <label>Job: </label>
+      <label><fmt:message key="jobDraft.info_job.label" />: </label>
       <span class="DataTD"><c:out value="${jobDraft.name}" /></span>
     </div>
     <div class="item">
-      <label>Lab: </label>
+      <label><fmt:message key="jobDraft.info_lab.label" />: </label>
       <span class="DataTD"><c:out value="${jobDraft.lab.name}" /></span>
     </div>
     <div class="item">
-      <label>Workflow: </label>
+      <label><fmt:message key="jobDraft.info_workflow.label" />: </label>
       <span class="DataTD"><c:out value="${jobDraft.workflow.name}" /></span>
     </div>
   </div>

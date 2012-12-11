@@ -6,7 +6,7 @@
 	<table class="EditTable ui-widget ui-widget-content">
 		<tr class="FormData">
 			<td colspan=2 align=left>
-			<b>Pending Lab Details:</b>
+			<b><fmt:message key="labPending.pendingLabDetails.label" />:</b>
 			</td>
 		</tr>
 		<tr class="FormData">
@@ -33,11 +33,11 @@
 			access="hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-*')">
 			<tr class="FormData">
 				<td><a
-					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />">Edit</a>
+					href="<c:url value="/lab/pending/detail_rw/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.edit.label" /></a>
 					| <a
-					href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />">Approve</a>
+					href="<c:url value="/lab/pending/approve/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.approve.label" /></a>
 					| <a
-					href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />">Reject</a>
+					href="<c:url value="/lab/pending/reject/${labPending.departmentId}/${labPending.labPendingId}.do" />"><fmt:message key="labPending.reject.label" /></a>
 				</td>
 			</tr>
 		</sec:authorize>

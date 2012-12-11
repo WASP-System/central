@@ -12,11 +12,14 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,6 +65,7 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
@@ -93,11 +97,11 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -264,6 +268,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -304,6 +309,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		return submittedSamplesList;		
 	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -320,6 +326,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		jobIdStringSet.add(job.getJobId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false, BatchStatus.STARTED);
+		stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false, BatchStatus.STARTED));
 		for (StepExecution stepExecution: stepExecutions){
 			if (!stepExecution.getJobExecution().isRunning())
 				continue;
@@ -340,6 +347,75 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return submittedSamplesNotYetReceivedList;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getSubmittedSamplesNotYetQC(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		
+		List<Sample> submittedSamplesNotYetQCList = new ArrayList<Sample>();
+		
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false, BatchStatus.STARTED)){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
+			Integer sampleId = null;
+			try{
+				sampleId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.SAMPLE_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
+			}
+			Sample sample = sampleDao.getSampleBySampleId(sampleId);
+			if (sample == null){
+				logger.warn("Sample with sample id '"+sampleId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedSamplesNotYetQCList.add(sample);
+		}
+		return submittedSamplesNotYetQCList;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getLibrariesNotYetQC(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		
+		List<Sample> submittedLibrariesNotYetQCList = new ArrayList<Sample>();
+		
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false, BatchStatus.STARTED)){
+			if (!stepExecution.getJobExecution().isRunning())
+				continue;
+			Integer libraryId = null;
+			try{
+				libraryId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
+			} catch (ParameterValueRetrievalException e){
+				logger.warn(e.getMessage());
+				continue;
+			}
+			Sample library = sampleDao.getSampleBySampleId(libraryId);
+			if (library == null){
+				logger.warn("Library with sample id '"+libraryId+"' does not have a match in the database!");
+				continue;
+			}
+			submittedLibrariesNotYetQCList.add(library);
+		}
+		return submittedLibrariesNotYetQCList;
+	}
+	
+	
 	 /**
 	   * {@inheritDoc}
 	   */
@@ -359,7 +435,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			try{
 				String parameterVal = batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID);
 				Job job = jobDao.getJobByJobId(Integer.valueOf(parameterVal));
-				if (job.getJobId() == 0){
+				if (job == null || job.getJobId() == null){
 					logger.warn("Expected a job object with id '"+parameterVal+"' but got none");
 				} else {
 					activeJobList.add(job);
@@ -406,6 +482,66 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return false;
 	}
 	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingSampleQC(){
+		
+		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
+			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet QCd
+				jobsAwaitingQCOfSamples.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfSamples);
+		
+		return jobsAwaitingQCOfSamples;
+	}
+	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingSampleQC(){
+		for (Job job: getActiveJobs())
+			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet received
+				return true;
+		return false;
+	}
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingLibraryQC(){
+		
+		List<Job> jobsAwaitingQCOfLibraries = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining library QC status of job with id='" + job.getJobId() + "'");
+			if (! getLibrariesNotYetQC(job).isEmpty()) // some samples not yet QCd
+				jobsAwaitingQCOfLibraries.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfLibraries);
+		
+		return jobsAwaitingQCOfLibraries;
+	}
+	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobsAwaitingLibraryQC(){
+		for (Job job: getActiveJobs())
+			if (! getLibrariesNotYetQC(job).isEmpty()) // some libraries not yet received
+				return true;
+		return false;
+	}
+	
 	  /**
 	   * {@inheritDoc}
 	   */
@@ -432,10 +568,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true)
-				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if (!batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
 				return true;
 			return false;
 		}
@@ -452,10 +585,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
-				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if (!batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
 				return true;
 			return false;
 		}
@@ -471,10 +601,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-					batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
-				);
-			if(stepExecution != null && stepExecution.getExitStatus().equals(ExitStatus.EXECUTING))
+			if (!batchJobExplorer.getStepExecutions("step.quote", parameterMap, true, BatchStatus.STARTED).isEmpty())
 				return true;
 			return false;
 		}
@@ -506,26 +633,47 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Map<String, String> getExtraJobDetails(Job job){
+	  public LinkedHashMap<String, String> getExtraJobDetails(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-		  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
+		  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
-				  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
+				  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 				  break;
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
 			  if(jobMeta.getK().indexOf("readLength") != -1){
-				  extraJobDetailsMap.put("Read Length", jobMeta.getV());
+				  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 			  }
 			  if(jobMeta.getK().indexOf("readType") != -1){
-				  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
+				  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta.getV().toUpperCase());
 			  }
 		  }
+		  
+		  try{
+			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+		  }
+		  catch(Exception e){
+			  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
+		  }	
+		  
+		  return extraJobDetailsMap;	  
+	  }
+
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public LinkedHashMap<String, String> getJobApprovals(Job job){
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> jobIdStringSet = new HashSet<String>();
@@ -537,89 +685,58 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
 
+		  String piStatusLabel = "status.piApproval.label";
 		  if (stepExecution == null){
-			  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
+			  jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
+				  jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  extraJobDetailsMap.put("PI Approval", "Approved");
+				  jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("PI Approval", "Rejected");
+				  jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("PI Approval", "Abandoned");
+				  jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 			  }
 			  else{
-				  extraJobDetailsMap.put("PI Approval", "Unknown");
+				  jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
 			  }
 		  }
 		  
-		  
+		  String daStatusLabel = "status.daApproval.label";
 		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
 				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
 				);
 		  if (stepExecution == null){
-			  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
+			  jobApprovalsMap.put(daStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
+				  jobApprovalsMap.put(daStatusLabel, "status.awaitingResponse.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  extraJobDetailsMap.put("DA Approval", "Approved");
+				  jobApprovalsMap.put(daStatusLabel, "status.approved.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("DA Approval", "Rejected");
+				  jobApprovalsMap.put(daStatusLabel, "status.rejected.label");
 			  }
 			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("DA Approval", "Abandoned");
+				  jobApprovalsMap.put(daStatusLabel, "status.abandoned.label");
 			  }
 			  else{
-				  extraJobDetailsMap.put("DA Approval", "Unknown");
-			  }
-		  }
-		  		  
-		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.quote", parameterMap, true)
-				);
-		  if (stepExecution == null){
-			  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
-		  }
-		  else {
-			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
-				  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
-				  try{
-					  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-					  extraJobDetailsMap.put("Quote Job Price", "$"+String.format("%.2f", price));
-				  }
-				  catch(Exception e){
-					  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
-					  extraJobDetailsMap.put("Quote Job Price", "$?.??"); 
-				  }	
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
-				  extraJobDetailsMap.put("Quote Job Price", "Rejected");
-			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
-				  extraJobDetailsMap.put("Quote Job Price", "Abandoned");
-			  }
-			  else{
-				  extraJobDetailsMap.put("Quote Job Price", "Unknown");
+				  jobApprovalsMap.put(daStatusLabel, "status.unknown.label");
 			  }
 		  }
 		  
-		  return extraJobDetailsMap;	  
+		  return jobApprovalsMap;
+
 	  }
-	  
 	  /**
 	   * {@inheritDoc}
 	 * @throws WaspMessageBuildingException 
@@ -710,50 +827,42 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			// Create Samples
 			List<Sample> samples = new ArrayList<Sample>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
-				// existing sample...
-				Sample sampleDb;
-			
-				if (sd.getSourceSampleId() != null) {
-					sampleDb = sampleDao.getSampleBySampleId(sd.getSourceSampleId());
-				} else { 
-			
-					Sample sample = new Sample();
-					sample.setName(sd.getName()); 
-					sample.setSampleTypeId(sd.getSampleTypeId()); 
-					sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
-					sample.setSubmitterLabId(jobDb.getLabId()); 
-					sample.setSubmitterUserId(user.getUserId()); 
-					sample.setSubmitterJobId(jobDb.getJobId()); 
-					sample.setIsReceived(0);
-					sample.setIsActive(1);
-			
-					sampleDb = sampleDao.save(sample); 
-					samples.add(sampleDb);
-			
-					// sample file
-					if (sd.getFileId() != null) {
-						SampleFile sampleFile = new SampleFile();
-						sampleFile.setSampleId(sampleDb.getSampleId());
-						sampleFile.setFileId(sd.getFileId());
-			
-						sampleFile.setIsActive(1);
-			
-						// TODO ADD NAME AND INAME
-			
-						sampleFileDao.save(sampleFile);
-					}
-			
-					// Sample Draft Meta Data
-					for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
-						SampleMeta sampleMeta = new SampleMeta();
-			
-						sampleMeta.setSampleId(sampleDb.getSampleId());	
-						sampleMeta.setK(sdm.getK());	
-						sampleMeta.setV(sdm.getV());	
-						sampleMeta.setPosition(sdm.getPosition());	
-			
-						sampleMetaDao.save(sampleMeta); 
-					}
+				Sample sample = new Sample();
+				sample.setName(sd.getName()); 
+				sample.setSampleTypeId(sd.getSampleTypeId()); 
+				sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
+				sample.setSubmitterLabId(jobDb.getLabId()); 
+				sample.setSubmitterUserId(user.getUserId()); 
+				sample.setSubmitterJobId(jobDb.getJobId()); 
+				sample.setIsReceived(0);
+				sample.setIsActive(1);
+		
+				Sample sampleDb = sampleDao.save(sample); 
+				samples.add(sampleDb);
+		
+				// sample file
+				if (sd.getFileId() != null) {
+					SampleFile sampleFile = new SampleFile();
+					sampleFile.setSampleId(sampleDb.getSampleId());
+					sampleFile.setFileId(sd.getFileId());
+		
+					sampleFile.setIsActive(1);
+		
+					// TODO ADD NAME AND INAME
+		
+					sampleFileDao.save(sampleFile);
+				}
+		
+				// Sample Draft Meta Data
+				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
+					SampleMeta sampleMeta = new SampleMeta();
+		
+					sampleMeta.setSampleId(sampleDb.getSampleId());	
+					sampleMeta.setK(sdm.getK());	
+					sampleMeta.setV(sdm.getV());	
+					sampleMeta.setPosition(sdm.getPosition());	
+		
+					sampleMetaDao.save(sampleMeta); 
 				}
 			
 				// Job Sample
@@ -772,30 +881,30 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 			}
 			
-			
-			// jobDraftFile -> jobFile
-			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-				File file = jdf.getFile();
-				String folderPath = file.getAbsolutePathToFileFolder();
-				String absPath = file.getAbsolutePath();
-				java.io.File folder = new java.io.File(folderPath);
-				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
-				if (destPath.equals(folderPath)){
-					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
-				}
-				try{
-					folder.renameTo(new java.io.File(destPath));
-				} catch (Exception e){
-					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
-				}
-				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
-				file.setAbsolutePath(newAbsolutePath);
-				JobFile jobFile = new JobFile();
-				jobFile.setJob(jobDb);
-				jobFile.setFile(file);
-				jobFileDao.save(jobFile);
-			}
-						
+//			TODO: CLEAN UP THIS HORRIBLE SHITE
+//			// jobDraftFile -> jobFile
+//			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
+//				File file = jdf.getFile();
+//				String folderPath = file.getAbsolutePathToFileFolder();
+//				String absPath = file.getAbsolutePath();
+//				java.io.File folder = new java.io.File(folderPath);
+//				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
+//				if (destPath.equals(folderPath)){
+//					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
+//				}
+//				try{
+//					folder.renameTo(new java.io.File(destPath));
+//				} catch (Exception e){
+//					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
+//				}
+//				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
+//				file.setFileURI(newAbsolutePath);
+//				JobFile jobFile = new JobFile();
+//				jobFile.setJob(jobDb);
+//				jobFile.setFile(file);
+//				jobFileDao.save(jobFile);
+//			}
+//						
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
@@ -806,7 +915,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			initiateBatchJobForJobSubmission(jobDb);
 			for (Sample sample: samples){
 				logger.debug("calling initiateBatchJobForSample() for sample with id='" + sample.getSampleId() + "'");
-				sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+				if (sampleTypeDao.getSampleTypeBySampleTypeId(sample.getSampleTypeId()).getIName().equals("library")){
+					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.userLibrary.jobflow.v1");
+				} else {
+					sampleService.initiateBatchJobForSample(jobDb, sample, "wasp.sample.jobflow.v1");
+				}
 			}
 			
 			return jobDb;
@@ -836,26 +949,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Job> getJobsAwaitingLibraryCreation(){
-		
 		List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
-		
-		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED);
-		Set<Integer> uniqueJobIds = new HashSet<Integer>(); // just to be sure no duplicates, store the job ids in a Set
-		for (StepExecution stepExecution: stepExecutions){
-			try{
-				uniqueJobIds.add( Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)) );
-			} catch (ParameterValueRetrievalException e){
-				logger.warn(e.getMessage());
-				continue;
+		for (Job job : getActiveJobs()){
+			for (Sample sample: job.getSample()){
+				if (sampleService.isSampleAwaitingLibraryCreation(sample)){
+					JobsAwaitingLibraryCreation.add(job);
+					break;
+				}
 			}
-		}
-		for (Integer jobId: uniqueJobIds){
-			Job job = jobDao.getJobByJobId(jobId);
-			if (job == null){
-				logger.warn("Job with job id '"+jobId+"' does not have a match in the database!");
-				continue;
-			}
-			JobsAwaitingLibraryCreation.add(job);
 		}
 		return JobsAwaitingLibraryCreation;
 	}
@@ -881,47 +982,34 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
-			Map<Integer, Integer> librariesForJobWithAnalysisFlow = new HashMap<Integer, Integer>();
-			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-			Set<String> jobIdStringSet = new HashSet<String>();
-			jobIdStringSet.add(job.getJobId().toString());
-			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			// get all 'wasp.analysis.step.waitForData' StepExecutions for current job
-			// the job may have many libraries and each library may need to be run more than once
-			for (StepExecution stepExecution: batchJobExplorer.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false) ){
-				try{
-					Integer libraryId =  Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID));
-					// put to list of all sample id's on all analysis flows (librariesInAnalysisFlow)
-					if (librariesForJobWithAnalysisFlow.containsKey(libraryId)){
-						librariesForJobWithAnalysisFlow.put(libraryId, librariesForJobWithAnalysisFlow.get(libraryId) + 1);
-					} else {
-						librariesForJobWithAnalysisFlow.put(libraryId, 1);
+			for (Sample sample: job.getSample()){
+				boolean foundLibrary = false;
+				if (sampleService.isLibrary(sample)){
+					try {
+						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample)){
+							jobsWithLibrariesToGoOnFlowCell.add(job);
+							foundLibrary = true;
+						}
+					} catch (SampleTypeException e){
+						logger.warn(e.getLocalizedMessage());
 					}
-				} catch (ParameterValueRetrievalException e){
-					logger.warn(e.getMessage());
-					continue;
-				} catch (NumberFormatException e){
-					logger.warn(e.getMessage());
-					continue;
-				}
-				
-				for (Integer libraryId: librariesForJobWithAnalysisFlow.keySet()){
-					Sample library = sampleDao.getSampleBySampleId(libraryId);
-					if (library.getSampleId() == 0){
-						logger.warn("Cannot find Sample with id=" + libraryId);
+				} else {
+					if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
 						continue;
+					for (Sample library: sample.getChildren()){
+						try{
+							if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library)){
+								jobsWithLibrariesToGoOnFlowCell.add(job);
+								foundLibrary = true;
+								break;
+							}
+						} catch (SampleTypeException e){
+							logger.warn(e.getLocalizedMessage());
+						}
 					}
-					List<SampleSource> sampleSources = library.getSampleSource(); // library -> cell relationships
-					Integer numberOfLibraryInstancesOnCells = 0;
-					if (sampleSources != null)
-						numberOfLibraryInstancesOnCells = sampleSources.size();
-					
-					Integer numberOfAnalysisFlowsForLibrary = librariesForJobWithAnalysisFlow.get(libraryId);
-					
-					if (numberOfAnalysisFlowsForLibrary > numberOfLibraryInstancesOnCells)
-						jobsWithLibrariesToGoOnFlowCell.add(job);
-					
 				}
+				if (foundLibrary)
+					break;
 			}
 		}
 		return jobsWithLibrariesToGoOnFlowCell;
@@ -974,22 +1062,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			logger.warn("supplied sample is not associated with supplied job");
 			return false;
 		}
-		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		
-		Set<String> sampleIdStringSet = new HashSet<String>();
-		sampleIdStringSet.add(sampleId.toString());
-		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
-		
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		
-		StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryCreated", parameterMap, true, BatchStatus.STARTED)
-			);
-		if (stepExecution != null)
-			return true;
-		return false;
+		return sampleService.isSampleAwaitingLibraryCreation(sample);
 	}
 	
 	/**
@@ -1030,7 +1103,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
-		sendOutboundMessage(messageTemplate.build(), false);
+		try{
+			sendOutboundMessage(messageTemplate.build(), false);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
 	}
 
 	/**

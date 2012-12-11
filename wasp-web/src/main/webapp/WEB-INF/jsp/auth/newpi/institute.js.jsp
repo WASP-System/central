@@ -15,7 +15,7 @@
 	 }
  </script>
 
-<script language="JavaScript">
+<script type="text/javascript">
 	<!--
 	function selectChange(){
 		if (document.f.instituteSelect.options[document.f.instituteSelect.selectedIndex].value == "other"){
