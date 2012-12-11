@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobMetaDao;
 import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
@@ -46,11 +48,14 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.impl.JobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.JobDraftDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobResourcecategoryDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobSampleDaoImpl;
@@ -60,6 +65,7 @@ import edu.yu.einstein.wasp.dao.impl.LabDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.RoleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleJobCellSelectionDaoImpl;
+import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
 import edu.yu.einstein.wasp.exception.FileMoveException;
@@ -89,11 +95,14 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 
 public class TestJobServiceImpl extends EasyMockSupport{
@@ -110,12 +119,16 @@ public class TestJobServiceImpl extends EasyMockSupport{
   LabDao mockLabDao;
   JobCellSelectionDao mockJobCellSelectionDao;
   SampleJobCellSelectionDao mockSampleJobCellSelectionDao;
+  JobDraftDao mockJobDraftDao;
+  SampleMetaDao mockSampleMetaDao;
+
   WorkflowDao mockWorkflowDao;
 
   JobExplorerWasp mockJobExplorerWasp;
   JobExplorer mockJobExplorer;
   
   JobService mockJobServiceImpl;
+  SampleService mockSampleService;
 	
   JobServiceImpl jobServiceImpl = new JobServiceImpl();
   TaskServiceImpl taskServiceImpl = new TaskServiceImpl();
@@ -595,151 +608,28 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
   }
 
-  @Test (description="tests when step.piApprove and exist status = EXECUTING or COMPLETED or FAILED or STOPPED or unknown")
+  @Test (description="test when machine, readLength and quote are set")
   public void getExtraJobDetails() {
-	  Job job = new Job();
-	  job.setJobId(1);
 	  
-	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
-	  jobResourcecategory.setJobResourcecategoryId(1);
+	  Job job = new Job();
+	  job.setJobId(1);  
+	  
+	  //Machine (resource category)
+	  JobResourcecategory jrc = new JobResourcecategory();
+	  jrc.setJobResourcecategoryId(1);
 	  ResourceCategory resourceCategory = new ResourceCategory();
 	  ResourceType resourceType = new ResourceType();
 	  resourceType.setResourceTypeId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
 	  resourceCategory.setResourceType(resourceType);
-	  jobResourcecategory.setResourceCategory(resourceCategory);
+	  jrc.setResourceCategory(resourceCategory);
 	    
 	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
-	  jobResourceCategoryList.add(jobResourcecategory);
+	  jobResourceCategoryList.add(jrc);
 	  job.setJobResourcecategory(jobResourceCategoryList);
 	  
-	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
-	  jobMeta.setV("1");
-	  JobMeta jobMeta2 = new JobMeta();
-	  jobMeta2.setK("readType");
-	  jobMeta2.setV("abc");
-	  
-	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
-	  jobMetaList.add(jobMeta);
-	  jobMetaList.add(jobMeta2);
-	  job.setJobMeta(jobMetaList);
-	  
-	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-	  Set<String> jobIdStringSet = new HashSet<String>();
-	  jobIdStringSet.add(job.getJobId().toString());
-	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-	  
-	  JobParameters jobParameters = new JobParameters();
-	  //Test case 1: EXECUTING
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-      stepExecution.setExitStatus(ExitStatus.EXECUTING);
-            
-      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
-	  
-      List<StepExecution> stepExecutions_test = new ArrayList<StepExecution>();
-
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-
-      
-      //Test Case 2: COMPLETED
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap2.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap2.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  
-      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
-      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
-      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
-			
-      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
-	  stepExecutions2.add(stepExecution2);
-	  extraJobDetailsMap2.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-	  
-	  //Test Case 3: FAILED
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap3.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap3.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  
-      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
-      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
-      stepExecution3.setExitStatus(ExitStatus.FAILED);
-			
-      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
-	  stepExecutions3.add(stepExecution3);
-	  extraJobDetailsMap3.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-	  
-	  //Test Case 4: ABANDONED
-	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
-	  extraJobDetailsMap4.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap4.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap4.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  
-      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
-      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
-      stepExecution4.setExitStatus(ExitStatus.STOPPED);
-			
-      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
-	  stepExecutions4.add(stepExecution4);
-	  extraJobDetailsMap4.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-	  
-	  //Test Case 5: UNKNOWN
-	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
-	  extraJobDetailsMap5.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap5.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap5.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  
-      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
-      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
-      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
-			
-      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
-	  stepExecutions5.add(stepExecution5);
-	  extraJobDetailsMap5.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-	  
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
-
-	  
-  }
-
-
-  @Test (description="tests when step.adminApprove and exist status = EXECUTING or COMPLETED or FAILED or STOPPED or unknown")
-  public void getExtraJobDetails2() {
-	  Job job = new Job();
-	  job.setJobId(1);
-	  
-	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
-	  jobResourcecategory.setJobResourcecategoryId(1);
-	  ResourceCategory resourceCategory = new ResourceCategory();
-	  ResourceType resourceType = new ResourceType();
-	  resourceType.setResourceTypeId(1);
-	  resourceType.setIName("mps");
-	  resourceCategory.setName("Illumina HiSeq 2000");
-	  resourceCategory.setResourceType(resourceType);
-	  jobResourcecategory.setResourceCategory(resourceCategory);
-	    
-	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
-	  jobResourceCategoryList.add(jobResourcecategory);
-	  job.setJobResourcecategory(jobResourceCategoryList);
-	  
+	  //Job meta
 	  JobMeta jobMeta = new JobMeta();
 	  jobMeta.setK("readLength");
 	  jobMeta.setV("1");
@@ -747,176 +637,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobMetaList.add(jobMeta);
 	  job.setJobMeta(jobMetaList);
 	  
-	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-	  Set<String> jobIdStringSet = new HashSet<String>();
-	  jobIdStringSet.add(job.getJobId().toString());
-	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-	  
-	  JobParameters jobParameters = new JobParameters();
-	  //Test case 1: EXECUTING
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-      stepExecution.setExitStatus(ExitStatus.EXECUTING);
-            
-      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
-	  
-      List<StepExecution> stepExecutions_test = new ArrayList<StepExecution>();
-
-	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
-	  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
-
-      
-      //Test Case 2: COMPLETED
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
-      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
-      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
-			
-      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
-	  stepExecutions2.add(stepExecution2);
-	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("DA Approval", "Approved");
-	  extraJobDetailsMap2.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test Case 3: FAILED
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
-      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
-      stepExecution3.setExitStatus(ExitStatus.FAILED);
-			
-      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
-	  stepExecutions3.add(stepExecution3);
-	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("DA Approval", "Rejected");
-	  extraJobDetailsMap3.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test Case 4: ABANDONED
-	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
-	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
-      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
-      stepExecution4.setExitStatus(ExitStatus.STOPPED);
-			
-      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
-	  stepExecutions4.add(stepExecution4);
-	  extraJobDetailsMap4.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap4.put("DA Approval", "Abandoned");
-	  extraJobDetailsMap4.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test Case 5: UNKNOWN
-	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
-	  extraJobDetailsMap5.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap5.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
-      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
-      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
-			
-      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
-	  stepExecutions5.add(stepExecution5);
-	  extraJobDetailsMap5.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap5.put("DA Approval", "Unknown");
-	  extraJobDetailsMap5.put("Quote Job Price", "Not Yet Set");
-
-	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
-
-	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions2);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions3);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions3)).andReturn(stepExecution3);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions4);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions4)).andReturn(stepExecution4);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true)).andReturn(stepExecutions5);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions5)).andReturn(stepExecution5);
-
-	  replay(mockJobExplorerWasp);
-	  
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
-
-
-	  verify(mockJobExplorerWasp);
-	  
-  }
-  
-  @Test (description="tests when step is quote and exist status = EXECUTING or COMPLETED or FAILED or STOPPED or unknown")
-  public void getExtraJobDetails3() {
-	  Job job = new Job();
-	  job.setJobId(1);
-	  
-	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
-	  jobResourcecategory.setJobResourcecategoryId(1);
-	  ResourceCategory resourceCategory = new ResourceCategory();
-	  ResourceType resourceType = new ResourceType();
-	  resourceType.setResourceTypeId(1);
-	  resourceType.setIName("mps");
-	  resourceCategory.setName("Illumina HiSeq 2000");
-	  resourceCategory.setResourceType(resourceType);
-	  jobResourcecategory.setResourceCategory(resourceCategory);
-	    
-	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
-	  jobResourceCategoryList.add(jobResourcecategory);
-	  job.setJobResourcecategory(jobResourceCategoryList);
-	  
-	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
-	  jobMeta.setV("1");
-	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
-	  jobMetaList.add(jobMeta);
-	  job.setJobMeta(jobMetaList);
-	  
-	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-	  Set<String> jobIdStringSet = new HashSet<String>();
-	  jobIdStringSet.add(job.getJobId().toString());
-	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-	  
-	  JobParameters jobParameters = new JobParameters();
-	  //Test case 1: EXECUTING
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-      stepExecution.setExitStatus(ExitStatus.EXECUTING);
-            
-      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
-	  
-	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("Quote Job Price", "Awaiting Response");
-
-      
-      //Test Case 2: COMPLETED
-	  Float price = new Float(123.45);
+	  //Quote
 	  AcctQuote acctQuote = new AcctQuote();
 	  acctQuote.setAmount(new Float(123.45));
 	  
@@ -926,179 +647,56 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
 	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
 	  
-      JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(12345));
-      StepExecution stepExecution2 = new StepExecution("Step Name1", jobExecution2, new Long(12345));
-      stepExecution2.setExitStatus(ExitStatus.COMPLETED);
-			
-      List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
-	  stepExecutions2.add(stepExecution2);
-	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("Quote Job Price", "$"+String.format("%.2f", price));
-	  
-	  //Test Case 3: FAILED
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance3 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution3 = new JobExecution(jobInstance3, new Long(12345));
-      StepExecution stepExecution3 = new StepExecution("Step Name1", jobExecution3, new Long(12345));
-      stepExecution3.setExitStatus(ExitStatus.FAILED);
-			
-      List<StepExecution> stepExecutions3 = new ArrayList<StepExecution>();
-	  stepExecutions3.add(stepExecution3);
-	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("Quote Job Price", "Rejected");
-	  
-	  //Test Case 4: ABANDONED
-	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
-	  extraJobDetailsMap4.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap4.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance4 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution4 = new JobExecution(jobInstance4, new Long(12345));
-      StepExecution stepExecution4 = new StepExecution("Step Name1", jobExecution4, new Long(12345));
-      stepExecution4.setExitStatus(ExitStatus.STOPPED);
-			
-      List<StepExecution> stepExecutions4 = new ArrayList<StepExecution>();
-	  stepExecutions4.add(stepExecution4);
-	  extraJobDetailsMap4.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap4.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap4.put("Quote Job Price", "Abandoned");
-	  
-	  //Test Case 5: UNKNOWN
-	  Map<String, String> extraJobDetailsMap5 = new HashMap<String, String>();
-	  extraJobDetailsMap5.put("Machine", "Illumina HiSeq 2000");
-	  extraJobDetailsMap5.put("Read Length", jobMeta.getV());
-	  
-      JobInstance jobInstance5 = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution5 = new JobExecution(jobInstance5, new Long(12345));
-      StepExecution stepExecution5 = new StepExecution("Step Name1", jobExecution5, new Long(12345));
-      stepExecution5.setExitStatus(ExitStatus.UNKNOWN);
-			
-      List<StepExecution> stepExecutions5 = new ArrayList<StepExecution>();
-	  stepExecutions5.add(stepExecution5);
-	  extraJobDetailsMap5.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap5.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap5.put("Quote Job Price", "Unknown");
-
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions)).andReturn(stepExecution);	
-
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions2);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions2)).andReturn(stepExecution2);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions3);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions3)).andReturn(stepExecution3);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions4);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions4)).andReturn(stepExecution4);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("step.quote", parameterMap, true)).andReturn(stepExecutions5);
-	  expect(mockJobExplorerWasp.getMostRecentlyStartedStepExecutionInList(stepExecutions5)).andReturn(stepExecution5);
-
-	  replay(mockJobExplorerWasp);
+	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();	 
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", acctQuote.getAmount()));
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap5);
 
-	  verify(mockJobExplorerWasp);
-	  
   }
-  
-  @Test (description="Tests different quote amounts")
-  public void getExtraJobDetails4() {
 
-	  Job job = new Job();
-	  job.setJobId(1);
+  @Test (description="test different quote amounts")
+  public void getExtraJobDetails2() {
 	  
-	  JobResourcecategory jobResourcecategory = new JobResourcecategory();
-	  jobResourcecategory.setJobResourcecategoryId(1);
+	  Job job = new Job();
+	  job.setJobId(1);  
+	  
+	  //Machine (resource category)
+	  JobResourcecategory jrc = new JobResourcecategory();
+	  jrc.setJobResourcecategoryId(1);
 	  ResourceCategory resourceCategory = new ResourceCategory();
 	  ResourceType resourceType = new ResourceType();
 	  resourceType.setResourceTypeId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
 	  resourceCategory.setResourceType(resourceType);
-	  jobResourcecategory.setResourceCategory(resourceCategory);
+	  jrc.setResourceCategory(resourceCategory);
 	    
 	  List<JobResourcecategory> jobResourceCategoryList = new ArrayList<JobResourcecategory>();
-	  jobResourceCategoryList.add(jobResourcecategory);
+	  jobResourceCategoryList.add(jrc);
 	  job.setJobResourcecategory(jobResourceCategoryList);
 	  
+	  //Job meta
 	  JobMeta jobMeta = new JobMeta();
 	  jobMeta.setK("readLength");
 	  jobMeta.setV("1");
-	  JobMeta jobMeta2 = new JobMeta();
-	  jobMeta2.setK("readType");
-	  jobMeta2.setV("abc");
 	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 	  jobMetaList.add(jobMeta);
-	  jobMetaList.add(jobMeta2);
 	  job.setJobMeta(jobMetaList);
-	  
-	  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-	  Set<String> jobIdStringSet = new HashSet<String>();
-	  jobIdStringSet.add(job.getJobId().toString());
-	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-	  
-	  JobParameters jobParameters = new JobParameters();
-
-      JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-      StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-      stepExecution.setExitStatus(ExitStatus.COMPLETED);
-			
-      List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
-	  
-      //Test Case 1: 
-	  Float price = new Float(123.45);
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());	  
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", "$"+String.format("%.2f", price));
-	  
-      //Test Case 2
-	  Float price2 = new Float(0);
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap2.put("extraJobDetails.readLength.label", jobMeta.getV());	 
-	  extraJobDetailsMap2.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap2.put("extraJobDetails.quote.label", "$"+String.format("%.2f", price2));
-	  
-	  //Test Case 3
-	  Float price3 = new Float(123);
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap3.put("extraJobDetails.readLength.label", jobMeta.getV());	
-	  extraJobDetailsMap3.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap3.put("extraJobDetails.quote.label", "$"+String.format("%.2f", price3));
-	  
-	  //Test Case 4
-	  Float price4 = new Float(999999999.99999999);
-	  Map<String, String> extraJobDetailsMap4 = new HashMap<String, String>();
-	  extraJobDetailsMap4.put("extraJobDetails.machine.label", "Illumina HiSeq 2000");
-	  extraJobDetailsMap4.put("extraJobDetails.readLength.label", jobMeta.getV());	  
-	  extraJobDetailsMap4.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap4.put("extraJobDetails.quote.label", "$"+String.format("%.2f", price4));
-	  
+	  	  
 	  AcctQuote acctQuote = new AcctQuote();
 	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
 	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
 
-	  //Test case 1
+	  //Test case 1  
+	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
+	  Float price = new Float(123.45);
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  
 	  acctQuote.setAmount(price);	  
 	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
 	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
@@ -1107,32 +705,65 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
 	  //Test case 2
-	  acctQuote.setAmount(price2);	  
+	  extraJobDetailsMap.clear();
+	  price = new Float(0);
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  
+	  acctQuote.setAmount(price);	  
 	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
 	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
 	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap2);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
 	  //Test case 3
-	  acctQuote.setAmount(price3);	  
+	  extraJobDetailsMap.clear();
+	  price = new Float(123);
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  
+	  acctQuote.setAmount(price);	  
 	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
 	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
 	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap3);
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
 	  //Test case 4
-	  acctQuote.setAmount(price4);	  
+	  extraJobDetailsMap.clear();
+	  price = new Float(123);
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  
+	  acctQuote.setAmount(price);	  
 	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
 	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
 	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
-	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap4);
+	  //Test case 5
+	  extraJobDetailsMap.clear();
+	  price = new Float(9999999999.9999999);
+	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  
+	  acctQuote.setAmount(price);	  
+	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
+	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
+	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  	  
+	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 
-	  
+
   }
   
+   
   //Test different quote amounts
   @Test
   public void getExtraJobDetails5() {
@@ -1155,7 +786,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		  
 	  }
   }
+  
+  // TODO
 
+/*
   @Test (description="") 
   public void createJobFromJobDraft () {
 	  User user = new User();
@@ -1243,8 +877,24 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  List <SampleDraftJobDraftCellSelection> sdjdcList = new ArrayList <SampleDraftJobDraftCellSelection>();
 	  sdjdcList.add(sdjdc);
 	  SampleDraft sd = new SampleDraft();
+	  sd.setName("sample draft");
+	  sd.setSampleTypeId(1);
+	  sd.setSampleSubtypeId(1);
 	  sd.setSampleDraftJobDraftCellSelection(sdjdcList);
 	  sd.setSampleDraftId(new Integer(1));
+	  
+	  //Sample Draft Meta
+	  SampleDraftMeta  sdm = new SampleDraftMeta();
+	  sdm.setK("genericBiomolecule.species");
+	  sdm.setV("Human");
+	  sdm.setPosition(1);
+	  
+	  SampleMeta sampleMeta = new SampleMeta();
+	  sampleMeta.setK(sdm.getK());
+	  sampleMeta.setV(sdm.getV());
+	  sampleMeta.setPosition(sdm.getPosition());
+	  
+	  
 	  
 	  // TODO: write test for when SourceSampleId is null
 	  //Test when SourceSampleId is not null
@@ -1253,8 +903,18 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  sdList.add(sd);
 	  jobDraft.setSampleDraft(sdList);
 
+	  //Create Samples
 	  Sample sample = new Sample();
-	  sample.setSampleId(1);
+	  sample.setName(sd.getName()); 
+	  sample.setSampleTypeId(sd.getSampleTypeId()); 
+	  sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
+	  sample.setSubmitterLabId(job.getLabId()); 
+	  sample.setSubmitterUserId(user.getUserId()); 
+	  sample.setSubmitterJobId(job.getJobId()); 
+	  sample.setIsReceived(0);
+	  sample.setIsActive(1);
+	  
+	  // TODO: Sample File: sd.getFileId() != null
 	  
 	  // Job Sample
 	  SampleJobCellSelection sampleJobCellSelection = new SampleJobCellSelection();
@@ -1263,17 +923,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobSample.setJobId(job.getJobId());
 	  jobSample.setSampleId(sample.getSampleId());
 	  
-	  //JobDraftFile
-	  JobDraftFile jobDraftFile = new JobDraftFile();
-	  jobDraftFile.setJobDraftId(1);
-	  File file = new File();
-	  file.setAbsolutePath("/path/");
-	  jobDraftFile.setFile(file);
-	  List <JobDraftFile> jobDraftFileList = new ArrayList <JobDraftFile>();
-	  jobDraftFileList.add(jobDraftFile);
-
-	  jobDraft.setJobDraftFile(jobDraftFileList);
-
+	  jobDraft.setStatus("SUBMITTED");
+	  jobDraft.setSubmittedjobId(job.getJobId());
 	  	  
 	  expect(mockJobDao.save(EasyMock.isA(Job.class))).andReturn(job); 
 	  replay(mockJobDao);
@@ -1299,24 +950,29 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  expect(mockJobCellSelectionDao.save(EasyMock.isA(JobCellSelection.class))).andReturn(jobCellSelection);
 	  replay(mockJobCellSelectionDao);
 	  	  
-	  expect(mockSampleDao.getSampleBySampleId(sd.getSourceSampleId())).andReturn(sample);
+	  expect(mockSampleDao.save(sample)).andReturn(sample);
 	  replay(mockSampleDao);
+	  
+	  expect(mockSampleMetaDao.save(sampleMeta)).andReturn(sampleMeta);
+	  replay(mockSampleMetaDao);
+	  
 	  
 	  expect(mockJobSampleDao.save(EasyMock.isA(JobSample.class))).andReturn(jobSample);
 	  replay(mockJobSampleDao);
 	  
 	  expect(mockSampleJobCellSelectionDao.save(EasyMock.isA(SampleJobCellSelection.class))).andReturn(sampleJobCellSelection);
 	  replay(mockSampleJobCellSelectionDao); 
-
-
-	  try {
-		  Assert.assertEquals(jobServiceImpl.createJobFromJobDraft(jobDraft, user), job);
-	  }
-	  catch (FileMoveException e ) {
-		  //Assert.fail(e.getMessage());
-		  Assert.assertEquals(e.getMessage(), "Cannot convert path from '"+file.getAbsolutePathToFileFolder()+"'");
-	  }
 	  
+	  expect(mockJobDraftDao.save(jobDraft)).andReturn(jobDraft);
+	  replay(mockJobDraftDao); 
+
+      try {
+		Assert.assertEquals(jobServiceImpl.createJobFromJobDraft(jobDraft, user), job);
+	  } catch (FileMoveException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	  }
+  
 	  verify(mockJobDao);
 	  verify(mockJobMetaDao);
 	  verify(mockJobSoftwareDao);
@@ -1325,9 +981,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  verify(mockJobUserDao);
 	  verify(mockLabDao);
 	  verify(mockJobCellSelectionDao);
-	  
+	  verify(mockJobDraftDao);
   }
-
+*/
+  
   @Test
   public void initiateBatchJobForJobSubmission() {
 	  try {
@@ -1374,48 +1031,29 @@ public class TestJobServiceImpl extends EasyMockSupport{
   public void getJobsAwaitingLibraryCreation(){
 	  
 	  List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
-	  
-	  StepExecution stepExecution;
-	  JobExecution jobExecution;
-	  JobInstance jobInstance;
-	  JobParameters jobParameters;
-	  jobParameters = new JobParameters();
-	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-	  
-	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
-	/*  
-	  JobParameters jobParameters2 = new JobParameters();
-	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name1");
-	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
-	  StepExecution stepExecution2= new StepExecution("Step Name1", jobExecution2, new Long(12345));
-	  stepExecutions.add(stepExecution2);
-
-	*/
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
-	  
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED)).andReturn(stepExecutions);
-
-	  try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)).andReturn("123");
-		  } catch (ParameterValueRetrievalException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-		  }
 	  Job job = new Job();
-	  expect(mockJobDao.getJobByJobId(123)).andReturn(job);
+	  job.setJobId(1);
 	  
-	  replay(mockJobExplorerWasp);
-	  replay(mockJobDao);
-	  JobsAwaitingLibraryCreation.add(job);
-	  Assert.assertEquals(jobServiceImpl.getJobsAwaitingLibraryCreation(), JobsAwaitingLibraryCreation);
+	  Sample sample = new Sample();
+	  List<Sample> samples = new ArrayList<Sample>();
+	  samples.add(sample);
+	  job.setSample(samples);
 	  
-	  verify(mockJobExplorerWasp);
-	  verify(mockJobDao);
-
+	  List<Job> activeJobs = new ArrayList<Job>();
+	  activeJobs.add(job);
+	
+	  expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
+      replay(mockJobServiceImpl);
+      
+      expect(mockSampleService.isSampleAwaitingLibraryCreation(sample)).andReturn(true);
+      replay(mockSampleService);
+		
+      JobsAwaitingLibraryCreation.add(job);
+      Assert.assertEquals(mockJobServiceImpl.getJobsAwaitingLibraryCreation(), JobsAwaitingLibraryCreation);
+      
+      verify(mockSampleService);
+      verify(mockJobServiceImpl);
+	  
 	  
   }
   
@@ -2059,6 +1697,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
 	  jobServiceImpl.setSampleJobCellSelectionDao(mockSampleJobCellSelectionDao);
 	  jobServiceImpl.setWorkflowDao(mockWorkflowDao);
+	  jobServiceImpl.setJobDraftDao(mockJobDraftDao);
+	  jobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
 
 
   }
@@ -2082,7 +1722,9 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockSampleJobCellSelectionDao);
 	  EasyMock.reset(mockWorkflowDao);
 	  EasyMock.reset(mockJobServiceImpl);
-
+	  EasyMock.reset(mockJobDraftDao);
+	  EasyMock.reset(mockSampleMetaDao);
+	  EasyMock.reset(mockSampleService);
 
 
 	  
@@ -2114,13 +1756,19 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobCellSelectionDao = createMockBuilder(JobCellSelectionDaoImpl.class).addMockedMethods(JobCellSelectionDaoImpl.class.getMethods()).createMock();
 	  mockSampleJobCellSelectionDao = createMockBuilder(SampleJobCellSelectionDaoImpl.class).addMockedMethods(SampleJobCellSelectionDaoImpl.class.getMethods()).createMock();
 	  mockWorkflowDao = createMockBuilder(WorkflowDaoImpl.class).addMockedMethods(WorkflowDaoImpl.class.getMethods()).createMock();
+	  mockJobDraftDao = createMockBuilder(JobDraftDaoImpl.class).addMockedMethods(JobDraftDaoImpl.class.getMethods()).createMock();
+	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
 
-	  
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
 	  		
 	  mockJobServiceImpl = EasyMock
 		         .createMockBuilder(JobServiceImpl.class) //create builder first
 		         .addMockedMethod("getActiveJobs") // tell EasyMock to mock getActiveJobs() method
+		         .createMock(); 
+	  
+	  mockSampleService = EasyMock
+		         .createMockBuilder(SampleServiceImpl.class) //create builder first
+		         .addMockedMethod("isSampleAwaitingLibraryCreation") // tell EasyMock to mock getActiveJobs() method
 		         .createMock(); 
 	
 	  Assert.assertNotNull(mockTaskMappingDao);
@@ -2138,8 +1786,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Assert.assertNotNull(mockJobCellSelectionDao);
 	  Assert.assertNotNull(mockWorkflowDao);
 	  Assert.assertNotNull(mockJobServiceImpl);
-
-
+	  Assert.assertNotNull(mockJobDraftDao);
+	  Assert.assertNotNull(mockSampleMetaDao);
 
 
   }
