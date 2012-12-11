@@ -16,6 +16,7 @@ import java.util.Map;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
@@ -714,7 +715,22 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException;
 
-	  
+	  /**
+		 * save a Sample QC Comment
+		 * @param Integer sampleId
+		 * @param String comment
+		 * @return void
+		 * @throws Exception
+		 */
+	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
+		
+		/**
+		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
+		 * @param Integer sampleId
+		 * @return List<MetaMessage>
+		 */
+	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
+		
 
 	  
 

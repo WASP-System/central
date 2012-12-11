@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -73,6 +74,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
@@ -93,6 +95,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -144,6 +147,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.authenticationService = authenticationService;
 	}
 	
+	@Autowired
+	private MetaMessageService metaMessageService;
+
 	@Autowired
 	private WorkflowDao workflowDao;
 	
@@ -514,9 +520,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(ExitStatus.EXECUTING) || internalStatus.equals(ExitStatus.UNKNOWN)){
+		  	if( internalStatus.equals(ExitStatus.UNKNOWN) ){
+			  return "NONEXISTENT";
+		  	}
+		  	else if(internalStatus.equals(ExitStatus.EXECUTING)){
 			  return "AWAITING QC";
-			}
+		  	}
 			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "PASSED";
 			}
@@ -2204,4 +2213,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setSampleQCComment(Integer sampleId, String comment) throws Exception{
+		try{
+			metaMessageService.saveToGroup("sampleQCComments", "Sample QC Comment", comment, sampleId, SampleMeta.class, sampleMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getSampleQCComments(Integer sampleId){
+		return metaMessageService.read("sampleQCComments", sampleId, SampleMeta.class, sampleMetaDao);
+	}
 }

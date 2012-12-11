@@ -292,7 +292,9 @@ public class TaskController extends WaspController {
   public String updateSampleQC(
       @RequestParam("sampleId") Integer sampleId,
       @RequestParam("qcStatus") String qcStatus,
-      ModelMap m) {
+      @RequestParam("comment") String comment,
+      ModelMap m) {	  
+	  
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.sampleqc_invalid_sample.error");
@@ -302,6 +304,15 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.sampleqc_status_empty.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
+	  if( ! "FAILED".equals(qcStatus) && ! "PASSED".equals(qcStatus) ){
+		  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");	
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+	  if("FAILED".equals(qcStatus) && comment.trim().isEmpty() ){
+		  waspErrorMessage("task.sampleqc_comment_empty.error");	
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+
 	  try{
 		  if(qcStatus.equals("PASSED")){
 			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
@@ -318,6 +329,15 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.sampleqc_message.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
+	  
+	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+	  }catch(Exception e){
+		  logger.warn(e.getMessage());
+	  }
+	  
 	  waspMessage("task.sampleqc_update_success.label");	
 	  return "redirect:/task/sampleqc/list.do";
   }
