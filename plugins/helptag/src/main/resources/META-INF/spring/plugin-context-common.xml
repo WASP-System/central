@@ -3,15 +3,15 @@
 	xmlns="http://www.springframework.org/schema/beans" default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="helptagPluginDomain" class="java.lang.String">
+	<bean id="helpTagPluginDomain" class="java.lang.String">
 		<constructor-arg>
 			<value>edu.yu.einstein.wasp.helptag</value>
 		</constructor-arg>
 	</bean>
 
-	<bean id="helptagPluginArea" class="java.lang.String">
+	<bean id="helpTagPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>helptagPlugin</value>
+			<value>helpTagPlugin</value>
 		</constructor-arg>
 	</bean>
 
