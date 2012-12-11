@@ -171,6 +171,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public void setSampleJobCellSelectionDao(SampleJobCellSelectionDao sampleJobCellSelectionDao) {
 		this.sampleJobCellSelectionDao = sampleJobCellSelectionDao;
 	}
+
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
+	}
+
 	
 	@Autowired
 	private JobDraftDao jobDraftDao;
