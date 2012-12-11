@@ -1,5 +1,6 @@
 #container {
-  width: 980px; 
+  width: 95%; 
+  min-width: 980px;
   background: #ffffff;
   height: 93%;
   margin: auto;
@@ -12,12 +13,10 @@
 
 
 #content {
-  float:left;
-  width:940px;
   background-color: #FFFFE6;
   padding :10px 20px 10px 20px;
+  overflow-y: auto;
   min-height: 93%;
-  
 }
 
 #footer { 
@@ -26,6 +25,8 @@
   background:#CCCCCC;
   font-size: 11px;
 }
+
+
 
 .header_nav {
 	float:right;
@@ -36,8 +37,7 @@
 }
 
 .fixed-width_scrollable {
-	width:940px; 
-	overflow:auto;
+	overflow-x:auto;
 }
 
 html {
@@ -49,7 +49,7 @@ body	{
 	font-size: 13px;
 	font-family: Helevetica, "MS Trebuchet", sans-serif;
 	line-height: 16px;
-	width:980px;
+	min-width:95%;
 	margin: auto;
 	margin-top: 10px;
   	margin-bottom: 10px;
