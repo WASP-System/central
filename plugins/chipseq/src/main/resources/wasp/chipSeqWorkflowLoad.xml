@@ -11,12 +11,12 @@
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="chipSeqUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{chipseqPluginArea}" />
+    <property name="baseArea" value="#{chipSeqPluginArea}" />
   </bean>
 
 
   <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="chipSeqDnaSampleSubtypeResource,chipSeqLibrarySampleSubtypeResource">
-    <property name="area" value="#{chipSeqWorkflowArea}" />
+    <property name="area" value="#{chipSeqPluginArea}" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
     <property name="name" value="Chip Seq" />
     <property name="pageFlowOrder">
