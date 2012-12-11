@@ -18,7 +18,7 @@
   <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="chipSeqDnaSampleSubtypeResource,chipSeqLibrarySampleSubtypeResource">
     <property name="area" value="#{chipSeqPluginArea}" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="name" value="Chip Seq" />
+    <property name="name" value="ChIP Seq" />
     <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
