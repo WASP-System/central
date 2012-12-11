@@ -97,6 +97,15 @@
 
 			</td>
 		</tr>	
+		
+		<c:if test="${!status.last}">
+				<td >&nbsp;</td>
+				<td >&nbsp;</td>
+				<td >&nbsp;</td>
+				<td colspan="3" style='border-top: 2px solid gray;'>&nbsp;</td>
+		</c:if>
+		
+		
 		<c:set var="currentJobId" value="${job.getJobId()}" scope="page" />	
 	</c:forEach>
 </c:forEach>
