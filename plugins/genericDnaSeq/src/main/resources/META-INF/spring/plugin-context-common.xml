@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="genericDnaSeqPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.genericDnaSeq</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="genericDnaSeqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>genericDnaSeqPlugin</value>
+		</constructor-arg>
+	</bean>
+
+</beans>
