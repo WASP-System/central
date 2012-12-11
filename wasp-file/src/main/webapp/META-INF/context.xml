@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!-- 
+
+Tomcat's context.xml 
+
+ensure 'wasp-tomcat-classloader....jar' is loaded into ${catalina.home}/lib
+it also needs a copy of 'ant.jar'
+
+-->
+
+
+<Context path="/file">
+<Loader loaderClass="edu.yu.einstein.wasp.classloader.WaspTomcatClassLoader" delegate="true" /> 
+</Context>
+
+

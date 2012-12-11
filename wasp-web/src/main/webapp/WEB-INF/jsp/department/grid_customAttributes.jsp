@@ -4,5 +4,5 @@ caption:"<fmt:message key="department.lab_list.label" />",
 url: '/wasp/department/detail/${departmentId}/listLabJSON.do?selId=${param.selId}',
 
 ondblClickRow: function(rowid) {
-	$("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr);
+	<%-- $("#grid_id").jqGrid('viewGridRow',rowid,_viewAttr); looks bad; to see the info, use the edit--%>
 }

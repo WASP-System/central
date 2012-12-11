@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
  <br />
-<title><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></title>
+<%--serves no purpose here <title><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></title> --%>
 <h1><fmt:message key="pageTitle.facility/platformunit/showPlatformUnit.label"/></h1>
  
 <div>
@@ -12,7 +12,12 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
-<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'>Edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this platform unit record?")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'>Delete</a> | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'>Add To Run</a> 
+<a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.edit.label"/></a> 
+<%--permit platformUnit to be deleted only if it has no runs --%>
+<c:if test="${sequenceRuns.size()==0}">
+| <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
+</c:if>
+| <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a> 
 </td></tr>
 </table>
 </div>
@@ -24,14 +29,14 @@
 <div>
 <table class="data">
 <tr>
-<td class="value-centered-small-heavyborder" nowrap>Run</td>
-<td class="value-centered-small-heavyborder" nowrap>Machine</td>
-<td class="value-centered-small-heavyborder" nowrap>Length</td>
-<td class="value-centered-small-heavyborder" nowrap>Type</td>
-<td class="value-centered-small-heavyborder" nowrap>Start</td>
-<td class="value-centered-small-heavyborder" nowrap>End</td>
-<td class="value-centered-small-heavyborder" nowrap>Status</td>
-<td class="value-centered-small-heavyborder" nowrap>Action</td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.run.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.machine.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.length.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.type.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.start.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.end.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.status.label"/></td>
+<td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.action.label"/></td>
 </tr>
 <c:forEach items="${sequenceRuns}" var="sequenceRun">
 <tr>
@@ -43,7 +48,7 @@
 <td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
-<td class="value-centered-small"><a href='<c:url value="/run/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'>edit</a> | <a href='javascript:void(0)' onclick = 'if(confirm("Do you really want to delete this run record?")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'>delete</a></td>
+<td class="value-centered-small"><a href='<c:url value="/run/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
 </tr>
 </c:forEach>
 </table>
@@ -183,7 +188,7 @@
 					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="showPlatformUnit.removeLibFromCell_alert.label"/>");'>
 						<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 						<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
-						<input type='submit' value='Remove Library'/>
+						<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
 					</form>					
 					<c:set var="counter" value="${counter + 1}" scope="page" />
 				  </c:if>	

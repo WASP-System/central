@@ -462,8 +462,21 @@ public class JobController extends WaspController {
 				User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
 				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
-				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
-				
+				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
+				if(ajqcList.isEmpty()){
+					quoteAsString = "?.??";
+				}
+				else{
+					try{
+						  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+						  quoteAsString = String.format("%.2f", price);
+					}
+					catch(Exception e){
+						  logger.warn("JobController: jobList : " + e);
+						  quoteAsString = "?.??"; 
+					}					
+				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
@@ -471,7 +484,8 @@ public class JobController extends WaspController {
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
-							String.format("%.2f", amount),
+							//String.format("%.2f", amount),
+							quoteAsString,
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
@@ -541,7 +555,7 @@ public class JobController extends WaspController {
 											sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
-										sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample))
+										sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample))
 								}
 						)
 				);
@@ -651,16 +665,7 @@ public class JobController extends WaspController {
   }
 
  
-  /* 5/15/12 should not longer be user
-  @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String allPendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
-	  
-	  return "redirect:/lab/allpendinglmapproval/list.do";	
-	}
-  */
+ 
   
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")

@@ -14,6 +14,6 @@
 		request-channel="wasp.channel.remoting.outbound" 
 		reply-timeout="1000"
 		request-timeout="1000"
-		host="localhost" 
+		host="127.0.0.1" 
 		port="23533" />
 </beans>

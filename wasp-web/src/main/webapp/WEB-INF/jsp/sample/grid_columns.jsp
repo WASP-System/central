@@ -14,6 +14,11 @@
 _navAttr=
 	{edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 
 		function () { 
+		
+			var url = window.location.href; 
+			if(url.indexOf('selId') != -1){<%-- url contains this string (indicating coming from jobGrid), upon refresh, change url to remove; will cause a COMPLETE refresh of page rather than a JSON call--%> 
+				window.location.replace('list.do'); <%-- completely refresh the page, without the selId request parameter --%>
+			}
 			<%--http://stackoverflow.com/questions/5070065/jqgrid-sort-icon-on-columns-are-not-reset-after-triggerreloadgrid-call 
 			var myGrid = jQuery("#grid_id");
     		$("span.s-ico",myGrid[0].grid.hDiv).hide();
