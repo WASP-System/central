@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Currency;
@@ -71,6 +72,7 @@ import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
@@ -1041,9 +1043,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  List<Job> activeJobs = new ArrayList<Job>();
 	  activeJobs.add(job);
-	
+	  
 	  expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
       replay(mockJobServiceImpl);
+
+	  mockJobServiceImpl.setSampleService(mockSampleService);
       
       expect(mockSampleService.isSampleAwaitingLibraryCreation(sample)).andReturn(true);
       replay(mockSampleService);
@@ -1051,8 +1055,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
       JobsAwaitingLibraryCreation.add(job);
       Assert.assertEquals(mockJobServiceImpl.getJobsAwaitingLibraryCreation(), JobsAwaitingLibraryCreation);
       
-      verify(mockSampleService);
       verify(mockJobServiceImpl);
+      verify(mockSampleService);
 	  
 	  
   }
@@ -1061,255 +1065,147 @@ public class TestJobServiceImpl extends EasyMockSupport{
   public void getJobsAwaitingLibraryCreation2(){
 	  
 	  List<Job> JobsAwaitingLibraryCreation = new ArrayList<Job>();
+	  List<Job> activeJobs = new ArrayList<Job>();
 	  
-	  StepExecution stepExecution;
-	  JobExecution jobExecution;
-	  JobInstance jobInstance;
-	  JobParameters jobParameters;
-	  jobParameters = new JobParameters();
-	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
-	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-	  
-	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-	  stepExecutions.add(stepExecution);
+	  expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
+      replay(mockJobServiceImpl);
 
-	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
+      Assert.assertEquals(mockJobServiceImpl.getJobsAwaitingLibraryCreation(), JobsAwaitingLibraryCreation);
+      
+      verify(mockJobServiceImpl);
 	  
-	  expect(mockJobExplorerWasp.getStepExecutions("wasp.library.step.listenForLibraryCreated", BatchStatus.STARTED)).andReturn(stepExecutions);
-
-	  try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.JOB_ID)).andReturn("123");
-		  } catch (ParameterValueRetrievalException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-		  }
-	  expect(mockJobDao.getJobByJobId(123)).andReturn(null);
-	  
-	  replay(mockJobExplorerWasp);
-	  replay(mockJobDao);
-	  Assert.assertEquals(jobServiceImpl.getJobsAwaitingLibraryCreation(), JobsAwaitingLibraryCreation);
-	  
-	  verify(mockJobExplorerWasp);
-	  verify(mockJobDao);
-
 	  
   }
 
-  
-  @Test (description="tests when sampleSources = NULL")
+  @Test (description="isLibrary=true AND isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample) is TRUE")
   public void getJobsWithLibrariesToGoOnPlatformUnit() {
 	  
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		
 		Job job = new Job();
 		job.setJobId(1);
+		List<Sample> samples = new ArrayList<Sample>();
+
+		Sample sample = new Sample();
+		samples.add(sample);
+		job.setSample(samples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
 		
+		
 		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
-	    replay(mockJobServiceImpl);	    
+	    replay(mockJobServiceImpl);	   
 	    
-	    Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		
-		JobParameters jobParameters = new JobParameters();
+	    mockJobServiceImpl.setSampleService(mockSampleService);
 
-	    JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	    StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-				
-	    List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-		stepExecutions.add(stepExecution);
-		
-		((JobServiceImpl) mockJobServiceImpl).setJobExplorer(mockJobExplorerWasp);
-
-		expect(mockJobExplorerWasp.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false)).andReturn(stepExecutions);
-		String libraryId="1";
-		try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID)).andReturn(libraryId);
-		} catch (ParameterValueRetrievalException e) {
+	    expect(mockSampleService.isLibrary(sample)).andReturn(true);
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample)).andReturn(true);
+		} catch (SampleTypeException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		Sample library = new Sample();
-		library.setSampleId(1);
-		
-		((JobServiceImpl) mockJobServiceImpl).setSampleDao(mockSampleDao);
-		expect(mockSampleDao.getSampleBySampleId(Integer.valueOf(libraryId))).andReturn(library);
-		
-	    replay(mockJobExplorerWasp);
-	    replay(mockSampleDao);
+		expect(mockSampleService.isLibraryPassQC(sample)).andReturn(true);
+	    replay(mockSampleService);
 	    
 	    jobsWithLibrariesToGoOnFlowCell.add(job);
-		Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
+	    Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
 		
 		verify(mockJobServiceImpl);
-		verify(mockJobExplorerWasp);
-		verify(mockSampleDao);
-  
+		verify(mockSampleService);
+ 
 	  
   }
-  
-  @Test (description="tests when sampleSources != NULL and numberOfAnalysisFlowsForLibrary < numberOfLibraryInstancesOnCells")
+  @Test (description="isLibrary=true AND isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample) is FALSE")
   public void getJobsWithLibrariesToGoOnPlatformUnit2() {
 	  
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		
 		Job job = new Job();
 		job.setJobId(1);
+		List<Sample> samples = new ArrayList<Sample>();
+
+		Sample sample = new Sample();
+		samples.add(sample);
+		job.setSample(samples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
 		
+		
 		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
-	    replay(mockJobServiceImpl);	    
+	    replay(mockJobServiceImpl);	   
 	    
-	    Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		
-		JobParameters jobParameters = new JobParameters();
+	    mockJobServiceImpl.setSampleService(mockSampleService);
 
-	    JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	    StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-				
-	    List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-		stepExecutions.add(stepExecution);
-		
-		((JobServiceImpl) mockJobServiceImpl).setJobExplorer(mockJobExplorerWasp);
-
-		expect(mockJobExplorerWasp.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false)).andReturn(stepExecutions);
-		String libraryId="1";
-		try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID)).andReturn(libraryId);
-		} catch (ParameterValueRetrievalException e) {
+	    expect(mockSampleService.isLibrary(sample)).andReturn(true);
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample)).andReturn(false);
+		} catch (SampleTypeException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		Sample library = new Sample();
-		library.setSampleId(1);
-		SampleSource sampleSource = new SampleSource();
-		sampleSource.setSourceSampleId(1);
-		SampleSource sampleSource2 = new SampleSource();
-		sampleSource.setSourceSampleId(2);
-
-		List<SampleSource> sampleSources = new ArrayList<SampleSource>(); // library -> cell relationships
-		sampleSources.add(sampleSource);
-		sampleSources.add(sampleSource2);
-
-		library.setSampleSource(sampleSources);
 		
-		((JobServiceImpl) mockJobServiceImpl).setSampleDao(mockSampleDao);
-		expect(mockSampleDao.getSampleBySampleId(Integer.valueOf(libraryId))).andReturn(library);
+	    replay(mockSampleService);
+	    
+	    Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
 		
-	    replay(mockJobExplorerWasp);
-	    replay(mockSampleDao);
-	    
-		Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
-	    
 		verify(mockJobServiceImpl);
-		verify(mockJobExplorerWasp);
-		verify(mockSampleDao);
-
-  }
+		verify(mockSampleService);
  
-  @Test (description="tests when more than one job and sampleSources != NULL and numberOfAnalysisFlowsForLibrary > numberOfLibraryInstancesOnCells")
+	  
+  }
+   
+  /*
+  @Test (description="isLibrary=false")
   public void getJobsWithLibrariesToGoOnPlatformUnit3() {
 	  
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		
 		Job job = new Job();
 		job.setJobId(1);
-		Job job2 = new Job();
-		job2.setJobId(2);
+		
+	    List<Sample> childrenList = new ArrayList<Sample>();
+
+		Sample children = new Sample();
+		childrenList.add(children);
+
+
+		List<Sample> samples = new ArrayList<Sample>();
+
+		Sample sample = new Sample();
+		samples.add(sample);
+		job.setSample(samples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
-		activeJobs.add(job2);
-
+		
+		
 		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
-	    replay(mockJobServiceImpl);	    
+	    replay(mockJobServiceImpl);	   
 	    
-	    //Test parameters 1
-	    Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add(job.getJobId().toString());
-		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		JobParameters jobParameters = new JobParameters();
-		
-	    JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
-	    StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
-				
-	    List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
-		stepExecutions.add(stepExecution);
+	    mockJobServiceImpl.setSampleService(mockSampleService);
 
-		//Test parameters 2
-		Map<String, Set<String>> parameterMap2 = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet2 = new HashSet<String>();
-		jobIdStringSet2.add(job2.getJobId().toString());
-		parameterMap2.put(WaspJobParameters.JOB_ID, jobIdStringSet2);
-		JobParameters jobParameters2 = new JobParameters();
+	    expect(mockSampleService.isLibrary(sample)).andReturn(false);
+	    
 		
-		JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters, "Job2");
-		JobExecution jobExecution2 = new JobExecution(jobInstance, new Long(12345));
-	    StepExecution stepExecution2 = new StepExecution("Step2", jobExecution, new Long(12345));
-				
-	    List<StepExecution> stepExecutions2 = new ArrayList<StepExecution>();
-		stepExecutions2.add(stepExecution2);
-		
-		
-		((JobServiceImpl) mockJobServiceImpl).setJobExplorer(mockJobExplorerWasp);
-
-		//job1
-		expect(mockJobExplorerWasp.getStepExecutions("wasp.analysis.step.waitForData", parameterMap, false)).andReturn(stepExecutions);
-		String libraryId="1";
-		try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution, WaspJobParameters.LIBRARY_ID)).andReturn(libraryId);
-		} catch (ParameterValueRetrievalException e) {
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample)).andReturn(false);
+		} catch (SampleTypeException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		Sample library = new Sample();
-		library.setSampleId(1);
-
-		((JobServiceImpl) mockJobServiceImpl).setSampleDao(mockSampleDao);
-		expect(mockSampleDao.getSampleBySampleId(Integer.valueOf(libraryId))).andReturn(library);
 		
-		//job2
-		expect(mockJobExplorerWasp.getStepExecutions("wasp.analysis.step.waitForData", parameterMap2, false)).andReturn(stepExecutions2);
-		libraryId="2";
-		try {
-			expect(mockJobExplorerWasp.getJobParameterValueByKey(stepExecution2, WaspJobParameters.LIBRARY_ID)).andReturn(libraryId);
-		} catch (ParameterValueRetrievalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		library = new Sample();
-		library.setSampleId(2);
-
-		((JobServiceImpl) mockJobServiceImpl).setSampleDao(mockSampleDao);
-		expect(mockSampleDao.getSampleBySampleId(Integer.valueOf(libraryId))).andReturn(library);
+	    replay(mockSampleService);
+	    
+	    Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
 		
-	    replay(mockJobExplorerWasp);
-	    replay(mockSampleDao);
-	    
-	    jobsWithLibrariesToGoOnFlowCell.add(job);
-	    jobsWithLibrariesToGoOnFlowCell.add(job2);
-	    
-		Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
-	    
 		verify(mockJobServiceImpl);
-		verify(mockJobExplorerWasp);
-		verify(mockSampleDao);
-
+		verify(mockSampleService);
+ 
+	  
   }
   
-
+  */
+  
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
   @Test
@@ -1763,14 +1659,22 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  		
 	  mockJobServiceImpl = EasyMock
 		         .createMockBuilder(JobServiceImpl.class) //create builder first
-		         .addMockedMethod("getActiveJobs") // tell EasyMock to mock getActiveJobs() method
+		         .addMockedMethods("getActiveJobs") // tell EasyMock to mock getActiveJobs() method
 		         .createMock(); 
-	  
+	  /*
 	  mockSampleService = EasyMock
 		         .createMockBuilder(SampleServiceImpl.class) //create builder first
-		         .addMockedMethod("isSampleAwaitingLibraryCreation") // tell EasyMock to mock getActiveJobs() method
+		         .addMockedMethods("isSampleAwaitingLibraryCreation",
+		        		 "isLibrary",
+		        		 "isLibraryAwaitingPlatformUnitPlacement", 
+		        		 "isLibraryPassQC") // tell EasyMock to mock getActiveJobs() method
 		         .createMock(); 
-	
+	  */
+	  mockSampleService = EasyMock
+		         .createMockBuilder(SampleServiceImpl.class) //create builder first
+		         .addMockedMethods(SampleServiceImpl.class.getMethods()) // tell EasyMock to mock getActiveJobs() method
+		         .createMock(); 
+	  
 	  Assert.assertNotNull(mockTaskMappingDao);
 	  Assert.assertNotNull(mockJobSampleDao);
 	  Assert.assertNotNull(mockSampleDao);
