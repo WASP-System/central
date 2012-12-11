@@ -13,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -290,7 +291,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.COMPLETED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
 		for(JobExecution jobExecution: jobExecutions){
 			try {
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));

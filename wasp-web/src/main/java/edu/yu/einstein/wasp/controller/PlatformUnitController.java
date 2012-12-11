@@ -987,7 +987,9 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		List<Sample> puList = sampleService.getAvailableAndCompatiblePlatformUnits(resourceCategory);
-
+		Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
+		Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+		Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 
 		// picks up jobs
 		
@@ -999,15 +1001,38 @@ public class PlatformUnitController extends WaspController {
 				waspErrorMessage("platformunit.jobNotFound.error");
 				return "redirect:/facility/platformunit/limitPriorToAssign.do?resourceCategoryId=" + resourceCategoryId;
 			}
-			for (Job currentValidJob: jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory)){
-				if (job.getJobId().equals(currentValidJob.getJobId())){
-					jobs.add(job);
-					break;
-				}
-			}
+			if (jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory).contains(job))
+				jobs.add(job);
 		}
 		else if(jobsToWorkWith.intValue()==-1){//asking for list of all available jobs that meet the resourceCategoryId and state criteria; so parameter jobsToWorkWith has a value > -1 which means it's asking for all available jobs that meet state and resourceCategory criteria
 			jobs =  jobService.getJobsWithLibrariesToGoOnPlatformUnit(resourceCategory);
+		}
+		
+		// for all libraries associated with job, check they have passed QC and are awaiting platformunit placement
+		for (Job job: jobs){
+			for (Sample sample: job.getSample()){
+				receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
+				if (sampleService.isLibrary(sample)){
+					qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
+					try {
+						assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample));
+					} catch (SampleTypeException e){
+						logger.warn(e.getLocalizedMessage());
+					}
+				} else if(sampleService.isDnaOrRna(sample)){
+					qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
+					if (sample.getChildren() == null) // no libraries made 
+						continue;
+					for (Sample library: sample.getChildren()){
+						qcStatusMap.put(library, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(library)));
+						try{
+							assignLibraryToPlatformUnitStatusMap.put(library, sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library));
+						} catch (SampleTypeException e){
+							logger.warn(e.getLocalizedMessage());
+						}
+					}
+				}
+			}
 		}
 	
 		//map of adaptors for display; this really needs to be a part of the library sample
@@ -1031,6 +1056,9 @@ public class PlatformUnitController extends WaspController {
 		m.put("resourceCategoryId", resourceCategoryId);
 		m.put("jobs", jobs); 
 		m.put("adaptors", adaptors);
+		m.put("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
+		m.put("receivedStatusMap", receivedStatusMap);
+		m.put("qcStatusMap", qcStatusMap);
 		m.put("platformUnits", puList);
 		
 		return "facility/platformunit/assign"; 
@@ -1130,7 +1158,7 @@ public class PlatformUnitController extends WaspController {
 		
 		boolean puIsAvailable = false;
 				
-		List<SampleSource> parentSampleSources = laneSample.getSourceSampleId();//should be one
+		List<SampleSource> parentSampleSources = laneSample.getSourceSample();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
 			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
@@ -1191,7 +1219,16 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
 			ModelMap m) {
 
-		removeLibraryFromLane(sampleSourceId);
+		SampleSource cellLibraryLink = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+		if(cellLibraryLink.getSampleSourceId()==null){//check for existence
+			waspErrorMessage("platformunit.sampleSourceNotExist.error");
+		}
+		try{
+			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);
+		} catch (SampleTypeException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("platformunit.samplesourceTypeError.error");
+		}
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
 	}
 	
@@ -1211,14 +1248,25 @@ public class PlatformUnitController extends WaspController {
 			ModelMap m) {
 
 		if( jobId == null  &&  platformUnitId == null ){
-			//TODO message stating parameter problem
+			logger.warn("should provide either jobId or platformUnitId. Neither provided");
+			waspErrorMessage("platformunit.parameter.error");
 			return "redirect:/dashboard.do";
 		}
 		else if(jobId != null && platformUnitId != null){//don't know what to do
-			//TODO message stating parameter problem
+			logger.warn("should provide either jobId or platformUnitId. Both provided");
+			waspErrorMessage("platformunit.parameter.error");
 			return "redirect:/dashboard.do";
 		}
-		removeLibraryFromLane(sampleSourceId);
+		SampleSource cellLibraryLink = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+		if(cellLibraryLink.getSampleSourceId()==null){//check for existence
+			waspErrorMessage("platformunit.sampleSourceNotExist.error");
+		}
+		try{
+			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);
+		} catch (SampleTypeException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("platformunit.samplesourceTypeError.error");
+		}
 		if(jobId != null){
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
@@ -1228,35 +1276,6 @@ public class PlatformUnitController extends WaspController {
 		return "redirect:/dashboard.do";//it really wants to see some return statement outside the if clauses
 	  }
 	
-	private void removeLibraryFromLane(Integer sampleSourceId){
-
-		//as of 10-5-12, there is a sampleService method to replace this
-		//when I update, that method shold be called in a try - catch 
-		
-		SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
-		if(sampleSource.getSampleSourceId()==0){//check for existence
-			waspErrorMessage("platformunit.sampleSourceNotExist.error");
-			return;
-		}
-		//check that this represents a cell->lib link
-		Sample putativeLibrary = sampleSource.getSourceSample();
-		Sample putativeCell = sampleSource.getSample();
-		if( ! putativeLibrary.getSampleType().getIName().equals("library") || ! putativeCell.getSampleType().getIName().equals("cell") ){
-			waspErrorMessage("platformunit.samplesourceTypeError.error");
-			return; 
-		}
-		//delete the metadata 
-		List<SampleSourceMeta> sampleSourceMetaList = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceId(sampleSource.getSampleSourceId());
-		for(SampleSourceMeta ssm : sampleSourceMetaList){
-			sampleSourceMetaDao.remove(ssm);
-			sampleSourceMetaDao.flush(ssm);
-		}
-		sampleSourceDao.remove(sampleSource);
-		sampleSourceDao.flush(sampleSource);
-
-		waspErrorMessage("platformunit.libraryRemoved.success");
-		return;  
-	}
 	
 
 	
@@ -2404,10 +2423,10 @@ public class PlatformUnitController extends WaspController {
 	public String limitPriorToPlatUnitAssignForm(ModelMap m) {
 		
 		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
-		//if(resourceType.getResourceTypeId()==0){
-			//waspErrorMessage("platformunit.resourceCategoryNotFound.error");
-			//return "redirect:/dashboard.do";
-		//}
+		if(resourceType.getResourceTypeId()==null){
+			waspErrorMessage("platformunit.resourceCategoryNotFound.error");
+			return "redirect:/dashboard.do";
+		}
 		Map filterForResourceCategory = new HashMap();
 		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
 		List<ResourceCategory> resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
@@ -2416,144 +2435,7 @@ public class PlatformUnitController extends WaspController {
 		return "facility/platformunit/limitPriorToPlatUnitAssign"; 
 	}
 	
-/* not used anymore	
-	private List<ResourceCategory> getResourceCategoriesForMPS(){
-		
-		List<ResourceCategory> resourceCategories = null;
-		
-		ResourceType resourceType = resourceTypeDao.getResourceTypeByIName("mps");
-		if(resourceType == null || resourceType.getResourceTypeId()==null || resourceType.getResourceTypeId().intValue()==0){
-			return resourceCategories;//empty list
-		}
-		
-		Map<String, Integer> filterForResourceCategory = new HashMap<String, Integer>();
-		filterForResourceCategory.put("resourceTypeId", resourceType.getResourceTypeId());
-		resourceCategories = resourceCategoryDao.findByMap(filterForResourceCategory);
-		return resourceCategories;
-	}
-*/
-	
-/* not used anymore	
-	private List<SampleSubtype> getSampleSubtypesForThisResourceCategory(ResourceCategory resourceCategory){
-		
-		List<SampleSubtype> sampleSubtypes = new ArrayList<SampleSubtype>();
-		
-		for(SampleSubtypeResourceCategory ssrc : resourceCategory.getSampleSubtypeResourceCategory()){
-			sampleSubtypes.add(ssrc.getSampleSubtype());
-		}
-		return sampleSubtypes;
-	}
-*/
-	
-/* not used anymore	
-	private boolean resourceCategoryAndSampleSubtypeAreIncompatible(Integer resourceCategoryId, Integer sampleSubtypeId){
-		
-		boolean incompatible = false;
-		
-		SampleSubtypeResourceCategory ssrc = sampleSubtypeResourceCategoryDao.getSampleSubtypeResourceCategoryBySampleSubtypeIdResourceCategoryId(sampleSubtypeId, resourceCategoryId);
-		if(ssrc == null || ssrc.getSampleSubtypeResourceCategoryId()==null || ssrc.getSampleSubtypeResourceCategoryId().intValue()==0){
-			incompatible = true;
-		}
-		return incompatible;
-	}
-*/	
-	
-/* not used anymore	
-	private void prepareSelectListDataByResourceCategory(ModelMap m, ResourceCategory resourceCategory) {
-		
-		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
-		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
-		List<ResourceCategoryMeta> rcMetaList = resourceCategory.getResourceCategoryMeta();
-		for(ResourceCategoryMeta rcm : rcMetaList){
-			
-			//logger.debug(rcm.getK() + " : " + rcm.getV());			
-			if( rcm.getK().indexOf("readType") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String[] colonTokens = token.split(":");
-					readTypeList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
-				}
-			}
-			if( rcm.getK().indexOf("readlength") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-				for(String token : tokens){//token could be 50:50
-					String[] colonTokens = token.split(":");
-					readlengthList.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));
-				}
-			}				
-		}
-		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
-		m.put("readlengths", readlengthList);
-	}
-*/	
-	
-	
-/* not used anymore
-	private void prepareDistinctSelectListDataForResourceCategoriesForThisSampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
-		
-		List<SelectOptionsMeta> readTypeList = new ArrayList<SelectOptionsMeta>();
-		List<SelectOptionsMeta> readlengthList = new ArrayList<SelectOptionsMeta>();
-		Set<SelectOptionsMeta> readTypeSet = new LinkedHashSet<SelectOptionsMeta>();
-		Set<SelectOptionsMeta> readlengthSet = new LinkedHashSet<SelectOptionsMeta>();
-		
-		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
-		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
-		
-			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : rcMetaList){
-			
-				if( rcm.getK().indexOf("readType") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String[] colonTokens = token.split(":");
-						readTypeSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
-					}
-				}
-				if( rcm.getK().indexOf("readlength") > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-					for(String token : tokens){//token could be 50:50
-						String[] colonTokens = token.split(":");
-						readlengthSet.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));//for distinct
-					}
-				}				
-			}
-			
-		}//for(SampleSubtypeResourceCategory ...){
-		readTypeList.addAll(readTypeSet);
-		readlengthList.addAll(readlengthSet);
-		m.put("readTypes", readTypeList);//contains list like single:single as one entry and paired:paired as a second entry
-		m.put("readlengths", readlengthList);//contains list of entries such as 50:50
 
-	}
-*/
-/* not used anymore	
-	private void prepareSelectListDataBySampleSubtype(ModelMap m, SampleSubtype sampleSubtype) {
-		Integer maxCellNumber = null;
-		Integer multiplicationFactor = null;
-		List <SelectOptionsMeta> numberOfLanesAvailableList = new ArrayList<SelectOptionsMeta>();				
-		
-		List<SampleSubtypeMeta> ssMetaList = sampleSubtype.getSampleSubtypeMeta();
-		for(SampleSubtypeMeta ssm : ssMetaList){
-			if( ssm.getK().indexOf("maxCellNumber") > -1 ){
-				maxCellNumber = new Integer(ssm.getV());  
-			}
-			if( ssm.getK().indexOf("multiplicationFactor") > -1 ){
-				multiplicationFactor = new Integer(ssm.getV());  
-			}				 
-		}
-		if (multiplicationFactor == null || multiplicationFactor.intValue() <= 1) {
-			numberOfLanesAvailableList.add(new SelectOptionsMeta(maxCellNumber.toString(), maxCellNumber.toString()));	
-		}
-		else {
-			Integer cellNum = new Integer(maxCellNumber.intValue());
-			while (cellNum.intValue() >= multiplicationFactor.intValue()){
-				cellNum = new Integer(cellNum.intValue()/multiplicationFactor.intValue());
-				numberOfLanesAvailableList.add(new SelectOptionsMeta(cellNum.toString(), cellNum.toString()));						
-			}
-		}
-		m.put("lanes", numberOfLanesAvailableList);
-	}
-*/	
 //****************************************************************************//****************************************************************************	
 //there are comparator classes below that need to be moved	
 }

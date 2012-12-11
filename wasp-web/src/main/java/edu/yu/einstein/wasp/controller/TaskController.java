@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,37 +123,66 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public String payment(
-      @RequestParam("sampleId") Integer sampleId,
-      @RequestParam("receivedStatus") String receivedStatus,
-      ModelMap m) {
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){
-		  waspErrorMessage("task.samplereceive_invalid_sample.error");
-		  return "redirect:/task/samplereceive/list.do";
+  public String recordSampleReceive(@RequestParam("sampleId") List<Integer> sampleIdList,
+		  				ModelMap m) 
+  {
+	  List<String> receivedStatusList = new ArrayList<String>(); //Arrays.asList(receivedStatusArray);
+	  for(Integer id : sampleIdList){
+			String val = request.getParameter("receivedStatus" + id.toString());
+			if(val == null){
+				waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+				return "redirect:/task/samplereceive/list.do";
+			}
+			receivedStatusList.add(val);
+	  }	  
+	  boolean atLeastOneSampleSelectedForUpdate = false;
+	  for(String status: receivedStatusList){
+		  if("RECEIVED".equals(status) || "WITHDRAWN".equals(status)){
+			  atLeastOneSampleSelectedForUpdate = true;
+			  break;
+		  }
 	  }
-	  if(receivedStatus == null ||  receivedStatus.equals("")){
+	  if(atLeastOneSampleSelectedForUpdate==false){
 		  waspErrorMessage("task.samplereceive_receivedstatus_empty.error");
 		  return "redirect:/task/samplereceive/list.do";
 	  }
-	  try{
-		  if(receivedStatus.equals("RECEIVED")){
-			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
-		  }
-		  else if(receivedStatus.equals("WITHDRAWN")){
-			  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
-		  }
+	  if(sampleIdList.size() != receivedStatusList.size()){
+		  logger.debug(sampleIdList.size() + " != " + receivedStatusList.size());
+		  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+		  return "redirect:/task/samplereceive/list.do";		  
+	  }
+	 	  
+	  for(int i = 0; i < receivedStatusList.size(); i++){
+		  if(!receivedStatusList.get(i).isEmpty()){
+			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
+			  if(sample.getSampleId()<=0){
+				  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+				  logger.warn("unable to find sampleId " + sampleIdList.get(i).intValue() + " in task/samplereceive/receive - POST");
+				  return "redirect:/task/samplereceive/list.do";
+			  }
+			  try{
+				  if(receivedStatusList.get(i).equals("RECEIVED")){	
+					  logger.debug("Received Sample = " + sample.getName());
+					  sampleService.updateSampleReceiveStatus(sample, WaspStatus.CREATED);
+				  }
+				  else if(receivedStatusList.get(i).equals("WITHDRAWN")){
+					  logger.debug("Withdrawn Sample = " + sample.getName());
+					  sampleService.updateSampleReceiveStatus(sample, WaspStatus.ABANDONED);
+				  }
+				  else{logger.debug("neither received nor withdrawn. very unexpected");}
+			  }catch (WaspMessageBuildingException e){
+				  logger.warn(e.getLocalizedMessage());
+				  waspErrorMessage("task.samplereceive_message.error");
+				  return "redirect:/task/samplereceive/list.do";
+			  } 
+		  }	
 		  else{
-			  waspErrorMessage("task.samplereceive_receivedstatus_invalid.error");
-			  return "redirect:/task/samplereceive/list.do";
+			  logger.debug("SampleId " + sampleIdList.get(i) + " is not being updated now");
 		  }
-	  } catch (WaspMessageBuildingException e){
-		  logger.warn(e.getLocalizedMessage());
-		  waspErrorMessage("task.samplereceive_message.error");
-		  return "redirect:/task/samplereceive/list.do";
-	  } 
-	  waspMessage("task.samplereceive_update_success.label");	
+	  }
+	  waspMessage("task.samplereceive_update_success.label");
 	  return "redirect:/task/samplereceive/list.do";
+
   }
 
   
@@ -175,8 +205,7 @@ public class TaskController extends WaspController {
 	  List<String> receiveSampleStatusList = new ArrayList<String>();
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
 	  for(Sample sample : submittedSamplesList){	
-		  BatchStatus status = sampleService.getReceiveSampleStatus(sample);		  
-		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(status));	
+		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));	
 		  
 		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
 		  sampleHasBeenProcessedList.add(new Boolean(sampleHasBeenProcessedByFacility));

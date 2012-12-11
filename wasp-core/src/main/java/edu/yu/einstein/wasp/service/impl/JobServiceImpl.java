@@ -65,6 +65,7 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
@@ -943,28 +944,36 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
-		// jobs with libraries created for which the number of lanes on non-failed flowcells is less than the requested coverage
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
 			for (Sample sample: job.getSample()){
-				int sampleActualCoverage = 0;
-				if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
-					continue;
-				for (Sample library: sample.getChildren()){
-					try{
-						for (Sample cell : sampleService.getCellsForLibrary(library)){
-							if (sampleService.getRunningOrSuccessfullyRunPlatformUnits().contains(sampleService.getPlatformUnitForCell(cell))){
-								sampleActualCoverage++;
-							}
+				boolean foundLibrary = false;
+				if (sampleService.isLibrary(sample)){
+					try {
+						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample)){
+							jobsWithLibrariesToGoOnFlowCell.add(job);
+							foundLibrary = true;
 						}
-					} catch(Exception e){
+					} catch (SampleTypeException e){
 						logger.warn(e.getLocalizedMessage());
 					}
+				} else {
+					if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
+						continue;
+					for (Sample library: sample.getChildren()){
+						try{
+							if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library)){
+								jobsWithLibrariesToGoOnFlowCell.add(job);
+								foundLibrary = true;
+								break;
+							}
+						} catch (SampleTypeException e){
+							logger.warn(e.getLocalizedMessage());
+						}
+					}
 				}
-				if (sampleActualCoverage < sampleService.getRequestedSampleCoverage(sample)){
-					jobsWithLibrariesToGoOnFlowCell.add(job);
+				if (foundLibrary)
 					break;
-				}
 			}
 		}
 		return jobsWithLibrariesToGoOnFlowCell;

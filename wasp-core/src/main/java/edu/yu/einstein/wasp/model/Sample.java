@@ -789,35 +789,35 @@ public class Sample extends WaspModel {
 
 
 	/** 
-	 * sourceSampleId
+	 * sourceSample
 	 *
 	 */
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
-	protected List<SampleSource> sourceSampleId;
+	protected List<SampleSource> sourceSample;
 
 
 	/** 
-	 * getSourceSampleId()
+	 * getSourceSample()
 	 *
-	 * @return sourceSampleId
+	 * @return sourceSample
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleSource> getSourceSampleId() {
-		return this.sourceSampleId;
+	public List<SampleSource> getSourceSample() {
+		return this.sourceSample;
 	}
 
 
 	/** 
-	 * setSourceSampleId
+	 * setSourceSample
 	 *
 	 * @param sampleSource
 	 *
 	 */
-	public void setSourceSampleId (List<SampleSource> sampleSource) {
-		this.sourceSampleId = sampleSource;
+	public void setSourceSample (List<SampleSource> sampleSource) {
+		this.sourceSample = sampleSource;
 	}
 
 
