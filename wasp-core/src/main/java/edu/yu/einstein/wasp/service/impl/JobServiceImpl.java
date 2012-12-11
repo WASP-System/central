@@ -137,12 +137,59 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return this.jobDao;
 	}
 	
+	public void setJobMetaDao(JobMetaDao jobMetaDao) {
+		this.jobMetaDao = jobMetaDao;
+	}
+	
+	public void setJobSoftwareDao(JobSoftwareDao jobSoftwareDao) {
+		this.jobSoftwareDao = jobSoftwareDao;
+	}
+	public void setJobResourcecategoryDao(JobResourcecategoryDao jobResourcecategoryDao) {
+		this.jobResourcecategoryDao = jobResourcecategoryDao;
+	}
+	
 	public void setJobSampleDao(JobSampleDao jobSampleDao) {
 		this.jobSampleDao = jobSampleDao;
 	}
 
 	public void setSampleDao(SampleDao sampleDao) {
 		this.sampleDao = sampleDao;
+	}
+	
+	public void setRoleDao(RoleDao roleDao) {
+		this.roleDao = roleDao;
+	}
+	
+	public void setJobUserDao(JobUserDao jobUserDao) {
+		this.jobUserDao = jobUserDao;
+	}
+	
+	public void setLabDao(LabDao labDao) {
+		this.labDao = labDao;
+	}
+	
+	public void setJobCellSelectionDao(JobCellSelectionDao jobCellSelectionDao) {
+		this.jobCellSelectionDao = jobCellSelectionDao;
+	}
+	
+	public void setSampleJobCellSelectionDao(SampleJobCellSelectionDao sampleJobCellSelectionDao) {
+		this.sampleJobCellSelectionDao = sampleJobCellSelectionDao;
+	}
+
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
+	}
+	
+	public void setJobDraftDao(JobDraftDao jobDraftDao) {
+		this.jobDraftDao = jobDraftDao;
+	}
+	
+	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
+		this.sampleMetaDao = sampleMetaDao;
+	}
+	
+	public void setSampleService(SampleService sampleService) {
+		this.sampleService = sampleService;	
 	}
 	
 	@Autowired
