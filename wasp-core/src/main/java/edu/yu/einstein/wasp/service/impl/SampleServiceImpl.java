@@ -2219,7 +2219,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public void setSampleQCComment(Integer sampleId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup("sampleQCComments", "Sample QC Comment", comment, sampleId, SampleMeta.class, sampleMetaDao);
+			metaMessageService.saveToGroup("sampleQCComment", "Sample QC Comment", comment, sampleId, SampleMeta.class, sampleMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -2228,6 +2228,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public List<MetaMessage> getSampleQCComments(Integer sampleId){
-		return metaMessageService.read("sampleQCComments", sampleId, SampleMeta.class, sampleMetaDao);
+		return metaMessageService.read("sampleQCComment", sampleId, SampleMeta.class, sampleMetaDao);
 	}
 }
