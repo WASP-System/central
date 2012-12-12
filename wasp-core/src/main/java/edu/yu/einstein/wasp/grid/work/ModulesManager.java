@@ -63,7 +63,7 @@ public class ModulesManager extends HashMap<String, String> implements
 			if (this.containsKey(sw.getArea() + ".name"))
 				name = this.get(sw.getArea() + ".name");
 
-			String version = sw.getRequestedVersion();
+			String version = sw.getVersion();
 			// if the version is configured on the host, force that version.
 			if (this.containsKey(sw.getArea() + ".version"))
 				version = this.get(sw.getArea() + ".version");
