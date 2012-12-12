@@ -212,7 +212,7 @@ public class MetaHelper {
 	}
 	
 	/**
-	 * Sets the meta list stored in metaHelper and updates properties according to master list for relevant 
+	 * Sets the meta list stored in metaHelper 
 	 * @param list
 	 */
 	public void setMetaList(List<? extends MetaBase> list){
@@ -447,6 +447,23 @@ public class MetaHelper {
 			}
 		} 
 		throw new MetadataException("Cannot find metadata with name: "+name);
+	}
+	
+	
+	/**
+	 * Get a key-value Map from all the metadata in the supplied list matching the supplied area.
+	 * e.g. if area = 'user', and for a MetaBase entry k = 'user.name' and v = 'foo', then the corresponding 
+	 * map entry key will be 'name' and the value will be 'foo'.
+	 * @param area
+	 * @param list
+	 * @return
+	 */
+	public static <T extends MetaBase> Map<String, String> getMap(String area, List<T> list){
+		Map<String, String> metaMap = new HashMap<String, String>();
+		for (T meta : getMetaSubsetByArea(area, list)){
+			metaMap.put(meta.getK().substring(area.length()+1), meta.getV());
+		}
+		return metaMap;
 	}
 	
 	/**

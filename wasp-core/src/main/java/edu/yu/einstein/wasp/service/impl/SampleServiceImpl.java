@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -37,6 +36,7 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
@@ -74,6 +74,7 @@ import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
@@ -95,6 +96,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 @Transactional("entityManager")
@@ -168,6 +170,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	@Autowired
 	private RunDao runDao;
+	
+	@Autowired
+	private JobSampleDao jobSampleDao;
 	
 	@Autowired
 	private JobCellSelectionDao jobCellSelectionDao;
@@ -307,11 +312,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public BatchStatus getReceiveSampleStatus(final Sample sample){
+	  public ExitStatus getReceiveSampleStatus(final Sample sample){
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		  BatchStatus sampleReceivedStatus = BatchStatus.UNKNOWN;
+		  ExitStatus sampleReceivedStatus = ExitStatus.UNKNOWN;
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> sampleIdStringSet = new HashSet<String>();
 		  sampleIdStringSet.add(sample.getSampleId().toString());
@@ -319,8 +324,72 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false);
 		  stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false));
 		  if (!stepExecutions.isEmpty())
-			  sampleReceivedStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getStatus();
+			  sampleReceivedStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
 		  return sampleReceivedStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public ExitStatus getSampleQCStatus(final Sample sample){
+		  // TODO: Write test!!
+		  Assert.assertParameterNotNull(sample, "No Sample provided");
+		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> sampleIdStringSet = new HashSet<String>();
+		  sampleIdStringSet.add(sample.getSampleId().toString());
+		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
+		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false);
+		  ExitStatus sampleQCStatus = ExitStatus.UNKNOWN;
+		  if (!stepExecutions.isEmpty())
+			  sampleQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
+		  return sampleQCStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public ExitStatus getLibraryQCStatus(final Sample library){
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(library, "No library provided");
+		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> sampleIdStringSet = new HashSet<String>();
+		sampleIdStringSet.add(library.getSampleId().toString());
+		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
+		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false);
+		ExitStatus libraryQCStatus = ExitStatus.UNKNOWN;
+		if (!stepExecutions.isEmpty())
+			libraryQCStatus =  batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions).getExitStatus();
+		return libraryQCStatus;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isSamplePassQC(final Sample sample){
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(sample, "No Sample provided");
+		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		if (getSampleQCStatus(sample).equals(ExitStatus.COMPLETED))
+			return true;
+		return false;
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isLibraryPassQC(final Sample library){
+		// TODO: Write test!!
+		  Assert.assertParameterNotNull(library, "No library provided");
+		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		  if (getLibraryQCStatus(library).equals(ExitStatus.COMPLETED))
+				return true;
+			return false;
 	  }
 	  
 	/**
@@ -330,7 +399,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Boolean isSampleReceived(Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		if (getReceiveSampleStatus(sample).isGreaterThan(BatchStatus.STARTED))
+		if (getReceiveSampleStatus(sample).equals(ExitStatus.COMPLETED) || getReceiveSampleStatus(sample).equals(ExitStatus.FAILED))
 			return true;
 		return false;
 	}
@@ -346,14 +415,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		if (isLibrary(sample))
 			return false;
+		if (!isSamplePassQC(sample))
+			return false;
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> sampleIdStringSet = new HashSet<String>();
 		sampleIdStringSet.add(sample.getSampleId().toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
-		
-		// check sample flow is complete - don't want to display samples that are not ready for library creation
-		if ( batchJobExplorer.getJobExecutions("wasp.sample.jobflow", parameterMap, false, ExitStatus.COMPLETED).isEmpty() )
-			return false;
 		
 		List<Sample> librariesExisting = sample.getChildren();
 		if (librariesExisting == null || librariesExisting.isEmpty())
@@ -371,9 +438,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			jobExecutions.addAll(batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false));
 			
 			for (JobExecution jobExecution: jobExecutions){
-				if (jobExecution.getStatus().equals(BatchStatus.STARTING) || 
-						jobExecution.getStatus().equals(BatchStatus.STARTED) ||
-						jobExecution.getStatus().equals(BatchStatus.COMPLETED) ){
+				if (jobExecution.getExitStatus().equals(ExitStatus.EXECUTING) || 
+						jobExecution.getExitStatus().equals(ExitStatus.COMPLETED) ){
 					// a library is still active or completed so not awaiting creation.
 					// to make a new library despite this requires special logic
 					return false;  
@@ -406,16 +472,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus){
+	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(BatchStatus.STARTED)){
+		  if(internalStatus.equals(ExitStatus.EXECUTING)){
 			  return "NOT ARRIVED";
 			}
-			else if(internalStatus.equals(BatchStatus.COMPLETED)){
+			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "RECEIVED";
 			}
-			else if(internalStatus.equals(BatchStatus.STOPPED)){
+			else if(internalStatus.equals(ExitStatus.STOPPED)){
 				return "WITHDRAWN";
 			}
 			else {
@@ -445,16 +511,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public String convertSampleQCStatusForWeb(BatchStatus internalStatus){
+	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(BatchStatus.STARTED)){
+		  if(internalStatus.equals(ExitStatus.EXECUTING) || internalStatus.equals(ExitStatus.UNKNOWN)){
 			  return "AWAITING QC";
 			}
-			else if(internalStatus.equals(BatchStatus.COMPLETED)){
+			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "PASSED";
 			}
-			else if(internalStatus.equals(BatchStatus.FAILED)){
+			else if(internalStatus.equals(ExitStatus.FAILED)){
 				return "FAILED";
 			}
 			else {
@@ -488,9 +554,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<String> getReceiveSampleStatusOptionsForWeb(){
 		  // TODO: Write test!!
-		  BatchStatus [] statusList = {BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.STOPPED};
+		  ExitStatus [] statusList = {ExitStatus.COMPLETED, ExitStatus.FAILED, ExitStatus.STOPPED};
 		  List<String> options = new ArrayList<String>();
-		  for(BatchStatus status : statusList){
+		  for(ExitStatus status : statusList){
 			  options.add(convertSampleReceivedStatusForWeb(status));
 		  }
 		  return options;
@@ -510,6 +576,28 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String, String> jobParameters = new HashMap<String, String>();
 		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
+		  try {
+			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void initiateBatchJobForLibrary(Job job, Sample library, String batchJobName){
+		  Assert.assertParameterNotNull(job, "No Job provided");
+		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNull(library, "No Library provided");
+		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		  Assert.assertParameterNotNull(batchJobName, "No batchJobName provided");
+		  // send message to initiate job processing
+		  Map<String, String> jobParameters = new HashMap<String, String>();
+		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		  jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getSampleId().toString());
 		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		  try {
 			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
@@ -572,22 +660,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public void updateLibraryCreatedStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
-		  // TODO: Write test!!
-		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		  Assert.assertParameterNotNull(status, "No Status provided");
-		  if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
-			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
-		  
-		  LibraryStatusMessageTemplate messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
-		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
-		  sendOutboundMessage(messageTemplate.build(), false);
-	  }
+	  
 	  
 	  /**
 	   * {@inheritDoc}
@@ -598,7 +671,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		  boolean sampleHasBeenProcessed = false;
-		  if( sample.getSourceSampleId().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
+		  if( sample.getSourceSample().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
 			  sampleHasBeenProcessed = true;
 		  }
 		  return sampleHasBeenProcessed;
@@ -612,11 +685,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		  SampleType libraryType = sampleTypeDao.getSampleTypeByIName("library");
 		  List<Sample> libraryList = new ArrayList<Sample>();
 		  if (sample.getChildren() != null){
 			  for (Sample childSample : sample.getChildren()){
-				  if (childSample.getSampleType().equals(libraryType)){
+				  if (isLibrary(childSample)){
 					  libraryList.add(childSample);
 				  }
 			  }
@@ -771,11 +843,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (!cell.getSampleType().getIName().equals("cell")){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
-		  if (cell.getSampleSource()==null || cell.getSampleSource().isEmpty())
+		  Map<String,Integer> q = new HashMap<String,Integer>();
+		  q.put("sourceSampleId", cell.getSampleId());
+		  List<SampleSource> sampleSourceList = getSampleSourceDao().findByMap(q);
+			  
+		  if (sampleSourceList==null || sampleSourceList.isEmpty())
 			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with no flowcells");
-		  if (cell.getSampleSource().size() > 1)
+		  if (sampleSourceList.size() > 1)
 			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with more than one flowcell");
-		  SampleSource ss = cell.getSampleSource().get(0);
+		  SampleSource ss = sampleSourceList.get(0);
+		  logger.debug("Returning platform unit id=" + ss.getSample().getSampleId() + " for cell id=" + cell.getSampleId() + " (SampleSource id=" + ss.getSampleSourceId() + ")");
 		  return ss.getSample();
 	  }
 	  
@@ -1064,7 +1141,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException{
 		  Assert.assertParameterNotNull(library, "No library provided");
 		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
-		  if (!library.getSampleType().getIName().equals("library")){
+		  if (!isLibrary(library)){
 			  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		  }
 		  List<Sample> cells = new ArrayList<Sample>();
@@ -1861,10 +1938,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return;
 	}
 	
-	private void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)throws SampleTypeException{
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink) throws SampleTypeException{
 		Assert.assertParameterNotNull(cellLibraryLink, "Invalid cellLibraryLink provided");
 		Assert.assertParameterNotNullNotZero(cellLibraryLink.getSampleSourceId(), "Invalid cellLibraryLink provided");
-		if (!cellLibraryLink.getSourceSample().getSampleType().getIName().equals("library")){
+		if (!isLibrary(cellLibraryLink.getSourceSample())){
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
 		}
 		if (!cellLibraryLink.getSample().getSampleType().getIName().equals("cell")){
@@ -1872,6 +1953,29 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		}
 		this.deleteSampleSourceAndItsMeta(cellLibraryLink);//currently the cellLibraryLink meta represents the pM applied and the jobId
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException {
+		Assert.assertParameterNotNull(cell, "No Cell provided");
+		Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
+		Assert.assertParameterNotNull(library, "No Library provided");
+		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		if (!cell.getSampleType().getIName().equals("cell"))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		if (!isLibrary(library))
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		Map<String,Integer> q = new HashMap<String,Integer>();
+		q.put("sourceSampleId", library.getSampleId());
+		q.put("sampleId", cell.getSampleId());
+		List<SampleSource> cellLibraryLinks = sampleSourceDao.findByMap(q);
+		if (cellLibraryLinks == null || cellLibraryLinks.isEmpty())
+			throw new SampleParentChildException("Cell is=" + cell.getSampleId() + " and library id=" + library.getSampleId() + " are not linked");
+		removeLibraryFromCellOfPlatformUnit(cellLibraryLinks.get(0));
+	}
+	
 	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
@@ -1885,6 +1989,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleSourceAndItsMeta(puCellLink);//first, remove the samplesource link (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 		this.deleteSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 	}
+	
 	private void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
@@ -1936,12 +2041,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isLibrary(library)){
 			throw new SampleTypeException("Expected a library but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		}
+		if (!isLibraryPassQC(library))
+			return false;
 		int sampleActualCoverage = 0;
+		Set<Sample> platformUnitsToConsider = new HashSet<Sample>();
+		platformUnitsToConsider.addAll(getPlatformUnitsNotYetRun());
+		platformUnitsToConsider.addAll(getRunningOrSuccessfullyRunPlatformUnits());
 		try{
 			for (Sample cell : getCellsForLibrary(library)){
-				if (getRunningOrSuccessfullyRunPlatformUnits().contains(getPlatformUnitForCell(cell))){
+				if (platformUnitsToConsider.contains(getPlatformUnitForCell(cell)))
 					sampleActualCoverage++;
-				}
 			}
 		} catch(Exception e){
 			logger.warn(e.getLocalizedMessage());
@@ -1951,9 +2060,27 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			requestedCoverage = getRequestedSampleCoverage(library.getParent());
 		else
 			requestedCoverage = getRequestedSampleCoverage(library);
+		logger.debug("Library id=" + library.getSampleId() + ", name=" + library.getName() + " has requested coverage=" + requestedCoverage + " and actual coverage=" + sampleActualCoverage);
 		if (sampleActualCoverage < requestedCoverage)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getPlatformUnitsNotYetRun(){
+		List<Sample> platformUnitsNotYetRun = new ArrayList<Sample>();
+		for (Sample pu : findAllPlatformUnits()){
+			try {
+				if (getCurrentRunForPlatformUnit(pu) == null)
+					platformUnitsNotYetRun.add(pu);
+			} catch (SampleTypeException e) {
+				logger.warn(e.getLocalizedMessage());
+			}
+		}
+		return platformUnitsNotYetRun;
 	}
 	
 	/**
@@ -2060,5 +2187,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public void setSampleSourceDao(SampleSourceDao sampleSourceDao) {
 		this.sampleSourceDao = sampleSourceDao;
 	}
-
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	@Override
+	public void createFacilityLibraryFromMacro(Job job, SampleWrapper managedLibrary, List<SampleMeta> libraryMetaList){
+		managedLibrary.updateMetaToList(libraryMetaList, sampleMetaDao);
+		managedLibrary.saveAll(this);
+		
+		//add entry to jobsample table to link new library to job
+		JobSample newJobSample = new JobSample();
+		newJobSample.setJob(job);
+		newJobSample.setSample(managedLibrary.getSampleObject());
+		newJobSample = jobSampleDao.save(newJobSample);
+		initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
+	}
+	
 }

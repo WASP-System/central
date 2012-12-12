@@ -21,7 +21,7 @@
     <h2><fmt:message key="sample.detail_relations.label" /></h2>
     <h3><fmt:message key="sample.detail_parents.label" /></h3>
     <c:forEach items="${parentsample}" var="s">
-      <a href="/wasp/sample/detail/<c:out value="${s.sourceSampleId}"/>.do">
+      <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>

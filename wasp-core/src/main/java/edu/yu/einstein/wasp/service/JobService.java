@@ -163,7 +163,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
-	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created for which the actual coverage on
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created (and passed QC) for which the actual coverage on
 	 * currently running or successfully completed flowcells is less than the requested coverage. Only returns those jobs for which the resource category matches that specified.
 	 * @param ResourceCategory
 	 * @return List<Job>
@@ -172,7 +172,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory);
 	
 	/**
-	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created for which the actual coverage on
+	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created (and passed QC) for which the actual coverage on
 	 * currently running or successfully completed flowcells is less than the requested coverage.
 	 * @param none
 	 * @return List<Job>

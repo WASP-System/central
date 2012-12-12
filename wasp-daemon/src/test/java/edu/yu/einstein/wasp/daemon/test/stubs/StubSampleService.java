@@ -3,7 +3,7 @@ package edu.yu.einstein.wasp.daemon.test.stubs;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
@@ -30,11 +30,13 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 @Transactional
@@ -106,11 +108,6 @@ public class StubSampleService implements SampleService {
 
 	}
 
-	@Override
-	public BatchStatus getReceiveSampleStatus(Sample sample) {
-		// Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void sortSamplesBySampleName(List<Sample> samples) {
@@ -393,11 +390,6 @@ public class StubSampleService implements SampleService {
 		return null;
 	}
 
-	@Override
-	public String convertSampleReceivedStatusForWeb(BatchStatus internalStatus) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void updateSampleReceiveStatus(Sample sample, WaspStatus status)
@@ -474,13 +466,6 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public void updateLibraryCreatedStatus(Sample sample, WaspStatus status)
-			throws WaspMessageBuildingException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public boolean isDnaOrRna(SampleDraft sampleDraft) {
 		// TODO Auto-generated method stub
 		return false;
@@ -545,11 +530,6 @@ public class StubSampleService implements SampleService {
 		return null;
 	}
 
-	@Override
-	public String convertSampleQCStatusForWeb(BatchStatus internalStatus) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public WaspStatus convertSampleQCStatusFromWeb(String webStatus) {
@@ -562,6 +542,83 @@ public class StubSampleService implements SampleService {
 			throws WaspMessageBuildingException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void initiateBatchJobForLibrary(Job job, Sample library,
+			String batchJobName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createFacilityLibraryFromMacro(Job job,
+			SampleWrapper managedLibrary, List<SampleMeta> libraryMetaList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isSamplePassQC(Sample sample) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLibraryPassQC(Sample library) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public List<Sample> getPlatformUnitsNotYetRun() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library)
+			throws SampleTypeException, SampleParentChildException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String convertSampleQCStatusForWeb(ExitStatus internalStatus) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ExitStatus getReceiveSampleStatus(Sample sample) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ExitStatus getSampleQCStatus(Sample sample) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ExitStatus getLibraryQCStatus(Sample library) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
