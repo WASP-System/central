@@ -315,5 +315,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public boolean isJobsAwaitingQuote();
 
+	public void setSampleService(SampleService sampleService);
+
 	
 }
