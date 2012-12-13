@@ -487,7 +487,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "RECEIVED";
 			}
-			else if(internalStatus.equals(ExitStatus.STOPPED)){
+			else if(internalStatus.equals(ExitStatus.FAILED)){
 				return "WITHDRAWN";
 			}
 			else {
