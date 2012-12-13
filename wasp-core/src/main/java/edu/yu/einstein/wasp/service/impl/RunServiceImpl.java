@@ -210,6 +210,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return newRun;
 	}
 	
+	@Override
 	public void launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
 		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);

@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -110,4 +111,6 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public Set<Run> getSuccessfullyCompletedRuns();
+
+	public void launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
 }
