@@ -200,14 +200,19 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		for (String flow : flownames) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
+			
 			try {
-				sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+				launchBatchJob(flow, jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage(), e);
 			}
 		}
 		return newRun;
+	}
+	
+	public void launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
+		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 	}
 	
 	@Override
