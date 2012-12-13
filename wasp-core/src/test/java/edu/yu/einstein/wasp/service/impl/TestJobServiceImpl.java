@@ -1092,7 +1092,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
 		
-		
 		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
 	    replay(mockJobServiceImpl);	   
 	    
@@ -1154,9 +1153,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
  
 	  
   }
-   
-  /*
-  @Test (description="isLibrary=false")
+  
+  @Test (description="isLibrary=false, sample has children")
   public void getJobsWithLibrariesToGoOnPlatformUnit3() {
 	  
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
@@ -1164,20 +1162,18 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		Job job = new Job();
 		job.setJobId(1);
 		
-	    List<Sample> childrenList = new ArrayList<Sample>();
-
+		List<Sample> childrenList = new ArrayList<Sample>();
 		Sample children = new Sample();
 		childrenList.add(children);
 
-
 		List<Sample> samples = new ArrayList<Sample>();
-
 		Sample sample = new Sample();
+		sample.setChildren(childrenList);
 		samples.add(sample);
+		
 		job.setSample(samples);
 		List<Job> activeJobs = new ArrayList<Job>();
-		activeJobs.add(job);
-		
+		activeJobs.add(job);	
 		
 		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
 	    replay(mockJobServiceImpl);	   
@@ -1186,16 +1182,17 @@ public class TestJobServiceImpl extends EasyMockSupport{
 
 	    expect(mockSampleService.isLibrary(sample)).andReturn(false);
 	    
-		
 	    try {
-			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample)).andReturn(false);
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(children)).andReturn(true);
 		} catch (SampleTypeException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+		expect(mockSampleService.isLibraryPassQC(children)).andReturn(true);
 	    replay(mockSampleService);
 	    
+	    jobsWithLibrariesToGoOnFlowCell.add(job);
+			    
 	    Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
 		
 		verify(mockJobServiceImpl);
@@ -1204,7 +1201,160 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
   }
   
-  */
+  @Test (description="isLibrary=true")
+  public void getJobsWithLibrariesToGoOnPlatformUnit4() {
+	  
+		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
+		
+		List<Sample> childrenList = new ArrayList<Sample>();
+		Sample children = new Sample();
+		childrenList.add(children);
+		List<Sample> samples = new ArrayList<Sample>();
+		Sample sample = new Sample();
+		sample.setChildren(childrenList);
+		samples.add(sample);
+		Job job = new Job();
+		job.setJobId(1);
+		job.setSample(samples);
+		
+		List<Sample> childrenList2 = new ArrayList<Sample>();
+		Sample children2 = new Sample();
+		childrenList2.add(children2);
+		List<Sample> samples2 = new ArrayList<Sample>();
+		Sample sample2= new Sample();
+		sample2.setChildren(childrenList2);
+		samples2.add(sample2);
+		Job job2 = new Job();
+		job2.setJobId(2);
+		job2.setSample(samples2);
+		
+		List<Sample> childrenList3 = new ArrayList<Sample>();
+		Sample children3 = new Sample();
+		childrenList3.add(children3);
+		List<Sample> samples3 = new ArrayList<Sample>();
+		Sample sample3= new Sample();
+		sample3.setChildren(childrenList3);
+		samples3.add(sample3);
+		Job job3 = new Job();
+		job3.setJobId(3);
+		job3.setSample(samples3);
+		
+		List<Job> activeJobs = new ArrayList<Job>();
+		activeJobs.add(job);	
+		activeJobs.add(job2);	
+		activeJobs.add(job3);	
+
+
+		expect(mockJobServiceImpl.getActiveJobs()).andReturn(activeJobs);
+	    replay(mockJobServiceImpl);	   
+	    
+	    mockJobServiceImpl.setSampleService(mockSampleService);
+
+	    expect(mockSampleService.isLibrary(sample)).andReturn(true);
+	    
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample)).andReturn(true);
+			
+		} catch (SampleTypeException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		expect(mockSampleService.isLibraryPassQC(sample)).andReturn(false);
+	
+	    expect(mockSampleService.isLibrary(sample2)).andReturn(true);
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample2)).andReturn(false);
+			
+		} catch (SampleTypeException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+	    expect(mockSampleService.isLibrary(sample3)).andReturn(true);
+	    try {
+			expect(mockSampleService.isLibraryAwaitingPlatformUnitPlacement(sample3)).andReturn(true);
+			
+		} catch (SampleTypeException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		expect(mockSampleService.isLibraryPassQC(sample3)).andReturn(true);
+
+	    replay(mockSampleService);
+	    
+	    jobsWithLibrariesToGoOnFlowCell.add(job3);
+			    
+	    Assert.assertEquals(mockJobServiceImpl.getJobsWithLibrariesToGoOnPlatformUnit(), jobsWithLibrariesToGoOnFlowCell);
+		
+		verify(mockJobServiceImpl);
+		verify(mockSampleService);
+  
+  }
+  
+  @Test
+  public void getJobsSubmittedOrViewableByUser() {
+	  try {
+		   jobServiceImpl.getJobsSubmittedOrViewableByUser(null);
+		  }
+		  catch (InvalidParameterException e){
+			  Assert.assertEquals(e.getMessage(), "No User provided");
+			  
+		  }
+		  
+		  try {
+		   User user = new User();
+
+		   jobServiceImpl.getJobsSubmittedOrViewableByUser(user);
+		  }
+		  catch (InvalidParameterException e){
+			  Assert.assertEquals(e.getMessage(), "Invalid User Provided");
+			  
+		  }
+	  
+	  
+  }
+  
+  @Test
+  public void getJobsSubmittedOrViewableByUser2() {
+	  User user = new User();
+	  user.setUserId(1);
+	   
+	  Map m = new HashMap();
+	  m.put("UserId", user.getUserId().intValue()); 
+	  List<String> orderByColumnNames = new ArrayList<String>();
+	  orderByColumnNames.add("jobId");
+	  
+	  List<JobUser> jobUserList = new ArrayList<JobUser>();
+	  JobUser jobUser = new JobUser();
+	  JobUser jobUser2 = new JobUser();
+	  JobUser jobUser3 = new JobUser();
+
+	  Job job = new Job();
+	  jobUser.setJob(job);
+	  Job job2 = new Job();
+	  jobUser2.setJob(job2);
+	  Job job3 = new Job();
+	  jobUser3.setJob(job3);
+	  jobUserList.add(jobUser);
+	  jobUserList.add(jobUser2);
+	  jobUserList.add(jobUser3);
+
+	  
+	  
+	  expect(mockJobUserDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc")).andReturn(jobUserList);
+	  replay(mockJobUserDao);
+	  
+	  List<Job> jobList = new ArrayList<Job>();
+	  jobList.add(job);
+	  jobList.add(job2);
+	  jobList.add(job3);
+	  
+	  Assert.assertEquals(jobServiceImpl.getJobsSubmittedOrViewableByUser(user), jobList);
+	  
+	  verify(mockJobUserDao);
+		  
+  }
+  
   
   /* Method removed from JobServiceImpl.java
   //Test when state is set to null
@@ -1671,8 +1821,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		         .createMock(); 
 	  */
 	  mockSampleService = EasyMock
-		         .createMockBuilder(SampleServiceImpl.class) //create builder first
-		         .addMockedMethods(SampleServiceImpl.class.getMethods()) // tell EasyMock to mock getActiveJobs() method
+		         .createMockBuilder(SampleServiceImpl.class)
+		         .addMockedMethods(SampleServiceImpl.class.getMethods()) 
 		         .createMock(); 
 	  
 	  Assert.assertNotNull(mockTaskMappingDao);
