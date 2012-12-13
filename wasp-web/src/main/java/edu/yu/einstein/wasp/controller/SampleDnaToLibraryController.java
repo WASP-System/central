@@ -368,8 +368,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
 				
 		}
-		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
-		sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
 		for(Sample library : librarySubmittedSamplesList){

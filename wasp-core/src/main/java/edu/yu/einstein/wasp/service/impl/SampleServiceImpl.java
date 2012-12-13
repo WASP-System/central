@@ -473,7 +473,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  Collections.sort(samples, new SampleNameComparator());//sort by sample's name 
 	  }
-	  
+
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void sortSamplesBySampleId(List<Sample> samples){
+		  Assert.assertParameterNotNull(samples, "No Sample list provided");
+		  // TODO: Write test!!
+		  class SampleIdComparator implements Comparator<Sample> {
+			    @Override
+			    public int compare(Sample arg0, Sample arg1) {
+			        return arg0.getSampleId().compareTo(arg1.getSampleId());
+			    }
+		  }
+		  Collections.sort(samples, new SampleIdComparator());//sort by sample's id 
+	  }
+	
 	  /**
 	   * {@inheritDoc}
 	   */

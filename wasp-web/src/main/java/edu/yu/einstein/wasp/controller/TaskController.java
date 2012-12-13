@@ -107,7 +107,7 @@ public class TaskController extends WaspController {
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	for (Sample sample: newSampleList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newSampleList);    	
+    	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
     
@@ -199,8 +199,8 @@ public class TaskController extends WaspController {
 	  //getSubmittedSamples(job) returns list of all samples (macromolecules and user-generated libraries) 
 	  //that were submitted for a particular job and it does NOT include facility-generated libraries.
 	  List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-	  //order by sample name
-	  sampleService.sortSamplesBySampleName(submittedSamplesList);
+	  //order by sample id
+	  sampleService.sortSamplesBySampleId(submittedSamplesList);
 	  
 	  List<String> receiveSampleStatusList = new ArrayList<String>();
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
@@ -273,7 +273,7 @@ public class TaskController extends WaspController {
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
     	for (Sample sample: newSampleList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newSampleList);    	
+    	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
     
@@ -357,7 +357,7 @@ public class TaskController extends WaspController {
     	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
     	for (Sample sample: newLibraryList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newLibraryList);    	
+    	sampleService.sortSamplesBySampleId(newLibraryList);    	
     	jobAndSampleMap.put(job, newLibraryList);
     }
     
