@@ -194,6 +194,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
+		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
 		
 		Set<String> flownames = waspPluginRegistry.getFlowNamesFromArea(newRun.getResourceCategory().getIName());
 		
