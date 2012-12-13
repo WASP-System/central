@@ -19,7 +19,10 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.junit.runner.RunWith;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -73,7 +76,10 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.File;
@@ -1295,23 +1301,19 @@ public class TestJobServiceImpl extends EasyMockSupport{
   public void getJobsSubmittedOrViewableByUser() {
 	  try {
 		   jobServiceImpl.getJobsSubmittedOrViewableByUser(null);
-		  }
-		  catch (InvalidParameterException e){
-			  Assert.assertEquals(e.getMessage(), "No User provided");
-			  
-		  }
-		  
-		  try {
-		   User user = new User();
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "No User provided");		  
+	  }
+	  
+	  try {
+	   User user = new User();
 
-		   jobServiceImpl.getJobsSubmittedOrViewableByUser(user);
-		  }
-		  catch (InvalidParameterException e){
-			  Assert.assertEquals(e.getMessage(), "Invalid User Provided");
-			  
-		  }
-	  
-	  
+	   jobServiceImpl.getJobsSubmittedOrViewableByUser(user);
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "Invalid User Provided");  
+	  }
   }
   
   @Test
@@ -1338,10 +1340,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobUserList.add(jobUser);
 	  jobUserList.add(jobUser2);
 	  jobUserList.add(jobUser3);
-
-	  
 	  
 	  expect(mockJobUserDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc")).andReturn(jobUserList);
+	  
+	  expect(mockJobUserDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc")).andReturn(new ArrayList<JobUser>());
+
 	  replay(mockJobUserDao);
 	  
 	  List<Job> jobList = new ArrayList<Job>();
@@ -1350,384 +1353,107 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobList.add(job3);
 	  
 	  Assert.assertEquals(jobServiceImpl.getJobsSubmittedOrViewableByUser(user), jobList);
-	  
+	  Assert.assertEquals(jobServiceImpl.getJobsSubmittedOrViewableByUser(user), new ArrayList<Job>());
+
 	  verify(mockJobUserDao);
 		  
   }
   
-  
-  /* Method removed from JobServiceImpl.java
-  //Test when state is set to null
   @Test
-  public void getActiveJobs_StateIsNull() {
+  public void isJobAwaitingLibraryCreation() {
 	  
-	  List<State> states = null;
+	  try {
+		   jobServiceImpl.isJobAwaitingLibraryCreation(null, null);
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "No Sample provided");		  
+	  }
 	  
-	  taskServiceImpl.setTaskDao(mockTaskDao);
-	  jobServiceImpl.setTaskService(taskServiceImpl);
-	  expect(mockTaskDao.getStatesByTaskIName("Start Job", "CREATED")).andReturn(states);
-	  replay(mockTaskDao);
+	  try {
+	   jobServiceImpl.isJobAwaitingLibraryCreation(new Job(), new Sample());
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "Invalid Sample Provided");  
+	  }
 	  
-	  //expected to return empty activeJobList if states==null
-	  List<Job> activeJobList = new ArrayList<Job>();
-	  Assert.assertEquals(activeJobList, jobServiceImpl.getActiveJobs());
-	  verify(mockTaskDao);
-	  
-  }
-
-  
-  @Test
-  public void getJobsAwaitingSubmittedSamples() {
-	  
-	  List<State> states = new ArrayList<State>();
-	  List<Statesample> stateSamples = new ArrayList<Statesample>();
-	  List<JobSample> jobSamples = new ArrayList<JobSample>();
-
-	  State state = new State();
 	  Sample sample = new Sample();
-	  Job job = new Job();
-	  JobSample jobSample = new JobSample();
-	  jobSample.setJob(job);
-	  jobSamples.add(jobSample);
-	  sample.setJobSample(jobSamples);
-	  Statesample stateSample = new Statesample();
-	  stateSample.setSample(sample);
-	  stateSamples.add(stateSample);
-	  state.setStatesample(stateSamples);
-	  states.add(state);
+	  sample.setSampleId(1);
+	  try {
+		  
+		  jobServiceImpl.isJobAwaitingLibraryCreation(null, sample);
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "No Job provided");		  
+	  }
+	  try {
+	   jobServiceImpl.isJobAwaitingLibraryCreation(new Job(),sample);
+	  }
+	  catch (InvalidParameterException e){
+		  Assert.assertEquals(e.getMessage(), "Invalid Job Provided");  
+	  }
 	  
-	  taskServiceImpl.setTaskDao(mockTaskDao);
-	  jobServiceImpl.setTaskService(taskServiceImpl);
-	  expect(mockTaskDao.getStatesByTaskIName("Receive Sample", "CREATED")).andReturn(states);
-	  replay(mockTaskDao);
-	  
-	  //
-	  List<Job> jobsAwaitingSubmittedSamplesList = new ArrayList<Job>();
-	  jobsAwaitingSubmittedSamplesList.add(job);
-	  Assert.assertEquals(jobsAwaitingSubmittedSamplesList, jobServiceImpl.getJobsAwaitingSubmittedSamples());
-	  verify(mockTaskDao);
 	  
   }
   
-  */
-  
-  /*	REMOVE TEMPORARILY UNTIL FIXED UP FOR NEW WAY OF TASK HANDLING (A S MCLELLAN)
-  @Test
-  public void getJobsAwaitingSubmittedSamples_StateIsNull() {
-	  List<State> states = null;
+  @Test (description="supplied sample is associated with supplied job")
+  public void isJobAwaitingLibraryCreation2() {
 	  
-	  taskServiceImpl.setTaskDao(mockTaskDao);
-	  jobServiceImpl.setTaskService(taskServiceImpl);
-	  expect(mockTaskDao.getStatesByTaskIName("Start Job", "CREATED")).andReturn(states);
-	  replay(mockTaskDao);
+	  Sample sample = new Sample();
+	  sample.setSampleId(1);
 	  
-	  //expected to return empty jobsAwaitingSubmittedSamplesList if states==null
-	  List<Job> jobsAwaitingSubmittedSamplesList = new ArrayList<Job>();
-	  Assert.assertEquals(jobsAwaitingSubmittedSamplesList, jobServiceImpl.getActiveJobs());
-	  verify(mockTaskDao);
+	  List<Sample> samples = new ArrayList<Sample>();
+	  Sample sample2 = new Sample();
+	  sample2.setSampleId(1);
+	  samples.add(sample2);
 	  
-  }
-  
-  @Test
-  public void getExtraJobDetails() {
-
-	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
-	  jobMeta.setV("");
-	  List <JobMeta> jobMetas = new ArrayList<JobMeta>();
-	  jobMetas.add(jobMeta);
-	  List<JobResourcecategory> jobResourceCategories = new ArrayList <JobResourcecategory>();
-	  JobResourcecategory jobResourceCategory = new JobResourcecategory();
-	  ResourceCategory resourceCategory = new ResourceCategory();
-	  ResourceType resourceType = new ResourceType();
-	  resourceType.setIName("mps");
-	  resourceType.setResourceTypeId(1);
-	  resourceCategory.setResourceType(resourceType);
-	  resourceCategory.setName("Illumina HiSeq 2000");
-	  jobResourceCategory.setResourceCategory(resourceCategory);
-	  jobResourceCategories.add(jobResourceCategory);
-	  
-	  //Test case:1
-	  Task task = new Task();
-	  task.setIName("DA Approval");
-	  //Test case:2
-	  Task task2 = new Task();
-	  task2.setIName("PI Approval");
-	  //Test case:3
-	  Task task3 = new Task();
-	  task3.setIName("Quote Job");
-	  
-	  //Test case: 1a: status="CREATED"
 	  Job job = new Job();
-	  job.setJobMeta(jobMetas);
-	  job.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob = new Statejob();
-	  List<Statejob> statejobs = new ArrayList<Statejob>();
-	  State state = new State();
-	  state.setTask(task);
-	  state.setStatus("CREATED");
-	  stateJob.setState(state);
-	  statejobs.add(stateJob);
-	  job.setStatejob(statejobs);
-	  
-	  //Test case: 1b status="COMPLETED"
-	  Job job2 = new Job();
-	  job2.setJobMeta(jobMetas);
-	  job2.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob2 = new Statejob();
-	  List<Statejob> statejobs2 = new ArrayList<Statejob>();
-	  State state2 = new State();
-	  state2.setTask(task);
-	  state2.setStatus("COMPLETED");
-	  stateJob2.setState(state2);
-	  statejobs2.add(stateJob2);
-	  job2.setStatejob(statejobs2);
-	  
-	  //Test case: 1c: status="ABANDONED"
-	  Job job3 = new Job();
-	  job3.setJobMeta(jobMetas);
-	  job3.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob3 = new Statejob();
-	  List<Statejob> statejobs3 = new ArrayList<Statejob>();
-	  State state3 = new State();
-	  state3.setTask(task);
-	  state3.setStatus("ABANDONED");
-	  stateJob3.setState(state3);
-	  statejobs3.add(stateJob3);
-	  job3.setStatejob(statejobs3);
-	  
-	  //Test case: 1:  If task="DA Approval"
-	  //Test case: 1a: status="CREATED"
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap.put("DA Approval", "Awaiting Response");
-	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test case: 1b: status="COMPLETED" OR  status="FINALIZED"
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap2.put("DA Approval", "Approved");
-	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test case: 1c: status="ABANDONED"
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap3.put("DA Approval", "Rejected");
-	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("Quote Job Price", "Not Yet Set");
+	  job.setJobId(1);
+	  job.setSample(samples);
 
-	  Assert.assertEquals(extraJobDetailsMap, jobServiceImpl.getExtraJobDetails(job));
-	  Assert.assertEquals(extraJobDetailsMap2, jobServiceImpl.getExtraJobDetails(job2));
-	  Assert.assertEquals(extraJobDetailsMap3, jobServiceImpl.getExtraJobDetails(job3));
-
+	  // TODO need to figure out how to mock logger and add a test for when the supplied sample is not associated with supplied job 
+	  //expect(LoggerFactory.getLogger(WaspServiceImpl.class)).andReturn(loggerMock);
 	  
+	  mockJobServiceImpl.setSampleService(mockSampleService);
+	  expect(mockSampleService.isSampleAwaitingLibraryCreation(sample)).andReturn(true);
+	  replay(mockSampleService);
+
+	  Assert.assertEquals(mockJobServiceImpl.isJobAwaitingLibraryCreation(job, sample), true);
+	  
+	  verify(mockSampleService);
+  }
+
+  /*
+  @Test (description="WaspStatus.COMPLETED")
+  public void updateJobPiApprovalStatus() {
+	  WaspStatus status = WaspStatus.COMPLETED;
+	  String task = "Sample Received";
+	  
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+	  messageTemplate.setTask(task);
+	  messageTemplate.setStatus(status); 
+	  
+	  WaspMessageHandlingServiceImpl mockWaspMsgHdlSrvImpl = EasyMock.createStrictMock(WaspMessageHandlingServiceImpl.class);
+      try {
+    	  mockWaspMsgHdlSrvImpl.sendOutboundMessage(messageTemplate.build(), false);
+	  } catch (WaspMessageBuildingException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+	  }
+	  EasyMock.expectLastCall();
+	  try {
+		jobServiceImpl.updateJobPiApprovalStatus(job, status);
+	} catch (WaspMessageBuildingException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
   
-  @Test
-  public void getExtraJobDetails2() {
-
-	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
-	  jobMeta.setV("");
-	  List <JobMeta> jobMetas = new ArrayList<JobMeta>();
-	  jobMetas.add(jobMeta);
-	  List<JobResourcecategory> jobResourceCategories = new ArrayList <JobResourcecategory>();
-	  JobResourcecategory jobResourceCategory = new JobResourcecategory();
-	  ResourceCategory resourceCategory = new ResourceCategory();
-	  ResourceType resourceType = new ResourceType();
-	  resourceType.setIName("mps");
-	  resourceType.setResourceTypeId(1);
-	  resourceCategory.setResourceType(resourceType);
-	  resourceCategory.setName("Illumina HiSeq 2000");
-	  jobResourceCategory.setResourceCategory(resourceCategory);
-	  jobResourceCategories.add(jobResourceCategory);
-	  
-	  //Test case:2
-	  Task task = new Task();
-	  task.setIName("PI Approval");
-	  	  
-	  //Test case: 1a: status="CREATED"
-	  Job job = new Job();
-	  job.setJobMeta(jobMetas);
-	  job.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob = new Statejob();
-	  List<Statejob> statejobs = new ArrayList<Statejob>();
-	  State state = new State();
-	  state.setTask(task);
-	  state.setStatus("CREATED");
-	  stateJob.setState(state);
-	  statejobs.add(stateJob);
-	  job.setStatejob(statejobs);
-	  
-	  //Test case: 1b status="COMPLETED"
-	  Job job2 = new Job();
-	  job2.setJobMeta(jobMetas);
-	  job2.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob2 = new Statejob();
-	  List<Statejob> statejobs2 = new ArrayList<Statejob>();
-	  State state2 = new State();
-	  state2.setTask(task);
-	  state2.setStatus("COMPLETED");
-	  stateJob2.setState(state2);
-	  statejobs2.add(stateJob2);
-	  job2.setStatejob(statejobs2);
-	  
-	  //Test case: 1c: status="ABANDONED"
-	  Job job3 = new Job();
-	  job3.setJobMeta(jobMetas);
-	  job3.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob3 = new Statejob();
-	  List<Statejob> statejobs3 = new ArrayList<Statejob>();
-	  State state3 = new State();
-	  state3.setTask(task);
-	  state3.setStatus("ABANDONED");
-	  stateJob3.setState(state3);
-	  statejobs3.add(stateJob3);
-	  job3.setStatejob(statejobs3);
-	  
-	  //Test case: 2:  If task="PI Approval"
-	  //Test case: 2a: status="CREATED"
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap.put("PI Approval", "Awaiting Response");
-	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test case: 2b: status="COMPLETED" OR  status="FINALIZED"
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap2.put("PI Approval", "Approved");
-	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("Quote Job Price", "Not Yet Set");
-	  
-	  //Test case: 2c: status="ABANDONED"
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap3.put("PI Approval", "Rejected");
-	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("Quote Job Price", "Not Yet Set");
-
-	  Assert.assertEquals(extraJobDetailsMap, jobServiceImpl.getExtraJobDetails(job));
-	  Assert.assertEquals(extraJobDetailsMap2, jobServiceImpl.getExtraJobDetails(job2));
-	  Assert.assertEquals(extraJobDetailsMap3, jobServiceImpl.getExtraJobDetails(job3));
-
-	  
-  }
-
-  @Test
-  public void getExtraJobDetails3() {
-
-	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
-	  jobMeta.setV("");
-	  List <JobMeta> jobMetas = new ArrayList<JobMeta>();
-	  jobMetas.add(jobMeta);
-	  List<JobResourcecategory> jobResourceCategories = new ArrayList <JobResourcecategory>();
-	  JobResourcecategory jobResourceCategory = new JobResourcecategory();
-	  ResourceCategory resourceCategory = new ResourceCategory();
-	  ResourceType resourceType = new ResourceType();
-	  resourceType.setIName("mps");
-	  resourceType.setResourceTypeId(1);
-	  resourceCategory.setResourceType(resourceType);
-	  resourceCategory.setName("Illumina HiSeq 2000");
-	  jobResourceCategory.setResourceCategory(resourceCategory);
-	  jobResourceCategories.add(jobResourceCategory);
-	  
-	  //Test case:3
-	  Task task = new Task();
-	  task.setIName("Quote Job");
-	  	  
-	  //Test case: 3a: status="CREATED"
-	  Job job = new Job();
-	  job.setJobMeta(jobMetas);
-	  job.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob = new Statejob();
-	  List<Statejob> statejobs = new ArrayList<Statejob>();
-	  State state = new State();
-	  state.setTask(task);
-	  state.setStatus("CREATED");
-	  stateJob.setState(state);
-	  statejobs.add(stateJob);
-	  job.setStatejob(statejobs);
-	  
-	  //Test case: 3b status="COMPLETED"
-	  Job job2 = new Job();
-	  job2.setJobMeta(jobMetas);
-	  job2.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob2 = new Statejob();
-	  List<Statejob> statejobs2 = new ArrayList<Statejob>();
-	  State state2 = new State();
-	  state2.setTask(task);
-	  state2.setStatus("COMPLETED");
-	  stateJob2.setState(state2);
-	  statejobs2.add(stateJob2);
-	  job2.setStatejob(statejobs2);
-	  
-	  //Test case: 3c: status="ABANDONED"
-	  Job job3 = new Job();
-	  job3.setJobMeta(jobMetas);
-	  job3.setJobResourcecategory(jobResourceCategories);
-	  Statejob stateJob3 = new Statejob();
-	  List<Statejob> statejobs3 = new ArrayList<Statejob>();
-	  State state3 = new State();
-	  state3.setTask(task);
-	  state3.setStatus("ABANDONED");
-	  stateJob3.setState(state3);
-	  statejobs3.add(stateJob3);
-	  job3.setStatejob(statejobs3);
-	  
-	  //Test case: 3:  If task="Quote Job"
-	  //Test case: 3a: status="CREATED"
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
-	  extraJobDetailsMap.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap.put("Quote Job Price", "Awaiting Quote");
-	  extraJobDetailsMap.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap.put("PI Approval", "Not Yet Set");
-	  
-	  //Test case: 3b: status="COMPLETED" OR  status="FINALIZED"
-	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
-	  AcctQuote acctQuote = new AcctQuote();
-	  //TO DO: need to add more test cases to test different amounts
-	  Float price = new Float(123.45);
-	  acctQuote.setAmount(new Float(123.45));
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job2.setAcctJobquotecurrent(acctJobQuoteCurrentList);
-	  //Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-
-	  Map<String, String> extraJobDetailsMap2 = new HashMap<String, String>();
-	  extraJobDetailsMap2.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap2.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap2.put("Quote Job Price", "$"+String.format("%.2f", price));
-	  extraJobDetailsMap2.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap2.put("PI Approval", "Not Yet Set");
-	  
-	  //Test case: 3c: other status
-	  Map<String, String> extraJobDetailsMap3 = new HashMap<String, String>();
-	  extraJobDetailsMap3.put("Machine", jobResourceCategory.getResourceCategory().getName());
-	  extraJobDetailsMap3.put("Read Length", jobMeta.getV());
-	  extraJobDetailsMap3.put("Quote Job Price", "Unknown");
-	  extraJobDetailsMap3.put("DA Approval", "Not Yet Set");
-	  extraJobDetailsMap3.put("PI Approval", "Not Yet Set");
-
-	  Assert.assertEquals(extraJobDetailsMap, jobServiceImpl.getExtraJobDetails(job));
-	  Assert.assertEquals(extraJobDetailsMap2, jobServiceImpl.getExtraJobDetails(job2));
-	  Assert.assertEquals(extraJobDetailsMap3, jobServiceImpl.getExtraJobDetails(job3));
-
-	  
-  }
-
-  */
+ 
+ */ 
+  
   @BeforeMethod
   public void beforeMethod() {
 	  jobServiceImpl.setJobExplorer(mockJobExplorerWasp);
