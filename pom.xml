@@ -10,6 +10,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<maven.surefire.version>2.12.4</maven.surefire.version>
+		<maven.dependency.version>2.6</maven.dependency.version>
 		<!-- enforcer settings -->
 		<maven.enforcer.plugin>1.1.1</maven.enforcer.plugin>
 		<java.version>1.6</java.version>
@@ -86,6 +87,11 @@
 				</configuration>
 				</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven.dependency.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

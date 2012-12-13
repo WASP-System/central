@@ -22,7 +22,7 @@
 	</tr>
 	<c:choose>
 		<c:when test="${empty sampleDraftList }">
-			<tr><td class="DataTD value-centered td-even-number" colspan="7"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
+			<tr><td class="DataTD value-centered td-even-number" colspan="6"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
 		</c:when>
 		<c:otherwise>
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="status">

@@ -94,6 +94,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<slf4j.version>1.7.2</slf4j.version>
 		<powermock.version>1.4.12</powermock.version>
 		<excluded.groups>integration-tests,db-tests,a,ssh</excluded.groups>
+		<json.version>20080701</json.version>
 	</properties>
 
 	<modules>
@@ -303,6 +304,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>edu.yu.einstein.wasp</groupId>
 				<artifactId>wasp-interface</artifactId>

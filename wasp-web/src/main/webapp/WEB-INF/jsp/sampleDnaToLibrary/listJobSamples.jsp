@@ -95,13 +95,19 @@
 				<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
-				<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;
+				<sec:authorize access="hasRole('su') or hasRole('ft')">
+				&nbsp;
 				<%--  please leave, may be useful later <a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%>
+				<%-- 
 				<c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule) == true}'>
 					<a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
 				</c:if>
-				</sec:authorize><br />
-				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/><br />
+				--%>
+				</sec:authorize>
+				<br />
+				<c:if test='${qcStatusMap.get(userSubmittedMacromolecule) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedMacromolecule) == "RECEIVED"}'>
+					<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/><br />
+				</c:if>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
 					<c:if test='${not empty createLibraryStatusMap.get(userSubmittedMacromolecule) and createLibraryStatusMap.get(userSubmittedMacromolecule) == true}'>
@@ -233,8 +239,10 @@
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
-			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
-			<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
+			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
+			<c:if test='${qcStatusMap.get(userSubmittedLibrary) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
+				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
+			</c:if>
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">

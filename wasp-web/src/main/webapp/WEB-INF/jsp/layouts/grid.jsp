@@ -58,6 +58,12 @@
 				return cellvalue.replace(options.colModel.formatoptions.symbol, "");
 			}
 		});
+		
+		jQuery(window).bind('resize', function() {
+
+			jQuery("#grid_id").setGridWidth($('#content').width()-30, true);
+
+		}).trigger('resize');
 		/* define custom formatter ends here*/
 		
 		<%-- fires before showing the form with the new data after user clicked "add" button; receives as Parameter the id of the constructed form. --%>  
@@ -548,9 +554,9 @@
 					gridview: false,
 					<tiles:insertAttribute name="subgrid-columns" />	// subgrid columns will appear here
 		
-					autowidth: false,//set this to true and comment out next two lines (shrinkToFit and width [or leave this one]) for autoset
-					shrinkToFit: true,
-					width: 900,
+					autowidth: true,//set this to true and comment out next two lines (shrinkToFit and width [or leave this one]) for autoset
+					//shrinkToFit: true,
+					//width: 900,
 					//scroll: false,		// scroll:true will disable the pager on page
 					height: 'auto', 
 					loadui: 'block',
