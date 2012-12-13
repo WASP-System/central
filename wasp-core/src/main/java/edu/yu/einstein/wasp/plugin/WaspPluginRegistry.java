@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.plugin;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -124,6 +125,20 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		} else {
 			return bean;
 		}
+	}
+	
+	public Set<String> getFlowNamesFromArea(String area) {
+		HashSet<String> flownames = new HashSet<String>();
+		
+		for (String name : plugins.keySet()) {
+			WaspPlugin plugin = plugins.get(name);
+			Set<String> handles = plugin.getHandles();
+			if (! handles.contains(area))
+				continue;
+			flownames.add(plugin.getFlowNameFromArea(area));
+		}
+		
+		return flownames;
 	}
 
 }
