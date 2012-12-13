@@ -483,3 +483,12 @@ TABLE.data TD.value-centered-small {
 	font-size: 10px;
 	white-space: nowrap;
 	}	
+ .tooltip {
+    display:none;
+    background:black;
+    font-size:12px;
+    height:auto;
+    width:auto;
+    padding:25px;
+    color:#eee;
+  }

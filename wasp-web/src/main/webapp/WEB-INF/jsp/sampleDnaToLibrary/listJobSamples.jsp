@@ -104,8 +104,9 @@
 				</c:if>
 				--%>
 				</sec:authorize>
-				<br />
+				
 				<c:if test='${qcStatusMap.get(userSubmittedMacromolecule) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedMacromolecule) == "RECEIVED"}'>
+				  <div class="wasptooltip">
 					<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/>
 					<c:set value="${qcStatusCommentsMap.get(userSubmittedMacromolecule)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
@@ -113,7 +114,7 @@
 							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
 						<%--</c:forEach>--%>
 					</c:if>
-					<br />
+				  </div>
 				</c:if>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
@@ -141,6 +142,7 @@
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 							<c:if test='${qcStatusMap.get(facilityLibraryForThisMacromolecule) != "NONEXISTENT"}'>
+							  <div class="wasptooltip">
 								<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/>						
 								<c:set value="${qcStatusCommentsMap.get(facilityLibraryForThisMacromolecule)}" var="metaMessageList" />
 								<c:if test="${metaMessageList.size()>0}">
@@ -148,7 +150,7 @@
 										<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
 									<%--</c:forEach>--%>
 								</c:if>
-								<br />
+								</div>
 							</c:if>
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
@@ -257,6 +259,7 @@
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
 			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
 			<c:if test='${qcStatusMap.get(userSubmittedLibrary) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
+			  <div class="wasptooltip">
 				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
 				<c:set value="${qcStatusCommentsMap.get(userSubmittedLibrary)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
@@ -264,7 +267,7 @@
 							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
 						<%--</c:forEach>--%>
 					</c:if>
-				<br />
+			   </div>
 			</c:if>
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
