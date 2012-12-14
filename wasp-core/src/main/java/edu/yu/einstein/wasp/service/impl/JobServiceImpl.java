@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -190,6 +191,21 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;	
+	}
+	
+	public void setSampleFileDao(SampleFileDao sampleFileDao) {
+		this.sampleFileDao = sampleFileDao;	
+
+	}
+	
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+		this.sampleTypeDao = sampleTypeDao;	
+
+	}
+	
+	public void setLogger(Logger logger) {
+		
+		this.logger = logger;
 	}
 	
 	@Autowired
@@ -1258,6 +1274,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public List<MetaMessage> getUserSubmittedJobComment(Integer jobId){
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
+	}
+
+	@Override
+	public void setJobDao(SampleDao mockSampleDao) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
