@@ -391,6 +391,7 @@ TABLE.data	{
 TABLE.data TD	{
 	background: #ffffff;
 	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #CCCCCC;
 	vertical-align: middle;
 	}
 
