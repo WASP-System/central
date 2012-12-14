@@ -133,7 +133,8 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		for (String name : plugins.keySet()) {
 			WaspPlugin plugin = plugins.get(name);
 			Set<String> handles = plugin.getHandles();
-			if (! handles.contains(area))
+		
+			if (handles == null || ! handles.contains(area))
 				continue;
 			flownames.add(plugin.getFlowNameFromArea(area));
 		}
