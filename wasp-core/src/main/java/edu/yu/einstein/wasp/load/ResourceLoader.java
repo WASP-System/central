@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.model.ResourceMeta;
 
 
 /**
- * update/inserts db copy of subtype sample from bean definition
+ * update/inserts db copy of resource from bean definition
  * takes in  properties
  *   - iname / internalname
  *   - name / label
