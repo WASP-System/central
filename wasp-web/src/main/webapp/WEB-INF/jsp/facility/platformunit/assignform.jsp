@@ -4,9 +4,15 @@
 <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
 <script>
 function showAssignForm(e) {
-  e.parentNode.getElementsByTagName("A")[0].style.display = "none"; 
+  e.parentNode.getElementsByTagName("A")[0].style.display = "none";
+  e.parentNode.getElementsByTagName("A")[1].style.display = "block";
   e.parentNode.getElementsByTagName("DIV")[0].style.display = "block"; 
 }
+function hideAssignForm(e) {
+	  e.parentNode.getElementsByTagName("A")[0].style.display = "block";
+	  e.parentNode.getElementsByTagName("A")[1].style.display = "none";
+	  e.parentNode.getElementsByTagName("DIV")[0].style.display = "none"; 
+	}
 </script>
 
 <style>
@@ -48,8 +54,9 @@ function showAssignForm(e) {
 	                  </c:forEach> 
 	                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(sample) == true}'> 
 					   <div>
-							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
-							<div style="display:none">
+							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a> 							
+							<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)">[Close]</a>			  				
+			  				<div style="display:none">
 								<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${sample.sampleId}">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
@@ -57,7 +64,7 @@ function showAssignForm(e) {
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
 			  							<fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
 			  						<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
-			  						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
+			  						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">			  						
 								</form>
 							</div>
 						</div>
@@ -79,6 +86,7 @@ function showAssignForm(e) {
 			                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(schild) == true}'> 
 		        				<div>
 									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
+									<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)">[Close]</a>	
 									<div style="display:none">
 										<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${schild.sampleId}">

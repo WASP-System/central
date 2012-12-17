@@ -163,7 +163,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return void
 	   */
 	  public void sortSamplesBySampleName(List<Sample> samples);
-	  
+
+	  /**
+	   * Accepts and (in-situ) sorts list of samples by sample id 
+	   * @param List<Sample>
+	   * @return void
+	   */
+	  public void sortSamplesBySampleId(List<Sample> samples);
+
 	  /**
 	   * Converts sample's Receive Sample status from database storage meaning to human-comprehensible meaning for viewing on the web
 	   * @param String status

@@ -5,7 +5,7 @@
 
 <c:choose>
 <c:when test="${jobList.size()==0}">
-<h2><fmt:message key="sampleqctask.subtitle_none.label" /></h2>
+<h2><fmt:message key="task.sampleqc_subtitle_none.label" /></h2>
 </c:when>
 <c:otherwise>
 
@@ -49,7 +49,7 @@
 
 <c:choose>
 <c:when test="${jobList.size()==0}">
-<h2><fmt:message key="sampleqctask.subtitle_none.label" /></h2>
+<h2><fmt:message key="task.sampleqc_subtitle_none.label" /></h2>
 </c:when>
 <c:otherwise>
 
@@ -60,12 +60,12 @@
  		<tr><td colspan="6" style='background-color:black'></td></tr>
  	</c:if>
 	<tr class="FormData">
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_jobId.label" /></th>
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_jobName.label" /></th>
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_submitter.label" /></th>
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_molecule.label" /></th>
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_sample.label" /></th>
-		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.samplereceive_action.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_jobId.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_jobName.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_submitter.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_molecule.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_sample.label" /></th>
+		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.sampleqc_action.label" /></th>
 	</tr>
 	<c:set var="samplesList" value="${jobAndSamplesMap.get(job)}" scope="page" />
 	<c:forEach items="${samplesList}" var="sample" varStatus="status">	
@@ -88,11 +88,11 @@
 			
 				<form action="<c:url value="/task/sampleqc/qc.do"/>" id="theForm<c:out value="${sample.getSampleId()}" />" method="POST" onsubmit="return validate(this);">
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="${sample.getSampleId()}"> 
- 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.libraryqc_passed.label" /> &nbsp;
- 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${sample.getSampleId()}" />");' type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.libraryqc_failed.label" /><br />
+ 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus" name = "qcStatus" value = "PASSED"><fmt:message key="task.sampleqc_passed.label" /> &nbsp;
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${sample.getSampleId()}" />");' type="radio" id = "qcStatus" name = "qcStatus" value = "FAILED"><fmt:message key="task.sampleqc_failed.label" /><br />
  				<textarea id="comment" name="comment" cols="25" rows="2"></textarea><br />
-					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.libraryqc_reset.label" />">
-				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.libraryqc_submit.label" />">
+					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.sampleqc_reset.label" />">
+				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.sampleqc_submit.label" />">
 				</form>
 
 			</td>
