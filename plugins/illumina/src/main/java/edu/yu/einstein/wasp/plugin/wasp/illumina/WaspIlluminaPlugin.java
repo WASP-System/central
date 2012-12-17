@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.plugin.wasp.illumina;
 
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,8 +21,6 @@ import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -33,9 +30,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaService;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -78,34 +73,24 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 		super(pluginName, waspSiteProperties, channel);
 	}
 
-	public Message<String> bcl2qseq(Message<String> m) {
+	public Message<String> bcl2fastq(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
-			return bcl2qseqHelp();
+			return bcl2fastqHelp();
 
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		
 		try {
-			JSONObject jo = new JSONObject(m.getPayload().toString());
-			String value = "";
 			Run run = getRunFromMessage(m);
 			if (run == null)
-				return MessageBuilder.withPayload("Unable to determine run from message: " + jo.toString()).build();
+				return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
 			
 			jobParameters.put(WaspJobParameters.RUN_ID, run.getRunId().toString());
 			jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
-			BatchJobLaunchMessageTemplate messageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(FLOW_NAME, jobParameters) );
-			Message<BatchJobLaunchContext> message = messageTemplate.build();
-			logger.debug("Sending launch message : " + message.toString());
 			
-			MessagingTemplate messagingTemplate = new MessagingTemplate();
-			messagingTemplate.setReceiveTimeout(2000);
+			logger.debug("Sending launch message to run " + FLOW_NAME + " on jobId: " + run.getRunId());
+			runService.launchBatchJob(FLOW_NAME, jobParameters);
 			
-			Message<?> replyMessage = messagingTemplate.sendAndReceive(
-					messageChannelRegistry.getChannel(MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), message);
-			
-			return (Message<String>) MessageBuilder.withPayload(replyMessage.toString()).build();
-		} catch (JSONException e) {
-			return MessageBuilder.withPayload("Unable to parse message: " + e.getLocalizedMessage()).build();
+			return (Message<String>) MessageBuilder.withPayload("Initiating Illumina pipeline on run " + run.getName()).build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
 			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
@@ -122,6 +107,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 		try {
 			ss = illuminaSequenceRunProcessor.getSampleSheet(run);
 		} catch (Exception e) {
+			e.printStackTrace();
 			String err = "unable to create sample sheet for run " + run.getName();
 			logger.error(err);
 			return MessageBuilder.withPayload(err).build();
@@ -129,6 +115,11 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 		return MessageBuilder.withPayload(ss).build();
 	}
 	
+	/**
+	 * 
+	 * @param m
+	 * @return Run or null
+	 */
 	public Run getRunFromMessage(Message<String> m) {
 		Run run = null;
 		
@@ -169,7 +160,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 
 	}
 
-	private Message<String> bcl2qseqHelp() {
+	private Message<String> bcl2fastqHelp() {
 		String mstr = "\nIllumina Pipeline plugin: demultiplex and convert bcl to qseq/fastq:\n" +
 				"wasp -T wasp-illumina -t bcl2qseq -m \'{runId:\"101\"}\'\n" +
 				"wasp -T wasp-illumina -t bcl2qseq -m \'{runName:101010_RUN_ID}\'\n";
@@ -181,6 +172,11 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 				"wasp -T wasp-illumina -t getSampleSheet -m \'{runId:\"101\"}\'\n" +
 				"wasp -T wasp-illumina -t getSampleSheet -m \'{runName:101010_RUN_ID}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
+	}
+
+	@Override
+	public String getFlowNameFromArea(String area) {
+		return FLOW_NAME;
 	}
 
 }

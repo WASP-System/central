@@ -8,21 +8,19 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionUntilSuccessful;
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.ModulesManager;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -33,7 +31,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
- * Determine if the Illumina pipeline is already running.  If not, create a new Work unit and monitor.??? TODO:
+ * Determine if the Illumina pipeline is already running.  If not, create a new Work unit and monitor.  Requires 
+ * Backoff and Retry annotation.
  * 
  * @author calder
  *
@@ -65,7 +64,7 @@ public class PipelineTasklet extends WaspTasklet {
 	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
 	 */
 	@Override
-	@RetryOnExceptionUntilSuccessful
+	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		
 		
@@ -98,9 +97,14 @@ public class PipelineTasklet extends WaspTasklet {
 			procs = new Integer(p);
 		}
 		w.setProcessorRequirements(procs);
-		w.setWorkingDirectory(gws.getTransportService().getConfiguredSetting("illumina.data.dir") 
-				+ "/" + run.getName() 
-				+ gws.getTransportService().getConfiguredSetting("illumina.data.workdir") );
+		String dataDir = gws.getTransportService().getConfiguredSetting("illumina.data.dir");
+		if (!PropertyHelper.isSet(dataDir))
+			throw new GridException("illumina.data.dir is not defined!");
+		
+		w.setWorkingDirectory(dataDir + "/" + run.getName() 
+				+ "/Data/Intensities/BaseCalls/" );
+		
+		w.setResultsDirectory(dataDir + "/" + "Unaligned");
 		
 		w.setCommand(getConfigureBclToFastqString(sm, procs));
 
@@ -131,7 +135,7 @@ public class PipelineTasklet extends WaspTasklet {
 				"  loc=.locs\n" +
 				"fi\n\n";
 		
-		retval += "configureBclToFastq.pl --positions-format ${loc} ";
+		retval += "configureBclToFastq.pl --force --positions-format ${loc} ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
@@ -148,12 +152,12 @@ public class PipelineTasklet extends WaspTasklet {
 			retval += "--ignore-missing-control ";
 		if (PropertyHelper.isSet(fastqNclusters)) {
 			int fqc = new Integer(fastqNclusters).intValue();
-			retval += "--ignore-missing-stats ";
+			retval += "--fastq-cluster-count " + fqc;
 		}
 		
 		retval += "\n\n";
 		
-		retval += "make -j " + proc + "\n";
+		retval += "cd ../../../Unaligned && make -j " + proc + "\n";
 
 		return retval;
 	}

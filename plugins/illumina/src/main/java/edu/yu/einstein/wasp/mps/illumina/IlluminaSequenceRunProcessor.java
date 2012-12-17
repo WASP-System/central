@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -43,6 +44,9 @@ import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
  */
 @Component
 public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
+	
+	private String softwareVersion = "1.8.2"; // hard coded as this is likely the final softwareVersion.
+	private String softwareName = "casava"; 
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,6 +58,9 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	
 	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private String truseqIndexedDnaArea;
 
 	/**
 	 * Called first to set up analysis run.
@@ -174,25 +181,44 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	
 	public String getSampleSheet(Run run) throws SampleTypeException, MetadataException {
 
-		String sampleSheet = getSampleSheetHeader() + "\n";
+		String sampleSheet = getSampleSheetHeader();
 		
 		Sample platformUnit = run.getPlatformUnit();
 		
+		int numberOfCells = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
+		
+		boolean[] cellMarked = new boolean[numberOfCells];
+		
 		// throws SampleTypeException
 		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
+		
+		logger.debug(cells.size() + " cells on platform unit " + platformUnit.getName());
 
 		for (Integer cellid : cells.keySet()) { // for each cell in platform unit
 			Sample cell = cells.get(cellid);
 
 			// throws SampleTypeException
 
-			List<Sample> all = sampleService.getLibrariesOnCellWithoutControls(cell);
+			List<Sample> all = sampleService.getLibrariesOnCell(cell);
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
-			for (Sample library : libraries) {
-
-				Adaptor adaptor = adaptorService.getAdaptor(library);
+			for (Sample library : all) {
+				
+				// if the sample is not TruSeq, do not place it in the sample sheet
+				if (! adaptorService.getAdaptor(library).getAdaptorset().getIName().equals(truseqIndexedDnaArea))
+					continue;
+				
+				cellMarked[cellid-1] = true;
+				
+				// if there is one control sample in the lane and no libraries, set the control flag
+				if ((libraries.size() == 0) && (all.size() == 1)) {
+					Sample control = all.get(0);
+					
+					String line = buildLine(platformUnit, cellid, control.getName(), control, "Y", "control");
+					sampleSheet += "\n" + line;
+					continue;
+				}
 
 				// necessary?
 				String iname = library.getSampleType().getIName();
@@ -203,46 +229,67 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				}
 
 				Sample sample = library.getParent();
+				
+				if (sample == null)
+					sample = library;
 
 				// TODO:implement this job service method to get JobSampleMeta
 				// from sample and platform unit
-				String genome = "null";
-				String jobname = "null";
+				String genome = "";
 				String control = "N";
-				String recipe = "recipe";
+				String recipe = "WASP";
 
-				String line = buildLine(cell, genome, adaptor, sample, control, recipe);
+				String line = buildLine(platformUnit, cellid, genome, sample, control, recipe);
 
 				logger.debug("sample sheet: " + line);
 
-				sampleSheet += line + "\n";
+				sampleSheet += "\n" + line;
 			}
-						
-			// if there is one control sample in the lane and no libraries, set the control flag
-			if ((libraries.size() == 0) && (all.size() == 1)) {
-				Adaptor a = new Adaptor();
-				a.setBarcodesequence("");
-				Sample s = new Sample();
-				s.setName("control");
-				s.setSampleId(-1);
+			
+			// if the cell has not been marked (has TruSeq sample), create a dummy sample for 
+			// the lane if further demultiplexing is required
+			// or a single sample for the entire lane
 				
-				String line = buildLine(cell, "PhiX", a, s, "Y", "control");
-				sampleSheet += line + "\n";
+			if (cellMarked[cellid-1] == false) {
+				Sample placeholder = new Sample();
+				Adaptor adaptor = new Adaptor();
+				placeholder.setSampleId(-1);
+				
+				String line = buildLine(platformUnit, cellid, "", placeholder, "N", "WASP");
+				
+				sampleSheet += "\n" + line;
 			}
+			
 		}
 		return sampleSheet;
 		
 	}
 
-	private String buildLine(Sample cell, String genome, Adaptor adaptor, Sample sample, String control, String recipe) {
+	private String buildLine(Sample platformUnit, Integer cellIndex, String genome, Sample sample, String control, String recipe) {
+		
+		String adapter = null;
+		try {
+			adapter = adaptorService.getAdaptor(sample).getBarcodesequence();
+		} catch (Exception e) {
+			// if it is null or otherwise not set, it does not exist
+			adapter = "";
+		}
+		String sampleId = sample.getSampleId().toString();
+		String sampleName = sample.getName();
+		
+		if (sampleId.equals("-1")) {
+			sampleId = "lane_" + cellIndex;
+			sampleName = sampleId;
+		}
 		return new StringBuilder()
-						.append(cell.getName() + ",")
-						.append(sample.getSampleId() + ",")
+						.append(platformUnit.getName() + ",")
+						.append(cellIndex + ",")
+						.append(sampleId + ",")
 						.append(genome + ",")
-						.append(adaptor.getBarcodesequence() + ",")
-						.append(sample.getName() + ",")
+						.append(adapter + ",")
+						.append(sampleName + ",")
 						.append(control + ",")
-						.append("recipe" + ",") // TODO:recipe
+						.append(recipe + ",") // TODO:recipe
 						.append("WASP" + ",")
 						.append("WASP")
 						.toString();
@@ -261,7 +308,17 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 * @return
 	 */
 	private String getSampleSheetHeader() {
-		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Recipe,Operator,SampleProject\n";
+		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Recipe,Operator,SampleProject";
+	}
+
+	@Override
+	public String getSoftwareVersion() {
+		return softwareVersion;
+	}
+
+	@Override
+	public void setSoftwareVersion(String softwareVersion) {
+		this.softwareVersion = softwareVersion;
 	}
 
 }
