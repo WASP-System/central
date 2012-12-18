@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -192,6 +193,21 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		this.sampleService = sampleService;	
 	}
 	
+	public void setSampleFileDao(SampleFileDao sampleFileDao) {
+		this.sampleFileDao = sampleFileDao;	
+
+	}
+	
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+		this.sampleTypeDao = sampleTypeDao;	
+
+	}
+	
+	public void setLogger(Logger logger) {
+		
+		this.logger = logger;
+	}
+	
 	@Autowired
 	private JobDraftDao jobDraftDao;
 	
@@ -312,7 +328,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
 				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
 				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
-				  if(sample.getParent() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParent() != null this indicates a facility-generated library), so add it to the submittedSample list
+				  if(sample.getParentId() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParentId() != null this indicates a facility-generated library), so add it to the submittedSample list
 					  submittedSamplesList.add(sample);
 				  }
 			  }	
@@ -1260,6 +1276,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1289,4 +1306,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
   		}
 		return coverageMap;
 	}
+
+	@Override
+	public void setJobDao(SampleDao mockSampleDao) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

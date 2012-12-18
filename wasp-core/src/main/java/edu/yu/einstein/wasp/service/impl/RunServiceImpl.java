@@ -38,6 +38,7 @@ import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -59,6 +60,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	
 	@Autowired
 	protected WorkflowService workflowService;
+	
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -190,13 +194,27 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
-		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext("wasp.run.jobflow", jobParameters) );
-		try{
-			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
-		} catch (WaspMessageBuildingException e){
-			throw new MessagingException(e.getLocalizedMessage(), e);
+		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
+		
+		Set<String> flownames = waspPluginRegistry.getFlowNamesFromArea(newRun.getResourceCategory().getIName());
+		
+		for (String flow : flownames) {
+			// TODO: check the transactional behavior of this block when
+			// one job launch fails after successfully sending another
+			
+			try {
+				launchBatchJob(flow, jobParameters);
+			} catch (WaspMessageBuildingException e) {
+				throw new MessagingException(e.getLocalizedMessage(), e);
+			}
 		}
 		return newRun;
+	}
+	
+	@Override
+	public void launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
+		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
 	}
 	
 	@Override

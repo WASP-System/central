@@ -263,5 +263,31 @@ public class SshFileService implements GridFileService {
 		logger.debug("remote file URI: " + result.toString());
 		return result;
 	}
+	@Override
+	public void mkdir(String remoteDir) throws IOException {
+		StandardFileSystemManager manager = new StandardFileSystemManager();
+
+		logger.debug("mkdir called: " + remoteDir + " at " + transportService.getHostName());
+
+		try {
+			manager.init();
+
+			String remote = getRemoteFileURL(remoteDir);
+			FileObject destination = manager.resolveFile(remote,
+					createDefaultOptions(hostKeyChecking, timeout));
+
+			if (!destination.exists())
+				destination.createFolder();
+			
+			logger.debug(destination.getName().getPath() + " created on " + remote);
+
+		} catch (Exception e) {
+			logger.error("problem creating directory: " + e.getLocalizedMessage());
+			throw new RuntimeException(e);
+		} finally {
+			manager.close();
+		}
+		
+	}
 
 }

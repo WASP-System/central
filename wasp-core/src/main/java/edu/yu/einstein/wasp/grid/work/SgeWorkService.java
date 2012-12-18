@@ -257,31 +257,54 @@ public class SgeWorkService implements GridWorkService {
 	}
 	
 	private void cleanUpCompletedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString());
+		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString());
 	}
 
-	private void cleanUpCompletedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	private void cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("Cleaning successful job " + id + " at " + transportService.getHostName() + ":" + workingDirectory);
 		
 		WorkUnit w = new WorkUnit();
 		String prefix = "";
 		if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
-		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + ".tar.gz " + jobNamePrefix + id + ".*");
+		String outputFile = jobNamePrefix + id + ".tar.gz ";
+		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".* " +
+				" && cp " + outputFile + " " + prefix + resultsDirectory );
+		
+		try {
+			if (!gridFileService.exists(resultsDirectory))
+				gridFileService.mkdir(resultsDirectory);
+		} catch (IOException e) {
+			logger.debug("unable to create remote directory");
+			throw new GridExecutionException("unable to mkdir " + resultsDirectory);
+		}
+		
 		transportService.connect(w);
 		w.getConnection().sendExecToRemote(w);
+		
 	}
 	
 	private void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		cleanUpAbnormallyTerminatedJob(g.getHostname(), g.getWorkingDirectory(), g.getUuid().toString());
+		cleanUpAbnormallyTerminatedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString());
 	}
 	
-	private void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	private void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String resultsDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.info("Cleaning FAILED job " + id + " at " + hostname + ":" + workingDirectory);
 		
 		WorkUnit w = new WorkUnit();
 		String prefix = "";
 		if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
-		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + jobNamePrefix + id + "-FAILED.tar.gz " + jobNamePrefix + id + ".*");
+		String outputFile = jobNamePrefix + id + "-FAILED.tar.gz ";
+		w.setCommand("cd " + prefix + workingDirectory + " && tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".*" +
+				" && cp " + outputFile + " " + prefix + resultsDirectory );
+		
+		try {
+			if (!gridFileService.exists(resultsDirectory))
+				gridFileService.mkdir(resultsDirectory);
+		} catch (IOException e) {
+			logger.debug("unable to create remote directory");
+			throw new GridExecutionException("unable to mkdir " + resultsDirectory);
+		}
+		
 		transportService.connect(w);
 		w.getConnection().sendExecToRemote(w);
 	}
@@ -423,6 +446,8 @@ public class SgeWorkService implements GridWorkService {
 					"#$ -e " + prefix + w.getWorkingDirectory() + jobNamePrefix + name + ".err\n";
 			preamble = "cd " + prefix + w.getWorkingDirectory() + "\n" +
 					"WASPNAME=" + name + "\n" +
+					"WASP_WORK_DIR=" + prefix + w.getWorkingDirectory() + "\n" +
+					"WASP_RESULT_DIR=" + prefix + w.getResultsDirectory() + "\n" +
 					"set -o errexit\n" + // die if any script returns non 0 exit
 											// code
 					"set -o pipefail\n" + // die if any script in a pipe returns

@@ -205,5 +205,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	public void setMessageChannel(MessageChannel messageChannel) {
 		this.messageChannel = messageChannel;
 	}
+	
+	public abstract String getFlowNameFromArea(String area);
 
 }

@@ -89,25 +89,6 @@
 	</property>
   </bean>
   
-  <!-- wasp sample types -->
-  <bean id="waspSampleType" class="org.springframework.beans.factory.config.MapFactoryBean" >
-  	 <property name="sourceMap">
-  		<map key-type="java.lang.String" value-type="java.lang.String">
-  			<entry key="dna" value="dna" />
-  			<entry key="rna" value="rna" />
-  			<entry key="protein" value="protein" />
-  			<entry key="tissue" value="tissue" />
-  			<entry key="cellPrimary" value="cellPrimary" />
-  			<entry key="cellLine" value="cellLine" />
-  			<entry key="tissue" value="tissue" />
-  			<entry key="library" value="library" />
-  			<entry key="facilityLibrary" value="facilityLibrary" />
-  			<entry key="cell" value="cell" />
-  			<entry key="platformunit" value="platformunit" />
-  		</map>
-  	</property>
-  </bean>
-
   <!-- platform unit and cell name statics to enforce consistent nomenclature when defining the 'name' attribute for these items in uiFields -->
   <bean id="waspSoftware" class="org.springframework.beans.factory.config.MapFactoryBean">
   	<property name="sourceMap">
@@ -123,6 +104,15 @@
   		<map key-type="java.lang.String" value-type="java.lang.String">
   			<entry key="includeRoles" value="includeRoles" />
   			<entry key="excludeRoles" value="excludeRoles" />
+  		</map>
+  	</property>
+  </bean>
+  
+  <bean id="waspSampleTypeCategory" class="org.springframework.beans.factory.config.MapFactoryBean">
+  	<property name="sourceMap">
+  		<map key-type="java.lang.String" value-type="java.lang.String">
+  			<entry key="biomaterial" value="biomaterial" />
+  			<entry key="hardware" value="hardware" />
   		</map>
   	</property>
   </bean>

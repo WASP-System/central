@@ -31,6 +31,8 @@ public class UiFieldFamilyWrapper {
 	private String customAttribute;
 	
 	private String customAttrValue;
+	
+	private Map<String, String> localizedDescription;
 
 	private Map<String, String> localizedLabel;
 	
@@ -294,6 +296,18 @@ public class UiFieldFamilyWrapper {
 				uiFieldList.add(uiField);
 			}
 		}
+		
+		if (this.localizedDescription != null){
+			for (String locale : this.localizedDescription.keySet()){
+				UiField uiField = new UiField();
+				uiField.setLocale(locale);
+				uiField.setArea(this.baseArea);
+				uiField.setName(this.baseName);
+				uiField.setAttrName("description");
+				uiField.setAttrValue(this.localizedDescription.get(locale));
+				uiFieldList.add(uiField);
+			}
+		}
 
 		if (this.localizedControl != null){
 			for (String locale : this.localizedControl.keySet()){
@@ -331,6 +345,27 @@ public class UiFieldFamilyWrapper {
 			}
 		}
 		return uiFieldList;
+	}
+
+	/**
+	 * @return the localizedDescription
+	 */
+	public Map<String, String> getLocalizedDescription() {
+		return localizedDescription;
+	}
+
+	/**
+	 * @param localizedDescription the localizedDescription to set
+	 */
+	public void setLocalizedDescription(Map<String, String> localizedDescription) {
+		this.localizedDescription = localizedDescription;
+	}
+	
+	public void setDescription(String description) {
+		if (this.localizedDescription == null){
+			this.localizedDescription = new HashMap<String, String>();
+		}
+		this.localizedDescription.put(this.baseLocale, description);
 	}
 	
 }

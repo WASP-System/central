@@ -71,6 +71,12 @@ public class PluginTest {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public String getFlowNameFromArea(String area) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 	}
 
