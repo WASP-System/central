@@ -20,7 +20,7 @@
   <bean id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor">
     <property name="name" value="CASAVA" />
     <property name="area" value="#{casavaArea}" />
-    <property name="resourceTypeByIName" value="sequenceRunProcessor" />
+    <property name="resourceTypeByIName" value="#{sequenceRunProcessorResourceType.area}" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
