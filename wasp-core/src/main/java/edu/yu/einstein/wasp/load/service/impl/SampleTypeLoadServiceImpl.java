@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.load.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +10,6 @@ import edu.yu.einstein.wasp.exception.NullSampleSubtypeException;
 import edu.yu.einstein.wasp.load.service.SampleTypeLoadService;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
-import edu.yu.einstein.wasp.model.UiField;
 
 @Service
 @Transactional("entityManager")
@@ -27,7 +24,7 @@ public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements Sa
 	  
 	  
 	  @Override
-	  public void update(String iname, String name, String sampleTypeCategoryIname, Integer isActive, List<UiField> uiFields){
+	  public void update(String iname, String name, String sampleTypeCategoryIname, Integer isActive){
 	    
 		  if (isActive == null)
 		  	  isActive = 1;

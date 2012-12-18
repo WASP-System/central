@@ -17,7 +17,7 @@
   <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
     <property name="name" value="Bowtie Aligner" />
     <property name="area" value="#{bowtieAlignerArea}" />
-    <property name="resourceTypeByIName" value="aligner" />
+    <property name="resourceTypeByIName" value="#{alignerResourceType.area}" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
