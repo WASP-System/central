@@ -50,7 +50,7 @@
   	<property name="name" value="ChIP-seq DNA" />
     <property name="area" value="chipseqDnaSample" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{waspSampleType['dna']}" />
+    <property name="sampleType" value="#{dnaSampleType.area}" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
@@ -76,7 +76,7 @@
     <property name="name" value="ChIP-seq Library" />
     <property name="area" value="chipseqLibrarySample" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="sampleType" value="#{librarySampleType.area}" />
     <property name="applicableRoles" value="lu" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
@@ -92,7 +92,7 @@
     <property name="name" value="ChIP-seq Facility Library" />
     <property name="area" value="chipseqFacilityLibrarySample" />
     <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{waspSampleType['library']}" />
+    <property name="sampleType" value="#{librarySampleType.area}" />
     <property name="applicableRoles" value="ft" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
