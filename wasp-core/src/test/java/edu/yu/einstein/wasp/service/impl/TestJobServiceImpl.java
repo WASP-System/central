@@ -173,16 +173,13 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  job.setJobSample(jobSamples);
 	  
 	  //expected
-	  List<Sample> submittedSamplesList = new ArrayList<Sample>();
-	  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
-	  jobServiceImpl.setSampleDao(mockSampleDao);
-	  expect(mockJobSampleDao.getJobSampleByJobId(job.getJobId())).andReturn(jobSamples);
+	   jobServiceImpl.setSampleDao(mockSampleDao);
 	  expect(mockSampleDao.getSampleBySampleId(jobSample.getSampleId())).andReturn(sample);
 	    
 	  replay(mockJobSampleDao);
 	  replay(mockSampleDao);
 	  
-	  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(job));
+	  Assert.assertEquals(jobServiceImpl.getSubmittedSamples(job).size(), 0);
 	  
 	  verify(mockJobSampleDao);
 	  verify(mockSampleDao);
@@ -211,16 +208,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		  List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		  submittedSamplesList.add(sample);
 		  
-		  jobServiceImpl.setJobSampleDao(mockJobSampleDao);
 		  jobServiceImpl.setSampleDao(mockSampleDao);
 		  
-		  expect(mockJobSampleDao.getJobSampleByJobId(job.getJobId())).andReturn(jobSamples);
 		  expect(mockSampleDao.getSampleBySampleId(jobSample.getSampleId())).andReturn(sample);
 		    
 		  replay(mockJobSampleDao);
 		  replay(mockSampleDao);
 		  
-		  Assert.assertEquals(submittedSamplesList, jobServiceImpl.getSubmittedSamples(job));
+		  Assert.assertEquals(jobServiceImpl.getSubmittedSamples(job), submittedSamplesList);
 		  
 		  verify(mockJobSampleDao);
 		  verify(mockSampleDao);
