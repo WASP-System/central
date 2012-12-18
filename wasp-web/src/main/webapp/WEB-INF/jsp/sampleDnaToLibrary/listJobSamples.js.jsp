@@ -23,6 +23,12 @@ $(document).ready(function() {
   	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />");}
   	}); 
   	
+  	$("#jobFiles_show_hide_button").click(function() {
+    	  $("#jobFiles").fadeToggle("slow", "linear");
+    	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showJobFiles.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideJobFiles.label" />");}
+    	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showJobFiles.label" />");}
+    	}); 
+  	
   	$(".wasptooltip a[title]").tooltip({ position: "top right"});
 });
 
