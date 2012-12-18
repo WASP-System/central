@@ -32,7 +32,5 @@
 			</set>
 		</property>
 	</bean>
-
-	<import resource="classpath:flows/wasp-illumina.mainFlow.v1.xml" />
 	
 </beans>
