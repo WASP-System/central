@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.net.URL;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +73,7 @@ import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
-
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 
 @Controller
 @RequestMapping("/sampleDnaToLibrary")
@@ -113,6 +115,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private JobService jobService;
   @Autowired
   private AuthenticationService authenticationService;
+  @Autowired
+  private FileUrlResolver fileUrlResolver;
   
 
   
@@ -405,13 +409,13 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn(e.getMessage());
 			}
 		}
-		
+/*		
 		Map jobCellFilter = new HashMap();
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellIndex");
 		List<JobCellSelection> jobCellSelectionList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-	  
+		  
 		//attempt at getting the requested coverage in a better format:
 		int totalNumberCellsRequested = jobCellSelectionList.size();
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
@@ -439,16 +443,23 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 			coverageMap.put(sample, new String(stringBuffer));
   		}	
-		
-		m.addAttribute("coverageMap", coverageMap);
-		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
+*/		
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
 		
 		
 		
 		// get files associated with this job
 		List<File> files = new ArrayList<File>();
-		for (JobFile jf: job.getJobFile())
+		Map<File, URL> fileUrlMap = new HashMap<File, URL>();
+		for (JobFile jf: job.getJobFile()){
 			files.add(jf.getFile());
+			try{
+				URL url = fileUrlResolver.getURL(jf.getFile());			
+				fileUrlMap.put(jf.getFile(), url);
+			}catch(Exception e){
+				logger.warn("Unable to resolve URL for fileId " + jf.getFileId().intValue());}
+		}
 		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
@@ -463,6 +474,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
 		m.addAttribute("files", files);
+		m.addAttribute("fileUrlMap", fileUrlMap);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }

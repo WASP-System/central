@@ -1276,10 +1276,42 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
 	}
 
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Sample, String> getCoverageMap(Job job){
+		
+		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
+		for(Sample sample : this.getSubmittedSamples(job)){
+			StringBuffer stringBuffer = new StringBuffer("");
+			for(int i = 1; i <= job.getJobCellSelection().size(); i++){
+				boolean found = false;
+				for(JobCellSelection jobCellSelection : job.getJobCellSelection()){
+					for(SampleJobCellSelection sampleJobCellSelection : jobCellSelection.getSampleJobCellSelection()){
+						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCellSelection.getCellIndex().intValue() == i){
+								stringBuffer.append("1");
+								found = true;
+							}
+						}
+					}
+				}
+				if(found == false){
+					stringBuffer.append("0");
+				}
+			}
+			coverageMap.put(sample, new String(stringBuffer));
+  		}
+		return coverageMap;
+	}
+
 	@Override
 	public void setJobDao(SampleDao mockSampleDao) {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 }

@@ -9,10 +9,20 @@ function showAssignForm(e) {
   e.parentNode.getElementsByTagName("DIV")[0].style.display = "block"; 
 }
 function hideAssignForm(e) {
-	  e.parentNode.getElementsByTagName("A")[0].style.display = "block";
-	  e.parentNode.getElementsByTagName("A")[1].style.display = "none";
-	  e.parentNode.getElementsByTagName("DIV")[0].style.display = "none"; 
-	}
+  e.parentNode.getElementsByTagName("A")[0].style.display = "block";
+  e.parentNode.getElementsByTagName("A")[1].style.display = "none";
+  e.parentNode.getElementsByTagName("DIV")[0].style.display = "none"; 
+}
+function showCoverage(e) {
+  e.parentNode.getElementsByTagName("A")[0].style.display = "none";
+  e.parentNode.getElementsByTagName("A")[1].style.display = "block";
+  e.parentNode.getElementsByTagName("DIV")[0].style.display = "block"; 
+}
+function hideCoverage(e) {
+  e.parentNode.getElementsByTagName("A")[0].style.display = "block";
+  e.parentNode.getElementsByTagName("A")[1].style.display = "none";
+  e.parentNode.getElementsByTagName("DIV")[0].style.display = "none"; 
+}
 </script>
 
 <style>
@@ -32,7 +42,38 @@ function hideAssignForm(e) {
 	  <c:forEach items="${jobs}" var="j">
 	    <div class="job">
 	      <label><fmt:message key="platformunit_assign.job.label"/> <c:out value="${j.jobId}" /></label>
-	      <c:out value="${j.name}" /> [<fmt:message key="platformunit_assign.analysis.label"/>: <c:out value="${j.workflow.name}" />] 
+	      <c:out value="${j.name}" /> [<fmt:message key="platformunit_assign.analysis.label"/>: <c:out value="${j.workflow.name}" />]     
+			<br />	
+			<div>
+				<a href="javascript:{}" onclick="showCoverage(this)"><fmt:message key="platformunit_assign.showRequestedCoverage.label" /></a> 							
+				<a style="display:none" href="javascript:{}" onclick="hideCoverage(this)"><fmt:message key="platformunit_assign.close.label" /></a>			  				
+				<div id="user_requested_coverage_data" style="display:none">	
+					<table class="data">
+					<tr class="FormData">
+						<td class="label-centered" style="background-color:#FAF2D6; font-size:10px">&nbsp;</td><c:forEach var="i" begin="0" end="${jobTotalNumberOfCellsRequested.get(j) - 1}" ><td class="label-centered" style="background-color:#FAF2D6; font-size:10px"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
+					</tr>
+					
+					<c:set value="${jobCoverageMap.get(j)}" var="coverageMap" scope="page" /> 
+					<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+						<tr class="FormData">
+							<td class="label-centered" style="background-color:#FAF2D6; font-size:10px" >
+								<c:out value="${coverageItem.getName()}" />
+							</td>
+							<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
+							<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+					   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+					   				<c:choose>
+					   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+					   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+					   				</c:choose>   
+					  			</td>   
+							</c:forEach>
+						</tr>
+					</c:forEach>		
+					</table>
+				</div>
+			</div>
+			
 	      <c:forEach items="${j.sample}" var="sample">
 	      	<c:if test="${sample.sampleType.IName != 'facilityLibrary'}">
                <div class="sample">
@@ -55,7 +96,7 @@ function hideAssignForm(e) {
 	                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(sample) == true}'> 
 					   <div>
 							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a> 							
-							<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)">[Close]</a>			  				
+							<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>			  				
 			  				<div style="display:none">
 								<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${sample.sampleId}">
@@ -86,7 +127,7 @@ function hideAssignForm(e) {
 			                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(schild) == true}'> 
 		        				<div>
 									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
-									<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)">[Close]</a>	
+									<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>	
 									<div style="display:none">
 										<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="librarysampleid" value="${schild.sampleId}">

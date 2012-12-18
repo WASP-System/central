@@ -45,9 +45,7 @@
 </div>
 
 <br />
-<div>
 <input  class="button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
-</div>		
 <div id="user_requested_coverage_data" style="display:none">		
 	<table class="data">
 	<tr class="FormData">
@@ -71,7 +69,36 @@
 	</c:forEach>
 	</table>
 </div>
+
+
 <br />
+
+<c:if test="${not empty files}">
+
+<input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
+<div id="jobFiles" style="display:none">		
+	<table class="data">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">File Name</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Description</td>
+	</tr>
+	<c:forEach items="${files}" var="file">
+		<tr class="FormData">
+			<td class="value-centered"  >
+				<a href="<c:out value="${fileUrlMap.get(file).getPath()}" />"><c:out value="${file.getFileURI()}" /></a>
+			</td>
+			<td class="value-centered"  >
+				<c:out value="${file.getDescription()}" />
+			</td>
+		</tr>
+	</c:forEach>
+	</table>
+</div>	
+<br />
+</c:if>
+
+
+
 
 <c:set var="idCounter" value="1000" scope="page" />
 <table class="data"> 

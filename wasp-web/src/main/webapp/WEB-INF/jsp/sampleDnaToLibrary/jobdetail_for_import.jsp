@@ -13,6 +13,7 @@
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey2}" />:</td><td class="DataTD"><fmt:message key="${jobApprovalsMap.get(detailKey2)}" /></td></tr>
 </c:forEach> 
 
+<%-- 
 <c:if test="${not empty files}">
 	<tr class="FormData">
 		<td class="CaptionTD"><fmt:message key="jobdetail_for_import.files.label" />:</td>
@@ -25,6 +26,7 @@
 		</td>
 	</tr>
 </c:if>
+--%>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobComments.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="<c:url value="/job/comments/${job.jobId}.do" />">
 <fmt:message key="jobdetail_for_import.jobCommentsView.label" /><sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('fm')"><fmt:message key="jobdetail_for_import.jobCommentsPlusAddEdit.label" /></sec:authorize>
 </a> </td></tr>
