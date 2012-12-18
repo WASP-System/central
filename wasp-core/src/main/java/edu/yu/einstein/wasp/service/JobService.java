@@ -317,5 +317,10 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public void setSampleService(SampleService sampleService);
 
-	
+	/**
+	 * returns Map of sample and string in form of (for example) 11010
+	 * where (in this example) first, second, and fourth cells contains the sample 
+	 * @return Map<Sample, String>
+	 */
+	public Map<Sample, String> getCoverageMap(Job job);
 }

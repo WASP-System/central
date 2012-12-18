@@ -405,13 +405,13 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn(e.getMessage());
 			}
 		}
-		
+/*		
 		Map jobCellFilter = new HashMap();
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellIndex");
 		List<JobCellSelection> jobCellSelectionList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-	  
+		  
 		//attempt at getting the requested coverage in a better format:
 		int totalNumberCellsRequested = jobCellSelectionList.size();
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
@@ -439,9 +439,9 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 			coverageMap.put(sample, new String(stringBuffer));
   		}	
-		
-		m.addAttribute("coverageMap", coverageMap);
-		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
+*/		
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
 		
 		
 		
