@@ -20,7 +20,7 @@
   <bean id="illuminaFlowcellMiSeqV1SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
   	<property name="name" value="Illumina Flow Cell MiSeq V1" />
     <property name="area" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
-    <property name="sampleType" value="#{waspSampleType['platformunit']}" />
+    <property name="sampleType" value="#{puSampleType.area}" />
     <property name="compatibleResourcesByIName">
   		<list>
   			<bean class="java.lang.String" depends-on="illuminaMiSeqPersonalSequencer">
