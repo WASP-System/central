@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -325,6 +326,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 	  Map<Sample, Boolean> receiveSampleStatusMap = new HashMap<Sample, Boolean>();// created 5/7/12
 	  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
 	  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
@@ -341,8 +343,10 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
 				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
 				for (Sample facilityLibrary: facilityGeneratedLibrariesList){
 					qcStatusMap.put(facilityLibrary, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(facilityLibrary)));
+					qcStatusCommentsMap.put(facilityLibrary, sampleService.getSampleQCComments(facilityLibrary.getSampleId()));
 					assignLibraryToPlatformUnitStatusMap.put(facilityLibrary, sampleService.isLibraryAwaitingPlatformUnitPlacement(facilityLibrary));
 				}
 			}
@@ -350,6 +354,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				librarySubmittedSamplesList.add(sample);
 				assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample));
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
@@ -363,8 +368,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
 				
 		}
-		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
-		sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
 		for(Sample library : librarySubmittedSamplesList){
@@ -451,6 +456,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
 		m.addAttribute("qcStatusMap", qcStatusMap);
+		m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		m.addAttribute("receiveSampleStatusMap", receiveSampleStatusMap);
 		m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);

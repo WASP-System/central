@@ -18,6 +18,10 @@ import java.net.URI;
  * @author calder
  *
  */
+/**
+ * @author calder
+ *
+ */
 public interface GridFileService {
 	
 	/**
@@ -58,6 +62,15 @@ public interface GridFileService {
 	 * @throws IOException
 	 */
 	public void touch(String remoteFile) throws IOException;
+	
+	
+	/**
+	 * Creates the directory, if required.
+	 * 
+	 * @param remoteDir
+	 * @throws IOException
+	 */
+	public void mkdir(String remoteDir) throws IOException;
 	
 	/**
 	 * delete a remote file

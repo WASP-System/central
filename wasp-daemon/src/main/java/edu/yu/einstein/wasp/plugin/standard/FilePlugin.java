@@ -57,4 +57,10 @@ public class FilePlugin extends WaspPlugin {
 		return null;
 	}
 
+	@Override
+	public String getFlowNameFromArea(String area) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

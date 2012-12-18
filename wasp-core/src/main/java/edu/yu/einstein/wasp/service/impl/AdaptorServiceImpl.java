@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
@@ -33,6 +34,9 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 	
 	@Autowired
 	AdaptorDao adaptorDao;
+	
+	@Autowired
+	SampleService sampleService;
 
 	/**
 	 * {@inheritDoc}
@@ -56,7 +60,8 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 
 	@Override
 	public Adaptor getAdaptor(Sample library) throws SampleTypeException, MetadataException {
-		String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta());
+		Sample lib = sampleService.getSampleById(library.getSampleId());
+		String adaptorId = MetaHelper.getMetaValue("genericLibrary", "adaptor", lib.getSampleMeta());
 		return getAdaptorByAdaptorId(new Integer(adaptorId));
 	}
 
