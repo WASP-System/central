@@ -210,7 +210,7 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			if (replyMessage != null)
 				Assert.fail("testJobNotApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
-			template.setTask(WaspJobTask.PI_APPROVE);
+			template.setTask(WaspJobTask.NOTIFY_STATUS);
 			template.setStatus(WaspStatus.ABANDONED);
 			Message<WaspStatus> piApprovedMessage = template.build();
 			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
