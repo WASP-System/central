@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	SoftwareLoadService {
 	
 	@Autowired
@@ -38,12 +38,16 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    	ResourceType existingResourceType = resourceTypeDao.getResourceTypeByIName(resourceType.getIName());
 		    if (existingResourceType.getResourceTypeId() == null){
 		    	// new
+		    	resourceType.setIsActive(1);
 		    	resourceType = resourceTypeDao.save(resourceType);
 		    } else {
 		    	// exists, so see if changed
 		    	if (!existingResourceType.getName().equals(resourceType.getName())){
 		    		existingResourceType.setName(resourceType.getName());
 		    	}
+		    	if (existingResourceType.getIsActive().intValue() == 0){
+		    		existingResourceType.setIsActive(1);
+			    }
 		    	resourceType = existingResourceType;
 		    }
 	    }

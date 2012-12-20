@@ -5,113 +5,118 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import net.schmizz.sshj.transport.verification.HostKeyVerifier;
+import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 
 /**
- * {@link GridTransportConnection} implementation for execution of jobs over a SSH connection.
+ * {@link GridTransportConnection} implementation for execution of jobs over a
+ * SSH connection.
+ * 
  * @author calder
- *
+ * 
  */
 public class SshTransportConnection implements GridTransportConnection {
 
+	final SSHClient client = new SSHClient();
 	private Session session;
-	private ChannelExec channel;
-	private GridHostResolver hostResolver;
 	
-	private static final Log logger = LogFactory.getLog(SshTransportConnection.class);
-	
-	public SshTransportConnection(GridHostResolver hostResolver, String hostKeyChecking, File identityFile, WorkUnit w)
+	// TODO: configure
+	private int execTimeout = 30000;
+
+	private GridTransportService transportService;
+
+	private static final Logger logger = LoggerFactory.getLogger(SshTransportConnection.class);
+
+	public SshTransportConnection(GridTransportService transportService, WorkUnit w)
 			throws GridAccessException, GridUnresolvableHostException {
-		JSch.setConfig("StrictHostKeyChecking", hostKeyChecking);
-		JSch jsch = new JSch();
-		this.hostResolver = hostResolver;
+
+		this.transportService = transportService;
+
 		try {
-			jsch.addIdentity(identityFile.getAbsolutePath());
-			session = jsch.getSession(hostResolver.getUsername(w), hostResolver.getHostname(w));
-			logger.debug("Attempting to create SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
-			session.connect();
-			session.setHost(hostResolver.getHostname(w));
-		} catch (JSchException e) {
+			logger.debug("attempting to configure SSH connection");
+			client.loadKnownHosts();
+			KeyProvider key = client.loadKeys(transportService.getIdentityFile().getAbsolutePath());
+			client.connect(transportService.getHostName());
+			client.authPublickey(transportService.getUserName(), key);
+		} catch (IOException e) {
 			e.printStackTrace();
-			logger.error("unable to connect to remote host " + hostResolver.getHostname(w));
+			logger.error("unable to connect to remote host " + transportService.getHostName());
 			throw new GridAccessException("unable to connect to remote", e.getCause());
 		}
+		
+		logger.debug("adding sshj connection: " + this.client.toString());
 		w.setConnection(this);
 	}
 
-
-	public SshTransportConnection(GridHostResolver resolver, String hostname, String hostKeyChecking, File identityFile) 
-			throws GridAccessException, GridUnresolvableHostException {
-		this.hostResolver = resolver;
-		JSch.setConfig("StrictHostKeyChecking", hostKeyChecking);
-		JSch jsch = new JSch();
+	@Override
+	public void disconnect() throws GridAccessException {
+		logger.debug("Disconnectiong SshTransportConnection to " + transportService.getHostName() + " as " + transportService.getUserName());
 		try {
-			jsch.addIdentity(identityFile.getAbsolutePath());
-			session = jsch.getSession(hostResolver.getUsername(hostname), hostname);
-			logger.debug("Attempting to create SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
-			session.connect();
-			session.setHost(hostname);
-		} catch (JSchException e) {
-			e.printStackTrace();
-			logger.error("unable to connect to remote host " + hostname);
-			throw new GridAccessException("unable to connect to remote", e.getCause());
+			session.close();
+			client.disconnect();
+		} catch (IOException e) {
+			logger.error("unable to cleanly disconnect: " + e.getLocalizedMessage());
+			throw new GridAccessException(e.getLocalizedMessage());
 		}
 	}
 
-
-	@Override
-	public void disconnect() throws GridAccessException {
-		logger.debug("Disconnectiong SshTransportConnection to " + session.getHost() + " as " + session.getUserName());
-		channel.disconnect();
-		session.disconnect();
-	}
-
-	
 	/**
+	 * Ssh implementation of {@link GridTransportConnection}.  This method sends the exec to the target host without wrapping
+	 * in the extra methods defined in the {@link GridWorkService} (used by GridWorkService to "execute" work unit).
+	 * 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
-		
+	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+
 		GridResultImpl result = new GridResultImpl();
-		
+
 		try {
-			if (channel != null) 
-				channel.disconnect();
-			channel = (ChannelExec) session.openChannel("exec");
+			
+			logger.debug("Attempting to create SshTransportConnection to " + transportService.getHostName());
+
+			session = client.startSession();
+
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
-			logger.debug("sending exec: " + command);
-			channel.setCommand(command);
-			channel.connect();
-			result.setExitStatus(channel.getExitStatus());
-			result.setStdErrStream(channel.getErrStream());
-			result.setStdOutStream(channel.getInputStream());
-		} catch (JSchException e) {
+			command = "source ~/.bash_profile && " + command;
+			logger.debug("sending exec: " + command + " at: " + transportService.getHostName());
+
+				final Command exec = session.exec(command);
+				//execute command and timeout
+				exec.join(this.execTimeout, TimeUnit.MILLISECONDS);
+				result.setExitStatus(exec.getExitStatus());
+				result.setStdErrStream(exec.getErrorStream());
+				result.setStdOutStream(exec.getInputStream());
+				logger.debug("sent command");
+				if (exec.getExitStatus() != 0) {
+					logger.error("exec terminated with non-zero exit status: " + command);
+					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitErrorMessage());
+				}
+						
+		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error("unable to execute on remote host " + hostResolver.getHostname(w));
-			throw new GridAccessException("unable to execute");
-		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error("unable to get output strem on remote host " + hostResolver.getHostname(w));
-			throw new GridAccessException("unable to get output stream");
+			logger.error("problem sending command");
+			throw new GridAccessException("problem closing session", e);
 		}
-		
+
 		return (GridResult) result;
-		
-		
+
 	}
 
 }

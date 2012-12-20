@@ -1,27 +1,28 @@
 package edu.yu.einstein.wasp.controller.util;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.WordUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.controller.validator.Constraint;
 import edu.yu.einstein.wasp.controller.validator.MetaValidator;
 import edu.yu.einstein.wasp.controller.validator.MetaValidatorImpl;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 
@@ -280,6 +281,25 @@ public class MetaHelperWebapp extends MetaHelper {
 	 */
 	public static MetaValidator getMetaValidator() {
 		return getMetaValidator(MetaValidatorImpl.class);
+	}
+	
+	/**
+	 * Gets list of metadata messages for locale of supplied HttpSession
+	 * @param session
+	 * @return Map of name : message pairs
+	 */
+	public static Map<String, String> getMetadataMessages(HttpSession session){
+		Set<String> keys=DBResourceBundle.MESSAGE_SOURCE.getKeys(Locale.US);
+		Locale locale=(Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+		Map<String, String> messageMap = new HashMap<String, String>();
+		for(String k: keys) {
+			if (!k.startsWith("metadata.")) continue; // get ONLY keys for area we are dealing with
+			String currentMessage = DBResourceBundle.MESSAGE_SOURCE.getMessage(k,null,locale);
+			String[] path=StringUtils.tokenizeToStringArray(k,"."); // e.g. splits user.login.metaposition
+			String name=path[1]; // e.g. 'login' using above example
+			messageMap.put(name, currentMessage);
+		}
+		return messageMap;
 	}
 	
 }

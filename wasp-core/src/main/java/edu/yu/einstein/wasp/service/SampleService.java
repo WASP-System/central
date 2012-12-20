@@ -13,29 +13,39 @@ package edu.yu.einstein.wasp.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
-import org.springframework.transaction.annotation.Transactional;
-
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ResourceException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Resource;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
-public interface SampleService extends WaspService {
+public interface SampleService extends WaspMessageHandlingService {
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -113,11 +123,39 @@ public interface SampleService extends WaspService {
 	  public void saveSampleWithAssociatedMeta(Sample sample);
 
 	  /**
-	   * Returns string containing the status of a sample's Receive Sample state
+	   * Returns status of a sample's Receive Sample step
 	   * @param Sample
 	   * @return String
 	   */
-	  public String getReceiveSampleStatus(final Sample sample);
+	  public ExitStatus getReceiveSampleStatus(final Sample sample);
+	  
+	  /**
+	   * Returns status of a sample's QC Sample step
+	   * @param sample
+	   * @return
+	   */
+	  public ExitStatus getSampleQCStatus(Sample sample);
+	  
+	  /**
+	   * Returns status of a library's QC Sample step
+	   * @param library
+	   * @return
+	   */
+	  public ExitStatus getLibraryQCStatus(Sample library);
+	  
+	  /**
+		 * Returns true if provided sample is received, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleReceived(Sample sample);
+		
+		/**
+		 * Returns true if sample and no library recorded as currently being processed or successfully made 
+		 * @param sample
+		 * @return
+		 */
+		public Boolean isSampleAwaitingLibraryCreation(Sample sample);
 	  
 	  /**
 	   * Accepts and (in-situ) sorts list of samples by sample name 
@@ -125,20 +163,27 @@ public interface SampleService extends WaspService {
 	   * @return void
 	   */
 	  public void sortSamplesBySampleName(List<Sample> samples);
-	  
+
+	  /**
+	   * Accepts and (in-situ) sorts list of samples by sample id 
+	   * @param List<Sample>
+	   * @return void
+	   */
+	  public void sortSamplesBySampleId(List<Sample> samples);
+
 	  /**
 	   * Converts sample's Receive Sample status from database storage meaning to human-comprehensible meaning for viewing on the web
 	   * @param String status
 	   * @return String 
 	   */
-	  public String convertReceiveSampleStatusForWeb(String internalStatus);
-
+	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus);
+	  
 	  /**
-	   * Converts sample's Receive Sample status from web meaning (human-comprehensible meaning) to enum consistent value for internal storage
-	   * @param String webStatus
-	   * @return String 
+	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
+	   * @param webStatus
+	   * @return
 	   */
-	  public String convertReceiveSampleStatusForInternalStorage(String webStatus);
+	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus);
 
 	  /**
 	   * Gets list of Receive Sample options for web display
@@ -148,12 +193,28 @@ public interface SampleService extends WaspService {
 	  public List<String> getReceiveSampleStatusOptionsForWeb();
 	  
 	  /**
-	   * Updates sample's Receive Sample status
+	   * Converts sample's Receive Sample status from database storage meaning to human-comprehensible meaning for viewing on the web
+	   * @param String status
+	   * @return String 
+	   */
+	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus);
+	  
+	  /**
+	   * Converts sample's QC Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
+	   * @param webStatus
+	   * @return
+	   */
+	  public WaspStatus convertSampleQCStatusFromWeb(String webStatus);
+	  
+	  /**
+	   * Updates sample's Receive Sample status. Sends message via Spring Integration
+	   * Status must be either CREATED or ABANDONED
 	   * @param Sample sample
 	   * @param String status (from web)
 	   * @return boolean
 	   */
-	  public boolean updateSampleReceiveStatus(final Sample sample, final String status);
+	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException;
+	    
 	  
 	  /**
 	   * Returns boolean informing whether a sample has been processed by the facility
@@ -180,19 +241,28 @@ public interface SampleService extends WaspService {
 	  public Adaptor getLibraryAdaptor(Sample library);
 	  
 	  /**
-	   * Returns list of samples that are flow cells to which libraries can be added [meaning whose task-status is CREATED])
+	   * Returns list of samples that are flow cells to which libraries can be added (no run flow exists, or run flow in 'STOPPED' state and unlocked)
 	   * @param void
 	   * @return List<Sample>
 	   */
-	  public List<Sample> getAvailableFlowCells();
+	  public List<Sample> getAvailablePlatformUnits();
 	  
 	  /**
-	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the parameter job
+	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the supplied {@link ResourceCategory}
+	   * @param ResourceCategory resourceCategory
+	   * @return List<Sample>
+	   * 
+	   */
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(ResourceCategory resourceCategory);
+	  
+	  /**
+	   * Returns list of samples that are flow cells to which libraries can be added AND are compatible with the supplied job 
+	   * with respect to having a common {@link ResourceCategory}
 	   * @param Job job
 	   * @return List<Sample>
 	   * 
 	   */
-	  public List<Sample> getAvailableAndCompatibleFlowCells(Job job);
+	  public List<Sample> getAvailableAndCompatiblePlatformUnits(Job job);
 
 	  
 	  /**
@@ -279,21 +349,45 @@ public interface SampleService extends WaspService {
 	   */
 	  public SampleDraft cloneSampleDraft(SampleDraft sampleDraft);
 
-	  /**
-	   * Returns list of samples that are platformUnits with task assignLibraryToPlatformUnit and status = CREATED (so, it's not yet part of a sequence run)
-	   * @param none
-	   * @return List<Sample>
-	   */
-	  public List<Sample> platformUnitsAwaitingLibraries();
 	  
 	  /**
 	   * Get the run on which a given platform unit has been placed. If the platform unit is not currently associated with an active run or is not associated with a run 
 	   * this method returns null
 	   * @param platformUnit
 	   * @return
+	   * @throws SampleTypeException
 	   */
-	  public Run getCurrentRunForPlatformUnit(Sample platformUnit);
+	  public Run getCurrentRunForPlatformUnit(Sample platformUnit) throws SampleTypeException;
 	  
+
+	  /**
+	   * returns true if sample is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is DNA, RNA, Protein, a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isBiomolecule(SampleDraft sampleDraft);
+		
+	  
+	  /**
+	   * returns true if sample is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(Sample sample);
+	  
+	  /**
+	   * returns true if sampleDraft is a library (or facilityLibrary)
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isLibrary(SampleDraft sampleDraft);
 	  
 	  /**
 	   * Determine whether a barcodeName is already in the database. 
@@ -443,5 +537,212 @@ public interface SampleService extends WaspService {
 	   * @return void
 	   */
 	  public void deletePlatformUnit(Integer platformUnitId) throws NumberFormatException, SampleException, SampleTypeException, SampleSubtypeException;
+	  
+	  /**
+		 * Returns true if the actual coverage of provided library sample on currently running or successfully completed flowcells is less than the requested coverage. 
+		 * @param sample
+		 * @return
+		 */
+		public boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException;
+		
+		/**
+		 * Returns true if provided platform unit sample is in a state of awaiting placement on a sequencing run, otherwise returns false
+		 * @param sample
+		 * @return
+		 */
+		public boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException;
 
+	  /**
+	   * Gets list of all massively-parallel sequencing machines 
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getAllMassivelyParallelSequencingMachines();
+	  
+	  /**
+	   * Gets list of all massively-parallel sequencing machines compatible with platformUnit (actually compatible with the platformUnit's sampleSubtype)
+	   * @param Sample platformUnit
+	   * @return List<Resource>
+	   */
+	  public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException;
+
+	  /**
+	   * Gets sequencing machine (resource) given resourceId
+	   * @param Integer resourceId
+	   * @return Resource
+	   */
+	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
+
+	  /**
+	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
+	   * @param Integer runId
+	   * @return Run run
+	   */
+	  public Run getSequenceRun(Integer runId) throws RunException;
+	   
+	  /**
+	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
+	   * @param Run runInstance
+	   * @param List<RunMeta> runMetaList
+	   * @param Integer platformUnitId (for a sample)
+	   * @param Integer resourceId (for a resource)
+	   * @return void
+	   */
+	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	  
+	  /**
+	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine
+	   * @param Sample platformUnit
+	   * @param Resource sequencingMachineInstance
+	   * @return boolean
+	   */
+	  public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
+	  
+	  /**
+	   * Delete sequence run
+	   * @param Run run
+	   * @return void
+	   */
+	  public void deleteSequenceRun(Run run)throws Exception;
+
+	  /**
+	   * is sampleDraft a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(SampleDraft sampleDraft);
+	  
+	  /**
+	   * is sample a DNA or RNA molecule
+	   * @param sampleDraft
+	   * @return
+	   */
+	  public boolean isDnaOrRna(Sample sample);
+	  
+	  /**
+	   * set the lock status of a platform unit
+	   * @param platformunit
+	   * @param lockStatus
+	   * @throws SampleTypeException
+	   */
+	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException;
+	  
+	  /**
+	   * Get the current lock status for a platform unit or LockStatus.UNKNOWN if not set
+	   * @param platformunit
+	   * @return
+	   * @throws sampleTypeException
+	   */
+	  public LockStatus getPlatformUnitLockStatus(Sample platformunit) throws SampleTypeException;
+
+	  /**
+	   * kick of batch job for sample
+	   * @param job
+	   * @param sample
+	   * @param batchJobName
+	   */
+	  void initiateBatchJobForSample(Job job, Sample sample, String batchJobName);
+	  
+	  /**
+	   * Kick off batch job for library
+	   * @param job
+	   * @param library
+	   * @param batchJobName
+	   */
+	  public void initiateBatchJobForLibrary(Job job, Sample library, String batchJobName);
+
+	  /**
+	   * Get cells onto which the current library is placed
+	   * @param library
+	   * @return
+	   * @throws SampleTypeException 
+	   */
+	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException;
+
+	  /**
+	   * Gets the requested coverage for the specified sample i.e. how many cells is the sample to be run on
+	   * @param sample
+	   * @return
+	   */
+	  public int getRequestedSampleCoverage(Sample sample);
+
+	  /**
+	   * returns a list of currently running or successfully run platform units
+	   * @return
+	   */
+	  public List<Sample> getRunningOrSuccessfullyRunPlatformUnits();
+
+	  /**
+	   * updates QC status of a sample / library
+	   * @param sample
+	   * @param status
+	   * @throws WaspMessageBuildingException
+	   */
+	  public void updateQCStatus(Sample sample, WaspStatus status) throws WaspMessageBuildingException;
+
+	  /**
+	   * Adds facility library to the database and starts a library flow for it in the wasp-daemon
+	   * @param job
+	   * @param managedLibrary
+	   * @param libraryMetaList
+	   */
+	  public void createFacilityLibraryFromMacro(Job job, SampleWrapper managedLibrary,	List<SampleMeta> libraryMetaList);
+
+	  /**
+	   * Returns true if there is a sample QC task for the given sample and it is batch state 'completed'
+	   * @param sample
+	   * @return
+	   */
+	  public boolean isSamplePassQC(Sample sample);
+
+	  /**
+	   * Returns true if there is a library QC task for the given sample and it is batch state 'completed'
+	   * @param library
+	   * @return
+	   */
+	  public boolean isLibraryPassQC(Sample library);
+
+	  /**
+	   * Returns a list of platform units that are not currently put on a run
+	   * @return
+	   */
+	  public List<Sample> getPlatformUnitsNotYetRun();
+
+	  /**
+	   * Removes library from cell of a platform unit
+	   * @param cellLibraryLink
+	   * @throws SampleTypeException
+	   */
+	  void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink) throws SampleTypeException;
+	  
+	  /**
+	   * Removes library from cell of a platform unit
+	   * @param cellLibraryLink
+	   * @throws SampleTypeException
+	   * @throws SampleParentChildException 
+	   */
+	  void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException;
+
+	  /**
+		 * save a Sample QC Comment
+		 * @param Integer sampleId
+		 * @param String comment
+		 * @return void
+		 * @throws Exception
+		 */
+	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
+		
+		/**
+		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
+		 * @param Integer sampleId
+		 * @return List<MetaMessage>
+		 */
+	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
+		
+
+	  
+
+	 
+	  
+	  
+	  
 }

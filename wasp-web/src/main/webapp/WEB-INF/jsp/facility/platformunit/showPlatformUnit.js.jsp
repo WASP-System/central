@@ -10,6 +10,9 @@
 <script type="text/javascript" src="/wasp/scripts/js/date_validate_modified.js"></script> 
 <script>
 
+//think this section enclosed in  document.ready(function()  
+//is no longer used; rob 11/30/12; replaced by a new page for creating platform unit )  
+//however the code below document ready IS STILL NEEDED 
 $(document).ready(function(){
 	$( "#runStartDate" ).datepicker();
 	$("#resourceId").change(function(){

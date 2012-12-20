@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:int-rmi="http://www.springframework.org/schema/integration/rmi"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/rmi http://www.springframework.org/schema/integration/rmi/spring-integration-rmi.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- default logging channel -->
+	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
+	
+	<!-- primary message channel. Broadcasts incoming messages to registered listeners -->
+    <int:publish-subscribe-channel id="wasp.channel.primaryMessage" >
+    	<int:interceptors>
+	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
+	    </int:interceptors>
+    </int:publish-subscribe-channel>
+    
+    <int:channel id="wasp.channel.reply" />
+    	    	
+    <!-- channel for messages to enter from within components of the WASP System -->
+    <int:channel id="wasp.channel.remoting.inbound" />
+    
+        	
+    <!-- defines a route to inject messages into the system from within the WASP System-->
+    <int-rmi:inbound-gateway id="internalRmiGateway"
+    	request-channel="wasp.channel.remoting.inbound" 
+    	registry-port="23533" 
+
+ 	/>
+ 	
+ 	<int:bridge id="wasp.channel.bridge.remoteInputWithoutAuth" input-channel="wasp.channel.remoting.inbound" output-channel="wasp.channel.Authenticated1" />
+    	
+   	
+    
+    <!-- channel to port messages requiring authentication from outside the application -->
+    <int:channel id="wasp.channel.remoting.secure.inbound" />
+    
+  
+        
+    <!-- defines a secure route to inject messages into the system from outside the WASP System-->
+    <int-rmi:inbound-gateway id="externalSecureRmiGateway"
+    	request-channel="wasp.channel.remoting.secure.inbound" 
+    	reply-channel="wasp.channel.reply"
+    	registry-port="23532" />
+    
+    
+    <!-- channel to return messages when authentication fails -->
+    <int:channel id="wasp.channel.failedLogin" >
+    	<int:interceptors>
+	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
+	    </int:interceptors>
+	</int:channel>
+    
+    
+    <!-- authenticating bean -->
+	<bean id="waspSecurityCheck" class="edu.yu.einstein.wasp.integration.messaging.Security" />
+	
+	<!-- test for proper authentication -->
+    <int:filter input-channel="wasp.channel.remoting.secure.inbound" 
+		ref="waspSecurityCheck" 
+		output-channel="wasp.channel.Authenticated0" 
+		discard-channel="wasp.channel.failedLogin" />
+		
+	<int:header-filter input-channel="wasp.channel.Authenticated0" output-channel="wasp.channel.Authenticated1"	header-names="password"/>
+		
+	<int:header-enricher input-channel="wasp.channel.Authenticated1" output-channel="wasp.channel.primaryMessage">
+		<int:header name="destination" expression="'wasp.channel.'.concat(headers.get('target'))" />
+	</int:header-enricher>
+	
+		 	
+	<!-- indicate failed connection attempt by setting header value "authenticated=false" -->
+	<int:header-enricher id="wasp.header-encricher.failedLogin" 
+		input-channel="wasp.channel.failedLogin"
+		output-channel="wasp.channel.reply">
+		<int:header name="authenticated" value="false"/>
+	</int:header-enricher>
+	
+	<!-- channel that handles messages with unknown destinations -->
+    <int:channel id="wasp.channel.unknown" />
+	
+	<!-- return messages with unknown target to sender -->
+	<int:header-enricher id="wasp.header-encricher.unknown-target" 
+		input-channel="wasp.channel.unknown"
+		output-channel="wasp.channel.reply">
+		<int:header name="unknown-target" value="true"/>
+	</int:header-enricher>
+	
+	<int:header-value-router input-channel="wasp.channel.reply" header-name="replyChannel" />
+
+	
+	<!-- routes messages to channel specified in 'destination' header -->
+	<int:header-value-router input-channel="wasp.channel.primaryMessage"
+		header-name="destination" 
+		default-output-channel="wasp.channel.unknown"
+		resolution-required="false" />
+		
+		
+    <int:channel id="wasp.channel.echo" />	
+    	
+    <int:service-activator input-channel="wasp.channel.echo" ref="echoService" method="process" />
+		
+	<bean id="echoService"	class="edu.yu.einstein.wasp.integration.messaging.EchoService" />
+	
+	
+		
+</beans>

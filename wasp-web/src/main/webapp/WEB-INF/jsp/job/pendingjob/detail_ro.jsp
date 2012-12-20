@@ -1,13 +1,13 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
      
-    <h1>Job <c:out value="${job.jobId}"/>: <c:out value="${job.name}"/></h1>
+    <h1><fmt:message key="pendingJob.detailRO_job.label" /> <c:out value="${job.jobId}"/>: <c:out value="${job.name}"/></h1>
 
 	<p>
-      Submitting User: <c:out value="${job.user.firstName}"/>&nbsp;<c:out value="${job.user.lastName}"/>
+      <fmt:message key="pendingJob.detailRO_submittingUser.label" />: <c:out value="${job.user.firstName}"/>&nbsp;<c:out value="${job.user.lastName}"/>
     </p>
     
     <p>
-      PI: <c:out value="${job.lab.user.firstName}"/>&nbsp;<c:out value="${job.lab.user.lastName}"/> [<c:out value="${job.lab.department.name}"/>]
+      <fmt:message key="pendingJob.detailRO_pi.label" />: <c:out value="${job.lab.user.firstName}"/>&nbsp;<c:out value="${job.lab.user.lastName}"/> [<c:out value="${job.lab.department.name}"/>]
       </a>
     </p>    
 
@@ -19,9 +19,9 @@
 
    <sec:authorize access="hasRole('da-*') or hasRole('su') or hasRole('ga-*')">
     </br>
-    <a href="/wasp/job/pendingdaapproval/approve/<c:out value="${job.lab.department.departmentId}" />/<c:out value="${job.jobId}" />.do">Approve</a>
+    <a href="/wasp/job/pendingdaapproval/approve/<c:out value="${job.lab.department.departmentId}" />/<c:out value="${job.jobId}" />.do"><fmt:message key="pendingJob.detailRO_approve.label" /></a>
 	| 
-	<a href="/wasp/job/pendingdaapproval/reject/<c:out value="${job.lab.department.departmentId}" />/<c:out value="${job.jobId}" />.do">Reject</a>
+	<a href="/wasp/job/pendingdaapproval/reject/<c:out value="${job.lab.department.departmentId}" />/<c:out value="${job.jobId}" />.do"><fmt:message key="pendingJob.detailRO_reject.label" /></a>
 	
 	</sec:authorize>
  

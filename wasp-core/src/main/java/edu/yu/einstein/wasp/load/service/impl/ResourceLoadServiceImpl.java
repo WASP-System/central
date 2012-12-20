@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class ResourceLoadServiceImpl extends WaspLoadServiceImpl implements	ResourceLoadService {
 	
 	@Autowired

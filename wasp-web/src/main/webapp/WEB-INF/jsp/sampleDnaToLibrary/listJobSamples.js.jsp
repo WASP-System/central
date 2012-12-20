@@ -1,6 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
+ 
+ 
+ <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
+<script src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript" ></script> 
+<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
+ <%-- <script src="http://cdn.jquerytools.org/1.2.7/all/jquery.tools.min.js"></script>--%>
+
 <script>
 
 $(document).ready(function() {
@@ -16,7 +21,15 @@ $(document).ready(function() {
   	  $("#user_requested_coverage_data").fadeToggle("slow", "linear");
   	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideUserRequestedCoverage.label" />");}
   	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />");}
-  	});  
+  	}); 
+  	
+  	$("#jobFiles_show_hide_button").click(function() {
+    	  $("#jobFiles").fadeToggle("slow", "linear");
+    	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showJobFiles.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideJobFiles.label" />");}
+    	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showJobFiles.label" />");}
+    	}); 
+  	
+  	$(".wasptooltip a[title]").tooltip({ position: "top right"});
 });
 
 
@@ -43,6 +56,25 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 		editboxPico.value = "";
 	}	
 }
+function validate_email(){
+
+	var emailFormat=new RegExp("^\\s*[\\w\\-\\+_]+(\\.[\\w\\-\\+_]+)*\\@[\\w\\-\\+_]+\\.[\\w\\-\\+_]+(\\.[\\w\\-\\+_]+)*\\s*$");
+	var email = $('#newViewerEmailAddress').val();//may not always be defined 
+	if(typeof(email) !== 'undefined' && email != null){
+		//could have subsituted if(typeof(submitter) !== 'undefined' && submitter != null && submitter.length>0) with if(submitter && submitter.length>0)  
+		if(email.length==0){
+			alert("<fmt:message key="listJobSamples.missingEmailAddress.label" />");
+			$('#newViewerEmailAddress').focus();
+			return false;//do not perform search 
+		}
+		else if(email.length>0 && !emailFormat.test(email)){
+			alert("<fmt:message key="listJobSamples.invalidFormatEmailAddress.label" />");
+			$('#newViewerEmailAddress').focus();
+			return false;//do not perform search 
+		}
+	}
+	return true;
+};
 function validate(obj){
 	if(obj.value==0){
 		alert("<fmt:message key="listJobSamples.youMustSelectCell_alert.label" />");

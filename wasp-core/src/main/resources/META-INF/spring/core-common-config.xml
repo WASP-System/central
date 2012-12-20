@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
+
+  <!-- component scan -->
+  <context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
+  <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.resourcebundle" />
+  
+  <context:annotation-config/>
+  
+   
+  
+  <!-- mail configuration -->
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="${email.host}"/>
+    <property name="port" value="${email.port}"/>
+    <property name="defaultEncoding" value="${email.encoding}" />
+    <property name="username" value="${email.username}" />
+    <property name="password" value="${email.password}" />
+    <property name="javaMailProperties">
+      <props>
+            <prop key="mail.smtp.from">${email.smtp.from}</prop>
+            <!-- Use SMTP-AUTH to authenticate to SMTP server -->
+            <prop key="mail.smtp.auth">${email.smtp.auth}</prop>
+            <!-- Use TLS to encrypt communication with SMTP server -->
+            <prop key="mail.smtp.starttls.enable">${email.smtp.tls}</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    <property name="velocityProperties">
+      <value>
+        resource.loader=class
+        class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+      </value>
+    </property>
+  </bean>
+  
+  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" >  
+    <property name="defaultLocale" ref="usLocale"/>
+  </bean>
+  
+  <bean id="usLocale" class="java.util.Locale" >  
+     <constructor-arg value="en"/>
+	 <constructor-arg value="US"/>
+  </bean>
+
+  <!-- load constant string value definitions -->
+  <import resource="classpath*:wasp/static-values-definition.xml" /> 
+
+  <!-- loads load scripts to update database -->
+  <import resource="classpath*:wasp/**/*Load.xml" />
+
+  <!-- load all other plugins -->
+  <import resource="classpath*:wasp/*waspPlugin.xml" /> 
+
+  <!-- load site specific properties -->
+  <bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="locations">
+      <list>
+        <value>classpath:/wasp.site.properties</value>
+      </list>
+    </property>
+  </bean> 
+
+  <!-- load site specific genome configuration -->
+  <bean id="localGenomesProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="locations">
+      <list>
+        <value>classpath:/genomes.properties</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- load local configuration context -->
+  <import resource="classpath*:/wasp-site-context.xml" />
+
+
+
+</beans>

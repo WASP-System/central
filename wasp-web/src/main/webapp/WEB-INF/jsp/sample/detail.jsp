@@ -1,13 +1,14 @@
 <%@ include file="/WEB-INF/jsp/include.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
 <html>
   <h1><c:out value="${sample.name}"/></h1>
   <div><c:out value="${sample.sampleType.name}"/></div>
 
 
-  [TODO ADD PERM]
-  <a href="<c:url value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>">Fac. Manager Sample to Library</a>
-  [/TODO ADD PERM]
+  <%-- [TODO ADD PERM]--%>
+  <a href="<c:url value="/sampleDnaToLibrary/detail/${sample.sampleId}.do"/>"><fmt:message key="sample.detail_facManSampleToLib.label" /></a>
+  <%--[/TODO ADD PERM]--%>
 
   <c:forEach items="${samplemeta}" var="meta">
       <p>
@@ -17,15 +18,15 @@
   </c:forEach>
 
 
-    <h2>Relations</h2>
-    <h3>Parents</h3>
+    <h2><fmt:message key="sample.detail_relations.label" /></h2>
+    <h3><fmt:message key="sample.detail_parents.label" /></h3>
     <c:forEach items="${parentsample}" var="s">
-      <a href="/wasp/sample/detail/<c:out value="${s.sourceSampleId}"/>.do">
+      <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
       </a>
       <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
-    <h3>Children</h3>
+    <h3><fmt:message key="sample.detail_children.label" /></h3>
     <c:forEach items="${childsample}" var="s">
       <a href="/wasp/sample/detail/<c:out value="${s.sampleId}"/>.do">
         <c:out value="${s.sample.name}"/>
@@ -33,7 +34,7 @@
       <div><c:out value="${s.sample.sampleType.name}"/></div>
     </c:forEach>
 
-    <h2>JOBs</h2>
+    <h2><fmt:message key="sample.detail_jobs.label" /></h2>
     <c:forEach items="${jobsample}" var="j">
       <p>
       <c:out value="${s.sample.sampleType.name}"/>
@@ -43,7 +44,7 @@
       </p>
     </c:forEach>
 
-    <h2>FILES</h2>
+    <h2><fmt:message key="sample.detail_files.label" /></h2>
     <c:forEach items="${samplefile}" var="f">
       <p>
       <c:out value="${f.file.filelocation}"/>

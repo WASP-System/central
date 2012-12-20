@@ -17,6 +17,18 @@ public class GridUnresolvableHostException extends GridException {
 	 * 
 	 */
 	private static final long serialVersionUID = -8703902150039046648L;
+	
+	public GridUnresolvableHostException(){
+		super();
+	}
+		
+	public GridUnresolvableHostException(String message){
+		super(message);
+	}
+	
+	public GridUnresolvableHostException(String message, Throwable cause){
+		super(message, cause);
+	}
 
 
 }

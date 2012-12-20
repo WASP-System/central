@@ -22,7 +22,7 @@
 	</tr>
 	<c:choose>
 		<c:when test="${empty sampleDraftList }">
-			<tr><td class="DataTD value-centered td-even-number" colspan="7"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
+			<tr><td class="DataTD value-centered td-even-number" colspan="6"><fmt:message key="jobDraft.no_draft_samples.label" /></td></tr>
 		</c:when>
 		<c:otherwise>
 			<c:forEach items="${sampleDraftList}" var="sampleDraft" varStatus="status">
@@ -63,7 +63,7 @@
 		</c:otherwise>
 	</c:choose>
 	<tr>
-		<td colspan="7" class="value-centered button-padding">
+		<td colspan="6" class="value-centered button-padding">
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
 				<a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>
 			</c:forEach>
@@ -90,7 +90,7 @@
 		</tr>
 	</c:forEach>
 	<tr>
-		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered"><input type="text" name="file_description" /></td>
+		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered" ><input class="FormElement ui-widget-content ui-corner-all" type="text" name="file_description" /></td>
 	</tr>
 </table>
 <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.next.label"/>">

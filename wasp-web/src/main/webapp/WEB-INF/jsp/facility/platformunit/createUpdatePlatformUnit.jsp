@@ -1,6 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
-<title><fmt:message key="pageTitle.facility/platformunit/createUpdatePlatformUnit.label"/></title>
 <c:choose>
 	<c:when test='${sampleId == "0"}'>
 		<h1><fmt:message key="platformunitInstance.headerCreate.label"/></h1>
@@ -12,13 +11,13 @@
 
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData">
-	<td class="CaptionTD">Choose A Type Of Flow Cell:</td>
+	<td class="CaptionTD"><fmt:message key="platformunitInstance.platUnitType.label"/>:</td>
 	<td class="DataTD">
 	<form method="GET" action="<c:url value="/facility/platformunit/createUpdatePlatformUnit.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleId" value="<c:out value="${sampleId}" />" />
 		<select class="FormElement ui-widget-content ui-corner-all" name="sampleSubtypeId" size="1" onchange="this.parentNode.submit()">
 			<c:if test='${sampleSubtypeId <= 0}'>
-				<option value="0">--select--
+				<option value="0"><fmt:message key="wasp.default_select.label"/>
 			</c:if>			
 			<c:forEach items="${sampleSubtypes}" var="sampleSubtype">
 				<c:set var="selectedFlag2" value=""/>

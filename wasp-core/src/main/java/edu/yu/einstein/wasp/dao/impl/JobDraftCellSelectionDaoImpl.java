@@ -62,9 +62,9 @@ public class JobDraftCellSelectionDaoImpl extends WaspDaoImpl<JobDraftCellSelect
 
 
 	/**
-	 * getJobDraftCellByJobdraftIdCellindex(final Integer jobdraftId, final Integer cellIndex)
+	 * getJobDraftCellByJobDraftIdCellindex(final Integer jobDraftId, final Integer cellIndex)
 	 *
-	 * @param final Integer jobdraftId, final Integer cellIndex
+	 * @param final Integer jobDraftId, final Integer cellIndex
 	 *
 	 * @return jobDraftCellSelection
 	 */
@@ -72,9 +72,9 @@ public class JobDraftCellSelectionDaoImpl extends WaspDaoImpl<JobDraftCellSelect
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public JobDraftCellSelection getJobDraftCellSelectionByJobdraftIdCellIndex (final Integer jobdraftId, final Integer cellIndex) {
+	public JobDraftCellSelection getJobDraftCellSelectionByJobDraftIdCellIndex (final Integer jobDraftId, final Integer cellIndex) {
     		HashMap m = new HashMap();
-		m.put("jobdraftId", jobdraftId);
+		m.put("jobDraftId", jobDraftId);
 		m.put("cellIndex", cellIndex);
 
 		List<JobDraftCellSelection> results = this.findByMap(m);

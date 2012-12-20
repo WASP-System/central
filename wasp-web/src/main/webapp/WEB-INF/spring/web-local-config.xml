@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- component scan -->
+  	<context:component-scan base-package="edu.yu.einstein.wasp.controller" />
+  	
+  	<!-- import internationalized messaging. Initialize database first-->
+  	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle">
+  		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" /> 
+  		<property name="runSQL" value="true" />
+  		<property name="sqlInitFile" value="classpath:uifield_init.sql" />
+  	</bean>
+
+	<!-- import common configuration from core -->
+	<import resource="classpath*:META-INF/spring/core-common-config.xml" />
+	
+	<!-- import configuration for sending messages to wasp-daemon and checking status of batch jobs -->
+	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />
+	
+	<!-- import local security context -->
+	<import resource="security-context-local.xml"/>
+	
+	<!-- Import Tiles-related configuration -->
+	<import resource="tiles-context.xml" />
+
+	<!--  configure properties files -->
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+		<property name="locations">  
+			<list>  
+				<value>classpath:database.properties</value>  
+				<value>classpath:authentication.properties</value>
+				<value>classpath:email.properties</value>
+				<value>classpath:wasp.site.properties</value>
+			</list>  
+		</property>  
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>  
+  
+	<import resource="web-persistence-config.xml" />
+
+</beans>
+
+

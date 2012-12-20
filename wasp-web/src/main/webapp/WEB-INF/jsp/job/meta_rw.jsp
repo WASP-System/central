@@ -14,7 +14,7 @@
 
 <c:if test="${baseMetas.size()> 0}" >
 <section>
-<h1>Base</h1>
+<h1><fmt:message key="jobMeta.base.label"/></h1>
   <c:set var="_area" value = "${resourceCategory.IName}" scope="request"/>
   <c:set var="_metaArea" value = "${resourceCategory.IName}" scope="request"/>
   <c:set var="_metaList" value = "${baseMetas}" scope="request" />
@@ -28,7 +28,7 @@
 </c:if>
 
 <section>
-<h1>Resource</h1>
+<h1><fmt:message key="jobMeta.resource.label"/></h1>
 <c:forEach items="${resourceMap}" var="entry">
   <c:set var="resourceCategory" value="${entry.key}" />
   <c:set var="jobMetas" value="${entry.value}" />
@@ -51,7 +51,7 @@
 
 
 <section>
-<h1>Software</h1>
+<h1><fmt:message key="jobMeta.software.label"/></h1>
 <c:forEach items="${softwareMap}" var="entry">
   <c:set var="software" value="${entry.key}" />
   <c:set var="jobMetas" value="${entry.value}" />

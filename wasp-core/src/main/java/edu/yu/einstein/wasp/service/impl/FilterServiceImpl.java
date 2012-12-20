@@ -1,49 +1,33 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
+import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
-import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.FilterService;
+import edu.yu.einstein.wasp.service.MessageService;
 
 
 @Service
-@Transactional
+@Transactional("entityManager")
 public class FilterServiceImpl implements FilterService {
 	
-	private static final Logger logger = Logger.getLogger(AuthenticationServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(FilterServiceImpl.class);
 
 	@Autowired
 	private UserDao userDao;

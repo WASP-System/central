@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<context:component-scan base-package="edu.yu.einstein.wasp.file.web" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
+
+	<!-- core has a dependency on messaging -->
+	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />
+	<import resource="classpath*:security-site-context.xml" />
+	<import resource="web-persistence-config.xml" />
+
+	<mvc:annotation-driven />
+
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter" />
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:database.properties</value>
+				<value>classpath:authentication.properties</value>
+				<value>classpath:email.properties</value>
+				<value>classpath:wasp.site.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean id="waspSiteProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:/wasp.site.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- core has a dependency on email -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${email.host}" />
+		<property name="port" value="${email.port}" />
+		<property name="defaultEncoding" value="${email.encoding}" />
+		<property name="username" value="${email.username}" />
+		<property name="password" value="${email.password}" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.from">${email.smtp.from}</prop>
+				<!-- Use SMTP-AUTH to authenticate to SMTP server -->
+				<prop key="mail.smtp.auth">${email.smtp.auth}</prop>
+				<!-- Use TLS to encrypt communication with SMTP server -->
+				<prop key="mail.smtp.starttls.enable">${email.smtp.tls}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
+	</bean>
+
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<property name="defaultLocale" ref="usLocale" />
+	</bean>
+
+	<bean id="usLocale" class="java.util.Locale">
+		<constructor-arg value="en" />
+		<constructor-arg value="US" />
+	</bean>
+
+</beans>

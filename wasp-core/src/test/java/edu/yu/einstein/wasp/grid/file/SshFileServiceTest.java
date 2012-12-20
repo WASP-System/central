@@ -5,15 +5,26 @@ package edu.yu.einstein.wasp.grid.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.SingleHostResolver;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SshTransportService;
+import edu.yu.einstein.wasp.grid.work.SshWorkService;
 
 /**
  * @author calder
@@ -21,23 +32,39 @@ import edu.yu.einstein.wasp.grid.SingleHostResolver;
  */
 public class SshFileServiceTest {
 	
-	SshFileService sfs;
+	GridFileService gfs;
+	GridTransportService gts;
+	GridWorkService gws;
+	GridHostResolver ghr;
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@BeforeMethod
+	@BeforeClass
 	public void setUp() throws Exception {
-		sfs = new SshFileService();
-		SingleHostResolver shr = new SingleHostResolver("frankfurt.aecom.yu.edu", "wasp");
-		sfs.setHostResolver(shr);
-		sfs.setIdentityFile("~/.ssh/id_rsa.testing");
+		
+		gts = new SshTransportService();
+		gts.setName("frankfurt");
+		gts.setHostName("frankfurt.aecom.yu.edu");
+		gts.setUserName("wasp");
+		gts.setIdentityFile("~/.ssh/id_rsa.testing");
+		gts.setUserDirIsRoot(true);
+		
+		gfs = new SshFileService(gts);
+		
+		gws = new SshWorkService(gts);
+		gws.setGridFileService(gfs);
+		
+		ghr = new SingleHostResolver(gws);
+			
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@AfterMethod
+	@AfterClass
 	public void tearDown() throws Exception {
 	}
 
@@ -48,9 +75,10 @@ public class SshFileServiceTest {
 	 */
 	@Test (groups = { "ssh" })
 	public void testPut() throws IOException, URISyntaxException {
+		logger.debug("configured transport service: " + gts.getUserName() + "@" + gts.getHostName());
 		URL testFile = getClass().getClassLoader().getResource("wasp/grid/file/ssh/test.txt");
-		sfs.put(new File(testFile.toURI()).getAbsoluteFile(), "frankfurt.aecom.yu.edu", "testing/test.txt");
-		sfs.put(new File(testFile.toURI()).getAbsoluteFile(), "frankfurt.aecom.yu.edu", "testing/test2.txt");
+		gfs.put(new File(testFile.toURI()).getAbsoluteFile(), "testing/test.txt");
+		gfs.put(new File(testFile.toURI()).getAbsoluteFile(), "testing/test2.txt");
 	}
 	
 	/**
@@ -59,7 +87,7 @@ public class SshFileServiceTest {
 	@Test (groups = { "ssh" }, dependsOnMethods = { "testPut" } )
 	public void testExists() {
 		try {
-			AssertJUnit.assertTrue(sfs.exists("frankfurt.aecom.yu.edu", "testing/test.txt"));
+			AssertJUnit.assertTrue(gfs.exists("testing/test.txt"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,7 +102,7 @@ public class SshFileServiceTest {
 	@Test (groups = { "ssh" }, dependsOnMethods = { "testPut" } )
 	public void testGet() throws IOException {
 		File temp = File.createTempFile("junit", "tmp");
-		sfs.get("frankfurt.aecom.yu.edu", "testing/test.txt", temp);
+		gfs.get("testing/test.txt", temp);
 		temp.delete();
 	}
 	
@@ -84,8 +112,19 @@ public class SshFileServiceTest {
 	 */
 	@Test (groups = { "ssh" }, dependsOnMethods = { "testExists" } )
 	public void testDelete() throws IOException {
-		sfs.delete("frankfurt.aecom.yu.edu", "testing/test.txt");
-		sfs.delete("frankfurt.aecom.yu.edu", "testing/test2.txt");
+		gfs.delete("testing/test.txt");
+		gfs.delete("testing/test2.txt");
+	}
+	
+	@Test
+	public void testURI() throws Exception {
+		URI remotefile = gfs.remoteFileRepresentationToLocalURI("/illumina/test.txt");
+		URI remoteuri = gfs.remoteFileRepresentationToLocalURI("sftp://wasp@remotehost.net/folder/file.txt");
+		Assert.assertEquals(remotefile.toString(), "file://" + gts.getHostName() + "/illumina/test.txt");
+		
+		// This is the correct behavior, but the remote host should be set by the transport connection
+		// not the user. 
+		Assert.assertEquals(remoteuri.toString(), "file://remotehost.net/folder/file.txt");
 	}
 
 }

@@ -69,7 +69,6 @@ public class Barcode extends WaspModel {
 	 *
 	 */
 	@Column(name="barcode")
-	@NotEmpty
 	protected String barcode;
 
 	/**

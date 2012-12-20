@@ -5,7 +5,6 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -17,6 +16,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,21 +24,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.StateDao;
-import edu.yu.einstein.wasp.dao.TaskDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -56,9 +55,6 @@ import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.State;
-import edu.yu.einstein.wasp.model.Statejob;
-import edu.yu.einstein.wasp.model.Task;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
@@ -67,7 +63,6 @@ import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -108,10 +103,7 @@ public class JobController extends WaspController {
 		return this.roleDao;
 	}
 
-	@Autowired
-	private TaskDao		taskDao;
-	@Autowired
-	private StateDao	stateDao;
+
 	@Autowired
 	private LabDao		labDao;
 	@Autowired
@@ -138,6 +130,70 @@ public class JobController extends WaspController {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
+	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		
+		//get the user-submitted job comment (if any); should be zero or one
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+		}
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any)
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
+		}
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+		}catch(Exception e){
+			waspErrorMessage("jobComment.jobCommentAuth.error");
+			return "redirect:/dashboard.do";
+		}
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
+		return "job/comments";
+	}
+
+	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}
+
+		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		if(trimmedComment==null||trimmedComment.length()==0){
+			waspErrorMessage("jobComment.jobCommentEmpty.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		try{
+			jobService.setFacilityJobComment(jobId, trimmedComment);
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+			waspErrorMessage("jobComment.jobCommentCreate.error");
+			return "redirect:/job/comments/"+jobId+".do";
+		}
+		
+		waspMessage("jobComment.jobCommentAdded.label");
+		return "redirect:/job/comments/"+jobId+".do";
+	}
+
 	@RequestMapping("/list")
 	public String list(ModelMap m) {
 		//List<Job> jobList = this.getJobDao().findAll();
@@ -146,7 +202,7 @@ public class JobController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 		
@@ -175,7 +231,7 @@ public class JobController extends WaspController {
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		//System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		//logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
@@ -188,13 +244,13 @@ public class JobController extends WaspController {
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("pi")==null?null:request.getParameter("pi").trim();//if not passed, will be null
 		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
-		//System.out.println("jobIdAsString = " + jobIdAsString);System.out.println("jobname = " + jobname);System.out.println("submitterNameAndLogin = " + submitterNameAndLogin);System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("createDateAsString = " + createDateAsString);
+		//logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("jobname = " + jobname);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("createDateAsString = " + createDateAsString);
 
 		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
 		//Note that these two request parameters attached to the URL SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
 		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
 		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
-		//System.out.println("userIdFromURL = " + userIdFromURL);System.out.println("labIdFromURL = " + labIdFromURL);
+		//logger.debug("userIdFromURL = " + userIdFromURL);logger.debug("labIdFromURL = " + labIdFromURL);
 		
 		//DEAL WITH PARAMETERS
 		
@@ -292,99 +348,73 @@ public class JobController extends WaspController {
 		//web viewer is a member of the facility or administration
 		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
-		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
-			Map m = new HashMap();
-			if(jobId != null){
-				m.put("jobId", jobId.intValue());
-			}
-			if(jobname != null){
-				m.put("name", jobname.trim());
-			}
-			if(submitter != null){
-				m.put("UserId", submitter.getUserId().intValue());
-			}
-			if(piLab != null){
-				m.put("labId", piLab.getLabId().intValue());
-			}
-			//While I'd have liked to include createts here, for use in the next SQL statement, 
-			//I couldn't get createts to work properly via SQL statement, so it's dealt with below on a job-by-job basis
-			//if(createts != null){
-			//	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			//	m.put("date_format(createts, 'yyyy-MM-dd')", "2012-06-18");
-			//}
-			List<String> orderByColumnNames = new ArrayList<String>();
-			orderByColumnNames.add("jobId");
-			
-			//if Map m has no entries, SQL will find ALL jobs
-			tempJobList = this.jobDao.findByMapDistinctOrderBy(m, null, orderByColumnNames, "desc");//default order is by jobId/desc
-			
+		//if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
+		Map m = new HashMap();
+		if(jobId != null){
+			m.put("jobId", jobId.intValue());
 		}
-		else { //web viewer is NOT member of the facility, so viewer is a regular user that submits jobs [a regular labmember or PI]; 
-				//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
-
-			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
-			tempJobList = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
+		if(jobname != null){
+			m.put("name", jobname.trim());
 		}
-		
-		//Deal with any one-by-one additional searches of the result set
-		Boolean performOneByOneSearch = false;
-		
-		//search for a specific createts one by one
+		if(submitter != null){
+			m.put("UserId", submitter.getUserId().intValue());
+		}
+		if(piLab != null){
+			m.put("labId", piLab.getLabId().intValue());
+		}
+		Map dateMap = new HashMap();
 		if(createts != null){
-			performOneByOneSearch = true;
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			String dateToSearchFor = formatter.format(createts);
-			for (Job job : tempJobList){
-				if(formatter.format(job.getCreatets()).equals(dateToSearchFor)){
-					jobsFoundInSearch.add(job);
-				}
+			dateMap.put("createts", createts);
+		}
+
+		List<String> orderByColumnAndDirection = new ArrayList<String>();		
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("jobId")){
+				orderByColumnAndDirection.add("jobId " + sord);
 			}
-		}
-		if(performOneByOneSearch){
-			jobList.addAll(jobsFoundInSearch);
-		}
-		else{
-			jobList.addAll(tempJobList);
-		}
-		
-		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
-		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
-			List<Job> jobsToKeep = filterService.filterJobListForDA(jobList);
-			jobList.retainAll(jobsToKeep);
-		}
-		
-		//Finally deal with any sort requests coming from the grid. 
-		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
-			
-			//resultset within jobList is currently sorted by jobId/desc.
-			if(sidx.equals("jobId") && sord.equals("asc")){
-				Collections.sort(jobList, new JobIdComparator());
-			}
-			else if(sidx.equals("name")){
-				Collections.sort(jobList, new JobNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
+			else if(sidx.equals("name")){//job.name
+				orderByColumnAndDirection.add("name " + sord);
 			}
 			else if(sidx.equals("submitter")){
-				Collections.sort(jobList, new SubmitterLastNameFirstNameComparator());
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
+				orderByColumnAndDirection.add("user.lastName " + sord);
+				orderByColumnAndDirection.add("user.firstName " + sord);
 			}
 			else if(sidx.equals("pi")){
-				Collections.sort(jobList, new PILastNameFirstNameComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}			
+				orderByColumnAndDirection.add("lab.user.lastName " + sord);
+				orderByColumnAndDirection.add("lab.user.firstName " + sord);
+			}
 			else if(sidx.equals("createts")){
-				Collections.sort(jobList, new JobCreatetsComparator());	
-				if(sord.equals("desc")){
-					Collections.reverse(jobList);
-				}
-			}				
+				orderByColumnAndDirection.add("createts " + sord);
+			}
 		}
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnAndDirection.add("jobId desc");
+		}
+			
+		tempJobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+
+		if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da
+			if(authenticationService.isOnlyDepartmentAdministrator()){//turns out that the DA doesn't appear to have access to this page
+				//perform ONLY if the viewer is A DA but is NOT any other type of facility member
+				//in order to remove jobs not in the DA's department
+				List<Job> jobsToKeep = filterService.filterJobListForDA(tempJobList);//this returned list is jobs in the DA's departments
+				tempJobList.retainAll(jobsToKeep);
+			}
+		}
+		else{//not a facility member of any type, so regular viewer (labmember or PI)
+		
+			//note that as of now, no jobGrid searching capacity is permitted for this type of viewer - 
+			//instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
+			//this should be changed in future
+
+			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
+			tempJobList.retainAll(jobsToKeep);
+		}
+		jobList.addAll(tempJobList);
+	
+		
+		
 		
 		//Format output for grid by pages
 		try {
@@ -431,8 +461,21 @@ public class JobController extends WaspController {
 				User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
 				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
-				float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
-				
+				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
+				String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
+				if(ajqcList.isEmpty()){
+					quoteAsString = "?.??";
+				}
+				else{
+					try{
+						  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+						  quoteAsString = String.format("%.2f", price);
+					}
+					catch(Exception e){
+						  logger.warn("JobController: jobList : " + e);
+						  quoteAsString = "?.??"; 
+					}					
+				}
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
 							job.getName(),
@@ -440,7 +483,8 @@ public class JobController extends WaspController {
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
 							formatter.format(job.getCreatets()),
-							String.format("%.2f", amount),
+							//String.format("%.2f", amount),
+							quoteAsString,
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
@@ -511,8 +555,7 @@ public class JobController extends WaspController {
 										sample.getName() + "</a>",
 										sample.getSampleType().getName(),
 										sample.getSampleSubtype().getName(), 
-										//sample.getReceivedStatus()
-										sampleService.convertReceiveSampleStatusForWeb(sampleService.getReceiveSampleStatus(sample))
+										sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample))
 								}
 						)
 				);
@@ -549,16 +592,12 @@ public class JobController extends WaspController {
 		List<JobUser> jobUserList = job.getJobUser();
 		jobUserList.size();
 
-		List<Statejob> stateJobList = job.getStatejob();
-		stateJobList.size();
-
 		m.addAttribute("now", now);
 		m.addAttribute("job", job);
 		m.addAttribute("jobmeta", jobMetaList);
 		m.addAttribute("jobsample", jobSampleList);
 		m.addAttribute("jobfile", jobFileList);
 		m.addAttribute("jobuser", jobUserList);
-		m.addAttribute("statejob", stateJobList);
 
 		return "job/detail";
 	}
@@ -625,59 +664,25 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-  @RequestMapping(value = "/pending/detail_ro/{deptId}/{labId}/{jobId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('da-' + #deptId) or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String pendingDetailRO(@PathVariable("deptId") Integer deptId,@PathVariable("labId") Integer labId,
-			@PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  String now = (new Date()).toString();
-
-
-	    Job job = this.getJobDao().getById(jobId);
-
-	    List<JobMeta> jobMetaList = job.getJobMeta();
-	    jobMetaList.size();
-
-	    List<JobSample> jobSampleList = job.getJobSample();
-	    jobSampleList.size();
-
-	    List<JobFile> jobFileList = job.getJobFile();
-	    jobFileList.size();
-
-	    List<JobUser> jobUserList = job.getJobUser();
-	    jobUserList.size();
-
-	    List<Statejob> stateJobList = job.getStatejob();
-	    stateJobList.size();
-
-	    m.addAttribute("now", now);
-	    m.addAttribute("job", job);
-	    m.addAttribute("jobmeta", jobMetaList);
-	    m.addAttribute("jobsample", jobSampleList);
-	    m.addAttribute("jobfile", jobFileList);
-	    m.addAttribute("jobuser", jobUserList);
-	    m.addAttribute("statejob", stateJobList);
-	   // m.addAttribute("actingasrole", actingAsRole);
-	    
-	    return "job/pendingjob/detail_ro";
-  }
  
-  /* 5/15/12 should not longer be user
-  @RequestMapping(value = "/allpendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String allPendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
-	  
-	  return "redirect:/lab/allpendinglmapproval/list.do";	
-	}
-  */
+ 
   
   @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
 	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "LM");//could use PI instead of LM
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.COMPLETED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobPiApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/lab/pendinglmapproval/list.do";	
@@ -686,56 +691,25 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  
-	  pendingJobApproval(action, jobId, "DA");//private method below
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("approve".equals(action)){
+		  status = WaspStatus.COMPLETED;
+	  }
+	  else if("reject".equals(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobDaApprovalStatus(job, status);
+	  } catch (WaspMessageBuildingException e) {
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("job.approval.error"); 
+	  }
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;
 	  //return "redirect:/department/dapendingtasklist.do";		  
 	}
  
-  private void pendingJobApproval(String action, Integer jobId, String approver){
-
-	  Task taskOfInterest;
-	  //confirm action is either approve or reject
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==null || job.getJobId().intValue() == 0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if("DA".equals(approver)){
-		  taskOfInterest = taskDao.getTaskByIName("DA Approval");//confirm task id > 0 is below
-	  }
-	  else if("LM".equals(approver) || "PI".equals(approver)){
-		 taskOfInterest = taskDao.getTaskByIName("PI Approval");//confirm task id > 0 is below
-	  }
-	  else{
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  if(taskOfInterest.getTaskId()==null || taskOfInterest.getTaskId().intValue()==0){//confirm id > 0
-		  waspErrorMessage("job.approval.error"); 
-		  return;
-	  }
-	  List<Statejob> statejobList = job.getStatejob();
-	  for(Statejob statejob : statejobList){
-		  State state = statejob.getState();
-		  if(taskOfInterest.getTaskId()==state.getTaskId()){
-			  if("approve".equals(action)){
-				  state.setStatus("COMPLETED");
-				  stateDao.save(state);
-				  waspMessage("job.approval.approved"); break;
-			  }
-			  else if("reject".equals(action)){
-				  state.setStatus("ABANDONED");
-				  stateDao.save(state); 
-				  waspMessage("job.approval.rejected"); break;
-			  }			 
-		  }
-	  }
-	  return;	 // flow returns to calling method, either pendingDaApproval or pendingLmApproval
-  }
-
-
 
 	/**
 	 * show job/resource data and meta information to be modified.
@@ -817,12 +791,12 @@ public class JobController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
 	public String jobsAwaitingLibraryCreation(ModelMap m) {
 		  
-		List<Job> jobsWithLibraryCreatedTask = jobService.getJobsWithLibraryCreatedTask();
+		List<Job> jobsAwaitingLibraryCreation = jobService.getJobsAwaitingLibraryCreation();
 		List<Job> jobsActive = jobService.getActiveJobs();
 		    
 		List<Job> jobsActiveAndWithLibraryCreatedTask = new ArrayList<Job>();
 		for(Job jobActive : jobsActive){
-		    for(Job jobAwaiting : jobsWithLibraryCreatedTask){
+		    for(Job jobAwaiting : jobsAwaitingLibraryCreation){
 		    	if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
 		    		jobsActiveAndWithLibraryCreatedTask.add(jobActive);
 		    		break;

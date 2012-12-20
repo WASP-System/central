@@ -335,7 +335,7 @@ public class AuthController extends WaspController {
   public String confirmNewUserEmailFromEmailLink(
 		  @RequestParam(value="authcode", required=true) String authCode,
 		  @RequestParam(value="email", required=true) String urlEncodedEmail,
-		  @RequestParam(value="isAdminCreated", required=true) Integer isAdminCreated,
+		  @RequestParam(value="isAdminCreated", required=false) Integer isAdminCreated,
 	      ModelMap m) {
     if (isAdminCreated == null) isAdminCreated = 0;
 	if ( (authCode==null || authCode.isEmpty()) && (urlEncodedEmail==null || urlEncodedEmail.isEmpty()) ){

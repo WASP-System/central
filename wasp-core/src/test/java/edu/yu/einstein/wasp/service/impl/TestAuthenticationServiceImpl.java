@@ -5,12 +5,20 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.easymock.EasyMock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -32,18 +40,52 @@ import edu.yu.einstein.wasp.model.UserPending;
 
 public class TestAuthenticationServiceImpl {
 	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	UserDao mockUserDao;
 	UserPendingDao mockUserPendingDao;
 	AuthenticationServiceImpl authServiceImpl;
 	
-  // Test
-  //TODO: test not working, please fix me
+  @Test
   public void getAuthenticatedUser() {
 	  User user = new User();
-	  expect(mockUserDao.getUserByLogin("user1")).andReturn(user);
+	  user.setLogin("jdoe");
+	  user.setFirstName("Jane");
+	  user.setLastName("Doe");
+
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("username", "password"));
+	  
+	  expect(mockUserDao.getUserByLogin("username")).andReturn(user);
 	  replay(mockUserDao);
+	  
 	  Assert.assertEquals(authServiceImpl.getAuthenticatedUser(), user);
 	  verify(mockUserDao);
+  }
+  
+  @Test
+  public void getRoles() {
+	  User user = new User();
+	  user.setLogin("userlogin");
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da"));
+	  authorities.add(new GrantedAuthorityImpl("lm"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken(user,"", authorities));
+	  
+	  String[] roles = new String[2];
+	  roles[0] = "da";
+	  roles[1] = "lm";
+	  Assert.assertEquals(authServiceImpl.getRoles(), roles);
+  }
+  
+  @Test
+  public void getRoleValue(){
+	  Assert.assertEquals(authServiceImpl.getRoleValue("jv-8"), new Integer(8));
+	  Assert.assertNull(authServiceImpl.getRoleValue("jv-*"));
+	  Assert.assertNull(authServiceImpl.getRoleValue("su"));
   }
 	
   /**
@@ -53,9 +95,6 @@ public class TestAuthenticationServiceImpl {
   public void isLoginAlreadyInUse1() {
 	  
 	  User user = new User();
-
-	  
-	  
 	  Map loginQueryMap = new HashMap();
 	  loginQueryMap.put("login", "jgreally");
 	  
@@ -66,7 +105,6 @@ public class TestAuthenticationServiceImpl {
 		  
 	  userPendingList.add(userPending);
 
-	  
 	  expect(mockUserDao.getUserByLogin("jgreally")).andReturn(user);
 	  expect(mockUserPendingDao.findByMap(loginQueryMap)).andReturn(userPendingList);
 	  
@@ -89,6 +127,114 @@ public class TestAuthenticationServiceImpl {
 	  
   }
   
+  @Test
+  public void hasRoleInRoleArray(){
+	  
+	  //Test case:1
+	  String rolesToCompare [] = {"da","fm", "sa"};
+	  String rolesBaseline [] = {"da","fm", "sa"};
+	  //Test case:2
+	  String rolesToCompare2 [] = {null, null, null};
+	  String rolesBaseline2 [] = {"da","fm", "sa"};
+	  //Test case:3
+	  String rolesToCompare3 [] = {"da", "fm", "sa"};
+	  String rolesBaseline3[] = {"asd","asd", "asd"};
+	  
+	  //Test case:4 throws NullPointerException
+	  String rolesToCompare4 [] = {"da", "fm", "sa"};
+	  String rolesBaseline4 [] = {null,"fm", "sa"};
+	  
+	  Assert.assertTrue(authServiceImpl.hasRoleInRoleArray(rolesToCompare, rolesBaseline));
+	  Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare2, rolesBaseline2));
+	  Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare3, rolesBaseline3));
+	  
+	  //Assert.assertFalse(authServiceImpl.hasRoleInRoleArray(rolesToCompare4, rolesBaseline4));
+  }
+  
+  @Test
+  public void hasRole(){
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da"));
+	  authorities.add(new GrantedAuthorityImpl("lm-7"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.hasRole("da"));
+	  Assert.assertTrue(authServiceImpl.hasRole("lm-*"));
+	  Assert.assertFalse(authServiceImpl.hasRole("asd"));
+
+  }
+  
+  
+  @Test
+  public void isFacilityMember() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("lm"));
+	  authorities.add(new GrantedAuthorityImpl("su"));
+	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.isFacilityMember());
+
+  }
+  
+  @Test
+  public void isFacilityMember2() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("lm"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isFacilityMember());
+
+  }
+    
+  @Test
+  public void isOnlyDepartmentAdministrator() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da-*"));
+	   	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertTrue(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
+  
+  @Test
+  public void isOnlyDepartmentAdministrator2() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("da-*"));
+	  authorities.add(new GrantedAuthorityImpl("su"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
+  
+  @Test
+  public void isOnlyDepartmentAdministrator3() {
+	  
+	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	  authorities.add(new GrantedAuthorityImpl("testrole1"));
+	  authorities.add(new GrantedAuthorityImpl("testrole2"));
+	 	  
+	  SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("","", authorities));
+	  
+	  Assert.assertFalse(authServiceImpl.isOnlyDepartmentAdministrator());
+
+  }
   /**
    * Test scenario (by setting userId=1) when login name already exists.
    */
@@ -115,14 +261,52 @@ public class TestAuthenticationServiceImpl {
 	  verify(mockUserDao);
   }
   
+  @Test
+  public void testHasPermissionNormal1(){
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-3')"));
+	} catch (IOException e) {
+		Assert.fail("Caught IOException", e);
+	}
+  }
+  
+  @Test
+  public void testHasPermissionNormal2(){
+	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+	  parameterMap.put("jobId", 4);
+	  parameterMap.put("sampleId", 22);
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
+	} catch (IOException e) {
+		Assert.fail("Caught IOException", e);
+	}
+  }
+  
+  @Test
+  public void testHasPermissionFail1(){
+	  Map<String, Integer> parameterMap = new HashMap<String, Integer>();
+	  parameterMap.put("jobId", 4);
+	  parameterMap.put("sampleId", 22);
+	  String exception = "";
+	  try {
+		Assert.assertFalse(authServiceImpl.hasPermission("hasRole('su') or hasRole('fm-#unexpected') or hasRole('jv-#jobId') or hasRole('s-#sampleId')", parameterMap));
+	  } catch (IOException e) {
+		logger.debug("Caught IOException as expected: " + e.getMessage());
+		exception = e.getMessage();
+	  }
+	  Assert.assertEquals(exception, "not all placeholders in permission string have been resolved from parameter map");
+  }
+  
   @BeforeTest
   public void beforeTest() {
+	  
 	  authServiceImpl = new AuthenticationServiceImpl();
 	  mockUserDao = createMockBuilder(UserDaoImpl.class).addMockedMethods(UserDaoImpl.class.getMethods()).createMock();
 	  mockUserPendingDao = createMockBuilder(UserPendingDaoImpl.class).addMockedMethods(UserPendingDaoImpl.class.getMethods()).createMock();
 	  
 	  Assert.assertNotNull(mockUserDao);
 	  Assert.assertNotNull(mockUserPendingDao);
+	  
 	  authServiceImpl.setUserDao(mockUserDao);
 	  authServiceImpl.setUserPendingDao(mockUserPendingDao);
 
@@ -130,6 +314,8 @@ public class TestAuthenticationServiceImpl {
   
   @AfterTest
   public void afterTest() {
+	  
+	 
   }
 
   @BeforeMethod
@@ -140,6 +326,8 @@ public class TestAuthenticationServiceImpl {
   public void afterMethod() {
 	  EasyMock.reset(mockUserDao);
 	  EasyMock.reset(mockUserPendingDao);
+	  
+	  SecurityContextHolder.clearContext();
   }
 
   @BeforeClass
@@ -148,11 +336,8 @@ public class TestAuthenticationServiceImpl {
 
   @AfterClass
   public void afterClass() {
+	  
   }
-
-  
-
- 
 
   @BeforeSuite
   public void beforeSuite() {

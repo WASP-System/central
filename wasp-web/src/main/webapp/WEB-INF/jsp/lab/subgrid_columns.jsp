@@ -3,7 +3,7 @@ subGrid: true,
 subGridUrl:'/wasp/lab/subgridJSON.do',
 subGridModel: [ 
     {
-	    name  : ['<fmt:message key="user.user_list.label"/>'],
+	    name  : ['<fmt:message key="user.lab_member_list.label"/>'],
 	    width : ['auto'],
 	    align : ['center']                
     }

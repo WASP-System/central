@@ -487,38 +487,5 @@ public class Workflow extends WaspModel {
 
 
 
-	/** 
-	 * workflowtask
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="workflowid", insertable=false, updatable=false)
-	protected List<Workflowtask> workflowtask;
-
-
-	/** 
-	 * getWorkflowtask()
-	 *
-	 * @return workflowtask
-	 *
-	 */
-	@JsonIgnore
-	public List<Workflowtask> getWorkflowtask() {
-		return this.workflowtask;
-	}
-
-
-	/** 
-	 * setWorkflowtask
-	 *
-	 * @param workflowtask
-	 *
-	 */
-	public void setWorkflowtask (List<Workflowtask> workflowtask) {
-		this.workflowtask = workflowtask;
-	}
-
-
 
 }

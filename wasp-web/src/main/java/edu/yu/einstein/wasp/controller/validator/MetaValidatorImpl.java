@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -24,7 +25,7 @@ import edu.yu.einstein.wasp.model.MetaBase;
 
 public class MetaValidatorImpl implements MetaValidator {
 
-	protected final Logger logger = Logger.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected List<Constraint> allowableConstraints = new ArrayList<Constraint>(Arrays.asList(Constraint.NotEmpty, Constraint.RegExp));
 	

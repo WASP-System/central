@@ -2,10 +2,9 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -148,7 +147,7 @@ public class LabController extends WaspController {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));
 		m.addAttribute(JQFieldTag.AREA_ATTR, getMetaHelperWebapp().getArea());
-		m.addAttribute("_metaDataMessages", MetaHelper.getMetadataMessages(request.getSession()));
+		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
 
@@ -167,12 +166,12 @@ public class LabController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		System.out.println("sidx = " + sidx);System.out.println("sord = " + sord);System.out.println("search = " + search);
+		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		//parameter from filterToolbar
 		String piNameAndLogin = request.getParameter("primaryUser")==null?null:request.getParameter("primaryUser").trim();//if not passed, will be null; if passed will be firstname lastname (login)
 		String departmentName = request.getParameter("departmentId")==null?null:request.getParameter("departmentId").trim();//if not passed, will be null; if passed will be name of department
-		System.out.println("piNameAndLogin = " + piNameAndLogin);System.out.println("departmentName = " + departmentName);
+		logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("departmentName = " + departmentName);
 		
 		//deal with the parameter
 		User pi = null;
@@ -180,13 +179,16 @@ public class LabController extends WaspController {
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
 			if(!piLogin.isEmpty()){//likely incorrect format
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				if(pi.getUserId()==null){//fake it
+					pi.setUserId(new Integer(0));
+				}
 			}
 		}
 		Department department = null;
 		if(departmentName != null){
 			department = deptDao.getDepartmentByName(departmentName.trim());
 			if(department.getDepartmentId()==null){//not found in department list
-				department.setDepartmentId(0);
+				department.setDepartmentId(new Integer(0));
 			}
 		}
 		
@@ -195,97 +197,39 @@ public class LabController extends WaspController {
 
 		List<Lab> labList = new ArrayList<Lab>();
 
-		//if (request.getParameter("_search") == null	|| StringUtils.isEmpty(request.getParameter("searchString"))) {
-		if(piNameAndLogin==null){//no search parameter, so get all labs
-
-			//labList = sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord);
-			labList = this.labDao.findAll();
+		Map queryMap = new HashMap();
+		if(pi != null){
+			queryMap.put("primaryUserId", pi.getUserId().intValue());
+		}
+		if(department != null){
+			queryMap.put("departmentId", department.getDepartmentId().intValue());
+		}
 		
-		} else {
-
-			/*
-			Map<String, String> m = new HashMap<String, String>();
-
-			m.put(request.getParameter("searchField"), request.getParameter("searchString"));
-
-			labList = this.labDao.findByMap(m);
-
-			if ("ne".equals(request.getParameter("searchOper"))) {
-				List<Lab> allLabs = new ArrayList<Lab>(
-						sidx.isEmpty() ? this.labDao.findAll() : this.labDao.findAllOrderBy(sidx, sord));
-				
-				allLabs.removeAll(labList);
-
-				labList = allLabs;
+		List<String> orderByColumnNames = new ArrayList<String>();
+		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
+			if(sidx.equals("name")){
+				orderByColumnNames.add("name");
 			}
-			*/
-			if(pi != null && pi.getUserId() != null){
-				Lab lab = this.labDao.getLabByPrimaryUserId(pi.getUserId().intValue());
-				if(lab != null && lab.getLabId() != null && lab.getLabId() != 0){
-					labList.add(lab);
-				}
+			else if(sidx.equals("primaryUser")){
+				orderByColumnNames.add("user.lastName"); orderByColumnNames.add("user.firstName");
+			}
+			else if(sidx.equals("departmentId")){
+				orderByColumnNames.add("department.name");
 			}
 		}
-		if(department != null ){
-			List<Lab> removeLabList = new ArrayList<Lab>();
-			for(Lab lab : labList){				
-				if(lab.getDepartmentId().intValue() != department.getDepartmentId().intValue()){
-					removeLabList.add(lab);
-				}
-			}
-			labList.removeAll(removeLabList);
+		else if(sidx==null || "".equals(sidx)){
+			orderByColumnNames.add("user.lastName"); orderByColumnNames.add("user.firstName");
+			sord = new String("asc");
 		}
+		labList = labDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, sord);	
 		
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove labs not in the DA's department
 			List<Lab> labsToKeep = filterService.filterLabListForDA(labList);
 			labList.retainAll(labsToKeep);
 		}
-				
-		/* Note that sorting by PI name cannot be achieved by DB query "sort by" clause, as class Lab only contains Pi's Id */
-		class PILastNameFirstNameComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
-			}
-		}
-		class LabNameComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getName().compareToIgnoreCase(arg1.getName());
-			}
-		}
-		class DepartmentComparatorThroughLab implements Comparator<Lab> {
-			@Override
-			public int compare(Lab arg0, Lab arg1) {
-				return arg0.getDepartment().getName().compareToIgnoreCase(arg1.getDepartment().getName());
-			}
-		}
-		
-		if ( !labList.isEmpty() && labList.size() > 1 ){
 	
-			if(sidx == null || sidx.isEmpty() || sidx.equals("primaryUser") ){//PIname/Asc will be default order by
-				Collections.sort(labList, new PILastNameFirstNameComparatorThroughLab());
-				if (sidx.equals("primaryUser") && sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-			else if (sidx.equals("name")){
-				Collections.sort(labList, new LabNameComparatorThroughLab());//asc
-				if(sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-			else if (sidx.equals("departmentId")){
-				Collections.sort(labList, new DepartmentComparatorThroughLab());//asc
-				if(sord.equals("desc")){
-					Collections.reverse(labList);
-				}
-			}
-		}
-		
-
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();//????
 
 		try {
 			// String labs = mapper.writeValueAsString(labList);
@@ -370,54 +314,13 @@ public class LabController extends WaspController {
 
 		List<LabUser> users = labDb.getLabUser();
 
-/*		List<Project> projects = labDb.getProject();
 
-		List<Sample> samples = labDb.getSample();
-
-		List<AcctGrant> accGrants = labDb.getAcctGrant();
-
-		List<SampleLab> sampleLabs = labDb.getSampleLab();
-
-		List<Job> jobs = labDb.getJob();
-
-		// get max lenth of the previous 4 lists
-		int max = Math.max(Math.max(users.size(), projects.size()),	Math.max(samples.size(), accGrants.size()));
-		max = Math.max(max, Math.max(sampleLabs.size(), jobs.size()));
-
-		if (max == 0) {
-			LabUser lUser = new LabUser();
-			lUser.setUser(new User());
-			users.add(lUser);
-
-			projects.add(new Project());
-
-			samples.add(new Sample());
-
-			accGrants.add(new AcctGrant());
-
-			SampleLab sampleLab = new SampleLab();
-			sampleLab.setLab(new Lab());
-			sampleLabs.add(sampleLab);
-
-			jobs.add(new Job());
-
-			max = 1;
-		}
-*/
 		int max = users.size();
-		//String[][] mtrx = new String[max][6];
 		String [] mtrx = new String [max];
 
-//		ObjectMapper mapper = new ObjectMapper();
 
 		String text;
 		try {
-			// String labs = mapper.writeValueAsString(labList);
-//			jqgrid.put("page", "1");
-//			jqgrid.put("records", max + "");
-//			jqgrid.put("total", max + "");
-
-//			int i = 0;
 			int j = 0;
 			for (LabUser user : users) {
 
@@ -426,46 +329,10 @@ public class LabController extends WaspController {
 								+ user.getUserId() + ">"
 								+ user.getUser().getFirstName() + " "
 								+ user.getUser().getLastName() + "</a>";
-//				mtrx[j][i] = text;
 				mtrx[j] = text;
 				j++;
 			}
-/*			i++;
-			j = 0;
-			for (Project project : projects) {
-				text = project.getProjectId() == null ? "No Projects" : project.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (Sample sample : samples) {
-				text = sample.getSampleId() == null ? "No Samples" : sample.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (AcctGrant acc : accGrants) {
-				text = acc.getGrantId() == null ? "No Acc Grants" : acc.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (SampleLab sampleLab : sampleLabs) {
-				text = sampleLab.getLab().getLabId() == null ? "No Sample Labs" : sampleLab.getLab().getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-			i++;
-			j = 0;
-			for (Job job : jobs) {
-				text = job.getJobId() == null ? "No Jobs" : job.getName();
-				mtrx[j][i] = text;
-				j++;
-			}
-*/
+
 			List<Map> rows = new ArrayList<Map>();
 
 			for (j = 0; j < max; j++) {
@@ -946,7 +813,7 @@ public class LabController extends WaspController {
 				labMetaHelperWebapp.setMetaValueByName(name, lpm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in labMeta
-				logger.debug("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
+				logger.warn("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
 		labMetaDao.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
@@ -1021,7 +888,7 @@ public class LabController extends WaspController {
 				userMetaHelperWebapp.setMetaValueByName(name, upm.getV());
 			} catch (MetadataException e) {
 				// no match for 'name' in userMeta data
-				logger.debug("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
+				logger.warn("No match for userPendingMeta property with name '" + name + "' in userMeta properties");
 			}
 		}
 		// if this user is not a PI, copy address information from the PI's User
@@ -1445,7 +1312,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('lm-*') or hasRole('ga-*') or hasRole('ft-*') or hasRole('fm-*')")
+	@PreAuthorize("hasRole('su') or hasRole('pi-*') or hasRole('lm-*')")
 	public String pendingLmApprovalList(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
@@ -1455,15 +1322,30 @@ public class LabController extends WaspController {
 		
 		//finish up with pending jobs		
 		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
+		
+		
+		//for testing only: next 6 lines, just to fill it up and see something on the jsp
+		//newUsersPendingLmApprovalList.clear();
+		//newUsersPendingLmApprovalList.add(userPendingDao.findById(3));
+		//existingUsersPendingLmApprovalList.clear();
+		//existingUsersPendingLmApprovalList.add(labUserDao.findById(14));
+		//jobsPendingLmApprovalList.clear();
+		//jobsPendingLmApprovalList.add(jobService.getJobDao().findById(1));
+
+		
+		
 		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
 		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
 		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
 		
 		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, Map<String,String>> jobExtraJobDetailsMap = new HashMap<Job, Map<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+
 		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
 		for(Job job : jobsPendingLmApprovalList){
 			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
@@ -1483,6 +1365,7 @@ public class LabController extends WaspController {
 			
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
 		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
 		

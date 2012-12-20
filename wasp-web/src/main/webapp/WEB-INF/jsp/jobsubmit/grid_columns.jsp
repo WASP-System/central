@@ -2,9 +2,9 @@
 
 <wasp:field name="name" type="text"/>
 
-<wasp:field name="submitter" type="text" sortable="true"/>
+<wasp:field name="submitter" type="text" sortable="false"/>
 
-<wasp:field name="lab" type="text" sortable="true"/>
+<wasp:field name="lab" type="text" sortable="false"/>
 
 <wasp:field name="last_modify_user"  type="text" />
 
@@ -12,4 +12,4 @@
   
 _url='/wasp/jobsubmit/listJSON.do?selId=${param.selId}&userId=${param.userId}&labId=${param.labId}';
 
-_navAttr={edit:false,view:true,add:false,del:false};
+_navAttr={search:false,edit:false,view:false,add:false,del:false,refresh:false};

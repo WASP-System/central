@@ -1,0 +1,33 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!--  security-site-context.xml defined in wasp-config plugin -->
+    <!--  add extra configuration below  -->
+
+    <http use-expressions="true">
+
+        <intercept-url pattern="/auth/**" access="permitAll" />
+        <intercept-url pattern="/scripts/**" access="permitAll" />
+        <intercept-url pattern="/autocomplete/**" access="permitAll" />
+        <intercept-url pattern="/css/**" access="permitAll" />
+        <intercept-url pattern="/images/**" access="permitAll" />
+        <intercept-url pattern="/stickyCaptchaImg.png" access="permitAll" />
+        <intercept-url pattern="/open/**" access="permitAll" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
+
+        <form-login login-page="/auth/loginHandler.do"
+           authentication-failure-url="/auth/login.do?error=1"
+           default-target-url="/auth/loginHandler.do"   
+           always-use-default-target="true"
+           />
+        <logout />
+
+    </http>
+
+   
+
+</beans:beans>

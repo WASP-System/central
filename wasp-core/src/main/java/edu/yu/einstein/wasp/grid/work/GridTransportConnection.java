@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.grid.work;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
+import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 
 /**
@@ -23,7 +24,7 @@ public interface GridTransportConnection {
 	 * @throws GridUnresolvableHostException 
 	 * @throws GridException
 	 */
-	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridUnresolvableHostException;
+	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
 	public void disconnect() throws GridAccessException;
 

@@ -1,31 +1,52 @@
 #container {
-  width: 980px; 
+  width: 95%; 
+  min-width: 980px;
   background: #ffffff;
   height: 93%;
   margin: auto;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+ 
 }
 
 #header {
   background-image: url(/wasp/images/header_background.png); 
   padding :5px 5px 5px 5px;
+  -moz-border-radius-topleft: 5px;
+  border-top-left-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-right-radius: 5px;
+  -moz-box-shadow: 5px 7px 5px black;
+  -webkit-box-shadow: 5px 7px 5px black;
+  box-shadow: 5px 7px 5px black;
 }
 
 
 #content {
-  float:left;
-  width:940px;
   background-color: #FFFFE6;
   padding :10px 20px 10px 20px;
+  overflow-y: auto;
   min-height: 93%;
-  
+  -moz-box-shadow: 5px 7px 5px black;
+  -webkit-box-shadow: 5px 7px 5px black;
+  box-shadow: 5px 7px 5px black;
 }
 
 #footer { 
-  clear:both;
+  
   padding :5px 1px 1px 1px;
   background:#CCCCCC;
   font-size: 11px;
+  -moz-border-radius-bottomleft: 5px;
+  border-bottom-left-radius: 5px;
+  -moz-border-radius-bottomright: 5px;
+  border-bottom-right-radius: 5px;
+  -moz-box-shadow: 5px 5px 5px black;
+  -webkit-box-shadow: 5px 5px 5px black;
+  box-shadow: 5px 5px 5px black;
 }
+
+
 
 .header_nav {
 	float:right;
@@ -47,8 +68,7 @@
 }
 
 .fixed-width_scrollable {
-	width:940px; 
-	overflow:auto;
+	overflow-x:auto;
 }
 
 html {
@@ -60,7 +80,7 @@ body	{
 	font-size: 13px;
 	font-family: Helevetica, "MS Trebuchet", sans-serif;
 	line-height: 16px;
-	width:980px;
+	min-width:95%;
 	margin: auto;
 	margin-top: 10px;
   	margin-bottom: 10px;
@@ -222,7 +242,7 @@ table.EditTable{
 }
 
 	
-input[type="submit"],
+input[type="submit"], input[type="reset"],
 .button, 
 div.submit A,
 td.submit A,
@@ -251,7 +271,7 @@ td.submit A,
 	text-decoration: none;
 	}
 
-input[type="submit"]:hover,
+input[type="submit"]:hover, input[type="reset"]:hover,
 .button:hover, 
 .fm-button:hover,
 div.submit a:hover,
@@ -382,6 +402,7 @@ TABLE.data	{
 TABLE.data TD	{
 	background: #ffffff;
 	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #CCCCCC;
 	vertical-align: middle;
 	}
 
@@ -395,6 +416,13 @@ TABLE.data TD.label	{
 	background: #f7f7f7;
 	border-right: 1px solid #ccc;
 	font-weight: bold;
+	}
+
+TABLE.data TH.label	{
+	background: #FAF2D6;
+	border-right: 1px solid #ccc;
+	font-weight: bold;
+	text-align: center;
 	}
 
 
@@ -467,3 +495,12 @@ TABLE.data TD.value-centered-small {
 	font-size: 10px;
 	white-space: nowrap;
 	}	
+ .tooltip {
+    display:none;
+    background:black;
+    font-size:12px;
+    height:auto;
+    width:auto;
+    padding:25px;
+    color:#eee;
+  }

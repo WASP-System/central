@@ -10,11 +10,9 @@ import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +24,6 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineUtils;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
@@ -57,8 +54,9 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  * 
  */
 @Service
-@Transactional
-public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
+@Transactional("entityManager")
+public class EmailServiceImpl implements EmailService{
+
 	
 	static {
 		System.setProperty("mail.mime.charset", "utf8");
@@ -93,6 +91,8 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	
 	@Autowired
 	private DemoEmail demoEmail;
+
+	private static Logger logger = LoggerFactory.getLogger("EmailServiceImpl");
 	
 
 

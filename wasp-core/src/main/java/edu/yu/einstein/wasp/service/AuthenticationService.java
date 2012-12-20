@@ -1,5 +1,10 @@
 package edu.yu.einstein.wasp.service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.User;
 
@@ -67,14 +72,14 @@ public interface AuthenticationService {
 	 * @param password
 	 * @return
 	 */
-	boolean authenticate(String name, String password);
+	public boolean authenticate(String name, String password);
 	
 	/**
 	 * Checks that a login name is correctly formatted
 	 * @param login
 	 * @return
 	 */
-	boolean isLoginNameWellFormed(String login);
+	public boolean isLoginNameWellFormed(String login);
 	
 	/**
 	 * Checks database for existing use of supplied login
@@ -83,18 +88,18 @@ public interface AuthenticationService {
 	 * @return
 	 * @throws LoginNameException 
 	 */
-	boolean isLoginAlreadyInUse(String login, String email) throws LoginNameException;
+	public boolean isLoginAlreadyInUse(String login, String email) throws LoginNameException;
 	
 	/**
 	 * Logs out currently logged in user
 	 */
-	void logoutUser();
+	public void logoutUser();
 
 	/**
 	 * Is authenticated
 	 * @return boolean
 	 */
-	boolean isAuthenticated();
+	public boolean isAuthenticated();
 
 	/**
 	 * Check if user authenticates but DO NOT set authentication context
@@ -102,14 +107,14 @@ public interface AuthenticationService {
 	 * @param password
 	 * @return
 	 */
-	boolean authenticates(String name, String password);
+	public boolean authenticates(String name, String password);
 
 	/**
 	 * Returns true if logged in User has ANY of the roles in RoleArray. theRole can be "su", "da", etc.
 	 * @param roleArray
 	 * @return
 	 */
-	boolean hasRoleInRoleArray(String[] roleArray);
+	public boolean hasRoleInRoleArray(String[] roleArray);
 
 	
 	/**
@@ -117,12 +122,58 @@ public interface AuthenticationService {
 	 * @param roleArray
 	 * @return
 	 */
-	boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline);
+	public boolean hasRoleInRoleArray(String[] rolesToCompare, String[] rolesBaseline);
 	
 	public String encodePassword(String s);
 	  public boolean validatePassword(String s);
 	  public boolean matchPassword(String s1, String s2);
 	  public String getRandomPassword(int length);
+
+   
+	  /**
+		 * Enables parsing of Spring security expressions against the logged in user's security context. Using the 
+		 * parameter map, parameters can be substituted in the permission string. Consider "hasRole('su') or hasRole('fm') or hasRole('jv-#jobId')".
+		 * If parameterMap contains the parameter "jobId" with value "3" the following will be evaluated: ""
+		 * "hasRole('su') or hasRole('fm') or hasRole('jv-3')"
+		 * 
+		 * See://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html for more expression options
+		 * @param permsission
+		 * @return
+		 * @throws IOException
+		 */
+	    public boolean hasPermission(String permission, Map<String, Integer> parameterMap) throws IOException;
+	    
+	    /**
+		 * Enables parsing of Spring security expressions against the logged in user's security context.
+		 * 
+		 * Can parse a string such as "hasRole('su') or hasRole('fm') or hasRole('ft')".
+		 * 
+		 * See://static.springsource.org/spring-security/site/docs/3.0.x/reference/el-access.html for more expression options
+		 * @param permsission
+		 * @return
+		 * @throws IOException
+		 */
+	    public boolean hasPermission(String permission) throws IOException;
+
+	    /**
+	     * Get value associates with a role or null if none. E.g. providing a role of "fm-7" returns 7, whereas "fm-*" or "fm" returns null
+	     * @param role
+	     * @return
+	     */
+	    public Integer getRoleValue(String role);
+
+	    /**
+	     * Gets a list of the ids of deparments managed by the currently logged in user or returns an empty list if none.
+	     * @return
+	     */
+		public Set<Integer> idsOfDepartmentsManagedByCurrentUser();
+
+		/**
+		 * Gets a list of the ids of labse managed by the currently logged in user or returns an empty list if none.
+		 * @return
+		 */
+		public Set<Integer> idsOfLabsManagedByCurrentUser();
+	    
 	
 	
 }
