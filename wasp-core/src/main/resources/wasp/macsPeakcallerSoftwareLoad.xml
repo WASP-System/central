@@ -16,7 +16,7 @@
 
   <bean id="macsPeakcallerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
     <property name="name" value="MACS Peakcaller" />
-    <property name="resourceTypeByIName" value="peakcaller" />
+    <property name="resourceTypeByIName" value="#{peakcallerResourceType.area}" />
 	<property name="area" value="#{macsPeakcallerArea}" />
     <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">

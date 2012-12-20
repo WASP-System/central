@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -429,8 +430,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<Sample> librariesExisting = sample.getChildren();
-		if (librariesExisting == null || librariesExisting.isEmpty())
+		if (librariesExisting == null || librariesExisting.isEmpty()){
+			logger.debug("No libraries currently associated with sample id=" + sample.getSampleId() + " (" + sample.getName() + ")");
 			return true; // no libraries made yet for this sample
+		}
 		
 		
 		// libraries already exist for this sample. Lets see if we need to make another 
@@ -440,12 +443,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Set<String> libraryIdStringSet = new HashSet<String>();
 			libraryIdStringSet.add(library.getSampleId().toString());
 			parameterMap.put(WaspJobParameters.LIBRARY_ID, libraryIdStringSet);
-			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.userLibrary.jobflow", parameterMap, false);
-			jobExecutions.addAll(batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false));
+			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false);
 			
 			for (JobExecution jobExecution: jobExecutions){
-				if (jobExecution.getExitStatus().equals(ExitStatus.EXECUTING) || 
-						jobExecution.getExitStatus().equals(ExitStatus.COMPLETED) ){
+				if (jobExecution.getStatus().equals(BatchStatus.STARTING) || 
+						jobExecution.getStatus().equals(BatchStatus.STARTED) ||
+						jobExecution.getStatus().equals(BatchStatus.COMPLETED) ){
 					// a library is still active or completed so not awaiting creation.
 					// to make a new library despite this requires special logic
 					return false;  

@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.load.service.SampleTypeLoadService;
 
 /**
- * update/inserts db copy of type sample from bean definition takes in
- * properties - iname - name - uifields (List<UiFields) - sampleType (string to
- * sampletype iname table)
- * 
+ * update/inserts db copy of type SampleType from bean definition 
  */
 
 public class SampleTypeLoader extends WaspLoader {
@@ -47,7 +44,7 @@ public class SampleTypeLoader extends WaspLoader {
 
 	@PostConstruct
 	public void init() throws Exception {
-		sampleTypeLoadService.update(iname, name, sampleTypeCategoryIname, isActive, uiFields);
+		sampleTypeLoadService.update(iname, name, sampleTypeCategoryIname, isActive);
 		sampleTypeLoadService.updateUiFields(uiFields);
 
 	}
