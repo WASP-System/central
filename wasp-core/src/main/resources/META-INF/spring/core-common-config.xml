@@ -3,7 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	default-autowire="byName"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
@@ -81,6 +83,12 @@
       </list>
     </property>
   </bean>
+  
+  <!-- an HTTP Session-scoped bean exposed as a proxy -->
+   	<bean class="edu.yu.einstein.wasp.util.DemoEmail" scope="session">
+      <!-- this next element effects the proxying of the surrounding bean -->
+      <aop:scoped-proxy/>
+   	</bean>
 
   <!-- load local configuration context -->
   <import resource="classpath*:/wasp-site-context.xml" />
