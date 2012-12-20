@@ -23,7 +23,7 @@
 			<h1>Developer Documentation</h1>
 			<div>
 				<ul>
-				<!--	<li><a href="/documentation/docbkx/pdf/wasp-dev.pdf">PDF version</a></li> -->
+					<li><a href="/documentation/docbkx/pdf/wasp-dev.pdf">PDF version</a></li>
 					
 					<li><a href="/documentation/docbkx/html/wasp-dev.html">HTML version</a></li>
 				</ul>
@@ -31,18 +31,24 @@
 			<h1>Javadoc</h1>
 			<div>
 				<ul>
-					<li><a href="/documentation/wasp-core/apidocs/index.html">WASP System Core code</a></li>
-					
-					<li><a href="/documentation/wasp-web/apidocs/index.html">WASP System Web code</a></li>
-					
+					<?php
+						if ($handle = opendir('/var/www/html/documentation')) {
+    						while(false !== ($componentName = readdir($handle))) {
+								if (preg_match("/^wasp-/", $componentName) && file_exists("/var/www/html/documentation/$componentName/apidocs/index.html")){
+	        							print "<li><a href='/documentation/$componentName/apidocs/index.html'>$componentName</a></li>";
+								}
+    						}
+    						closedir($handle);
+						}
+					?>
 					<li>Plugins
 						<ul>
 							<?php
 								if ($handle = opendir('/var/www/html/documentation/wasp-plugins')) {
 		    						while(false !== ($pluginName = readdir($handle))) {
-									if (! preg_match("/^\./", $pluginName)){
-		        							print "<li><a href='/documentation/wasp-plugins/$pluginName/apidocs/index.html'>$pluginName</a></li>";
-									}
+										if (! preg_match("/^\./", $pluginName) && file_exists("/var/www/html/documentation/wasp-plugins/$pluginName/apidocs/index.html")){
+			        							print "<li><a href='/documentation/wasp-plugins/$pluginName/apidocs/index.html'>$pluginName</a></li>";
+										}
 		    						}
 		    						closedir($handle);
 								}

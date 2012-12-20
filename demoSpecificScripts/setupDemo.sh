@@ -1,10 +1,11 @@
 #!/bin/bash
 WASP_HOME=/home/wasp
 PROJECT_HOME=$WASP_HOME/project/wasp
+PLUGINS_HOME=$WASP_HOME/project/wasp-plugins
 CATALINA_HOME=/usr/local/tomcat/tomcat/current
 echo Shutting down WASP Batch if running...
-for x in `ps -ef | grep edu.yu.einstein.wasp.batch.StartSpring | grep -v grep | awk '{print $2}'`
-do 
+for x in `ps -ef | grep edu.yu.einstein.wasp.daemon.StartDaemon | grep -v grep | awk '{print $2}'`
+do
 kill -9 $x
 done
 
@@ -33,6 +34,21 @@ fi
 echo "Updating demo branch from git repository..."
 cd $PROJECT_HOME
 git pull origin demo
+echo "Updating plugins..."
+cd $PLUGINS_HOME
+for x in *
+do
+echo "    Currently updating $x..."
+cd $x
+if [[ "$x" == "wasp-config" ]]
+then
+git pull origin demo
+else
+git pull origin master
+fi
+cd ../
+done
+
 echo "Restoring wasp database to demo default..."
 cd $PROJECT_HOME/db
 mysql -u wasp --password=waspV2 -D wasp < $PROJECT_HOME/db/waspDemoDb.sql
@@ -42,11 +58,11 @@ $WASP_HOME/bin/deployWasp.sh
 
 cd $PROJECT_HOME/wasp-web
 # redeploy as sometimes doesn't load the first time (Tomcat 7 bug)
-mvn tomcat:redeploy
+#mvn tomcat:redeploy
 
-echo Starting batch...
+echo Starting wasp-daemon...
 cd $PROJECT_HOME/wasp-exec
-nohup java -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.batch.StartSpring > /dev/null 2>&1 &
+nohup java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon /dev/null 2>&1 &
 
 echo Re-building and deploying documentation..
 $WASP_HOME/bin/deployDocumentation.sh
