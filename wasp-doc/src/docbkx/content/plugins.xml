@@ -116,28 +116,28 @@
 		<para>A wasp system plugin is a self contained jar, which is discovered at runtime
 		and packages one or more of:</para>
 		<orderedlist numeration="arabic">
-		<listitem>
-		<para>Configuration information</para>
-		</listitem>
-		<listitem>
-		<para>Pipelines and software wrappers</para>
-		</listitem>
-		<listitem>
-		<para>Forms</para>
-		</listitem>
-		<listitem>
-		<para>Metadata to be loaded into the database</para>
-		</listitem>
+			<listitem>
+			<para>Configuration information</para>
+			</listitem>
+			<listitem>
+			<para>Pipelines and software wrappers</para>
+			</listitem>
+			<listitem>
+			<para>Forms</para>
+			</listitem>
+			<listitem>
+			<para>Metadata to be loaded into the database</para>
+			</listitem>
 		</orderedlist>
 		<section>
 			<title>Registering a plugin</title>
 			<para>In order for a plugin to be recognized and picked up by the wasp system
 			some common elements need to be in place.</para>
 			<orderedlist numeration="arabic">
-			<listitem>
-			<para></para>
-			</listitem>
-
+				<listitem>
+				<para></para>
+				</listitem>
+			</orderedlist>
 		<section>
 	</section>
 	<section>
