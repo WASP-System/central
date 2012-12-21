@@ -7,7 +7,7 @@ package edu.yu.einstein.wasp.exception;
  * @author calder
  *
  */
-public abstract class GridException extends WaspException {
+public class GridException extends WaspException {
 	
 	public GridException(){
 		super();

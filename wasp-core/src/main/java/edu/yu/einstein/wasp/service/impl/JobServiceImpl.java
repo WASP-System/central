@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -71,6 +72,7 @@ import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
@@ -137,12 +139,74 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return this.jobDao;
 	}
 	
+	public void setJobMetaDao(JobMetaDao jobMetaDao) {
+		this.jobMetaDao = jobMetaDao;
+	}
+	
+	public void setJobSoftwareDao(JobSoftwareDao jobSoftwareDao) {
+		this.jobSoftwareDao = jobSoftwareDao;
+	}
+	public void setJobResourcecategoryDao(JobResourcecategoryDao jobResourcecategoryDao) {
+		this.jobResourcecategoryDao = jobResourcecategoryDao;
+	}
+	
 	public void setJobSampleDao(JobSampleDao jobSampleDao) {
 		this.jobSampleDao = jobSampleDao;
 	}
 
 	public void setSampleDao(SampleDao sampleDao) {
 		this.sampleDao = sampleDao;
+	}
+	
+	public void setRoleDao(RoleDao roleDao) {
+		this.roleDao = roleDao;
+	}
+	
+	public void setJobUserDao(JobUserDao jobUserDao) {
+		this.jobUserDao = jobUserDao;
+	}
+	
+	public void setLabDao(LabDao labDao) {
+		this.labDao = labDao;
+	}
+	
+	public void setJobCellSelectionDao(JobCellSelectionDao jobCellSelectionDao) {
+		this.jobCellSelectionDao = jobCellSelectionDao;
+	}
+	
+	public void setSampleJobCellSelectionDao(SampleJobCellSelectionDao sampleJobCellSelectionDao) {
+		this.sampleJobCellSelectionDao = sampleJobCellSelectionDao;
+	}
+
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
+	}
+	
+	public void setJobDraftDao(JobDraftDao jobDraftDao) {
+		this.jobDraftDao = jobDraftDao;
+	}
+	
+	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
+		this.sampleMetaDao = sampleMetaDao;
+	}
+	
+	public void setSampleService(SampleService sampleService) {
+		this.sampleService = sampleService;	
+	}
+	
+	public void setSampleFileDao(SampleFileDao sampleFileDao) {
+		this.sampleFileDao = sampleFileDao;	
+
+	}
+	
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+		this.sampleTypeDao = sampleTypeDao;	
+
+	}
+	
+	public void setLogger(Logger logger) {
+		
+		this.logger = logger;
 	}
 	
 	@Autowired
@@ -261,11 +325,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : jobSampleDao.getJobSampleByJobId(job.getJobId())){
+			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){
 				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
 				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
 				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
-				  if(sample.getParent() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParent() != null this indicates a facility-generated library), so add it to the submittedSample list
+				  if(sample.getParentId() == null){//this sample is NOT a facility-generated library (by contrast, if sample.getParentId() != null this indicates a facility-generated library), so add it to the submittedSample list
 					  submittedSamplesList.add(sample);
 				  }
 			  }	
@@ -1061,7 +1125,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNull(status, "No Status provided");
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
-		
+		if (status == WaspStatus.ABANDONED)
+			task = WaspTask.NOTIFY_STATUS; // let everyone interested know that this job is being killed
 		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
@@ -1212,5 +1277,43 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<MetaMessage> getUserSubmittedJobComment(Integer jobId){
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
 	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Sample, String> getCoverageMap(Job job){
+		
+		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
+		for(Sample sample : this.getSubmittedSamples(job)){
+			StringBuffer stringBuffer = new StringBuffer("");
+			for(int i = 1; i <= job.getJobCellSelection().size(); i++){
+				boolean found = false;
+				for(JobCellSelection jobCellSelection : job.getJobCellSelection()){
+					for(SampleJobCellSelection sampleJobCellSelection : jobCellSelection.getSampleJobCellSelection()){
+						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
+							if(jobCellSelection.getCellIndex().intValue() == i){
+								stringBuffer.append("1");
+								found = true;
+							}
+						}
+					}
+				}
+				if(found == false){
+					stringBuffer.append("0");
+				}
+			}
+			coverageMap.put(sample, new String(stringBuffer));
+  		}
+		return coverageMap;
+	}
+
+	@Override
+	public void setJobDao(SampleDao mockSampleDao) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

@@ -107,7 +107,7 @@ public class TaskController extends WaspController {
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	for (Sample sample: newSampleList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newSampleList);    	
+    	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
     
@@ -123,16 +123,23 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/samplereceive/receive", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public String payment(@RequestParam("jobId") Integer jobId,
-		  				@RequestParam("sampleId") List<Integer> sampleIdList,
+  public String recordSampleReceive(@RequestParam("sampleId") List<Integer> sampleIdList,
 		  				ModelMap m) 
   {
-	  String [] receivedStatusArray = request.getParameterValues("receivedStatus" + jobId.toString());
-	  List<String> receivedStatusList = Arrays.asList(receivedStatusArray);
+	  List<String> receivedStatusList = new ArrayList<String>(); //Arrays.asList(receivedStatusArray);
+	  for(Integer id : sampleIdList){
+			String val = request.getParameter("receivedStatus" + id.toString());
+			if(val == null){
+				waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
+				return "redirect:/task/samplereceive/list.do";
+			}
+			receivedStatusList.add(val);
+	  }	  
 	  boolean atLeastOneSampleSelectedForUpdate = false;
 	  for(String status: receivedStatusList){
 		  if("RECEIVED".equals(status) || "WITHDRAWN".equals(status)){
 			  atLeastOneSampleSelectedForUpdate = true;
+			  break;
 		  }
 	  }
 	  if(atLeastOneSampleSelectedForUpdate==false){
@@ -144,7 +151,7 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
 		  return "redirect:/task/samplereceive/list.do";		  
 	  }
-	  
+	 	  
 	  for(int i = 0; i < receivedStatusList.size(); i++){
 		  if(!receivedStatusList.get(i).isEmpty()){
 			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
@@ -174,7 +181,6 @@ public class TaskController extends WaspController {
 		  }
 	  }
 	  waspMessage("task.samplereceive_update_success.label");
-	  logger.debug("DUBIN leaving post");
 	  return "redirect:/task/samplereceive/list.do";
 
   }
@@ -193,8 +199,8 @@ public class TaskController extends WaspController {
 	  //getSubmittedSamples(job) returns list of all samples (macromolecules and user-generated libraries) 
 	  //that were submitted for a particular job and it does NOT include facility-generated libraries.
 	  List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-	  //order by sample name
-	  sampleService.sortSamplesBySampleName(submittedSamplesList);
+	  //order by sample id
+	  sampleService.sortSamplesBySampleId(submittedSamplesList);
 	  
 	  List<String> receiveSampleStatusList = new ArrayList<String>();
 	  List<Boolean> sampleHasBeenProcessedList = new ArrayList<Boolean>();
@@ -267,7 +273,7 @@ public class TaskController extends WaspController {
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
     	for (Sample sample: newSampleList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newSampleList);    	
+    	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
     
@@ -286,16 +292,27 @@ public class TaskController extends WaspController {
   public String updateSampleQC(
       @RequestParam("sampleId") Integer sampleId,
       @RequestParam("qcStatus") String qcStatus,
-      ModelMap m) {
+      @RequestParam("comment") String comment,
+      ModelMap m) {	  
+	  
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.sampleqc_invalid_sample.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
 	  if(qcStatus == null ||  qcStatus.equals("")){
-		  waspErrorMessage("task.sampleqc_status_empty.error");
+		  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
+	  if( ! "FAILED".equals(qcStatus) && ! "PASSED".equals(qcStatus) ){
+		  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");	
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+	  if("FAILED".equals(qcStatus) && comment.trim().isEmpty() ){
+		  waspErrorMessage("task.sampleqc_comment_empty.error");	
+		  return "redirect:/task/sampleqc/list.do";
+	  }
+
 	  try{
 		  if(qcStatus.equals("PASSED")){
 			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
@@ -311,7 +328,19 @@ public class TaskController extends WaspController {
 		  logger.warn(e.getLocalizedMessage());
 		  waspErrorMessage("task.sampleqc_message.error");
 		  return "redirect:/task/sampleqc/list.do";
+		  }
+	  
+	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  if(!comment.trim().isEmpty()){
+			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+		  }
 	  }
+	  catch(Exception e){
+		  logger.warn(e.getMessage());
+	  }
+	  
 	  waspMessage("task.sampleqc_update_success.label");	
 	  return "redirect:/task/sampleqc/list.do";
   }
@@ -328,7 +357,7 @@ public class TaskController extends WaspController {
     	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
     	for (Sample sample: newLibraryList)
     		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
-    	sampleService.sortSamplesBySampleName(newLibraryList);    	
+    	sampleService.sortSamplesBySampleId(newLibraryList);    	
     	jobAndSampleMap.put(job, newLibraryList);
     }
     
@@ -347,16 +376,27 @@ public class TaskController extends WaspController {
   public String updateLibraryQC(
       @RequestParam("sampleId") Integer sampleId,
       @RequestParam("qcStatus") String qcStatus,
+      @RequestParam("comment") String comment,
       ModelMap m) {
+	  
 	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
 	  if(sample.getSampleId()==null){
 		  waspErrorMessage("task.libraryqc_invalid_sample.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
 	  if(qcStatus == null ||  qcStatus.equals("")){
-		  waspErrorMessage("task.libraryqc_status_empty.error");
+		  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
+	  if( ! "FAILED".equals(qcStatus) && ! "PASSED".equals(qcStatus) ){
+		  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");	
+		  return "redirect:/task/libraryqc/list.do";
+	  }
+	  if("FAILED".equals(qcStatus) && comment.trim().isEmpty() ){
+		  waspErrorMessage("task.libraryqc_comment_empty.error");	
+		  return "redirect:/task/libraryqc/list.do";
+	  }
+
 	  try{
 		  if(qcStatus.equals("PASSED")){
 			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
@@ -373,6 +413,18 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.libraryqc_message.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
+	  
+	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  if(!comment.trim().isEmpty()){
+			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+		  }
+	  }
+	  catch(Exception e){
+		  logger.warn(e.getMessage());
+	  }
+	  
 	  waspMessage("task.libraryqc_update_success.label");	
 	  return "redirect:/task/libraryqc/list.do";
   }

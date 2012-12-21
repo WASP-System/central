@@ -14,10 +14,25 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobMetaDao;
+import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.JobSoftwareDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
+import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
@@ -315,5 +330,51 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public boolean isJobsAwaitingQuote();
 
+	public void setSampleService(SampleService sampleService);
+
+
+	/**
+	 * returns Map of sample and string in form of (for example) 11010
+	 * where (in this example) first, second, and fourth cells contains the sample 
+	 * @return Map<Sample, String>
+	 */
+	public Map<Sample, String> getCoverageMap(Job job);
+
+	public void setSampleDao(SampleDao mockSampleDao);
+
+	public void setJobDao(SampleDao mockSampleDao);
+
+	public void setJobMetaDao(JobMetaDao mockJobMetaDao);
+
+	public void setJobSoftwareDao(JobSoftwareDao mockJobSoftwareDao);
+
+	public void setJobResourcecategoryDao(
+			JobResourcecategoryDao mockJobResourcecategoryDao);
+
+	public void setRoleDao(RoleDao mockRoleDao);
+
+	public void setJobUserDao(JobUserDao mockJobUserDao);
+
+	public void setLabDao(LabDao mockLabDao);
+
+	public void setJobCellSelectionDao(
+			JobCellSelectionDao mockJobCellSelectionDao);
+
+	public void setSampleFileDao(SampleFileDao mockSampleFileDao);
+
+	public void setSampleMetaDao(SampleMetaDao mockSampleMetaDao);
+
+	public void setSampleJobCellSelectionDao(
+			SampleJobCellSelectionDao mockSampleJobCellSelectionDao);
+
+	public void setJobSampleDao(JobSampleDao mockJobSampleDao);
+
+	public void setJobDraftDao(JobDraftDao mockJobDraftDao);
+
+	public void setLogger(Logger logger);
+
+	public void setSampleTypeDao(SampleTypeDao mockSampleTypeDao);
+
 	
+
 }

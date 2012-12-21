@@ -40,13 +40,13 @@ public interface GridTransportService {
 	
 	public void setUserDirIsRoot(boolean isRoot);
 	
-	public void setName(String name);
+	abstract void setName(String name);
 	public String getName();
-	public void setHostName(String hostname);
+	abstract void setHostName(String hostname);
 	public String getHostName();
-	public void setUserName(String username);
-	public String getUserName();
-	public void setIdentityFile(String identityFile);
-	public File getIdentityFile();
+	abstract void setUserName(String username);
+	abstract String getUserName();
+	abstract void setIdentityFile(String identityFile);
+	abstract File getIdentityFile();
 
 }

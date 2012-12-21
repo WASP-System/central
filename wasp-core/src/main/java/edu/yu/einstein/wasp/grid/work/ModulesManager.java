@@ -57,16 +57,16 @@ public class ModulesManager extends HashMap<String, String> implements
 		// configure software dependencies that are loaded via modules
 		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
 
-			String name = sw.getArea();
+			String name = sw.getSoftwareName();
 			// if the name is configured on the host, override the software
 			// package's name
-			if (this.containsKey(sw.getArea() + ".name"))
-				name = this.get(sw.getArea() + ".name");
+			if (this.containsKey(name + ".name"))
+				name = this.get(name + ".name");
 
-			String version = sw.getRequestedVersion();
+			String version = sw.getSoftwareVersion();
 			// if the version is configured on the host, force that version.
-			if (this.containsKey(sw.getArea() + ".version"))
-				version = this.get(sw.getArea() + ".version");
+			if (this.containsKey(name + ".version"))
+				version = this.get(name + ".version");
 			
 			if (version == null) {
 				logger.error("No version has been set for software: " + name );

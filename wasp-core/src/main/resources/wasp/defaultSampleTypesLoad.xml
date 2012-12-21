@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+   
+  <bean id="dnaSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="DNA" />
+    <property name="area" value="dna" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['biomaterial']}" />
+  </bean>
+  
+  <bean id="rnaSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="RNA" />
+    <property name="area" value="rna" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['biomaterial']}" />
+  </bean>
+  
+  <bean id="librarySampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="Library" />
+    <property name="area" value="library" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['biomaterial']}" />
+  </bean>
+  
+   <bean id="cellSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="Cell" />
+    <property name="area" value="cell" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['hardware']}" />
+  </bean>
+  
+  <bean id="puSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="Platform Unit" />
+    <property name="area" value="platformunit" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['hardware']}" />
+  </bean>
+  
+  <bean id="tissue" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="Tissue" />
+    <property name="area" value="tissue" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['biomaterial']}" />
+  </bean>
+  
+  <bean id="facilityLibrary" class="edu.yu.einstein.wasp.load.SampleTypeLoader">
+    <property name="name" value="Facilitylibrary" />
+    <property name="area" value="facilityLibrary" />
+    <property name="sampleTypeCategoryIname" value="#{waspSampleTypeCategory['biomaterial']}" />
+  </bean>
+ 
+</beans>
+

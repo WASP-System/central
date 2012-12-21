@@ -54,10 +54,7 @@
 	
 	
 	<!-- import batch flows -->
-	<!-- import resource="classpath*:flows/*.xml" / -->
-	<import resource="classpath:flows/default.waspJob.mainFlow.v1.xml" />
-	<import resource="classpath:flows/default.sample.mainFlow.v1.xml" />
-	<import resource="classpath:flows/default.library.mainFlow.v1.xml" />
+	<import resource="classpath*:flows/*.xml" />
 	
 	<!-- loads all the plugin root contexts -->
   	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />

@@ -13,12 +13,10 @@ public class StartDaemon {
 	private static final Logger logger = LoggerFactory.getLogger(StartDaemon.class);
 	
 	public static void main(final String[] args) throws Exception {
-		@SuppressWarnings("unused")
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("META-INF/spring/daemon-launch-context.xml");
-		logger.info("\n\nGoing to restart any batch jobs that might have been running before last shutdown...\n\n");
 		BatchRelaunchRunningJobsOnStartup batchRelaunchRunningJobsOnStartup = ctx.getBean(WaspBatchRelaunchRunningJobsOnStartup.class);
+		logger.info("\n\nGoing to restart any batch jobs that might have been running before last shutdown...\n\n");
 		batchRelaunchRunningJobsOnStartup.doLaunchAllRunningJobs();
 		logger.info("\n\nSpring Batch Daemon Application Launched Successfully...\n\n");
-		
 	}
 }

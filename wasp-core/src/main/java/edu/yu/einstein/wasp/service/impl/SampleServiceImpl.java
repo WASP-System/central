@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -73,6 +75,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
@@ -93,6 +96,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -144,6 +148,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.authenticationService = authenticationService;
 	}
 	
+	@Autowired
+	private MetaMessageService metaMessageService;
+
 	@Autowired
 	private WorkflowDao workflowDao;
 	
@@ -423,8 +430,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<Sample> librariesExisting = sample.getChildren();
-		if (librariesExisting == null || librariesExisting.isEmpty())
+		if (librariesExisting == null || librariesExisting.isEmpty()){
+			logger.debug("No libraries currently associated with sample id=" + sample.getSampleId() + " (" + sample.getName() + ")");
 			return true; // no libraries made yet for this sample
+		}
 		
 		
 		// libraries already exist for this sample. Lets see if we need to make another 
@@ -434,12 +443,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Set<String> libraryIdStringSet = new HashSet<String>();
 			libraryIdStringSet.add(library.getSampleId().toString());
 			parameterMap.put(WaspJobParameters.LIBRARY_ID, libraryIdStringSet);
-			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.userLibrary.jobflow", parameterMap, false);
-			jobExecutions.addAll(batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false));
+			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false);
 			
 			for (JobExecution jobExecution: jobExecutions){
-				if (jobExecution.getExitStatus().equals(ExitStatus.EXECUTING) || 
-						jobExecution.getExitStatus().equals(ExitStatus.COMPLETED) ){
+				if (jobExecution.getStatus().equals(BatchStatus.STARTING) || 
+						jobExecution.getStatus().equals(BatchStatus.STARTED) ||
+						jobExecution.getStatus().equals(BatchStatus.COMPLETED) ){
 					// a library is still active or completed so not awaiting creation.
 					// to make a new library despite this requires special logic
 					return false;  
@@ -467,7 +476,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  Collections.sort(samples, new SampleNameComparator());//sort by sample's name 
 	  }
-	  
+
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public void sortSamplesBySampleId(List<Sample> samples){
+		  Assert.assertParameterNotNull(samples, "No Sample list provided");
+		  // TODO: Write test!!
+		  class SampleIdComparator implements Comparator<Sample> {
+			    @Override
+			    public int compare(Sample arg0, Sample arg1) {
+			        return arg0.getSampleId().compareTo(arg1.getSampleId());
+			    }
+		  }
+		  Collections.sort(samples, new SampleIdComparator());//sort by sample's id 
+	  }
+	
 	  /**
 	   * {@inheritDoc}
 	   */
@@ -481,7 +506,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "RECEIVED";
 			}
-			else if(internalStatus.equals(ExitStatus.STOPPED)){
+			else if(internalStatus.equals(ExitStatus.FAILED)){
 				return "WITHDRAWN";
 			}
 			else {
@@ -514,9 +539,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(ExitStatus.EXECUTING) || internalStatus.equals(ExitStatus.UNKNOWN)){
+		  	if( internalStatus.equals(ExitStatus.UNKNOWN) ){
+			  return "NONEXISTENT";
+		  	}
+		  	else if(internalStatus.equals(ExitStatus.EXECUTING)){
 			  return "AWAITING QC";
-			}
+		  	}
 			else if(internalStatus.equals(ExitStatus.COMPLETED)){
 				return "PASSED";
 			}
@@ -2204,4 +2232,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setSampleQCComment(Integer sampleId, String comment) throws Exception{
+		try{
+			metaMessageService.saveToGroup("sampleQCComment", "Sample QC Comment", comment, sampleId, SampleMeta.class, sampleMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getSampleQCComments(Integer sampleId){
+		return metaMessageService.read("sampleQCComment", sampleId, SampleMeta.class, sampleMetaDao);
+	}
 }

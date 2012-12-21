@@ -9,6 +9,7 @@ import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
@@ -619,6 +620,25 @@ public class StubSampleService implements SampleService {
 	public ExitStatus getLibraryQCStatus(Sample library) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setSampleQCComment(Integer sampleId, String comment)
+			throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<MetaMessage> getSampleQCComments(Integer sampleId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void sortSamplesBySampleId(List<Sample> samples) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

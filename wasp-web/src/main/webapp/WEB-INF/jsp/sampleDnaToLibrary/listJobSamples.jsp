@@ -45,9 +45,7 @@
 </div>
 
 <br />
-<div>
 <input  class="button" type="button" id="requested_coverage_show_hide_button" value="<fmt:message key="listJobSamples.showUserRequestedCoverage.label" />"  />
-</div>		
 <div id="user_requested_coverage_data" style="display:none">		
 	<table class="data">
 	<tr class="FormData">
@@ -71,7 +69,36 @@
 	</c:forEach>
 	</table>
 </div>
+
+
 <br />
+
+<c:if test="${not empty files}">
+
+<input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
+<div id="jobFiles" style="display:none">		
+	<table class="data">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">File Name</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Description</td>
+	</tr>
+	<c:forEach items="${files}" var="file">
+		<tr class="FormData">
+			<td class="value-centered"  >
+				<a href="<c:out value="${fileUrlMap.get(file).getPath()}" />"><c:out value="${file.getFileURI()}" /></a>
+			</td>
+			<td class="value-centered"  >
+				<c:out value="${file.getDescription()}" />
+			</td>
+		</tr>
+	</c:forEach>
+	</table>
+</div>	
+<br />
+</c:if>
+
+
+
 
 <c:set var="idCounter" value="1000" scope="page" />
 <table class="data"> 
@@ -95,13 +122,27 @@
 				<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
 				<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
-				<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;
+				<sec:authorize access="hasRole('su') or hasRole('ft')">
+				&nbsp;
 				<%--  please leave, may be useful later <a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%>
+				<%-- 
 				<c:if test='${receiveSampleStatusMap.get(userSubmittedMacromolecule) == true}'>
 					<a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a>
 				</c:if>
-				</sec:authorize><br />
-				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/><br />
+				--%>
+				</sec:authorize>
+				
+				<c:if test='${qcStatusMap.get(userSubmittedMacromolecule) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedMacromolecule) == "RECEIVED"}'>
+				  <div class="wasptooltip">
+					<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/>
+					<c:set value="${qcStatusCommentsMap.get(userSubmittedMacromolecule)}" var="metaMessageList" />
+					<c:if test="${metaMessageList.size()>0}">
+						<%-- <c:forEach items="${metaMessageList}" var="metaMessage">--%>
+							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+						<%--</c:forEach>--%>
+					</c:if>
+				  </div>
+				</c:if>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				<c:if test='${receivedStatusMap.get(userSubmittedMacromolecule)=="RECEIVED"}'>
 					<c:if test='${not empty createLibraryStatusMap.get(userSubmittedMacromolecule) and createLibraryStatusMap.get(userSubmittedMacromolecule) == true}'>
@@ -127,7 +168,17 @@
 							<c:set var="adaptor" value="${libraryAdaptorMap.get(facilityLibraryForThisMacromolecule)}" scope="page" />
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
-							<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/><br />							
+							<c:if test='${qcStatusMap.get(facilityLibraryForThisMacromolecule) != "NONEXISTENT"}'>
+							  <div class="wasptooltip">
+								<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/>						
+								<c:set value="${qcStatusCommentsMap.get(facilityLibraryForThisMacromolecule)}" var="metaMessageList" />
+								<c:if test="${metaMessageList.size()>0}">
+									<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
+										<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+									<%--</c:forEach>--%>
+								</c:if>
+								</div>
+							</c:if>
 							<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<div id="showButton_<c:out value="${idCounter}" />" >
@@ -185,12 +236,12 @@
 						
 					</td>						
 					<td>
-					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSample()}" scope="page" />
 							<c:choose>
 								<c:when test="${sampleSourceList.size() > 0}">
 									<c:forEach items="${sampleSourceList}" var="sampleSource">
 										<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-										<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
+										<c:set var="sampleSourceList2" value="${cell.getSourceSample()}" scope="page" />
 										<c:forEach items="${sampleSourceList2}" var="sampleSource2">
 											<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 											<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
@@ -233,8 +284,18 @@
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
-			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if></sec:authorize><br />
-			<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
+			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
+			<c:if test='${qcStatusMap.get(userSubmittedLibrary) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
+			  <div class="wasptooltip">
+				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
+				<c:set value="${qcStatusCommentsMap.get(userSubmittedLibrary)}" var="metaMessageList" />
+					<c:if test="${metaMessageList.size()>0}">
+						<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
+							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+						<%--</c:forEach>--%>
+					</c:if>
+			   </div>
+			</c:if>
 			<c:if test='${receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
 				<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
  				<sec:authorize access="hasRole('su') or hasRole('ft')">
@@ -293,12 +354,12 @@
 			</c:if> 
 		</td>
 		<td>
-		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSampleId()}" scope="page" />
+		<c:set var="sampleSourceList" value="${userSubmittedLibrary.getSourceSample()}" scope="page" />
 		<c:choose>
 			<c:when test="${sampleSourceList.size() > 0}">
 				<c:forEach items="${sampleSourceList}" var="sampleSource">
 					<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-					<c:set var="sampleSourceList2" value="${cell.getSourceSampleId()}" scope="page" />
+					<c:set var="sampleSourceList2" value="${cell.getSourceSample()}" scope="page" />
 					<c:forEach items="${sampleSourceList2}" var="sampleSource2">
 						<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
 						<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
