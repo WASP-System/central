@@ -137,6 +137,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 			Thread.sleep(executeRepeatDelay);
 			return RepeatStatus.CONTINUABLE;
 		}
+		Thread.sleep(executeRepeatDelay * 2); // give time for any other steps getting this message to process it before killing all
 		return RepeatStatus.FINISHED;
 	}
 	
