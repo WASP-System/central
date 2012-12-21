@@ -529,6 +529,33 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return jobsAwaitingQCOfSamples;
 	}
 	
+	@Override
+	public List<Job> getJobsAwaitingFmApproval() {
+		List<Job> allJobsPendingFmApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingFmApproval(job))
+				allJobsPendingFmApproval.add(job);
+		return allJobsPendingFmApproval;
+	}
+	
+	@Override
+	public List<Job> getJobsAwaitingPiLmApproval() {
+		List<Job> allJobsPendingPiApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingPiApproval(job))
+				allJobsPendingPiApproval.add(job);
+		return allJobsPendingPiApproval;
+	}
+	
+	@Override
+	public List<Job> getJobsAwaitingDaApproval() {
+		List<Job> allJobsPendingDaApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingDaApproval(job))
+				allJobsPendingDaApproval.add(job);
+		return allJobsPendingDaApproval;
+	}
+	
 	/**
 	   * {@inheritDoc}
 	   */
@@ -613,7 +640,23 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobAwaitingFmApproval(Job job){
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
 				return true;
 			return false;
 		}
@@ -738,7 +781,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  
 		  String daStatusLabel = "status.daApproval.label";
 		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				  batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true)
 				);
 		  if (stepExecution == null){
 			  jobApprovalsMap.put(daStatusLabel, "status.notYetSet.label");
@@ -1106,7 +1149,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.ADMIN_APPROVE);
+		updateJobStatus(job, status, WaspJobTask.DA_APPROVE);
 	}
 
 	
@@ -1116,6 +1159,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
 		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.FM_APPROVE);
 	}
 	
 	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{

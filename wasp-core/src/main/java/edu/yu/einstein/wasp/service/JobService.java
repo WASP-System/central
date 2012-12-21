@@ -222,6 +222,13 @@ public interface JobService extends WaspMessageHandlingService {
 	public boolean isJobAwaitingDaApproval(Job job);
 	
 	/**
+	 * Returns true if provided job is awaiting facility manager approval, otherwise returns false
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingFmApproval(Job job);
+	
+	/**
 	 * Returns true if provided job is awaiting quoting, otherwise returns false
 	 * @param job
 	 * @return
@@ -261,6 +268,15 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	/**
+	 * Updates the Job Facility Manager Approval Status for job
+	 * Status must be either COMPLETED or ABANDONED
+	 * @param jobId
+	 * @param status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
 
 	/**
 	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
@@ -323,6 +339,26 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public List<Job> getJobsAwaitingQuote();
+	
+	/**
+	 * get a list of all jobs awaiting facility manager approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingFmApproval();
+
+	
+	/**
+	 * get a list of all jobs awaiting PI/ Lm approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingPiLmApproval();
+
+	
+	/**
+	 * get a list of all jobs awaiting department administrator approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingDaApproval();
 
 	/**
 	 * returns true if one or more jobs are awaiting quoting
@@ -374,6 +410,10 @@ public interface JobService extends WaspMessageHandlingService {
 	public void setLogger(Logger logger);
 
 	public void setSampleTypeDao(SampleTypeDao mockSampleTypeDao);
+
+	
+
+	
 
 	
 

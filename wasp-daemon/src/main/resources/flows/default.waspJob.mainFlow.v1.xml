@@ -21,8 +21,13 @@
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="default.waspJob.step.adminApprove">
-					<batch:tasklet ref="listenForJobAdminApproveTasklet" />
+				<batch:step id="default.waspJob.step.daApprove">
+					<batch:tasklet ref="listenForJobDaApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="default.waspJob.step.fmApprove">
+					<batch:tasklet ref="listenForJobFmApproveTasklet" />
 				</batch:step>
 			</batch:flow>
 		</batch:split>
