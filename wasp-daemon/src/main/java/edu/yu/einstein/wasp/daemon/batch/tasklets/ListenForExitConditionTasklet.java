@@ -20,7 +20,6 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
@@ -123,7 +122,6 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 			// calling StepExecution.setTerminateOnly()
 			stepExecution.getJobExecution().stop(); 
 		}
-		exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
 		this.message = null; // clean up in case of restart
 		stopJobNotificationReceived = false; // clean up in case of restart
 		logger.debug(name + "AfterStep() going return ExitStatus of '"+exitStatus.toString()+"'");
@@ -137,7 +135,6 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 			Thread.sleep(executeRepeatDelay);
 			return RepeatStatus.CONTINUABLE;
 		}
-		Thread.sleep(executeRepeatDelay * 2); // give time for any other steps getting this message to process it before killing all
 		return RepeatStatus.FINISHED;
 	}
 	
