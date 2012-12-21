@@ -762,16 +762,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 			  }
 			  else{
@@ -788,16 +788,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.awaitingResponse.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.approved.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.rejected.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.abandoned.label");
 			  }
 			  else{

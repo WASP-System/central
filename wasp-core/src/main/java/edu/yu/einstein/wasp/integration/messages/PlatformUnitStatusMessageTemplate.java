@@ -44,6 +44,7 @@ public class PlatformUnitStatusMessageTemplate extends WaspStatusMessageTemplate
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 						.setHeader(TARGET_KEY, "batch")
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.PLATFORM_UNIT_ID, platformUnitId)
 						.setPriority(status.getPriority())
 						.build();
@@ -51,6 +52,7 @@ public class PlatformUnitStatusMessageTemplate extends WaspStatusMessageTemplate
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 						.setHeader(TARGET_KEY, "batch")
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.PLATFORM_UNIT_ID, platformUnitId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())

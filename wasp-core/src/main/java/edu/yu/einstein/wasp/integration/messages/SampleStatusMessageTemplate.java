@@ -44,6 +44,7 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
 						.setPriority(status.getPriority())
 						.build();
@@ -51,6 +52,7 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())

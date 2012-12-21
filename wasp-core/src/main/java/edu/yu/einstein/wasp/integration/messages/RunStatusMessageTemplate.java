@@ -47,6 +47,7 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 						.setHeader(TARGET_KEY, "batch")
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.RUN_ID, runId)
 						.setPriority(status.getPriority())
 						.build();
@@ -54,6 +55,7 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 						.setHeader(TARGET_KEY, "batch")
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.RUN_ID, runId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())

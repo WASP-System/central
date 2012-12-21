@@ -44,6 +44,7 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setPriority(status.getPriority())
 						.build();
@@ -51,6 +52,7 @@ public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())

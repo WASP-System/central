@@ -22,6 +22,7 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
@@ -95,14 +96,16 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
-		if (exitStatus.equals(ExitStatus.COMPLETED)){
+		if (exitStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 			for (Message<WaspStatus> message: messageQueue){
+				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
 				if (message.getPayload().isUnsuccessful())
 					exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
 			}
 		}
 		this.messageQueue.clear(); // clean up in case of restart
 		logger.debug(name + "AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
+		
 		return exitStatus;
 	}
 
