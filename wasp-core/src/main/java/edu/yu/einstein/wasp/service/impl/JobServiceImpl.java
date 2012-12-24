@@ -1176,8 +1176,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNull(status, "No Status provided");
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
-		if (status == WaspStatus.ABANDONED)
-			task = WaspTask.NOTIFY_STATUS; // let everyone interested know that this job is being killed
 		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());

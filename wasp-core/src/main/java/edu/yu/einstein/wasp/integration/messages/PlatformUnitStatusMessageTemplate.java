@@ -65,17 +65,23 @@ public class PlatformUnitStatusMessageTemplate extends WaspStatusMessageTemplate
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied runId and/or platformUnitId value (one of these may be null) and task to see if the message should be acted upon or not
-	 * @param message
-	 * @param jobId 
-	 * @param task
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
 		if (this.task == null)
 			return actUponMessage(message, this.platformUnitId);
 		return actUponMessage(message, this.platformUnitId, this.task);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message){
+		if (this.task == null)
+			return actUponMessage(message, this.platformUnitId);
+		return actUponMessage(message, this.platformUnitId, null);
 	}
 	
 	// Statics.........
@@ -109,9 +115,9 @@ public class PlatformUnitStatusMessageTemplate extends WaspStatusMessageTemplate
 	public static boolean actUponMessage(Message<?> message, Integer platformUnitId, String task){
 		if (! actUponMessage(message, platformUnitId) )
 			return false;
-		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
-				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}

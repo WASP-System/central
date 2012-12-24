@@ -65,11 +65,7 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied jobId value and task to see if the message should be acted upon or not
-	 * @param message
-	 * @param jobId 
-	 * @param task
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
@@ -77,6 +73,17 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 			return actUponMessage(message, this.jobId);
 		return actUponMessage(message, this.jobId, this.task);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message){
+		if (this.task == null)
+			return actUponMessage(message, this.jobId);
+		return actUponMessage(message, this.jobId, null);
+	}
+	
 	
 	// Statics.........
 
@@ -107,10 +114,11 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	public static boolean actUponMessage(Message<?> message, Integer jobId, String task ){
 		if (! actUponMessage(message, jobId) )
 			return false;
-		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
-				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}
+	
 }
