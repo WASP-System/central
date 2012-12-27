@@ -1433,13 +1433,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public HashMap<String, MetaMessage> getJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId){
+	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId){
 		
 		HashMap<String, MetaMessage> map = new HashMap<String, MetaMessage>();
 		for(String jobApproveCode : jobApproveCodeSet){
 			List<MetaMessage> metaMessageList = this.getJobApprovalComments(jobApproveCode, jobId);
 			if(metaMessageList.size()>0){
-				map.put(jobApproveCode, metaMessageList.get(0));
+				map.put(jobApproveCode, metaMessageList.get(metaMessageList.size()-1));//get the last one
 			}
 		}	
 		return map;

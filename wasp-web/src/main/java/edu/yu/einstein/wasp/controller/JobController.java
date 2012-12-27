@@ -736,7 +736,7 @@ public class JobController extends WaspController {
   @RequestMapping(value = "/pendingJobApprovalByDA/{deptId}.do", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('da-' + #deptId)")
 	public String pendingJobApprovalByDA(
-			@PathVariable("deptId") Integer labId, 
+			@PathVariable("deptId") Integer deptId, 
 			@RequestParam("jobId") Integer jobId, 
 			@RequestParam("action") String action, 
 			@RequestParam("comment") String comment, 

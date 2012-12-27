@@ -333,7 +333,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  if(newK != null && newV != null){jobApprovalsMap.put(newK, newV);}
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
 	  //get the jobApprovals Comments (if any)
-	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
