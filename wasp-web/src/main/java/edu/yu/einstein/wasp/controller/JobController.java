@@ -709,9 +709,7 @@ public class JobController extends WaspController {
 	  }	
 	  try {
 		  jobService.updateJobPiApprovalStatus(job, status);
-		  if("REJECTED".equalsIgnoreCase(action)){
-			  //jobService.setJobRejectorInJobMeta(jobId, "piApprove");
-		  }
+
 	  } catch (WaspMessageBuildingException e) {
 		  waspErrorMessage("lmpendingtask.updateFailed.error"); 
 		  logger.warn("Update unexpectedly failed");

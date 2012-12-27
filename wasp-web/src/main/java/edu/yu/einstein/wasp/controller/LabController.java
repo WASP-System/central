@@ -1312,7 +1312,7 @@ public class LabController extends WaspController {
 	}
 
 	@RequestMapping(value = "/pendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('pi-*') or hasRole('lm-*')")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
 	public String pendingLmApprovalList(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();

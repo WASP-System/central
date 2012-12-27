@@ -62,7 +62,7 @@
       			</c:forEach> 
       			<c:set var="approvalsMap" value="${jobApprovalsMap.get(job)}" />
       			<c:forEach items="${approvalsMap.keySet()}" var="detailKey2">
-       				<fmt:message key="${detailKey2}" />: <fmt:message key="${approvalsMap.get(detailKey2)}" /><br />
+       				<fmt:message key="status.${detailKey2}.label" />: <fmt:message key="status.${approvalsMap.get(detailKey2)}.label" /><br />
       			</c:forEach>     			
       			<c:set var="submittedSamplesList" value="${jobSubmittedSamplesMap.get(job)}" />
       			<fmt:message key="lmpendingtask.samples.label" /> [<c:out value="${submittedSamplesList.size()}" />]:<br />	

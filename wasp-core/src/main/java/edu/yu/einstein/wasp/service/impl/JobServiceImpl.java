@@ -115,7 +115,7 @@ import edu.yu.einstein.wasp.util.StringHelper;
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
-	private final String[] jobApproveArray = {"piApprove", "daApprove" /*, "fm" */};
+	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
 	
 	private JobDao	jobDao;
 	
@@ -814,17 +814,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  
 		  List<String> jobApproveList = new ArrayList<String>();
 		  for(int i = 0; i < this.jobApproveArray.length; i++){
-			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove /*, fmApprove */
+			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
 		  }	  
 		  for(String jobApproveCode : jobApproveList){
 			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 			  List<StepExecution> stepExecutions = null;
-			  if(jobApproveCode.equals("daApprove")){
-				  stepExecutions =  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true);
-			  }
-			  else{	  
-				  stepExecutions =  batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true);
-			  }
+			  stepExecutions =  batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true);
 			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
 			  String approveStatus = null;
 			  if (stepExecution == null){
@@ -1450,21 +1445,5 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return map;
 	}
 
-	public void setJobRejectorInJobMeta(Integer jobId, String jobApproveCode){
-		
-		Job job = this.getJobByJobId(jobId);
-		
-		Assert.assertParameterNotNull(job, "No Job provided");
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-
-		JobMeta jm = new JobMeta();
-		jm.setJobId(jobId);
-		jm.setK(jobApproveCode);
-		jm.setV("rejected");
-		jm.setPosition(0);
-		JobMeta databaseJM = jobMetaDao.save(jm);
-		Assert.assertParameterNotNullNotZero(databaseJM.getJobMetaId(), "Invalid JobMeta Provided");
-		job.getJobMeta().add(databaseJM);
-		jobDao.save(job);	
-	}
+	
 }
