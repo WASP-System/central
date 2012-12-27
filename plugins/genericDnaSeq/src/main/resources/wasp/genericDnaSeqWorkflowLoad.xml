@@ -39,6 +39,14 @@
 				<value>aligner</value>
 			</list>
 		</property>
+		
+		<property name="sampleSubtypes">
+		      <set>
+		        <value>genericDnaDnaSample</value>
+		        <value>genericDnaLibrarySample</value>
+		        <value>genericDnaFacilityLibrarySample</value>
+		      </set>
+    	</property>
 
 
 		<property name="uiFieldsFromWrapper">
