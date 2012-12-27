@@ -39,9 +39,9 @@
 
     <property name="dependencies">
       <list>
-        <value>mps</value>
-        <value>aligner</value>
-        <value>peakcaller</value>
+        <ref bean="mpsResourceType" />
+        <ref bean="referenceBasedAlignerResourceType" />
+        <ref bean="peakcallerResourceType" />
       </list>
     </property>
 
