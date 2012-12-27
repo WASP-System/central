@@ -68,7 +68,7 @@
       			</c:forEach> 
       			<c:set var="approvalsMap" value="${jobApprovalsMap.get(job)}" />
       			<c:forEach items="${approvalsMap.keySet()}" var="detailKey2">
-       				<fmt:message key="${detailKey2}" />: <fmt:message key="${approvalsMap.get(detailKey2)}" /><br />
+       				<fmt:message key="status.${detailKey2}.label" />: <fmt:message key="status.${approvalsMap.get(detailKey2)}.label" /><br />
       			</c:forEach>     			
       			<c:set var="submittedSamplesList" value="${jobSubmittedSamplesMap.get(job)}" />
       			<fmt:message key="dapendingtask.samples.label"/> [<c:out value="${submittedSamplesList.size()}" />]:<br />	
@@ -76,7 +76,17 @@
       				--<c:out value="${sample.getName()}" /> (<c:out value="${sample.getSampleType().getName()}" />, <c:out value="${sampleSpeciesMap.get(sample)}" />)<br />      				
       			</c:forEach>
       			
-      			<br /> <div class="submit"><a href="<c:url value="/job/pendingdaapproval/approve/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.approve.label"/></a> <a href="<c:url value="/job/pendingdaapproval/reject/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.reject.label"/></a></div>    
+      			<%-- <br /> <div class="submit"><a href="<c:url value="/job/pendingdaapproval/approve/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.approve.label"/></a> <a href="<c:url value="/job/pendingdaapproval/reject/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.reject.label"/></a></div>  --%>
+      			
+      			<br />
+      			<form action="<c:url value="/job/pendingJobApprovalByDA/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+ 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
+ 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="dapendingtask.approve.label" /> &nbsp;
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="dapendingtask.reject.label" /><br />
+ 				<textarea id="comment" name="comment" cols="25" rows="2"></textarea><br />
+					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="dapendingtask.reset.label" />">
+				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="dapendingtask.submit.label" />">
+				</form>  
       		</div>      
    		 </c:forEach>
     	</div> 

@@ -733,6 +733,71 @@ public class JobController extends WaspController {
 	  //return "redirect:/lab/pendinglmapproval/list.do";	
 	}
   
+  @RequestMapping(value = "/pendingJobApprovalByDA/{deptId}.do", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('da-' + #deptId)")
+	public String pendingJobApprovalByDA(
+			@PathVariable("deptId") Integer labId, 
+			@RequestParam("jobId") Integer jobId, 
+			@RequestParam("action") String action, 
+			@RequestParam("comment") String comment, 
+			ModelMap m) {
+	  
+	  String referer = request.getHeader("Referer");
+	  Job job = jobService.getJobByJobId(jobId);
+	   
+	  if(job.getJobId()==null){
+		  waspErrorMessage("dapendingtask.invalidJob.error");
+		  logger.warn("Job not found");
+		  return "redirect:"+ referer;
+	  }
+	  if(action == null ||  action.equals("")){
+		  waspErrorMessage("dapendingtask.invalidAction.error");
+		  logger.warn("Action cannot be empty");
+		  return "redirect:"+ referer;
+	  }
+	  if( ! "APPROVED".equalsIgnoreCase(action) && ! "REJECTED".equalsIgnoreCase(action) ){
+		  waspErrorMessage("dapendingtask.invalidAction.error");
+		  logger.warn("Action must be APPROVED or REJECTED");
+		  return "redirect:"+ referer;
+	  }
+	  if("REJECTED".equalsIgnoreCase(action) && comment.trim().isEmpty() ){
+		  waspErrorMessage("dapendingtask.commentEmpty.error");
+		  logger.warn("A reason must be provided when rejecting a job");
+		  return "redirect:"+ referer;
+	  }
+	  
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("APPROVED".equalsIgnoreCase(action)){
+		  status = WaspStatus.COMPLETED;
+	  }
+	  else if("REJECTED".equalsIgnoreCase(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  jobService.updateJobDaApprovalStatus(job, status);
+
+	  } catch (WaspMessageBuildingException e) {
+		  waspErrorMessage("dapendingtask.updateFailed.error"); 
+		  logger.warn("Update unexpectedly failed");
+		  return "redirect:"+ referer;
+	  }
+	  
+	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  if(!comment.trim().isEmpty()){
+			  jobService.setJobApprovalComment("daApprove",job.getJobId(), comment.trim());
+		  }
+	  }
+	  catch(Exception e){
+		  logger.warn(e.getMessage());
+	  }
+	  
+	  String message = "APPROVED".equalsIgnoreCase(action)?"dapendingtask.jobApproved.label":"dapendingtask.jobRejected.label";
+	  waspMessage(message);
+	  return "redirect:"+ referer;
+	  //return "redirect:/lab/pendinglmapproval/list.do";	
+	}
   
   
   
@@ -760,6 +825,7 @@ public class JobController extends WaspController {
 	  //return "redirect:/lab/pendinglmapproval/list.do";	
 	}
   */
+  /*
   @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
 	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -781,7 +847,7 @@ public class JobController extends WaspController {
 	  return "redirect:"+ referer;
 	  //return "redirect:/department/dapendingtasklist.do";		  
 	}
- 
+ */
 
 	/**
 	 * show job/resource data and meta information to be modified.
