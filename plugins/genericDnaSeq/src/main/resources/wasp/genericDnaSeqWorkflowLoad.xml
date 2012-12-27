@@ -35,8 +35,8 @@
 
 		<property name="dependencies">
 			<list>
-				<value>mps</value>
-				<value>aligner</value>
+				<ref bean="mpsResourceType" />
+        		<ref bean="referenceBasedAlignerResourceType" />
 			</list>
 		</property>
 		
