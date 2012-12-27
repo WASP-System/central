@@ -70,7 +70,22 @@
       				--<c:out value="${sample.getName()}" /> (<c:out value="${sample.getSampleType().getName()}" />, <c:out value="${sampleSpeciesMap.get(sample)}" />)<br />      				
       			</c:forEach>
       			
-      			<br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/job/pendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div>    
+      			<%-- <br /> <div class="submit"><a href="<c:url value="/job/pendinglmapproval/approve/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/job/pendinglmapproval/reject/${job.lab.labId}/${job.jobId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div> --%>
+      			
+      			
+      			<br />
+      			<form action="<c:url value="/job/pendingJobApprovalByPIorLM/${job.lab.labId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+ 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
+ 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="lmpendingtask.approve.label" /> &nbsp;
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="lmpendingtask.reject.label" /><br />
+ 				<textarea id="comment" name="comment" cols="25" rows="2"></textarea><br />
+					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="lmpendingtask.reset.label" />">
+				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="lmpendingtask.submit.label" />">
+				</form>
+				
+				
+				
+				   
       		</div>      
    		 </c:forEach>
     	</div> 

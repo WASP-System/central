@@ -314,10 +314,27 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
+	  //linkedHashMap because insert order is guarranteed
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
-	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //see if someone rejected this job and if so, find out who
+	  String newK = null;
+	  String newV = null;
+	  for(JobMeta jm : job.getJobMeta()){
+		  for(String jobApproveCode : jobApprovalsMap.keySet()){
+			  if(jobApproveCode.equals(jm.getK())){
+				  newK = new String(jobApproveCode);
+				  newV = new String(jm.getV());
+				  break;
+			  }
+		  }
+	  }
+	  if(newK != null && newV != null){jobApprovalsMap.put(newK, newV);}
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);

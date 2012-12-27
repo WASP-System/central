@@ -11,8 +11,10 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -411,7 +413,13 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public void setSampleTypeDao(SampleTypeDao mockSampleTypeDao);
 
+	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
+	public List<MetaMessage> getJobApprovalComments(String jobApproveCode, Integer jobId);
+	
+	public HashMap<String, MetaMessage> getJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
+	
+	public void setJobRejectorInJobMeta(Integer jobId, String jobApproveCode);
 
 	
 
