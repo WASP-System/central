@@ -469,8 +469,7 @@ public class TaskController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));//must internationalize-see below for how
-					//sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
+					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
 				}
 			}
 			
@@ -482,14 +481,7 @@ public class TaskController extends WaspController {
 
 	  return "task/fmapprove/list";
   }
-  
-  
-  
-  
-  
-  
-  
-  
+    
 	@RequestMapping(value = "/piapprove/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
 	public String pendingLmApprovalList(ModelMap m){
@@ -527,8 +519,7 @@ public class TaskController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));//**********must internationalize see below for example
-					//sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
+					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
 				}
 			}
 			
@@ -538,13 +529,9 @@ public class TaskController extends WaspController {
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
 		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
 		
-		//return "lab/pendinglmapproval/list";
 		return "task/piapprove/list";
 	}
 
-
-	
-	
 	@RequestMapping(value = "/daapprove/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
 	public String departmentAdminPendingTaskList(ModelMap m) {
@@ -580,7 +567,7 @@ public class TaskController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
+					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
 				}
 			}			
 		}
