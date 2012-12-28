@@ -79,7 +79,7 @@
       			<%-- <br /> <div class="submit"><a href="<c:url value="/job/pendingdaapproval/approve/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.approve.label"/></a> <a href="<c:url value="/job/pendingdaapproval/reject/${job.lab.departmentId}/${job.jobId}.do"/>"><fmt:message key="dapendingtask.reject.label"/></a></div>  --%>
       			
       			<br />
-      			<form action="<c:url value="/job/pendingJobApprovalByDA/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+      			<form action="<c:url value="/task/daJobApprove/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
  				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="dapendingtask.approve.label" /> &nbsp;
  				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="dapendingtask.reject.label" /><br />
