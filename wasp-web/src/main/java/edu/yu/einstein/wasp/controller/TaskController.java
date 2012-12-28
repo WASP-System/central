@@ -477,6 +477,75 @@ public class TaskController extends WaspController {
 	  return "task/fmapprove/list";
   }
   
+  
+  
+  
+  
+  
+  
+  
+	@RequestMapping(value = "/piapprove/list.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
+	public String pendingLmApprovalList(ModelMap m){
+		
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
+		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
+		
+		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
+		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
+		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
+		
+		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobsPendingLmApprovalList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, new String("Unknown"));
+				}
+			}
+			
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
+		
+		//return "lab/pendinglmapproval/list";
+		return "task/piapprove/list";
+	}
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   private void jobApprove(String jobApproveCode, Integer jobId, String action, String comment){
 	  
 	  if(!jobApproveCode.equals("piApprove") && !jobApproveCode.equals("daApprove") && !jobApproveCode.equals("fmApprove")){

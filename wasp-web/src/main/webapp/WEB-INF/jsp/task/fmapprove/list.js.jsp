@@ -62,14 +62,14 @@
 	
 	function validate(theform){
 		if(!theform.action[0].checked && !theform.action[1].checked){
-			alert("<fmt:message key="lmpendingtask.approveRejectAlert.label" />");
+			alert("<fmt:message key="jobapprovetask.approveRejectAlert.label" />");
 			return false;
 		}
 		var commentObj = theform.comment;
 		var commentValue = commentObj.value; 
 		var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
 		if(theform.action[1].checked && trimmedCommentValue.length==0){
-			alert("<fmt:message key="lmpendingtask.validateCommentAlert.label" />");
+			alert("<fmt:message key="jobapprovetask.validateCommentAlert.label" />");
 			if(commentValue.length>0){
 				commentObj.value = "";
 			}
@@ -83,7 +83,7 @@
 		var commentValue = commentObj.value; 
 		var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
 		if(trimmedCommentValue.length==0){
-			alert("<fmt:message key="lmpendingtask.validateCommentAlert.label" />");
+			alert("<fmt:message key="jobapprovetask.validateCommentAlert.label" />");
 			if(commentValue.length>0){
 				commentObj.value = "";
 			}
