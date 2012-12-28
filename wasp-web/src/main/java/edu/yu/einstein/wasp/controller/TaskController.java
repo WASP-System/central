@@ -23,11 +23,13 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 
@@ -44,6 +46,9 @@ public class TaskController extends WaspController {
 
   @Autowired
   private JobService jobService;
+
+  @Autowired
+  private MessageService messageService;
 
   @Autowired
   private SampleService sampleService;
@@ -464,7 +469,8 @@ public class TaskController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));
+					sampleSpeciesMap.put(sample, new String("Unknown"));//must internationalize-see below for how
+					//sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
 				}
 			}
 			
@@ -484,7 +490,7 @@ public class TaskController extends WaspController {
   
   
   
-	@RequestMapping(value = "/piapprove/list.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/piapprove/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
 	public String pendingLmApprovalList(ModelMap m){
 		
@@ -521,7 +527,8 @@ public class TaskController extends WaspController {
 					}
 				}
 				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));
+					sampleSpeciesMap.put(sample, new String("Unknown"));//**********must internationalize see below for example
+					//sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
 				}
 			}
 			
@@ -535,7 +542,55 @@ public class TaskController extends WaspController {
 		return "task/piapprove/list";
 	}
 
-  
+
+	
+	
+	@RequestMapping(value = "/daapprove/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	public String departmentAdminPendingTaskList(ModelMap m) {
+
+		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
+		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
+
+		taskService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
+		m.addAttribute("labspendinglist", labsPendingDaApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
+		
+		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
+		
+		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobsPendingDaApprovalList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
+				}
+			}			
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
+		
+		return "task/daapprove/list";
+	}
   
   
   
