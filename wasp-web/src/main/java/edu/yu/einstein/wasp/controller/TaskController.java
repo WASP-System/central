@@ -479,30 +479,30 @@ public class TaskController extends WaspController {
   
   private void jobApprove(String jobApproveCode, Integer jobId, String action, String comment){
 	  
-	  Job job = jobService.getJobByJobId(jobId);
-	   
 	  if(!jobApproveCode.equals("piApprove") && !jobApproveCode.equals("daApprove") && !jobApproveCode.equals("fmApprove")){
-		  waspErrorMessage("lmpendingtask.invalidJobApproveCode.error");//MUST DEFINE THIS******************************
+		  waspErrorMessage("jobapprovetask.invalidJobApproveCode.error");
 		  logger.warn("JobApproveCode is not valid");
 		  return;
 	  }
+
+	  Job job = jobService.getJobByJobId(jobId);	   
 	  if(job.getJobId()==null){
-		  waspErrorMessage("lmpendingtask.invalidJob.error");
+		  waspErrorMessage("jobapprovetask.invalidJob.error");
 		  logger.warn("Job not found");
 		  return;
 	  }	  
 	  if(action == null ||  action.equals("")){
-		  waspErrorMessage("lmpendingtask.invalidAction.error");
+		  waspErrorMessage("jobapprovetask.invalidAction.error");
 		  logger.warn("Action cannot be empty");
 		  return;
 	  }
 	  if( ! "APPROVED".equalsIgnoreCase(action) && ! "REJECTED".equalsIgnoreCase(action) ){
-		  waspErrorMessage("lmpendingtask.invalidAction.error");
+		  waspErrorMessage("jobapprovetask.invalidAction.error");
 		  logger.warn("Action must be APPROVED or REJECTED");
 		  return;
 	  }
 	  if("REJECTED".equalsIgnoreCase(action) && comment.trim().isEmpty() ){
-		  waspErrorMessage("lmpendingtask.commentEmpty.error");
+		  waspErrorMessage("jobapprovetask.commentEmpty.error");
 		  logger.warn("A reason must be provided when rejecting a job");
 		  return;
 	  }
@@ -519,7 +519,7 @@ public class TaskController extends WaspController {
 		  jobService.updateJobApprovalStatus(jobApproveCode, job, status);
 
 	  } catch (WaspMessageBuildingException e) {
-		  waspErrorMessage("lmpendingtask.updateFailed.error"); 
+		  waspErrorMessage("jobapprovetask.updateFailed.error"); 
 		  logger.warn("Update unexpectedly failed");
 		  return;
 	  }
@@ -536,7 +536,7 @@ public class TaskController extends WaspController {
 		  return;
 	  }
 	  
-	  String message = "APPROVED".equalsIgnoreCase(action)?"lmpendingtask.jobApproved.label":"lmpendingtask.jobRejected.label";
+	  String message = "APPROVED".equalsIgnoreCase(action)?"jobapprovetask.jobApproved.label":"jobapprovetask.jobRejected.label";
 	  waspMessage(message);
   }
   
