@@ -254,10 +254,24 @@ public interface JobService extends WaspMessageHandlingService {
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
 	
 	/**
+	 * Calls updateJobDAApprovalStatus and updates the Job DA approval Status if jobApproveCode is daApprove
+	 * Calls updateJobFmApprovalStatus and updates the Job FM approval Status if jobApproveCode is fmApprove
+	 * Calls updateJobPiApprovalStatus and updates the Job PI approval Status if jobApproveCode is piApprove
+	 * Status must be either COMPLETED or ABANDONED
+	 * jobApproveCode must be daApprove, fmApprove, or piApprove
+	 * @param String jobApproveCode
+	 * @param Job job
+	 * @param String status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	
+	/**
 	 * Updates the Job DA approval Status for job
 	 * Status must be either COMPLETED or ABANDONED
-	 * @param jobId
-	 * @param status
+	 * @param Job job
+	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
@@ -265,8 +279,8 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * Updates the Job Pi Approval Status for job
 	 * Status must be either COMPLETED or ABANDONED
-	 * @param jobId
-	 * @param status
+	 * @param Job job
+	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
@@ -274,8 +288,8 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * Updates the Job Facility Manager Approval Status for job
 	 * Status must be either COMPLETED or ABANDONED
-	 * @param jobId
-	 * @param status
+	 * @param Job job
+	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;

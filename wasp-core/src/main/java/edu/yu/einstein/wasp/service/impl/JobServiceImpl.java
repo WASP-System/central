@@ -1191,6 +1191,28 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		updateJobStatus(job, status, WaspJobTask.QUOTE);
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException{
+		
+		if(jobApproveCode.equals("piApprove")){
+			updateJobPiApprovalStatus(job, status);
+		}
+		else if(jobApproveCode.equals("daApprove")){
+			updateJobDaApprovalStatus(job, status);
+		}
+		else if(jobApproveCode.equals("fmApprove")){
+			updateJobFmApprovalStatus(job, status);
+		}
+		else{
+			throw new WaspMessageBuildingException();
+		}
+	}
+	
+	
 	/**
 	 * {@inheritDoc}
 	 */
