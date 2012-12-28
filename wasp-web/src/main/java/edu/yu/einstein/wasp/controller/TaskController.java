@@ -439,21 +439,19 @@ public class TaskController extends WaspController {
 	  waspMessage("task.libraryqc_update_success.label");	
 	  return "redirect:/task/libraryqc/list.do";
   }
+ 
   
-  @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public String pendingFMApprove(ModelMap m) {
-	 
-	  List<Job> jobsPendingFmApprovalList = jobService.getJobsAwaitingFmApproval();
-	  jobService.sortJobsByJobId(jobsPendingFmApprovalList);
-	  m.addAttribute("jobspendinglist", jobsPendingFmApprovalList);
-		
-		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+  
+  
+  private void getJobApproveInfo(List<Job> jobList, ModelMap m){
+	  
+	  //used by pendingFMApprove(), pendingDaApprove(), pendingPiApprove()
+	    Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
 		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
 		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
 
 		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
-		for(Job job : jobsPendingFmApprovalList){
+		for(Job job : jobList){
 			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
 			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
@@ -472,19 +470,28 @@ public class TaskController extends WaspController {
 					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
 				}
 			}
-			
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
 		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
-
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);  
+  }
+  
+  @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String pendingFmApprove(ModelMap m) {
+	 
+	  List<Job> jobsPendingFmApprovalList = jobService.getJobsAwaitingFmApproval();
+	  jobService.sortJobsByJobId(jobsPendingFmApprovalList);
+	  m.addAttribute("jobspendinglist", jobsPendingFmApprovalList);
+	  getJobApproveInfo(jobsPendingFmApprovalList, m);
+	
 	  return "task/fmapprove/list";
   }
     
 	@RequestMapping(value = "/piapprove/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
-	public String pendingLmApprovalList(ModelMap m){
+	public String pendingPiApprove(ModelMap m){
 		
 		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
@@ -498,43 +505,14 @@ public class TaskController extends WaspController {
 		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
 		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
 		
-		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		getJobApproveInfo(jobsPendingLmApprovalList, m);
 
-		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
-		for(Job job : jobsPendingLmApprovalList){
-			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
-			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
-			List<Sample> sampleList = jobService.getSubmittedSamples(job);
-			sampleService.sortSamplesBySampleName(sampleList);
-			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
-				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
-				}
-			}
-			
-		}
-		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
-		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
-		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
-		
 		return "task/piapprove/list";
 	}
 
 	@RequestMapping(value = "/daapprove/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
-	public String departmentAdminPendingTaskList(ModelMap m) {
+	public String pendingDaApprove(ModelMap m) {
 
 		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
 		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
@@ -547,35 +525,8 @@ public class TaskController extends WaspController {
 		
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		
-		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
-		for(Job job : jobsPendingDaApprovalList){
-			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
-			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
-			List<Sample> sampleList = jobService.getSubmittedSamples(job);
-			sampleService.sortSamplesBySampleName(sampleList);
-			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
-				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
-				}
-			}			
-		}
-		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
-		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
-		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
-		
+		getJobApproveInfo(jobsPendingDaApprovalList, m);
+
 		return "task/daapprove/list";
 	}
   
@@ -585,11 +536,9 @@ public class TaskController extends WaspController {
   
   
   
-  
-  
-  
   private void jobApprove(String jobApproveCode, Integer jobId, String action, String comment){
 	  
+	  //used by fmJobApprove(), piJobApprove(), and daJobApprove()
 	  if(!jobApproveCode.equals("piApprove") && !jobApproveCode.equals("daApprove") && !jobApproveCode.equals("fmApprove")){
 		  waspErrorMessage("jobapprovetask.invalidJobApproveCode.error");
 		  logger.warn("JobApproveCode is not valid");
