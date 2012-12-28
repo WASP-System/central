@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +23,13 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 @Controller
 @Transactional
@@ -44,6 +48,8 @@ public class TaskController extends WaspController {
   @Autowired
   private SampleService sampleService;
   
+  @Autowired
+  private TaskService taskService;
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
@@ -429,7 +435,47 @@ public class TaskController extends WaspController {
 	  return "redirect:/task/libraryqc/list.do";
   }
   
- 
+  @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String pendingFMApprove(ModelMap m) {
+	 
+	  List<Job> jobsPendingFmApprovalList = jobService.getJobsAwaitingFmApproval();
+	  jobService.sortJobsByJobId(jobsPendingFmApprovalList);
+	  m.addAttribute("jobspendinglist", jobsPendingFmApprovalList);
+		
+		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobsPendingFmApprovalList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, new String("Unknown"));
+				}
+			}
+			
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
+
+	  return "task/fmapprove/list";
+  }
   
   
 }

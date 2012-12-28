@@ -77,7 +77,7 @@
 	
 	<bean class="edu.yu.einstein.wasp.taskMapping.FmApprovalsTaskMapping">
 		<constructor-arg name="localizedLabelKey"  value="task.facilityManager.label" />
-		<constructor-arg name="targetLink" value="/facility/jobapproval/list.do" />
+		<constructor-arg name="targetLink" value="/task/fmapprove/list.do" />
 		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm')" />
 	</bean>
 	
