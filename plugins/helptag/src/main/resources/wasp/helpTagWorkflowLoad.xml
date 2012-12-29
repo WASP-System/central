@@ -15,9 +15,9 @@
   </bean>
 
 
-  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" depends-on="helpTagLibrarySampleSubtypeResource">
-    <property name="area" value="#{helpTagPluginArea}" />
-    <property name="domain" value="#{helpTagPluginDomain}" />
+  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" >
+    <property name="area" ref="helpTagPluginArea" />
+    <property name="domain" ref="helpTagPluginDomain" />
     <property name="name" value="HELP Tagging" />
     <property name="pageFlowOrder">
       <list>

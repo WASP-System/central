@@ -18,7 +18,7 @@
     <property name="baseArea" ref="helptagPipelineArea" />
   </bean>
   
-  <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoader" factory-method="getResourceTypeInstance">
+  <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory" factory-method="getResourceTypeInstance">
     <constructor-arg name="name" value="HELP-tag Pipeline" />
     <constructor-arg name="area" ref="helptagPipelineArea" />
     <constructor-arg name="resourceTypeLoadService" ref="resourceTypeLoadServiceImpl" />
