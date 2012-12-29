@@ -46,19 +46,19 @@
   </bean>
 
 
-  <bean id="chipSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
-  	<property name="name" value="ChIP-seq DNA" />
-    <property name="area" value="chipseqDnaSample" />
-    <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{dnaSampleType.area}" />
-    <property name="uiFieldGroupsFromWrapper">
+  <bean id="chipSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory"  factory-method="getSampleSubtypeInstance">
+  	<constructor-arg name="name" value="ChIP-seq DNA" />
+    <constructor-arg name="area" value="chipseqDnaSample" />
+    <constructor-arg name="sampleType" ref="dnaSampleType" />
+    <constructor-arg name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
     		<ref bean="genericDNAUiFields" />
    		<ref bean="chipSeqDnaSpecificUiFields" />
     	</list>
-    </property>
-    <property name="applicableRoles" value="ft,lu" />
+    </constructor-arg>
+    <constructor-arg name="applicableRoles" value="ft,lu" />
+    <constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
     
   </bean>
 
@@ -71,34 +71,34 @@
   </bean>
   
  
-  <bean id="chipSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
-  	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
-    <property name="name" value="ChIP-seq Library" />
-    <property name="area" value="chipseqLibrarySample" />
-    <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{librarySampleType.area}" />
-    <property name="applicableRoles" value="lu" />
-    <property name="uiFieldGroupsFromWrapper">
+  <bean id="chipSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+  	<constructor-arg name="name" value="ChIP-seq Library" />
+    <constructor-arg name="area" value="chipseqLibrarySample" />
+    <constructor-arg name="sampleType" ref="librarySampleType" />
+    <constructor-arg name="applicableRoles" value="lu" />
+    <constructor-arg name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 
     		<ref bean="chipSeqDnaSpecificUiFields" />
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
-    </property>
+    </constructor-arg>
+    
+    <constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
   </bean>
   
-  <bean id="chipSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
-  	<constructor-arg ref="chipSeqDnaSampleSubtypeResource" />
-    <property name="name" value="ChIP-seq Facility Library" />
-    <property name="area" value="chipseqFacilityLibrarySample" />
-    <property name="domain" value="#{chipSeqPluginDomain}" />
-    <property name="sampleType" value="#{librarySampleType.area}" />
-    <property name="applicableRoles" value="ft" />
-    <property name="uiFieldGroupsFromWrapper">
+  <bean id="chipSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+  	<constructor-arg name="name" value="ChIP-seq Facility Library" />
+    <constructor-arg name="area" value="chipseqFacilityLibrarySample" />
+    <constructor-arg name="sampleType" ref="librarySampleType" />
+    <constructor-arg name="applicableRoles" value="ft" />
+    <constructor-arg name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericLibraryUiFields" /> 
     	</list>
-    </property>
+    </constructor-arg>
+    
+    <constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
   </bean>
   
 </beans>
