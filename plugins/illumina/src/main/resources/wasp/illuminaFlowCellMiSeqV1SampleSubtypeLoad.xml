@@ -12,24 +12,22 @@
    
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellMiSeqV1UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
+    <property name="baseArea" ref="illuminaFlowcellMiSeqV1UiFieldArea" />
   </bean>
   
    
 
-  <bean id="illuminaFlowcellMiSeqV1SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
-  	<property name="name" value="Illumina Flow Cell MiSeq V1" />
-    <property name="area" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
-    <property name="sampleType" value="#{puSampleType.area}" />
-    <property name="compatibleResourcesByIName">
+  <bean id="illuminaFlowcellMiSeqV1SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory"  factory-method="getSampleSubtypeInstance">
+  	<constructor-arg name="name" value="Illumina Flow Cell MiSeq V1" />
+    <constructor-arg name="area" ref="illuminaFlowcellMiSeqV1UiFieldArea" />
+    <constructor-arg name="sampleType" ref="puSampleType" />
+    <constructor-arg name="compatibleResources">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaMiSeqPersonalSequencer">
-  				<constructor-arg type="String" value="illuminaMiSeqPersonalSequencer" />
-  			</bean>
+  			<ref bean="illuminaMiSeqPersonalSequencer" />
   		</list>
-  	</property>
+  	</constructor-arg>
   	
-  	<property name="uiFieldsFromWrapper">
+  	<constructor-arg name="uiFieldsFromWrapper">
   		<list>
 	  		<bean parent="illuminaFlowcellMiSeqV1UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
@@ -40,10 +38,10 @@
 	          <property name="label" value="Flow Cell" />
 	        </bean>
         </list>
-  	</property>
-  	<property name="metaFromWrapper">
+  	</constructor-arg>
+  	<constructor-arg name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaFlowcellMiSeqV1UiFieldArea}" />
+         <property name="area" ref="illuminaFlowcellMiSeqV1UiFieldArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspPlatformUnit['maxCellNumber']}=1</value>
@@ -51,7 +49,8 @@
          	</list>
          </property>
        </bean>
-    </property> 
+    </constructor-arg> 
+    <constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
   	
   </bean>
   

@@ -15,16 +15,16 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaMiSeqUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaMiSeqPersonalSequencerArea}" />
+    <property name="baseArea" ref="illuminaMiSeqPersonalSequencerArea" />
   </bean>
 
-  <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoader">
-    <property name="name" value="Illumina MiSeq Personal Sequencer" />
-    <property name="area" value="#{illuminaMiSeqPersonalSequencerArea}" />
-    <property name="resourceType" value="mps" />
-	 <property name="metaFromWrapper">
+  <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory" factory-method="getResourceCategoryInstance">
+    <constructor-arg name="name" value="Illumina MiSeq Personal Sequencer" />
+    <constructor-arg name="area" ref="illuminaMiSeqPersonalSequencerArea" />
+    <constructor-arg name="resourceType" ref="mpsResourceType" />
+	 <constructor-arg name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaMiSeqPersonalSequencerArea}" />
+         <property name="area" ref="illuminaMiSeqPersonalSequencerArea" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readlength=25:25;36:36;50:50;100:100;150:150</value>
@@ -32,9 +32,11 @@
          	</list>
          </property>
        </bean>
-    </property> 
+    </constructor-arg> 
+    
+    <constructor-arg name="resourceCategoryLoadService" ref="resourceCategoryLoadServiceImpl" />
 
-    <property name="uiFieldsFromWrapper">
+    <constructor-arg name="uiFieldsFromWrapper">
       <list>
         <bean parent="illuminaMiSeqUiFieldWrapper">
           <property name="baseName" value="readLength" />
@@ -54,7 +56,7 @@
           <property name="error" value="You must choose a read type" />
         </bean>
       </list>
-    </property>
+    </constructor-arg>
   </bean>
 
 </beans>

@@ -15,16 +15,16 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2000UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaHiSeq2000Area}" />
+    <property name="baseArea" ref="illuminaHiSeq2000Area" />
   </bean>
 
-  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoader">
-    <property name="name" value="Illumina HiSeq 2000" />
-    <property name="area" value="#{illuminaHiSeq2000Area}" />
-    <property name="resourceType" value="mps" />
-	 <property name="metaFromWrapper">
+  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory" factory-method="getResourceCategoryInstance">
+    <constructor-arg name="name" value="Illumina HiSeq 2000" />
+    <constructor-arg name="area" ref="illuminaHiSeq2000Area" />
+    <constructor-arg name="resourceType" ref="mpsResourceType" />
+	 <constructor-arg name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaHiSeq2000Area}" />
+         <property name="area" ref="illuminaHiSeq2000Area" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readlength=50:50;75:75;100:100;150:150</value>
@@ -33,9 +33,9 @@
          	</list>
          </property>
        </bean>
-    </property> 
+    </constructor-arg> 
 
-    <property name="uiFieldsFromWrapper">
+    <constructor-arg name="uiFieldsFromWrapper">
       <list>
         <bean parent="illuminaHiSeq2000UiFieldWrapper">
           <property name="baseName" value="readLength" />
@@ -55,7 +55,8 @@
           <property name="error" value="You must choose a read type" />
         </bean>
       </list>
-    </property>
+    </constructor-arg>
+    <constructor-arg name="resourceCategoryLoadService" ref="resourceCategoryLoadServiceImpl" />
   </bean>
 
 </beans>
