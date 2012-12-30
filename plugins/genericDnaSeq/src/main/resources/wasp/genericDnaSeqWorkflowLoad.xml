@@ -10,14 +10,13 @@
 	
 	<bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericDnaSeqUiFieldWrapper">
 	    <property name="baseLocale" value="en_US" />
-	    <property name="baseArea" value="#{genericDnaSeqPluginArea}" />
+	    <property name="baseArea" ref="genericDnaSeqPluginArea" />
   	</bean>
 
-	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader">
-		<property name="area" value="#{genericDnaSeqPluginArea}" />
-		<property name="domain" value="#{genericDnaSeqPluginDomain}" />
-		<property name="name" value="Generic DNA Seq" />
-		<property name="pageFlowOrder">
+	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderFactory" factory-method="getWorkflowInstance">
+		<constructor-arg name="area" ref="genericDnaSeqPluginArea" />
+		<constructor-arg name="name" value="Generic DNA Seq" />
+		<constructor-arg name="pageFlowOrder">
 			<list>
 				<value>/jobsubmit/modifymeta/{n}</value>
 				<value>/jobsubmit/resource/mps/{n}</value>
@@ -29,27 +28,27 @@
 				<value>/jobsubmit/submit/{n}</value>
 				<value>/jobsubmit/ok</value>
 			</list>
-		</property>
+		</constructor-arg>
 
-		<property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+		<constructor-arg name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
 
-		<property name="dependencies">
+		<constructor-arg name="dependencies">
 			<list>
 				<ref bean="mpsResourceType" />
         		<ref bean="referenceBasedAlignerResourceType" />
 			</list>
-		</property>
+		</constructor-arg>
 		
-		<property name="sampleSubtypes">
-		      <set>
-		        <value>genericDnaDnaSample</value>
-		        <value>genericDnaLibrarySample</value>
-		        <value>genericDnaFacilityLibrarySample</value>
-		      </set>
-    	</property>
+		<constructor-arg name="sampleSubtypes">
+		      <list>
+		        <ref bean="genericDnaSeqDnaSampleSubtype" />
+		        <ref bean="genericDnaSeqLibrarySampleSubtype" />
+		        <ref bean="genericDnaSeqFacilityLibrarySampleSubtype" />
+		      </list>
+    	</constructor-arg>
 
 
-		<property name="uiFieldsFromWrapper">
+		<constructor-arg name="uiFieldsFromWrapper">
 			<list>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="workflow" />
@@ -85,7 +84,8 @@
 				</bean>
 			</list>
 
-		</property>
+		</constructor-arg>
+   	 <constructor-arg name="workflowLoadService" ref="workflowLoadServiceImpl" />
 	</bean>
 
 </beans>

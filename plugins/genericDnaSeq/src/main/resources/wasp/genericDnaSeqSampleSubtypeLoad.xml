@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="genericDnaSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+	<bean id="genericDnaSeqDnaSampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
 		<constructor-arg name="name" value="Generic DNA Seq DNA" />
 		<constructor-arg name="area" value="genericDnaDnaSample" />
 		<constructor-arg name="sampleType" ref="dnaSampleType" />
@@ -18,7 +18,7 @@
 
 	</bean>
 
-	<bean id="genericDnaSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+	<bean id="genericDnaSeqLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
 		<constructor-arg name="name" value="Generic DNA Seq Library" />
 		<constructor-arg name="area" value="genericDnaLibrarySample" />
 		<constructor-arg name="sampleType" ref="librarySampleType" />
@@ -32,7 +32,7 @@
     	<constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
 	</bean>
 
-	<bean id="genericDnaSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+	<bean id="genericDnaSeqFacilityLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
 		<constructor-arg name="name" value="Generic DNA Seq Facility Library" />
 		<constructor-arg name="area" value="genericDnaFacilityLibrarySample" />
 		<constructor-arg name="sampleType" ref="librarySampleType" />
