@@ -44,7 +44,7 @@
       </property>
   </bean>
  
-  <bean id="helpTagLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
+  <bean id="helpTagLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
   	<constructor-arg name="name" value="HELP-tag Library" />
     <constructor-arg name="area" value="helptagLibrarySample" />
     <constructor-arg name="sampleType" ref="librarySampleType" />

@@ -15,11 +15,10 @@
   </bean>
 
 
-  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" >
-    <property name="area" ref="helpTagPluginArea" />
-    <property name="domain" ref="helpTagPluginDomain" />
-    <property name="name" value="HELP Tagging" />
-    <property name="pageFlowOrder">
+  <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderFactory" factory-method="getWorkflowInstance" >
+    <constructor-arg name="area" ref="helpTagPluginArea" />
+    <constructor-arg name="name" value="HELP Tagging" />
+    <constructor-arg name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
 		<value>/jobsubmit/resource/mps/{n}</value>
@@ -32,25 +31,25 @@
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
       </list>
-    </property>
+    </constructor-arg>
     
-    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1"  />
+    <constructor-arg name="jobFlowBatchJob" value="default.waspJob.jobflow.v1"  />
 
-    <property name="dependencies">
+    <constructor-arg name="dependencies">
       <list>
       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="helptagPipelineResourceType" />
       </list>
-    </property>
+    </constructor-arg>
 
-    <property name="sampleSubtypes">
-      <set>
-        <value>helptagLibrarySample</value>
-      </set>
-    </property>
+    <constructor-arg name="sampleSubtypes">
+      <list>
+        <ref bean="helpTagLibrarySampleSubtype" />
+      </list>
+    </constructor-arg>
     
-    <property name="uiFieldsFromWrapper">
+    <constructor-arg name="uiFieldsFromWrapper">
       <list>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="workflow" />
@@ -102,7 +101,8 @@
         </bean>
      </list>
  
-    </property>
+    </constructor-arg>
+    <constructor-arg name="workflowLoadService" ref="workflowLoadServiceImpl" />
   </bean>
 
 </beans>
