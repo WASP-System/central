@@ -12,7 +12,6 @@
   <bean id="truseqIndexedDnaArea" class="java.lang.String">
   	<constructor-arg><value>truseqIndexedDna</value></constructor-arg>
   </bean>
-  
 
   <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory" factory-method="getAdaptorSetInstance" >
   	<constructor-arg name="area" ref="truseqIndexedDnaArea" />
@@ -24,7 +23,7 @@
   			<property name="area" ref="truseqIndexedDnaArea" />
   			<property name="metaList">
   				<list>
-  					<value>#{illuminaAdaptorType['truseq']}=1</value>
+  					<value>truseq=1</value>
   				</list>
   			</property>
   		</bean>
