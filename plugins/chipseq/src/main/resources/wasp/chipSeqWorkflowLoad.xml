@@ -11,15 +11,14 @@
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="chipSeqUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{chipSeqPluginArea}" />
+    <property name="baseArea" ref="chipSeqPluginArea" />
   </bean>
 
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoader" >
-    <property name="area" ref="chipSeqPluginArea" />
-    <property name="domain" ref="chipSeqPluginDomain" />
-    <property name="name" value="ChIP Seq" />
-    <property name="pageFlowOrder">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderFactory" factory-method="getWorkflowInstance">
+    <constructor-arg name="area" ref="chipSeqPluginArea" />
+    <constructor-arg name="name" value="ChIP Seq" />
+    <constructor-arg name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
 		<value>/jobsubmit/resource/mps/{n}</value>
@@ -33,27 +32,27 @@
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
       </list>
-    </property>
+    </constructor-arg>
     
-    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+    <constructor-arg name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
 
-    <property name="dependencies">
+    <constructor-arg name="dependencies">
       <list>
         <ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="peakcallerResourceType" />
       </list>
-    </property>
+    </constructor-arg>
 
-    <property name="sampleSubtypes">
-      <set>
-        <value>chipseqDnaSample</value>
-        <value>chipseqLibrarySample</value>
-        <value>chipseqFacilityLibrarySample</value>
-      </set>
-    </property>
+    <constructor-arg name="sampleSubtypes">
+      <list>
+        <ref bean="chipSeqDnaSampleSubtypeResource" />
+        <ref bean="chipSeqLibrarySampleSubtypeResource" />
+        <ref bean="chipSeqFacilityLibrarySampleSubtypeResource" />
+      </list>
+    </constructor-arg>
     
-    <property name="uiFieldsFromWrapper">
+    <constructor-arg name="uiFieldsFromWrapper">
       <list>
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="workflow" />
@@ -110,7 +109,8 @@
         </bean>
      </list>
  
-    </property>
+    </constructor-arg>
+    <constructor-arg name="workflowLoadService" ref="workflowLoadServiceImpl" />
   </bean>
 
 </beans>
