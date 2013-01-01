@@ -4,26 +4,32 @@
 package edu.yu.einstein.wasp.software;
 
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
-import edu.yu.einstein.wasp.load.SoftwareLoader;
+import edu.yu.einstein.wasp.model.Software;
 
 /**
  * @author calder
  *
  */
-public abstract class SoftwarePackage extends SoftwareLoader {
+public abstract class SoftwarePackage extends Software {
 	
+	private static final long serialVersionUID = 522863647514139874L;
+
 	/**
 	 * A unique name for the software component. Can be overridden at the configuration level 
 	 * For example: bilbo.software.casava.name=casava/gnu will override the default name of casava on bilbo. This is
 	 * useful when a remote {@link SoftwareManager} uses an alternate name to specify the software package.  Using the 
 	 * previous example with ModulesManager would result in "modules load casava/gnu/1.8.2".
 	 * 
-	 * This method returns the same value as this.getArea().
+	 * This method returns the same value as this.getIName().
 	 * 
 	 * @return
 	 */
 	public String getSoftwareName() {
-		return this.getArea();
+		return this.getIName();
+	}
+	
+	public void setSoftwareName(String name) {
+		this.setIName(name);
 	}
 	
 	/**

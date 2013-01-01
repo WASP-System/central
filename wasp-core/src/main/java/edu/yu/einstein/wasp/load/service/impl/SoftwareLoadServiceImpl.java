@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SoftwareDao;
 import edu.yu.einstein.wasp.dao.SoftwareMetaDao;
@@ -21,6 +24,8 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
 @Transactional("entityManager")
 public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	SoftwareLoadService {
 	
+	protected  Logger logger = LoggerFactory.getLogger(SoftwareLoadServiceImpl.class);
+	
 	@Autowired
 	private SoftwareDao softwareDao;
 
@@ -30,59 +35,61 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	@Autowired
 	private ResourceTypeDao resourceTypeDao;
 	
-	private Software addOrUpdateSoftware(ResourceType resourceType, String iname, String name, Integer isActive){
+	private <T extends Software> T addOrUpdateSoftware(ResourceType resourceType, String iname, String name, int isActive, Class<T> clazz){
+		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
+		Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		Assert.assertParameterNotNull(name, "name Cannot be null");
 		if (resourceType == null || resourceType.getIName() == null || resourceType.getIName().isEmpty()){
 	    	throw new NullResourceTypeException();
 	    }
-	    if (resourceType.getResourceTypeId() == null){
-	    	ResourceType existingResourceType = resourceTypeDao.getResourceTypeByIName(resourceType.getIName());
-		    if (existingResourceType.getResourceTypeId() == null){
-		    	// new
-		    	resourceType.setIsActive(1);
-		    	resourceType = resourceTypeDao.save(resourceType);
-		    } else {
-		    	// exists, so see if changed
-		    	if (!existingResourceType.getName().equals(resourceType.getName())){
-		    		existingResourceType.setName(resourceType.getName());
-		    	}
-		    	if (existingResourceType.getIsActive().intValue() == 0){
-		    		existingResourceType.setIsActive(1);
-			    }
-		    	resourceType = existingResourceType;
-		    }
-	    }
-
-	    Software software = softwareDao.getSoftwareByIName(iname);
+			    
+	    Software baseSoftware = softwareDao.getSoftwareByIName(iname);
 	    
-	    if (isActive == null)
-	  	  isActive = 1;
-	    
+	    	    
 	    // inserts or update workflow
-	    if (software.getSoftwareId() == null) { 
-	      software = new Software();
+	    if (baseSoftware.getSoftwareId() == null) { 
+	    	baseSoftware = new Software();
 
-	      software.setIName(iname);
-	      software.setName(name);
-	      software.setIsActive(isActive.intValue());
-	      software.setResourceTypeId(resourceType.getResourceTypeId());
-	      softwareDao.save(software); 
+	    	baseSoftware.setIName(iname);
+	    	baseSoftware.setName(name);
+	    	baseSoftware.setIsActive(isActive);
+	    	baseSoftware.setResourceTypeId(resourceType.getResourceTypeId());
+	      softwareDao.save(baseSoftware); 
 
 	      // refreshes
-	      software = softwareDao.getSoftwareByIName(iname); 
+	      baseSoftware = softwareDao.getSoftwareByIName(iname); 
 
 	    } else {
 	      boolean changed = false;	
-	      if (!software.getName().equals(name)){
-	    	  software.setName(name);
+	      if (!baseSoftware.getName().equals(name)){
+	    	  baseSoftware.setName(name);
 	    	  changed = true;
 	      }
-	      if (software.getIsActive().intValue() != isActive.intValue()){
-	    	  software.setIsActive(isActive.intValue());
+	      if (baseSoftware.getResourceTypeId() != resourceType.getResourceTypeId()){
+	    	  baseSoftware.setResourceTypeId(resourceType.getResourceTypeId());
+	    	  changed = true;
+	      }
+	      if (baseSoftware.getIsActive().intValue() != isActive){
+	    	  baseSoftware.setIsActive(isActive);
 	    	  changed = true;
 	      }
 	      if (changed)
-	    	  softwareDao.save(software); 
+	    	  softwareDao.save(baseSoftware); 
 	    }
+	    if (clazz.getName().equals(baseSoftware.getClass().getName()))
+	    	return (T) baseSoftware;
+	    T software;
+		try {
+			software = clazz.newInstance();
+			software.setSoftwareId(baseSoftware.getSoftwareId());
+			software.setIName(iname);
+			software.setName(name);
+			software.setIsActive(isActive);
+			software.setResourceTypeId(resourceType.getResourceTypeId());
+		} catch (Exception e) {
+			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
+			return (T) baseSoftware;
+		}
 	    return software;
 	}
 	
@@ -133,12 +140,10 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	}
 
 	@Override
-	public void update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, Integer isActive){
-		
-
-		Software software = addOrUpdateSoftware(resourceType, iname, name, isActive);
-
+	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, Integer isActive, Class<T> clazz){
+		T software = addOrUpdateSoftware(resourceType, iname, name, isActive, clazz);
 		syncMetas(software, meta);
+		return software;
 	    
 	}
 	

@@ -122,20 +122,7 @@ public abstract class WaspLoader {
 
 	protected static final Logger log = LoggerFactory.getLogger(WaspLoader.class);
 	
-	protected WaspLoader sourceLoadService;
-	
-	public void setInheritUiFieldsFromLoadService(WaspLoader sourceLoadService){
-		this.sourceLoadService = sourceLoadService;
-	}
-	
-	
-	public WaspLoader(){}
-	
-	public WaspLoader (WaspLoader sourceLoadService){
-		this.sourceLoadService = sourceLoadService;
-	}
 		
-	
 	@SuppressWarnings("unchecked")
 	protected <E> List<E> safeList(List<E> list){
 		return (list == null ? Collections.EMPTY_LIST : list);

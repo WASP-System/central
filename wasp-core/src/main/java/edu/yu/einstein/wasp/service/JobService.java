@@ -34,6 +34,7 @@ import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
 public interface JobService extends WaspMessageHandlingService {
@@ -374,6 +376,8 @@ public interface JobService extends WaspMessageHandlingService {
 	public void setLogger(Logger logger);
 
 	public void setSampleTypeDao(SampleTypeDao mockSampleTypeDao);
+
+	public WaspJobContext getWaspJobContext(Job job) throws JobContextInitializationException;
 
 	
 

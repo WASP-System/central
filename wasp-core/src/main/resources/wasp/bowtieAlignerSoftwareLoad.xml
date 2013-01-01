@@ -11,17 +11,17 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="bowtieAlignerUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{bowtieAlignerArea}" />
+    <property name="baseArea" ref="bowtieAlignerArea" />
   </bean>
 
-  <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
+  <bean id="bowtieAlignerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
     <property name="name" value="Bowtie Aligner" />
-    <property name="area" value="#{bowtieAlignerArea}" />
-    <property name="resourceTypeByIName" value="#{alignerResourceType.area}" />
+    <property name="area" ref="bowtieAlignerArea" />
+    <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{bowtieAlignerArea}" />
+         <property name="area" ref="bowtieAlignerArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.12.7</value>

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.SampleTypeCategoryDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.NullSampleSubtypeException;
@@ -24,22 +25,19 @@ public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements Sa
 	  
 	  
 	  @Override
-	  public void update(String iname, String name, String sampleTypeCategoryIname, Integer isActive){
-	    
-		  if (isActive == null)
-		  	  isActive = 1;
-		  
-		 		  
-		  SampleTypeCategory sampleTypeCategory = sampleTypeCategoryDao.getSampleTypeCategoryByIName(sampleTypeCategoryIname); 
+	  public SampleType update(String iname, String name, SampleTypeCategory sampleTypeCategory, int isActive){
+		  Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		  Assert.assertParameterNotNull(name, "name Cannot be null");
+		  Assert.assertParameterNotNull(sampleTypeCategory, "sampleTypeCategory Cannot be null");
 		  if (sampleTypeCategory.getSampleTypeCategoryId() == null)
-			  throw new NullSampleSubtypeException("SampleTypeCategoryId is null for '"+sampleTypeCategoryIname+"'");
+			  throw new NullSampleSubtypeException("SampleTypeCategoryId is null for '" + sampleTypeCategory.getIName() + "'");
 
 		  	SampleType sampleType = sampleTypeDao.getSampleTypeByIName(iname); 
 		    // inserts or update sampleSubtype
 		    if (sampleType.getSampleTypeId() == null) {
 		    	sampleType.setIName(iname);
 		    	sampleType.setName(name);
-		    	sampleType.setIsActive(isActive.intValue());
+		    	sampleType.setIsActive(isActive);
 		    	sampleType.setSampleTypeCategory(sampleTypeCategory);
 		    	sampleTypeDao.save(sampleType);
 		    } else {
@@ -49,9 +47,10 @@ public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements Sa
 		      if (sampleType.getSampleTypeCategoryId().intValue() != sampleTypeCategory.getSampleTypeCategoryId().intValue()){
 		    	  sampleType.setSampleTypeCategoryId(sampleTypeCategory.getSampleTypeCategoryId());
 		      }
-		      if (sampleType.getIsActive().intValue() != isActive.intValue()){
-		    	  sampleType.setIsActive(isActive.intValue());
+		      if (sampleType.getIsActive().intValue() != isActive){
+		    	  sampleType.setIsActive(isActive);
 		      }
 		}
+		    return sampleType;
 	}
 }

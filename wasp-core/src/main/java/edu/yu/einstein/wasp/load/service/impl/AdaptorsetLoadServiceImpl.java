@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.AdaptorMetaDao;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
@@ -50,10 +51,9 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	@Autowired
 	private SampleTypeDao sampleTypeDao;
 	
-	private Adaptorset addOrUpdateAdaptorset(String sampleTypeIName, String iname, String name, Integer isActive){
+	private Adaptorset addOrUpdateAdaptorset(SampleType sampleType, String iname, String name, Integer isActive){
 		Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByIName(iname);
-		SampleType sampleType = sampleTypeDao.getSampleTypeByIName(sampleTypeIName);
-	    // inserts or update adaptorset
+		// inserts or update adaptorset
 	    if (adaptorset.getAdaptorsetId() == null) { 
 	    	// new
 	    	adaptorset.setIName(iname);
@@ -132,24 +132,23 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    }
 	}
 	
-	private void syncAdaptorsetResources(Adaptorset adaptorset, List<String> compatibleResourcesByIName){
+	private void syncAdaptorsetResources(Adaptorset adaptorset, List<ResourceCategory> compatibleResources){
 		Map<String, AdaptorsetResourceCategory> oldAdaptorsetResourceCats  = new HashMap<String, AdaptorsetResourceCategory>();
 	    for (AdaptorsetResourceCategory adaptorsetResourceCat: safeList(adaptorset.getAdaptorsetResourceCategory())) {
 	    	oldAdaptorsetResourceCats.put(adaptorsetResourceCat.getResourceCategory().getIName(), adaptorsetResourceCat);
 	    } 
 	    
-	    for (String resourceIName: safeList(compatibleResourcesByIName)) {
-	    	if (oldAdaptorsetResourceCats.containsKey(resourceIName)) {
-	    		oldAdaptorsetResourceCats.remove(resourceIName);
+	    for (ResourceCategory resourceCat: safeList(compatibleResources)) {
+	    	if (oldAdaptorsetResourceCats.containsKey(resourceCat.getIName())) {
+	    		oldAdaptorsetResourceCats.remove(resourceCat.getIName());
 	    		continue;
 	    	}
-	    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(resourceIName);
 	    	if (resourceCat.getResourceCategoryId() != null){
 	    		AdaptorsetResourceCategory adaptorsetresource = new AdaptorsetResourceCategory();
 	    		adaptorsetresource.setResourcecategoryId(resourceCat.getResourceCategoryId());
 	    		adaptorsetresource.setAdaptorsetId(adaptorset.getAdaptorsetId());
 	    		adaptorsetResourceCategoryDao.save(adaptorsetresource);
-	    		oldAdaptorsetResourceCats.remove(resourceIName);
+	    		oldAdaptorsetResourceCats.remove(resourceCat.getIName());
 	    	} else {
 	    		throw new NullResourceCategoryException();
 	    	}
@@ -281,18 +280,19 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	
 	@Transactional("entityManager")
 	@Override 
-	public void update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, String sampleTypeIName, String iname, String name, Integer isActive, List<String> compatibleResourcesByIName){
-	    
-	    if (isActive == null)
-	    	  isActive = 1;
-		
-		Adaptorset adaptorset = addOrUpdateAdaptorset(sampleTypeIName, iname, name, isActive);
+	public Adaptorset update(List<AdaptorsetMeta>  adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname, String name, int isActive, List<ResourceCategory> compatibleResources){
+		Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		Assert.assertParameterNotNull(name, "name Cannot be null");
+		Assert.assertParameterNotNull(sampleType, "sampleType Cannot be null");
+	    Adaptorset adaptorset = addOrUpdateAdaptorset(sampleType, iname, name, isActive);
 
 	    syncAdaptorsetMeta(adaptorset,adaptorsetmeta);
 
-	    syncAdaptorsetResources(adaptorset, compatibleResourcesByIName);
+	    syncAdaptorsetResources(adaptorset, compatibleResources);
 	    
 	    addOrUpdateAdaptors(adaptorset, adaptorsetmeta, adaptorList, isActive, iname);
+	    
+	    return adaptorset;
 	    
 	}
 

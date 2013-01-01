@@ -65,6 +65,7 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -108,6 +109,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 
 @Service
@@ -1313,6 +1315,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public void setJobDao(SampleDao mockSampleDao) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public WaspJobContext getWaspJobContext(Job job) throws JobContextInitializationException{
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		return new WaspJobContext(job);
 	}
 
 

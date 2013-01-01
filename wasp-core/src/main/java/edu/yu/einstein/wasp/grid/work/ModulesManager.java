@@ -89,7 +89,7 @@ public class ModulesManager extends HashMap<String, String> implements
 				procs = w.getProcessorRequirements().intValue();
 				break;
 			}
-			String pkey = sw.getArea() + ".env.processors";
+			String pkey = sw.getSoftwareName() + ".env.processors";
 			if (w.getProcessMode().equals(ProcessMode.MAX)) {
 				if (this.containsKey(pkey)) {
 					Integer p = new Integer(this.get(pkey));
