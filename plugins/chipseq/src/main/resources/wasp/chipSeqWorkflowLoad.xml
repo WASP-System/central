@@ -15,10 +15,10 @@
   </bean>
 
 
-  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderFactory" factory-method="getWorkflowInstance">
-    <constructor-arg name="area" ref="chipSeqPluginArea" />
-    <constructor-arg name="name" value="ChIP Seq" />
-    <constructor-arg name="pageFlowOrder">
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
+    <property name="area" ref="chipSeqPluginArea" />
+    <property name="name" value="ChIP Seq" />
+    <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
 		<value>/jobsubmit/resource/mps/{n}</value>
@@ -32,27 +32,27 @@
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
       </list>
-    </constructor-arg>
+    </property>
     
-    <constructor-arg name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
 
-    <constructor-arg name="dependencies">
+    <property name="dependencies">
       <list>
         <ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="peakcallerResourceType" />
       </list>
-    </constructor-arg>
+    </property>
 
-    <constructor-arg name="sampleSubtypes">
+    <property name="sampleSubtypes">
       <list>
         <ref bean="chipSeqDnaSampleSubtypeResource" />
         <ref bean="chipSeqLibrarySampleSubtypeResource" />
         <ref bean="chipSeqFacilityLibrarySampleSubtypeResource" />
       </list>
-    </constructor-arg>
+    </property>
     
-    <constructor-arg name="uiFieldsFromWrapper">
+    <property name="uiFieldsFromWrapper">
       <list>
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="workflow" />
@@ -109,8 +109,7 @@
         </bean>
      </list>
  
-    </constructor-arg>
-    <constructor-arg name="workflowLoadService" ref="workflowLoadServiceImpl" />
+    </property>
   </bean>
 
 </beans>
