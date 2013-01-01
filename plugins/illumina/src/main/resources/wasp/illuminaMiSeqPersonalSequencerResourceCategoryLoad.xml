@@ -18,11 +18,11 @@
     <property name="baseArea" ref="illuminaMiSeqPersonalSequencerArea" />
   </bean>
 
-  <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory" factory-method="getResourceCategoryInstance">
-    <constructor-arg name="name" value="Illumina MiSeq Personal Sequencer" />
-    <constructor-arg name="area" ref="illuminaMiSeqPersonalSequencerArea" />
-    <constructor-arg name="resourceType" ref="mpsResourceType" />
-	 <constructor-arg name="metaFromWrapper">
+  <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
+    <property name="name" value="Illumina MiSeq Personal Sequencer" />
+    <property name="area" ref="illuminaMiSeqPersonalSequencerArea" />
+    <property name="resourceType" ref="mpsResourceType" />
+	 <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
          <property name="area" ref="illuminaMiSeqPersonalSequencerArea" />
          <property name="metaList">
@@ -32,11 +32,9 @@
          	</list>
          </property>
        </bean>
-    </constructor-arg> 
+    </property> 
     
-    <constructor-arg name="resourceCategoryLoadService" ref="resourceCategoryLoadServiceImpl" />
-
-    <constructor-arg name="uiFieldsFromWrapper">
+    <property name="uiFieldsFromWrapper">
       <list>
         <bean parent="illuminaMiSeqUiFieldWrapper">
           <property name="baseName" value="readLength" />
@@ -56,7 +54,7 @@
           <property name="error" value="You must choose a read type" />
         </bean>
       </list>
-    </constructor-arg>
+    </property>
   </bean>
 
 </beans>

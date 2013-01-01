@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -42,9 +40,10 @@ import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
  * @author calder
  * 
  */
-@Component
 public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	
+
+	private static final long serialVersionUID = 1L;
 	private String softwareVersion = "1.8.2"; // hard coded as this is likely the final softwareVersion.
 	private String softwareName = "casava"; 
 
@@ -125,11 +124,6 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 
 	}
 
-	@Override
-	@PostConstruct
-	public void init() throws Exception {
-		super.init();
-	}
 
 	/**
 	 * 

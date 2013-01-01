@@ -13,12 +13,12 @@
   	<constructor-arg><value>truseqIndexedDna</value></constructor-arg>
   </bean>
 
-  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory" factory-method="getAdaptorSetInstance" >
-  	<constructor-arg name="area" ref="truseqIndexedDnaArea" />
-  	<constructor-arg name="name" value="TruSEQ INDEXED DNA" />
-  	<constructor-arg name="sampleType" ref="dnaSampleType" />
+  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory" >
+  	<property name="area" ref="truseqIndexedDnaArea" />
+  	<property name="name" value="TruSEQ INDEXED DNA" />
+  	<property name="sampleType" ref="dnaSampleType" />
 	
-	<constructor-arg name="metaFromWrapper">
+	<property name="metaFromWrapper">
 		<bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
   			<property name="area" ref="truseqIndexedDnaArea" />
   			<property name="metaList">
@@ -27,15 +27,15 @@
   				</list>
   			</property>
   		</bean>
-	</constructor-arg>
+	</property>
 
-  	<constructor-arg name="compatibleResources">
+  	<property name="compatibleResources">
   		<list>
   			<ref bean="illuminaHiSeq2000" />
   		</list>
-  	</constructor-arg>
+  	</property>
 
-  	<constructor-arg name="adaptorList">
+  	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaTrueseqDnaIndexed1" />
@@ -374,8 +374,7 @@
   				<property name="barcodenumber" value="48" />
   			</bean>
   		</list>
-  	</constructor-arg>
-  	<constructor-arg name="adaptorsetLoadService" ref="adaptorsetLoadServiceImpl"/>
+  	</property>
   </bean> 
 
 </beans>

@@ -17,17 +17,17 @@
   
    
 
-  <bean id="illuminaFlowcellV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
-  	<constructor-arg name="name" value="Illumina Flow Cell Version 3" />
-    <constructor-arg name="area" ref="illuminaFlowcellV3UiFieldArea" />
-    <constructor-arg name="sampleType" ref="puSampleType" />
-    <constructor-arg name="compatibleResources">
+  <bean id="illuminaFlowcellV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="Illumina Flow Cell Version 3" />
+    <property name="area" ref="illuminaFlowcellV3UiFieldArea" />
+    <property name="sampleType" ref="puSampleType" />
+    <property name="compatibleResources">
   		<list>
   			<ref bean="illuminaHiSeq2000" />
   		</list>
-  	</constructor-arg>
+  	</property>
   	
-  	<constructor-arg name="uiFieldsFromWrapper">
+  	<property name="uiFieldsFromWrapper">
   		<list>
 	  		<bean parent="illuminaFlowcellV3UiFieldWrapper">
 	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
@@ -38,8 +38,8 @@
 	          <property name="label" value="Flow Cell" />
 	        </bean>
         </list>
-  	</constructor-arg>
-  	<constructor-arg name="metaFromWrapper">
+  	</property>
+  	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
          <property name="area" ref="illuminaFlowcellV3UiFieldArea" />
          <property name="metaList">
@@ -49,8 +49,7 @@
          	</list>
          </property>
        </bean>
-    </constructor-arg> 
-    <constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
+    </property> 
   	
   </bean>
   
