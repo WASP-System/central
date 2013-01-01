@@ -16,16 +16,16 @@
   </bean>
     
    
-  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory" factory-method="getAdaptorSetInstance" >
-  	<constructor-arg name="area" ref="helptagLibraryArea" />
-  	<constructor-arg name="name" value="HELP-tag Library" />
-  	<constructor-arg name="sampleType" ref="librarySampleType" />
-  	<constructor-arg name="compatibleResources">
+  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+  	<property name="area" ref="helptagLibraryArea" />
+  	<property name="name" value="HELP-tag Library" />
+  	<property name="sampleType" ref="librarySampleType" />
+  	<property name="compatibleResources">
   		<list>
   			<ref bean ="illuminaHiSeq2000" />
   		</list>
-  	</constructor-arg>
-  	<constructor-arg name="adaptorList">
+  	</property>
+  	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaHelptagLibrary1" />
@@ -35,8 +35,7 @@
   				<property name="barcodenumber" value="1" />
   			</bean>
    		</list>
-  	</constructor-arg>
-  	<constructor-arg name="adaptorsetLoadService" ref="adaptorsetLoadServiceImpl"/>
+  	</property>
   </bean> 
 
 </beans>
