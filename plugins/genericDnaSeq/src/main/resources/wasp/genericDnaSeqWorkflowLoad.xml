@@ -13,10 +13,10 @@
 	    <property name="baseArea" ref="genericDnaSeqPluginArea" />
   	</bean>
 
-	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderFactory" factory-method="getWorkflowInstance">
-		<constructor-arg name="area" ref="genericDnaSeqPluginArea" />
-		<constructor-arg name="name" value="Generic DNA Seq" />
-		<constructor-arg name="pageFlowOrder">
+	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
+		<property name="area" ref="genericDnaSeqPluginArea" />
+		<property name="name" value="Generic DNA Seq" />
+		<property name="pageFlowOrder">
 			<list>
 				<value>/jobsubmit/modifymeta/{n}</value>
 				<value>/jobsubmit/resource/mps/{n}</value>
@@ -28,27 +28,27 @@
 				<value>/jobsubmit/submit/{n}</value>
 				<value>/jobsubmit/ok</value>
 			</list>
-		</constructor-arg>
+		</property>
 
-		<constructor-arg name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+		<property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
 
-		<constructor-arg name="dependencies">
+		<property name="dependencies">
 			<list>
 				<ref bean="mpsResourceType" />
         		<ref bean="referenceBasedAlignerResourceType" />
 			</list>
-		</constructor-arg>
+		</property>
 		
-		<constructor-arg name="sampleSubtypes">
+		<property name="sampleSubtypes">
 		      <list>
 		        <ref bean="genericDnaSeqDnaSampleSubtype" />
 		        <ref bean="genericDnaSeqLibrarySampleSubtype" />
 		        <ref bean="genericDnaSeqFacilityLibrarySampleSubtype" />
 		      </list>
-    	</constructor-arg>
+    	</property>
 
 
-		<constructor-arg name="uiFieldsFromWrapper">
+		<property name="uiFieldsFromWrapper">
 			<list>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="workflow" />
@@ -84,8 +84,7 @@
 				</bean>
 			</list>
 
-		</constructor-arg>
-   	 <constructor-arg name="workflowLoadService" ref="workflowLoadServiceImpl" />
+		</property>
 	</bean>
 
 </beans>

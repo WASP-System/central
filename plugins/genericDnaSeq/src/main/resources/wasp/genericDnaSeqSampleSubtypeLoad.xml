@@ -3,46 +3,42 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="genericDnaSeqDnaSampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
-		<constructor-arg name="name" value="Generic DNA Seq DNA" />
-		<constructor-arg name="area" value="genericDnaDnaSample" />
-		<constructor-arg name="sampleType" ref="dnaSampleType" />
-		<constructor-arg name="uiFieldGroupsFromWrapper">
+	<bean id="genericDnaSeqDnaSampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+		<property name="name" value="Generic DNA Seq DNA" />
+		<property name="area" value="genericDnaDnaSample" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="uiFieldGroupsFromWrapper">
 			<list>
 				<ref bean="genericBiomoleculeUiFields" />
 				<ref bean="genericDNAUiFields" />
 			</list>
-		</constructor-arg>
-		<constructor-arg name="applicableRoles" value="ft,lu" />
-    	<constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
-
+		</property>
+		<property name="applicableRoles" value="ft,lu" />
 	</bean>
 
-	<bean id="genericDnaSeqLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
-		<constructor-arg name="name" value="Generic DNA Seq Library" />
-		<constructor-arg name="area" value="genericDnaLibrarySample" />
-		<constructor-arg name="sampleType" ref="librarySampleType" />
-		<constructor-arg name="applicableRoles" value="lu" />
-		<constructor-arg name="uiFieldGroupsFromWrapper">
+	<bean id="genericDnaSeqLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+		<property name="name" value="Generic DNA Seq Library" />
+		<property name="area" value="genericDnaLibrarySample" />
+		<property name="sampleType" ref="librarySampleType" />
+		<property name="applicableRoles" value="lu" />
+		<property name="uiFieldGroupsFromWrapper">
 			<list>
 				<ref bean="genericBiomoleculeUiFields" />
 				<ref bean="genericLibraryUiFields" />
 			</list>
-		</constructor-arg>
-    	<constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
+		</property>
 	</bean>
 
-	<bean id="genericDnaSeqFacilityLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" factory-method="getSampleSubtypeInstance">
-		<constructor-arg name="name" value="Generic DNA Seq Facility Library" />
-		<constructor-arg name="area" value="genericDnaFacilityLibrarySample" />
-		<constructor-arg name="sampleType" ref="librarySampleType" />
-		<constructor-arg name="applicableRoles" value="ft" />
-		<constructor-arg name="uiFieldGroupsFromWrapper">
+	<bean id="genericDnaSeqFacilityLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+		<property name="name" value="Generic DNA Seq Facility Library" />
+		<property name="area" value="genericDnaFacilityLibrarySample" />
+		<property name="sampleType" ref="librarySampleType" />
+		<property name="applicableRoles" value="ft" />
+		<property name="uiFieldGroupsFromWrapper">
 			<list>
 				<ref bean="genericLibraryUiFields" />
 			</list>
-		</constructor-arg>
-    	<constructor-arg name="sampleSubtypeLoadService" ref="sampleSubtypeLoadServiceImpl" />
+		</property>
 	</bean>
 
 </beans>
