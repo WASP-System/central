@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,17 +31,14 @@ import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -104,7 +100,7 @@ public class DepartmentController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 
 	@Autowired
 	private SampleService sampleService;

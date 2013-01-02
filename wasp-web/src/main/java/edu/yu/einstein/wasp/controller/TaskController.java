@@ -1,13 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,7 +27,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 
@@ -48,7 +46,7 @@ public class TaskController extends WaspController {
   private JobService jobService;
 
   @Autowired
-  private MessageService messageService;
+  private MessageServiceWebapp messageService;
 
   @Autowired
   private SampleService sampleService;
