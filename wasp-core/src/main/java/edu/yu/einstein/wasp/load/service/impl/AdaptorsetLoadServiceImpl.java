@@ -61,11 +61,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    	adaptorset.setSampleType(sampleType);
 	    	adaptorset.setIsActive(isActive.intValue());
 
-	    	adaptorsetDao.save(adaptorset);
-
-	    	// refreshes
-	    	adaptorset = adaptorsetDao.getAdaptorsetByIName(iname); 
-
+	    	adaptorset = adaptorsetDao.save(adaptorset);
 	    } else {
 	      boolean changed = false;	
 	      if (!adaptorset.getName().equals(name)){
@@ -261,8 +257,7 @@ public class AdaptorsetLoadServiceImpl extends WaspLoadServiceImpl implements Ad
 	    		adaptor.setIsActive(isActive);
 	    		adaptor.setIName(adaptorIn.getIName());
 	    		adaptor.setName(adaptorIn.getName());
-	    		adaptorDao.save(adaptor);
-	    		adaptor = adaptorDao.getAdaptorByIName(iname); // refresh
+	    		adaptor = adaptorDao.save(adaptor);
 	    		for (AdaptorMeta adaptorMeta: safeList(adaptor.getAdaptorMeta()) ) {
 	    			adaptorMeta.setAdaptorId(adaptor.getAdaptorId()); 
 		    	    adaptorMetaDao.save(adaptorMeta);

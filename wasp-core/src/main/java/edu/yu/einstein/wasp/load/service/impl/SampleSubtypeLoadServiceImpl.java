@@ -58,10 +58,7 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		      sampleSubtype.setSampleTypeId(sampleType.getSampleTypeId());
 		      sampleSubtype.setAreaList(areaListString);
 
-		      sampleSubtypeDao.save(sampleSubtype); 
-
-		      // refreshes
-		      sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(iname); 
+		      sampleSubtype = sampleSubtypeDao.save(sampleSubtype); 
 
 		    } else {
 		      boolean changed = false;

@@ -26,7 +26,7 @@ public class SampleTypeCategoryLoadServiceImpl extends WaspLoadServiceImpl imple
 			sampleTypeCategory.setIName(iname);
 			sampleTypeCategory.setName(name);
 			sampleTypeCategory.setIsActive(isActive);
-			sampleTypeCategoryDao.save(sampleTypeCategory);
+			sampleTypeCategory = sampleTypeCategoryDao.save(sampleTypeCategory);
 		} else {
 			if (!sampleTypeCategory.getName().equals(name)) {
 				sampleTypeCategory.setName(name);

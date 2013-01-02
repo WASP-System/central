@@ -85,31 +85,21 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      workflow.setIsActive(isActive); // only set to active when all dependencies configured by admin
 	      workflow.setCreatets(new Date());
 
-	      workflowDao.persist(workflow); 
-
-	      // refreshes
-	      workflowDao.refresh(workflow); 
+	      workflow = workflowDao.save(workflow); 
 
 	    } else {
-	    	boolean changed = false;	
-	        if (!workflow.getName().equals(name)){
+	    	if (!workflow.getName().equals(name)){
 	        	workflow.setName(name);
-	      	  	changed = true;
 	        }
 	        if (workflow.getIsActive().intValue() != isActive){
 	        	workflow.setIsActive(isActive);
-	      	  	changed = true;
 	        }
-	        if (changed) workflowDao.merge(workflow); 
-	        // refreshes
-	        workflow = workflowDao.getWorkflowByIName(iname); 
-	        workflowDao.refresh(workflow); 
 	    }
 	   
 	    // update dependencies
-	    Map<String,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<String, WorkflowResourceType>();
+	    Map<Integer,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<Integer, WorkflowResourceType>();
 	    for (WorkflowResourceType old : safeList(workflow.getWorkflowResourceType()) ){
-		   oldWorkflowResourceTypes.put(old.getWorkflowresourcetypeId().toString(), old);
+		   oldWorkflowResourceTypes.put(old.getWorkflowresourcetypeId(), old);
 	    }
 	    List<Integer> resourceTypeIdList = new ArrayList<Integer>();
 	    for (ResourceType dependency: safeList(dependencies)) { 
@@ -127,11 +117,11 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 		      workflowresourcetypeDao.save(workflowResourceType);
 		  } else {
 			  // already exists
-			  oldWorkflowResourceTypes.remove(workflowResourceType.getWorkflowresourcetypeId().toString());
+			  oldWorkflowResourceTypes.remove(workflowResourceType.getWorkflowresourcetypeId());
 		  } 
 	    }
 	    // remove old no longer used dependencies
-	    for (String key : oldWorkflowResourceTypes.keySet()){
+	    for (Integer key : oldWorkflowResourceTypes.keySet()){
 	  	  workflowresourcetypeDao.remove(oldWorkflowResourceTypes.get(key));
 	  	  workflowresourcetypeDao.flush(oldWorkflowResourceTypes.get(key));
 	    } 

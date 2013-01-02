@@ -29,7 +29,7 @@ public class ResourceTypeLoadServiceImpl extends WaspLoadServiceImpl implements	
 			resourceType.setIName(iname);
 			resourceType.setName(name);
 			resourceType.setIsActive(isActive.intValue());
-			resourceTypeDao.save(resourceType);
+			resourceType = resourceTypeDao.save(resourceType);
 		} else {
 			if (!resourceType.getName().equals(name)) {
 				resourceType.setName(name);

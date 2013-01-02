@@ -5,7 +5,7 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
    
-  <bean id="dnaSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoaderAndFactory">
+  <bean id="dnaSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoaderAndFactory" >
     <property name="name" value="DNA" />
     <property name="area" value="dna" />
     <property name="sampleTypeCategory" ref="biomaterialSampleTypeCategory" />

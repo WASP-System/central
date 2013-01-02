@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +20,8 @@ public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	Fact
 
 	@Autowired
 	private WorkflowLoadService workflowLoadService;
+	
+	private Workflow workflow;
 
 	private List<String> pageFlowOrder;
 
@@ -52,11 +56,16 @@ public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	Fact
 	public void setIsActive(int isActive) {
 		this.isActive = isActive;
 	}
+	
+	@PostConstruct
+	public void init(){
+		workflowLoadService.updateUiFields(uiFields);
+		workflow =  workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob);
+	}
 
 	@Override
 	public Workflow getObject() throws Exception {
-		workflowLoadService.updateUiFields(uiFields);
-		return workflowLoadService.update(iname, name, isActive, meta, dependencies, sampleSubtypes, pageFlowOrder, jobFlowBatchJob);
+		return workflow;
 	}
 
 	@Override

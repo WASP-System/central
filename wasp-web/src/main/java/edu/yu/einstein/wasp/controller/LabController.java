@@ -1292,9 +1292,7 @@ public class LabController extends WaspController {
 		labUser.setLabId(lab.getLabId());
 		labUser.setUserId(me.getUserId());
 		labUser.setRoleId(role.getRoleId());
-		labUserDao.save(labUser);
-
-		labUserDao.refresh(labUser);
+		labUser = labUserDao.save(labUser);
 
 		emailService.sendPendingLabUserConfirmRequest(labUser);
 

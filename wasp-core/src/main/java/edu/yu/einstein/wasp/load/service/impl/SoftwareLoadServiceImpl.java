@@ -44,7 +44,6 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    }
 			    
 	    Software software = softwareDao.getSoftwareByIName(iname);
-	    
 	    	    
 	    // inserts or update workflow
 	    if (software.getSoftwareId() == null) { 
@@ -117,7 +116,7 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	}
 
 	@Override
-	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, Integer isActive, Class<T> clazz){
+	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, int isActive, Class<T> clazz){
 		Software software = addOrUpdateSoftware(resourceType, iname, name, isActive);
 		syncMetas(software, meta);
 		if (clazz.getName().equals(software.getClass().getName()))
@@ -131,6 +130,7 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 			softwareSpecial.setIsActive(software.getIsActive());
 			softwareSpecial.setResourceType(software.getResourceType());
 			softwareSpecial.setJobDraftSoftware(software.getJobDraftSoftware());
+			softwareSpecial.setJobSoftware(software.getJobSoftware());
 			softwareSpecial.setSoftwareMeta(software.getSoftwareMeta());
 			softwareSpecial.setWorkflowSoftware(software.getWorkflowSoftware());
 		} catch (Exception e) {

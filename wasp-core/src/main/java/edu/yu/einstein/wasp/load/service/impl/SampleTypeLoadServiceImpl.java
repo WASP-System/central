@@ -39,7 +39,7 @@ public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements Sa
 		    	sampleType.setName(name);
 		    	sampleType.setIsActive(isActive);
 		    	sampleType.setSampleTypeCategory(sampleTypeCategory);
-		    	sampleTypeDao.save(sampleType);
+		    	sampleType = sampleTypeDao.save(sampleType);
 		    } else {
 		      if (!sampleType.getName().equals(name)){
 		    	  sampleType.setName(name);

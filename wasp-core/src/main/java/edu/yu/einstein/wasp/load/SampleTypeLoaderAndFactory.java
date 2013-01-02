@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.load;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,6 +17,8 @@ public class SampleTypeLoaderAndFactory extends WaspLoader implements FactoryBea
 
 	@Autowired
 	private SampleTypeLoadService sampleTypeLoadService;
+	
+	private SampleType sampleType;
 
 	private SampleTypeCategory sampleTypeCategory;
 
@@ -35,11 +39,16 @@ public class SampleTypeLoaderAndFactory extends WaspLoader implements FactoryBea
 	public void setSampleTypeCategory(SampleTypeCategory sampleTypeCategory) {
 		this.sampleTypeCategory = sampleTypeCategory;
 	}
+	
+	@PostConstruct
+	public void init(){
+		sampleTypeLoadService.updateUiFields(uiFields);
+		sampleType =  sampleTypeLoadService.update(iname, name, sampleTypeCategory, isActive);
+	}
 
 	@Override
 	public SampleType getObject() throws Exception {
-		sampleTypeLoadService.updateUiFields(uiFields);
-		return sampleTypeLoadService.update(iname, name, sampleTypeCategory, isActive);
+		return sampleType;
 	}
 
 	@Override

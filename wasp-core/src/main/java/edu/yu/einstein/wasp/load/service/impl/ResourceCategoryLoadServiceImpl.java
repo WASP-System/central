@@ -39,11 +39,7 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 	      resourceCat.setName(name);
 	      resourceCat.setIsActive(isActive);
 	      resourceCat.setResourceTypeId(resourceType.getResourceTypeId());
-	      resourceCategoryDao.save(resourceCat); 
-
-	      // refreshes
-	      resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname); 
-
+	      resourceCat = resourceCategoryDao.save(resourceCat); 
 	    } else {
 	      boolean changed = false;	
 	      if (!resourceCat.getName().equals(name)){

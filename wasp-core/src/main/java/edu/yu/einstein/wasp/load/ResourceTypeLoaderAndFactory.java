@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.load;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,6 +17,8 @@ public class ResourceTypeLoaderAndFactory extends WaspLoader implements	FactoryB
 
 	@Autowired
 	private ResourceTypeLoadService resourceTypeLoadService;
+	
+	private ResourceType resourceType;
 
 	private int isActive = 1;
 
@@ -25,11 +29,16 @@ public class ResourceTypeLoaderAndFactory extends WaspLoader implements	FactoryB
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
 	}
+	
+	@PostConstruct
+	public void init(){
+		resourceTypeLoadService.updateUiFields(uiFields);
+		resourceType =  resourceTypeLoadService.update(iname, name, isActive);
+	}
 
 	@Override
 	public ResourceType getObject() throws Exception {
-		resourceTypeLoadService.updateUiFields(uiFields);
-		return resourceTypeLoadService.update(iname, name, isActive);
+		return resourceType;
 	}
 
 	@Override

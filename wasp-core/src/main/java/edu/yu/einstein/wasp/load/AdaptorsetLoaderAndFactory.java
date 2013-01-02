@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,6 +24,8 @@ public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBea
 	private AdaptorsetLoadService adaptorsetLoadService;
 
 	private SampleType sampleType;
+	
+	private Adaptorset adaptorset;
 
 	public void setSampleType(SampleType sampleType) {
 		this.sampleType = sampleType;
@@ -58,11 +62,16 @@ public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBea
 	public void setIsActive(int isActive) {
 		this.isActive = isActive;
 	}
+	
+	@PostConstruct
+	public void init(){
+		adaptorsetLoadService.updateUiFields(this.uiFields);
+		adaptorset = adaptorsetLoadService.update(meta, adaptorList, sampleType, iname, name, isActive, compatibleResources);
+	}
 
 	@Override
 	public Adaptorset getObject() throws Exception {
-		adaptorsetLoadService.updateUiFields(this.uiFields);
-		return adaptorsetLoadService.update(meta, adaptorList, sampleType, iname, name, isActive, compatibleResources);
+		return adaptorset;
 	}
 
 	@Override

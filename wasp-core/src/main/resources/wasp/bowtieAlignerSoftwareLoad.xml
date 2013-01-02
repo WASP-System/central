@@ -18,7 +18,6 @@
     <property name="name" value="Bowtie Aligner" />
     <property name="area" ref="bowtieAlignerArea" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />
-	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
          <property name="area" ref="bowtieAlignerArea" />

@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.load;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,6 +29,8 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	private SoftwareLoadService softwareLoadService;
 
 	private ResourceType resourceType;
+	
+	private T software;
 
 	public void setResourceType(ResourceType resourceType) {
 		this.resourceType = resourceType;
@@ -51,14 +55,15 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	public void setIsActive(int isActive) {
 		this.isActive = isActive;
 	}
+	
+	@PostConstruct
+	public void init(){
+		softwareLoadService.updateUiFields(uiFields);
+		software = softwareLoadService.update(resourceType, meta, iname, name, isActive, clazz);
+	}
 
 	@Override
 	public T getObject() throws Exception {
-		softwareLoadService.updateUiFields(uiFields);
-		T software = softwareLoadService.update(resourceType, meta, iname, name, isActive, clazz);
-		System.out.println("getObject() ANDY: clazz = "+clazz.getName());
-		System.out.println("getObject() ANDY: returned object class = "+software.getClass().getName());
-		System.out.println("getObjectType() ANDY: class = "+getObjectType().getName());
 		return software;
 	}
 
