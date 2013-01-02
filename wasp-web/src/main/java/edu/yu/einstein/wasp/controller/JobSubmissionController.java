@@ -737,6 +737,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -834,6 +835,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -995,6 +997,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -1016,6 +1019,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
