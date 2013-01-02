@@ -15,22 +15,21 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helptagPipelineUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{helptagPipelineArea}" />
+    <property name="baseArea" ref="helptagPipelineArea" />
   </bean>
   
-  <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.model.ResourceType">
-  	<property name="iName" value="helptagPipeline" />
-  	<property name="name" value="HELP-tag Pipeline" />
+  <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="HELP-tag Pipeline" />
+    <property name="area" ref="helptagPipelineArea" />
   </bean>
 
-  <bean id="helptagPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
+  <bean id="helptagPipelineSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
     <property name="name" value="HELP-tag Pipeline" />
     <property name="resourceType" ref="helptagPipelineResourceType"/>
-	<property name="area" value="#{helptagPipelineArea}" />
-	<property name="domain" value="#{helpTagPluginDomain}" />
-    <property name="metaFromWrapper">
+	<property name="area" ref="helptagPipelineArea" />
+	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{helptagPipelineArea}" />
+         <property name="area" ref="helptagPipelineArea" />
           <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=1.0</value>

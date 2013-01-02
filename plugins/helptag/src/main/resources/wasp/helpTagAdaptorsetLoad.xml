@@ -15,21 +15,14 @@
   	<constructor-arg><value>helptagLibrary</value></constructor-arg>
   </bean>
     
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="helptagLibraryUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="#{helptagLibraryArea}" />
-  </bean>
    
-  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoader" >
-  	<property name="area" value="#{helptagLibraryArea}" />
-  	<property name="domain" value="#{helpTagPluginDomain}" />
+  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+  	<property name="area" ref="helptagLibraryArea" />
   	<property name="name" value="HELP-tag Library" />
-  	<property name="sampleTypeIName" value="library" />
-  	<property name="compatibleResourcesByIName">
+  	<property name="sampleType" ref="librarySampleType" />
+  	<property name="compatibleResources">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
-  				<constructor-arg type="String" value="illuminaHiSeq2000" />
-  			</bean>
+  			<ref bean ="illuminaHiSeq2000" />
   		</list>
   	</property>
   	<property name="adaptorList">

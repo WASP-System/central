@@ -1,6 +1,4 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<wasp:message />
-
 <c:set var="workflowIName" value="${jobDraft.getWorkflow().getIName()}" />
 <h1><fmt:message key="jobDraft.create.label"/> -- <fmt:message key="${workflowIName}.jobsubmit/helpTag/pair.label"/></h1>
 
