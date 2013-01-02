@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.dao.UiFieldDao;
 import edu.yu.einstein.wasp.model.JQuerySearch;
 import edu.yu.einstein.wasp.model.UiField;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
@@ -58,7 +58,7 @@ public class UiFieldController extends WaspController {
 	private MessageSource messageSource;
 	
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	
 	//init read-only static structures used ti build dropdown lists
 	private static final Map<String, String> MY_LOCALES=new LinkedHashMap<String, String>();

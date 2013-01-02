@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,17 +31,14 @@ import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -104,7 +100,7 @@ public class DepartmentController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 
 	@Autowired
 	private SampleService sampleService;
@@ -490,58 +486,6 @@ public class DepartmentController extends WaspController {
 			}
 		}
 		return "redirect:/department/detail/" + departmentId + ".do";
-	}
-
-	@RequestMapping(value = "/dapendingtasklist", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
-	public String departmentAdminPendingTaskList(ModelMap m) {
-
-		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
-		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
-
-		taskService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
-		m.addAttribute("labspendinglist", labsPendingDaApprovalList);
-		
-		//finish up with pending jobs		
-		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
-		
-		//for testing only: next two lines, just to fill it up and see something on the jsp
-		//jobsPendingDaApprovalList.clear();
-		//jobsPendingDaApprovalList = jobService.getJobDao().findAll();
-		
-		
-		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
-		
-		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
-		for(Job job : jobsPendingDaApprovalList){
-			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
-			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
-			List<Sample> sampleList = jobService.getSubmittedSamples(job);
-			sampleService.sortSamplesBySampleName(sampleList);
-			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
-				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("dapendingtask.unknown.label"));
-				}
-			}			
-		}
-		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
-		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
-		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);	
-		
-		return "department/dapendingtasks";
 	}
 
 }

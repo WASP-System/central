@@ -381,7 +381,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		if (getSampleQCStatus(sample).equals(ExitStatus.COMPLETED))
+		if (getSampleQCStatus(sample).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
 			return true;
 		return false;
 	  }
@@ -394,7 +394,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(library, "No library provided");
 		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
-		  if (getLibraryQCStatus(library).equals(ExitStatus.COMPLETED))
+		  if (getLibraryQCStatus(library).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
 				return true;
 			return false;
 	  }
@@ -406,7 +406,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Boolean isSampleReceived(Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
-		if (getReceiveSampleStatus(sample).equals(ExitStatus.COMPLETED) || getReceiveSampleStatus(sample).equals(ExitStatus.FAILED))
+		if (getReceiveSampleStatus(sample).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()) || 
+				getReceiveSampleStatus(sample).getExitCode().equals(ExitStatus.FAILED.getExitCode()))
 			return true;
 		return false;
 	}
@@ -500,13 +501,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  if(internalStatus.equals(ExitStatus.EXECUTING)){
+		  if(internalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 			  return "NOT ARRIVED";
 			}
-			else if(internalStatus.equals(ExitStatus.COMPLETED)){
+			else if(internalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				return "RECEIVED";
 			}
-			else if(internalStatus.equals(ExitStatus.FAILED)){
+			else if(internalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				return "WITHDRAWN";
 			}
 			else {
@@ -539,16 +540,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public String convertSampleQCStatusForWeb(ExitStatus internalStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(internalStatus, "No internalStatus provided");
-		  	if( internalStatus.equals(ExitStatus.UNKNOWN) ){
+		  	if( internalStatus.getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()) ){
 			  return "NONEXISTENT";
 		  	}
-		  	else if(internalStatus.equals(ExitStatus.EXECUTING)){
+		  	else if(internalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 			  return "AWAITING QC";
 		  	}
-			else if(internalStatus.equals(ExitStatus.COMPLETED)){
+			else if(internalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				return "PASSED";
 			}
-			else if(internalStatus.equals(ExitStatus.FAILED)){
+			else if(internalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				return "FAILED";
 			}
 			else {

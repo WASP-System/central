@@ -43,7 +43,7 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
@@ -63,7 +63,7 @@ public class WorkflowController extends WaspController {
 	@Autowired
 	private WorkflowresourcecategoryMetaDao workflowResourceCategoryMetaDao;
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	@Autowired
 	private SoftwareDao softwareDao;
 	@Autowired

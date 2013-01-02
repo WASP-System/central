@@ -11,16 +11,16 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="macsPeakcallerUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{macsPeakcallerArea}" />
+    <property name="baseArea" ref="macsPeakcallerArea" />
   </bean>
 
-  <bean id="macsPeakcallerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoader">
+  <bean id="macsPeakcallerSoftware" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
     <property name="name" value="MACS Peakcaller" />
-    <property name="resourceTypeByIName" value="#{peakcallerResourceType.area}" />
-	<property name="area" value="#{macsPeakcallerArea}" />
+    <property name="resourceType" ref="peakcallerResourceType" />
+	<property name="area" ref="macsPeakcallerArea" />
     <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{macsPeakcallerArea}" />
+         <property name="area" ref="macsPeakcallerArea" />
           <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=4.1</value>

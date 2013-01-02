@@ -47,7 +47,7 @@ import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -92,7 +92,7 @@ public class UserPendingController extends WaspController {
 	private PasswordValidator passwordValidator;
 	
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	
 	@Autowired
 	private AuthenticationService authenticationService;

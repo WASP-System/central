@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +44,6 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -55,11 +52,10 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -104,7 +100,7 @@ public class LabController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
-	private MessageService messageService; 
+	private MessageServiceWebapp messageService; 
 	
 	@Autowired
 	private SampleService sampleService;
@@ -1292,9 +1288,7 @@ public class LabController extends WaspController {
 		labUser.setLabId(lab.getLabId());
 		labUser.setUserId(me.getUserId());
 		labUser.setRoleId(role.getRoleId());
-		labUserDao.save(labUser);
-
-		labUserDao.refresh(labUser);
+		labUser = labUserDao.save(labUser);
 
 		emailService.sendPendingLabUserConfirmRequest(labUser);
 
@@ -1309,67 +1303,6 @@ public class LabController extends WaspController {
 
 		m.addAttribute("pusers", userDao.getActiveUsers());
 		//m.addAttribute("departments", deptDao.findAll());
-	}
-
-	@RequestMapping(value = "/pendinglmapproval/list.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('pi-*') or hasRole('lm-*')")
-	public String pendingLmApprovalList(ModelMap m){
-		
-		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
-		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
-		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
-		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
-		
-		//finish up with pending jobs		
-		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
-		
-		
-		//for testing only: next 6 lines, just to fill it up and see something on the jsp
-		//newUsersPendingLmApprovalList.clear();
-		//newUsersPendingLmApprovalList.add(userPendingDao.findById(3));
-		//existingUsersPendingLmApprovalList.clear();
-		//existingUsersPendingLmApprovalList.add(labUserDao.findById(14));
-		//jobsPendingLmApprovalList.clear();
-		//jobsPendingLmApprovalList.add(jobService.getJobDao().findById(1));
-
-		
-		
-		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
-		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
-		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
-		
-		Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
-		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
-
-		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
-		for(Job job : jobsPendingLmApprovalList){
-			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
-			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
-			List<Sample> sampleList = jobService.getSubmittedSamples(job);
-			sampleService.sortSamplesBySampleName(sampleList);
-			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
-				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, new String("Unknown"));
-				}
-			}
-			
-		}
-		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
-		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
-		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
-		
-		return "lab/pendinglmapproval/list";
 	}
 
 	

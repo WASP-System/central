@@ -10,8 +10,20 @@ import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
  */
 public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate implements StatusMessageTemplate{
 	
+	public static final String EXIT_DESCRIPTION_HEADER = "description";
+	
 	protected WaspStatus status;
 	
+	protected String exitDescription = "";
+	
+	public String getExitDescription() {
+		return exitDescription;
+	}
+
+	public void setExitDescription(String exitDescription) {
+		this.exitDescription = exitDescription;
+	}
+
 	@Override
 	public WaspStatus getStatus() {
 		return status;

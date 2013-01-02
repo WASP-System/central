@@ -41,7 +41,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -66,7 +66,7 @@ public class Job2QuoteController extends WaspController {
 	private FilterService	filterService;
 
 	@Autowired
-	private MessageService	messageService;
+	private MessageServiceWebapp	messageService;
 	@Autowired
 	private AuthenticationService	authenticationService;
 

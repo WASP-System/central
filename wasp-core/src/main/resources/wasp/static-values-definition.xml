@@ -79,15 +79,6 @@
 		</map>
 	</property>
   </bean>
-
-  <!-- illumina adaptorset metadata -->
-  <bean id="illuminaAdaptorType" class="org.springframework.beans.factory.config.MapFactoryBean">
-	<property name="sourceMap">
-		<map key-type="java.lang.String" value-type="java.lang.String">
-			<entry key="truseq" value="truseq" />
-		</map>
-	</property>
-  </bean>
   
   <!-- platform unit and cell name statics to enforce consistent nomenclature when defining the 'name' attribute for these items in uiFields -->
   <bean id="waspSoftware" class="org.springframework.beans.factory.config.MapFactoryBean">
@@ -108,12 +99,5 @@
   	</property>
   </bean>
   
-  <bean id="waspSampleTypeCategory" class="org.springframework.beans.factory.config.MapFactoryBean">
-  	<property name="sourceMap">
-  		<map key-type="java.lang.String" value-type="java.lang.String">
-  			<entry key="biomaterial" value="biomaterial" />
-  			<entry key="hardware" value="hardware" />
-  		</map>
-  	</property>
-  </bean>
+  
 </beans>
