@@ -54,11 +54,11 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		}
 		String rd = w.getResultsDirectory();
 		if (rd.contains(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
-			if (w.getRunId() == null) {
+			if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
 				throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
-						+ "(${hostname.results.dir}/workunit.getRunId()/), but runID was null!");
+						+ "must set a subfolder.");
 			}
-			rd.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/" + w.getRunId() + "/").replaceAll("//", "/").replaceAll("//", "/");
+			rd.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/");
 			w.setResultsDirectory(rd);
 		}
 		
