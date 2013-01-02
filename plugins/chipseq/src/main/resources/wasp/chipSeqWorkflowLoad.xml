@@ -25,7 +25,7 @@
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
-		<value>/jobsubmit/software/aligner/{n}</value>
+		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.iName}/{n}</value>
 		<value>/jobsubmit/software/#{peakcallerResourceType.iName}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value> 
 		<value>/jobsubmit/verify/{n}</value>
