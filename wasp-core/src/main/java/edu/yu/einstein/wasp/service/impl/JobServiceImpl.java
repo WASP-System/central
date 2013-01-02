@@ -11,6 +11,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.Comparator;
@@ -116,6 +117,8 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
+	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
+	
 	private JobDao	jobDao;
 	
 	/**
@@ -531,6 +534,33 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return jobsAwaitingQCOfSamples;
 	}
 	
+	@Override
+	public List<Job> getJobsAwaitingFmApproval() {
+		List<Job> allJobsPendingFmApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingFmApproval(job))
+				allJobsPendingFmApproval.add(job);
+		return allJobsPendingFmApproval;
+	}
+	
+	@Override
+	public List<Job> getJobsAwaitingPiLmApproval() {
+		List<Job> allJobsPendingPiApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingPiApproval(job))
+				allJobsPendingPiApproval.add(job);
+		return allJobsPendingPiApproval;
+	}
+	
+	@Override
+	public List<Job> getJobsAwaitingDaApproval() {
+		List<Job> allJobsPendingDaApproval = new ArrayList<Job>();
+		for (Job job : getActiveJobs())
+			if (isJobAwaitingDaApproval(job))
+				allJobsPendingDaApproval.add(job);
+		return allJobsPendingDaApproval;
+	}
+	
 	/**
 	   * {@inheritDoc}
 	   */
@@ -615,7 +645,23 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Set<String> jobIdStringSet = new HashSet<String>();
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-			if (!batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+			if (!batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobAwaitingFmApproval(Job job){
+			Assert.assertParameterNotNull(job, "No Job provided");
+			Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+			Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+			Set<String> jobIdStringSet = new HashSet<String>();
+			jobIdStringSet.add(job.getJobId().toString());
+			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
 				return true;
 			return false;
 		}
@@ -712,25 +758,28 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
 		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
 		  // should only be one entry returned anyway.
+		  //Did the PI or the designated lab manager (or some facility personnel acting on their behalf) approve this job?
+		  //Only two possibilities: approved and rejected, which correspond to ExistStatus.Completed and ExitStatus.Stopped, respectively
+		  
+		  /*
 		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
 		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
-
 		  String piStatusLabel = "status.piApproval.label";
 		  if (stepExecution == null){
 			  jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.approved.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 				  jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
 			  }
 			  else{
@@ -740,29 +789,70 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  
 		  String daStatusLabel = "status.daApproval.label";
 		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.adminApprove", parameterMap, true)
+				  batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true)
 				);
 		  if (stepExecution == null){
 			  jobApprovalsMap.put(daStatusLabel, "status.notYetSet.label");
 		  }
 		  else {
 			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.equals(ExitStatus.EXECUTING)){
+			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.awaitingResponse.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.COMPLETED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.approved.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.FAILED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.rejected.label");
 			  }
-			  else if(adminApprovalStatus.equals(ExitStatus.STOPPED)){
+			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 				  jobApprovalsMap.put(daStatusLabel, "status.abandoned.label");
 			  }
 			  else{
 				  jobApprovalsMap.put(daStatusLabel, "status.unknown.label");
 			  }
 		  }
+		  */
+		  
+		  List<String> jobApproveList = new ArrayList<String>();
+		  for(int i = 0; i < this.jobApproveArray.length; i++){
+			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
+		  }	  
+		  for(String jobApproveCode : jobApproveList){
+			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
+			  List<StepExecution> stepExecutions = null;
+			  stepExecutions =  batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true);
+			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
+			  String approveStatus = null;
+			  if (stepExecution == null){
+				  //jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
+				  approveStatus = new String("notYetSet");
+			  }
+			  else {
+				  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
+				  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
+					  approveStatus = new String("awaitingResponse");
+					  //jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
+				  }
+				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+					  approveStatus = new String("approved");
+					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
+				  }
+				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){//most likely not used anymore
+					  approveStatus = new String("rejected");
+					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
+				  }
+				  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+					  approveStatus = new String("abandoned");
+					  //jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
+				  }
+				  else{
+					  approveStatus = new String("unknown");
+					  //jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
+				  }
+			  }
+			  jobApprovalsMap.put(jobApproveCode, approveStatus);
+		  } 
 		  
 		  return jobApprovalsMap;
 
@@ -1103,12 +1193,34 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		updateJobStatus(job, status, WaspJobTask.QUOTE);
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException{
+		
+		if(jobApproveCode.equals("piApprove")){
+			updateJobPiApprovalStatus(job, status);
+		}
+		else if(jobApproveCode.equals("daApprove")){
+			updateJobDaApprovalStatus(job, status);
+		}
+		else if(jobApproveCode.equals("fmApprove")){
+			updateJobFmApprovalStatus(job, status);
+		}
+		else{
+			throw new WaspMessageBuildingException();
+		}
+	}
+	
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.ADMIN_APPROVE);
+		updateJobStatus(job, status, WaspJobTask.DA_APPROVE);
 	}
 
 	
@@ -1120,6 +1232,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.FM_APPROVE);
+	}
+	
 	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(job, "No Job provided");
@@ -1127,8 +1247,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNull(status, "No Status provided");
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
-		if (status == WaspStatus.ABANDONED)
-			task = WaspTask.NOTIFY_STATUS; // let everyone interested know that this job is being killed
 		Assert.assertParameterNotNull(task, "No Task provided");
 		  
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
@@ -1324,5 +1442,39 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return new WaspJobContext(job);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception{
+		try{
+			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment, jobId, JobMeta.class, jobMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getJobApprovalComments(String jobApproveCode, Integer jobId){
+		return metaMessageService.read(jobApproveCode + "Comment", jobId, JobMeta.class, jobMetaDao);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId){
+		
+		HashMap<String, MetaMessage> map = new HashMap<String, MetaMessage>();
+		for(String jobApproveCode : jobApproveCodeSet){
+			List<MetaMessage> metaMessageList = this.getJobApprovalComments(jobApproveCode, jobId);
+			if(metaMessageList.size()>0){
+				map.put(jobApproveCode, metaMessageList.get(metaMessageList.size()-1));//get the last one
+			}
+		}	
+		return map;
+	}
+
+	
 }

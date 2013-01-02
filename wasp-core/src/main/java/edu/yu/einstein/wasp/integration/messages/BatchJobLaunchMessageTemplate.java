@@ -76,6 +76,12 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		return actUponMessage(message, this.task);
 	}
 	
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message) {
+		if (this.task == null)
+			return actUponMessage(message);
+		return actUponMessage(message, null);
+	}
 	// Statics.........
 
 	
@@ -100,11 +106,15 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	 * @return
 	 */
 	public static boolean actUponMessage(Message<?> message, String task){
-		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
-				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+		if (! actUponMessageS(message) )
+			return false;
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}
+
+	
 	
 }

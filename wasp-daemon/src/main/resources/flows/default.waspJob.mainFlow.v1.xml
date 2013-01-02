@@ -9,7 +9,7 @@
 	
 	<!-- Define main job approval flow -->
 	<batch:flow id="default.waspJob.flow.approvals.v1" >
-		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor" next="default.waspJob.step.approved">
+		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor" >
 			<batch:flow>
 				<batch:step id="default.waspJob.step.quote">
 					<batch:tasklet ref="listenForJobQuotedTasklet"/>
@@ -21,10 +21,18 @@
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="default.waspJob.step.adminApprove">
-					<batch:tasklet ref="listenForJobAdminApproveTasklet" />
+				<batch:step id="default.waspJob.step.daApprove">
+					<batch:tasklet ref="listenForJobDaApproveTasklet" />
 				</batch:step>
 			</batch:flow>
+			<batch:flow>
+				<batch:step id="default.waspJob.step.fmApprove">
+					<batch:tasklet ref="listenForJobFmApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:next on="COMPLETED" to="default.waspJob.step.approved" />
+			<batch:next on="FAILED" to="default.waspJob.step.rejected" />
+			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
 		<batch:step id="default.waspJob.step.approved">
 			<batch:tasklet>
@@ -34,6 +42,19 @@
 						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
 							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="status" value="ACCEPTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="default.waspJob.step.rejected">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="ABANDONED" />
 						</bean>
 					</constructor-arg>
 				</bean>

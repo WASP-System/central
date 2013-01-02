@@ -20,6 +20,7 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
@@ -151,7 +152,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 		for (StatusMessageTemplate messageTemplate: messageTemplates){
 			if (messageTemplate.actUponMessage(message)){
 				logger.debug(name + "handleMessage() adding found message to be compatible: " + message.toString());
-				if (statusFromMessage.isUnsuccessful())
+				if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
 					stopJobNotificationReceived = true;
 				if (stopJobNotificationReceived || statusFromMessage.equals(messageTemplate.getStatus()) ){
 					if (this.message == null || stopJobNotificationReceived){
