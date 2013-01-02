@@ -21,12 +21,12 @@
     <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
-		<value>/jobsubmit/resource/mps/{n}</value>
+		<value>/jobsubmit/resource/#{mpsResourceType.iName}/{n}</value>
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/helpTag/pair/{n}</value> 
 		<value>/jobsubmit/software/aligner/{n}</value>
-		<value>/jobsubmit/software/helptagPipeline/{n}</value>
+		<value>/jobsubmit/software/#{helptagPipelineResourceType.iName}/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
