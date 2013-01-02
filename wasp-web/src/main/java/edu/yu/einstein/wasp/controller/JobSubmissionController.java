@@ -106,9 +106,9 @@ import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -236,7 +236,7 @@ public class JobSubmissionController extends WaspController {
 	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
 	
 	@Autowired
-	protected MessageService messageService;
+	protected MessageServiceWebapp messageService;
 	
 	@Autowired
 	protected SampleService sampleService;

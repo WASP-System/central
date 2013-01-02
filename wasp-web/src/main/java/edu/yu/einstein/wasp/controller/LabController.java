@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +44,6 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -55,11 +52,10 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -104,7 +100,7 @@ public class LabController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
-	private MessageService messageService; 
+	private MessageServiceWebapp messageService; 
 	
 	@Autowired
 	private SampleService sampleService;

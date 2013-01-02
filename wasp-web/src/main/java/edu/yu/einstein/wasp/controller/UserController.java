@@ -37,11 +37,10 @@ import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FilterService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 
@@ -59,7 +58,7 @@ public class UserController extends WaspController {
 	private UserMetaDao userMetaDao;
 
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	  
 	@Autowired
 	private AuthenticationService authenticationService;

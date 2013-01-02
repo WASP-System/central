@@ -44,9 +44,8 @@ import edu.yu.einstein.wasp.model.ResourceCell;
 import edu.yu.einstein.wasp.model.ResourceMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -72,7 +71,7 @@ public class ResourceController extends WaspController {
 	private BarcodeDao barcodeDao;
 	
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(ResourceMeta.class, request.getSession());

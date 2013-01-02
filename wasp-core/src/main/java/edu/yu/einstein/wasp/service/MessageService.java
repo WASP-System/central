@@ -4,12 +4,6 @@ import java.util.Locale;
 
 public interface MessageService {
 
-	/** Get localized message 
-	 * @param key
-	 * @return
-	 */
-	public String getMessage(String key);
-	
 	/**
 	 * Get localized message for specified locale
 	 * @param key

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 public abstract class WaspTaskMapping {
 	
@@ -24,10 +24,10 @@ public abstract class WaspTaskMapping {
 	
 	private AuthenticationService authenticationService;
 	
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 
 	@Autowired
-	public void setMessageService(MessageService messageService) {
+	public void setMessageService(MessageServiceWebapp messageService) {
 		this.messageService = messageService;
 	}
 
