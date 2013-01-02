@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.load.service;
 
+import edu.yu.einstein.wasp.model.ResourceType;
+
 
 public interface ResourceTypeLoadService extends WaspLoadService {
 
-	public void update(String iname, String name, String resourceTypeCategoryIname, Integer isActive);
+	public ResourceType update(String iname, String name, Integer isActive);
 
 }

@@ -572,7 +572,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		stepExecutions.add(stepExecution);
 			
-		expect(mockJobExplorerWasp.getStepExecutions("step.adminApprove", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions);
+		expect(mockJobExplorerWasp.getStepExecutions("step.daApprove", parameterMap, true, BatchStatus.STARTED)).andReturn(stepExecutions);
 		
 		replay(mockJobExplorerWasp);
 		

@@ -121,10 +121,6 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/newrequest.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
 	</definition>
-	<definition name="lab/pendinglmapproval/list" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/pendinglmapproval/list.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinglmapproval/list.jsp" />
-	</definition>
 
 	<definition name="user/mypassword" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
@@ -221,6 +217,18 @@
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>
+	<definition name="task/daapprove/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/task/daapprove/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/daapprove/list.jsp" />
+	</definition>
+	<definition name="task/fmapprove/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/fmapprove/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmapprove/list.jsp" />
+	</definition>	
+	<definition name="task/piapprove/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/task/piapprove/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/piapprove/list.jsp" />
+	</definition>	
 	<definition name="task/samplereceive/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/samplereceive/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/samplereceive/list.jsp" />
@@ -339,10 +347,6 @@
 	</definition>
 	<definition name="lab/pendinguser/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />
-	</definition>
-	<definition name="department/dapendingtasks" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/department/dapendingtasks.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/department/dapendingtasks.jsp" />
 	</definition>
 	<definition name="jobsubmit/sample" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/sample.js.jsp" />

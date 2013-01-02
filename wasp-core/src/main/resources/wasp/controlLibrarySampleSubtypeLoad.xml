@@ -5,10 +5,10 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
    
-  <bean id="controlLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
+  <bean id="controlLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
     <property name="name" value="Control Library" />
     <property name="area" value="controlLibrarySample" />
-    <property name="sampleType" value="#{librarySampleType.area}" />
+    <property name="sampleType" ref="librarySampleType" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericBiomoleculeUiFields" /> 

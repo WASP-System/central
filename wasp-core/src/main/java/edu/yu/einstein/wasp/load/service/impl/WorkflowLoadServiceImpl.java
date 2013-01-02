@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
@@ -26,6 +27,7 @@ import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.exception.NullSampleSubtypeException;
 import edu.yu.einstein.wasp.load.service.WorkflowLoadService;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -72,7 +74,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	@Autowired
 	private WorkflowService workflowService;
 	
-	private Workflow addOrUpdateWorkflow(String iname, String name, Integer isActive, List<String> dependencies){
+	private Workflow addOrUpdateWorkflow(String iname, String name, int isActive, List<ResourceType> dependencies){
 		Workflow workflow = workflowDao.getWorkflowByIName(iname);
 	    // inserts or update workflow
 	    if (workflow.getWorkflowId() == null) { 
@@ -83,35 +85,25 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	      workflow.setIsActive(isActive); // only set to active when all dependencies configured by admin
 	      workflow.setCreatets(new Date());
 
-	      workflowDao.persist(workflow); 
-
-	      // refreshes
-	      workflowDao.refresh(workflow); 
+	      workflow = workflowDao.save(workflow); 
 
 	    } else {
-	    	boolean changed = false;	
-	        if (!workflow.getName().equals(name)){
+	    	if (!workflow.getName().equals(name)){
 	        	workflow.setName(name);
-	      	  	changed = true;
 	        }
-	        if (workflow.getIsActive().intValue() != isActive.intValue()){
-	        	workflow.setIsActive(isActive.intValue());
-	      	  	changed = true;
+	        if (workflow.getIsActive().intValue() != isActive){
+	        	workflow.setIsActive(isActive);
 	        }
-	        if (changed) workflowDao.merge(workflow); 
-	        // refreshes
-	        workflow = workflowDao.getWorkflowByIName(iname); 
-	        workflowDao.refresh(workflow); 
 	    }
 	   
 	    // update dependencies
-	    Map<String,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<String, WorkflowResourceType>();
+	    Map<Integer,WorkflowResourceType> oldWorkflowResourceTypes = new HashMap<Integer, WorkflowResourceType>();
 	    for (WorkflowResourceType old : safeList(workflow.getWorkflowResourceType()) ){
-		   oldWorkflowResourceTypes.put(old.getWorkflowresourcetypeId().toString(), old);
+		   oldWorkflowResourceTypes.put(old.getWorkflowresourcetypeId(), old);
 	    }
 	    List<Integer> resourceTypeIdList = new ArrayList<Integer>();
-	    for (String dependency: safeList(dependencies)) { 
-	      Integer resourceTypeId = resourceTypeDao.getResourceTypeByIName(dependency).getResourceTypeId();
+	    for (ResourceType dependency: safeList(dependencies)) { 
+	      Integer resourceTypeId = dependency.getResourceTypeId();
 	      if (resourceTypeId == null){
 	    	// the specified resourceType does not exist!!
 	    	  throw new NullResourceTypeException("No resource type defined with iname='"+dependency+"'");
@@ -125,11 +117,11 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 		      workflowresourcetypeDao.save(workflowResourceType);
 		  } else {
 			  // already exists
-			  oldWorkflowResourceTypes.remove(workflowResourceType.getWorkflowresourcetypeId().toString());
+			  oldWorkflowResourceTypes.remove(workflowResourceType.getWorkflowresourcetypeId());
 		  } 
 	    }
 	    // remove old no longer used dependencies
-	    for (String key : oldWorkflowResourceTypes.keySet()){
+	    for (Integer key : oldWorkflowResourceTypes.keySet()){
 	  	  workflowresourcetypeDao.remove(oldWorkflowResourceTypes.get(key));
 	  	  workflowresourcetypeDao.flush(oldWorkflowResourceTypes.get(key));
 	    } 
@@ -225,7 +217,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 
 	}
 	
-	private void syncWorkflowSampleSubtypes(Workflow workflow, Set<String> sampleSubtypes){
+	private void syncWorkflowSampleSubtypes(Workflow workflow, Set<String> sampleSubtypeInames){
 	    Map<String, Integer> m = new HashMap<String, Integer>();
 	    m.put("workflowId", workflow.getWorkflowId());
 	    List<WorkflowSampleSubtype> oldWorkflowSampleSubtypes = workflow.getWorkflowSampleSubtype();
@@ -237,8 +229,8 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 		
 		      // already exists in set... 
 		      // remove from set
-		      if (sampleSubtypes.contains(subtypeIName)) {
-		        sampleSubtypes.remove(subtypeIName);
+		      if (sampleSubtypeInames.contains(subtypeIName)) {
+		    	  sampleSubtypeInames.remove(subtypeIName);
 		        continue;
 		      }
 		
@@ -249,7 +241,7 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    }
 
 	    // the leftovers were not in the db so create
-	    for (String sampleSubtypeIName: safeSet(sampleSubtypes)) {
+	    for (String sampleSubtypeIName: safeSet(sampleSubtypeInames)) {
 	      SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(sampleSubtypeIName);
 	      if (sampleSubtype.getSampleSubtypeId() != null){
 		      WorkflowSampleSubtype newWorkflowSampleSubtype = new WorkflowSampleSubtype();
@@ -267,24 +259,25 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	
 	
 	@Override
-	public void update(String iname, String name, Integer isActive, List<WorkflowMeta> meta, List<String> dependencies, 
-			Set<String> sampleSubtypes, List<String> pageFlowOrder, String jobFlowBatchJobName){
-		if (isActive == null)
-	  	  isActive = 1;
-	    
-	    Workflow workflow = addOrUpdateWorkflow(iname, name, isActive, dependencies);
+	public Workflow update(String iname, String name, int isActive, List<WorkflowMeta> meta, List<ResourceType> dependencies, 
+			List<SampleSubtype> sampleSubtypes, List<String> pageFlowOrder, String jobFlowBatchJobName){
+		Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		Assert.assertParameterNotNull(name, "name Cannot be null");
+		Workflow workflow = addOrUpdateWorkflow(iname, name, isActive, dependencies);
 	    
 	    Set<String> doNotDeleteKeyList = new HashSet<String>();
 	    doNotDeleteKeyList.add(WorkflowServiceImpl.WORKFLOW_AREA + "." + WorkflowServiceImpl.JOB_FLOW_BATCH_META_KEY);
 	    doNotDeleteKeyList.add(WorkflowServiceImpl.WORKFLOW_AREA + "." + WorkflowServiceImpl.PAGE_FLOW_ORDER_META_KEY);
 
 	    syncWorkflowMeta(workflow, meta, doNotDeleteKeyList);
-
-	    syncWorkflowSampleSubtypes(workflow, sampleSubtypes);
+	    Set<String> sampleSubtypeInames = new HashSet<String>();
+	    for (SampleSubtype sampleSubtype: safeList(sampleSubtypes))
+	    	sampleSubtypeInames.add(sampleSubtype.getIName());
+	    syncWorkflowSampleSubtypes(workflow, sampleSubtypeInames);
 	    
 	    workflowService.setJobFlowBatchJobName(workflow, jobFlowBatchJobName);
 	    workflowService.setPageFlowOrder(workflow, pageFlowOrder);
-
+	    return workflow;
 	}
 
 }

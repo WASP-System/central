@@ -12,7 +12,7 @@ public class MetaLoadWrapper {
 
 	private String area = "";
 	
-	private Map<String,String> metaDataList;
+	private Map<String,String> metaDataList = new HashMap<String, String>();
 
 	public String getArea() {
 		return area;
@@ -30,8 +30,6 @@ public class MetaLoadWrapper {
 			for (int i=1; i< metaStringSplit.length; i++){
 				value += metaStringSplit[i];
 			}
-			if (metaDataList == null)
-				metaDataList = new HashMap<String, String>();
 			metaDataList.put(key, value);
 		}
 	}

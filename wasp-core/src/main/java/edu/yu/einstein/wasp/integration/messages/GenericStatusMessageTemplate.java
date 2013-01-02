@@ -47,14 +47,19 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Takes a message and checks its headers to see if the message should be acted upon or not
-	 * @param message
-	 * @param task
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
 		return actUponMessage(message, this.task);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message){
+		return actUponMessage(message, null);
 	}
 	
 	// Statics.........

@@ -26,6 +26,14 @@ public interface MessageTemplate {
 	 */
 	public boolean actUponMessage(Message<?> message);
 	
+	/**
+	 * Takes a message and checks its headers against to see if the message should be acted upon or not
+	 * whilst ignoring task header
+	 * @param message
+	 * @return
+	 */
+	public boolean actUponMessageIgnoringTask(Message<?> message);
+	
 	public String getTask();
 
 }

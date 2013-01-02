@@ -665,53 +665,7 @@ public class JobController extends WaspController {
   }
 
  
- 
-  
-  @RequestMapping(value = "/pendinglmapproval/{action}/{labId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
-	public String pendingLmApproval(@PathVariable("action") String action, @PathVariable("labId") Integer labId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  Job job = jobService.getJobDao().getJobByJobId(jobId);
-	  WaspStatus status = WaspStatus.UNKNOWN;
-	  if("approve".equals(action)){
-		  status = WaspStatus.COMPLETED;
-	  }
-	  else if("reject".equals(action)){
-		  status = WaspStatus.ABANDONED;
-	  }	
-	  try {
-		  jobService.updateJobPiApprovalStatus(job, status);
-	  } catch (WaspMessageBuildingException e) {
-		  waspErrorMessage("job.approval.error"); 
-	  }
-	  String referer = request.getHeader("Referer");
-	  return "redirect:"+ referer;
-	  //return "redirect:/lab/pendinglmapproval/list.do";	
-	}
-  
-  @RequestMapping(value = "/pendingdaapproval/{action}/{deptId}/{jobId}.do", method = RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga') or hasRole('da-' + #deptId)")
-	public String pendingDaApproval(@PathVariable("action") String action, @PathVariable("deptId") Integer deptId, @PathVariable("jobId") Integer jobId, ModelMap m) {
-	  Job job = jobService.getJobDao().getJobByJobId(jobId);
-	  WaspStatus status = WaspStatus.UNKNOWN;
-	  if("approve".equals(action)){
-		  status = WaspStatus.COMPLETED;
-	  }
-	  else if("reject".equals(action)){
-		  status = WaspStatus.ABANDONED;
-	  }	
-	  try {
-		  jobService.updateJobDaApprovalStatus(job, status);
-	  } catch (WaspMessageBuildingException e) {
-		  logger.warn(e.getLocalizedMessage());
-		  waspErrorMessage("job.approval.error"); 
-	  }
-	  String referer = request.getHeader("Referer");
-	  return "redirect:"+ referer;
-	  //return "redirect:/department/dapendingtasklist.do";		  
-	}
- 
-
-	/**
+  	/**
 	 * show job/resource data and meta information to be modified.
 	 */
 	@RequestMapping(value = "/meta/{jobId}.do", method = RequestMethod.GET)

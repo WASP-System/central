@@ -801,18 +801,15 @@ create table sampletypecategory (
   sampletypecategoryid int(10)  primary key auto_increment,
   iname varchar(250), 
   name varchar(250),
+  isactive int(1)  default 1,
 
   constraint unique index u_sampletypecategory_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
-insert into sampletypecategory values
-(1, 'biomaterial', 'Biomaterial'),
-(2, 'hardware', 'Hardware');
-
 
 create table sampletype (
   sampletypeid int(10)  primary key auto_increment,
-  sampletypecategoryid int(10) ,
+  sampletypecategoryid int(10),
   isactive int(1)  default 1,
   iname varchar(250), 
   name varchar(250),
