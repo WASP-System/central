@@ -101,7 +101,12 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			directory = gws.getTransportService().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(run);
-			gfs.put(f, directory + "/" + "SampleSheet.csv");
+			String newDir = directory + "/Data/Intensities/BaseCalls/";
+			
+			w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+			w.setResultsDirectory(newDir);
+			
+			gfs.put(f, newDir + "SampleSheet.csv");
 			logger.debug("deleting temporary local sample sheet " + f.getAbsolutePath());
 			f.delete();
 		} catch (Exception e) {
@@ -116,7 +121,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		while (!gws.isFinished(result)) {
 			try {
 				logger.debug("job is not finished");
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				logger.error(e.getLocalizedMessage());
 				throw new GridExecutionException("unable to sleep for sample sheet", e);

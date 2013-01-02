@@ -52,6 +52,10 @@ public class PipelineTasklet extends WaspTasklet {
 	private IlluminaSequenceRunProcessor casava;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	public PipelineTasklet() {
+		// required for AOP/CGLIB/Batch/Annotations
+	}
 
 	/**
 	 * 
@@ -86,7 +90,7 @@ public class PipelineTasklet extends WaspTasklet {
 		
 		
 		// creating a work unit this way sets the runID from the jobparameters
-		WorkUnit w = hostResolver.createWorkUnit();
+		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.FIXED);
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
@@ -104,7 +108,7 @@ public class PipelineTasklet extends WaspTasklet {
 		w.setWorkingDirectory(dataDir + "/" + run.getName() 
 				+ "/Data/Intensities/BaseCalls/" );
 		
-		w.setResultsDirectory(dataDir + "/" + "Unaligned");
+		w.setResultsDirectory(dataDir + "/" + run.getName() + "/Unaligned");
 		
 		w.setCommand(getConfigureBclToFastqString(sm, procs));
 
@@ -113,7 +117,7 @@ public class PipelineTasklet extends WaspTasklet {
 		logger.debug("started illumina pipeline: " + result.getUuid());
 		
 		//place the grid result in the step context
-		WaspTasklet.storeStartedResult(context, result);
+		storeStartedResult(context, result);
 		
 		return RepeatStatus.CONTINUABLE;
 	}

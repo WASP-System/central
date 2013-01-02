@@ -10,6 +10,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
@@ -51,6 +52,7 @@ public class StageResultsTasklet extends WaspTasklet {
 	}
 
 	@Override
+	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 
 		// if the work has already been started, then check to see if it is
@@ -69,7 +71,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(casava);
 		
-		WorkUnit w = hostResolver.createWorkUnit();
+		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
