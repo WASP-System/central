@@ -12,33 +12,26 @@
   <bean id="truseqIndexedDnaArea" class="java.lang.String">
   	<constructor-arg><value>truseqIndexedDna</value></constructor-arg>
   </bean>
-    
-  <bean class="edu.yu.einstein.wasp.model.UiField" id="truseqIndexedDnaUiField">
-    <property name="locale" value="en_US" />
-    <property name="area" value="#{truseqIndexedDnaArea}" />
-  </bean>
 
-  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoader" >
-  	<property name="area" value="#{truseqIndexedDnaArea}" />
+  <bean id="truseqIndexedDnaAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory" >
+  	<property name="area" ref="truseqIndexedDnaArea" />
   	<property name="name" value="TruSEQ INDEXED DNA" />
-  	<property name="sampleTypeIName" value="dna" />
+  	<property name="sampleType" ref="dnaSampleType" />
 	
 	<property name="metaFromWrapper">
 		<bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-  			<property name="area" value="#{truseqIndexedDnaArea}" />
+  			<property name="area" ref="truseqIndexedDnaArea" />
   			<property name="metaList">
   				<list>
-  					<value>#{illuminaAdaptorType['truseq']}=1</value>
+  					<value>truseq=1</value>
   				</list>
   			</property>
   		</bean>
 	</property>
 
-  	<property name="compatibleResourcesByIName">
+  	<property name="compatibleResources">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
-  				<constructor-arg type="String" value="illuminaHiSeq2000" />
-  			</bean>
+  			<ref bean="illuminaHiSeq2000" />
   		</list>
   	</property>
 

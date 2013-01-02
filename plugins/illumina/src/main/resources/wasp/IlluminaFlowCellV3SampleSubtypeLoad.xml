@@ -12,20 +12,18 @@
    
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaFlowcellV3UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaFlowcellV3UiFieldArea}" />
+    <property name="baseArea" ref="illuminaFlowcellV3UiFieldArea" />
   </bean>
   
    
 
-  <bean id="illuminaFlowcellV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoader">
+  <bean id="illuminaFlowcellV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
   	<property name="name" value="Illumina Flow Cell Version 3" />
-    <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
-    <property name="sampleType" value="#{puSampleType.area}" />
-    <property name="compatibleResourcesByIName">
+    <property name="area" ref="illuminaFlowcellV3UiFieldArea" />
+    <property name="sampleType" ref="puSampleType" />
+    <property name="compatibleResources">
   		<list>
-  			<bean class="java.lang.String" depends-on="illuminaHiSeq2000">
-  				<constructor-arg type="String" value="illuminaHiSeq2000" />
-  			</bean>
+  			<ref bean="illuminaHiSeq2000" />
   		</list>
   	</property>
   	
@@ -43,7 +41,7 @@
   	</property>
   	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaFlowcellV3UiFieldArea}" />
+         <property name="area" ref="illuminaFlowcellV3UiFieldArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspPlatformUnit['maxCellNumber']}=8</value>

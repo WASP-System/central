@@ -14,17 +14,18 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="casavaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{casavaArea}" />
+    <property name="baseArea" ref="casavaArea" />
   </bean>
 
-  <bean id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor">
+  <bean id="casava" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+    <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor</value></property>
     <property name="name" value="CASAVA" />
-    <property name="area" value="#{casavaArea}" />
-    <property name="resourceTypeByIName" value="#{sequenceRunProcessorResourceType.area}" />
+    <property name="area" ref="casavaArea" />
+    <property name="resourceType" ref="sequenceRunProcessorResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{casavaArea}" />
+         <property name="area" ref="casavaArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=1.8.2</value>

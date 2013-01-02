@@ -15,16 +15,16 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="illuminaHiSeq2000UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{illuminaHiSeq2000Area}" />
+    <property name="baseArea" ref="illuminaHiSeq2000Area" />
   </bean>
 
-  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoader">
+  <bean id="illuminaHiSeq2000" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
     <property name="name" value="Illumina HiSeq 2000" />
-    <property name="area" value="#{illuminaHiSeq2000Area}" />
-    <property name="resourceType" value="mps" />
+    <property name="area" ref="illuminaHiSeq2000Area" />
+    <property name="resourceType" ref="mpsResourceType" />
 	 <property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{illuminaHiSeq2000Area}" />
+         <property name="area" ref="illuminaHiSeq2000Area" />
          <property name="metaList">
          	<list>
          		<value>allowableUiField.readlength=50:50;75:75;100:100;150:150</value>

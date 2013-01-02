@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.channel.DirectChannel;
@@ -29,6 +30,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.RunService;
@@ -50,8 +52,9 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 	@Autowired
 	private RunService runService;
 
-	@Autowired
-	private IlluminaSequenceRunProcessor illuminaSequenceRunProcessor;
+	@Autowired()
+	private IlluminaSequenceRunProcessor casava;
+	
 	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
@@ -105,7 +108,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 			return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
 		String ss;
 		try {
-			ss = illuminaSequenceRunProcessor.getSampleSheet(run);
+			ss = casava.getSampleSheet(run);
 		} catch (Exception e) {
 			e.printStackTrace();
 			String err = "unable to create sample sheet for run " + run.getName();

@@ -9,7 +9,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
