@@ -19,10 +19,10 @@
 		<property name="pageFlowOrder">
 			<list>
 				<value>/jobsubmit/modifymeta/{n}</value>
-				<value>/jobsubmit/resource/mps/{n}</value>
+				<value>/jobsubmit/resource/#{mpsResourceType.iName}/{n}</value>
 				<value>/jobsubmit/samples/{n}</value>
 				<value>/jobsubmit/cells/{n}</value>
-				<value>/jobsubmit/software/aligner/{n}</value>
+				<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.iName}/{n}</value>
 				<value>/jobsubmit/comment/{n}</value>
 				<value>/jobsubmit/verify/{n}</value>
 				<value>/jobsubmit/submit/{n}</value>
