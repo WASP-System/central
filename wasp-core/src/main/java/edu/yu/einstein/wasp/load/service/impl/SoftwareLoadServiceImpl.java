@@ -35,7 +35,7 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	@Autowired
 	private ResourceTypeDao resourceTypeDao;
 	
-	private <T extends Software> T addOrUpdateSoftware(ResourceType resourceType, String iname, String name, int isActive, Class<T> clazz){
+	private Software addOrUpdateSoftware(ResourceType resourceType, String iname, String name, int isActive){
 		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
 		Assert.assertParameterNotNull(iname, "iname Cannot be null");
 		Assert.assertParameterNotNull(name, "name Cannot be null");
@@ -43,53 +43,30 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    	throw new NullResourceTypeException();
 	    }
 			    
-	    Software baseSoftware = softwareDao.getSoftwareByIName(iname);
+	    Software software = softwareDao.getSoftwareByIName(iname);
 	    
 	    	    
 	    // inserts or update workflow
-	    if (baseSoftware.getSoftwareId() == null) { 
-	    	baseSoftware = new Software();
+	    if (software.getSoftwareId() == null) { 
+	    	software = new Software();
 
-	    	baseSoftware.setIName(iname);
-	    	baseSoftware.setName(name);
-	    	baseSoftware.setIsActive(isActive);
-	    	baseSoftware.setResourceTypeId(resourceType.getResourceTypeId());
-	      softwareDao.save(baseSoftware); 
-
-	      // refreshes
-	      baseSoftware = softwareDao.getSoftwareByIName(iname); 
-
+	    	software.setIName(iname);
+	    	software.setName(name);
+	    	software.setIsActive(isActive);
+	    	software.setResourceTypeId(resourceType.getResourceTypeId());
+	    	software = softwareDao.save(software);
 	    } else {
-	      boolean changed = false;	
-	      if (!baseSoftware.getName().equals(name)){
-	    	  baseSoftware.setName(name);
-	    	  changed = true;
+	      if (!software.getName().equals(name)){
+	    	  software.setName(name);
 	      }
-	      if (baseSoftware.getResourceTypeId() != resourceType.getResourceTypeId()){
-	    	  baseSoftware.setResourceTypeId(resourceType.getResourceTypeId());
-	    	  changed = true;
+	      if (software.getResourceTypeId() != resourceType.getResourceTypeId()){
+	    	  software.setResourceTypeId(resourceType.getResourceTypeId());
 	      }
-	      if (baseSoftware.getIsActive().intValue() != isActive){
-	    	  baseSoftware.setIsActive(isActive);
-	    	  changed = true;
+	      if (software.getIsActive().intValue() != isActive){
+	    	  software.setIsActive(isActive);
 	      }
-	      if (changed)
-	    	  softwareDao.save(baseSoftware); 
 	    }
-	    if (clazz.getName().equals(baseSoftware.getClass().getName()))
-	    	return (T) baseSoftware;
-	    T software;
-		try {
-			software = clazz.newInstance();
-			software.setSoftwareId(baseSoftware.getSoftwareId());
-			software.setIName(iname);
-			software.setName(name);
-			software.setIsActive(isActive);
-			software.setResourceTypeId(resourceType.getResourceTypeId());
-		} catch (Exception e) {
-			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
-			return (T) baseSoftware;
-		}
+	    
 	    return software;
 	}
 	
@@ -141,9 +118,26 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 
 	@Override
 	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, Integer isActive, Class<T> clazz){
-		T software = addOrUpdateSoftware(resourceType, iname, name, isActive, clazz);
+		Software software = addOrUpdateSoftware(resourceType, iname, name, isActive);
 		syncMetas(software, meta);
-		return software;
+		if (clazz.getName().equals(software.getClass().getName()))
+	    	return (T) software;
+	    T softwareSpecial;
+		try {
+			softwareSpecial = clazz.newInstance();
+			softwareSpecial.setSoftwareId(software.getSoftwareId());
+			softwareSpecial.setIName(software.getIName());
+			softwareSpecial.setName(software.getName());
+			softwareSpecial.setIsActive(software.getIsActive());
+			softwareSpecial.setResourceType(software.getResourceType());
+			softwareSpecial.setJobDraftSoftware(software.getJobDraftSoftware());
+			softwareSpecial.setSoftwareMeta(software.getSoftwareMeta());
+			softwareSpecial.setWorkflowSoftware(software.getWorkflowSoftware());
+		} catch (Exception e) {
+			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
+			return (T) software;
+		}
+		return softwareSpecial;
 	    
 	}
 	
