@@ -381,15 +381,6 @@ create table resourcetype (
   constraint unique index u_resourcetype_name (name)
 ) ENGINE=InnoDB charset=utf8; 
 
-insert into resourcetype values (1, 'mps', 'Massively Parallel DNA Sequencer'); 
-insert into resourcetype values (2, 'amplicon', 'DNA Amplicon'); 
-insert into resourcetype values (3, 'aligner', 'Aligner'); 
-insert into resourcetype values (4, 'peakcaller', 'Peak Caller'); 
-insert into resourcetype values (5, 'sanger', 'Sanger DNA Sequencer'); 
-insert into resourcetype values (6, 'helptagPipeline', 'HELP-tag Pipeline'); 
-insert into resourcetype values (7, 'bisulseqPipeline', 'Bi-sulphite-seq Pipeline'); 
-insert into resourcetype values (8, 'sequenceRunProcessor', 'Sequence Run Processor'); 
-
 --
 -- RESOURCE
 -- 
@@ -810,36 +801,21 @@ create table sampletypecategory (
   sampletypecategoryid int(10)  primary key auto_increment,
   iname varchar(250), 
   name varchar(250),
+  isactive int(1)  default 1,
 
   constraint unique index u_sampletypecategory_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
 
-insert into sampletypecategory values
-(1, 'biomaterial', 'Biomaterial'),
-(2, 'hardware', 'Hardware');
-
 
 create table sampletype (
   sampletypeid int(10)  primary key auto_increment,
-  sampletypecategoryid int(10) ,
+  sampletypecategoryid int(10),
+  isactive int(1)  default 1,
   iname varchar(250), 
   name varchar(250),
   foreign key fk_sampletype_tscid (sampletypecategoryid) references sampletypecategory(sampletypecategoryid),
   constraint unique index u_sampletype_iname (iname)
 ) ENGINE=InnoDB charset=utf8;
-
-insert into sampletype values
-(1, 1, 'dna', 'DNA'), 
-(2, 1, 'rna', 'RNA'), 
-(3, 1, 'library', 'Library'),
-(4, 2, 'cell', 'Cell'), 
-(5, 2, 'platformunit', 'Platform Unit'),
-(6, 1, 'tissue', 'Tissue'),
-(7, 1, 'protein', 'Protein'),
-(8, 1, 'cellPrimary', 'Primary Cell'),
-(9, 1, 'cellLine', 'Cell Line'),
-(10, 1, 'facilityLibrary', 'Facility Library');
-
 
 
 create table samplesubtype (

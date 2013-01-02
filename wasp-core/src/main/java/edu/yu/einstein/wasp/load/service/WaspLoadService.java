@@ -10,4 +10,6 @@ public interface WaspLoadService {
 	
 	public void updateUiFields(String area, List<UiField> uiFields);
 
+	public List<String> getAreaListFromUiFields(List<UiField> uiFields);
+
 }

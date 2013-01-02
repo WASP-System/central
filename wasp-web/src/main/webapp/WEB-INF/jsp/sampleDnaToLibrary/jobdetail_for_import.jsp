@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<div class="wasptooltip">
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobName.label" />:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
@@ -8,11 +9,20 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
 <c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>
-</c:forEach> 
-<c:forEach items="${jobApprovalsMap.keySet()}" var="detailKey2">
-	<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey2}" />:</td><td class="DataTD"><fmt:message key="${jobApprovalsMap.get(detailKey2)}" /></td></tr>
+</c:forEach>
+
+<c:forEach items="${jobApprovalsMap.keySet()}" var="jobApproveCode">
+	<tr class="FormData">
+		<td class="CaptionTD"><fmt:message key="status.${jobApproveCode}.label" />:</td>
+		<td class="DataTD"><fmt:message key="status.${jobApprovalsMap.get(jobApproveCode)}.label" />		
+		  <c:if test="${not empty jobApprovalsCommentsMap.get(jobApproveCode)}"> 
+			<a href="javascript:void(0)" title="<c:out value="${jobApprovalsCommentsMap.get(jobApproveCode).getValue()}" /> (<fmt:formatDate value="${jobApprovalsCommentsMap.get(jobApproveCode).getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+		  </c:if>
+		</td>
+	</tr>
 </c:forEach> 
 
+<%-- 
 <c:if test="${not empty files}">
 	<tr class="FormData">
 		<td class="CaptionTD"><fmt:message key="jobdetail_for_import.files.label" />:</td>
@@ -25,7 +35,9 @@
 		</td>
 	</tr>
 </c:if>
+--%>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobComments.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="<c:url value="/job/comments/${job.jobId}.do" />">
 <fmt:message key="jobdetail_for_import.jobCommentsView.label" /><sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('fm')"><fmt:message key="jobdetail_for_import.jobCommentsPlusAddEdit.label" /></sec:authorize>
 </a> </td></tr>
 </table>
+</div>

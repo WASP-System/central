@@ -10,32 +10,26 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
-import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -45,18 +39,6 @@ import edu.yu.einstein.wasp.service.TaskService;
 @Transactional("entityManager")
 public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
-	private TaskMappingDao	taskMappingDao;
-	
-	private JobExplorerWasp jobExplorer;
-	
-	/**
-	 * Set JobExplorerWasp
-	 * @param jobExplorer
-	 */
-	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer){
-		this.jobExplorer = (JobExplorerWasp) jobExplorer;
-	}
 
 	@Autowired
 	private UserPendingDao			userPendingDao;
@@ -142,10 +124,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		// however if the user is superuser, ft, fm, and ga, then don't filter by lab_id
 		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
 		
-		List<Job> allJobsAwaitingLmApproval = new ArrayList<Job>();
-		for (Job job: jobService.getActiveJobs())
-			if (jobService.isJobAwaitingPiApproval(job))
-				allJobsAwaitingLmApproval.add(job);
+		List<Job> allJobsAwaitingLmApproval = jobService.getJobsAwaitingPiLmApproval();
 		
 		if (authenticationService.isSuperUser()) {
 		
@@ -225,11 +204,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 
 	@Override
 	public int getDepartmentAdminPendingTasks(List<LabPending> labsPendingDaApprovalList, List<Job> jobsPendingDaApprovalList) {
-		List<Job> allJobsPendingDaApproval = new ArrayList<Job>();
-		for (Job job : jobService.getActiveJobs())
-			if (jobService.isJobAwaitingDaApproval(job))
-				allJobsPendingDaApproval.add(job);
-		
+		List<Job> allJobsPendingDaApproval = jobService.getJobsAwaitingDaApproval();
 		Map<String, Object> labPendingSearchMap = new HashMap<String, Object>();
 		labPendingSearchMap.put("status", "PENDING");
 		
@@ -253,6 +228,14 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		}
 		// total number of tasksPendingDaApproval
 		return labsPendingDaApprovalList.size() + jobsPendingDaApprovalList.size();
+	}
+	
+	@Override
+	public boolean isFmPendingTasks() {
+		for (Job job : jobService.getActiveJobs())
+			if (jobService.isJobAwaitingFmApproval(job))
+				return true;
+		return false;
 	}
 	
 	

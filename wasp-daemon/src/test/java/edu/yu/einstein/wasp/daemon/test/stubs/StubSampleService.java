@@ -635,4 +635,10 @@ public class StubSampleService implements SampleService {
 		return null;
 	}
 
+	@Override
+	public void sortSamplesBySampleId(List<Sample> samples) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -1050,7 +1050,17 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 		}
-				
+		
+		// 12/17/12 deal with coverage
+		Map<Job, Map<Sample,String>> jobCoverageMap = new HashMap<Job, Map<Sample,String>>(); 
+		Map<Job, Integer> jobTotalNumberOfCellsRequested = new HashMap<Job, Integer>();
+		for(Job job : jobs){
+			jobTotalNumberOfCellsRequested.put(job, new Integer(job.getJobCellSelection().size()));
+			jobCoverageMap.put(job, jobService.getCoverageMap(job));
+		}
+		m.put("jobCoverageMap", jobCoverageMap);
+		m.put("jobTotalNumberOfCellsRequested", jobTotalNumberOfCellsRequested);
+		
 		m.put("jobsToWorkWith", jobsToWorkWith);
 		m.put("machineName", resourceCategory.getName());
 		m.put("resourceCategoryId", resourceCategoryId);

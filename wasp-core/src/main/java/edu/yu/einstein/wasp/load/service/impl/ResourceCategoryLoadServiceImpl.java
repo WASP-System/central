@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
-import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.load.service.ResourceCategoryLoadService;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
@@ -30,28 +30,24 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 	@Autowired
 	private ResourceTypeDao resourceTypeDao;
 	
-	private ResourceCategory addOrUpdateResourceCategory(ResourceType resourceType, String iname, String name, Integer isActive){
+	private ResourceCategory addOrUpdateResourceCategory(ResourceType resourceType, String iname, String name, int isActive){
 		ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname);
 		if (resourceCat.getResourceCategoryId() == null) { 
 	      resourceCat = new ResourceCategory();
 
 	      resourceCat.setIName(iname);
 	      resourceCat.setName(name);
-	      resourceCat.setIsActive(isActive.intValue());
+	      resourceCat.setIsActive(isActive);
 	      resourceCat.setResourceTypeId(resourceType.getResourceTypeId());
-	      resourceCategoryDao.save(resourceCat); 
-
-	      // refreshes
-	      resourceCat = resourceCategoryDao.getResourceCategoryByIName(iname); 
-
+	      resourceCat = resourceCategoryDao.save(resourceCat); 
 	    } else {
 	      boolean changed = false;	
 	      if (!resourceCat.getName().equals(name)){
 	    	  resourceCat.setName(name);
 	    	  changed = true;
 	      }
-	      if (resourceCat.getIsActive().intValue() != isActive.intValue()){
-	    	  resourceCat.setIsActive(isActive.intValue());
+	      if (resourceCat.getIsActive().intValue() != isActive){
+	    	  resourceCat.setIsActive(isActive);
 	    	  changed = true;
 	      }
 	      if (changed)
@@ -108,18 +104,13 @@ public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl impleme
 	
 
 	@Override
-	public void update(List<ResourceCategoryMeta> meta, String resourceTypeString, String iname, String name, Integer isActive){
-	   ResourceType resourceType = resourceTypeDao.getResourceTypeByIName(resourceTypeString); 
-	    if (resourceType == null){
-	    	throw new NullResourceTypeException();
-	    }
-
-	    
-	    
-	    if (isActive == null)
-	    	  isActive = 1;
+	public ResourceCategory update(List<ResourceCategoryMeta> meta, ResourceType resourceType, String iname, String name, int isActive){
+		Assert.assertParameterNotNull(resourceType, "ResourceType cannot be null");
+		Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		Assert.assertParameterNotNull(name, "name Cannot be null");
 	    ResourceCategory resourceCat = addOrUpdateResourceCategory(resourceType, iname, name, isActive);
 	    syncResourceCategoryMeta(meta, resourceCat);
+	    return resourceCat;
 	    
 	}
 	

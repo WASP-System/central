@@ -44,6 +44,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setPriority(status.getPriority())
 						.build();
@@ -51,6 +52,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
+						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
@@ -63,17 +65,23 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied libraryId value and task to see if the message should be acted upon or not
-	 * @param message
-	 * @param jobId 
-	 * @param task
-	 * @return
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
 		if (this.task == null)
 			return actUponMessage(message, this.libraryId);
 		return actUponMessage(message, this.libraryId, this.task);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean actUponMessageIgnoringTask(Message<?> message){
+		if (this.task == null)
+			return actUponMessage(message, this.libraryId);
+		return actUponMessage(message, this.libraryId, null);
 	}
 	
 	// Statics.........
@@ -104,9 +112,9 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	public static boolean actUponMessage(Message<?> message, Integer libraryId, String task ){
 		if (! actUponMessage(message, libraryId) )
 			return false;
-		if (task != null && 
-				message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && 
-				message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}

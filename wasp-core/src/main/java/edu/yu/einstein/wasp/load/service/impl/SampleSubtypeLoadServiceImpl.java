@@ -10,12 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.InvalidRoleException;
 import edu.yu.einstein.wasp.exception.NullResourceCategoryException;
 import edu.yu.einstein.wasp.load.service.SampleSubtypeLoadService;
@@ -24,7 +24,6 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.UiField;
 
 @Service
 @Transactional("entityManager")
@@ -32,9 +31,6 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 	
 	  @Autowired
 	  private SampleSubtypeDao sampleSubtypeDao;
-
-	  @Autowired
-	  private SampleTypeDao sampleTypeDao;
 
 	  @Autowired
 	  private SampleSubtypeMetaDao sampleSubtypeMetaDao;
@@ -49,25 +45,20 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 	  private RoleDao roleDao;
 
 	  
-	  private SampleSubtype addOrUpdateSampleSubtype(String sampleTypeString, String iname, String name, Integer isActive, List<UiField> uiFields){
-		  	SampleType sampleType = sampleTypeDao.getSampleTypeByIName(sampleTypeString); 
-
-		    SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(iname); 
-		    String areaList = StringUtils.join(getAreaListFromUiFields(uiFields), ",");
+	  private SampleSubtype addOrUpdateSampleSubtype(SampleType sampleType, String iname, String name, int isActive, List<String> areaList){
+		  	SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(iname); 
+		    String areaListString = StringUtils.join(areaList, ",");
 		    // inserts or update sampleSubtype
 		    if (sampleSubtype.getSampleSubtypeId() == null) {
 		      sampleSubtype = new SampleSubtype();
 
 		      sampleSubtype.setIName(iname);
 		      sampleSubtype.setName(name);
-		      sampleSubtype.setIsActive(isActive.intValue());
+		      sampleSubtype.setIsActive(isActive);
 		      sampleSubtype.setSampleTypeId(sampleType.getSampleTypeId());
-		      sampleSubtype.setAreaList(areaList);
+		      sampleSubtype.setAreaList(areaListString);
 
-		      sampleSubtypeDao.save(sampleSubtype); 
-
-		      // refreshes
-		      sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(iname); 
+		      sampleSubtype = sampleSubtypeDao.save(sampleSubtype); 
 
 		    } else {
 		      boolean changed = false;
@@ -80,11 +71,11 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		    	  changed = true;
 		      }
 		      if (!sampleSubtype.getAreaList().equals(areaList)){
-		    	  sampleSubtype.setAreaList(areaList);
+		    	  sampleSubtype.setAreaList(areaListString);
 		    	  changed = true;
 		      }
-		      if (sampleSubtype.getIsActive().intValue() != isActive.intValue()){
-		    	  sampleSubtype.setIsActive(isActive.intValue());
+		      if (sampleSubtype.getIsActive().intValue() != isActive){
+		    	  sampleSubtype.setIsActive(isActive);
 		    	  changed = true;
 		      }
 		      if (changed)
@@ -156,24 +147,23 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		    }
 	  }
 	  
-	  private void syncSampleSubtypeResourceCategories(SampleSubtype sampleSubtype, List<String> compatibleResourcesByIName){
+	  private void syncSampleSubtypeResourceCategories(SampleSubtype sampleSubtype, List<ResourceCategory> compatibleResources){
 		  Map<String, SampleSubtypeResourceCategory> oldSampleSubtypeResourceCats  = new HashMap<String, SampleSubtypeResourceCategory>();
 		    for (SampleSubtypeResourceCategory sampleSubtypeResourceCat: safeList(sampleSubtype.getSampleSubtypeResourceCategory())) {
 		    	oldSampleSubtypeResourceCats.put(sampleSubtypeResourceCat.getResourceCategory().getIName(), sampleSubtypeResourceCat);
 		    } 
 		    
-		    for (String resourceIName: safeList(compatibleResourcesByIName)) {
-		    	if (oldSampleSubtypeResourceCats.containsKey(resourceIName)) {
-		    		oldSampleSubtypeResourceCats.remove(resourceIName);
+		    for (ResourceCategory resourceCat: safeList(compatibleResources)) {
+		    	if (oldSampleSubtypeResourceCats.containsKey(resourceCat.getIName())) {
+		    		oldSampleSubtypeResourceCats.remove(resourceCat.getIName());
 		    		continue;
 		    	}
-		    	ResourceCategory resourceCat = resourceCategoryDao.getResourceCategoryByIName(resourceIName);
 		    	if (resourceCat.getResourceCategoryId() != null){
 		    		SampleSubtypeResourceCategory sampleSubtypeResourceCategory = new SampleSubtypeResourceCategory();
 		    		sampleSubtypeResourceCategory.setResourcecategoryId(resourceCat.getResourceCategoryId());
 		    		sampleSubtypeResourceCategory.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());
 		    		sampleSubtypeResourceCategoryDao.save(sampleSubtypeResourceCategory);
-		    		oldSampleSubtypeResourceCats.remove(resourceIName);
+		    		oldSampleSubtypeResourceCats.remove(resourceCat.getIName());
 		    	} else {
 		    		throw new NullResourceCategoryException();
 		    	}
@@ -188,20 +178,22 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 	  }
 	  
 	  @Override
-	  public void update(String sampleTypeString, List<SampleSubtypeMeta> meta, String iname, String name, Integer isActive, List<UiField> uiFields, String applicableRoles, List<String> compatibleResourcesByIName){
-	    
-		  if (isActive == null)
-		  	  isActive = 1;
+	  public SampleSubtype update(String iname, String name, SampleType sampleType, int isActive, 
+			  List<ResourceCategory> compatibleResources, String applicableRoles, List<SampleSubtypeMeta> meta, 
+			  List<String> areaList){
+		  Assert.assertParameterNotNull(iname, "iname Cannot be null");
+		  Assert.assertParameterNotNull(name, "name Cannot be null");
+		  Assert.assertParameterNotNull(sampleType, "sampleType Cannot be null");
+		  SampleSubtype sampleSubtype = addOrUpdateSampleSubtype(sampleType, iname, name, isActive, areaList);
 		  
-		  SampleSubtype sampleSubtype = addOrUpdateSampleSubtype(sampleTypeString, iname, name, isActive, uiFields);
-
 		  syncSampleSubtypeMeta(sampleSubtype, meta, iname, applicableRoles );
 	    
-		  syncSampleSubtypeResourceCategories(sampleSubtype, compatibleResourcesByIName);
+		  syncSampleSubtypeResourceCategories(sampleSubtype, compatibleResources);
 	    
-	    
+		  return sampleSubtype;
 	  }
-	  
+
+
 	  @Override
 	  public void validateApplicableRoles(String applicableRolesString){
 		  for (String applicableRole : applicableRolesString.split(",")){

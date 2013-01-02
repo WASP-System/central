@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.net.URL;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
@@ -70,7 +73,7 @@ import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
-
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 
 @Controller
 @RequestMapping("/sampleDnaToLibrary")
@@ -112,6 +115,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private JobService jobService;
   @Autowired
   private AuthenticationService authenticationService;
+  @Autowired
+  private FileUrlResolver fileUrlResolver;
   
 
   
@@ -309,10 +314,27 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
+	  //linkedHashMap because insert order is guarranteed
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
-	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //see if someone rejected this job and if so, find out who
+	  String newK = null;
+	  String newV = null;
+	  for(JobMeta jm : job.getJobMeta()){
+		  for(String jobApproveCode : jobApprovalsMap.keySet()){
+			  if(jobApproveCode.equals(jm.getK())){
+				  newK = new String(jobApproveCode);
+				  newV = new String(jm.getV());
+				  break;
+			  }
+		  }
+	  }
+	  if(newK != null && newV != null){jobApprovalsMap.put(newK, newV);}
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);
@@ -325,6 +347,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
 	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+	  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 	  Map<Sample, Boolean> receiveSampleStatusMap = new HashMap<Sample, Boolean>();// created 5/7/12
 	  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
 	  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
@@ -341,8 +364,10 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
 				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
 				for (Sample facilityLibrary: facilityGeneratedLibrariesList){
 					qcStatusMap.put(facilityLibrary, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(facilityLibrary)));
+					qcStatusCommentsMap.put(facilityLibrary, sampleService.getSampleQCComments(facilityLibrary.getSampleId()));
 					assignLibraryToPlatformUnitStatusMap.put(facilityLibrary, sampleService.isLibraryAwaitingPlatformUnitPlacement(facilityLibrary));
 				}
 			}
@@ -350,6 +375,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				librarySubmittedSamplesList.add(sample);
 				assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample));
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
@@ -363,8 +389,8 @@ public class SampleDnaToLibraryController extends WaspController {
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
 				
 		}
-		sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
-		sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(macromoleculeSubmittedSamplesList);
+		//sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
 		for(Sample library : librarySubmittedSamplesList){
@@ -400,13 +426,13 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn(e.getMessage());
 			}
 		}
-		
+/*		
 		Map jobCellFilter = new HashMap();
 		jobCellFilter.put("jobId", job.getJobId().intValue());
 		List<String> orderByList = new ArrayList<String>();
 		orderByList.add("cellIndex");
 		List<JobCellSelection> jobCellSelectionList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-	  
+		  
 		//attempt at getting the requested coverage in a better format:
 		int totalNumberCellsRequested = jobCellSelectionList.size();
 		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
@@ -434,16 +460,23 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 			coverageMap.put(sample, new String(stringBuffer));
   		}	
-		
-		m.addAttribute("coverageMap", coverageMap);
-		m.addAttribute("totalNumberCellsRequested", totalNumberCellsRequested);
+*/		
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
 		
 		
 		
 		// get files associated with this job
 		List<File> files = new ArrayList<File>();
-		for (JobFile jf: job.getJobFile())
+		Map<File, URL> fileUrlMap = new HashMap<File, URL>();
+		for (JobFile jf: job.getJobFile()){
 			files.add(jf.getFile());
+			try{
+				URL url = fileUrlResolver.getURL(jf.getFile());			
+				fileUrlMap.put(jf.getFile(), url);
+			}catch(Exception e){
+				logger.warn("Unable to resolve URL for fileId " + jf.getFileId().intValue());}
+		}
 		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
@@ -451,12 +484,14 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("speciesMap", speciesMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
 		m.addAttribute("qcStatusMap", qcStatusMap);
+		m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		m.addAttribute("receiveSampleStatusMap", receiveSampleStatusMap);
 		m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
 		m.addAttribute("files", files);
+		m.addAttribute("fileUrlMap", fileUrlMap);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }

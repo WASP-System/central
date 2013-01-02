@@ -11,14 +11,32 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
+import edu.yu.einstein.wasp.dao.JobMetaDao;
+import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
+import edu.yu.einstein.wasp.dao.JobSampleDao;
+import edu.yu.einstein.wasp.dao.JobSoftwareDao;
+import edu.yu.einstein.wasp.dao.JobUserDao;
+import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.dao.RoleDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
+import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
@@ -26,6 +44,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
 public interface JobService extends WaspMessageHandlingService {
@@ -207,6 +226,13 @@ public interface JobService extends WaspMessageHandlingService {
 	public boolean isJobAwaitingDaApproval(Job job);
 	
 	/**
+	 * Returns true if provided job is awaiting facility manager approval, otherwise returns false
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingFmApproval(Job job);
+	
+	/**
 	 * Returns true if provided job is awaiting quoting, otherwise returns false
 	 * @param job
 	 * @return
@@ -230,10 +256,24 @@ public interface JobService extends WaspMessageHandlingService {
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
 	
 	/**
+	 * Calls updateJobDAApprovalStatus and updates the Job DA approval Status if jobApproveCode is daApprove
+	 * Calls updateJobFmApprovalStatus and updates the Job FM approval Status if jobApproveCode is fmApprove
+	 * Calls updateJobPiApprovalStatus and updates the Job PI approval Status if jobApproveCode is piApprove
+	 * Status must be either COMPLETED or ABANDONED
+	 * jobApproveCode must be daApprove, fmApprove, or piApprove
+	 * @param String jobApproveCode
+	 * @param Job job
+	 * @param String status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	
+	/**
 	 * Updates the Job DA approval Status for job
 	 * Status must be either COMPLETED or ABANDONED
-	 * @param jobId
-	 * @param status
+	 * @param Job job
+	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
@@ -241,11 +281,20 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * Updates the Job Pi Approval Status for job
 	 * Status must be either COMPLETED or ABANDONED
-	 * @param jobId
-	 * @param status
+	 * @param Job job
+	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	
+	/**
+	 * Updates the Job Facility Manager Approval Status for job
+	 * Status must be either COMPLETED or ABANDONED
+	 * @param Job job
+	 * @param String status
+	 * @throws WaspMessageBuildingException
+	 */
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
 
 	/**
 	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
@@ -308,6 +357,26 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public List<Job> getJobsAwaitingQuote();
+	
+	/**
+	 * get a list of all jobs awaiting facility manager approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingFmApproval();
+
+	
+	/**
+	 * get a list of all jobs awaiting PI/ Lm approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingPiLmApproval();
+
+	
+	/**
+	 * get a list of all jobs awaiting department administrator approval (returns an empty list if none)
+	 * @return
+	 */
+	public List<Job> getJobsAwaitingDaApproval();
 
 	/**
 	 * returns true if one or more jobs are awaiting quoting
@@ -317,5 +386,60 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public void setSampleService(SampleService sampleService);
 
+
+	/**
+	 * returns Map of sample and string in form of (for example) 11010
+	 * where (in this example) first, second, and fourth cells contains the sample 
+	 * @return Map<Sample, String>
+	 */
+	public Map<Sample, String> getCoverageMap(Job job);
+
+	public void setSampleDao(SampleDao mockSampleDao);
+
+	public void setJobDao(SampleDao mockSampleDao);
+
+	public void setJobMetaDao(JobMetaDao mockJobMetaDao);
+
+	public void setJobSoftwareDao(JobSoftwareDao mockJobSoftwareDao);
+
+	public void setJobResourcecategoryDao(
+			JobResourcecategoryDao mockJobResourcecategoryDao);
+
+	public void setRoleDao(RoleDao mockRoleDao);
+
+	public void setJobUserDao(JobUserDao mockJobUserDao);
+
+	public void setLabDao(LabDao mockLabDao);
+
+	public void setJobCellSelectionDao(
+			JobCellSelectionDao mockJobCellSelectionDao);
+
+	public void setSampleFileDao(SampleFileDao mockSampleFileDao);
+
+	public void setSampleMetaDao(SampleMetaDao mockSampleMetaDao);
+
+	public void setSampleJobCellSelectionDao(
+			SampleJobCellSelectionDao mockSampleJobCellSelectionDao);
+
+	public void setJobSampleDao(JobSampleDao mockJobSampleDao);
+
+	public void setJobDraftDao(JobDraftDao mockJobDraftDao);
+
+	public void setLogger(Logger logger);
+
+	public void setSampleTypeDao(SampleTypeDao mockSampleTypeDao);
+
+	public WaspJobContext getWaspJobContext(Job job) throws JobContextInitializationException;
+
+	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
+	public List<MetaMessage> getJobApprovalComments(String jobApproveCode, Integer jobId);
+	
+	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
+	
+
+
+
+	
+
 }

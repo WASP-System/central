@@ -9,7 +9,7 @@
 	
 	<!-- Define main job approval flow -->
 	<batch:flow id="default.waspJob.flow.approvals.v1" >
-		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor">
+		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor" >
 			<batch:flow>
 				<batch:step id="default.waspJob.step.quote">
 					<batch:tasklet ref="listenForJobQuotedTasklet"/>
@@ -21,8 +21,13 @@
 				</batch:step>
 			</batch:flow>
 			<batch:flow>
-				<batch:step id="default.waspJob.step.adminApprove">
-					<batch:tasklet ref="listenForJobAdminApproveTasklet" />
+				<batch:step id="default.waspJob.step.daApprove">
+					<batch:tasklet ref="listenForJobDaApproveTasklet" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="default.waspJob.step.fmApprove">
+					<batch:tasklet ref="listenForJobFmApproveTasklet" />
 				</batch:step>
 			</batch:flow>
 			<batch:next on="COMPLETED" to="default.waspJob.step.approved" />
@@ -35,7 +40,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
-							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 							<property name="status" value="ACCEPTED" />
 						</bean>
 					</constructor-arg>
@@ -71,6 +76,7 @@
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
+					<property name="name" value="waspJobExitCondition" />
 				</bean>	
 			</batch:tasklet>
 		</batch:step>

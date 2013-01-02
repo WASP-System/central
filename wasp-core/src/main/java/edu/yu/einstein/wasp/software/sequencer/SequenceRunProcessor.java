@@ -19,6 +19,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  *
  */
 public abstract class SequenceRunProcessor extends SoftwarePackage {
+
+	private static final long serialVersionUID = 8608969134602464549L;
 	
 	
 //	/**

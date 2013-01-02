@@ -1,3 +1,4 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <!-- style adds vertical scrollbar to the autocomplete; code taken from  http://jqueryui.com/demos/autocomplete/#maxheight  -->
 <!-- overflow-x: auto; was previously set to hidden -->
 <style>
