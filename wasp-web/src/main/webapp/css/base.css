@@ -255,9 +255,9 @@ td.submit A,
 	color: #444;
 	border: none;
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
-	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#bbb));
-	background: -moz-linear-gradient(top, #fff, #bbb);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#bbb');
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#bbbbbb));
+	background: -moz-linear-gradient(top, #ffffff, #bbbbbb);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#bbbbbb');
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	-o-border-radius: 5px;
