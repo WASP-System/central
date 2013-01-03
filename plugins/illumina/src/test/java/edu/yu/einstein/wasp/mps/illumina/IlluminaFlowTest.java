@@ -155,12 +155,12 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 				.toJobParameters();
 	}
 
-	@Test
+	// @Test
 	public void testNotifyStart() throws Exception {
 			jltu.launchStep(WaspIlluminaPlugin.STEP_NOTIFY_RUN_START, getTestParameters());
 	}
 	
-	@Test
+	// @Test
 	public void testListenRunStart() throws Exception {
 		
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
@@ -180,7 +180,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Assert.assertEquals(se.getStatus(), BatchStatus.COMPLETED);
 	}
 
-	@Test
+	// @Test
 	public void testListenRunStartNotExists() throws Exception {
 		
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
@@ -200,7 +200,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Assert.assertEquals(se.getStatus(), BatchStatus.STARTED);
 	}
 	
-	@Test
+	// @Test
 	public void testListenRunComplete() throws Exception {
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
@@ -225,7 +225,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		jltu.launchStep(WaspIlluminaPlugin.STEP_LISTEN_FOR_QC, getTestParameters());
 	}
 	
-	@Test
+	// @Test
 	public void testSampleSheet() throws Exception {
 		PowerMockito.when(run.getRunId()).thenReturn(2);
 		PowerMockito.when(run.getName()).thenReturn("TESTRUN");
