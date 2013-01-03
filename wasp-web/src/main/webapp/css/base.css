@@ -244,9 +244,9 @@ td.submit A,
 	color: #444;
 	border: none;
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#bbb));
-	background-image: -moz-linear-gradient(0% 100% 90deg, #bbb, #fff);
-	background-color: #E6E6E6;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#bbb));
+	background: -moz-linear-gradient(top, #fff, #bbb);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#bbb');
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	-o-border-radius: 5px;
@@ -360,9 +360,10 @@ span.requiredField{
 
 .instructions	{
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffe6), to(#fefec1));
-	background-image: -moz-linear-gradient(0% 100% 90deg, #fefec1, #ffffe6);
-	background-color: #E6E6E6;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffffe6), to(#fefec1));
+	background: -moz-linear-gradient(top, #ffffe6, #fefec1);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffe6', endColorstr='#fefec1');
+	background-color: #fefec1;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	-o-border-radius: 10px;
