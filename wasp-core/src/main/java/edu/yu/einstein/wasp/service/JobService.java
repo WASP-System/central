@@ -440,6 +440,22 @@ public interface JobService extends WaspMessageHandlingService {
 
 
 
+	/**
+	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param int jobId
+	 * @return Map<String, Object>
+	 * @throws Exception 
+	 */
+	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+
+	/**
+	 * getJobDetailWithMeta() returns all detail information with meta for a job
+	 * @param jobId
+	 * @return
+	 * @throws Exception
+	 */
+	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception;
+
 	
 
 }

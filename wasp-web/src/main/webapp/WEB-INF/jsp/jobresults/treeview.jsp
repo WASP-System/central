@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
 <div>
-	<h1>HelpTag Job Result</h1>
+	<h1>${workflow} Job Result</h1>
 </div>
 
 <div id="left-container">

@@ -31,6 +31,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +105,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -235,6 +237,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	private MessageService messageService;
 
 	@Autowired
 	private JobMetaDao jobMetaDao;
@@ -1476,5 +1481,75 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return map;
 	}
 
+	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception{
+		
+		Map <String, Object> jsTree = new HashMap<String, Object>();
+		
+		Job job = getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null){
+			  throw new Exception("listJobSamples.jobNotFound.label");
+		}
+		
+		jsTree.put("name", job.getName());
+		jsTree.put("myid", jobId);
+		jsTree.put("type", "job");
+		
+		List<Map> children = new ArrayList<Map>();
+
+		List<JobSample> jobSampleList = job.getJobSample();
+		for (JobSample js : jobSampleList) {
+			Map sample = new HashMap();
+			sample.put("name", js.getSample().getName());
+			sample.put("myid", js.getSampleId());
+			sample.put("type", "sample");
+			children.add(sample);
+		}
+		jsTree.put("children",children);
+
+		return jsTree;
+	}
+
 	
+	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception {
+		
+		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
+		
+		Job job = getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null){
+			  throw new Exception("listJobSamples.jobNotFound.label");
+		}
+		
+		jsDetails.put(messageService.getMessage("job.name.label"), job.getName());
+		jsDetails.putAll(getExtraJobDetails(job));
+	
+		List<JobMeta> metaList = job.getJobMeta();
+		Map <String, Map<String, String>> metaListMap = new HashMap();
+		for (JobMeta mt : metaList) {
+			String key = mt.getK();
+			//logger.debug(Arrays.deepToString(metaNameSplit));
+			
+			try {
+				String msg = messageService.getMessage("job."+key+".label");
+				jsDetails.put(msg, mt.getV());
+			} 
+			catch (NoSuchMessageException e) {
+				String[] metaKeySplit = key.split("\\.");
+				//logger.debug(Arrays.deepToString(metaNameSplit));
+				if(metaKeySplit.length == 1) {
+					jsDetails.put(key, mt.getV());
+				} else if (metaKeySplit.length == 2) {
+					Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
+					if(subKeyMap == null) {
+						subKeyMap = new HashMap();
+						metaListMap.put(metaKeySplit[0], subKeyMap);
+					}
+					subKeyMap.put(metaKeySplit[1], mt.getV());
+				}
+			}
+		}
+		jsDetails.putAll(metaListMap);
+
+		return jsDetails;
+	}
+
 }

@@ -65,7 +65,7 @@ d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${
     .attr("pointer-events", "all")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-  .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
+  .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
   .append("g");
 
   vis.append("rect")
