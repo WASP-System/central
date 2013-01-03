@@ -118,6 +118,7 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
+	//public String[] getJobApproveArray(){return jobApproveArray;}
 	
 	private JobDao	jobDao;
 	
