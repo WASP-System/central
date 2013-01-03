@@ -52,6 +52,7 @@
 		</tr>
 		
 		<c:if test="${status.last}">
+			<tr class="FormData">
 				<td style='text-align:center'>&nbsp;</td>
 				<td style='text-align:center'>&nbsp;</td>
 				<td style='text-align:center'>&nbsp;</td>
@@ -62,6 +63,7 @@
 					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.samplereceive_reset.label" />">
 					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.samplereceive_submit.label" />">
 				</td>
+			</tr>
 		</c:if>
 		
 		<c:set var="currentJobId" value="${job.getJobId()}" scope="page" />	
