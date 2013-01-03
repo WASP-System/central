@@ -4,8 +4,11 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import edu.yu.einstein.wasp.load.service.SoftwareLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
@@ -17,9 +20,11 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
  * 
  */
 
-public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLoader implements FactoryBean<T> {
+public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLoader implements FactoryBean<T>, ApplicationContextAware {
 
 	private Class<T> clazz = (Class<T>) Software.class ; // default
+	
+	private ApplicationContext ctx;
 	
 	public void setType(Class<T> clazz){
 		this.clazz = clazz;
@@ -64,6 +69,7 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 
 	@Override
 	public T getObject() throws Exception {
+		ctx.getAutowireCapableBeanFactory().autowireBean(software);
 		return software;
 	}
 
@@ -75,5 +81,10 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+		this.ctx = ctx;
 	}
 }
