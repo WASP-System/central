@@ -1477,7 +1477,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  verify(mockSampleService);
   }
-  
+  /*
   @Test
   public void addJobViewer() {
 	  
@@ -1513,7 +1513,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  verify(mockJobDao);
   }
-
+*/
   /*
   @Test (description="WaspStatus.COMPLETED")
   public void updateJobPiApprovalStatus() {
