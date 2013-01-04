@@ -1,10 +1,28 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.security.Provider.Service;
+import java.security.Security;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import net.schmizz.sshj.common.Factory;
+import net.schmizz.sshj.transport.cipher.AES128CBC;
+import net.schmizz.sshj.transport.cipher.AES128CTR;
+import net.schmizz.sshj.transport.cipher.AES192CBC;
+import net.schmizz.sshj.transport.cipher.AES192CTR;
+import net.schmizz.sshj.transport.cipher.AES256CBC;
+import net.schmizz.sshj.transport.cipher.AES256CTR;
+import net.schmizz.sshj.transport.cipher.BlowfishCBC;
+import net.schmizz.sshj.transport.cipher.Cipher;
+import net.schmizz.sshj.transport.cipher.TripleDESCBC;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +59,42 @@ public class SshTransportService implements GridTransportService {
 
 	public Properties getLocalProperties() {
 		return localProperties;
+	}
+	
+	public SshTransportService() {
+//		BouncyCastleProvider bc = new BouncyCastleProvider();
+//		logger.debug("BC: " + bc.getInfo());
+//		Security.addProvider(bc);
+//		for (Service s : bc.getServices()) {
+//			logger.debug(s.getAlgorithm() + ":" + s.getType());
+//		}
+//		List<Factory.Named<Cipher>> avail = new LinkedList<Factory.Named<Cipher>>(Arrays.<Factory.Named<Cipher>> asList(
+//				new AES128CTR.Factory(),
+//				new AES192CTR.Factory(),
+//				new AES256CTR.Factory(),
+//				new AES128CBC.Factory(),
+//				new AES192CBC.Factory(),
+//				new AES256CBC.Factory(),
+//				new TripleDESCBC.Factory(),
+//				new BlowfishCBC.Factory()));
+//		
+//		 boolean warn = false;
+//	        // Ref. https://issues.apache.org/jira/browse/SSHD-24
+//	        // "AES256 and AES192 requires unlimited cryptography extension"
+//	        for (Iterator<Factory.Named<Cipher>> i = avail.iterator(); i.hasNext(); ) {
+//	            final Factory.Named<Cipher> f = i.next();
+//	            try {
+//	                final Cipher c = f.create();
+//	                final byte[] key = new byte[c.getBlockSize()];
+//	                final byte[] iv = new byte[c.getIVSize()];
+//	                c.init(Cipher.Mode.Encrypt, key, iv);
+//	            } catch (Exception e) {
+//	            	e.printStackTrace();
+//	                warn = true;
+//	                i.remove();
+//	            }
+//	        }
+		
 	}
 
 	public void setLocalProperties(Properties waspSiteProperties) {

@@ -109,10 +109,10 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.grid.GridHostResolver#getWorkUnit()
 	 */
-	@Override
-	public WorkUnit createWorkUnit() {
-		//do nothing method overridden by spring
-		return null;
-	}
+//	@Override
+//	public WorkUnit createWorkUnit() {
+//		//do nothing method overridden by spring
+//		return null;
+//	}
 
 }

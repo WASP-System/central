@@ -1477,7 +1477,43 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  verify(mockSampleService);
   }
-
+  /*
+  @Test
+  public void addJobViewer() {
+	  
+	  Integer jobId = null;
+	  String newViewerEmailAddress;
+	  
+	  try {
+		  jobServiceImpl.addJobViewer(null, "");
+	  }
+	  catch (Exception e) {
+		  Assert.assertNotNull(e.getMessage());
+	  }
+	  
+	  try {
+		  jobServiceImpl.addJobViewer(1, null);
+	  }
+	  catch (Exception e) {
+		  Assert.assertNotNull(e.getMessage());
+	  }
+	  
+	  Job job = new Job();
+	  job.setJobId(1);
+	  
+	  expect(mockJobDao.getJobByJobId(1)).andReturn(job);
+	  replay(mockJobDao);
+	  
+	  try {
+		jobServiceImpl.addJobViewer(1, "");
+	  } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	  }
+	  
+	  verify(mockJobDao);
+  }
+*/
   /*
   @Test (description="WaspStatus.COMPLETED")
   public void updateJobPiApprovalStatus() {
@@ -1558,8 +1594,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockSampleTypeDao);
 
 
-
-	  
 	  //resetAll();//resets all registered mock controls
 
 
