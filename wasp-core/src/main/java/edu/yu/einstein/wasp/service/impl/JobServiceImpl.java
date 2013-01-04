@@ -1483,7 +1483,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getJobStatus(Job job){
+	public String getJobStatus(Job job, boolean comment){
 		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
 			return "Unknown";
 		}
@@ -1506,13 +1506,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				else {//should never occur
 					currentStatus = "Withdrawn";
 				}
-				List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
-				if(jobApprovalCommentsList.size()>0){
-					Format formatter = new SimpleDateFormat("MM/dd/yyyy");
-					MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-					currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
-					if(currentStatusComment != null && !currentStatusComment.isEmpty()){
-						currentStatus = "<a href='javascript:void(0)' title='"+ currentStatusComment + "' >"+currentStatus+"</a>";
+				if(comment==true){
+					List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
+					if(jobApprovalCommentsList.size()>0){
+						Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+						MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
+						currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+						if(currentStatusComment != null && !currentStatusComment.isEmpty()){
+							currentStatus = "<a href='javascript:void(0)' title='"+ currentStatusComment + "' >"+currentStatus+"</a>";
+						}
 					}
 				}
 				break;

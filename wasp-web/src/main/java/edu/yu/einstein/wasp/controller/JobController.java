@@ -479,7 +479,7 @@ public class JobController extends WaspController {
 					}					
 				}
 				
-				String currentStatus = jobService.getJobStatus(job);
+				String currentStatus = jobService.getJobStatus(job, true);
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
