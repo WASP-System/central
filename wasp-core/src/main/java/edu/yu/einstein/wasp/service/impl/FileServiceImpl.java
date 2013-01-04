@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.service.FileService;
@@ -110,8 +111,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		//String fileName = mpFile.getOriginalFilename();
 		String fileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		Integer fileSizeK = (int)((mpFile.getSize()/1024) + 0.5);
-		String contentType = mpFile.getContentType();
-		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
+		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
 		java.io.File newFile = new java.io.File(absolutePath);
 		try{
 			mpFile.transferTo(newFile);
@@ -122,7 +122,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		file.setDescription(description);
 		//file.setFileURI(absolutePath);
 		file.setIsActive(1);
-		file.setContentType(contentType);
 		file.setMd5hash(md5Hash);
 		file.setSizek(fileSizeK);		
 		return fileDao.save(file);
