@@ -6,5 +6,6 @@ public class WaspJobTask extends WaspTask{
 		
 	public static final String QUOTE = "quote";
 	public static final String PI_APPROVE = "piApprove";
-	public static final String ADMIN_APPROVE = "adminApprove";
+	public static final String DA_APPROVE = "daApprove";
+	public static final String FM_APPROVE = "fmApprove";
 }

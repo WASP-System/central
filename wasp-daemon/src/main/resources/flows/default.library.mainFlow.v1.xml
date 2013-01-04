@@ -137,7 +137,7 @@
 					<constructor-arg name="messageTemplates">
 						<set>
 							<bean class="edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate">
-								<constructor-arg  name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
+								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
 								<property name="status" value="ACCEPTED" />
 							</bean>
 							<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
@@ -146,6 +146,7 @@
 							</bean>
 						</set>
 					</constructor-arg>
+					<property name="name" value="waspLibraryExitCondition" />
 				</bean>	
 			</batch:tasklet>
 		</batch:step>

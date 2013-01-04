@@ -22,6 +22,7 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
@@ -44,6 +45,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
 	private String name = "";
+	
+	private boolean stopStep = false;
+	
+	private boolean abandonStep = false;
 	
 	
 	public String getName() {
@@ -95,21 +100,24 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
-		if (exitStatus.equals(ExitStatus.COMPLETED)){
-			for (Message<WaspStatus> message: messageQueue){
-				if (message.getPayload().isUnsuccessful())
-					exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
-			}
+		if (exitStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
+			for (Message<WaspStatus> message: messageQueue)
+				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
+			if (abandonStep)
+				exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
+			else if (stopStep)
+				exitStatus =  ExitStatus.STOPPED; // modify exit code if stopped
 		}
 		this.messageQueue.clear(); // clean up in case of restart
 		logger.debug(name + "AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
+		
 		return exitStatus;
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
-		if (messageQueue.isEmpty()){
+		if (messageQueue.isEmpty() && !abandonStep && !stopStep){
 			Thread.sleep(executeRepeatDelay);
 			return RepeatStatus.CONTINUABLE;
 		}	
@@ -119,7 +127,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	@SuppressWarnings("unchecked") 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.trace(name + "handleMessage() invoked. Received message: " + message.toString());
+		logger.debug(name + "handleMessage() invoked. Received message: " + message.toString());
 		if (! WaspStatus.class.isInstance(message.getPayload()))
 			return;
 		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
@@ -128,7 +136,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		if (statusFromMessage.isUnsuccessful()){
 			for (StatusMessageTemplate messageTemplate: abortMonitoredTemplates){
 				if (messageTemplate.actUponMessage(message)){
-					this.messageQueue.add((Message<WaspStatus>) message);
+					abandonStep = true;
 					return; // we have found a valid abort message so return
 				}
 			}
@@ -138,6 +146,14 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
 			this.messageQueue.add((Message<WaspStatus>) message);
 			logger.debug(name + "handleMessage() adding found message to be compatible so adding to queue: " + message.toString());
+			if (statusFromMessage.isUnsuccessful()){
+				logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");
+				abandonStep = true;
+			}
+		} else if (messageTemplate.actUponMessageIgnoringTask(message) && statusFromMessage.isUnsuccessful()){
+			// need to stop this step as ABANDONED or FAILED
+			logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon although task is different. Going to stop step.");
+			stopStep = true;
 		}
 	}
 

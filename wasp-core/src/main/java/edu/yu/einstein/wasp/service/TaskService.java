@@ -33,6 +33,8 @@ public interface TaskService extends WaspService {
 	public boolean isDepartmentAdminPendingTasks();
 
 	public boolean isLabManagerPendingTasks();
+
+	public boolean isFmPendingTasks();
 		
 	
 }

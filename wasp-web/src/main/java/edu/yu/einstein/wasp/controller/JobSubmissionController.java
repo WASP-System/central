@@ -106,9 +106,9 @@ import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.JobDraftService;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -236,7 +236,7 @@ public class JobSubmissionController extends WaspController {
 	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
 	
 	@Autowired
-	protected MessageService messageService;
+	protected MessageServiceWebapp messageService;
 	
 	@Autowired
 	protected SampleService sampleService;
@@ -737,6 +737,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -834,6 +835,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -995,6 +997,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
@@ -1016,6 +1019,7 @@ public class JobSubmissionController extends WaspController {
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getWorkflowId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getResourceTypeId());
 		if (wrt.getResourceTypeId() == null){
+			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}

@@ -55,16 +55,16 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 			sql += " )";
 			keyIndex++;
 		}
-		logger.debug("Built SQL string: " + getQuery(sql));
+		logger.trace("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
-			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
+			logger.trace("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
 		
 		
 		RowMapper<Long> mapper = new RowMapper<Long>() {
 			
 			@Override
 			public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-				logger.debug("Mapping result for row number " + rowNum + " (jobInstanceId=" + rs.getLong(1) + ") to a Long");
+				logger.trace("Mapping result for row number " + rowNum + " (jobInstanceId=" + rs.getLong(1) + ") to a Long");
 				Long rowVal = rs.getLong(1);
 				jobInstanceIds.add(rowVal);
 				return rowVal;

@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JdbcJobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
@@ -61,7 +60,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 		}
 		if (exitStatus != null){
 			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString());
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode());
 		}
 		if (parameterMap != null){
 			if (exclusive == null)
@@ -87,16 +86,16 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 			}
 			sql += " )";
 		}
-		logger.debug("Built SQL string: " + getQuery(sql));
+		logger.trace("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
-			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
+			logger.trace("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
 		
 		
 		RowMapper<JobExecution> mapper = new RowMapper<JobExecution>() {
 			
 			@Override
 			public JobExecution mapRow(ResultSet rs, int rowNum) throws SQLException {
-				logger.debug("Mapping result for row number " + rowNum + " (jobExecutionId=" + rs.getLong(1) + ", jobInstanceId=" + rs.getLong(2) + ") to a JobExecution");
+				logger.trace("Mapping result for row number " + rowNum + " (jobExecutionId=" + rs.getLong(1) + ", jobInstanceId=" + rs.getLong(2) + ") to a JobExecution");
 				JobExecution jobExecution = getJobExecution(rs.getLong(1));
 				if (jobExecution == null)
 					throw new SQLException("Failed to map result for row number " + rowNum + "(jobExecutionId=" + rs.getLong(1) + ") to a JobExecution: ");

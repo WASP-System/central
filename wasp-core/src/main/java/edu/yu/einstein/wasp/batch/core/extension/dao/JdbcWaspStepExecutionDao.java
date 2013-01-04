@@ -92,9 +92,9 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			}
 			sql += " )";
 		}
-		logger.debug("Built SQL string: " + getQuery(sql));
+		logger.trace("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
-			logger.debug("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
+			logger.trace("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());
 
 		RowMapper<StepExecution> mapper = new RowMapper<StepExecution>() {
 			

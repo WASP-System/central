@@ -107,7 +107,8 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 	 * return a list of each unique area present in the provided uiFields list
 	 * @return
 	 */
-	protected List<String> getAreaListFromUiFields(final List<UiField> uiFields){
+	@Override
+	public List<String> getAreaListFromUiFields(final List<UiField> uiFields){
 		List<String> areaList = new ArrayList<String>();
 		if (uiFields != null){
 			for (UiField uiField: uiFields){

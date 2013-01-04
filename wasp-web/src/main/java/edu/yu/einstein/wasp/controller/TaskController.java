@@ -1,12 +1,11 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.core.BatchStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -22,10 +21,15 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.LabPending;
+import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.TaskService;
 
 @Controller
 @Transactional
@@ -42,8 +46,13 @@ public class TaskController extends WaspController {
   private JobService jobService;
 
   @Autowired
+  private MessageServiceWebapp messageService;
+
+  @Autowired
   private SampleService sampleService;
   
+  @Autowired
+  private TaskService taskService;
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
@@ -428,9 +437,207 @@ public class TaskController extends WaspController {
 	  waspMessage("task.libraryqc_update_success.label");	
 	  return "redirect:/task/libraryqc/list.do";
   }
-  
  
   
+  
+  
+  private void getJobApproveInfo(List<Job> jobList, ModelMap m){
+	  
+	  //used by pendingFMApprove(), pendingDaApprove(), pendingPiApprove()
+	    Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+
+		Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		for(Job job : jobList){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				int speciesFound = 0;
+				for(SampleMeta sampleMeta : sample.getSampleMeta()){
+					if(sampleMeta.getK().indexOf("species") > -1){
+						sampleSpeciesMap.put(sample, sampleMeta.getV());
+						speciesFound = 1;
+						break;
+					}
+				}
+				if(speciesFound == 0){
+					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
+				}
+			}
+		}
+		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);  
+  }
+  
+  @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+  public String pendingFmApprove(ModelMap m) {
+	 
+	  List<Job> jobsPendingFmApprovalList = jobService.getJobsAwaitingFmApproval();
+	  jobService.sortJobsByJobId(jobsPendingFmApprovalList);
+	  m.addAttribute("jobspendinglist", jobsPendingFmApprovalList);
+	  getJobApproveInfo(jobsPendingFmApprovalList, m);
+	
+	  return "task/fmapprove/list";
+  }
+    
+	@RequestMapping(value = "/piapprove/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('pi-*') or hasRole('lm-*')")
+	public String pendingPiApprove(ModelMap m){
+		
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();
+		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingLmApprovalList);
+		
+		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
+		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
+		m.addAttribute("jobspendinglist", jobsPendingLmApprovalList); 
+		
+		getJobApproveInfo(jobsPendingLmApprovalList, m);
+
+		return "task/piapprove/list";
+	}
+
+	@RequestMapping(value = "/daapprove/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	public String pendingDaApprove(ModelMap m) {
+
+		List<LabPending> labsPendingDaApprovalList = new ArrayList<LabPending>();
+		List<Job> jobsPendingDaApprovalList = new ArrayList<Job>();
+
+		taskService.getDepartmentAdminPendingTasks(labsPendingDaApprovalList, jobsPendingDaApprovalList);
+		m.addAttribute("labspendinglist", labsPendingDaApprovalList);
+		
+		//finish up with pending jobs		
+		jobService.sortJobsByJobId(jobsPendingDaApprovalList);
+		
+		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
+		
+		getJobApproveInfo(jobsPendingDaApprovalList, m);
+
+		return "task/daapprove/list";
+	}
+  
+  
+  
+  
+  
+  
+  
+  private void jobApprove(String jobApproveCode, Integer jobId, String action, String comment){
+	  
+	  //used by fmJobApprove(), piJobApprove(), and daJobApprove()
+	  if(!jobApproveCode.equals("piApprove") && !jobApproveCode.equals("daApprove") && !jobApproveCode.equals("fmApprove")){
+		  waspErrorMessage("jobapprovetask.invalidJobApproveCode.error");
+		  logger.warn("JobApproveCode is not valid");
+		  return;
+	  }
+
+	  Job job = jobService.getJobByJobId(jobId);	   
+	  if(job.getJobId()==null){
+		  waspErrorMessage("jobapprovetask.invalidJob.error");
+		  logger.warn("Job not found");
+		  return;
+	  }	  
+	  if(action == null ||  action.equals("")){
+		  waspErrorMessage("jobapprovetask.invalidAction.error");
+		  logger.warn("Action cannot be empty");
+		  return;
+	  }
+	  if( ! "APPROVED".equalsIgnoreCase(action) && ! "REJECTED".equalsIgnoreCase(action) ){
+		  waspErrorMessage("jobapprovetask.invalidAction.error");
+		  logger.warn("Action must be APPROVED or REJECTED");
+		  return;
+	  }
+	  if("REJECTED".equalsIgnoreCase(action) && comment.trim().isEmpty() ){
+		  waspErrorMessage("jobapprovetask.commentEmpty.error");
+		  logger.warn("A reason must be provided when rejecting a job");
+		  return;
+	  }
+	  
+	  WaspStatus status = WaspStatus.UNKNOWN;
+	  if("APPROVED".equalsIgnoreCase(action)){
+		  status = WaspStatus.COMPLETED;
+	  }
+	  else if("REJECTED".equalsIgnoreCase(action)){
+		  status = WaspStatus.ABANDONED;
+	  }	
+	  try {
+		  //jobService.updateJobFmApprovalStatus(job, status);
+		  jobService.updateJobApprovalStatus(jobApproveCode, job, status);
+
+	  } catch (WaspMessageBuildingException e) {
+		  waspErrorMessage("jobapprovetask.updateFailed.error"); 
+		  logger.warn("Update unexpectedly failed");
+		  return;
+	  }
+	  
+	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  if(!comment.trim().isEmpty()){
+			  jobService.setJobApprovalComment(jobApproveCode, job.getJobId(), comment.trim());
+		  }
+	  }
+	  catch(Exception e){
+		  logger.warn(e.getMessage());
+		  return;
+	  }
+	  
+	  String message = "APPROVED".equalsIgnoreCase(action)?"jobapprovetask.jobApproved.label":"jobapprovetask.jobRejected.label";
+	  waspMessage(message);
+  }
+  
+  @RequestMapping(value = "/fmJobApprove.do", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft')")
+	public String fmJobApprove(
+			@RequestParam("jobId") Integer jobId, 
+			@RequestParam("action") String action, 
+			@RequestParam("comment") String comment, 
+			ModelMap m) {
+	  
+	  jobApprove("fmApprove", jobId, action, comment);
+	  String referer = request.getHeader("Referer");
+	  return "redirect:"+ referer;
+	}    
+  
+  @RequestMapping(value = "/piJobApprove/{labId}.do", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('lm-' + #labId) or hasRole('pi-' + #labId)")
+	public String piJobApprove(
+			@PathVariable("labId") Integer labId, 
+			@RequestParam("jobId") Integer jobId, 
+			@RequestParam("action") String action, 
+			@RequestParam("comment") String comment, 
+			ModelMap m) {
+	  
+	  jobApprove("piApprove", jobId, action, comment);
+	  String referer = request.getHeader("Referer");
+	  return "redirect:"+ referer;
+	}
+  
+  @RequestMapping(value = "/daJobApprove/{deptId}.do", method = RequestMethod.POST)
+  @PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm') or hasRole('ft') or hasRole('da-' + #deptId)")
+	public String daJobApprove(
+			@PathVariable("deptId") Integer deptId, 
+			@RequestParam("jobId") Integer jobId, 
+			@RequestParam("action") String action, 
+			@RequestParam("comment") String comment, 
+			ModelMap m) {
+	  
+	  jobApprove("daApprove", jobId, action, comment);
+	  String referer = request.getHeader("Referer");
+	  return "redirect:"+ referer;	
+	}
   
 }
 

@@ -127,6 +127,7 @@
 							</bean>
 						</set>
 					</constructor-arg>
+					<property name="name" value="waspSampleExitCondition" />
 				</bean>	
 			</batch:tasklet>
 		</batch:step>
