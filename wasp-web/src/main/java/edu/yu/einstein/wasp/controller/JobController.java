@@ -479,55 +479,7 @@ public class JobController extends WaspController {
 					}					
 				}
 				
-				String approvalStatus = "Not Yet Set";
-				String approvalComment = null;
-				LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
-				for(String jobApproveCode : jobApprovalsMap.keySet()){
-					//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
-					if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-							if("piApprove".equals(jobApproveCode)){
-							approvalStatus = "Withdrawn By PI";
-						}
-						else if("daApprove".equals(jobApproveCode)){
-							approvalStatus = "Withdrawn By Dept.";
-						}
-						else if("fmApprove".equals(jobApproveCode)){
-							approvalStatus = "Withdrawn By Facility";
-						}
-						else {//should never occur
-							approvalStatus = "Withdrawn";
-						}
-						List<MetaMessage> jobApprovalCommentsList = jobService.getJobApprovalComments(jobApproveCode, job.getJobId());		
-						if(jobApprovalCommentsList.size()>0){
-							MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-							approvalComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
-							if(approvalComment != null){
-								approvalStatus = "<a href='javascript:void(0)' title='"+ approvalComment + "' >"+approvalStatus+"</a>";
-							}
-						}
-						break;
-					}
-					//if any single jobStatus is awaitingResponse, then none are rejected, and we are continuing to wait for additional responses, so break (some might be approved, but we're waiting for at least one)
-					if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-						approvalStatus = "Awaiting Approval(s)";
-						break;
-					}
-					//if any jobStatus is approved, then continue through the loop. If the last one is approved (we haven't hit a rejected or an awaitingResponse), then this job is fully approved
-					if("approved".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-						approvalStatus = "Approved";
-					}
-					//if we never hit the case rejected, awaitingResponse, or approved, then it's Not yet set (should rarely occur)
-				}
-				
-				String currentStatus = null;
-				//next need a way to tell approved and ongoing from approved and completed
-				if(approvalStatus.equalsIgnoreCase("Approved")){
-					//if(jobIsCompleted(job))
-					currentStatus = "In Progress";
-				}
-				else{
-					currentStatus = approvalStatus;
-				}
+				String currentStatus = jobService.getJobStatus(job);
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",

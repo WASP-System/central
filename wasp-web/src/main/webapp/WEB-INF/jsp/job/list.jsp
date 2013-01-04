@@ -149,9 +149,10 @@ jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:tr
 //add search icon to navgrid and link it's being clicked to filterToolbar (so that filterToolbar search begins when the search icon is pressed (or the default, which is when ENTER is pressed)) 
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
-//for the jquery tools tooltip
-$(".wasptooltip a[title]").tooltip({ position: "top right"});
-
+//disable all the td tooltips that the grid automatically sets  and in line after, enable the other tooltip (on anchors)
+$("td").attr('title', '');
+//enable the "new, blackbox tooltip
+$(".wasptooltip a[title]").tooltip({ position: "top left"});
 
 });//end document.ready() 
   

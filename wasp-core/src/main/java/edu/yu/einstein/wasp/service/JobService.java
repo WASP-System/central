@@ -437,7 +437,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
 	
-
+	public String getJobStatus(Job job);
 
 
 	
