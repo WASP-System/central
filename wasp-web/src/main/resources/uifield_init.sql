@@ -1,5 +1,4 @@
 truncate table uifield;
-update taskmapping set isactive=0;
 update software set isactive=0;
 update resourcecategory set isactive=0;
 update sampletypecategory set isactive=0;
