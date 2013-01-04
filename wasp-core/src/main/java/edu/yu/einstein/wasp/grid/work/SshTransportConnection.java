@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.common.SecurityUtils;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
@@ -49,8 +50,15 @@ public class SshTransportConnection implements GridTransportConnection {
 		try {
 			logger.debug("attempting to configure SSH connection");
 			client.loadKnownHosts();
-			KeyProvider key = client.loadKeys(transportService.getIdentityFile().getAbsolutePath());
+
+			logger.debug("loading identity file " + transportService.getIdentityFile().getAbsolutePath());
+			logger.debug("BouncyCastle: " + SecurityUtils.isBouncyCastleRegistered());
+			logger.debug("connecting " + transportService.getHostName());
+			logger.debug("client: " + client.toString());
+			
 			client.connect(transportService.getHostName());
+			logger.debug("connected");
+			KeyProvider key = client.loadKeys(transportService.getIdentityFile().getAbsolutePath());
 			client.authPublickey(transportService.getUserName(), key);
 		} catch (IOException e) {
 			e.printStackTrace();

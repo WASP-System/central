@@ -73,9 +73,10 @@
   	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
 
 	<!-- WorkUnit prototype bean, provides mechanism for pre-setting the runId when getting
-		a WorkUnit in a step context. -->
+		a WorkUnit in a step context. 
 	<bean id="waspWorkUnit" class="edu.yu.einstein.wasp.grid.work.WorkUnit" scope="prototype">
 		<property name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 	</bean>
+	-->
 
 </beans>
