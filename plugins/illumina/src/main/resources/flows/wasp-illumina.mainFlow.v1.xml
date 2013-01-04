@@ -5,7 +5,7 @@
 
 	<!-- for job, call with parameter 'runID' -->
 	<batch:flow id="wasp-illumina.mainFlow">
-		<batch:step id="wasp-illumina.mainFlow.notifyRunStart" next="wasp-illumina.mainFlow.listenForRunStart">
+		<batch:step id="wasp-illumina.mainFlow.notifyIlluminaStart" next="wasp-illumina.mainFlow.listenForRunStart">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -58,9 +58,20 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.stageResults" next="wasp-illumina.mainFlow.notifyRunComplete">
+		<batch:step id="wasp-illumina.mainFlow.stageResults" next="wasp-illumina.mainFlow.demultiplex">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.StageResultsTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="wasp-illumina.mainFlow.demultiplex" next="wasp-illumina.mainFlow.registerFiles">
+			<!-- task to perform 5' demultiplexing, currently skipping -->
+			<batch:tasklet ref="wasp-illumina.mainFlow.skipTasklet" />
+		</batch:step>
+		<batch:step id="wasp-illumina.mainFlow.registerFiles" next="wasp-illumina.mainFlow.notifyRunComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.RegisterFilesTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>

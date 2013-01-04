@@ -42,8 +42,7 @@ import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
  */
 public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -3322619814370790116L;
 	private String softwareVersion = "1.8.2"; // hard coded as this is likely the final softwareVersion.
 	private String softwareName = "casava"; 
 
@@ -71,6 +70,11 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 * @throws GridUnresolvableHostException
 	 */
 	public void doSampleSheet(Run run) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
+		
+		logger.debug("sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
+		
+		logger.debug(sampleService.toString());
+		
 		WorkUnit w = new WorkUnit();
 				
 		Sample platformUnit = run.getPlatformUnit();

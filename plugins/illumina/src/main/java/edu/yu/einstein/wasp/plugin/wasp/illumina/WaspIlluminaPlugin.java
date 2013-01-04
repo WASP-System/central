@@ -52,7 +52,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 	@Autowired
 	private RunService runService;
 
-	@Autowired()
+	@Autowired
 	private IlluminaSequenceRunProcessor casava;
 	
 	

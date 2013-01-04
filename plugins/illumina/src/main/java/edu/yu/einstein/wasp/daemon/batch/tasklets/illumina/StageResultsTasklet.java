@@ -47,6 +47,10 @@ public class StageResultsTasklet extends WaspTasklet {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	public StageResultsTasklet() {
+		// required by cglib
+	}
+	
 	public StageResultsTasklet(int runId) {
 		this.runId = runId;
 	}
@@ -79,7 +83,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		String dataDir = gws.getTransportService().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
-		String stageDir = gws.getTransportService().getConfiguredSetting("illumina.data.dir");
+		String stageDir = gws.getTransportService().getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		
@@ -87,7 +91,11 @@ public class StageResultsTasklet extends WaspTasklet {
 		
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
-		w.setCommand("cp -R . ${WASP_RESULT_DIR}");
+		w.setCommand("mkdir -p ${WASP_RESULT_DIR}");
+		w.addCommand("cp *.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp *.txt ${WASP_RESULT_DIR}");
+		w.addCommand("cp -R Project_* ${WASP_RESULT_DIR}");
+		w.addCommand("cp -R Undetermined_indices ${WASP_RESULT_DIR}");
 
 		GridResult result = gws.execute(w);
 		

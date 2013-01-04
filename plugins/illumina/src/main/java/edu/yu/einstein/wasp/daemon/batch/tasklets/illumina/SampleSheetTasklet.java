@@ -49,7 +49,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
 		run = runService.getRunById(runId);
-		logger.debug("preparing sample sheet for " + run.getName());
+		logger.debug("preparing sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		casava.doSampleSheet(run);
 		return RepeatStatus.FINISHED;
 	}
