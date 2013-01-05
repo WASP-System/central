@@ -16,7 +16,7 @@
       	
       	<bean parent="genericLibraryUiField">
           <property name="baseName" value="concentration" />
-          <property name="label" value="Concentration (ng/&#956;l)" />
+          <property name="label" value="Concentration (ng/&amp;micro;l)" />
           <property name="metaposition" value="10" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a concentration" />
@@ -25,7 +25,7 @@
         
         <bean parent="genericLibraryUiField">
           <property name="baseName" value="volume" />
-          <property name="label" value="Volume (&#956;l)" />
+          <property name="label" value="Volume (&amp;micro;l)" />
           <property name="metaposition" value="20" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a volume" />
