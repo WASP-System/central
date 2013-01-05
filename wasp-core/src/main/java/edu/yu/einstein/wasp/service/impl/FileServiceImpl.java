@@ -12,6 +12,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +24,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @Service
 @Transactional("entityManager")
@@ -39,6 +49,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private JobDraftFileDao jobDraftFileDao;
+	
+	@Autowired
+	private SampleService sampleService;
+	
+	@Autowired
+	private SampleFileDao sampleFileDao;
 	
 	/**
 	 * fileDao;
@@ -136,6 +152,51 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		jobDraftFile.setFile(file);
 		jobDraftFile.setJobDraft(jobDraft);
 		return jobDraftFileDao.save(jobDraftFile);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<File> getFilesByType(FileType fileType){
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("fileTypeId", fileType.getFileTypeId());
+		return fileDao.findByMap(m);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public List<File> getFilesForLibrary(Sample library) throws SampleTypeException{
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sampleId", library.getSampleId());
+		List<File> files = new ArrayList<File>();
+		for (SampleFile sf: sampleFileDao.findByMap(m))
+			files.add(sf.getFile());
+		return files;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public List<File> getFilesByForLibraryByType(Sample library, FileType fileType) throws SampleTypeException{
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
+		List<File> files = new ArrayList<File>();
+		for (File f: getFilesForLibrary(library)){
+			if (f.getFileTypeId().equals(fileType.getFileTypeId()))
+				files.add(f);
+		}
+		return files;
 	}
 	
 }

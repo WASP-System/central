@@ -11,14 +11,19 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.Sample;
 
 @Service
 public interface FileService extends WaspService {
@@ -72,6 +77,31 @@ public interface FileService extends WaspService {
 	 * @return the entity-managed JobDraftFile object created
 	 */
 	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft);
+
+	/**
+	 * Returns a list of files of specified fileType or an empty list if none
+	 * @param fileType
+	 * @return
+	 */
+	public List<File> getFilesByType(FileType fileType);
+
+	
+	/**
+	 * Returns a list of files of specified fileType for the given library or an empty list if none.
+	 * @param fileType
+	 * @param library
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public List<File> getFilesByForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
+
+	/**
+	 * Returns a list of files for the given library or an empty list if none.
+	 * @param library
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public List<File> getFilesForLibrary(Sample library) throws SampleTypeException;
 
 }
 
