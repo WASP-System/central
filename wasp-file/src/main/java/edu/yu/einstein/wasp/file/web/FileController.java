@@ -123,8 +123,6 @@ public class FileController implements InitializingBean {
 			InputStream is = new FileInputStream(download);
 
 			String content = new MediaType("application", "octet-stream").toString();
-			if (wf.getContentType() != null && wf.getContentType() != "")
-				content = wf.getContentType();
 			response.setContentType(content);
 
 			response.setHeader("Content-Disposition", "attachment;filename=" + filename);

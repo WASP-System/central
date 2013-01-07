@@ -468,10 +468,12 @@ public class SgeWorkService implements GridWorkService {
 				}
 			} 
 			command = w.getCommand();
-			postscript = "echo \"##### begin ${WASPNAME}\" > " + jobNamePrefix + "${WASPNAME}.command\n\n" +
-					"awk '/^##### preamble/,/^##### postscript|~$/' " + jobNamePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " + jobNamePrefix + "${WASPNAME}.command\n" +
-					"echo \"##### end ${WASPNAME}\" >> " + jobNamePrefix + "${WASPNAME}.command\n" + 
-					"touch " + jobNamePrefix + "${WASPNAME}.end\n" +
+			postscript = "echo \"##### begin ${WASPNAME}\" > " + prefix + w.getWorkingDirectory() + jobNamePrefix + "${WASPNAME}.command\n\n" +
+					"awk '/^##### preamble/,/^##### postscript|~$/' " + 
+						prefix + w.getWorkingDirectory() + jobNamePrefix + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
+						prefix + w.getWorkingDirectory() + jobNamePrefix + "${WASPNAME}.command\n" +
+					"echo \"##### end ${WASPNAME}\" >> " + prefix + w.getWorkingDirectory() + jobNamePrefix + "${WASPNAME}.command\n" + 
+					"touch " + prefix + w.getWorkingDirectory() + jobNamePrefix + "${WASPNAME}.end\n" +
 					"echo completed on `hostname -f` `date` 1>&2\n";
 		}
 		

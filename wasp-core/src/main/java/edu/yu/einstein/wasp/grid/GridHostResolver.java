@@ -96,13 +96,13 @@ public interface GridHostResolver {
 	 */
 	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
 	
-	/**
+	/*
 	 * Instances of GridHostResolver must declare the following method as abstract.  This provides a mechanism for 
 	 * obtaining {@link WorkUnit}s that are configured with a runId from job parameters at runtime using
 	 * Spring lookup method injection. The WorkUnit prototype bean is declared in daemon-common-config.xml.
 	 * 
 	 * @return
 	 */
-	public abstract WorkUnit createWorkUnit();
+	//public abstract WorkUnit createWorkUnit();
 	
 }

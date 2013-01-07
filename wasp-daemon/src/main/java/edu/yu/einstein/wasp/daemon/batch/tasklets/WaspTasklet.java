@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -15,7 +16,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 
 public abstract class WaspTasklet implements Tasklet {
 	
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final static Logger logger = LoggerFactory.getLogger(WaspTasklet.class);
 	
 	@Value("${wasp.task.delay:50}")
 	protected Long executeRepeatDelay;
@@ -38,12 +39,12 @@ public abstract class WaspTasklet implements Tasklet {
 	}
 	
 	public static void storeStartedResult(ChunkContext context, GridResult result) {
-		Map<String, Object> stepContext = context.getStepContext().getStepExecutionContext();
-		stepContext.put(GridResult.GRID_RESULT_KEY, result);
+		ExecutionContext executionContext = context.getStepContext().getStepExecution().getExecutionContext();
+		logger.debug(result.toString());
+		executionContext.put(GridResult.GRID_RESULT_KEY, result);
 	}
 	
 	public static GridResult getStartedResult(ChunkContext context) {
-		Map<String, Object> stepContext = context.getStepContext().getStepExecutionContext();
-		return (GridResult) stepContext.get(GridResult.GRID_RESULT_KEY);
+		return (GridResult) context.getStepContext().getStepExecution().getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 }

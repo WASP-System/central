@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -476,8 +477,12 @@ public class JobController extends WaspController {
 						  quoteAsString = "?.??"; 
 					}					
 				}
+				
+				String currentStatus = jobService.getJobStatus(job, true);
+				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
+							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
+							"<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>J"+job.getJobId().intValue()+"</a>",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
@@ -485,6 +490,7 @@ public class JobController extends WaspController {
 							formatter.format(job.getCreatets()),
 							//String.format("%.2f", amount),
 							quoteAsString,
+							currentStatus,
 							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 				}));
 				 
