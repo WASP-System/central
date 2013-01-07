@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,7 +94,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	public List<File> getFilesByForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
+	public List<File> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
 
 	/**
 	 * Returns a list of files for the given library or an empty list if none.
@@ -102,6 +103,14 @@ public interface FileService extends WaspService {
 	 * @throws SampleTypeException
 	 */
 	public List<File> getFilesForLibrary(Sample library) throws SampleTypeException;
+
+	/**
+	 * Returns a Map of files for a given library associated by FileType
+	 * @param library
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Map<FileType, List<File>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException;
 
 }
 
