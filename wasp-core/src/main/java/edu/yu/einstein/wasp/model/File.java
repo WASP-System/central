@@ -62,6 +62,38 @@ public class File extends WaspModel {
 	public Integer getFileId () {
 		return this.fileId;
 	}
+	
+	/** 
+	 * FileMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	protected List<FileMeta> fileMeta;
+
+
+	/** 
+	 * getFileMeta()
+	 *
+	 * @return FileMeta
+	 *
+	 */
+	@JsonIgnore
+	public List<FileMeta> getFileMeta() {
+		return this.fileMeta;
+	}
+
+
+	/** 
+	 * setFileMeta
+	 *
+	 * @param fileMeta
+	 *
+	 */
+	public void setFileMeta (List<FileMeta> fileMeta) {
+		this.fileMeta = fileMeta;
+	}
 
 
 	@Transient
