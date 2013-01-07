@@ -19,12 +19,6 @@ cd $x
 mvn -Dcatalina.home=$CATALINA_HOME -DskipTests=true clean install
 cd ../
 done
-echo "Undeploying current WASP instance"
-cd $PROJECT_HOME/wasp-web
-mvn tomcat:stop
-#mvn tomcat:undeploy
-cd $PROJECT_HOME/wasp-exec
-mvn -Dcatalina.home=$CATALINA_HOME clean install
-
+echo "Re-deploying current WASP instance"
 cd $PROJECT_HOME/wasp-web
 mvn tomcat:redeploy

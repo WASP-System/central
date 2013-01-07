@@ -1355,6 +1355,39 @@ CREATE TABLE `departmentuser_AUD` (
   KEY `FK1BA90D6EDF74E053` (`REV`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `filetypemeta_AUD`;
+DROP TABLE IF EXISTS `filetypemeta`;
+
+create table filetypemeta (
+  filetypemetaid int(10)  primary key auto_increment,
+  filetypeid int(10) ,
+
+  k varchar(250) , 
+  v text,
+  position int(10)  default 0,
+  rolevisibility VARCHAR(250),
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_filetypemeta_filetypeid (filetypeid) references filetype(filetypeid),
+  constraint unique index u_filemeta_k_jid (k, filetypeid)
+) ENGINE=InnoDB charset=utf8;
+
+DROP TABLE IF EXISTS `filetype_AUD`;
+DROP TABLE IF EXISTS `filetype`;
+
+create table filetype (
+  filetypeid int(10)  primary key auto_increment,
+  filetypesubtypeid int(10) ,
+  iname varchar(250) , 
+  name varchar(250) , 
+  isactive int(1)  default 1,
+  description varchar(250),
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0, 
+  foreign key fk_filetypefiletypesubtypeid_rid (filetypesubtypeid) references filetypesubtype(filetypesubtypeid)
+) ENGINE=InnoDB charset=utf8;
 
 
 # Dump of table file
@@ -1365,7 +1398,8 @@ DROP TABLE IF EXISTS `file`;
 CREATE TABLE `file` (
   `fileid` int(10) NOT NULL AUTO_INCREMENT,
   `file_uri` varchar(2048) DEFAULT NULL,
-  `contenttype` varchar(250) DEFAULT NULL,
+  `filetypeid` int(10), 
+  `softwaregeneratedbyid` int(10),
   `sizek` int(10) DEFAULT NULL,
   `md5hash` varchar(250) DEFAULT NULL,
   `description` varchar(250) DEFAULT NULL,
@@ -1373,9 +1407,10 @@ CREATE TABLE `file` (
   `isactive` int(1) DEFAULT '1',
   `lastupdts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastupduser` int(10) DEFAULT '0',
-  PRIMARY KEY (`fileid`)
+  PRIMARY KEY (`fileid`),
+  foreign key fk_filefiletypeid_rid (filetypeid) references filetype(filetypeid),
+  foreign key fk_filesoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 
 # Dump of table file_AUD

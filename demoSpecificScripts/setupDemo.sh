@@ -56,13 +56,10 @@ mysql -u wasp --password=waspV2 -D wasp < $PROJECT_HOME/db/waspDemoDb.sql
 echo Updating and re-deploying WASP System...
 $WASP_HOME/bin/deployWasp.sh
 
-cd $PROJECT_HOME/wasp-web
-# redeploy as sometimes doesn't load the first time (Tomcat 7 bug)
-#mvn tomcat:redeploy
-
 echo Starting wasp-daemon...
 cd $PROJECT_HOME/wasp-exec
-nohup java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon /dev/null 2>&1 &
+rm nohup.out
+nohup java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon &
 
 echo Re-building and deploying documentation..
 $WASP_HOME/bin/deployDocumentation.sh
