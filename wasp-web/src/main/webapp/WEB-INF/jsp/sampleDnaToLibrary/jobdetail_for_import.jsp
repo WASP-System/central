@@ -1,4 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
+<script>
+$(document).ready(function() {
+  	$(".wasptooltip a[title]").tooltip({ position: "top right"});
+});
+</script>
 <div class="wasptooltip">
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
@@ -10,6 +16,10 @@
 <c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>
 </c:forEach>
+
+<c:if test="${not empty jobStatus}"> 
+	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobStatus.label" />:</td><td class="DataTD"><c:out value="${jobStatus}" /></td></tr>
+</c:if>
 
 <c:forEach items="${jobApprovalsMap.keySet()}" var="jobApproveCode">
 	<tr class="FormData">

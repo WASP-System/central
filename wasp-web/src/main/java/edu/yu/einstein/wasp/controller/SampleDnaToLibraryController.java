@@ -318,7 +318,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	 
+	  //  1/4/12  think this is old code with no effect
 	  //see if someone rejected this job and if so, find out who
+	  /*
 	  String newK = null;
 	  String newV = null;
 	  for(JobMeta jm : job.getJobMeta()){
@@ -331,10 +334,14 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 	  }
 	  if(newK != null && newV != null){jobApprovalsMap.put(newK, newV);}
+	  */
+	  
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
 	  //get the jobApprovals Comments (if any)
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);
@@ -579,7 +586,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
 
+	  
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
 
 	  m.put("macromoleculeSample", macromoleculeSample);
@@ -628,8 +641,15 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Job jobForThisSample = jobDao.getJobByJobId(jobId);
 
 	  m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(jobForThisSample));
-	  m.addAttribute("jobApprovalsMap", jobService.getJobApprovals(jobForThisSample));
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(jobForThisSample);
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample, false));
 
+	  
 	  libraryForm.setName(libraryForm.getName().trim());
 	  //confirm that this new library's name is different from all other sample.name in this job for samples of the same sample type (library)
 	  SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId());
@@ -806,7 +826,13 @@ public class SampleDnaToLibraryController extends WaspController {
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
 		m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(job));
-		m.addAttribute("jobApprovalsMap", jobService.getJobApprovals(job));
+		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		//get the jobApprovals Comments (if any)
+		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+		//get the current jobStatus
+		m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
 
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
@@ -841,6 +867,11 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
 
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
 	  //confirm these two objects exist and part of same job
@@ -875,6 +906,11 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(jobForThisSample);
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample, false));
 		  	  		  
 	  sampleForm.setName(sampleForm.getName().trim());//from the form
 	  validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
