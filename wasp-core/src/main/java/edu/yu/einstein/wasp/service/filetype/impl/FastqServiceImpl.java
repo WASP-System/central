@@ -49,7 +49,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return readSegmentNumber;
 	}
 
-	protected void setFastqReadSegmentNumber(File file, Integer number) throws InvalidFileTypeException {
+	public void setFastqReadSegmentNumber(File file, Integer number) throws InvalidFileTypeException {
 		setMeta(file, FILE_AREA, READ_SEGMENT_NUMBER_META_KEY, number.toString());
 	}
 
@@ -59,7 +59,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return nor;
 	}
 	
-	protected void setFastqNumberOfReads(File file, Integer number) throws InvalidFileTypeException {
+	public void setFastqNumberOfReads(File file, Integer number) throws InvalidFileTypeException {
 		setMeta(file, FILE_AREA, NUMBER_OF_READS_META_KEY, number.toString());
 	}
 
@@ -69,7 +69,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return nopfr;
 	}
 	
-	protected void setFastqNumberOfPassFilterReads(File file, Integer number) throws InvalidFileTypeException {
+	public void setFastqNumberOfPassFilterReads(File file, Integer number) throws InvalidFileTypeException {
 		setMeta(file, FILE_AREA, NUMBER_OF_PASS_FILTER_READS_META_KEY, number.toString());
 	}
 
@@ -80,7 +80,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return b.booleanValue();
 	}
 	
-	protected void containsReadsMarkedFailed(File file, boolean fail) throws InvalidFileTypeException {
+	public void containsReadsMarkedFailed(File file, boolean fail) throws InvalidFileTypeException {
 		Boolean b = new Boolean(fail);
 		setMeta(file, FILE_AREA, CONTAINS_FAILED_READS_META_KEY, b.toString());
 	}
