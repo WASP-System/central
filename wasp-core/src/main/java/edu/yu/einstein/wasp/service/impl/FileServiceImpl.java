@@ -188,15 +188,35 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException 
 	 */
 	@Override
-	public List<File> getFilesByForLibraryByType(Sample library, FileType fileType) throws SampleTypeException{
+	public List<File> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException{
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
-		List<File> files = new ArrayList<File>();
-		for (File f: getFilesForLibrary(library)){
-			if (f.getFileTypeId().equals(fileType.getFileTypeId()))
-				files.add(f);
+		Map<FileType, List<File>> filesByType = getFilesForLibraryMappedToFileType(library);
+		if (!filesByType.containsKey(fileType))
+			return new ArrayList<File>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public Map<FileType, List<File>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException{
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sampleId", library.getSampleId());
+		Map<FileType, List<File>> filesByType = new HashMap<FileType, List<File>>();
+		for (SampleFile sf: sampleFileDao.findByMap(m)){
+			File f = sf.getFile();
+			FileType ft = f.getFileType();
+			if (!filesByType.containsKey(ft))
+				filesByType.put(ft, new ArrayList<File>());
+			filesByType.get(ft).add(f);
 		}
-		return files;
+		return filesByType;
 	}
 	
 }

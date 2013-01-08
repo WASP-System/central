@@ -1,23 +1,10 @@
 package edu.yu.einstein.wasp.service.filetype.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.dao.FileMetaDao;
-import edu.yu.einstein.wasp.dao.WorkflowMetaDao;
-import edu.yu.einstein.wasp.dao.impl.WorkflowMetaDaoImpl;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.FileMeta;
 import edu.yu.einstein.wasp.service.filetype.FastqService;
-import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 @Transactional("entityManager")
@@ -31,16 +18,8 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	
 	public static final String CONTAINS_FAILED_READS_META_KEY = "fastqContainsFailed";
 	
-	public static final String FILE_AREA = "workflow";
-	
-	private static final String DELIMITER = ";";
-	
-	private FileMetaDao fileMetaDao;
-	
-	@Autowired
-	public void setWorkflowMetaDao(FileMetaDao fileMetaDao) {
-		this.fileMetaDao = fileMetaDao;
-	}
+	public static final String FILE_AREA = "file";
+
 
 	@Override
 	public Integer getFastqReadSegmentNumber(File file) throws InvalidFileTypeException {

@@ -216,7 +216,7 @@ public class TaskController extends WaspController {
 	  for(Sample sample : submittedSamplesList){	
 		  receiveSampleStatusList.add(sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));	
 		  
-		  boolean sampleHasBeenProcessedByFacility = sampleService.submittedSampleHasBeenProcessedByFacility(sample);
+		  boolean sampleHasBeenProcessedByFacility = sampleService.isSubmittedSampleProcessedByFacility(sample);
 		  sampleHasBeenProcessedList.add(new Boolean(sampleHasBeenProcessedByFacility));
 	  }
 	  
@@ -257,7 +257,7 @@ public class TaskController extends WaspController {
 	  int index = 0;
 	  for(Integer sampleId : sampleIdList){		  
 		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-		  if(sample.getSampleId() > 0 && ! sampleService.submittedSampleHasBeenProcessedByFacility(sample)){
+		  if(sample.getSampleId() > 0 && ! sampleService.isSubmittedSampleProcessedByFacility(sample)){
 			  try{
 				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertSampleReceivedStatusFromWeb(receivedStatusList.get(index++)));
 			  } catch (WaspMessageBuildingException e){

@@ -23,8 +23,12 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 public abstract class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
 	
-	@Autowired
 	private FileMetaDao fileMetaDao;
+	
+	@Autowired
+	public void setFileMetaDao(FileMetaDao fileMetaDao) {
+		this.fileMetaDao = fileMetaDao;
+	}
 	
 	public static final String FILETYPE_IS_SINGLE_META_KEY = "filetypeIsSingleton";
 	public static final String FILETYPE_FILE_NUMBER_META_KEY = "filetypeFileNumber";

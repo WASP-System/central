@@ -138,7 +138,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public List<Run> getRunsForPlatformUnit(Sample pu) throws SampleTypeException{
 		Assert.assertParameterNotNull(pu, "no platform unit provided (is null)");
 		Assert.assertParameterNotNullNotZero(pu.getSampleId(), "pu is not a valid sample");
-		if (!sampleService.sampleIsPlatformUnit(pu))
+		if (!sampleService.isPlatformUnit(pu))
 			throw new SampleTypeException("Sample is not of type platformunit");
 		Map<String, Integer> searchMap = new HashMap<String, Integer>();
 		searchMap.put("sampleId", pu.getSampleId());
