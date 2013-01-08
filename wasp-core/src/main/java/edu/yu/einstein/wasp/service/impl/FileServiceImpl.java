@@ -100,7 +100,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	/**
-	 * TODO: CLEAN UP THIS HORRIBLE TURD
+	 * TODO: 
 	 * {@inheritDoc}
 	 */
 	@Override 
@@ -217,6 +217,29 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			filesByType.get(ft).add(f);
 		}
 		return filesByType;
+	}
+
+	@Override
+	public void addFile(File file) {
+		fileDao.save(file);
+	}
+
+	@Override
+	public void setSampleFile(File file, Sample sample) {
+		Sample s = sampleService.getSampleById(sample.getSampleId());
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sampleId", sample.getSampleId());
+		m.put("fileId", file.getFileId());
+		List<SampleFile> sf = sampleFileDao.findByMap(m);
+		if (sf.size() == 0) {
+			if (s.getSampleFile() == null) {
+				s.setSampleFile(new ArrayList<SampleFile>());
+			}
+			SampleFile sfi = new SampleFile();
+			sfi.setFile(file);
+			sfi.setSample(s);
+			s.getSampleFile().add(sfi);
+		}
 	}
 	
 }

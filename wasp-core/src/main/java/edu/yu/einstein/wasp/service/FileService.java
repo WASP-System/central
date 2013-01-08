@@ -111,6 +111,10 @@ public interface FileService extends WaspService {
 	 * @throws SampleTypeException
 	 */
 	public Map<FileType, List<File>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException;
+	
+	public void addFile(File file);
+	
+	public void setSampleFile(File file, Sample sample);
 
 }
 
