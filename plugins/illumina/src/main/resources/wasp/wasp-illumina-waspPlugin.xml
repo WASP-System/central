@@ -14,7 +14,7 @@
 
 	<int:service-activator input-channel="wasp.channel.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
 	
-	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin">
+	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin">
 		<constructor-arg type="java.lang.String">
 			<value>wasp-illumina</value>
 		</constructor-arg>

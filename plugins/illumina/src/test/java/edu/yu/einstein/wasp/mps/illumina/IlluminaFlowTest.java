@@ -1,13 +1,10 @@
 package edu.yu.einstein.wasp.mps.illumina;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -36,7 +33,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
@@ -49,13 +45,11 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.plugin.wasp.illumina.WaspIlluminaPlugin;
+import edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.filetype.FastqService;
-import edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 @PrepareForTest
@@ -68,12 +62,6 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 
 	@Autowired
 	private JobLauncherTestUtils jltu;
-	
-	@Autowired
-	private FastqService fastqService;
-	
-	@Autowired 
-	private FileService fileSrv;
 
 	private JobLauncher jobLauncher;
 

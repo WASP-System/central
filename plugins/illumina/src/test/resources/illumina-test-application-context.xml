@@ -17,10 +17,6 @@
 	<bean id="jltu" class="org.springframework.batch.test.JobLauncherTestUtils">
 		<property name="job" ref="wasp-illumina.jobFlow" />
 	</bean>
-	
-	<bean id="fastqService" class="edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl" />
-	
-	<bean id="fileMetaDao" class="edu.yu.einstein.wasp.dao.impl.FileMetaDaoImpl" />
 
 	<mockito:mock id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />
 	

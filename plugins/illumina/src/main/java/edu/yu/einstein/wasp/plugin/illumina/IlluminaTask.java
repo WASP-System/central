@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.wasp.illumina;
+package edu.yu.einstein.wasp.plugin.illumina;
 
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
 

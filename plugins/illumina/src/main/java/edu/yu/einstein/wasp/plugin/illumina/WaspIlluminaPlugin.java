@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.plugin.wasp.illumina;
+package edu.yu.einstein.wasp.plugin.illumina;
 
 import java.util.HashMap;
 import java.util.HashSet;
