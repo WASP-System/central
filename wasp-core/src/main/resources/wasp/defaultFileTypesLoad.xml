@@ -8,13 +8,13 @@
   <bean id="fastqFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="FASTQ" />
     <property name="area" value="fastq" />
-    <property name="description" ref="A human-readable text based file format for storing DNA sequences alongside their quality scores" />
+    <property name="description" value="A human-readable text based file format for storing DNA sequences alongside their quality scores" />
   </bean>
   
   <bean id="bamFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BAM" />
     <property name="area" value="bam" />
-    <property name="description" ref="Binary version of a Sequence Alignment/MAP (SAM) file. A generic format for storing large nucleotide sequence alignnments" />
+    <property name="description" value="Binary version of a Sequence Alignment/MAP (SAM) file. A generic format for storing large nucleotide sequence alignnments" />
   </bean>
 
 </beans>
