@@ -1,11 +1,7 @@
 package edu.yu.einstein.wasp.service.filetype.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
-import edu.yu.einstein.wasp.dao.FileMetaDao;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.service.filetype.FastqService;
@@ -23,15 +19,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	public static final String CONTAINS_FAILED_READS_META_KEY = "fastqContainsFailed";
 	
 	public static final String FILE_AREA = "file";
-	
-	private static final String DELIMITER = ";";
-	
-	private FileMetaDao fileMetaDao;
-	
-	@Autowired
-	public void setFileMetaDao(FileMetaDao fileMetaDao) {
-		this.fileMetaDao = fileMetaDao;
-	}
+
 
 	@Override
 	public Integer getFastqReadSegmentNumber(File file) throws InvalidFileTypeException {
