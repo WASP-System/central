@@ -79,7 +79,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				
 		Sample platformUnit = run.getPlatformUnit();
 		
-		if (sampleService.sampleIsPlatformUnit(platformUnit)) {
+		if (sampleService.isPlatformUnit(platformUnit)) {
 			// isPlatformUnit?
 			logger.debug("platform unit: " + platformUnit.getName());
 		} else {

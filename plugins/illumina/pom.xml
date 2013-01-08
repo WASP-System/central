@@ -15,15 +15,15 @@
 	<name>WASP Illumina module</name>
 
 	<organization>
-	<name>Albert Einstein College of Medicine</name>
-	<url>http://einstein.yu.edu</url>
+		<name>Albert Einstein College of Medicine</name>
+		<url>http://einstein.yu.edu</url>
 	</organization>
 	<licenses>
-	<license>
-	<name>The GNU Affero General Public License</name>
-	<url>http://www.gnu.org/licenses/agpl.txt</url>
-	<distribution>repo</distribution>
-	</license>
+		<license>
+			<name>The GNU Affero General Public License</name>
+			<url>http://www.gnu.org/licenses/agpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 
 	<properties>
@@ -31,15 +31,15 @@
 	</properties>
 
 	<dependencyManagement>
-	<dependencies>
-	<dependency>
-	<groupId>edu.yu.einstein.wasp</groupId>
-	<artifactId>bom</artifactId>
-	<version>${wasp.version}</version>
-	<type>pom</type>
-	<scope>import</scope>
-	</dependency>
-	</dependencies>
+		<dependencies>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>bom</artifactId>
+				<version>${wasp.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
@@ -57,22 +57,22 @@
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-api-mockito</artifactId>
 			<scope>test</scope>
-		</dependency>  
+		</dependency>
 		<dependency>
-		        <groupId>org.mockito</groupId>
+			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-		        <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 			</plugin>
 			<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 			</plugin>
 		</plugins>

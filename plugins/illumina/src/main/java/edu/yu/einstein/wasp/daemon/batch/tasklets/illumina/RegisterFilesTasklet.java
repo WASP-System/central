@@ -18,16 +18,23 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
+import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.filetype.FastqService;
+import edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
@@ -44,6 +51,15 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private FileService fileService;
+	
+	@Autowired
+	private FastqService fastqService;
+	
+	@Autowired
+	private MetaMessageService metaMessageService;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -111,18 +127,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		
 		while (line != null) {
 			
-			Matcher l = Pattern.compile("^(.*?)_(.*?)_L(.*?)_R(.*?)_(.*?).fastq.gz$").matcher(line);
-			
-			if (! l.find()) {
-				logger.error("unable to parse file name: " + line);
-				throw new edu.yu.einstein.wasp.exception.SampleException("Unexpected sample file name format");
-			}
-			
-			Integer sampleId = new Integer(l.group(1));
-			String barcode = l.group(2);
-			Integer lane = new Integer(l.group(3));
-			Integer read = new Integer(l.group(4));
-			Integer fileNum = new Integer(l.group(5)); 
+			File file = this.createFile(gws, samples, line);
 			
 			line = br.readLine();
 		}
@@ -132,6 +137,46 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		
 		return RepeatStatus.CONTINUABLE;
 
+	}
+	
+	private File createFile(GridWorkService gws, List<Sample> samples, String line) throws SampleException, InvalidFileTypeException {
+		
+		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
+		
+		Matcher l = Pattern.compile("^(.*?)_(.*?)_L(.*?)_R(.*?)_(.*?).fastq.gz$").matcher(line);
+		
+		if (! l.find()) {
+			logger.error("unable to parse file name: " + line);
+			throw new SampleException("Unexpected sample file name format");
+		}
+		
+		Integer sampleId = new Integer(l.group(1));
+		String barcode = l.group(2);
+		Integer lane = new Integer(l.group(3));
+		Integer read = new Integer(l.group(4));
+		Integer fileNum = new Integer(l.group(5));
+		
+		Sample library = sampleService.getSampleById(sampleId);
+		
+		if (!samples.contains(library))
+			return null;
+		
+		File file = new File();
+		file.setFileURI(gws.getGridFileService().remoteFileRepresentationToLocalURI(line));
+		String actualBarcode = sampleService.getLibraryAdaptor(library).getBarcodesequence();
+		if (! actualBarcode.equals(barcode)) {
+			logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
+			throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
+		}
+		
+		fileService.addFile(file);
+		fileService.setSampleFile(file, library);
+		
+		fqs.setSingleFile(file, false);
+		fqs.setFileNumber(file, fileNum);
+		fqs.setFastqReadSegmentNumber(file, read);
+	
+		return file;
 	}
 
 	
