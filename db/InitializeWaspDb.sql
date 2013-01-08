@@ -762,7 +762,8 @@ create table resourcebarcode (
 create table file (
   fileid int(10)  primary key auto_increment,
   file_uri varchar(2048) , 
-  contenttype varchar(250) , 
+  filetypeid int(10) , 
+  softwaregeneratedbyid int(10),
   sizek int(10) ,
   md5hash varchar(250) ,
   description varchar(250),
@@ -771,8 +772,9 @@ create table file (
   isactive int(1)  default 1,
 
   lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0 
-
+  lastupduser int(10)  default 0 ,
+  foreign key fk_filefiletypeid_rid (filetypeid) references filetype(filetypeid),
+  foreign key fk_filesoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
   -- constraint unique index u_file_flocation (filelocation)
 ) ENGINE=InnoDB charset=utf8;
 
@@ -784,13 +786,38 @@ create table filemeta (
   v text,
   position int(10)  default 0,
   rolevisibility VARCHAR(250),
-
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_filemeta_fileid (fileid) references file(fileid),
 
   constraint unique index u_filemeta_k_jid (k, fileid)
+) ENGINE=InnoDB charset=utf8;
+
+create table filetype (
+  filetypeid int(10)  primary key auto_increment,
+  iname varchar(250) , 
+  name varchar(250) , 
+  isactive int(1)  default 1,
+  description varchar(250),
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0
+) ENGINE=InnoDB charset=utf8;
+
+create table filetypemeta (
+  filetypemetaid int(10)  primary key auto_increment,
+  filetypeid int(10) ,
+
+  k varchar(250) , 
+  v text,
+  position int(10)  default 0,
+  rolevisibility VARCHAR(250),
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_filetypemeta_filetypeid (filetypeid) references filetype(filetypeid),
+  constraint unique index u_filemeta_k_jid (k, filetypeid)
 ) ENGINE=InnoDB charset=utf8;
 
 -- 
@@ -1761,20 +1788,6 @@ select w.workflowid, st.samplesubtypeid
 from workflow w
 join sampletype t on t.sampletypeid in (1, 3)
 join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
-
-
-create table taskmapping (
-  taskmappingid int(10) primary key not null auto_increment,
-  iname varchar(50),
-  name varchar(50),
-  stepname varchar(255)  not null,
-  status varchar(50) not null,
-  listmap varchar(255) default null,
-  permission varchar(255) not null,
-  dashboardsortorder int(10),
-  isactive int(1),
-  UNIQUE KEY `u_taskmapping_issp` (`iname`,`stepname`,`status`,`permission`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
 
 
 insert into user

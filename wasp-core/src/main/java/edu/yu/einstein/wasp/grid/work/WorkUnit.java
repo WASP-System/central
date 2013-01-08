@@ -22,8 +22,6 @@ public class WorkUnit {
 	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
 	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
 	
-	private Integer runId;
-	
 	/**
 	 * Unique ID for the job
 	 */
@@ -119,21 +117,6 @@ public class WorkUnit {
 	 */
 	private ProcessMode processMode = ProcessMode.MAX;
 	
-	/**
-	 * Run ID is required when using default results directory.
-	 * @return the runId
-	 */
-	public Integer getRunId() {
-		return runId;
-	}
-	/**
-	 * Run ID is required when using default results directory.
-	 * 
-	 * @param runId the runId to set
-	 */
-	public void setRunId(Integer runId) {
-		this.runId = runId;
-	}
 	/**
 	 * get the ProcessMode
 	 * @return

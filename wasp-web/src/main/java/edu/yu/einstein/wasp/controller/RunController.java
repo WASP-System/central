@@ -55,11 +55,10 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
-import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -128,7 +127,7 @@ public class RunController extends WaspController {
 	}
 
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	
 	@Autowired
 	private UserService userService;

@@ -35,6 +35,10 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
 @Component
 public class ExternalFileExistsTasklet extends WaspTasklet {
 	
+	public ExternalFileExistsTasklet() {
+		// required for AOP/CGLIB/Batch/Annotations
+	}
+	
 	private GridHostResolver gridHostResolver;
 	
 	private SoftwarePackage softwarePackage;
@@ -91,7 +95,7 @@ public class ExternalFileExistsTasklet extends WaspTasklet {
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		
-		WorkUnit w = gridHostResolver.createWorkUnit();
+		WorkUnit w = new WorkUnit();
 		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 		software.add(softwarePackage);
 		w.setSoftwareDependencies(software);

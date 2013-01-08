@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -60,6 +61,38 @@ public class File extends WaspModel {
 	 */
 	public Integer getFileId () {
 		return this.fileId;
+	}
+	
+	/** 
+	 * FileMeta
+	 *
+	 */
+	@NotAudited
+	@OneToMany
+	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	protected List<FileMeta> fileMeta;
+
+
+	/** 
+	 * getFileMeta()
+	 *
+	 * @return FileMeta
+	 *
+	 */
+	@JsonIgnore
+	public List<FileMeta> getFileMeta() {
+		return this.fileMeta;
+	}
+
+
+	/** 
+	 * setFileMeta
+	 *
+	 * @param fileMeta
+	 *
+	 */
+	public void setFileMeta (List<FileMeta> fileMeta) {
+		this.fileMeta = fileMeta;
 	}
 
 
@@ -119,31 +152,59 @@ public class File extends WaspModel {
 	}
 
 	/** 
-	 * contentType
+	 * fileTypeid
 	 *
 	 */
-	@Column(name="contenttype")
-	protected String contentType;
+	@Column(name="filetypeid")
+	protected Integer fileTypeId;
 
 	/**
-	 * setContentType(String contentType)
+	 * setFileTypeId(Integer fileTypeId)
 	 *
-	 * @param contentType
+	 * @param fileTypeId
 	 *
 	 */
 	
-	public void setContentType (String contentType) {
-		this.contentType = contentType;
+	public void setFileTypeId (Integer fileTypeId) {
+		this.fileTypeId = fileTypeId;
 	}
 
 	/**
-	 * getContentType()
+	 * getFileTypeId()
 	 *
-	 * @return contentType
+	 * @return fileTypeId
 	 *
 	 */
-	public String getContentType () {
-		return this.contentType;
+	public Integer getFileTypeId () {
+		return this.fileTypeId;
+	}
+	
+	/** 
+	 * softwaregeneratedbyid
+	 *
+	 */
+	@Column(name="softwaregeneratedbyid")
+	protected Integer softwareGeneratedById;
+
+	/**
+	 * setSoftwareGeneratedById(Integer softwareGeneratedById)
+	 *
+	 * @param softwareGeneratedById
+	 *
+	 */
+	
+	public void setSoftwareGeneratedById (Integer softwareGeneratedById) {
+		this.softwareGeneratedById = softwareGeneratedById;
+	}
+
+	/**
+	 * setSoftwareGeneratedById()
+	 *
+	 * @return softwareGeneratedById
+	 *
+	 */
+	public Integer getSoftwareGeneratedById () {
+		return this.softwareGeneratedById;
 	}
 
 
@@ -564,6 +625,68 @@ public class File extends WaspModel {
 	 */
 	public void setRunCellFile (List<RunCellFile> runCellFile) {
 		this.runCellFile = runCellFile;
+	}
+	
+	/**
+	 * software
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="softwaregeneratedbyid", insertable=false, updatable=false)
+	protected Software softwareGeneratedBy;
+
+	/**
+	 * setSoftwareGeneratedBy (Software software)
+	 *
+	 * @param software
+	 *
+	 */
+	public void setSoftwareGeneratedBy (Software software) {
+		this.softwareGeneratedBy = software;
+		this.softwareGeneratedById = software.softwareId;
+	}
+
+	/**
+	 * getSoftwareGeneratedBy ()
+	 *
+	 * @return softwareGeneratedBy
+	 *
+	 */
+	
+	public Software getSoftwareGeneratedBy () {
+		return this.softwareGeneratedBy;
+	}
+	
+	/**
+	 * fileType
+	 *
+	 */
+	@NotAudited
+	@ManyToOne
+	@JoinColumn(name="filetypeid", insertable=false, updatable=false)
+	protected FileType fileType;
+
+	/**
+	 * setFileType (FileType fileType)
+	 *
+	 * @param fileType
+	 *
+	 */
+	public void setFileType (FileType fileType){
+		this.fileType = fileType;
+		this.fileTypeId = fileType.fileTypeId;
+	}
+
+	/**
+	 * getFileType ()
+	 *
+	 * @return fileType
+	 *
+	 */
+	
+	public FileType getFileType () {
+		return this.fileType;
 	}
 
 

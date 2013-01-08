@@ -55,7 +55,6 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Barcode;
@@ -82,11 +81,11 @@ import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 
 
@@ -196,7 +195,7 @@ public class PlatformUnitController extends WaspController {
 	private UserroleDao userroleDao;
 	
 	@Autowired
-	private MessageService messageService;
+	private MessageServiceWebapp messageService;
 	  
 	@Autowired
 	private AuthenticationService authenticationService;
@@ -691,7 +690,7 @@ public class PlatformUnitController extends WaspController {
 				m.put("barcodeError", msg==null?new String("Barcode cannot be empty."):msg);//"Barcode cannot be empty"
 				otherErrorsExist = true;
 			}
-			else if(sampleService.barcodeNameExists(barcode)){
+			else if(sampleService.isBarcodeNameExisting(barcode)){
 				if(platformUnitInDatabase==null /* this is new record, name used, so prevent */ || ( platformUnitInDatabase!=null && !barcode.equalsIgnoreCase(platformUnitInDatabase.getSampleBarcode().get(0).getBarcode().getBarcode()) /* existing record so update is requested, but barcode name used is not my barcode name, so prevent */  ) ){
 					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".barcode_exists.error");
 					m.put("barcodeError", msg==null?new String("Barcode already exists in database."):msg);//"Barcode already exists in database."
@@ -716,7 +715,7 @@ public class PlatformUnitController extends WaspController {
 				}
 				else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
 					// perform next test
-					if(sampleService.requestedReductionInCellNumberIsProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
+					if(sampleService.isRequestedReductionInCellNumberProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
 						String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
 						m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
 						otherErrorsExist = true;
@@ -1174,7 +1173,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		else{
 			Sample platformUnit = parentSampleSources.get(0).getSample();
-			if( ! sampleService.sampleIsPlatformUnit(platformUnit) ){
+			if( ! sampleService.isPlatformUnit(platformUnit) ){
 				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 			}
 			else{

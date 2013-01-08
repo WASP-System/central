@@ -12,6 +12,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +24,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @Service
 @Transactional("entityManager")
@@ -38,6 +49,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private JobDraftFileDao jobDraftFileDao;
+	
+	@Autowired
+	private SampleService sampleService;
+	
+	@Autowired
+	private SampleFileDao sampleFileDao;
 	
 	/**
 	 * fileDao;
@@ -110,8 +127,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		//String fileName = mpFile.getOriginalFilename();
 		String fileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 		Integer fileSizeK = (int)((mpFile.getSize()/1024) + 0.5);
-		String contentType = mpFile.getContentType();
-		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (type="+contentType+", size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
+		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
 		java.io.File newFile = new java.io.File(absolutePath);
 		try{
 			mpFile.transferTo(newFile);
@@ -122,7 +138,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		file.setDescription(description);
 		//file.setFileURI(absolutePath);
 		file.setIsActive(1);
-		file.setContentType(contentType);
 		file.setMd5hash(md5Hash);
 		file.setSizek(fileSizeK);		
 		return fileDao.save(file);
@@ -137,6 +152,71 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		jobDraftFile.setFile(file);
 		jobDraftFile.setJobDraft(jobDraft);
 		return jobDraftFileDao.save(jobDraftFile);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<File> getFilesByType(FileType fileType){
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("fileTypeId", fileType.getFileTypeId());
+		return fileDao.findByMap(m);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public List<File> getFilesForLibrary(Sample library) throws SampleTypeException{
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sampleId", library.getSampleId());
+		List<File> files = new ArrayList<File>();
+		for (SampleFile sf: sampleFileDao.findByMap(m))
+			files.add(sf.getFile());
+		return files;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public List<File> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException{
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
+		Map<FileType, List<File>> filesByType = getFilesForLibraryMappedToFileType(library);
+		if (!filesByType.containsKey(fileType))
+			return new ArrayList<File>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws SampleTypeException 
+	 */
+	@Override
+	public Map<FileType, List<File>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException{
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sampleId", library.getSampleId());
+		Map<FileType, List<File>> filesByType = new HashMap<FileType, List<File>>();
+		for (SampleFile sf: sampleFileDao.findByMap(m)){
+			File f = sf.getFile();
+			FileType ft = f.getFileType();
+			if (!filesByType.containsKey(ft))
+				filesByType.put(ft, new ArrayList<File>());
+			filesByType.get(ft).add(f);
+		}
+		return filesByType;
 	}
 	
 }

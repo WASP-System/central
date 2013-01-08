@@ -20,6 +20,8 @@
 </style>
 
 <script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
+<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
+
 
 <%-- <c:if test='${viewerIsFacilityMember=="true"}'> --%>
 <script type="text/javascript">
@@ -147,15 +149,22 @@ jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:tr
 //add search icon to navgrid and link it's being clicked to filterToolbar (so that filterToolbar search begins when the search icon is pressed (or the default, which is when ENTER is pressed)) 
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
+//disable all the td tooltips that the grid automatically sets  and in line after, enable the other tooltip (on anchors)
+$("td").attr('title', '');
+//enable the "new, blackbox tooltip
+$(".wasptooltip a[title]").tooltip({ position: "top left"});
+
 });//end document.ready() 
   
 </script>
 <%-- </c:if> --%>
  
 <center>  
+<div class="wasptooltip">
 <br /><br />
 <table id="grid_id"></table> 
 <div id="gridpager"></div>
+</div>
 </center> 
 
 

@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.UUID;
 
 
@@ -13,7 +14,9 @@ import java.util.UUID;
  * @author calder
  *
  */
-public class GridResultImpl implements GridResult {
+public class GridResultImpl implements GridResult, Serializable {
+	
+	private static final long serialVersionUID = 1423472291111175147L;
 
 	private UUID uuid;
 	private String hostname;
@@ -21,11 +24,11 @@ public class GridResultImpl implements GridResult {
 	private String workingDirectory;
 	private String resultsDirectory;
 	protected int finalStatus = 0;
-	protected String finalOutput = "";
+	transient protected String finalOutput = "";
 
 	private int exitStatus;
-	private InputStream stdOutStream;
-	private InputStream stdErrStream;
+	transient private InputStream stdOutStream;
+	transient private InputStream stdErrStream;
 	
 	@Override
 	public int getExitStatus() {

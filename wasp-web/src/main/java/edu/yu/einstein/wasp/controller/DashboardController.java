@@ -15,7 +15,6 @@ import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.TaskMapping;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
