@@ -3,7 +3,7 @@
  
  <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
 <script src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript" ></script> 
-<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
+<%-- <script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>--%>
  <%-- <script src="http://cdn.jquerytools.org/1.2.7/all/jquery.tools.min.js"></script>--%>
 
 <script>
@@ -29,7 +29,7 @@ $(document).ready(function() {
     	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showJobFiles.label" />");}
     	}); 
   	
-  	$(".wasptooltip a[title]").tooltip({ position: "top right"});
+  	//$(".wasptooltip a[title]").tooltip({ position: "top right"});
 });
 
 

@@ -10,6 +10,8 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,6 +120,7 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
 
 	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
+	//public String[] getJobApproveArray(){return jobApproveArray;}
 	
 	private JobDao	jobDao;
 	
@@ -1476,5 +1479,76 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return map;
 	}
 
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobStatus(Job job, boolean comment){
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			return "Unknown";
+		}
+		String currentStatus = "Not Yet Set";
+		//String approvalStatus = "Not Yet Set";
+		String currentStatusComment = null;
+		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
+		for(String jobApproveCode : jobApprovalsMap.keySet()){
+			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
+			if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+				if("piApprove".equals(jobApproveCode)){
+						currentStatus = "Withdrawn By PI";
+				}
+				else if("daApprove".equals(jobApproveCode)){
+					currentStatus = "Withdrawn By Dept.";
+				}
+				else if("fmApprove".equals(jobApproveCode)){
+					currentStatus = "Withdrawn By Facility";
+				}
+				else {//should never occur
+					currentStatus = "Withdrawn";
+				}
+				if(comment==true){
+					List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
+					if(jobApprovalCommentsList.size()>0){
+						Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+						MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
+						currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+						if(currentStatusComment != null && !currentStatusComment.isEmpty()){
+							currentStatus = "<a href='javascript:void(0)' title='"+ currentStatusComment + "' >"+currentStatus+"</a>";
+						}
+					}
+				}
+				break;
+			}
+			//if any single jobStatus is awaitingResponse, then none are rejected, and we are continuing to wait for additional responses, so break (some might be approved, but we're waiting for at least one)
+			if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+				currentStatus = "Awaiting Approval(s)";
+				break;
+			}
+			//if any jobStatus is approved, then continue through the loop. If the last one is approved (we haven't hit a rejected or an awaitingResponse), then this job is fully approved
+			if("approved".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
+				currentStatus = "Approved";//will be refined below
+			}
+			//if we never hit the case rejected, awaitingResponse, or approved, then it's Not yet set (should rarely occur)
+		}
+		//next need a way to tell approved and ongoing from approved and completed
+		if(currentStatus.equalsIgnoreCase("Approved")){
+			//must now distinguish between in progress and completed
+			//if the job is active, and approved, then the job is In Progress
+			boolean jobIsActive = false;
+			List<Job> activeJobsList = this.getActiveJobs();//will be used below 			
+			for(Job activeJob : activeJobsList){
+				if(activeJob.getJobId().intValue()==job.getJobId().intValue()){
+					jobIsActive = true;
+					break;
+				}
+			}
+			if(jobIsActive){
+				currentStatus = "In Progress";
+			}
+			else{
+				currentStatus = "Completed";
+			}
+		}
+		return currentStatus;
+	}
 }

@@ -127,7 +127,7 @@ public class StubSampleService implements SampleService {
 
 	
 	@Override
-	public boolean submittedSampleHasBeenProcessedByFacility(Sample sample) {
+	public boolean isSubmittedSampleProcessedByFacility(Sample sample) {
 		// Auto-generated method stub
 		return false;
 	}
@@ -261,7 +261,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public boolean barcodeNameExists(String barcodeName) {
+	public boolean isBarcodeNameExisting(String barcodeName) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -280,7 +280,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public boolean sampleSubtypeIsSpecificSampleType(
+	public boolean isSampleSubtypeWithSpecificSampleType(
 			SampleSubtype sampleSubtype, String sampleTypeIName) {
 		// TODO Auto-generated method stub
 		return false;
@@ -293,39 +293,39 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public boolean sampleIsSpecificSampleType(Sample sample,
+	public boolean isSampleOfSpecificSampleType(Sample sample,
 			String sampleTypeIName) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean sampleIsSpecificSampleSubtype(Sample sample,
+	public boolean isSampleOfSpecificSampleSubtype(Sample sample,
 			String sampleSubtypeIName) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean sampleIsInDatabase(Sample sample) {
+	public boolean isSampleInDatabase(Sample sample) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean sampleIdIsInDatabase(Integer sampleId) {
+	public boolean isSampleIdInDatabase(Integer sampleId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean sampleIdIsValid(Sample sample) {
+	public boolean isSampleIdValid(Sample sample) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean sampleIsPlatformUnit(Sample sample) {
+	public boolean isPlatformUnit(Sample sample) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -355,7 +355,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public boolean requestedReductionInCellNumberIsProhibited(
+	public boolean isRequestedReductionInCellNumberProhibited(
 			Sample platformUnitInDatabase, Integer numberOfLanesRequested)
 			throws SampleException, SampleTypeException {
 		// TODO Auto-generated method stub
@@ -448,7 +448,7 @@ public class StubSampleService implements SampleService {
 	}
 
 	@Override
-	public boolean platformUnitIsCompatibleWithSequencingMachine(
+	public boolean isPlatformUnitCompatibleWithSequencingMachine(
 			Sample platformUnit, Resource sequencingMachineInstance) {
 		// TODO Auto-generated method stub
 		return false;

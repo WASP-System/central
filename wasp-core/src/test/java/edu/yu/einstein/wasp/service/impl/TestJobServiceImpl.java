@@ -1,9 +1,12 @@
 package edu.yu.einstein.wasp.service.impl;
 
-import java.lang.reflect.Field;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Currency;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -12,16 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static org.easymock.classextension.EasyMock.*;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.runner.RunWith;
-
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -40,7 +35,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.unitils.easymock.EasyMockUnitils;
 
-
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -53,12 +47,10 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
-import edu.yu.einstein.wasp.dao.TaskMappingDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.dao.impl.JobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.JobDaoImpl;
@@ -75,24 +67,19 @@ import edu.yu.einstein.wasp.dao.impl.SampleFileDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleJobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleTypeDaoImpl;
-import edu.yu.einstein.wasp.dao.impl.TaskMappingDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
-import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
-import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
@@ -112,18 +99,15 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 
 public class TestJobServiceImpl extends EasyMockSupport{
 
-  TaskMappingDao mockTaskMappingDao;
-  JobSampleDao mockJobSampleDao;
+ JobSampleDao mockJobSampleDao;
   SampleDao mockSampleDao;
   JobDao mockJobDao;
   JobMetaDao mockJobMetaDao;
@@ -1571,7 +1555,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
   @AfterMethod
   public void afterMethod() {
 	
-	  EasyMock.reset(mockTaskMappingDao);
 	  EasyMock.reset(mockJobSampleDao);
 	  EasyMock.reset(mockSampleDao);
 	  EasyMock.reset(mockJobDao);
@@ -1609,7 +1592,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 
   @BeforeTest
   public void beforeTest() {
-	  mockTaskMappingDao = createMockBuilder(TaskMappingDaoImpl.class).addMockedMethods(TaskMappingDaoImpl.class.getMethods()).createMock();
 	  mockJobSampleDao = createMockBuilder(JobSampleDaoImpl.class).addMockedMethods(JobSampleDaoImpl.class.getMethods()).createMock();
 	  mockSampleDao = createMockBuilder(SampleDaoImpl.class).addMockedMethods(SampleDaoImpl.class.getMethods()).createMock();	  
 	  mockJobDao = createMockBuilder(JobDaoImpl.class).addMockedMethods(JobDaoImpl.class.getMethods()).createMock();
@@ -1647,7 +1629,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		         .addMockedMethods(SampleServiceImpl.class.getMethods()) 
 		         .createMock(); 
 	  
-	  Assert.assertNotNull(mockTaskMappingDao);
 	  Assert.assertNotNull(mockJobSampleDao);
 	  Assert.assertNotNull(mockSampleDao);
 	  Assert.assertNotNull(mockJobDao);
