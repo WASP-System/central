@@ -233,7 +233,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		Sample pu;
 		pu = PowerMockito.mock(Sample.class);
 		PowerMockito.when(run.getPlatformUnit()).thenReturn(pu);
-		PowerMockito.when(sampleService.sampleIsPlatformUnit(pu)).thenReturn(true);
+		PowerMockito.when(sampleService.isPlatformUnit(pu)).thenReturn(true);
 		PowerMockito.when(pu.getName()).thenReturn("TEST_PLATFORM_UNIT");
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
