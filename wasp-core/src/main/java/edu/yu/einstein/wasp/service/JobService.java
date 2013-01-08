@@ -455,7 +455,5 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws Exception
 	 */
 	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception;
-
 	
-
 }

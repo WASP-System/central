@@ -1406,7 +1406,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1513,6 +1512,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	}
 
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception {
 		
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
