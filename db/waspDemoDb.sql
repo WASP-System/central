@@ -1379,14 +1379,12 @@ DROP TABLE IF EXISTS `filetype`;
 
 create table filetype (
   filetypeid int(10)  primary key auto_increment,
-  filetypesubtypeid int(10) ,
   iname varchar(250) , 
   name varchar(250) , 
   isactive int(1)  default 1,
   description varchar(250),
   lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0, 
-  foreign key fk_filetypefiletypesubtypeid_rid (filetypesubtypeid) references filetypesubtype(filetypesubtypeid)
+  lastupduser int(10)  default 0
 ) ENGINE=InnoDB charset=utf8;
 
 
