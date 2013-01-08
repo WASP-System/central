@@ -22,8 +22,8 @@ import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Listens on the provided subscribable channel for a message with a task and status specified in the

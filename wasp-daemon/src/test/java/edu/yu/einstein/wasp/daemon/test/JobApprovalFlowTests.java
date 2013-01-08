@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 

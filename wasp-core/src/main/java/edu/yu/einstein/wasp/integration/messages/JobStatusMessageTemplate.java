@@ -4,7 +4,6 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Handling WaspJobStatus messages. If not task is defined the default is WaspTask.NOTIFY_STATUS

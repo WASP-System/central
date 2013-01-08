@@ -4,8 +4,8 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.annotation.Router;
 
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * Routes messages with a task of NOTIFY_STATUS reporting a WaspStatus of FAILED or ABANDONED to the abort channel. All

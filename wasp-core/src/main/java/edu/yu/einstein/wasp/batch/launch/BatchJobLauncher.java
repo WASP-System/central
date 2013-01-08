@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.batch.launch;
 
 import org.springframework.integration.Message;
 
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 public interface BatchJobLauncher {
 	

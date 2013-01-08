@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.integration.messages;
 
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 
 /**

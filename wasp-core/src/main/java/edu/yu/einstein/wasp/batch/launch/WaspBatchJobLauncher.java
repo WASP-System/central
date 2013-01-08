@@ -23,8 +23,8 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
  * WaspBatchJobLauncher. Launch Spring Batch jobs

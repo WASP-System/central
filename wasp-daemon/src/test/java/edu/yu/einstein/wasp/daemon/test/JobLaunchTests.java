@@ -21,8 +21,8 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.test.stubs.StubSampleDao;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/dummyBatchJobFlow.xml"})
