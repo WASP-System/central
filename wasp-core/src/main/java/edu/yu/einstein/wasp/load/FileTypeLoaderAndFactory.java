@@ -5,22 +5,23 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.load.service.SampleTypeLoadService;
-import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.SampleTypeCategory;
+import edu.yu.einstein.wasp.load.service.FileTypeLoadService;
+import edu.yu.einstein.wasp.model.FileType;
+
+
 
 /**
- * update/inserts db copy of type SampleType from bean definition
+ * update/inserts db copy of type FileType from bean definition
  */
 
-public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<SampleType> {
+public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<FileType> {
 
 	@Autowired
-	private SampleTypeLoadService sampleTypeLoadService;
+	private FileTypeLoadService fileTypeLoadService;
 	
-	private SampleType sampleType;
+	private FileType fileType;
 
-	private SampleTypeCategory sampleTypeCategory;
+	private String description;
 
 	private int isActive = 1;
 
@@ -31,29 +32,31 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 	public void setIsActive(int isActive) {
 		this.isActive = isActive;
 	}
-
-	public SampleTypeCategory getSampleTypeCategory() {
-		return sampleTypeCategory;
+	
+	public String getDescription() {
+		return description;
 	}
 
-	public void setSampleTypeCategory(SampleTypeCategory sampleTypeCategory) {
-		this.sampleTypeCategory = sampleTypeCategory;
+	public void setDescription(String description) {
+		this.description = description;
 	}
+
+	
 	
 	@PostConstruct
 	public void init(){
-		sampleTypeLoadService.updateUiFields(uiFields);
-		sampleType =  sampleTypeLoadService.update(iname, name, sampleTypeCategory, isActive);
+		fileTypeLoadService.updateUiFields(uiFields);
+		fileType =  fileTypeLoadService.update(iname, name, description, isActive);
 	}
 
 	@Override
-	public SampleType getObject() throws Exception {
-		return sampleType;
+	public FileType getObject() throws Exception {
+		return fileType;
 	}
 
 	@Override
 	public Class<?> getObjectType() {
-		return SampleType.class;
+		return FileType.class;
 	}
 
 	@Override
