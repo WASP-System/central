@@ -739,10 +739,4 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
 		
 
-	  
-
-	 
-	  
-	  
-	  
 }
