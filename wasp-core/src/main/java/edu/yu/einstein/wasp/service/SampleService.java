@@ -12,6 +12,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
@@ -737,6 +738,59 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return List<MetaMessage>
 		 */
 	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
+
+	  /**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful (using provided runId)
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId);
+	  
+	  /**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run);
+	  
+	  /**
+	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful (using provided runId)
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId);
+	  
+	  /**
+	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful
+	   * @param run
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
+
+	  /**
+	   * Returns true if the sample is a cell
+	   * @param cell
+	   * @return
+	   */
+	  public boolean isCell(Sample cell);
+
+	  /**
+	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * @param cell
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
+	   * assessment of a run
+	   * @param cell
+	   * @param success
+	   * @throws SampleTypeException
+	   */
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
+
 		
 
 	  
