@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages;
 
+import org.springframework.integration.Message;
+
 
 
 /**
@@ -14,6 +16,14 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 	protected WaspStatus status;
 	
 	protected String exitDescription = "";
+	
+	public WaspStatusMessageTemplate(Message<WaspStatus> message){
+		super(message);
+		if (message.getHeaders().containsKey(EXIT_DESCRIPTION_HEADER))
+			exitDescription = (String) message.getHeaders().get(EXIT_DESCRIPTION_HEADER);
+		if (WaspStatus.class.isInstance(message.getPayload()) )
+			status = message.getPayload();
+	}
 	
 	public String getExitDescription() {
 		return exitDescription;

@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages;
 
+import org.springframework.integration.Message;
+
 
 /**
  * Abstract base class defining common attributes.
@@ -38,6 +40,13 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	public WaspMessageTemplate(){
 		this.task = WaspTask.NOTIFY_STATUS; // default
 		this.target = DEFAULT_TARGET; // default
+	}	
+	
+	public WaspMessageTemplate(Message<?> message){
+		if (message.getHeaders().containsKey(TARGET_KEY))
+			target = (String) message.getHeaders().get(TARGET_KEY);
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY))
+			task = (String) message.getHeaders().get(WaspJobTask.HEADER_KEY);
 	}	
 }
 	
