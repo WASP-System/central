@@ -21,8 +21,7 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 		super(message);
 		if (message.getHeaders().containsKey(EXIT_DESCRIPTION_HEADER))
 			exitDescription = (String) message.getHeaders().get(EXIT_DESCRIPTION_HEADER);
-		if (WaspStatus.class.isInstance(message.getPayload()) )
-			status = message.getPayload();
+		status = message.getPayload();
 	}
 	
 	public String getExitDescription() {
