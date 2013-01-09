@@ -12,6 +12,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
@@ -225,7 +226,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Sample sample
 	   * @return boolean
 	   */
-	  public boolean submittedSampleHasBeenProcessedByFacility(final Sample sample);
+	  public boolean isSubmittedSampleProcessedByFacility(final Sample sample);
 	  
 	  /**
 	   * Returns a list of facility-generated libraries created from a user-submitted macromolecule
@@ -395,7 +396,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String barcodeName
 	   * @return boolean
 	   */
-	  public boolean barcodeNameExists(String barcodeName);
+	  public boolean isBarcodeNameExisting(String barcodeName);
 
 	  /**
 	   * Returns List of SampleSubtypes where SampleType.iname = parameter sampleTypeIName. List ordered ascending by samplesubtype.name. 
@@ -420,7 +421,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String sampleTypeIName
 	   * @return boolean
 	   */
-	  public boolean sampleSubtypeIsSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName);
+	  public boolean isSampleSubtypeWithSpecificSampleType(SampleSubtype sampleSubtype, String sampleTypeIName);
 	  
 	  /**
 	   * Returns a Sample with id of sampleId. 
@@ -437,7 +438,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String sampleTypeIName (such as "platformunit")
 	   * @return boolean
 	   */
-	  public boolean sampleIsSpecificSampleType(Sample sample, String sampleTypeIName);
+	  public boolean isSampleOfSpecificSampleType(Sample sample, String sampleTypeIName);
 
 	  /**
 	   * Returns true if sample.getSampleSubtype().getIName.equals(sampleSubtypeIName). 
@@ -446,7 +447,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param String sampleSubtypeIName (such as "platformunit")
 	   * @return boolean
 	   */
-	  public boolean sampleIsSpecificSampleSubtype(Sample sample, String sampleSubtypeIName);
+	  public boolean isSampleOfSpecificSampleSubtype(Sample sample, String sampleSubtypeIName);
 
 	  /**
 	   * Returns true if Sample is in database, else returns false
@@ -456,7 +457,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Sample sample
 	   * @return boolean
 	   */
-	  public boolean sampleIsInDatabase(Sample sample);
+	  public boolean isSampleInDatabase(Sample sample);
 
 	  /**
 	   * Returns true if SampleId represents a sample in database, else returns false
@@ -466,21 +467,21 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Integer sampleId
 	   * @return boolean
 	   */
-	  public boolean sampleIdIsInDatabase(Integer sampleId);
+	  public boolean isSampleIdInDatabase(Integer sampleId);
 
 	  /**
 	   * Returns true if sample != null && sample.getSampleId() != null && sample.getSampleId().intVal() > 0, else false
 	   * @param Sample sample
 	   * @return boolean
 	   */
-	  public boolean sampleIdIsValid(Sample sample);
+	  public boolean isSampleIdValid(Sample sample);
 
 	  /**
 	   * Returns true if Sample is a platform unit (checking both SampleType and SampleSubtype) 
 	   * @param Sample sample
 	   * @return boolean
 	   */
-	  public boolean sampleIsPlatformUnit(Sample sample);
+	  public boolean isPlatformUnit(Sample sample);
 
 	  /**
 	   * Returns Sample if it exists in database and if it is a platform unit (its sampletype and samplesubtype both have inames of platformunit) 
@@ -516,7 +517,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Integer numberOfLanesRequested
 	   * @return boolean
 	   */
-	  public boolean requestedReductionInCellNumberIsProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
+	  public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
 	 
 	  /**
 	   * Create or update platform unit. If platformUnitId==null or platformUnitId.intVal()<=0, create new platformunit, otherwise update.
@@ -596,7 +597,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param Resource sequencingMachineInstance
 	   * @return boolean
 	   */
-	  public boolean platformUnitIsCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
+	  public boolean isPlatformUnitCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
 	  
 	  /**
 	   * Delete sequence run
@@ -738,6 +739,59 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return List<MetaMessage>
 		 */
 	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
+
+	  /**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful (using provided runId)
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId);
+	  
+	  /**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run);
+	  
+	  /**
+	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful (using provided runId)
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId);
+	  
+	  /**
+	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful
+	   * @param run
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
+
+	  /**
+	   * Returns true if the sample is a cell
+	   * @param cell
+	   * @return
+	   */
+	  public boolean isCell(Sample cell);
+
+	  /**
+	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * @param cell
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
+	   * assessment of a run
+	   * @param cell
+	   * @param success
+	   * @throws SampleTypeException
+	   */
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
+
 		
 
 	  /**

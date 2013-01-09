@@ -20,7 +20,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -61,38 +60,6 @@ public class FileType extends WaspModel {
 		return this.fileTypeId;
 	}
 
-
-
-
-	/** 
-	 * fileTypeSubtypeId
-	 *
-	 */
-	@Column(name="filetypesubtypeid")
-	protected Integer fileTypeSubtypeId;
-
-	/**
-	 * setFileTypeSubtypeId(Integer fileTypeSubtypeId)
-	 *
-	 * @param fileTypeSubtypeId
-	 *
-	 */
-	
-	public void setFileTypeSubtypeId (Integer fileTypeSubtypeId) {
-		this.fileTypeSubtypeId = fileTypeSubtypeId;
-	}
-
-	/**
-	 * getFileTypeSubtypeId()
-	 *
-	 * @return fileTypeSubtypeId
-	 *
-	 */
-	public Integer getFileTypeSubtypeId () {
-		return this.fileTypeSubtypeId;
-	}
-
-
 	/** 
 	 * iName
 	 *
@@ -120,8 +87,6 @@ public class FileType extends WaspModel {
 	public String getIName () {
 		return this.iName;
 	}
-
-
 
 
 	/** 
