@@ -269,7 +269,8 @@ public class SampleDnaToLibraryController extends WaspController {
         return returnPageDef;
      }
  
-     sampleMetaDao.updateBySampleId(sampleId, sampleMetaList);
+     sampleService.updateSampleMeta(sample, sampleMetaList);
+     //sampleMetaDao.updateBySampleId(sampleId, sampleMetaList);//fixed with above, this line should no longer be neeeded
 
      return nextPage(sample);
   } 
@@ -433,46 +434,10 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn(e.getMessage());
 			}
 		}
-/*		
-		Map jobCellFilter = new HashMap();
-		jobCellFilter.put("jobId", job.getJobId().intValue());
-		List<String> orderByList = new ArrayList<String>();
-		orderByList.add("cellIndex");
-		List<JobCellSelection> jobCellSelectionList = jobCellSelectionDao.findByMapDistinctOrderBy(jobCellFilter, null, orderByList, "ASC");
-		  
-		//attempt at getting the requested coverage in a better format:
-		int totalNumberCellsRequested = jobCellSelectionList.size();
-		Map<Sample, String> coverageMap = new LinkedHashMap<Sample, String>();
-		List<Sample> tempListOfAllSubmittedSamples = new ArrayList<Sample>();
-		tempListOfAllSubmittedSamples.addAll(macromoleculeSubmittedSamplesList);
-		tempListOfAllSubmittedSamples.addAll(librarySubmittedSamplesList);
-		for(Sample sample : tempListOfAllSubmittedSamples){
-			StringBuffer stringBuffer = new StringBuffer("");
-			for(int i = 1; i <= totalNumberCellsRequested; i++){
-				boolean found = false;
-				for(JobCellSelection jobCellSelection : jobCellSelectionList){
-					List<SampleJobCellSelection> sampleJobCellSelectionList = jobCellSelection.getSampleJobCellSelection();
-					for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelectionList){
-						if(sampleJobCellSelection.getSampleId().intValue() == sample.getSampleId().intValue()){
-							if(jobCellSelection.getCellIndex().intValue() == i){
-								stringBuffer.append("1");
-								found = true;
-							}
-						}
-					}
-				}
-				if(found == false){
-					stringBuffer.append("0");
-				}
-			}
-			coverageMap.put(sample, new String(stringBuffer));
-  		}	
-*/		
+	
 		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
 		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
-		
-		
-		
+
 		// get files associated with this job
 		List<File> files = new ArrayList<File>();
 		Map<File, URL> fileUrlMap = new HashMap<File, URL>();
@@ -740,8 +705,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  // all ok so save 
 	  library.setName(libraryForm.getName());
-	  managedLibrary.updateMetaToList(metaFromForm, sampleMetaDao);
-	  managedLibrary.saveAll(sampleService);
+	  sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);
+	  //managedLibrary.updateMetaToList(metaFromForm, sampleMetaDao);//fixed with line above, this line should no longer be neeeded
+	  //managedLibrary.saveAll(sampleService);//fixed with above, this line should no longer be neeeded
 
 	  waspMessage("sampleDetail.updated_success.label");
 	  return "redirect:/sampleDnaToLibrary/librarydetail_ro/"+jobId+"/"+libraryId+".do";
@@ -883,7 +849,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
   }
-  
+
   @RequestMapping(value = "/sampledetail_rw/{jobId}/{sampleId}", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateSampleDetailRW(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId, 
@@ -926,15 +892,18 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
-	  managedSample.updateMetaToList(metaFromForm, sampleMetaDao);
-	  managedSample.saveAll(sampleService);
+	  sample.setName(sampleForm.getName());
+	  
+	  sampleService.updateExistingSampleViaSampleWrapper(managedSample, metaFromForm);
+	  //managedSample.updateMetaToList(metaFromForm, sampleMetaDao);//fixed with above, this line should no longer be neeeded
+	  //managedSample.saveAll(sampleService);//fixed with above, this line should no longer be neeeded
 
 	  waspMessage("sampleDetail.updated_success.label");
 	  return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 
   }
-  
-  
+/*  
+  //no longer used, replaced by JobService.getExtraJobDetails(job);
   private Map<String, String> getExtraJobDetails(Job job){
 	  
 	  //replaced by JobService.getExtraJobDetails(job); should be able to remove safely
@@ -959,7 +928,8 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  return extraJobDetailsMap;	  
   }
-  
+
+ // can be removed, as replaced by jobService.getSubmittedSamples(job)
   private List<Sample> getSubmittedSamplesViaJobCell(Job job){
 	  
 	  //replaced by jobService.getSubmittedSamples(job)
@@ -997,6 +967,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
   }
   
+  // this method appears NOT to be used 
   private List<Sample> getSubmittedSamplesViaJobSample(Job job){
 	  
 	  //Get list of all samples for a job from table jobsample
@@ -1023,7 +994,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return submittedSamples;
 	  
   }
-  
+  */
   /**
    * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
    * @param formSample

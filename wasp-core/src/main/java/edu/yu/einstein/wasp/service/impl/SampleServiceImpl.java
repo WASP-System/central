@@ -259,8 +259,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Transactional("entityManager")
 	  public void saveSampleWithAssociatedMeta(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  sampleDao.save(sample);
-		  sampleMetaDao.updateBySampleId(sample.getSampleId(), sample.getSampleMeta());
+		  //create new reference to sample.sampleMeta, for use in the sampleMetaDoa call, as sample.getSampleMeta() returns an empty list following the save(sample) [due to entityManager.refresh(sample) performed in SampleDao.save()]
+		  List<SampleMeta> sampleMetaList = sample.getSampleMeta();		  
+		  Sample sampleInDB=sampleDao.save(sample);
+		  sampleMetaDao.updateBySampleId(sampleInDB.getSampleId(), sampleMetaList);
 	  }
 	  
 	  /**
@@ -2249,5 +2251,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public List<MetaMessage> getSampleQCComments(Integer sampleId){
 		return metaMessageService.read("sampleQCComment", sampleId, SampleMeta.class, sampleMetaDao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateSampleMeta(Sample sample, List<SampleMeta> sampleMetaList){
+		Assert.assertParameterNotNull(sample, "Invalid sample provided");
+		sampleMetaDao.updateBySampleId(sample.getSampleId(), sampleMetaList);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList){
+		sw.updateMetaToList(sampleMetaList, sampleMetaDao);
+		sw.saveAll(this);
 	}
 }
