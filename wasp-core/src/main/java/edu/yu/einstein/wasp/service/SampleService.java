@@ -1,8 +1,7 @@
 /**
  *
  * SampleService.java 
- * @author echeng (table2type.pl)
- *  
+ * 
  * the SampleService
  *
  *
