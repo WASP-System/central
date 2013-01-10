@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.integration.messages.router;
+package edu.yu.einstein.wasp.integration.routers;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;

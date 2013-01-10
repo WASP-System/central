@@ -4,7 +4,7 @@ import org.springframework.integration.Message;
 
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
-public interface BatchJobLauncher {
+public interface BatchJobLaunchService {
 	
 	/**
 	 * Launch batch job

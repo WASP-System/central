@@ -66,7 +66,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 		
 	/**
-	 * Test getting correct reply from WaspBatchJobLauncher service activator after sending a message to start a batch job 
+	 * Test getting correct reply from BatchJobLaunchServiceImpl service activator after sending a message to start a batch job 
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testSuccessfulJobLaunch() throws Exception{
@@ -91,7 +91,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	}
 	
 	/**
-	 * Test getting correct reply from WaspBatchJobLauncher service activator after sending a message to start a batch job 
+	 * Test getting correct reply from BatchJobLaunchServiceImpl service activator after sending a message to start a batch job 
 	 * containing an non-existent batch job
 	 */
 	@Test (groups = "unit-tests-batch-integration", dependsOnMethods="testSuccessfulJobLaunch")
