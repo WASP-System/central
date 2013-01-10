@@ -186,6 +186,24 @@ public class SgeWorkService implements GridWorkService {
 					}
 				}
 			} else { 
+				if (!ended) {
+					// TODO: Improve this logic.  This is to handle the case when the scheduler reports 
+					// the job as unknown (not running) and the end file is not present because
+					// of NFS delays.
+					
+					for (int x = 0; x < 3; x++) {
+						try {
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							throw new GridAccessException(e.getLocalizedMessage());
+						}
+						logger.debug("Job finished semaphore is not present, checking again.");
+						ended = isJobEnded(g);
+						if (ended) 
+							break;
+					}
+					
+				}
 				if (!ended && started) {
 					died = true;
 				}

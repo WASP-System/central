@@ -10,15 +10,15 @@ import edu.yu.einstein.wasp.service.filetype.FastqService;
 @Transactional("entityManager")
 public class FastqServiceImpl extends FileTypeServiceImpl implements FastqService {
 	
-	public static final String READ_SEGMENT_NUMBER_META_KEY = "fastqReadSegmentNumber";
+	public static final String READ_SEGMENT_NUMBER_META_KEY = "readSegmentNumber";
 	
-	public static final String NUMBER_OF_READS_META_KEY = "fastqNumberOfReads";
+	public static final String NUMBER_OF_READS_META_KEY = "numberOfReads";
 	
-	public static final String NUMBER_OF_PASS_FILTER_READS_META_KEY = "fastqNumberOfPFReads";
+	public static final String NUMBER_OF_PASS_FILTER_READS_META_KEY = "numberOfPFReads";
 	
-	public static final String CONTAINS_FAILED_READS_META_KEY = "fastqContainsFailed";
+	public static final String CONTAINS_FAILED_READS_META_KEY = "containsFailed";
 	
-	public static final String FILE_AREA = "file";
+	public static final String FILE_AREA = "fastqFile";
 
 
 	@Override
@@ -53,13 +53,13 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	}
 
 	@Override
-	public boolean containsReadsMarkedFailed(File file) throws InvalidFileTypeException {
+	public boolean isReadsMarkedFailed(File file) throws InvalidFileTypeException {
 		String fails = getMeta(file, FILE_AREA, CONTAINS_FAILED_READS_META_KEY);
 		Boolean b = new Boolean(fails);
 		return b.booleanValue();
 	}
 	
-	public void containsReadsMarkedFailed(File file, boolean fail) throws InvalidFileTypeException {
+	public void setReadsMarkedFailed(File file, boolean fail) throws InvalidFileTypeException {
 		Boolean b = new Boolean(fail);
 		setMeta(file, FILE_AREA, CONTAINS_FAILED_READS_META_KEY, b.toString());
 	}

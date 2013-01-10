@@ -30,8 +30,8 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		this.fileMetaDao = fileMetaDao;
 	}
 	
-	public static final String FILETYPE_IS_SINGLE_META_KEY = "filetypeIsSingleton";
-	public static final String FILETYPE_FILE_NUMBER_META_KEY = "filetypeFileNumber";
+	public static final String FILETYPE_IS_SINGLE_META_KEY = "isSingleton";
+	public static final String FILETYPE_FILE_NUMBER_META_KEY = "fileNumber";
 	public static final String FILETYPE_AREA = "filetype";
 
 	@Override

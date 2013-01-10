@@ -236,5 +236,13 @@ public class SshTransportService implements GridTransportService {
 		logger.debug("set identity file to: " + identityFile.getAbsolutePath());
 		
 	}
+	
+	@Override
+	public String prefixRemoteFile(String filespec) {
+		String prefix = "";
+		if (isUserDirIsRoot()) prefix = "$HOME/";
+		String retval = prefix + filespec;
+		return retval.replaceAll("//", "/");
+	}
 
 }
