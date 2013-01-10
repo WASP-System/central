@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.integration.messages.GenericStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"classpath:integration/integration-test-context.xml"})

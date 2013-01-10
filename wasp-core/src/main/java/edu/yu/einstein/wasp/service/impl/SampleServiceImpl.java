@@ -1,9 +1,8 @@
 /**
  *
  * SampleServiceImpl.java 
- * @author echeng (table2type.pl)
- *  
- * the SampleService Implmentation 
+ * 
+ * the SampleService Implementation 
  *
  *
  **/
@@ -69,8 +68,8 @@ import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
 import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -1441,6 +1440,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return false;		
 	}
 	
+	@Override
+	public boolean isControlLibrary(Sample library) {
+		Assert.assertParameterNotNull(library, "No library provided");
+		if (this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2385,5 +2393,5 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		sampleMetaDao.updateBySampleId(cell.getSampleId(), sampleMeta);
 	}
 	
-
 }
+

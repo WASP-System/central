@@ -1,8 +1,7 @@
 /**
  *
  * SampleService.java 
- * @author echeng (table2type.pl)
- *  
+ * 
  * the SampleService
  *
  *
@@ -29,7 +28,7 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
@@ -792,7 +791,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
 
-		
+	  public boolean isControlLibrary(Sample library);
+
 
 	  /**
 		 * update sampleMeta
@@ -810,4 +810,5 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
 	  
 	  
+
 }

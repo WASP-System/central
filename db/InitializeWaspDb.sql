@@ -759,6 +759,34 @@ create table resourcebarcode (
 -- FILE
 --   mysql max out at 767 bytes for indexable length
 --
+
+
+create table filetype (
+  filetypeid int(10)  primary key auto_increment,
+  iname varchar(250) , 
+  name varchar(250) , 
+  isactive int(1)  default 1,
+  description varchar(250),
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0
+) ENGINE=InnoDB charset=utf8;
+
+create table filetypemeta (
+  filetypemetaid int(10)  primary key auto_increment,
+  filetypeid int(10) ,
+
+  k varchar(250) , 
+  v text,
+  position int(10)  default 0,
+  rolevisibility VARCHAR(250),
+
+  lastupdts timestamp  default current_timestamp,
+  lastupduser int(10)  default 0,
+
+  foreign key fk_filetypemeta_filetypeid (filetypeid) references filetype(filetypeid),
+  constraint unique index u_filemeta_k_jid (k, filetypeid)
+) ENGINE=InnoDB charset=utf8;
+
 create table file (
   fileid int(10)  primary key auto_increment,
   file_uri varchar(2048) , 
@@ -792,32 +820,6 @@ create table filemeta (
   foreign key fk_filemeta_fileid (fileid) references file(fileid),
 
   constraint unique index u_filemeta_k_jid (k, fileid)
-) ENGINE=InnoDB charset=utf8;
-
-create table filetype (
-  filetypeid int(10)  primary key auto_increment,
-  iname varchar(250) , 
-  name varchar(250) , 
-  isactive int(1)  default 1,
-  description varchar(250),
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0
-) ENGINE=InnoDB charset=utf8;
-
-create table filetypemeta (
-  filetypemetaid int(10)  primary key auto_increment,
-  filetypeid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_filetypemeta_filetypeid (filetypeid) references filetype(filetypeid),
-  constraint unique index u_filemeta_k_jid (k, filetypeid)
 ) ENGINE=InnoDB charset=utf8;
 
 -- 
