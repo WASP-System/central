@@ -4,7 +4,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 
 /**
  * Handling WaspJobStatus messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
@@ -26,6 +26,14 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	public JobStatusMessageTemplate(Integer jobId){
 		super();
 		this.jobId = jobId;
+	}
+	
+	public JobStatusMessageTemplate(Message<WaspStatus> message){
+		super(message);
+		if (!isMessageOfCorrectType(message))
+			throw new WaspMessageInitializationException("message is not of the correct type");
+		if (message.getHeaders().containsKey(WaspJobParameters.JOB_ID))
+			jobId = (Integer) message.getHeaders().get(WaspJobParameters.JOB_ID);
 	}
 	
 		
@@ -119,6 +127,16 @@ public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
+	}
+	
+	/**
+	 * Returns true is the message is of the correct WaspMessageType
+	 * @param message
+	 * @return
+	 */
+	public static boolean isMessageOfCorrectType(Message<?> message) {
+		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.JOB);
 	}
 	
 }

@@ -5,6 +5,7 @@ import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 
 /**
  * Handling WASP Batch Job Launch messages.
@@ -30,6 +31,13 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		this.batchJobLaunchContext = batchJobLaunchContext;
 	}
 	
+	public BatchJobLaunchMessageTemplate(Message<BatchJobLaunchContext> message){
+		super(message);
+		if (!isMessageOfCorrectType(message))
+			throw new WaspMessageInitializationException("message is not of the correct type");
+		batchJobLaunchContext = message.getPayload();
+	}
+	
 		
 	/**
 	 * Build a Spring Integration Message using the WaspMessageType.HEADER_KEY header and the BatchJobLaunchContext as payload.
@@ -47,7 +55,6 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 				message = MessageBuilder.withPayload(batchJobLaunchContext)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB)
 						.setHeader(TARGET_KEY, "batch")
-						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(batchJobLaunchContext)
@@ -115,6 +122,15 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		return false;
 	}
 
+	/**
+	 * Returns true is the message is of the correct WaspMessageType
+	 * @param message
+	 * @return
+	 */
+	public static boolean isMessageOfCorrectType(Message<?> message) {
+		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.LAUNCH_BATCH_JOB);
+	}
 	
 	
 }

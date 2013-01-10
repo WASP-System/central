@@ -4,7 +4,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 
 /**
  * Handling WaspRunStatus messages.
@@ -27,6 +27,14 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 	public RunStatusMessageTemplate(Integer runId) {
 		super();
 		this.runId = runId;
+	}
+	
+	public RunStatusMessageTemplate(Message<WaspStatus> message){
+		super(message);
+		if (!isMessageOfCorrectType(message))
+			throw new WaspMessageInitializationException("message is not of the correct type");
+		if (message.getHeaders().containsKey(WaspJobParameters.RUN_ID))
+			runId = (Integer) message.getHeaders().get(WaspJobParameters.RUN_ID);
 	}
 
 	/**
@@ -123,6 +131,16 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
+	}
+	
+	/**
+	 * Returns true is the message is of the correct WaspMessageType
+	 * @param message
+	 * @return
+	 */
+	public static boolean isMessageOfCorrectType(Message<?> message) {
+		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.RUN);
 	}
 
 }

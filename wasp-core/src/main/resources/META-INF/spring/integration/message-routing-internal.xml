@@ -80,6 +80,9 @@
 	</int:bridge>
 	
 	
+	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
+	<bean id="waspTask" class="edu.yu.einstein.wasp.integration.messages.WaspTask" />
+	
 	<!-- channel for receiving messages intended for batch system.  -->
 	<!-- messages can be routed here by injecting into internal or secure message gateway with header 'target' = 'batch' -->
 	<int:channel id="wasp.channel.batch" >
@@ -91,13 +94,22 @@
 	<int:channel id="wasp.channel.batch.success" />
 	
 	<int:router id="splitSuccessAndNotifyAbortMessages" input-channel="wasp.channel.batch">
-		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.messages.router.SuccessOrAbortMessageRouter">
+		<bean id="successOrFailureRouter" class="edu.yu.einstein.wasp.integration.routers.SuccessOrAbortMessageRouter">
 			<constructor-arg name="successChannel" ref="wasp.channel.batch.success" />
 			<constructor-arg name="abortChannel" ref="wasp.channel.notification.abort" />
 		</bean>
 	</int:router>	
+	
+	<int:channel id="wasp.channel.run.success" />
+	
+	<int:filter input-channel="wasp.channel.notification.run" output-channel="wasp.channel.run.success" >
+		<bean class="edu.yu.einstein.wasp.integration.filters.RunSuccessFilter" />
+	</int:filter>
 		
-	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
+	<int:splitter input-channel="wasp.channel.run.success" output-channel="wasp.channel.batch">
+		<bean class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter" />
+	</int:splitter>
+		
 	
 	<!-- header-router to sort inbound messages into appropriate channels -->
 	<int:header-value-router id="waspMessageTypeRouter" 

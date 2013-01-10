@@ -48,5 +48,7 @@ public interface GridTransportService {
 	abstract String getUserName();
 	abstract void setIdentityFile(String identityFile);
 	abstract File getIdentityFile();
+	
+	public String prefixRemoteFile(String filespec);
 
 }

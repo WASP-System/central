@@ -4,15 +4,21 @@ import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 
 	public GenericStatusMessageTemplate(){
 		super();
+	}
+	
+	public GenericStatusMessageTemplate(Message<WaspStatus> message){
+		super(message);
+		if (!isMessageOfCorrectType(message))
+			throw new WaspMessageInitializationException("message is not of the correct type");
 	}
 	
 	/**
@@ -80,6 +86,16 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (message.getHeaders().containsKey(WaspTask.HEADER_KEY) && message.getHeaders().get(WaspTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
+	}
+	
+	/**
+	 * Returns true is the message is of the correct WaspMessageType
+	 * @param message
+	 * @return
+	 */
+	public static boolean isMessageOfCorrectType(Message<?> message) {
+		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.GENERIC);
 	}
 
 }

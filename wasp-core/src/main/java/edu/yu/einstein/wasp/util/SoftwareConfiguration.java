@@ -21,7 +21,7 @@ public class SoftwareConfiguration implements Serializable{
 	
 	public SoftwareConfiguration(Software software) {
 		this.software = software;
-		this.parameterMap = new HashMap<String, String>();;
+		this.parameterMap = new HashMap<String, String>();
 	}
 	
 	public SoftwareConfiguration(Software software, Map<String, String> parameterMap) {
