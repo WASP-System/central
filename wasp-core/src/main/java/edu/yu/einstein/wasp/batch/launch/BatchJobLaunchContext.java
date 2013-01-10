@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class BatchJobLaunchContext implements Serializable{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 404143863227754279L;
 
 	private String jobName;
 	

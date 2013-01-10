@@ -23,11 +23,15 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 public abstract class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
 	
-	@Autowired
 	private FileMetaDao fileMetaDao;
 	
-	public static final String FILETYPE_IS_SINGLE_META_KEY = "filetypeIsSingleton";
-	public static final String FILETYPE_FILE_NUMBER_META_KEY = "filetypeFileNumber";
+	@Autowired
+	public void setFileMetaDao(FileMetaDao fileMetaDao) {
+		this.fileMetaDao = fileMetaDao;
+	}
+	
+	public static final String FILETYPE_IS_SINGLE_META_KEY = "isSingleton";
+	public static final String FILETYPE_FILE_NUMBER_META_KEY = "fileNumber";
 	public static final String FILETYPE_AREA = "filetype";
 
 	@Override
@@ -37,7 +41,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return b.booleanValue();
 	}
 	
-	protected void setSingleFile(File file, boolean single) {
+	public void setSingleFile(File file, boolean single) {
 		Boolean b = new Boolean(single);
 		setMeta(file, FILETYPE_AREA, FILETYPE_IS_SINGLE_META_KEY, b.toString());
 	}
@@ -48,7 +52,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return new Integer(num);
 	}
 	
-	protected void setFileNumber(File file, Integer number) {
+	public void setFileNumber(File file, Integer number) {
 		setMeta(file, FILETYPE_AREA, FILETYPE_FILE_NUMBER_META_KEY, number.toString());
 	}
 	

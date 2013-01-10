@@ -16,7 +16,7 @@
   
 	<!-- define service activator to handle requests to kick off batch jobs -->
 	<int:service-activator input-channel="wasp.channel.queue.launch"  method="launch" >
-		<bean id="batchJobLauncher" class="edu.yu.einstein.wasp.batch.launch.WaspBatchJobLauncher">
+		<bean id="batchJobLauncher" class="edu.yu.einstein.wasp.batch.launch.BatchJobLaunchServiceImpl">
 			<constructor-arg name="jobLauncher" ref="jobLauncher" />
 			<constructor-arg name="jobRegistry" ref="jobRegistry" />
 		</bean>

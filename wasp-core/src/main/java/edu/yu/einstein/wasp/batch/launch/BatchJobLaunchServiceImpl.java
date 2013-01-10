@@ -23,23 +23,23 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 
 /**
- * WaspBatchJobLauncher. Launch Spring Batch jobs
+ * BatchJobLaunchServiceImpl. Launch Spring Batch jobs
  * @author asmclellan
  *
  */
-public class WaspBatchJobLauncher implements BatchJobLauncher{
+public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 	
 	private JobLauncher jobLauncher;
 	
 	private JobRegistry jobRegistry;
 	
-	private static Logger logger = LoggerFactory.getLogger(WaspBatchJobLauncher.class);
+	private static Logger logger = LoggerFactory.getLogger(BatchJobLaunchServiceImpl.class);
 	
-	public WaspBatchJobLauncher(JobLauncher jobLauncher, JobRegistry jobRegistry) {
+	public BatchJobLaunchServiceImpl(JobLauncher jobLauncher, JobRegistry jobRegistry) {
 		this.jobLauncher = jobLauncher;
 		this.jobRegistry = jobRegistry;
 	}

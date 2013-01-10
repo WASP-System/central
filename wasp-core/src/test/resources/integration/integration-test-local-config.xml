@@ -8,5 +8,7 @@
 	<!-- local imports  -->
 	<context:component-scan base-package="edu.yu.einstein.wasp.integration.test.stubs" />
 	<context:property-placeholder location="classpath:integration.properties" ignore-unresolvable="true"/>
+	
+	<bean id="sampleServiceImpl" class="edu.yu.einstein.wasp.test.stubs.StubSampleService" />
 
 </beans>
