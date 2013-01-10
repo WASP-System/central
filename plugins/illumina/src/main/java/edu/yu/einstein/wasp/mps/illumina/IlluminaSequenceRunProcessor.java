@@ -133,31 +133,6 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 
 	}
 
-
-	/**
-	 * 
-	 */
-	public void processSequenceRun(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void postProcess(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void stage(Run run, GridHostResolver ghs) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
-		// TODO Auto-generated method stub
-
-	}
-
 	/**
 	 * 
 	 * generate an illumina samplesheet. Only useful for sequence conversion and

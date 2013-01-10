@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,10 +25,13 @@ import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
@@ -68,9 +72,15 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 	@Autowired
 	private IlluminaSequenceRunProcessor casava;
+	
+	private GridTransportService transportService;
+	
+	@Autowired
+	private FileType fastqFileType;
 
 	private int runId;
 	private Run run;
+	private String workingDirectory;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -98,31 +108,46 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		w.setSoftwareDependencies(sd);
 		// save the GridWorkService so we can send many jobs there
 		GridWorkService gws = hostResolver.getGridWorkService(w);
+		
+		transportService = gws.getTransportService();
 
-		String stageDir = gws.getTransportService().getConfiguredSetting("illumina.data.stage");
+		String stageDir = transportService.getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
+		
+		workingDirectory = stageDir + "/" + run.getName() + "/";
 
-		w.setWorkingDirectory(stageDir + "/" + run.getName());
-		w.setResultsDirectory(stageDir + "/" + run.getName() + "/wasp/");
+		w.setWorkingDirectory(workingDirectory);
 		
 		w.setCommand("mkdir -p wasp && cd wasp");
 		
 		Set<Sample> allLibraries = new HashSet<Sample>();
+		
+		Sample platformUnit = run.getPlatformUnit();
+		
+		logger.debug("Registering files for " + platformUnit.getName());
 
-		int ncells = sampleService.getNumberOfIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+		int ncells = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
 
+		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
+		
 		// for each cell, get the libraries and link them.
-		for (int c = 0; c < ncells; c++) {
+		for (int c = 1; c <= ncells; c++) {
 
-			List<Sample> libraries = sampleService.getLibrariesOnCell(sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).get(c));
+			Sample cell = cells.get(c);
+			logger.debug("looking for libraries on " + platformUnit.getName() + "'s cell #" + c);
+			if (cell == null)
+				continue;
+			List<Sample> libraries = sampleService.getLibrariesOnCell(cell);
+			logger.debug("found " + libraries.size() + " libraries");
 			allLibraries.addAll(libraries);
 
 			for (Sample s : libraries) {
 				if (sampleService.isControlLibrary(s))
 					continue;
+				logger.debug("setting up for sample " + s.getSampleId());
 				int sid = s.getSampleId();
-				w.addCommand("if [ -e ../Project_WASP/Sample_ " + sid + "/" + sid + "_*_001.fastq.gz ]; then \n" +
+				w.addCommand("if [ -e ../Project_WASP/Sample_" + sid + "/" + sid + "_*_001.fastq.gz ]; then \n" +
 						"  ln -s ../Project_WASP/Sample_" + sid + "/" + sid + "_*fastq.gz .\nfi");
 			}
 
@@ -136,6 +161,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		// will return when complete (also gives access to stdout), only do
 		// this
 		// when the work is expected to be very short running.
+		hostResolver.getGridWorkService(w).getTransportService().connect(w);
 		GridResult r = w.getConnection().sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
@@ -143,12 +169,12 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		String line = br.readLine();
 
 		while (line != null) {
-
 			File file = this.createFile(gws, allLibraries, line);
 			line = br.readLine();
 		}
+		
 
-		return RepeatStatus.CONTINUABLE;
+		return RepeatStatus.FINISHED;
 
 	}
 
@@ -175,12 +201,14 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			return null;
 
 		File file = new File();
-		file.setFileURI(gws.getGridFileService().remoteFileRepresentationToLocalURI(line));
+		file.setFileURI(gws.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + line));
 		String actualBarcode = sampleService.getLibraryAdaptor(library).getBarcodesequence();
 		if (!actualBarcode.equals(barcode)) {
 			logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
 			throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
 		}
+		file.setFileType(fastqFileType);
+		file.setSoftwareGeneratedBy(casava);
 
 		fileService.addFile(file);
 		fileService.setSampleFile(file, library);
@@ -188,6 +216,17 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		fqs.setSingleFile(file, false);
 		fqs.setFileNumber(file, fileNum);
 		fqs.setFastqReadSegmentNumber(file, read);
+		
+		SoftwareManager sm = transportService.getSoftwareManager();
+		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
+		
+		boolean f = false;
+		if (PropertyHelper.isSet(failed) && failed == "true")
+			f = true;
+		fqs.setReadsMarkedFailed(file, f);
+		
+		
+		logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getFileId());
 
 		return file;
 	}
