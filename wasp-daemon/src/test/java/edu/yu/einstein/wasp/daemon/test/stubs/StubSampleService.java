@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.daemon.test.stubs;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -639,6 +640,54 @@ public class StubSampleService implements SampleService {
 	public void sortSamplesBySampleId(List<Sample> samples) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isCell(Sample cell) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isControlLibrary(Sample library) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
