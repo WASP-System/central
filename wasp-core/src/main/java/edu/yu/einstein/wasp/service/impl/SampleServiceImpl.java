@@ -1438,6 +1438,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return false;		
 	}
 	
+	@Override
+	public boolean isControlLibrary(Sample library) {
+		Assert.assertParameterNotNull(library, "No library provided");
+		if (this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

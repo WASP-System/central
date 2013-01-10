@@ -790,12 +790,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
 
+	  public boolean isControlLibrary(Sample library);
+
 		
 
-	  
-
-	 
-	  
-	  
-	  
 }

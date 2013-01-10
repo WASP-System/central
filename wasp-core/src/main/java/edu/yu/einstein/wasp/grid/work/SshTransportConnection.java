@@ -102,6 +102,9 @@ public class SshTransportConnection implements GridTransportConnection {
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
+			if (w.getWorkingDirectory() != null && !w.getWorkingDirectory().equals("") && !w.getWorkingDirectory().equals("~"))
+				w.setWorkingDirectory(transportService.prefixRemoteFile(w.getWorkingDirectory()));
+				command = "cd " + w.getWorkingDirectory() + " && " + command;
 			command = "source ~/.bash_profile && " + command;
 			logger.debug("sending exec: " + command + " at: " + transportService.getHostName());
 
