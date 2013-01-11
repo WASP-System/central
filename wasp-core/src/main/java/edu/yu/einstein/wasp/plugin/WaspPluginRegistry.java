@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.Message;
+import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
@@ -140,6 +141,23 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		}
 		
 		return flownames;
+	}
+	
+	/**
+	 * gets a named plugin from the registry or returns null if there are no matches
+	 * to name or the object obtained cannot be cast to the specified type
+	 * @param name
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends WaspPlugin> T getPlugin(String name, Class<T> clazz){
+		if (plugins.containsKey(name) && clazz.isInstance(plugins.get(name)))
+			return (T) plugins.get(name);
+		return null;	
+	}
+	
+	public Set<String> getNames(){
+		return messageChannels.keySet();
 	}
 
 }
