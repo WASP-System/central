@@ -93,4 +93,12 @@ public class LocalhostTransportService implements GridTransportService {
 		return null;
 	}
 
+	@Override
+	public String prefixRemoteFile(String filespec) {
+		String prefix = "";
+		if (isUserDirIsRoot()) prefix = "$HOME/";
+		String retval = prefix + filespec;
+		return retval.replaceAll("//", "/");
+	}
+
 }

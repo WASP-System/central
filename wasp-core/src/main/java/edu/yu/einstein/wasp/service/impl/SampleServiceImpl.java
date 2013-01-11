@@ -1,9 +1,8 @@
 /**
  *
  * SampleServiceImpl.java 
- * @author echeng (table2type.pl)
- *  
- * the SampleService Implmentation 
+ * 
+ * the SampleService Implementation 
  *
  *
  **/
@@ -69,13 +68,12 @@ import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
 import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
@@ -869,7 +867,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public Sample getPlatformUnitForCell(Sample cell) throws SampleTypeException, SampleParentChildException{
 		  Assert.assertParameterNotNull(cell, "No Cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
-		  if (!cell.getSampleType().getIName().equals("cell")){
+		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
 		  Map<String,Integer> q = new HashMap<String,Integer>();
@@ -906,7 +904,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample cell = ss.getSourceSample();
 			  Integer index = ss.getIndex();
-			  if (!cell.getSampleType().getIName().equals("cell")){
+			  if (!isCell(cell)){
 				  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 			  }
 			  indexedCells.put(index, cell);
@@ -938,7 +936,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
 			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		  }
-		  if (!cell.getSampleType().getIName().equals("cell")){
+		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
 		  if (index < 1)
@@ -1003,7 +1001,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  private List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
-		  if (!cell.getSampleType().getIName().equals("cell")){
+		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
 		  List<Sample> libraries = new ArrayList<Sample>();
@@ -1065,7 +1063,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(library, "No library provided");
 		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
 		  Assert.assertParameterNotNull(libConcInLanePicoM, "No lib conc provided");
-		  if (!cell.getSampleType().getIName().equals("cell")){
+		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
 		  if (!this.isLibrary(library)){
@@ -1440,6 +1438,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return false;		
 	}
 	
+	@Override
+	public boolean isControlLibrary(Sample library) {
+		Assert.assertParameterNotNull(library, "No library provided");
+		if (this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1698,7 +1705,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				if(sampleSourceList != null && sampleSourceList.size() > 0){//should be true for all updates
 					for (SampleSource ss : sampleSourceList){
 						Sample cell = ss.getSourceSample();
-						if (!cell.getSampleType().getIName().equals("cell")){
+						if (!isCell(cell)){
 							throw new SampleTypeException("Expected 'cell' while updating cell name but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 						}
 						Integer index = ss.getIndex();
@@ -1748,7 +1755,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
 				for (SampleSource ss : platformUnitDb.getSampleSource()){
 					Sample cell = ss.getSourceSample();
-					if (!cell.getSampleType().getIName().equals("cell")){
+					if (!isCell(cell)){
 						throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 					}
 					Integer index = ss.getIndex();
@@ -1784,7 +1791,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 			for (SampleSource puCellLink : platformUnit.getSampleSource()){//represents pu-cell link
 				Sample cell = puCellLink.getSourceSample();//cell is the lane
-				if (!cell.getSampleType().getIName().equals("cell")){//confirm its a cell
+				if (!isCell(cell)){//confirm its a cell
 					throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 				}
 				for(SampleSource cellLibraryLink : cell.getSampleSource()){// each cellLibraryLink represents a cell-library link
@@ -1992,7 +1999,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
 		Assert.assertParameterNotNull(library, "No Library provided");
 		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
-		if (!cell.getSampleType().getIName().equals("cell"))
+		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
@@ -2009,7 +2016,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
 		Sample cell = puCellLink.getSourceSample();//cell is the lane
-		if (!cell.getSampleType().getIName().equals("cell")){
+		if (!isCell(cell)){
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		}
 		if(!puCellLink.getSample().getSampleType().getIName().equals("platformunit")){
@@ -2250,4 +2257,124 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public List<MetaMessage> getSampleQCComments(Integer sampleId){
 		return metaMessageService.read("sampleQCComment", sampleId, SampleMeta.class, sampleMetaDao);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isCell(Sample cell){
+		return cell.getSampleType().getIName().equals("cell");
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
+		Assert.assertParameterNotNull("run", "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Set<Sample> librariesOnRun = new HashSet<Sample>();
+		try {
+			for (Sample cell: this.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell))
+					librariesOnRun.addAll(this.getLibrariesOnCellWithoutControls(cell));	
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return librariesOnRun;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId){
+		Assert.assertParameterNotNull("runId", "a runId must be provided");
+		Run run = runService.getRunById(runId);
+		return getLibrariesOnSuccessfulRunCells(run);
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull("run", "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Set<Sample> librariesOnRun = new HashSet<Sample>();
+		try {
+			for (Sample cell: this.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell))
+					librariesOnRun.addAll(this.getLibrariesOnCell(cell));	
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return librariesOnRun;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId){
+		Assert.assertParameterNotNull("runId", "a runId must be provided");
+		Run run = runService.getRunById(runId);
+		return getLibrariesOnSuccessfulRunCellsWithoutControls(run);
+	}
+	
+	
+
+	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
+	private static final String CELL_SUCCESS_META_AREA = "cell";
+	private static final String CELL_SUCCESS_META_KEY = "success";
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		String success = null;
+		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		try{
+			success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
+		} catch(MetadataException e) {
+			return false; // no value exists already
+		}
+		Boolean b = new Boolean(success);
+		return b.booleanValue();
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException {
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		Boolean b = new Boolean(success);
+		String successString = b.toString();
+		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		SampleMeta sampleMeta = null;
+		try{
+			sampleMeta = MetaHelper.getMetaObjectFromList(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
+			if (sampleMeta.getV().equals(successString)){ // no change in value
+				return;
+			}
+		} catch(MetadataException e) {
+			// doesn't exist so create
+			sampleMeta = new SampleMeta();
+			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
+		}
+		sampleMeta.setV(successString);
+		sampleMetaDao.updateBySampleId(cell.getSampleId(), sampleMeta);
+	}
+	
 }

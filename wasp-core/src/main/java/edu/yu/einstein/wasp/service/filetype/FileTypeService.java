@@ -20,7 +20,7 @@ public interface FileTypeService {
 	public boolean isSingleFile(File file);
 	
 	/**
-	 * get the number of the file in the series.  Always 0-based and null if there is only one file.
+	 * get the number of the file in the series.  Always 0-based and 0 or null if there is only one file.
 	 * 
 	 * @param file
 	 * @return integer or null

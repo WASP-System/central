@@ -21,8 +21,8 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.test.stubs.StubSampleDao;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/dummyBatchJobFlow.xml"})
@@ -66,7 +66,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	
 		
 	/**
-	 * Test getting correct reply from WaspBatchJobLauncher service activator after sending a message to start a batch job 
+	 * Test getting correct reply from BatchJobLaunchServiceImpl service activator after sending a message to start a batch job 
 	 */
 	@Test (groups = "unit-tests-batch-integration")
 	public void testSuccessfulJobLaunch() throws Exception{
@@ -91,7 +91,7 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	}
 	
 	/**
-	 * Test getting correct reply from WaspBatchJobLauncher service activator after sending a message to start a batch job 
+	 * Test getting correct reply from BatchJobLaunchServiceImpl service activator after sending a message to start a batch job 
 	 * containing an non-existent batch job
 	 */
 	@Test (groups = "unit-tests-batch-integration", dependsOnMethods="testSuccessfulJobLaunch")

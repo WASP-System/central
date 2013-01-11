@@ -20,7 +20,7 @@ public interface FastqService extends WaspService {
 	
 	public Integer getFastqNumberOfPassFilterReads(File file) throws InvalidFileTypeException;
 	
-	public boolean containsReadsMarkedFailed(File file) throws InvalidFileTypeException;
+	public boolean isReadsMarkedFailed(File file) throws InvalidFileTypeException;
 	
 	
 	
