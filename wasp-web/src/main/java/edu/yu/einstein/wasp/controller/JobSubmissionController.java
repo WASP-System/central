@@ -1348,6 +1348,9 @@ public class JobSubmissionController extends WaspController {
 			logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 		}
 		sampleDraftForm.setName(sampleDraftForm.getName().trim());//from the form
+		sampleDraftForm.setSampleSubtype(sampleSubtype /*sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(sampleDraftForm.getSampleSubtypeId())*/);
+		sampleDraftForm.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(sampleDraftForm.getSampleTypeId()));//this is needed if we make the call sampleService.isLibrary(sampleDraftForm), without which we throw a nullpointer exception
+
 		validateSampleDraftNameUnique(sampleDraftForm.getName(), sampleDraftId, jobDraft, result);
 		if (result.hasErrors()){
 			waspErrorMessage("sampleDetail.updated.error");
