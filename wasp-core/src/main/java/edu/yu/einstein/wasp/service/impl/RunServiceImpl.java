@@ -22,12 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.batch.core.WaspBatchJobTypes;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
@@ -200,7 +200,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
-			String flowName = plugin.getFlowNameFromArea(rcIname);
+			String flowName = plugin.getBatchJobNameByArea(WaspBatchJobTypes.GENERIC, rcIname);
 			try {
 				launchBatchJob(flowName, jobParameters);
 			} catch (WaspMessageBuildingException e) {

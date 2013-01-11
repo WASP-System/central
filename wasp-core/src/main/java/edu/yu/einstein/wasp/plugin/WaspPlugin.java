@@ -47,6 +47,8 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public abstract class WaspPlugin extends HashMap<String, String> implements
 		InitializingBean, DisposableBean, ClientMessageI {
 
+	private static final long serialVersionUID = 44139013862650632L;
+
 	private Set<SoftwarePackage> provides = new HashSet<SoftwarePackage>();
 
 	private Set<String> handles = new HashSet<String>();
@@ -189,8 +191,6 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		this.pluginName = pluginName;
 	}
 
-	public abstract Set<String> getBatchJobNames();
-
 	/**
 	 * @return the messageChannel
 	 */
@@ -206,6 +206,20 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		this.messageChannel = messageChannel;
 	}
 	
-	public abstract String getFlowNameFromArea(String area);
+	/**
+	 * get batch job name given a batchJobType
+	 * @param area
+	 * @param BatchJobType
+	 * @return
+	 */
+	public abstract String getBatchJobName(String BatchJobType);
+	
+	/**
+	 * get batch job name given a resource category and batchJobType
+	 * @param area
+	 * @param BatchJobType
+	 * @return
+	 */
+	public abstract String getBatchJobNameByArea(String BatchJobType, String area);
 
 }
