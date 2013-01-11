@@ -15,6 +15,8 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}
@@ -128,19 +130,23 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		}
 	}
 	
-	public Set<String> getFlowNamesFromArea(String area) {
-		HashSet<String> flownames = new HashSet<String>();
-		
+	
+	/**
+	 * gets all plugins handling a known area from the registry or returns null if there are no matches
+	 * to name or the object obtained cannot be cast to the specified type
+	 * @param name
+	 * @return
+	 */
+	public Set<WaspPlugin> getPluginsHandlingArea(String area){
+		Set<WaspPlugin> pluginsHandlingArea = new HashSet<WaspPlugin>();
 		for (String name : plugins.keySet()) {
 			WaspPlugin plugin = plugins.get(name);
 			Set<String> handles = plugin.getHandles();
-		
 			if (handles == null || ! handles.contains(area))
 				continue;
-			flownames.add(plugin.getFlowNameFromArea(area));
+			pluginsHandlingArea.add(plugin);
 		}
-		
-		return flownames;
+		return pluginsHandlingArea;
 	}
 	
 	/**
@@ -156,8 +162,5 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		return null;	
 	}
 	
-	public Set<String> getNames(){
-		return messageChannels.keySet();
-	}
 
 }
