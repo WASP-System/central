@@ -678,4 +678,17 @@ public class StubSampleService implements SampleService {
 		return false;
 	}
 
+	@Override
+	public void updateSampleMeta(Sample sample, List<SampleMeta> sampleMetaList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw,
+			List<SampleMeta> sampleMetaList) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
