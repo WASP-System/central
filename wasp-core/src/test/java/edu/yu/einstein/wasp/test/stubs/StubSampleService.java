@@ -8,6 +8,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -684,6 +685,8 @@ public class StubSampleService implements SampleService {
 		
 	}
 
+
+	
 	@Override
 	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw,
 			List<SampleMeta> sampleMetaList) {

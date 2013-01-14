@@ -11,6 +11,7 @@ import org.springframework.integration.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -701,6 +702,12 @@ public class StubSampleService implements SampleService {
 		return false;
 	}
 
+	@Override
+	public void updateSampleMeta(Sample sample, List<SampleMeta> sampleMetaList){
+		
+		
+	}
+	
 	@Override
 	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw,
 			List<SampleMeta> sampleMetaList) {
