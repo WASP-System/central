@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -178,7 +179,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 	}
 
-	private File createFile(GridWorkService gws, Set<Sample> samples, String line) throws SampleException, InvalidFileTypeException {
+	private File createFile(GridWorkService gws, Set<Sample> samples, String line) throws SampleException, InvalidFileTypeException, MetadataException {
 
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
 
