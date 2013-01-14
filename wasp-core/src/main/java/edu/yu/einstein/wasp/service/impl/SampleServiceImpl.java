@@ -257,8 +257,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Transactional("entityManager")
 	  public void saveSampleWithAssociatedMeta(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  sampleDao.save(sample);
-		  sampleMetaDao.updateBySampleId(sample.getSampleId(), sample.getSampleMeta());
+		  //create new reference to sample.sampleMeta, for use in the sampleMetaDoa call, as sample.getSampleMeta() returns an empty list following the save(sample) [due to entityManager.refresh(sample) performed in SampleDao.save()]
+		  List<SampleMeta> sampleMetaList = sample.getSampleMeta();		  
+		  Sample sampleInDB=sampleDao.save(sample);
+		  try {
+			  sampleMetaDao.setMeta(sampleMetaList, sampleInDB.getSampleId());
+		  } catch (MetadataException e) {
+			  logger.warn(e.getLocalizedMessage());
+		  }
 	  }
 	  
 	  /**
@@ -1140,7 +1146,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  MetaHelper metaHelper = new MetaHelper("LibraryOnCell", SampleSourceMeta.class);
 			  metaHelper.setMetaValueByName("libConcInLanePicoM", libConcInLanePicoM.toString());
 			  metaHelper.setMetaValueByName("jobId", library.getJob().getJobId().toString());
-			  sampleSourceMetaDao.updateBySampleSourceId(newSampleSource.getSampleSourceId(), (List<SampleSourceMeta>) metaHelper.getMetaList());
+			  sampleSourceMetaDao.setMeta((List<SampleSourceMeta>) metaHelper.getMetaList(), newSampleSource.getSampleSourceId());
 		  } catch(MetadataException e){
 			  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
 		  }
@@ -1666,7 +1672,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
 				throw new SampleException("new platform unit unexpectedly not saved");
 			}
-			sampleMetaDao.updateBySampleId(platformUnitDb.getSampleId(), sampleMetaList); // persist the metadata; no way to check as this returns void
+			sampleMetaDao.setMeta(sampleMetaList, platformUnitDb.getSampleId()); // persist the metadata; no way to check as this returns void
 		
 			//barcode
 			List<SampleBarcode> sampleBarcodeList = platformUnitDb.getSampleBarcode();//any barcodes exist for this platform unit?
@@ -1958,7 +1964,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if(runDB==null || runDB.getRunId()==null || runDB.getRunId().intValue()<=0){
 				throw new SampleException("new run unexpectedly not saved");
 			}
-			runMetaDao.updateByRunId(runDB.getRunId(), runMetaList); // persist the metadata; no way to check as this returns void
+			runMetaDao.setMeta(runMetaList, runDB.getRunId()); // persist the metadata; no way to check as this returns void
 			
 		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
 		return;
@@ -2163,29 +2169,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws MetadataException 
 	 */
 	@Override
-	public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException{
+	public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException, MetadataException{
 		Assert.assertParameterNotNull(platformunit, "platformunit cannot be null");
 		Assert.assertParameterNotNull(lockStatus, "lockStatus cannot be null");
 		if (!isPlatformUnit(platformunit))
 			throw new SampleTypeException("sample is not a platformunit");
-		SampleMeta currentLockStatusMeta = null;
-		List<SampleMeta> sampleMetaList = platformunit.getSampleMeta();
-		if (sampleMetaList == null)
-			sampleMetaList = new ArrayList<SampleMeta>();
-		try{
-			currentLockStatusMeta = MetaHelper.getMetaObjectFromList(LOCK_META_AREA, LOCK_META_KEY, sampleMetaList);
-			if (currentLockStatusMeta.getV().equals(lockStatus.toString())){ // no change in value
-				return;
-			}
-		} catch(MetadataException e) {
-			// doesn't exist so create
-			currentLockStatusMeta = new SampleMeta();
-			currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_AREA);
-		}
+		SampleMeta currentLockStatusMeta = new SampleMeta();
+		currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_AREA);
 		currentLockStatusMeta.setV(lockStatus.toString());
-		sampleMetaDao.updateBySampleId(platformunit.getSampleId(), currentLockStatusMeta);
+		currentLockStatusMeta.setSampleId(platformunit.getSampleId());
+		sampleMetaDao.setMeta(currentLockStatusMeta);
 	}
 	
 	/**
@@ -2262,6 +2258,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList){
+		sw.updateMetaToList(sampleMetaList, sampleMetaDao);
+		sw.saveAll(this);
+	}
+
 	public boolean isCell(Sample cell){
 		return cell.getSampleType().getIName().equals("cell");
 	}
@@ -2352,29 +2353,20 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	/**
 	 *  {@inheritDoc}
+	 * @throws MetadataException 
 	 */
 	@Override
-	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException {
+	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
 		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		Boolean b = new Boolean(success);
 		String successString = b.toString();
-		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
-		if (sampleMetaList == null)
-			sampleMetaList = new ArrayList<SampleMeta>();
-		SampleMeta sampleMeta = null;
-		try{
-			sampleMeta = MetaHelper.getMetaObjectFromList(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
-			if (sampleMeta.getV().equals(successString)){ // no change in value
-				return;
-			}
-		} catch(MetadataException e) {
-			// doesn't exist so create
-			sampleMeta = new SampleMeta();
-			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
-		}
+		SampleMeta sampleMeta = new SampleMeta();
+		sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
 		sampleMeta.setV(successString);
-		sampleMetaDao.updateBySampleId(cell.getSampleId(), sampleMeta);
+		sampleMeta.setSampleId(cell.getSampleId());
+		sampleMetaDao.setMeta(sampleMeta);
 	}
 	
 }
+

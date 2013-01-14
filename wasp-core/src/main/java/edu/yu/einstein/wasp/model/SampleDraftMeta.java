@@ -60,31 +60,31 @@ public class SampleDraftMeta extends MetaBase {
 
 
 	/** 
-	 * sampledraftId
+	 * sampleDraftId
 	 *
 	 */
 	@Column(name="sampledraftid")
-	protected Integer sampledraftId;
+	protected Integer sampleDraftId;
 
 	/**
-	 * setSampledraftId(Integer sampledraftId)
+	 * setSampledraftId(Integer sampleDraftId)
 	 *
-	 * @param sampledraftId
+	 * @param sampleDraftId
 	 *
 	 */
 	
-	public void setSampledraftId (Integer sampledraftId) {
-		this.sampledraftId = sampledraftId;
+	public void setSampleDraftId (Integer sampleDraftId) {
+		this.sampleDraftId = sampleDraftId;
 	}
 
 	/**
 	 * getSampledraftId()
 	 *
-	 * @return sampledraftId
+	 * @return sampleDraftId
 	 *
 	 */
-	public Integer getSampledraftId () {
-		return this.sampledraftId;
+	public Integer getSampleDraftId () {
+		return this.sampleDraftId;
 	}
 
 
@@ -107,7 +107,7 @@ public class SampleDraftMeta extends MetaBase {
 	 */
 	public void setSampleDraft (SampleDraft sampleDraft) {
 		this.sampleDraft = sampleDraft;
-		this.sampledraftId = sampleDraft.sampleDraftId;
+		this.sampleDraftId = sampleDraft.sampleDraftId;
 	}
 
 	/**

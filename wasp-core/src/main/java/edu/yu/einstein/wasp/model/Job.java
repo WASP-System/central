@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -559,7 +560,12 @@ public class Job extends WaspModel {
 	 */
 	@JsonIgnore
 	public List<Sample> getSample() {
-		return this.sample;
+		//return this.sample; //commented out 1-11-13; this line is not going through the jobSample table
+		List<Sample> sampleList = new ArrayList<Sample>();
+		for(JobSample js : this.getJobSample()){
+			sampleList.add(js.getSample());
+		}
+		return sampleList;
 	}
 
 

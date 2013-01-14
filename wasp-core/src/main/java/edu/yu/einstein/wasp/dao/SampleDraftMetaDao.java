@@ -18,13 +18,12 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 
 
-public interface SampleDraftMetaDao extends WaspDao<SampleDraftMeta> {
+public interface SampleDraftMetaDao extends WaspMetaDao<SampleDraftMeta> {
 
   public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId);
 
   public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId);
 
-  public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList);
   
   /**
    * Returns a Map of sampleSubtypes and associated field metadata (i.e. that with a metaposition) associated with the provided workflow

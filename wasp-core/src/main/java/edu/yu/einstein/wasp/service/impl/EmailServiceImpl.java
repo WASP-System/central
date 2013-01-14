@@ -315,7 +315,7 @@ public class EmailServiceImpl implements EmailService{
 			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 		}
 		else{
-			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated userId or userPendingId");
+			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated UserId or userPendingId");
 		}
 		
 		Department department = departmentDao.getDepartmentByDepartmentId(labPending.getDepartmentId());

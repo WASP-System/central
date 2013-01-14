@@ -42,6 +42,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -132,6 +133,50 @@ public class JobController extends WaspController {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 
+	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
+	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		m.addAttribute("parentArea", "job");
+		
+		List<Software> softwareList = new ArrayList<Software>();
+		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();
+		MetaHelperWebapp mhwa = getMetaHelperWebapp();
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		for(JobSoftware js : job.getJobSoftware()){
+			Software sw = js.getSoftware();
+			softwareList.add(sw);
+			mhwa.setArea(js.getSoftware().getIName());
+			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
+			softwareMap.put(sw, softwareMetaList);
+		}
+		
+		m.addAttribute("softwareList", softwareList);
+		m.addAttribute("softwareMap", softwareMap);
+		
+/*
+		mhwa.setArea("chipSeqPlugin.samplePairsTvsC");
+		List<JobMeta> assaySpecificMetaList = mhwa.syncWithMaster(jobMetaList);
+		Set<String> selectedSamplePairs = new HashSet<String>();
+		
+		if (assaySpecificMetaList != null && assaySpecificMetaList.size() > 0){
+			for(String pair: assaySpecificMetaList.get(0).getV().split(";")){
+				String[] pairList = pair.split(":");
+				selectedSamplePairs.add("testVsControl_"+pairList[0]+"_"+pairList[1]);
+			}
+		}
+		m.addAttribute("selectedSamplePairs", selectedSamplePairs);
+		m.addAttribute("samples", jobService.getSubmittedSamples(job));
+*/		
+		return "job/analysisParameters";
+	}
+	
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -208,7 +253,7 @@ public class JobController extends WaspController {
 
 		prepareSelectListData(m);
 		
-		String userId = request.getParameter("userId");//don't think these two params are used here
+		String userId = request.getParameter("UserId");//don't think these two params are used here
 		String labId = request.getParameter("labId");
 		
 		m.addAttribute("viewerIsFacilityMember", "false");
@@ -248,9 +293,9 @@ public class JobController extends WaspController {
 		String createDateAsString = request.getParameter("createts")==null?null:request.getParameter("createts").trim();//if not passed, will be null
 		//logger.debug("jobIdAsString = " + jobIdAsString);logger.debug("jobname = " + jobname);logger.debug("submitterNameAndLogin = " + submitterNameAndLogin);logger.debug("piNameAndLogin = " + piNameAndLogin);logger.debug("createDateAsString = " + createDateAsString);
 
-		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?userId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
+		//Additional URL parameters coming from a call from the userGrid (example: job/list.do?UserId=2&labId=3). [A similar url call came from dashboard, but on 8/16/12 it was altered and no longer sends any parameter]  
 		//Note that these two request parameters attached to the URL SHOULD BE mutually exclusive with submitter and pi coming from the jobGrid's toolbar
-		String userIdFromURL = request.getParameter("userId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		String userIdFromURL = request.getParameter("UserId");//if not passed, UserId is the empty string (interestingly, it's value is not null)
 		String labIdFromURL = request.getParameter("labId");//if not passed, labId is the empty string (interestingly, it's value is not null)
 		//logger.debug("userIdFromURL = " + userIdFromURL);logger.debug("labIdFromURL = " + labIdFromURL);
 		
@@ -267,7 +312,7 @@ public class JobController extends WaspController {
 		
 		//nothing to do to deal with jobname
 		
-		//deal with submitter from grid and userId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
+		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
 		User submitter = null;
 		//from grid
 		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
@@ -282,7 +327,7 @@ public class JobController extends WaspController {
 					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
-		}//else deal with the userId from URL next
+		}//else deal with the UserId from URL next
 		else if(userIdFromURL != null && !userIdFromURL.isEmpty()){//something was passed; should be a number 
 			Integer submitterIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL);//returns null is unable to convert
 			if(submitterIdAsInteger == null){
@@ -652,12 +697,12 @@ public class JobController extends WaspController {
   }
 
 
-  @RequestMapping(value="/user/roleRemove/{labId}/{jobId}/{userId}", method=RequestMethod.GET)
+  @RequestMapping(value="/user/roleRemove/{labId}/{jobId}/{UserId}", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String departmentUserRoleRemove (
       @PathVariable("labId") Integer labId,
       @PathVariable("jobId") Integer jobId,
-      @PathVariable("userId") Integer userId,
+      @PathVariable("UserId") Integer userId,
       ModelMap m) {
   
     JobUser jobUser = jobUserDao.getJobUserByJobIdUserId(jobId, userId);

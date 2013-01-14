@@ -22,14 +22,14 @@ import edu.yu.einstein.wasp.model.SampleSourceMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class SampleSourceMetaDao extends WaspDaoImpl<SampleSourceMeta> implements edu.yu.einstein.wasp.dao.SampleSourceMetaDao {
+public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> implements edu.yu.einstein.wasp.dao.SampleSourceMetaDao {
 
 	/**
 	 * SampleSourceMetaDaoImpl() Constructor
 	 *
 	 *
 	 */
-	public SampleSourceMetaDao() {
+	public SampleSourceMetaDaoImpl() {
 		super();
 		this.entityClass = SampleSourceMeta.class;
 	}
@@ -88,32 +88,7 @@ public class SampleSourceMetaDao extends WaspDaoImpl<SampleSourceMeta> implement
 
 
 
-	/**
-	 * updateBySampleSourceId (final int sampleSourceId, final List<SampleSourceMeta> metaList)
-	 *
-	 * @param sampleSourceId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampleSourceId (final int sampleSourceId, final List<SampleSourceMeta> metaList) {
-		for (SampleSourceMeta m:metaList) {
-			SampleSourceMeta currentMeta = getSampleSourceMetaByKSampleSourceId(m.getK(), sampleSourceId);
-			if (currentMeta.getSampleSourceMetaId() == null){
-				// metadata value not in database yet
-				m.setSampleSourceId(sampleSourceId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
+
 
 
 	@Override
