@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu.einstein.wasp.dao.SampleMetaDao {
+public class SampleMetaDaoImpl extends WaspMetaDaoImpl<SampleMeta> implements edu.yu.einstein.wasp.dao.SampleMetaDao {
 
 	/**
 	 * SampleMetaDaoImpl() Constructor
@@ -87,59 +87,6 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	}
 
 
-
-
-	/**
-	 * updateBySampleId (final int sampleId, final List<SampleMeta> metaList)
-	 *
-	 * @param sampleId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
-		for (SampleMeta m:metaList) {
-			SampleMeta currentMeta = getSampleMetaByKSampleId(m.getK(), sampleId);
-			if (currentMeta.getSampleMetaId() == null){
-				// metadata value not in database yet
-				m.setSampleId(sampleId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-	
-	/**
-	 * updateBySampleId (final int sampleId, final SampleMeta m)
-	 *
-	 * @param sampleId
-	 * @param m
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampleId (final int sampleId, final SampleMeta m) {
-		SampleMeta currentMeta = getSampleMetaByKSampleId(m.getK(), sampleId);
-		if (currentMeta.getSampleMetaId() == null){
-			// metadata value not in database yet
-			m.setSampleId(sampleId);
-			entityManager.persist(m);
-		} else if (!currentMeta.getV().equals(m.getV())){
-			// meta exists already but value has changed
-			currentMeta.setV(m.getV());
-			entityManager.merge(currentMeta);
-		} else{
-			// no change to meta so do nothing
-		}
-	}
 
 
 	@Override

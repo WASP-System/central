@@ -313,7 +313,7 @@ public class JobSubmissionController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		
-		String userId = request.getParameter("userId");
+		String userId = request.getParameter("UserId");
 		String labId = request.getParameter("labId");//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 		
 		//result
@@ -1282,7 +1282,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
 		Map<String, Integer> query = new HashMap<String, Integer>();
-		query.put("sampledraftId", sampleDraftId);
+		query.put("sampleDraftId", sampleDraftId);
 		for (SampleDraftJobDraftCellSelection cellSelection : sampleDraft.getSampleDraftJobDraftCellSelection()){
 			sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
 		}
@@ -1365,8 +1365,13 @@ public class JobSubmissionController extends WaspController {
 		if (!sampleDraft.getName().equals(sampleDraftForm.getName()))
 			sampleDraft.setName(sampleDraftForm.getName());
 		sampleDraftDao.save(sampleDraft);
-		sampleDraftMetaDao.updateBySampledraftId(sampleDraft.getSampleDraftId(), metaFromForm);
-		waspMessage("sampleDetail.updated_success.label");
+		try{
+			sampleDraftMetaDao.setMeta(metaFromForm, sampleDraft.getSampleDraftId());
+			waspMessage("sampleDetail.updated_success.label");
+		} catch (MetadataException e){
+			waspErrorMessage("sampleDetail.updated.error");
+			logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+		}
 		//replaced 12-7-12; WASP-181   return "redirect:/jobsubmit/samples/view/"+jobDraftId+"/"+sampleDraftId+".do";
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
@@ -1488,7 +1493,12 @@ public class JobSubmissionController extends WaspController {
 		sampleDraftForm.setUserId(jobDraft.getUserId());
 		sampleDraftForm.setJobDraftId(jobDraftId);
 		SampleDraft sampleDraftDb = sampleDraftDao.save(sampleDraftForm);
-		sampleDraftMetaDao.updateBySampledraftId(sampleDraftDb.getSampleDraftId(), metaFromForm);
+		try {
+			sampleDraftMetaDao.setMeta(metaFromForm, sampleDraftDb.getSampleDraftId());
+		} catch (MetadataException e) {
+			waspErrorMessage("sampleDetail.updated.error");
+			logger.warn("Failed to update metadata!!: " + e.getLocalizedMessage());
+		}
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}

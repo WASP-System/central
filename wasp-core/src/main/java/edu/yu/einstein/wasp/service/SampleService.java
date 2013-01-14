@@ -623,8 +623,9 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param platformunit
 	   * @param lockStatus
 	   * @throws SampleTypeException
+	 * @throws MetadataException 
 	   */
-	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException;
+	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * Get the current lock status for a platform unit or LockStatus.UNKNOWN if not set
@@ -787,8 +788,9 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param cell
 	   * @param success
 	   * @throws SampleTypeException
+	 * @throws MetadataException 
 	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 
 	  public boolean isControlLibrary(Sample library);
 

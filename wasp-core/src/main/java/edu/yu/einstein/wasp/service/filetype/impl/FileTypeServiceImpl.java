@@ -41,7 +41,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return b.booleanValue();
 	}
 	
-	public void setSingleFile(File file, boolean single) {
+	public void setSingleFile(File file, boolean single) throws MetadataException {
 		Boolean b = new Boolean(single);
 		setMeta(file, FILETYPE_AREA, FILETYPE_IS_SINGLE_META_KEY, b.toString());
 	}
@@ -52,7 +52,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return new Integer(num);
 	}
 	
-	public void setFileNumber(File file, Integer number) {
+	public void setFileNumber(File file, Integer number) throws MetadataException {
 		setMeta(file, FILETYPE_AREA, FILETYPE_FILE_NUMBER_META_KEY, number.toString());
 	}
 	
@@ -70,28 +70,15 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return v;
 	}
 
-	protected void setMeta(File file, String area, String metaKey, String metaValue){
+	protected void setMeta(File file, String area, String metaKey, String metaValue) throws MetadataException{
 		Assert.assertParameterNotNull(file, "file cannot be null");
 		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
 		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
-		List<FileMeta> fileMetaList = file.getFileMeta();
-		if (fileMetaList == null)
-			fileMetaList = new ArrayList<FileMeta>();
-		FileMeta fileMeta = null;
-		try{
-			fileMeta = MetaHelper.getMetaObjectFromList(area, metaKey, fileMetaList);
-			
-			if (fileMeta.getV().equals(metaValue)){ // no change in value
-				return;
-			}
-		} catch(MetadataException e) {
-			// doesn't exist so create
-			fileMeta = new FileMeta();
-			fileMeta.setK(area + "." + metaKey);
-		}
+		FileMeta fileMeta = new FileMeta();
+		fileMeta.setFileId(file.getFileId());
+		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
-		fileMetaDao.updateByFileId(file.getFileId(), fileMeta);
-	
+		fileMetaDao.setMeta(fileMeta);
 	}
 	
 }

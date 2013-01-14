@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceMetaDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
@@ -369,14 +370,19 @@ public class ResourceController extends WaspController {
 			
 			this.resourceDao.merge(resourceDb);
 		}
-
-		resourceMetaDao.updateByResourceId(resourceId, resourceMetaList);
-
 		try {
-			response.getWriter().println(messageService.getMessage("resource.updated_success.label"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
+			try{
+				resourceMetaDao.setMeta(resourceMetaList, resourceId);
+				response.getWriter().println(messageService.getMessage("resource.updated_success.label"));
+				return null;
+			} catch (MetadataException e){
+				logger.warn(e.getLocalizedMessage());
+				response.getWriter().println(messageService.getMessage("resource.updated_meta.error"));
+				return null;
+			}
+			
+		} catch (Throwable e1) {
+			throw new IllegalStateException("Cant output success message ", e1);
 		}
 	}
 
@@ -582,13 +588,17 @@ public class ResourceController extends WaspController {
 		}
 
 		resourceId = resourceDb.getResourceId();
-		resourceMetaDao.updateByResourceId(resourceId,
-				resourceForm.getResourceMeta());
-
-		status.setComplete();
-
-		waspMessage(newResource ? "resource.created_success.label"
+		try{ 
+			resourceMetaDao.setMeta(resourceForm.getResourceMeta(), resourceId);
+	
+			status.setComplete();
+	
+			waspMessage(newResource ? "resource.created_success.label"
 				: "resource.updated_success.label");
+		} catch (MetadataException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("resource.updated.error");
+		}
 
 		return "redirect:/resource/detail_ro/" + resourceId + ".do";
 	}

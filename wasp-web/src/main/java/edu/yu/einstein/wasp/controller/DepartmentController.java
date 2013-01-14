@@ -391,9 +391,9 @@ public class DepartmentController extends WaspController {
 		return "redirect:/department/list.do";
 	}
 
-	@RequestMapping(value = "/user/roleRemove/{departmentId}/{userId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/user/roleRemove/{departmentId}/{UserId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('da-' + #departmentId)")
-	public String departmentUserRoleRemove(@PathVariable("departmentId") Integer departmentId, @PathVariable("userId") Integer userId, ModelMap m) {
+	public String departmentUserRoleRemove(@PathVariable("departmentId") Integer departmentId, @PathVariable("UserId") Integer userId, ModelMap m) {
 
 		DepartmentUser departmentUser = departmentUserDao.getDepartmentUserByDepartmentIdUserId(departmentId, userId);
 

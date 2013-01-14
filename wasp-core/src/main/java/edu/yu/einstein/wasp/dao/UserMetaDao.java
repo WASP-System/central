@@ -16,13 +16,12 @@ import java.util.List;
 import edu.yu.einstein.wasp.model.UserMeta;
 
 
-public interface UserMetaDao extends WaspDao<UserMeta> {
+public interface UserMetaDao extends WaspMetaDao<UserMeta> {
 
   public UserMeta getUserMetaByUserMetaId (final int userMetaId);
 
   public UserMeta getUserMetaByKUserId (final String k, final int UserId);
 
-  public void updateByUserId (final int UserId, final List<UserMeta> metaList);
 
 
 

@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implements edu.yu.einstein.wasp.dao.LabPendingMetaDao {
+public class LabPendingMetaDaoImpl extends WaspMetaDaoImpl<LabPendingMeta> implements edu.yu.einstein.wasp.dao.LabPendingMetaDao {
 
 	/**
 	 * LabPendingMetaDaoImpl() Constructor
@@ -86,35 +86,6 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 		return results.get(0);
 	}
 
-
-
-
-	/**
-	 * updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList)
-	 *
-	 * @param labpendingId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
-		for (LabPendingMeta m:metaList) {
-			LabPendingMeta currentMeta = getLabPendingMetaByKLabpendingId(m.getK(), labpendingId);
-			if (currentMeta.getLabPendingMetaId() == null){
-				// metadata value not in database yet
-				m.setLabpendingId(labpendingId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
 
 
 
