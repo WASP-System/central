@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.model.SampleMeta;
 
@@ -133,11 +134,7 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 		return null;
 	}
 
-	@Override
-	public void updateBySampleId(int sampleId, List<SampleMeta> metaList) {
-		// Auto-generated method stub
 
-	}
 
 	@Override
 	public List<SampleMeta> getSamplesMetaBySampleId(int sampleId) {
@@ -152,10 +149,24 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 		return null;
 	}
 
+
 	@Override
-	public void updateBySampleId(int sampleId, SampleMeta m) {
+	public List<SampleMeta> setMeta(List<SampleMeta> metaList, int modelParentId)
+			throws MetadataException {
 		// TODO Auto-generated method stub
-		
+		return null;
+	}
+
+	@Override
+	public SampleMeta setMeta(SampleMeta meta) throws MetadataException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<SampleMeta> getMeta(int modelParentId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

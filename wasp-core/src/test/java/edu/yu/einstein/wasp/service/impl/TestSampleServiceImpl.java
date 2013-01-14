@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleSourceDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Job;
@@ -132,8 +133,12 @@ public class TestSampleServiceImpl {
 	  
 	  expect(mockSampleDao.save(newsample)).andReturn(newsample);
 	  replay(mockSampleDao);
-	  mockSampleMetaDao.updateBySampleId(1, sampleMetaList);
-	  EasyMock.expectLastCall();
+	  try {
+		expect(mockSampleMetaDao.setMeta(sampleMetaList, 1)).andReturn(null);
+		replay(mockSampleMetaDao);
+		} catch (MetadataException e) {
+			Assert.fail(e.getLocalizedMessage());
+		}
 	  sampleServiceImpl.saveSampleWithAssociatedMeta(newsample);
 	  verify(mockSampleDao);
   }
