@@ -885,7 +885,14 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			Job jobDb = jobDao.save(job); 
 			
 			// Saves the metadata
+			String sampleDraftPairsKey = null;
+			String sampleDraftPairs = null;
 			for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
+				if(jdm.getK().indexOf("samplePairs")>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
+					sampleDraftPairsKey = jdm.getK();
+					sampleDraftPairs = jdm.getV();
+					continue; 
+				}
 				JobMeta jobMeta = new JobMeta();
 				jobMeta.setJobId(jobDb.getJobId());
 				jobMeta.setK(jdm.getK());
@@ -949,6 +956,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			
 			// Create Samples
 			List<Sample> samples = new ArrayList<Sample>();
+			Map<Integer, Integer> sampleDraftIDKeyToSampleIDValueMap = new HashMap<Integer, Integer>();
 			for (SampleDraft sd: jobDraft.getSampleDraft()) {
 				Sample sample = new Sample();
 				sample.setName(sd.getName()); 
@@ -962,6 +970,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 				Sample sampleDb = sampleDao.save(sample); 
 				samples.add(sampleDb);
+				sampleDraftIDKeyToSampleIDValueMap.put(sd.getSampleDraftId(), sampleDb.getSampleId());
 		
 				// sample file
 				if (sd.getFileId() != null) {
@@ -1003,6 +1012,36 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					sampleJobCellSelectionDao.save(sampleJobCellSelection);
 				}
 			}
+			
+			//translate and save sampleDraftPairs
+			StringBuffer samplePairsSB = new StringBuffer();
+			System.out.println("at A");
+			if(sampleDraftPairs != null){
+				System.out.println("SampleDraftPairs at beginning: " + sampleDraftPairs);
+				for(String pair : sampleDraftPairs.split(";")){
+					System.out.println("at B");
+					String[] pairList = pair.split(":");
+					System.out.println("at C");
+					System.out.println("first: " + pairList[0]);
+					System.out.println("second: " + pairList[1]);
+					Integer T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
+					System.out.println("at D: value of T is " + T.toString());
+					System.out.println("at D2: value of T is " + T.toString());
+					Integer C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
+					System.out.println("at E");
+					System.out.println("at F: value of C is " + C.toString());
+					samplePairsSB.append(T.toString() + ":" + C.toString() + ";");
+				}
+				String samplePairs = new String(samplePairsSB);
+				System.out.println("sampleDraftPairs: " + sampleDraftPairs);
+				System.out.println("samplePairs: " + samplePairs);
+				JobMeta jobMeta = new JobMeta();
+				jobMeta.setJobId(jobDb.getJobId());
+				jobMeta.setK("samplePairs.TvsC");
+				jobMeta.setV(samplePairs);			
+				jobMetaDao.save(jobMeta);
+			}
+			
 			
 //			TODO: CLEAN UP THIS HORRIBLE SHITE
 //			// jobDraftFile -> jobFile
