@@ -42,6 +42,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -132,6 +133,50 @@ public class JobController extends WaspController {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
 
+	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
+	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		m.addAttribute("parentArea", "job");
+		
+		List<Software> softwareList = new ArrayList<Software>();
+		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();
+		MetaHelperWebapp mhwa = getMetaHelperWebapp();
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		for(JobSoftware js : job.getJobSoftware()){
+			Software sw = js.getSoftware();
+			softwareList.add(sw);
+			mhwa.setArea(js.getSoftware().getIName());
+			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
+			softwareMap.put(sw, softwareMetaList);
+		}
+		
+		m.addAttribute("softwareList", softwareList);
+		m.addAttribute("softwareMap", softwareMap);
+		
+/*
+		mhwa.setArea("chipSeqPlugin.samplePairsTvsC");
+		List<JobMeta> assaySpecificMetaList = mhwa.syncWithMaster(jobMetaList);
+		Set<String> selectedSamplePairs = new HashSet<String>();
+		
+		if (assaySpecificMetaList != null && assaySpecificMetaList.size() > 0){
+			for(String pair: assaySpecificMetaList.get(0).getV().split(";")){
+				String[] pairList = pair.split(":");
+				selectedSamplePairs.add("testVsControl_"+pairList[0]+"_"+pairList[1]);
+			}
+		}
+		m.addAttribute("selectedSamplePairs", selectedSamplePairs);
+		m.addAttribute("samples", jobService.getSubmittedSamples(job));
+*/		
+		return "job/analysisParameters";
+	}
+	
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobComments(@PathVariable("jobId") Integer jobId, ModelMap m) {

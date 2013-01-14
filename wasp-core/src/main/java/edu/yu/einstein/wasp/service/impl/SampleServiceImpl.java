@@ -257,12 +257,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Transactional("entityManager")
 	  public void saveSampleWithAssociatedMeta(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  sampleDao.save(sample);
+		  //create new reference to sample.sampleMeta, for use in the sampleMetaDoa call, as sample.getSampleMeta() returns an empty list following the save(sample) [due to entityManager.refresh(sample) performed in SampleDao.save()]
+		  List<SampleMeta> sampleMetaList = sample.getSampleMeta();		  
+		  Sample sampleInDB=sampleDao.save(sample);
 		  try {
-			sampleMetaDao.setMeta(sample.getSampleMeta(), sample.getSampleId());
-		} catch (MetadataException e) {
-			logger.warn(e.getLocalizedMessage());
-		}
+			  sampleMetaDao.setMeta(sampleMetaList, sampleInDB.getSampleId());
+		  } catch (MetadataException e) {
+			  logger.warn(e.getLocalizedMessage());
+		  }
 	  }
 	  
 	  /**
@@ -2256,6 +2258,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList){
+		sw.updateMetaToList(sampleMetaList, sampleMetaDao);
+		sw.saveAll(this);
+	}
+
 	public boolean isCell(Sample cell){
 		return cell.getSampleType().getIName().equals("cell");
 	}
@@ -2362,3 +2369,4 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 }
+

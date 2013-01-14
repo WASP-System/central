@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
+
 @Service
 public interface SampleService extends WaspMessageHandlingService {
 
@@ -794,6 +795,14 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	  public boolean isControlLibrary(Sample library);
 
-		
+
+	  /**
+		 * updateExistingSampleViaSampleWrapperWebapp
+		 * @param List<MetaMessage> sampleMetaList
+		 * @return void
+		 */
+	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
+	  
+	  
 
 }
