@@ -13,6 +13,42 @@
 	  	</c:forEach> 
 	</table>
 </div>
+<br />
+<div>
+  <c:set var="submittedSamplesList" value="${submittedSamplesList}" />
+  <c:set var="samplePairsMap" value="${samplePairsMap}" />
+  <c:set var="columns" value="${fn:length(submittedSamplesList) + 1}" />
+  <table>
+  <tr><th colspan = "${columns}">Analysis Pairs</th></tr>
+  <tr>
+    <th>&nbsp;</th>
+  <c:forEach var="sample" items="${submittedSamplesList}">
+  <th><c:out value="${sample.name}" /></th>
+  </c:forEach>
+  </tr>
+  
+  <c:forEach var="sample" items="${submittedSamplesList}">
+   <c:set var="truefalseList" value="${samplePairsMap.get(sample)}" />
+   <c:if test="${truefalseList != null}">
+    <tr>
+     <th><c:out value="${sample.name}" /></th>
+     	<c:forEach var="isPaired" items="${truefalseList}">
+  			<c:choose>
+  				<c:when test="${isPaired == 'f'}">
+  					<td>&nbsp;</td>
+  				</c:when>
+  				<c:otherwise>
+  					<td>X</td>
+  				</c:otherwise>
+  			</c:choose>
+		</c:forEach>
+  	</tr>
+  	</c:if>
+  </c:forEach>
+ 
+  </table>
+</div>
+
 
 <%-- absolutely not ready for display!!!!!
 <c:set var="workflowIName" value="${job.getWorkflow().getIName()}" />

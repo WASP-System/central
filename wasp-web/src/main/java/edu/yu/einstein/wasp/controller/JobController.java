@@ -174,14 +174,57 @@ public class JobController extends WaspController {
 		m.addAttribute("selectedSamplePairs", selectedSamplePairs);
 		m.addAttribute("samples", jobService.getSubmittedSamples(job));
 */		
+		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		m.addAttribute("submittedSamplesList", submittedSamplesList);
+		List <Sample> tempSubmittedSamplesList = jobService.getSubmittedSamples(job);
+		String samplePairsKey = null;
 		String samplePairs = null;
 		for(JobMeta jm : jobMetaList){
 			if(jm.getK().indexOf("samplePairs")>-1){
+				samplePairsKey = jm.getK();
 				samplePairs = jm.getV();
 				break;
 			}
 		}
+		/*
+		class SampleIdComparator implements Comparator<Sample> {
+			@Override
+			public int compare(Sample arg0, Sample arg1) {
+				return arg0.getSampleId().intValue() >= arg1.getSampleId().intValue()?1:0;
+			}
+		}
+		Collections.sort(submittedSamplesList, new SampleIdComparator());//needed? wanted?
+		*/
 		
+		Map<Sample, List<String>> samplePairsMap = new HashMap<Sample, List<String>>();
+		for(Sample cSample : submittedSamplesList){
+			//StringBuffer sb = new StringBuffer();
+			List<String> stringList = new ArrayList<String>();
+			boolean atLeastOneAnalysisPairExists = false;
+			for(Sample tSample : tempSubmittedSamplesList){				
+				String matchFound = "f";
+				if(cSample.getSampleId()==tSample.getSampleId()){
+					//sb.append(matchFound);
+					stringList.add(matchFound);
+					continue;
+				}
+				String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
+				for(String realPair : samplePairs.split(";")){
+					if(realPair.equals(possiblePair)){
+						matchFound = "t";
+						atLeastOneAnalysisPairExists = true;
+						break;
+					}
+				}
+				stringList.add(matchFound);
+				//sb.append(matchFound);
+			}
+			if(atLeastOneAnalysisPairExists){
+				//samplePairsMap.put(cSample, sb.toString());
+				samplePairsMap.put(cSample, stringList);
+			}
+		}
+		m.addAttribute("samplePairsMap", samplePairsMap);
 		
 		return "job/analysisParameters";
 	}
