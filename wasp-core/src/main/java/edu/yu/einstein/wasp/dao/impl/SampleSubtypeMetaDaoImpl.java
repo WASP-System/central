@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class SampleSubtypeMetaDaoImpl extends WaspDaoImpl<SampleSubtypeMeta> implements edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao {
+public class SampleSubtypeMetaDaoImpl extends WaspMetaDaoImpl<SampleSubtypeMeta> implements edu.yu.einstein.wasp.dao.SampleSubtypeMetaDao {
 
 	/**
 	 * SampleSubtypeMetaDaoImpl() Constructor
@@ -88,32 +88,6 @@ public class SampleSubtypeMetaDaoImpl extends WaspDaoImpl<SampleSubtypeMeta> imp
 
 
 
-	/**
-	 * updateBySampleSubtypeId (final int sampleSubtypeId, final List<SampleSubtypeMeta> metaList)
-	 *
-	 * @param sampleSubtypeId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampleSubtypeId (final int sampleSubtypeId, final List<SampleSubtypeMeta> metaList) {
-		for (SampleSubtypeMeta m:metaList) {
-			SampleSubtypeMeta currentMeta = getSampleSubtypeMetaByKSampleSubtypeId(m.getK(), sampleSubtypeId);
-			if (currentMeta.getSampleSubtypeMetaId() == null){
-				// metadata value not in database yet
-				m.setSampleSubtypeId(sampleSubtypeId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
 
 
 	@Override

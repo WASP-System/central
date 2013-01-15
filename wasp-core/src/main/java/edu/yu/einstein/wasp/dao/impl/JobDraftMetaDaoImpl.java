@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.JobDraftMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements edu.yu.einstein.wasp.dao.JobDraftMetaDao {
+public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implements edu.yu.einstein.wasp.dao.JobDraftMetaDao {
 
 	/**
 	 * JobDraftMetaDaoImpl() Constructor
@@ -106,35 +106,6 @@ public class JobDraftMetaDaoImpl extends WaspDaoImpl<JobDraftMeta> implements ed
 			entityManager.persist(m);
 		}
 	}
-
-
-	/**
-	 * updateByJobDraftId (final int jobDraftId, final List<JobDraftMeta> metaList)
-	 *
-	 * @param jobDraftId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByJobDraftId (final int jobDraftId, final List<JobDraftMeta> metaList) {
-		for (JobDraftMeta m:metaList) {
-			JobDraftMeta currentMeta = getJobDraftMetaByKJobDraftId(m.getK(), jobDraftId);
-			if (currentMeta.getJobDraftMetaId() == null){
-				// metadata value not in database yet
-				m.setJobDraftId(jobDraftId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
 
 
 }

@@ -381,13 +381,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 				try {
 					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 					if (!login.equals("anonymousUser")) {
-						Integer newUserId = (Integer) entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login", login).getSingleResult();
+						Integer newUserId = (Integer) entityManager.createNativeQuery("select UserId from user where login=:login").setParameter("login", login).getSingleResult();
 						if (newUserId != null) {
 							userId = newUserId;
 						}
 					}
 				} catch (Exception e) {
-					// empty catch in case login or userId can't be found.
+					// empty catch in case login or UserId can't be found.
 				}
 
 				method.invoke(entity, new Object[] { userId });

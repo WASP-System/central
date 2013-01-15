@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMeta> implements edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao {
+public class WorkflowsoftwareMetaDaoImpl extends WaspMetaDaoImpl<WorkflowsoftwareMeta> implements edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao {
 
 	/**
 	 * WorkflowsoftwareMetaDaoImpl() Constructor
@@ -85,33 +85,7 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 		}
 		return results.get(0);
 	}
-	
-	/**
-	 * updateByWorkflowsoftwareId (final int workflowsoftwareId, final List<WorkflowsoftwareMeta> metaList)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByWorkflowsoftwareId (final int workflowsoftwareId, final List<WorkflowsoftwareMeta> metaList) {
-		for (WorkflowsoftwareMeta m:metaList) {
-			WorkflowsoftwareMeta currentMeta = getWorkflowsoftwareMetaByWorkflowsoftwareIdK(workflowsoftwareId, m.getK());
-			if (currentMeta.getWorkflowsoftwareMetaId() == null){
-				// metadata value not in database yet
-				m.setWorkflowsoftwareId(workflowsoftwareId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
+
 
 
 

@@ -16,15 +16,13 @@ import java.util.List;
 import edu.yu.einstein.wasp.model.AdaptorMeta;
 
 
-public interface AdaptorMetaDao extends WaspDao<AdaptorMeta> {
+public interface AdaptorMetaDao extends WaspMetaDao<AdaptorMeta> {
 
   public AdaptorMeta getAdaptorMetaByAdaptorMetaId (final Integer adaptorMetaId);
 
   public AdaptorMeta getAdaptorMetaByKAdaptorId (final String k, final Integer adaptorId);
 
-  public void updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList);
-
-
+ 
 
 
 }

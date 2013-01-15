@@ -1,7 +1,7 @@
 
 /**
  *
- * SampleSourceMetaDao.java 
+ * SampleSourceMetaDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
  * the SampleSourceMeta Dao 
@@ -16,7 +16,7 @@ import java.util.List;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 
 
-public interface SampleSourceMetaDao extends WaspDao<SampleSourceMeta> {
+public interface SampleSourceMetaDao extends WaspMetaDao<SampleSourceMeta> {
 
   public SampleSourceMeta getSampleSourceMetaBySampleSourceMetaId (final int sampleSourceMetaId);
 
@@ -24,7 +24,6 @@ public interface SampleSourceMetaDao extends WaspDao<SampleSourceMeta> {
 
   List<SampleSourceMeta> getSampleSourceMetaBySampleSourceId (final int sampleSourceId);
 
-  public void updateBySampleSourceId (final int sampleSourceId, final List<SampleSourceMeta> metaList);
 
 
 

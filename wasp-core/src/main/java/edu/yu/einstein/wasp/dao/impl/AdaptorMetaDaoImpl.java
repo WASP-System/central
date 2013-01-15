@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.AdaptorMeta;
 @SuppressWarnings("unchecked")
 @Transactional
 @Repository
-public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.yu.einstein.wasp.dao.AdaptorMetaDao {
+public class AdaptorMetaDaoImpl extends WaspMetaDaoImpl<AdaptorMeta> implements edu.yu.einstein.wasp.dao.AdaptorMetaDao {
 
 	/**
 	 * AdaptorMetaDaoImpl() Constructor
@@ -84,34 +84,6 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 			return rt;
 		}
 		return results.get(0);
-	}
-
-
-	/**
-	 * updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList)
-	 *
-	 * @param adaptorId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList) {
-		for (AdaptorMeta m:metaList) {
-			AdaptorMeta currentMeta = getAdaptorMetaByKAdaptorId(m.getK(), adaptorId);
-			if (currentMeta.getAdaptorMetaId() == null){
-				// metadata value not in database yet
-				m.setAdaptorId(adaptorId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
 	}
 
 

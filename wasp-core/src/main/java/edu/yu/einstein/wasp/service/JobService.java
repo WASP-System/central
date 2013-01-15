@@ -299,7 +299,7 @@ public interface JobService extends WaspMessageHandlingService {
 	/**
 	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
 	 * @param Integer jobId (the job from which the viewer is to be removed)
-	 * @param Integer userId (the user to be removed as a jobviewer)
+	 * @param Integer UserId (the user to be removed as a jobviewer)
 	 * @return void (maybe should be an int or boolean)
 	 * 
 	 */

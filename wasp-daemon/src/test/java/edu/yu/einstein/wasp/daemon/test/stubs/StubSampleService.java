@@ -702,11 +702,6 @@ public class StubSampleService implements SampleService {
 		return false;
 	}
 
-	@Override
-	public void updateSampleMeta(Sample sample, List<SampleMeta> sampleMetaList){
-		
-		
-	}
 	
 	@Override
 	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw,

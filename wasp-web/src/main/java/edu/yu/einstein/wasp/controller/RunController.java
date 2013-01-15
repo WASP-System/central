@@ -597,13 +597,18 @@ public class RunController extends WaspController {
 			
 			// editing run is not allowed
 		}
-
-		runMetaDao.updateByRunId(runId, runMetaList);
-
 		try {
-			response.getWriter().println(adding ? messageService.getMessage("run.created_success.label") 
-					: messageService.getMessage("run.updated_success.label"));
-			return null;
+			try {
+				runMetaDao.setMeta(runMetaList, runId);
+				response.getWriter().println(adding ? messageService.getMessage("run.created_success.label") 
+						: messageService.getMessage("run.updated_success.label"));
+				return null;
+			} catch (MetadataException e1) {
+				response.getWriter().println(messageService.getMessage("run.created_failure.label"));
+				logger.warn(e1.getLocalizedMessage());
+				return null;
+			}
+
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ", e);
 		}

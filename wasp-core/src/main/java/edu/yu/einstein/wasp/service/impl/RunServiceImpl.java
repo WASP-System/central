@@ -152,7 +152,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "platformUnit sampleId is zero");
 		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician userId is zero");
+		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician UserId is zero");
 		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
 		Assert.assertParameterNotNull(readType, "readType cannot be null");
 		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
@@ -226,7 +226,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "platformUnit sampleId is zero");
 		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician userId is zero");
+		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician UserId is zero");
 		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
 		Assert.assertParameterNotNull(readType, "readType cannot be null");
 		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");

@@ -269,9 +269,12 @@ public class SampleDnaToLibraryController extends WaspController {
         return returnPageDef;
      }
  
-     sampleService.updateSampleMeta(sample, sampleMetaList);
-     //sampleMetaDao.updateBySampleId(sampleId, sampleMetaList);//fixed with above, this line should no longer be neeeded
-
+     try {
+		sampleMetaDao.setMeta(sampleMetaList, sampleId);
+     } catch (MetadataException e) {
+		logger.warn(e.getLocalizedMessage());
+		waspErrorMessage("sampleDetail.unexpected.error");
+     }
      return nextPage(sample);
   } 
   
@@ -468,9 +471,9 @@ public class SampleDnaToLibraryController extends WaspController {
 		return "sampleDnaToLibrary/listJobSamples";
   }
   
-  @RequestMapping(value="/removeViewerFromJob/{jobId}/{userId}.do", method=RequestMethod.GET)
+  @RequestMapping(value="/removeViewerFromJob/{jobId}/{UserId}.do", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('jv-' + #jobId)")
-  public String removeViewerFromJob(@PathVariable("jobId") Integer jobId, @PathVariable("userId") Integer userId, ModelMap m) {
+  public String removeViewerFromJob(@PathVariable("jobId") Integer jobId, @PathVariable("UserId") Integer userId, ModelMap m) {
 	  
 	  try{
 		  jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
