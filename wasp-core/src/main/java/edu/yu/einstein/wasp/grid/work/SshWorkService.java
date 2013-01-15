@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +57,9 @@ public class SshWorkService implements GridWorkService {
 	public Properties getLocalProperties() {
 		return localProperties;
 	}
+	
+	//TODO: implement bash environment variables, see SgeWorkService
+	
 
 	public void setLocalProperties(Properties waspSiteProperties) {
 		this.localProperties = waspSiteProperties;
@@ -167,6 +172,16 @@ public class SshWorkService implements GridWorkService {
 	@Override
 	public GridTransportService getTransportService() {
 		return transportService;
+	}
+
+	@Override
+	public InputStream readResultStdErr(GridResult r) throws IOException {
+		return r.getStdErrStream();
+	}
+
+	@Override
+	public InputStream readResultStdOut(GridResult r) throws IOException {
+		return r.getStdOutStream();
 	}
 
 }

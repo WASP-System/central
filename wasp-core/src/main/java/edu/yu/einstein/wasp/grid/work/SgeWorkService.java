@@ -4,7 +4,11 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +19,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +29,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -40,7 +47,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  */
 public class SgeWorkService implements GridWorkService {
 	
-	private Logger logger = LoggerFactory.getLogger(SgeWorkService.class);
+	private static Logger logger = LoggerFactory.getLogger(SgeWorkService.class);
 
 	private String jobNamePrefix = "WASP-";
 	public void setJobNamePrefix(String np) {
@@ -120,13 +127,14 @@ public class SgeWorkService implements GridWorkService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	public GridResult execute(WorkUnit w) throws GridException {
 		if (w.getWorkingDirectory() == null || w.getWorkingDirectory() == "/")
 			throw new GridAccessException("must set working directory");
 		if (w.getResultsDirectory() == null || w.getResultsDirectory() == "/")
 			throw new GridAccessException("must set results directory");
 		logger.debug("executing WorkUnit: " + w.toString());
 		try {
+			w.prepare();
 			return startJob(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			throw new GridAccessException("Misconfigured work unit", e);
@@ -138,7 +146,7 @@ public class SgeWorkService implements GridWorkService {
 	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
-	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	public boolean isFinished(GridResult g) throws GridException {
 
 		String jobname = this.jobNamePrefix + g.getUuid().toString();
 		
@@ -221,17 +229,14 @@ public class SgeWorkService implements GridWorkService {
 		logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		if (died) {
 			cleanUpAbnormallyTerminatedJob(g);
+			g.setArchivedResultOutputPath(getFailedArchiveName(g));
 			throw new GridExecutionException("abnormally terminated job");
 		}
 		if (ended) {
 			logger.debug("packaging " + jobname);
 			cleanUpCompletedJob(g);
+			g.setArchivedResultOutputPath(getCompletedArchiveName(g));
 		}
-		
-//		if (!ended) {
-//			if (!isJobExists(g))
-//				throw new GridAccessException("Job does not exist on remote host");
-//		}
 		
 		return ended;
 	}
@@ -254,6 +259,14 @@ public class SgeWorkService implements GridWorkService {
 
 	private boolean isJobStarted(GridResult g) throws GridAccessException {
 		return testSgeFileExists(g.getWorkingDirectory(), g.getUuid().toString(), "start");
+	}
+	
+	private String getCompletedArchiveName(GridResult g) {
+		return g.getWorkingDirectory() + jobNamePrefix + g.getUuid().toString() + ".tar.gz";
+	}
+	
+	private String getFailedArchiveName(GridResult g) {
+		return g.getWorkingDirectory() + jobNamePrefix + g.getUuid().toString() + "-FAILED.tar.gz";
 	}
 
 	private boolean testSgeFileExists(String workingDirectory, String id, String suffix) throws GridAccessException {
@@ -328,7 +341,7 @@ public class SgeWorkService implements GridWorkService {
 	}
 
 
-	private GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	private GridResult startJob(WorkUnit w) throws MisconfiguredWorkUnitException, GridException {
 
 		UUID resultID = UUID.randomUUID();
 		w.setId(resultID.toString());
@@ -451,7 +464,7 @@ public class SgeWorkService implements GridWorkService {
 		private String memory = "";
 		private String procs = "";
 
-		public SgeSubmissionScript(WorkUnit w) throws GridExecutionException {
+		private SgeSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 			this.w = w;
 			this.name = w.getId();
 			String prefix = "";
@@ -465,8 +478,25 @@ public class SgeWorkService implements GridWorkService {
 			preamble = "cd " + prefix + w.getWorkingDirectory() + "\n" +
 					"WASPNAME=" + name + "\n" +
 					"WASP_WORK_DIR=" + prefix + w.getWorkingDirectory() + "\n" +
-					"WASP_RESULT_DIR=" + prefix + w.getResultsDirectory() + "\n" +
-					"set -o errexit\n" + // die if any script returns non 0 exit
+					"WASP_RESULT_DIR=" + prefix + w.getResultsDirectory() + "\n";
+			
+			int fi = 0;
+			for (edu.yu.einstein.wasp.model.File f : w.getRequiredFiles()) {
+				if (f.getIsActive().equals(0))
+					throw new MisconfiguredWorkUnitException(" file " + f.getFileURI() + " is not active");
+				try {
+					preamble += "WASPFILE[" + fi + "]=" + provisionRemoteFile(f) + "\n";
+				} catch (FileNotFoundException e) {
+					throw new MisconfiguredWorkUnitException("unknown file " + f.getFileURI());
+				} 
+				fi++;
+			}
+			fi = 0;
+			for (String of : w.getResultFiles()) {
+				preamble += "WASPOUTPUT[" + fi + "]=" + of + "\n";
+			}
+			
+			preamble +=		"\nset -o errexit\n" + // die if any script returns non 0 exit
 											// code
 					"set -o pipefail\n" + // die if any script in a pipe returns
 											// non 0 exit code
@@ -653,6 +683,75 @@ public class SgeWorkService implements GridWorkService {
 	@Override
 	public GridTransportService getTransportService() {
 		return transportService;
+	}
+	
+	private String provisionRemoteFile(edu.yu.einstein.wasp.model.File file) throws FileNotFoundException, GridException {
+		String fileName;
+		try {
+			fileName = transportService.prefixRemoteFile(file.getFileURI());
+		} catch (GridUnresolvableHostException e) {
+			// file is not registered on remote host.
+			// provision to temporary directory.
+			String tempfile = transportService.prefixRemoteFile(file.getFileURI().getPath());
+			tempfile = transportService.getConfiguredSetting("remote.dir") + "/" + tempfile;
+			tempfile = tempfile.replaceAll("//", "").replaceAll("//", "/");
+			try {
+				if (gridFileService.exists(tempfile)) {
+					return tempfile;
+				} else {
+					doProvisionRemoteFile(file);
+					return tempfile;
+				}
+			} catch (IOException e1) {
+				String message = "Unable to test for existence of " + file.getFileURI().toString() + " : " + e.getLocalizedMessage();
+				logger.warn(message);
+				throw new GridAccessException(message);
+			}
+		}
+		return fileName;
+	}
+	
+	private void doProvisionRemoteFile(edu.yu.einstein.wasp.model.File file) throws FileNotFoundException, GridException {
+		// TODO: provision remote file from other host.
+	}
+	
+	@Override
+	public InputStream readResultStdOut(GridResult r) throws IOException {
+		return readResultFile(r, "out");
+	}
+	
+	@Override
+	public InputStream readResultStdErr(GridResult r) throws IOException {
+		return readResultFile(r, "err");
+	}
+	
+	private InputStream readResultFile(GridResult r, String suffix) throws IOException {
+		String path = r.getArchivedResultOutputPath();
+		if (! gridFileService.exists(path)) {
+			throw new FileNotFoundException("file not found " + path);
+		}
+		File f = File.createTempFile("wasp", "work");
+		gridFileService.get(path, f);
+		String contentName = jobNamePrefix + r.getUuid() + "." + suffix;
+		TarArchiveInputStream a = new TarArchiveInputStream(new FileInputStream(f));
+		TarArchiveEntry e;
+		while ((e = a.getNextTarEntry()) != null) {
+			if (e.getName() == contentName) {
+				InputStream fis = new FileInputStream(e.getFile());
+				ByteArrayOutputStream ba = new ByteArrayOutputStream();
+			    byte[] buffer = new byte[1024];
+			    int len;
+			    while ((len = fis.read(buffer)) > -1 ) {
+			        ba.write(buffer, 0, len);
+			    }
+			    ba.flush();
+			    InputStream result = new ByteArrayInputStream(ba.toByteArray());
+			    f.delete();
+				return result;
+			}
+		}
+		f.deleteOnExit();
+		throw new FileNotFoundException("Archive " + f.getAbsolutePath() + " did not appear to contain " + contentName);
 	}
 	
 }
