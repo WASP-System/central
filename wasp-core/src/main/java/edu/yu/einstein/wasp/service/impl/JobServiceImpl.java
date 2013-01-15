@@ -1024,20 +1024,29 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					System.out.println("at C");
 					System.out.println("first: " + pairList[0]);
 					System.out.println("second: " + pairList[1]);
-					Integer T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
-					System.out.println("at D: value of T is " + T.toString());
-					System.out.println("at D2: value of T is " + T.toString());
-					Integer C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
+					Integer T = null;
+					try{
+						T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
+					}catch(Exception e){}
+					String t;
+					t = T==null ? pairList[0] : T.toString();
+					System.out.println("at D: value of t is " + t);
+					Integer C = null;
+					try{
+						C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
+					}catch(Exception e){}					
+					String c;
+					c = C==null ? pairList[1] : C.toString();
 					System.out.println("at E");
-					System.out.println("at F: value of C is " + C.toString());
-					samplePairsSB.append(T.toString() + ":" + C.toString() + ";");
+					System.out.println("at F: value of c is " + c);
+					samplePairsSB.append(t + ":" + c + ";");
 				}
 				String samplePairs = new String(samplePairsSB);
 				System.out.println("sampleDraftPairs: " + sampleDraftPairs);
 				System.out.println("samplePairs: " + samplePairs);
 				JobMeta jobMeta = new JobMeta();
 				jobMeta.setJobId(jobDb.getJobId());
-				jobMeta.setK("samplePairs.TvsC");
+				jobMeta.setK(sampleDraftPairsKey);
 				jobMeta.setV(samplePairs);			
 				jobMetaDao.save(jobMeta);
 			}
