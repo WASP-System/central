@@ -174,6 +174,15 @@ public class JobController extends WaspController {
 		m.addAttribute("selectedSamplePairs", selectedSamplePairs);
 		m.addAttribute("samples", jobService.getSubmittedSamples(job));
 */		
+		String samplePairs = null;
+		for(JobMeta jm : jobMetaList){
+			if(jm.getK().indexOf("samplePairs")>-1){
+				samplePairs = jm.getV();
+				break;
+			}
+		}
+		
+		
 		return "job/analysisParameters";
 	}
 	
