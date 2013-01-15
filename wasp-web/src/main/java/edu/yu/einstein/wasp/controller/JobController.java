@@ -205,7 +205,7 @@ public class JobController extends WaspController {
 				String matchFound = "f";
 				if(cSample.getSampleId()==tSample.getSampleId()){
 					//sb.append(matchFound);
-					stringList.add(matchFound);
+					stringList.add("d");//disallowed
 					continue;
 				}
 				String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();

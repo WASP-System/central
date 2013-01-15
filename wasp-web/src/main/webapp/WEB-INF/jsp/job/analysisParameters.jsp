@@ -17,28 +17,36 @@
 <div>
   <c:set var="submittedSamplesList" value="${submittedSamplesList}" />
   <c:set var="samplePairsMap" value="${samplePairsMap}" />
-  <c:set var="columns" value="${fn:length(submittedSamplesList) + 1}" />
-  <table>
-  <tr><th colspan = "${columns}">Analysis Pairs</th></tr>
-  <tr>
+  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
+  <table class="EditTable ui-widget ui-widget-content">
+  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;text-decoration : underline;">Analysis Pairs</div></th></tr>
+  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;">&nbsp;</div></th></tr>
+  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;font-style:italic">Test Samples</div></th></tr>
+  <tr class="FormData">
+    <%-- <th><div style="font-weight:bold;text-decoration : underline;">Control Samples</div></th>--%>
     <th>&nbsp;</th>
   <c:forEach var="sample" items="${submittedSamplesList}">
   <th><c:out value="${sample.name}" /></th>
   </c:forEach>
   </tr>
   
+  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic">Control Samples</div></th><td colspan = "${columns}">&nbsp;</td></tr>
+  
   <c:forEach var="sample" items="${submittedSamplesList}">
    <c:set var="truefalseList" value="${samplePairsMap.get(sample)}" />
    <c:if test="${truefalseList != null}">
-    <tr>
+    <tr class="FormData">
      <th><c:out value="${sample.name}" /></th>
      	<c:forEach var="isPaired" items="${truefalseList}">
   			<c:choose>
+  				<c:when test="${isPaired == 'd'}">
+  					<td align="center">&nbsp;</td>
+  				</c:when>
   				<c:when test="${isPaired == 'f'}">
-  					<td>&nbsp;</td>
+  					<td align="center"><input type="checkbox" DISABLED /></td>
   				</c:when>
   				<c:otherwise>
-  					<td>X</td>
+  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
   				</c:otherwise>
   			</c:choose>
 		</c:forEach>
