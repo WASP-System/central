@@ -2427,8 +2427,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		sampleSourceMetaDao.setMeta(sampleSourceMeta);
 	}
 	
-	// implement getLibraryOnCellConcentration && getLibraryOnCellJob
-	
 	/**
 	 *  {@inheritDoc}
 	 * @throws SampleException 
