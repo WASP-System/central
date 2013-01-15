@@ -709,4 +709,51 @@ public class StubSampleService implements SampleService {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void setLibraryOnCellConcentration(Sample cell, Sample library,
+			Float valueInPicoM) throws SampleException, MetadataException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Float getConcentrationOfLibraryAddedToCell(Sample cell,
+			Sample library) throws SampleException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setJobForLibraryOnCell(Sample cell, Sample library)
+			throws SampleException, MetadataException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Job getJobOfLibraryOnCell(Sample cell, Sample library)
+			throws SampleException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SampleSource getCellLibrary(Sample cell, Sample library)
+			throws SampleTypeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Sample getCell(SampleSource cellLibrary) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Sample getLibrary(SampleSource cellLibrary) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

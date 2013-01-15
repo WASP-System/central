@@ -789,7 +789,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param cell
 	   * @param success
 	   * @throws SampleTypeException
-	 * @throws MetadataException 
+	   * @throws MetadataException 
 	   */
 	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 
@@ -802,7 +802,66 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 */
 	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
+
+	  /**
+	   * Set the concentration of library added to a cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @param valueInPicoM
+	   * @throws SampleException
+	   * @throws MetadataException
+	   */
+	  public void setLibraryOnCellConcentration(Sample cell, Sample library, Float valueInPicoM) throws SampleException, MetadataException;
 	  
+	  /**
+	   * get the concentration of library added to the cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleException
+	   */
+	  public Float getConcentrationOfLibraryAddedToCell(Sample cell, Sample library) throws SampleException;
 	  
+	  /**
+	   * Record the job associated with the library added to the cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @throws SampleException
+	   * @throws MetadataException
+	   */
+	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException;
+	  
+	  /**
+	   * get the job of the library on a cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleException
+	   */
+	  public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException;
+
+	  
+	  /**
+	   * Retrieve a SampleSource object which contains the relationship between and Library and Cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException;
+
+	  /**
+	   * Retrieve the Cell object 
+	   * @param cellLibrary
+	   * @return
+	   */
+	  public Sample getCell(SampleSource cellLibrary);
+
+	  /**
+	   * Retrieve the library object
+	   * @param cellLibrary
+	   * @return
+	   */
+	  public Sample getLibrary(SampleSource cellLibrary);
 
 }

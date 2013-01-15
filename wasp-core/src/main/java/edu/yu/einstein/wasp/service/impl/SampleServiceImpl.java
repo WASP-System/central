@@ -37,6 +37,7 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.AdaptorDao;
 import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
+import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -92,8 +93,11 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -175,6 +179,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	@Autowired
 	private RunDao runDao;
+	
+	@Autowired
+	private JobDao jobDao;
 	
 	@Autowired
 	private JobSampleDao jobSampleDao;
@@ -1143,11 +1150,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  newSampleSource = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
 		  
 		  try{
-			  MetaHelper metaHelper = new MetaHelper("LibraryOnCell", SampleSourceMeta.class);
-			  metaHelper.setMetaValueByName("libConcInLanePicoM", libConcInLanePicoM.toString());
-			  metaHelper.setMetaValueByName("jobId", library.getJob().getJobId().toString());
-			  sampleSourceMetaDao.setMeta((List<SampleSourceMeta>) metaHelper.getMetaList(), newSampleSource.getSampleSourceId());
-		  } catch(MetadataException e){
+			  setJobForLibraryOnCell(cell, library);
+			  setLibraryOnCellConcentration(cell, library, libConcInLanePicoM);		  
+		  } catch(Exception e){
 			  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
 		  }
 		  
@@ -2009,13 +2014,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
-		Map<String,Integer> q = new HashMap<String,Integer>();
-		q.put("sourceSampleId", library.getSampleId());
-		q.put("sampleId", cell.getSampleId());
-		List<SampleSource> cellLibraryLinks = sampleSourceDao.findByMap(q);
-		if (cellLibraryLinks == null || cellLibraryLinks.isEmpty())
-			throw new SampleParentChildException("Cell is=" + cell.getSampleId() + " and library id=" + library.getSampleId() + " are not linked");
-		removeLibraryFromCellOfPlatformUnit(cellLibraryLinks.get(0));
+		removeLibraryFromCellOfPlatformUnit(getCellLibrary(cell, library));
 	}
 	
 	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
@@ -2272,7 +2271,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
-		Assert.assertParameterNotNull("run", "a run must be provided");
+		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
@@ -2291,7 +2290,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId){
-		Assert.assertParameterNotNull("runId", "a runId must be provided");
+		Assert.assertParameterNotNull(runId, "a runId must be provided");
 		Run run = runService.getRunById(runId);
 		return getLibrariesOnSuccessfulRunCells(run);
 	}
@@ -2301,7 +2300,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run){
-		Assert.assertParameterNotNull("run", "a run must be provided");
+		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
@@ -2330,6 +2329,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
 	private static final String CELL_SUCCESS_META_AREA = "cell";
 	private static final String CELL_SUCCESS_META_KEY = "success";
+	
 	
 	/**
 	 *  {@inheritDoc}
@@ -2367,6 +2367,129 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		sampleMeta.setSampleId(cell.getSampleId());
 		sampleMetaDao.setMeta(sampleMeta);
 	}
+	
+	
+	public static final String LIBRARY_ON_CELL_AREA = "LibraryOnCell";
+	public static final String LIB_CONC = "libConcInLanePicoM";
+	public static final String JOB_ID = "jobId";
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void setLibraryOnCellConcentration(Sample cell, Sample library, Float valueInPicoM) throws SampleException, MetadataException{
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		if (!isLibrary(library))
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		SampleSource sampleSource = getCellLibrary(cell, library);
+		if (sampleSource == null)
+			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + LIB_CONC);
+		sampleSourceMeta.setV(valueInPicoM.toString());
+		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+		sampleSourceMetaDao.setMeta(sampleSourceMeta);
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Float getConcentrationOfLibraryAddedToCell(Sample cell, Sample library) throws SampleException{
+		SampleSource sampleSource = getCellLibrary(cell, library);
+		if (sampleSource == null)
+			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		Float valueInPicoM = -0.0f; // some nonesense value
+		List<SampleSourceMeta> ssMetaList = sampleSource.getSampleSourceMeta();
+		if (ssMetaList == null)
+			return valueInPicoM;
+		try{
+			valueInPicoM = Float.valueOf(MetaHelper.getMetaValue(LIBRARY_ON_CELL_AREA, LIB_CONC, ssMetaList));
+		} catch(Exception e) {
+			// value not found or not a sensible value
+		}
+		return valueInPicoM;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException{
+		SampleSource sampleSource = getCellLibrary(cell, library);
+		if (sampleSource == null)
+			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + JOB_ID);
+		sampleSourceMeta.setV(library.getJob().getJobId().toString());
+		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+		sampleSourceMetaDao.setMeta(sampleSourceMeta);
+	}
+	
+	// implement getLibraryOnCellConcentration && getLibraryOnCellJob
+	
+	/**
+	 *  {@inheritDoc}
+	 * @throws SampleException 
+	 */
+	@Override
+	public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException{
+		SampleSource sampleSource = getCellLibrary(cell, library);
+		if (sampleSource == null)
+			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		Job job = null;
+		List<SampleSourceMeta> ssMetaList = sampleSource.getSampleSourceMeta();
+		if (ssMetaList == null)
+			return job;
+		try{
+			job = jobDao.getJobByJobId(Integer.valueOf(MetaHelper.getMetaValue(LIBRARY_ON_CELL_AREA, JOB_ID, ssMetaList)));
+			if (job.getJobId() == null)
+				job = null;
+		} catch(Exception e) {
+			// value not found or not a sensible value
+		}
+		return job;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException{
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		if (!isLibrary(library))
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("sourceSampleId", library.getSampleId());
+		m.put("sampleId", cell.getSampleId());
+		List<SampleSource> ss = sampleSourceDao.findByMap(m);
+		if (ss.isEmpty())
+			return null;
+		return ss.get(0); // should be one
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Sample getCell(SampleSource cellLibrary){
+		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
+		Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "cellLibrary must have a valid id");
+		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Sample getLibrary(SampleSource cellLibrary){
+		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
+		Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "cellLibrary must have a valid id");
+		return sampleDao.getSampleBySampleId(cellLibrary.getSourceSampleId()); // get from Dao in case cellLibrary not entity managed
+	}
+	
 	
 }
 
