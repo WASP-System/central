@@ -1,115 +1,132 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <br />
 <title><fmt:message key="pageTitle.job/analysisParameters.label"/></title>
-<h1><fmt:message key="pageTitle.job/analysisParameters.label"/> - J<c:out value="${job.jobId}" /></h1>
-
+<h1><fmt:message key="pageTitle.job/analysisParameters.label"/> - <a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></h1>
+<br/>
 <div>
-	<table class="EditTable ui-widget ui-widget-content">
-	    <c:forEach items="${softwareList}" var="software">
-	   	  <tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><c:out value="${software.getResourceType().getName()}" />: <c:out value="${software.name}" /></td></tr>
-	   	  <c:set var="_area" value = "${parentArea}" scope="request"/>
-	   	  <c:set value="${softwareMap.get(software)}" var="_metaList" scope="request" />
-		  <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-	  	</c:forEach> 
-	</table>
-</div>
-<br />
-<div>
-  <c:set var="submittedSamplesList" value="${submittedSamplesList}" />
-  <c:set var="samplePairsMap" value="${samplePairsMap}" />
-  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
-  <table class="EditTable ui-widget ui-widget-content">
-  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;text-decoration : underline;">Analysis Pairs</div></th></tr>
-  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;">&nbsp;</div></th></tr>
-  <tr class="FormData"><th colspan = "${columns + 1}"><div style="font-weight:bold;font-style:italic">Test Samples</div></th></tr>
-  <tr class="FormData">
-    <%-- <th><div style="font-weight:bold;text-decoration : underline;">Control Samples</div></th>--%>
-    <th>&nbsp;</th>
-  <c:forEach var="sample" items="${submittedSamplesList}">
-  <th><c:out value="${sample.name}" /></th>
-  </c:forEach>
-  </tr>
-  
-  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic">Control Samples</div></th><td colspan = "${columns}">&nbsp;</td></tr>
-  
-  <c:forEach var="sample" items="${submittedSamplesList}">
-   <c:set var="truefalseList" value="${samplePairsMap.get(sample)}" />
-   <c:if test="${truefalseList != null}">
-    <tr class="FormData">
-     <th><c:out value="${sample.name}" /></th>
-     	<c:forEach var="isPaired" items="${truefalseList}">
-  			<c:choose>
-  				<c:when test="${isPaired == 'd'}">
-  					<td align="center">&nbsp;</td>
-  				</c:when>
-  				<c:when test="${isPaired == 'f'}">
-  					<td align="center"><input type="checkbox" DISABLED /></td>
-  				</c:when>
-  				<c:otherwise>
-  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
-  				</c:otherwise>
-  			</c:choose>
-		</c:forEach>
-  	</tr>
-  	</c:if>
-  </c:forEach>
- 
-  </table>
+	<c:choose>
+		<c:when test="${empty softwareList}">
+			<h2 style="font-weight:bold"><fmt:message key="analysisParameters.no_software_requested.label"/></h2>
+		</c:when>
+		<c:otherwise>
+			<h2 style="font-weight:bold"><fmt:message key="analysisParameters.software_requested.label"/>:</h2>
+			<table class="EditTable ui-widget ui-widget-content">
+    			<c:forEach items="${softwareList}" var="software">
+   	  				<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><c:out value="${software.getResourceType().getName()}" />: <c:out value="${software.name}" /></td></tr>
+   	  				<c:set var="_area" value = "${parentArea}" scope="request"/>
+   	  				<c:set value="${softwareMap.get(software)}" var="_metaList" scope="request" />
+	  				<c:import url="/WEB-INF/jsp/meta_ro.jsp" />
+  				</c:forEach> 
+			</table>
+		</c:otherwise>
+	</c:choose>
 </div>
 
-
-<%-- absolutely not ready for display!!!!!
-<c:set var="workflowIName" value="${job.getWorkflow().getIName()}" />
-<c:set var="sampleNumber" value="${fn:length(samples)}" />
-<form method="POST" class="chipseqPairingform">
-<table class="data">
-	<tr class="row">
-		<td class="label">&nbsp;</td>
-		<td colspan="${sampleNumber + 1 }" align="center" class="label"><fmt:message key="${workflowIName}.test.label"/></td>
-		<td class="noBorder" rowspan="2">&nbsp;</td>
-	</tr>
-	<tr class="row">
-		<td rowspan="${sampleNumber + 1 }" valign="middle" class="label"><fmt:message key="${workflowIName}.control.label"/></td>
-		<td class="label">&nbsp;</td>
-		<c:forEach var="s" items="${samples}">
-			<td class="label"><c:out value="${s.name}" /></td>
-		</c:forEach>
-	</tr>
-	<c:forEach var="sControl" items="${samples}" varStatus="statusControl">
-		<tr class="row">
-			<td class="label"><c:out value="${sControl.name}" /></td>
-			<c:forEach var="sTest" items="${samples}" varStatus="statusTest">
-				<c:choose>
-					<c:when test="${statusControl.count == statusTest.count }" >
-						<td class="input-centered" >&nbsp;</td>
-					</c:when>
-					<c:otherwise>
-						<td name="rowcolumn_${statusControl.count}_${statusTest.count}" class="input-centered" >
-					      <c:set var="key" value="testVsControl_${sTest.sampleDraftId}_${sControl.sampleDraftId}" />
-					      <c:set var="checked" value="" />
-					      <c:if test="${fn:contains(selectedSamplePairs, key)}">
-					        <c:set var="checked" value="CHECKED" />
-					      </c:if>
-					      <input type="checkbox" value="1" ${checked} name="${key}" id="rowcolumn_${statusControl.count}_${statusTest.count}">
-					    </td>
-					</c:otherwise>
-				</c:choose>
+<div>
+  <c:if test="${not empty samplePairsMap}">
+      <br /><br />
+	  <c:set var="samplePairsMap" value="${samplePairsMap}" />
+	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
+	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.analysis_pairs.label"/>:</h2>
+	  <table class="EditTable ui-widget ui-widget-content">
+	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th></tr>
+	  <tr class="FormData">
+	    <th>&nbsp;</th>
+	  	<c:forEach var="sample" items="${submittedSamplesList}">
+	  		<th><c:out value="${sample.name}" /></th>
+	  	</c:forEach>
+	  </tr>	  
+	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
+	  <c:forEach var="sample" items="${submittedSamplesList}">
+	   <c:set var="truefalseList" value="${samplePairsMap.get(sample)}" />
+	   <c:if test="${truefalseList != null}">
+	    <tr class="FormData">
+	     <th><c:out value="${sample.name}" /></th>
+	     	<c:forEach var="isPaired" items="${truefalseList}">
+	  			<c:choose>
+	  				<c:when test="${isPaired == 'd'}">
+	  					<td align="center">&nbsp;</td>
+	  				</c:when>
+	  				<c:when test="${isPaired == 'f'}">
+	  					<td align="center"><input type="checkbox" DISABLED /></td>
+	  				</c:when>
+	  				<c:otherwise>
+	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
+	  				</c:otherwise>
+	  			</c:choose>
 			</c:forEach>
-			<td class="noBorder"><input id="row_${statusControl.count}_select_all" type="button" value="select all" onclick="toggleRow(${statusControl.count}, ${sampleNumber})"></td>
-		</tr>
-	</c:forEach>
-	<tr>
-		<td class="noBorder">&nbsp;</td>
-		<td class="noBorder">&nbsp;</td>
-		<c:forEach begin="1" end="${sampleNumber}" step="1" varStatus="status">
-			<td><input id="col_${status.count}_select_all" type="button" value="select all" onclick="toggleCol(${status.count}, ${sampleNumber})"></td>
-		</c:forEach>
-		<td class="noBorder">&nbsp;</td>
-	</tr>
-</table>
-
-<div class="submit">
-  <input type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
+	  	</tr>
+	  	</c:if>
+	  </c:forEach>
+	 
+	  </table>
+	  </c:if>
 </div>
-</form>
---%>
+
+<div>
+  <c:if test="${not empty controlIsReferenceList}">
+  	<br /><br />
+	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
+	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.reference_sample_pairs.label"/>:</h2>
+	  <table class="EditTable ui-widget ui-widget-content">
+	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th></tr>
+	  <tr class="FormData">
+	    <th>&nbsp;</th>
+	  	<c:forEach var="sample" items="${submittedSamplesList}">
+	  		<th><c:out value="${sample.name}" /></th>
+	  	</c:forEach>
+	  </tr>	  
+	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
+	    <tr class="FormData">
+	     <th><fmt:message key="analysisParameters.reference.label"/></th>
+	     	<c:forEach var="isPaired" items="${controlIsReferenceList}">
+	  			<c:choose>
+	  				<c:when test="${isPaired == 'd'}">
+	  					<td align="center">&nbsp;</td>
+	  				</c:when>
+	  				<c:when test="${isPaired == 'f'}">
+	  					<td align="center"><input type="checkbox" DISABLED /></td>
+	  				</c:when>
+	  				<c:otherwise>
+	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
+	  				</c:otherwise>
+	  			</c:choose>
+			</c:forEach>
+	  	</tr>
+	  </table>
+	  </c:if>
+</div>
+
+<div>
+  <c:if test="${not empty testIsReferenceList}">
+  	<br /><br />
+	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
+	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.sample_pairs_reference.label"/>:</h2>
+	  <table class="EditTable ui-widget ui-widget-content">
+	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th></tr>
+	  <tr class="FormData">
+	    <th>&nbsp;</th>
+	  	<c:forEach var="sample" items="${submittedSamplesList}">
+	  		<th><c:out value="${sample.name}" /></th>
+	  	</c:forEach>
+	  </tr>	  
+	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
+	    <tr class="FormData">
+	     <th><fmt:message key="analysisParameters.reference.label"/></th>
+	     	<c:forEach var="isPaired" items="${testIsReferenceList}">
+	  			<c:choose>
+	  				<c:when test="${isPaired == 'd'}">
+	  					<td align="center">&nbsp;</td>
+	  				</c:when>
+	  				<c:when test="${isPaired == 'f'}">
+	  					<td align="center"><input type="checkbox" DISABLED /></td>
+	  				</c:when>
+	  				<c:otherwise>
+	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
+	  				</c:otherwise>
+	  			</c:choose>
+			</c:forEach>
+	  	</tr>	 
+	  </table>
+  </c:if>
+</div>

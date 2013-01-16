@@ -186,7 +186,7 @@ public class JobController extends WaspController {
 				break;
 			}
 		}
-		/*
+		/*    //not used
 		class SampleIdComparator implements Comparator<Sample> {
 			@Override
 			public int compare(Sample arg0, Sample arg1) {
@@ -197,35 +197,86 @@ public class JobController extends WaspController {
 		*/
 		
 		Map<Sample, List<String>> samplePairsMap = new HashMap<Sample, List<String>>();
-		for(Sample cSample : submittedSamplesList){
-			//StringBuffer sb = new StringBuffer();
-			List<String> stringList = new ArrayList<String>();
-			boolean atLeastOneAnalysisPairExists = false;
-			for(Sample tSample : tempSubmittedSamplesList){				
-				String matchFound = "f";
-				if(cSample.getSampleId()==tSample.getSampleId()){
-					//sb.append(matchFound);
-					stringList.add("d");//disallowed
-					continue;
-				}
-				String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
-				for(String realPair : samplePairs.split(";")){
-					if(realPair.equals(possiblePair)){
-						matchFound = "t";
-						atLeastOneAnalysisPairExists = true;
-						break;
+		if(samplePairs!=null){
+			for(Sample cSample : submittedSamplesList){
+				List<String> stringList = new ArrayList<String>();
+				boolean atLeastOneAnalysisPairExists = false;
+				for(Sample tSample : tempSubmittedSamplesList){				
+					String matchFound = "f";
+					if(cSample.getSampleId()==tSample.getSampleId()){
+						stringList.add("d");//disallowed
+						continue;
 					}
+					String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
+					for(String realPair : samplePairs.split(";")){
+						if(realPair.equals(possiblePair)){
+							matchFound = "t";
+							atLeastOneAnalysisPairExists = true;
+							break;
+						}
+					}
+					stringList.add(matchFound);
 				}
-				stringList.add(matchFound);
-				//sb.append(matchFound);
-			}
-			if(atLeastOneAnalysisPairExists){
-				//samplePairsMap.put(cSample, sb.toString());
-				samplePairsMap.put(cSample, stringList);
+				if(atLeastOneAnalysisPairExists){
+					samplePairsMap.put(cSample, stringList);
+				}
 			}
 		}
 		m.addAttribute("samplePairsMap", samplePairsMap);
+
 		
+		List<String> controlIsReferenceList = new ArrayList<String>();
+		List<String> testIsReferenceList = new ArrayList<String>();
+ 		if(samplePairs!=null){
+ 			System.out.println("inside reference testing loop");
+			for(Sample sample : submittedSamplesList){		
+				System.out.println("inside submittedSampleList loop for sampleId = " + sample.getSampleId().intValue());
+				String matchFoundForControlIsReference = "f";
+				String matchFoundForTestIsReference = "f";
+				for(String realPair : samplePairs.split(";")){
+					String[] stringArray = realPair.split(":");
+					Integer T;
+					try{
+						T = Integer.valueOf(stringArray[0]);
+					}catch(Exception e){T = null;}
+					Integer C;
+					try{
+						C = Integer.valueOf(stringArray[1]);
+					}catch(Exception e){C = null;}					
+					
+					if(C == null && T != null && sample.getSampleId().intValue()==T.intValue()){
+						matchFoundForControlIsReference = "t";
+					}
+					else if(T == null && C != null && sample.getSampleId().intValue()==C.intValue()){
+						matchFoundForTestIsReference = "t";
+					}
+				}
+				controlIsReferenceList.add(matchFoundForControlIsReference);
+				testIsReferenceList.add(matchFoundForTestIsReference);
+			}
+			boolean foundOne = false;
+			for(String s : controlIsReferenceList){
+				if(s.equals("t")){
+					foundOne = true;
+				}
+			}
+			if(!foundOne){
+				controlIsReferenceList.clear();
+			}
+			foundOne = false;
+			for(String s2 : testIsReferenceList){
+				if(s2.equals("t")){
+					foundOne = true;
+				}
+			}
+			if(!foundOne){
+				testIsReferenceList.clear();
+			}
+		}
+ 		
+		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
+		m.addAttribute("testIsReferenceList", testIsReferenceList);
+		 
 		return "job/analysisParameters";
 	}
 	
