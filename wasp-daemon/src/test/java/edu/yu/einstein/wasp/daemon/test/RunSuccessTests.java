@@ -1,8 +1,17 @@
 package edu.yu.einstein.wasp.daemon.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.persistence.EntityManager;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +30,29 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.service.RunService;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml"})
 
 public class RunSuccessTests extends AbstractTestNGSpringContextTests implements MessageHandler {
+	
+	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
+	// but MUST be re-mocked here (not @Autowied in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
+	@Mock private RunService mockRunService; 
+	
+	@Mock private RunDao mockRunDao;
+	
+	@Mock private WaspPluginRegistry mockWaspPluginRegistry;
 	
 	private MessagingTemplate messagingTemplate;
 	
@@ -51,24 +76,55 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 	private SubscribableChannel abortChannel;
 	
 	@BeforeMethod
-	private void setup(){
+	public void beforeTest() {
+		MockitoAnnotations.initMocks(this);
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		abortChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
 		messages = new ArrayList<Message<?>>();
+		Assert.assertNotNull(mockRunDao);
+		Assert.assertNotNull(mockRunService);
+		Assert.assertNotNull(mockWaspPluginRegistry);
 	}
-	
+
 	@AfterMethod
-	private void tearDown(){
-		listeningChannel.unsubscribe(this);
-		abortChannel.unsubscribe(this);
+	public void afterTest() {
+		  listeningChannel.unsubscribe(this);
+		  abortChannel.unsubscribe(this);
 	}
+
 	
 	@Test (groups = "unit-tests-batch-integration")
 	public void runSuccessTest() throws Exception{
 		// send run complete messages
 		try {
+			Run run = new Run();
+			
+			
+			Workflow wf = new Workflow();
+			wf.setIName("test_workflow");
+			
+			Sample library = new Sample();
+			library.setSampleId(1);
+			Job job = new Job();
+			job.setJobId(1);
+			job.setWorkflow(wf);
+			Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
+			libraryJob.put(library, job);
+			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
+			PowerMockito.when(mockRunService.getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(run)).thenReturn(libraryJob);
+			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
+			WaspPlugin plugin = new WaspPlugin("test-plugin", null, null){
+				@Override public void destroy() throws Exception {}
+				@Override public void afterPropertiesSet() throws Exception {}
+				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
+				@Override public String getBatchJobName(String BatchJobType) {return "test_flow_name";}
+			};
+			Set<WaspPlugin> plugins = new HashSet<WaspPlugin>();
+			plugins.add(plugin);
+			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow")).thenReturn(plugins);
+			
 			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
 			template.setStatus(WaspStatus.COMPLETED);
 			Message<WaspStatus> runCompletedMessage = template.build();

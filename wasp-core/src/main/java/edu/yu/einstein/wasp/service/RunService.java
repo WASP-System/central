@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -113,4 +115,53 @@ public interface RunService extends WaspMessageHandlingService {
 	public Set<Run> getSuccessfullyCompletedRuns();
 
 	public void launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
+
+	/**
+	   * Gets a list of all libraries on a run from cells that are marked as being successful and returns
+	   * as a set of parameter maps for initiating Batch jobs
+	   * @param runId
+	   * @return
+	   */
+	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCells(Run run);
+
+	/**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful and returns
+	   * as a set of parameter maps for initiating Batch jobs
+	   * @param runId
+	   * @return
+	   */
+	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(Run run);
+	  
+	  /**
+	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful
+	   * @param runId
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run);
+	  
+	  
+	  /**
+	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful
+	   * @param run
+	   * @return
+	   */
+	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
+	  
+	  /**
+	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * @param cell
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
+	   * assessment of a run
+	   * @param cell
+	   * @param success
+	   * @throws SampleTypeException
+	   * @throws MetadataException 
+	   */
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 }

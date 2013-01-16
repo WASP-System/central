@@ -3,6 +3,9 @@ package edu.yu.einstein.wasp.daemon.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -28,7 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.daemon.test.stubs.StubSampleDao;
+import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
@@ -37,6 +40,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
 import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
@@ -55,8 +59,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	@Autowired 
 	private JobRegistry jobRegistry;
 		
-	@Autowired
-	private StubSampleDao stubSampleDao;
+	@Mock private SampleDao mockSampleDao;
 	
 	private MessagingTemplate messagingTemplate;
 	
@@ -82,6 +85,7 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 	
 	@BeforeClass
 	private void setup() throws SecurityException, NoSuchMethodException{
+		MockitoAnnotations.initMocks(this);
 		Assert.assertNotNull(messageChannelRegistry);
 		Assert.assertNotNull(jobLauncher);
 		Assert.assertNotNull(jobRegistry);
@@ -115,7 +119,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			SampleType sampleType = new SampleType();
 			sampleType.setSampleTypeId(1);
 			sampleType.setIName("dna");
-			stubSampleDao.sample.setSampleType(sampleType);
+			
+			Sample sample = new Sample();
+			sample.setSampleId(SAMPLE_ID);
+			sample.setSampleType(sampleType);
+			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID)).thenReturn(sample);
 			
 			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
 			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
@@ -191,7 +199,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			SampleType sampleType = new SampleType();
 			sampleType.setSampleTypeId(1);
 			sampleType.setIName("library");
-			stubSampleDao.sample.setSampleType(sampleType);
+			
+			Sample sample = new Sample();
+			sample.setSampleId(SAMPLE_ID2);
+			sample.setSampleType(sampleType);
+			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID2)).thenReturn(sample);
 			
 			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
 			Job job = jobRegistry.getJob("wasp.userLibrary.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context
@@ -263,7 +275,11 @@ public class SampleFlowTests extends AbstractTestNGSpringContextTests implements
 			SampleType sampleType = new SampleType();
 			sampleType.setSampleTypeId(1);
 			sampleType.setIName("sample");
-			stubSampleDao.sample.setSampleType(sampleType);
+			
+			Sample sample = new Sample();
+			sample.setSampleId(SAMPLE_ID3);
+			sample.setSampleType(sampleType);
+			Mockito.when(mockSampleDao.getSampleBySampleId(SAMPLE_ID3)).thenReturn(sample);
 			
 			// setup job execution for the 'wasp.default.sample.mainFlow.v1' job
 			Job job = jobRegistry.getJob("wasp.sample.jobflow.v1"); // get the 'wasp.default.sample.mainFlow.v1' job from the context

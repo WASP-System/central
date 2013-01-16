@@ -76,13 +76,15 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		Assert.assertParameterNotNull(pluginName,
 				"plugin must be assigned a name");
 		String prefix = "plugin." + pluginName;
-		for (String key : this.waspSiteProperties.stringPropertyNames()) {
-			if (key.startsWith(prefix)) {
-				String newKey = key.replaceFirst(prefix, "");
-				String value = this.waspSiteProperties.getProperty(key);
-				this.put(newKey, value);
-				logger.debug("Configured plugin " + pluginName + " with "
-						+ newKey + "=" + value);
+		if (waspSiteProperties != null){
+			for (String key : this.waspSiteProperties.stringPropertyNames()) {
+				if (key.startsWith(prefix)) {
+					String newKey = key.replaceFirst(prefix, "");
+					String value = this.waspSiteProperties.getProperty(key);
+					this.put(newKey, value);
+					logger.debug("Configured plugin " + pluginName + " with "
+							+ newKey + "=" + value);
+				}
 			}
 		}
 		this.messageChannel = channel;

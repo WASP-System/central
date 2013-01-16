@@ -93,11 +93,8 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.Workflow;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -2266,107 +2263,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return cell.getSampleType().getIName().equals("cell");
 	}
 	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
-		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Set<Sample> librariesOnRun = new HashSet<Sample>();
-		try {
-			for (Sample cell: this.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
-					librariesOnRun.addAll(this.getLibrariesOnCellWithoutControls(cell));	
-			}
-		} catch (SampleTypeException e) {
-			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
-		}
-		return librariesOnRun;
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId){
-		Assert.assertParameterNotNull(runId, "a runId must be provided");
-		Run run = runService.getRunById(runId);
-		return getLibrariesOnSuccessfulRunCells(run);
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run){
-		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Set<Sample> librariesOnRun = new HashSet<Sample>();
-		try {
-			for (Sample cell: this.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
-					librariesOnRun.addAll(this.getLibrariesOnCell(cell));	
-			}
-		} catch (SampleTypeException e) {
-			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
-		}
-		return librariesOnRun;
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId){
-		Assert.assertParameterNotNull("runId", "a runId must be provided");
-		Run run = runService.getRunById(runId);
-		return getLibrariesOnSuccessfulRunCellsWithoutControls(run);
-	}
-	
-	
 
-	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
-	private static final String CELL_SUCCESS_META_AREA = "cell";
-	private static final String CELL_SUCCESS_META_KEY = "success";
-	
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		String success = null;
-		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
-		if (sampleMetaList == null)
-			sampleMetaList = new ArrayList<SampleMeta>();
-		try{
-			success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
-		} catch(MetadataException e) {
-			return false; // no value exists already
-		}
-		Boolean b = new Boolean(success);
-		return b.booleanValue();
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		Boolean b = new Boolean(success);
-		String successString = b.toString();
-		SampleMeta sampleMeta = new SampleMeta();
-		sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
-		sampleMeta.setV(successString);
-		sampleMeta.setSampleId(cell.getSampleId());
-		sampleMetaDao.setMeta(sampleMeta);
-	}
 	
 	
 	public static final String LIBRARY_ON_CELL_AREA = "LibraryOnCell";

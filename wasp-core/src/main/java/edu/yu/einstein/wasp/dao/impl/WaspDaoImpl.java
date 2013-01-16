@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDaoImpl implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.

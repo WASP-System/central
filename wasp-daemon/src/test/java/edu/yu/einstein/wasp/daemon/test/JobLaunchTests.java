@@ -18,7 +18,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.daemon.test.stubs.StubSampleDao;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -38,9 +37,6 @@ public class JobLaunchTests extends AbstractTestNGSpringContextTests  {
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 		
-	@Autowired
-	private StubSampleDao stubSampleDao;
-	
 	private final Logger logger = LoggerFactory.getLogger(JobLaunchTests.class);
 	
 	private MessagingTemplate messagingTemplate;
