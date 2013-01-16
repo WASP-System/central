@@ -28,6 +28,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -75,21 +76,27 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 	@Qualifier("wasp.channel.notification.abort")
 	private SubscribableChannel abortChannel;
 	
-	@BeforeMethod
-	public void beforeTest() {
+	@BeforeTest
+	public void setupMocks(){
 		MockitoAnnotations.initMocks(this);
+		Assert.assertNotNull(mockRunDao);
+		Assert.assertNotNull(mockRunService);
+		Assert.assertNotNull(mockWaspPluginRegistry);
+	}
+	
+	@BeforeMethod
+	public void beforeMethod() {
+		
 		listeningChannel.subscribe(this); // register as a message handler on the listeningChannel
 		abortChannel.subscribe(this); // register as a message handler on the listeningChannel
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
 		messages = new ArrayList<Message<?>>();
-		Assert.assertNotNull(mockRunDao);
-		Assert.assertNotNull(mockRunService);
-		Assert.assertNotNull(mockWaspPluginRegistry);
+		
 	}
 
 	@AfterMethod
-	public void afterTest() {
+	public void afterMethod() {
 		  listeningChannel.unsubscribe(this);
 		  abortChannel.unsubscribe(this);
 	}
