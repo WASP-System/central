@@ -4,38 +4,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.annotation.Splitter;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
+import edu.yu.einstein.wasp.batch.core.WaspBatchJobTypes;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.service.RunService;
 
 public class RunSuccessSplitter extends AbstractMessageSplitter{
 	
-	private SampleService sampleService;
+	private WaspPluginRegistry waspPluginRegistry;
 	
 	@Autowired
-	public void setSampleService(SampleService sampleService) {
-		this.sampleService = sampleService;
+	public void setWaspPluginRegistry(WaspPluginRegistry waspPluginRegistry) {
+		this.waspPluginRegistry = waspPluginRegistry;
+	}
+	
+	private RunService runService;
+	
+	@Autowired
+	public void setRunService(RunService runService) {
+		this.runService = runService;
 	}
 
 
-	private static final String ANALYSIS_FLOW_NAME = "wasp.analysis.libraryPreprocessFlow.v1";
-	
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
 
 
@@ -51,20 +60,25 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			logger.warn("Message has the wrong status or payload value. Check filter and imput channel are correct");
 			return outputMessages; // empty list
 		}
-		Set<Sample> libraries = sampleService.getLibrariesOnSuccessfulRunCellsWithoutControls(runStatusMessageTemplate.getRunId());
-		logger.debug("Based on successful run (" + runStatusMessageTemplate.getRunId() + "), preparing to send " + libraries.size() + " launch messages for " + ANALYSIS_FLOW_NAME);
-		for (Sample library: libraries){
+		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
+		Map<Sample, Job> libraryJobs = runService.getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(run);
+		for (Sample library :  libraryJobs.keySet() ){
 			// send message to initiate job processing
+			Job job = libraryJobs.get(library);
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getSampleId().toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(ANALYSIS_FLOW_NAME, jobParameters) );
-			try {
-				Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-				logger.debug("preparing new message to send: " + launchMessage);
-				outputMessages.add(launchMessage);
-			} catch (WaspMessageBuildingException e) {
-				logger.warn("Message Building Exception caught. Abandoning sending current message:" + e.getLocalizedMessage());
-				//throw new MessagingException(e.getLocalizedMessage(), e);
+			jobParameters.put(WaspJobParameters.LIBRARY_ID, job.getJobId().toString());
+			jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
+				String flowName = plugin.getBatchJobName(WaspBatchJobTypes.ANALYSIS_LIBRARY_PREPROCESS);
+				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+						new BatchJobLaunchContext(flowName, jobParameters) );
+				try {
+					Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+					logger.debug("preparing new message to send: " + launchMessage);
+					outputMessages.add(launchMessage);
+				} catch (WaspMessageBuildingException e) {
+					throw new MessagingException(e.getLocalizedMessage(), e);
+				}
 			}
 		}
 		return outputMessages;
