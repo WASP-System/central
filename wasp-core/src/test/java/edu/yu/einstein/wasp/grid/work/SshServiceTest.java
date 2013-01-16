@@ -10,6 +10,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
@@ -62,7 +63,7 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void execute() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	public void execute() throws GridException {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setCommand("hostname -f");
@@ -93,7 +94,7 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void executeLocal() throws GridAccessException, GridUnresolvableHostException, GridExecutionException {
+	public void executeLocal() throws GridException {
 		WorkUnit w = new WorkUnit();
 		w.setCommand("hostname -f");
 		w.setWorkingDirectory("/testing/");
@@ -111,7 +112,7 @@ public class SshServiceTest {
 	}
 
 	@Test(groups = { "ssh" })
-	public void executeSge() throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	public void executeSge() throws GridException {
 		try {
 			WorkUnit w = new WorkUnit();
 			w.setWorkingDirectory("testing");
