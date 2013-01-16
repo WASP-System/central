@@ -738,7 +738,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  catch(Exception e){
-			  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
+			  logger.debug("JobServiceImpl::getExtraJobDetails(): " + e);
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
 		  

@@ -145,8 +145,8 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		m.addAttribute("parentArea", "job");
 		
-		List<Software> softwareList = new ArrayList<Software>();
-		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();
+		List<Software> softwareList = new ArrayList<Software>();//List<Software> softwareList = jobService.getSoftwareForJob(job);
+		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();//for each software, get it's meta List<JobMeta> softwareMeta = jobService.getJobMetaForThisSoftwareAndJob(Software, job)
 		MetaHelperWebapp mhwa = getMetaHelperWebapp();
 		List<JobMeta> jobMetaList = job.getJobMeta();
 		for(JobSoftware js : job.getJobSoftware()){
