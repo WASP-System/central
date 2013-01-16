@@ -295,11 +295,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileNotFoundException("File URI was null");
 		
 		// TODO: implement grid resolution of URNs
-		if (uri.getScheme() != "file") {
+		if (uri.getScheme().equals("file")) {
 			String message = "unable to locate " + uri.toString() + ", unimplemented scheme: " + uri.getScheme();
 			logger.warn(message);
 			throw new FileNotFoundException(message);
 		}
+		
+		logger.debug("attempting to register " + file.getFileURI().toString());
 		
 		setMD5(file);
 		file.setIsActive(1);
@@ -341,12 +343,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		
 		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
 		while(!gws.isFinished(r)) {
-			ScheduledFuture<?> foo = ex.schedule(new Runnable() {
+			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
 				@Override
 				public void run() {
 					
 				}}, 10, TimeUnit.SECONDS);
-			while (!foo.isDone()) {
+			while (!md5t.isDone()) {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
@@ -362,6 +364,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			IOUtils.copy(is, sw);
 			String md5 = sw.toString();
 			file.setMd5hash(md5);
+			logger.debug("file registered with MD5: " + md5);
 		} catch (IOException e) {
 			String message = "Unable to obtain stdout: " + e.getLocalizedMessage();
 			logger.warn(message);

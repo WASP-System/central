@@ -88,7 +88,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 	@Transactional
 	public Set<FileType> getFileTypes() {
 		HashSet<FileType> result = new HashSet<FileType>();
-		Query q = getEntityManager().createQuery("select from FileType");
+		Query q = getEntityManager().createQuery("from FileType");
 		result.addAll(q.getResultList());
 		return result;
 	}
