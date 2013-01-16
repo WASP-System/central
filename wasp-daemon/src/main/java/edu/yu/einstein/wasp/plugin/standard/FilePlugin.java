@@ -48,19 +48,17 @@ public class FilePlugin extends WaspPlugin {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.plugin.WaspPlugin#getBatchJobNames()
-	 */
 	@Override
-	public Set<String> getBatchJobNames() {
+	public String getBatchJobNameByArea(String BatchJobType, String area) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public String getBatchJobName(String BatchJobType) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public String getFlowNameFromArea(String area) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

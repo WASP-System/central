@@ -23,6 +23,8 @@
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 	
+	
+	
 	<!-- Enable @Transactional support -->
 	<tx:annotation-driven />
 

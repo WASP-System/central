@@ -23,6 +23,7 @@ public class MessageChannelRegistry {
 	public static final String JOB_MESSAGE_CHANNEL = "wasp.channel.notification.job";
 	public static final String RUN_MESSAGE_CHANNEL = "wasp.channel.notification.run";
 	public static final String SAMPLE_MESSAGE_CHANNEL = "wasp.channel.notification.sample";
+	public static final String ANALYSIS_MESSAGE_CHANNEL = "wasp.channel.notification.analysis";
 	public static final String LIBRARY_MESSAGE_CHANNEL = "wasp.channel.notification.library";
 	public static final String DEFAULT_MESSAGE_CHANNEL = "wasp.channel.notification.default";
 	public static final String ABORT_MESSAGE_CHANNEL = "wasp.channel.notification.abort";

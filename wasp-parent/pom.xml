@@ -799,6 +799,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+    			<groupId>org.kubek2k</groupId>
+    			<artifactId>springockito</artifactId>
+    			<version>1.0.5</version>
+   				 <scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.easymock</groupId>
 				<artifactId>easymock</artifactId>
 				<version>3.0</version>
