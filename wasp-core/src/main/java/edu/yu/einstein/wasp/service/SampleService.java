@@ -821,5 +821,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Sample getLibrary(SampleSource cellLibrary);
 
-
+	  /**
+	   * Retrieve a list of samples that are designed as controls (encoded in a job's SamplePair Meta) for a specific sample in a specific job
+	   * Example: samplePairs = 273:272;274:272;276:275;277:275; for job 42
+	   * So getControlSamplesForAJobsSample(Job job 42, Sample sample 273) will return a list containing Sample 273
+	   * @param Job job
+	   * @param Sample sample
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
+	  
 }
