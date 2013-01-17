@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
  * If the user does not overwrite the default value of the resultsDirectory, this implementation will
  * change it to "${hostname.results.dir}/workunit.getRunId()/" and throw an exception if runId is not set.
  * 
- * If the settings are not are not configured, it will default to "~/" and log a warning.
+ * If the settings are not are not configured, it will default to "$HOME/" and log a warning.
  * 
  * 
  * @author calder
@@ -39,27 +39,29 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		String results = transportService.getConfiguredSetting("results.dir");
 		if (!PropertyHelper.isSet(scratch)) {
 			logger.warn("Scratch directory has not been set!  Set this value in the properties file of the config project: (" 
-					+ transportService.getName() + ".settings.scratch.dir).  Defaulting to \"~/\".");
-			scratch = "~/";
+					+ transportService.getName() + ".settings.scratch.dir).  Defaulting to \"$HOME/\".");
+			scratch = "$HOME/";
 		}
 		if (!PropertyHelper.isSet(results)) {
 			logger.warn("Scratch directory has not been set!  Set this value in the properties file of the config project: (" 
-					+ transportService.getName() + ".settings.results.dir).  Defaulting to \"~/\".");
-			results = "~/";
+					+ transportService.getName() + ".settings.results.dir).  Defaulting to \"$HOME/\".");
+			results = "$HOME/";
 		}
 		String wd = w.getWorkingDirectory();
 		if (wd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
-			wd.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/");
-			w.setWorkingDirectory(wd);
+			w.setWorkingDirectory(wd.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/").replaceAll("//", "/") );
 		}
 		String rd = w.getResultsDirectory();
-		if (rd.contains(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
-			if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
+		if (rd.contains(WorkUnit.RESULTS_DIR_PLACEHOLDER) || rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
+			if (rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
+				w.setResultsDirectory(rd.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/") );
+			} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
+				// files need to go into $results/"somewhere"
 				throw new MisconfiguredWorkUnitException("WorkUnit attempted to use default results location, "
 						+ "must set a subfolder.");
+			} else {
+				w.setResultsDirectory(rd.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/") );
 			}
-			rd.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/").replaceAll("//", "/");
-			w.setResultsDirectory(rd);
 		}
 		
 		

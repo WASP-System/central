@@ -242,7 +242,7 @@ public class SshTransportService implements GridTransportService {
 	@Override
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
-		if (isUserDirIsRoot()) prefix = "$HOME/";
+		if (isUserDirIsRoot() && !filespec.startsWith("$HOME")) prefix = "$HOME/";
 		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
 	}

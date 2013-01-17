@@ -102,10 +102,15 @@ public class SshTransportConnection implements GridTransportConnection {
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
-			if (w.getWorkingDirectory() != null && !w.getWorkingDirectory().equals("") && !w.getWorkingDirectory().equals("~"))
-				w.setWorkingDirectory(transportService.prefixRemoteFile(w.getWorkingDirectory()));
-				command = "cd " + w.getWorkingDirectory() + " && " + command;
-			command = "source ~/.bash_profile && " + command;
+			// If the user has negated the working directory, default to home
+			if (w.getWorkingDirectory() != null && !w.getWorkingDirectory().equals("") && !w.getWorkingDirectory().equals("~")) {
+				w.remoteWorkingDirectory = transportService.prefixRemoteFile(w.getWorkingDirectory());
+			} else {
+				// hoepfully user should notice output files if this was not the intended working dir.
+				w.remoteWorkingDirectory = "$HOME";
+			}
+			command = "cd " + w.remoteWorkingDirectory + " && " + command;
+			command = "source $HOME/.bash_profile && " + command;
 			logger.debug("sending exec: " + command + " at: " + transportService.getHostName());
 
 				final Command exec = session.exec(command);

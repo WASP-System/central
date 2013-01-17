@@ -85,7 +85,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Autowired
 	private GridHostResolver hostResolver;
 	
-	private static final Logger logger = LoggerFactory.getLogger(WaspServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 	
 	/**
 	 * fileDao;
@@ -295,7 +295,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileNotFoundException("File URI was null");
 		
 		// TODO: implement grid resolution of URNs
-		if (uri.getScheme().equals("file")) {
+		if (!uri.getScheme().equals("file")) {
 			String message = "unable to locate " + uri.toString() + ", unimplemented scheme: " + uri.getScheme();
 			logger.warn(message);
 			throw new FileNotFoundException(message);
@@ -310,7 +310,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 	private void setMD5(File file) throws GridException, FileNotFoundException {
-		
 		URL url;
 		try {
 			url = file.getFileURI().toURL();
@@ -337,6 +336,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 		
 		WorkUnit w = new WorkUnit();
+		w.setRegistering(true);
+		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.addRequiredFile(file);
 		w.setCommand("md5sum ${WASPFILE[0]} | awk '{print $1}'");
 		GridResult r = gws.execute(w);

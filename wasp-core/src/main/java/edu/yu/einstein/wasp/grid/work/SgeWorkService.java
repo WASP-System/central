@@ -153,6 +153,7 @@ public class SgeWorkService implements GridWorkService {
 		logger.debug("testing for completion of " + jobname);
 		
 		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory(g.getWorkingDirectory());
 		w.setCommand("qstat -xml -j " + jobname + " 2>&1 | sed 's/<\\([/]\\)*>/<\\1a>/g'");
 		transportService.connect(w);
 		GridResult result = w.getConnection().sendExecToRemote(w);
@@ -319,7 +320,7 @@ public class SgeWorkService implements GridWorkService {
 	}
 	
 	private void cleanUpAbnormallyTerminatedJob(String hostname, String workingDirectory, String resultsDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		logger.info("Cleaning FAILED job " + id + " at " + hostname + ":" + workingDirectory);
+		logger.warn("Cleaning FAILED job " + id + " at " + hostname + ":" + workingDirectory);
 		
 		WorkUnit w = new WorkUnit();
 		String prefix = "";
@@ -404,7 +405,7 @@ public class SgeWorkService implements GridWorkService {
 
 		transportService.connect(w);
 		String prefix = "";
-		if (transportService.isUserDirIsRoot()) prefix = "~/";
+		if (transportService.isUserDirIsRoot()) prefix = "$HOME/";
 		String submit = "cd " + prefix + w.getWorkingDirectory() + " && qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) w.getConnection().sendExecToRemote(w);
@@ -482,8 +483,7 @@ public class SgeWorkService implements GridWorkService {
 			
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.File f : w.getRequiredFiles()) {
-				if (f.getIsActive().equals(0))
-					throw new MisconfiguredWorkUnitException(" file " + f.getFileURI() + " is not active");
+				
 				try {
 					preamble += "WASPFILE[" + fi + "]=" + provisionRemoteFile(f) + "\n";
 				} catch (FileNotFoundException e) {
@@ -685,7 +685,12 @@ public class SgeWorkService implements GridWorkService {
 		return transportService;
 	}
 	
+	/**
+	 * This needs to be fleshed out.  Files which are not
+	 * 
+	 */
 	private String provisionRemoteFile(edu.yu.einstein.wasp.model.File file) throws FileNotFoundException, GridException {
+		
 		String fileName;
 		try {
 			fileName = transportService.prefixRemoteFile(file.getFileURI());
