@@ -16,11 +16,11 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.batch.core.WaspBatchJobTypes;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
@@ -165,7 +165,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 	
 	@Override
 	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(WaspBatchJobTypes.GENERIC))
+		if (batchJobType.equals(BatchJobTask.GENERIC))
 			return FLOW_NAME;
 		return null;
 	}

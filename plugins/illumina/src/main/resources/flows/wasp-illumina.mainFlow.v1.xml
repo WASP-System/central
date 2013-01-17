@@ -10,7 +10,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
 							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 							<property name="status" value="STARTED" />
 						</bean>
@@ -81,7 +81,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
 							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -109,7 +109,7 @@
 					<constructor-arg name="messageTemplates">
 						<set>
 							<!-- listen for COMPLETED message from the other flow as a signal to terminate cleanly -->
-							<bean class="edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate">
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
 								<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 								<property name="status" value="COMPLETED" />
 							</bean>
