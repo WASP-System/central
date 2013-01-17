@@ -139,6 +139,6 @@
 	
 	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
 	
-	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.SequencingBatchJobTask" />
+	<bean id="sequencingBatchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.SequencingBatchJobTask" />
     
 </beans>
