@@ -12,15 +12,15 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
-import edu.yu.einstein.wasp.batch.core.WaspBatchJobTypes;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -28,6 +28,11 @@ import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 
+/**
+ * Splitter to react to a successful run by generating launch messages for all libraries on successful cells
+ * @author asmclellan
+ *
+ */
 public class RunSuccessSplitter extends AbstractMessageSplitter{
 	
 	private WaspPluginRegistry waspPluginRegistry;
@@ -69,7 +74,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			jobParameters.put(WaspJobParameters.LIBRARY_ID, job.getJobId().toString());
 			jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
 			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
-				String flowName = plugin.getBatchJobName(WaspBatchJobTypes.ANALYSIS_LIBRARY_PREPROCESS);
+				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 						new BatchJobLaunchContext(flowName, jobParameters) );
 				try {

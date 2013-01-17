@@ -1,44 +1,48 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
 /**
- * Handling Wasp Sample Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
+ * Handling WaspJobStatus messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
  * @author andymac
  *
  */
-public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
+public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {
 	
-	protected Integer sampleId;
+	private Integer jobId;
 	
-
-	public Integer getsampleId() {
-		return sampleId;
+	public Integer getJobId() {
+		return jobId;
 	}
 
-	public void setsampleId(Integer sampleId) {
-		this.sampleId = sampleId;
+	public void setJobId(Integer jobId) {
+		this.jobId = jobId;
 	}
 	
-	public SampleStatusMessageTemplate(Integer sampleId){
+	public JobStatusMessageTemplate(Integer jobId){
 		super();
-		this.sampleId = sampleId;
+		this.jobId = jobId;
 	}
 	
-	public SampleStatusMessageTemplate(Message<WaspStatus> message){
+	public JobStatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
-		if (message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID))
-			sampleId = (Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID);
+		if (message.getHeaders().containsKey(WaspJobParameters.JOB_ID))
+			jobId = (Integer) message.getHeaders().get(WaspJobParameters.JOB_ID);
 	}
 	
+		
 	/**
-	 * Build a Spring Integration Message using the sampleId header, task header if not null, and the WaspStatus as payload .
+	 * Build a Spring Integration Message using the jobId header, task header if not null, and the WaspStatus as payload .
 	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
@@ -50,18 +54,18 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.JOB_ID, jobId)
 						.setPriority(status.getPriority())
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.JOB)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
+						.setHeader(WaspJobParameters.JOB_ID, jobId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
@@ -78,8 +82,8 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	@Override
 	public boolean actUponMessage(Message<?> message){
 		if (this.task == null)
-			return actUponMessage(message, this.sampleId);
-		return actUponMessage(message, this.sampleId, this.task);
+			return actUponMessage(message, this.jobId);
+		return actUponMessage(message, this.jobId, this.task);
 	}
 	
 	/**
@@ -88,37 +92,39 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
 		if (this.task == null)
-			return actUponMessage(message, this.sampleId);
-		return actUponMessage(message, this.sampleId, null);
+			return actUponMessage(message, this.jobId);
+		return actUponMessage(message, this.jobId, null);
 	}
 	
+	
 	// Statics.........
+
 	
 	/**
-	 * Takes a message and checks its headers against the supplied sampleId value to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value to see if the message should be acted upon or not
 	 * @param message
-	 * @param sampleId 
+	 * @param jobId 
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer sampleId ){
-		if (sampleId != null &&
-				message.getHeaders().containsKey(WaspJobParameters.SAMPLE_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.SAMPLE_ID)).equals(sampleId) &&
+	public static boolean actUponMessage(Message<?> message, Integer jobId ){
+		if (jobId != null &&
+				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.SAMPLE))
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.JOB))
 			return true;
 		return false;
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied sampleId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value and task to see if the message should be acted upon or not
 	 * @param message
 	 * @param jobId 
 	 * @param task
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer sampleId, String task ){
-		if (! actUponMessage(message, sampleId) )
+	public static boolean actUponMessage(Message<?> message, Integer jobId, String task ){
+		if (! actUponMessage(message, jobId) )
 			return false;
 		if (task == null)
 			return true;
@@ -134,8 +140,7 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 	 */
 	public static boolean isMessageOfCorrectType(Message<?> message) {
 		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
-				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.SAMPLE);
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.JOB);
 	}
 	
 }
-	

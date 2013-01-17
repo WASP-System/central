@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
 

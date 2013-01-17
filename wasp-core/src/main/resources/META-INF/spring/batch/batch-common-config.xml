@@ -136,5 +136,7 @@
 		<constructor-arg name="jobOperator" ref="jobOperator" />
 		<constructor-arg name="jobExplorer" ref="jobExplorer" />
 	</bean>
+	
+	<bean id="batchJobTasks" class="edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask" />
     
 </beans>

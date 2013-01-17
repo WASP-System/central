@@ -19,9 +19,9 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel(s) for relevant completion messages. Also monitors the abort monitoring channel
