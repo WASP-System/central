@@ -18,6 +18,8 @@
 	
 	<mockito:mock id="authenticationService" class="edu.yu.einstein.wasp.service.impl.AuthenticationServiceImpl" />
 	
+	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
+	
 	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
  	

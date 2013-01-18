@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
@@ -382,6 +383,60 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
 		}
 		return libraryJob;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
+						try{
+							libraryCell.add(sampleService.getCellLibrary(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryCell;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCell(cell)){
+						try{
+							libraryCell.add(sampleService.getCellLibrary(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryCell;
 	}
 	
 	/**

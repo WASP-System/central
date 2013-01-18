@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 
 /**
@@ -115,6 +116,24 @@ public interface RunService extends WaspMessageHandlingService {
 	public Set<Run> getSuccessfullyCompletedRuns();
 
 	public void launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
+	
+	
+	/**
+	   * Gets a list of all non-control library-cell relationships on a run from cells that are marked as being successful and returns
+	   * as a set of parameter maps for initiating Batch jobs
+	   * @param runId
+	   * @return
+	   */
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run);
+
+	  
+	/**
+	   * Gets a list of all library-cell relationships on a run from cells that are marked as being successful and returns
+	   * as a set of parameter maps for initiating Batch jobs
+	   * @param runId
+	   * @return
+	   */
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run);
 
 	/**
 	   * Gets a list of all libraries on a run from cells that are marked as being successful and returns
@@ -164,4 +183,11 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @throws MetadataException 
 	   */
 	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+
+	  
+	  
+	  
+	  
+	  
+	  
 }
