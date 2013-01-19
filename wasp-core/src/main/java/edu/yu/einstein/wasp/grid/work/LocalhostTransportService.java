@@ -96,7 +96,7 @@ public class LocalhostTransportService implements GridTransportService {
 	}
 
 	@Override
-	public String prefixRemoteFile(String filespec) throws FileNotFoundException {
+	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
 		if (isUserDirIsRoot() && !filespec.startsWith("$HOME")) prefix = "$HOME/";
 		String retval = prefix + filespec;

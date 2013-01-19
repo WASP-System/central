@@ -28,8 +28,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.persistence.EntityManager;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +68,6 @@ import edu.yu.einstein.wasp.service.SampleService;
 @Service
 @Transactional("entityManager")
 public class FileServiceImpl extends WaspServiceImpl implements FileService {
-
 
 	@Autowired
 	private MessageSource messageSource;
@@ -290,6 +292,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public void registerFile(File file) throws FileNotFoundException, GridException {
+		file = fileDao.merge(file);
 		URI uri = file.getFileURI();
 		if (uri == null)
 			throw new FileNotFoundException("File URI was null");
@@ -306,7 +309,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		setMD5(file);
 		file.setIsActive(1);
 		file.setIsArchived(0);
-		
+		fileDao.save(file);
 	}
 
 	private void setMD5(File file) throws GridException, FileNotFoundException {
@@ -334,6 +337,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			logger.error(message);
 			throw new GridAccessException(message);
 		}
+		
+		logger.debug("checking MD5 of " + file.getFileURI().toString());
 		
 		WorkUnit w = new WorkUnit();
 		w.setRegistering(true);
@@ -364,8 +369,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			StringWriter sw = new StringWriter();
 			IOUtils.copy(is, sw);
 			String md5 = sw.toString();
-			file.setMd5hash(md5);
-			logger.debug("file registered with MD5: " + md5);
+			file.setMd5hash(StringUtils.chomp(md5));
+			logger.debug("file registered with MD5: " + file.getMd5hash());
 		} catch (IOException e) {
 			String message = "Unable to obtain stdout: " + e.getLocalizedMessage();
 			logger.warn(message);

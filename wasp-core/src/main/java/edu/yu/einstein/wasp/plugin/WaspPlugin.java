@@ -108,6 +108,8 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		try {
 			return (Message) method.invoke(this, m);
 		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage());
+			e.printStackTrace();
 			return MessageBuilder.withPayload("Unable to execute task " + method.getName()).build();
 		}
 		

@@ -51,7 +51,7 @@ public interface GridTransportService {
 	abstract void setIdentityFile(String identityFile);
 	abstract File getIdentityFile();
 	
-	public String prefixRemoteFile(String filespec) throws FileNotFoundException;
+	public String prefixRemoteFile(String filespec);
 	public String prefixRemoteFile(URI uri) throws FileNotFoundException, GridUnresolvableHostException;
 
 }

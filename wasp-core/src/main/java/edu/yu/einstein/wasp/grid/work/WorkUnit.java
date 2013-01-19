@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,14 +74,14 @@ public class WorkUnit {
 	 */
 	private String workingDirectory;
 	
-	protected String remoteWorkingDirectory;
+	protected String remoteWorkingDirectory = null;
 	
 	/**
 	 * Directory to write results to
 	 */
 	private String resultsDirectory;
 	
-	protected String remoteResultsDirectory;
+	protected String remoteResultsDirectory = null;
 	
 	/**
 	 * Transport specific connection
@@ -188,6 +189,8 @@ public class WorkUnit {
 		this.executionEnvironments.add("default");
 		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
 		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
+		UUID resultID = UUID.randomUUID();
+		this.setId(resultID.toString());
 	}
 
 	public String getId() {

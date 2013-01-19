@@ -203,7 +203,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 				logger.warn("file " + f.getFileId() + " already registered, skipping");
 				continue;
 			}
-			Runnable reg = new RegThread(f.getFileId().intValue());
+			Runnable reg = new RegThread(f);
 			exec.execute(reg);
 		}
 
@@ -222,17 +222,16 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	}
 
 	private class RegThread implements Runnable {
-		int fileId;
+		File file;
 
-		public RegThread(int id) {
-			this.fileId = id;
+		public RegThread(File f) {
+			this.file = f;
 		}
 
 		@Override
 		public void run() {
-			File nf = fileService.getFileByFileId(fileId);
 			try {
-				fileService.registerFile(nf);
+				fileService.registerFile(file);
 			} catch (FileNotFoundException e) {
 				logger.error("File not found: " + e.getLocalizedMessage());
 				e.printStackTrace();
@@ -250,19 +249,23 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		JSONObject jo = new JSONObject();
 		if (files.size() == 1) {
 			File f = files.iterator().next();
-			jo.append("id", f.getFileId());
-			jo.append("uri", f.getFileURI().toString());
-			jo.append("md5", f.getMd5hash() == null ? "" : f.getMd5hash());
-			jo.append("fileType", f.getFileType().getIName());
-			jo.append("isActive", f.getIsActive());
+			f = fileService.getFileByFileId(f.getFileId());
+			jo.put("id", f.getFileId());
+			jo.put("uri", f.getFileURI().toString());
+			jo.put("md5", f.getMd5hash() == null ? "" : f.getMd5hash());
+			jo.put("fileType", f.getFileType().getIName());
+			jo.put("isActive", f.getIsActive());
 			return jo;
 		}
 		Set<JSONObject> jos = new LinkedHashSet<JSONObject>();
 		for (File f : files) {
+			f = fileService.getFileByFileId(f.getFileId());
 			JSONObject j = new JSONObject();
-			jo.append("uri", f.getFileURI().toString());
-			jo.append("fileType", f.getFileType().getIName());
-			jo.append("isActive", f.getIsActive());
+			jo.put("id", f.getFileId());
+			jo.put("uri", f.getFileURI().toString());
+			jo.put("md5", f.getMd5hash() == null ? "" : f.getMd5hash());
+			jo.put("fileType", f.getFileType().getIName());
+			jo.put("isActive", f.getIsActive());
 			jos.add(jo);
 		}
 		JSONArray ja = new JSONArray(jos);

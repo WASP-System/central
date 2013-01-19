@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 /**
  * Service that implements both the {@link GridTransportService} and {@link GridWorkService} interfaces.  
@@ -86,7 +87,13 @@ public class SshWorkService implements GridWorkService {
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("attempting to execute " + w.getCommand());
 		transportService.connect(w);
-		GridResult result = w.getConnection().sendExecToRemote(w);
+		GridResult result;
+		try {
+			result = w.getConnection().sendExecToRemote(w);
+		} catch (MisconfiguredWorkUnitException e) {
+			logger.warn(e.getLocalizedMessage());
+			throw new GridAccessException(e.getLocalizedMessage(),e);
+		}
 		return result;
 		
 	}
