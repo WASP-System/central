@@ -72,9 +72,15 @@ public interface GridResult {
 	public int getFinalStatus();
 	
 	/**
-	 * Not well defined at the moment.
+	 * Get the path to the tarball of results.
 	 * @return
 	 */
-	public String getFinalOutput();
+	public String getArchivedResultOutputPath();
+	
+	/**
+	 * Set the path to the tarball of results.
+	 * @return
+	 */
+	public void setArchivedResultOutputPath(String path);
 
 }

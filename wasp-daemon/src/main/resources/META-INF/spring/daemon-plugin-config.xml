@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<int:channel id="wasp.channel.plugin.file" />
+	
+	<int:service-activator input-channel="wasp.channel.plugin.file" ref="wasp-file.WaspPluginBean" method="process" />
+	
+	<bean id="wasp-file.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.supplemental.file.FilePlugin">
+		<constructor-arg type="java.lang.String">
+			<value>file</value>
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="waspSiteProperties" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="wasp.channel.plugin.file" />
+		</constructor-arg>
+	</bean>
+
+</beans>
