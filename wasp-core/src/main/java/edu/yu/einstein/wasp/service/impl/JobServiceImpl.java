@@ -78,6 +78,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -103,6 +104,7 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -732,16 +734,25 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta.getV().toUpperCase());
 			  }
 		  }
-		  
+		 
+		  /* replaced with code below
 		  try{
 			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  catch(Exception e){
-			  logger.warn("JobServiceImpl::getExtraJobDetails(): " + e);
+			  logger.debug("JobServiceImpl::getExtraJobDetails(): " + e);
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
-		  
+		  */
+		  List<AcctJobquotecurrent> acctJobquotecurrentList = job.getAcctJobquotecurrent();
+		  if(acctJobquotecurrentList == null || acctJobquotecurrentList.isEmpty()){
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
+		  }
+		  else{
+			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+		  }
 		  return extraJobDetailsMap;	  
 	  }
 
@@ -1589,4 +1600,102 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		}
 		return currentStatus;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Software> getSoftwareForJob(Job job){
+		List<Software> softwareList = new ArrayList<Software>();
+		for(JobSoftware js : job.getJobSoftware()){
+			Software sw = js.getSoftware();
+			softwareList.add(sw);
+		}
+		return softwareList;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList){
+		Map<Sample, List<String>> samplePairsMap = new HashMap<Sample, List<String>>();
+		if(samplePairs!=null && !samplePairs.isEmpty()){
+			for(Sample cSample : submittedSamplesList){
+				List<String> stringList = new ArrayList<String>();
+				boolean atLeastOneAnalysisPairExists = false;
+				List <Sample> tempSubmittedSamplesList = new ArrayList<Sample>(submittedSamplesList);//identical copy of submittedSamplesList (with identical order) 
+				for(Sample tSample : tempSubmittedSamplesList){				
+					String matchFound = "f";//false
+					if(cSample.getSampleId()==tSample.getSampleId()){
+						stringList.add("d");//disallowed
+						continue;
+					}
+					String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
+					for(String realPair : samplePairs.split(";")){
+						if(realPair.equals(possiblePair)){
+							matchFound = "t";//true
+							atLeastOneAnalysisPairExists = true;
+							break;
+						}
+					}
+					stringList.add(matchFound);
+				}
+				if(atLeastOneAnalysisPairExists){//at least one "t" in the string
+					samplePairsMap.put(cSample, stringList);
+				}
+			}
+		}
+		return samplePairsMap;
+	}
+	
+	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList){
+		if(samplePairs!=null && !samplePairs.isEmpty() && controlIsReferenceList != null && testIsReferenceList != null){
+	 		if(samplePairs!=null && !samplePairs.isEmpty()){
+				for(Sample sample : submittedSamplesList){		
+					String matchFoundForControlIsReference = "f";
+					String matchFoundForTestIsReference = "f";
+					for(String realPair : samplePairs.split(";")){
+						String[] stringArray = realPair.split(":");
+						Integer T;
+						try{
+							T = Integer.valueOf(stringArray[0]);
+						}catch(Exception e){T = null;}
+						Integer C;
+						try{
+							C = Integer.valueOf(stringArray[1]);
+						}catch(Exception e){C = null;}					
+						
+						if(C == null && T != null && sample.getSampleId().intValue()==T.intValue()){
+							matchFoundForControlIsReference = "t";
+						}
+						else if(T == null && C != null && sample.getSampleId().intValue()==C.intValue()){
+							matchFoundForTestIsReference = "t";
+						}
+					}
+					controlIsReferenceList.add(matchFoundForControlIsReference);
+					testIsReferenceList.add(matchFoundForTestIsReference);
+				}
+				boolean foundOne = false;
+				for(String s : controlIsReferenceList){
+					if(s.equals("t")){
+						foundOne = true;
+					}
+				}
+				if(!foundOne){
+					controlIsReferenceList.clear();//never found a hit, so empty list
+				}
+				foundOne = false;
+				for(String s2 : testIsReferenceList){
+					if(s2.equals("t")){
+						foundOne = true;
+					}
+				}
+				if(!foundOne){
+					testIsReferenceList.clear();
+				}
+			}
+		}
+	}
+	
 }

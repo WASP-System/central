@@ -145,135 +145,36 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		m.addAttribute("parentArea", "job");
 		
-		List<Software> softwareList = new ArrayList<Software>();
-		Map<Software, List<JobMeta>> softwareMap = new HashMap<Software, List<JobMeta>>();
+		//deal with software
+		List<Software> softwareList = jobService.getSoftwareForJob(job);
+		m.addAttribute("softwareList", softwareList);
+		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
 		MetaHelperWebapp mhwa = getMetaHelperWebapp();
 		List<JobMeta> jobMetaList = job.getJobMeta();
-		for(JobSoftware js : job.getJobSoftware()){
-			Software sw = js.getSoftware();
-			softwareList.add(sw);
-			mhwa.setArea(js.getSoftware().getIName());
+		for(Software sw : softwareList){
+			mhwa.setArea(sw.getIName());
 			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
-			softwareMap.put(sw, softwareMetaList);
-		}
+			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
+		}	
+		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
 		
-		m.addAttribute("softwareList", softwareList);
-		m.addAttribute("softwareMap", softwareMap);
-		
-/*
-		mhwa.setArea("chipSeqPlugin.samplePairsTvsC");
-		List<JobMeta> assaySpecificMetaList = mhwa.syncWithMaster(jobMetaList);
-		Set<String> selectedSamplePairs = new HashSet<String>();
-		
-		if (assaySpecificMetaList != null && assaySpecificMetaList.size() > 0){
-			for(String pair: assaySpecificMetaList.get(0).getV().split(";")){
-				String[] pairList = pair.split(":");
-				selectedSamplePairs.add("testVsControl_"+pairList[0]+"_"+pairList[1]);
-			}
-		}
-		m.addAttribute("selectedSamplePairs", selectedSamplePairs);
-		m.addAttribute("samples", jobService.getSubmittedSamples(job));
-*/		
-		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-		m.addAttribute("submittedSamplesList", submittedSamplesList);
-		List <Sample> tempSubmittedSamplesList = jobService.getSubmittedSamples(job);
-		String samplePairsKey = null;
+		//deal with samplePairs
 		String samplePairs = null;
 		for(JobMeta jm : jobMetaList){
 			if(jm.getK().indexOf("samplePairs")>-1){
-				samplePairsKey = jm.getK();
 				samplePairs = jm.getV();
 				break;
 			}
 		}
-		/*    //not used
-		class SampleIdComparator implements Comparator<Sample> {
-			@Override
-			public int compare(Sample arg0, Sample arg1) {
-				return arg0.getSampleId().intValue() >= arg1.getSampleId().intValue()?1:0;
-			}
-		}
-		Collections.sort(submittedSamplesList, new SampleIdComparator());//needed? wanted?
-		*/
 		
-		Map<Sample, List<String>> samplePairsMap = new HashMap<Sample, List<String>>();
-		if(samplePairs!=null){
-			for(Sample cSample : submittedSamplesList){
-				List<String> stringList = new ArrayList<String>();
-				boolean atLeastOneAnalysisPairExists = false;
-				for(Sample tSample : tempSubmittedSamplesList){				
-					String matchFound = "f";
-					if(cSample.getSampleId()==tSample.getSampleId()){
-						stringList.add("d");//disallowed
-						continue;
-					}
-					String possiblePair = tSample.getSampleId().toString() + ":" + cSample.getSampleId().toString();
-					for(String realPair : samplePairs.split(";")){
-						if(realPair.equals(possiblePair)){
-							matchFound = "t";
-							atLeastOneAnalysisPairExists = true;
-							break;
-						}
-					}
-					stringList.add(matchFound);
-				}
-				if(atLeastOneAnalysisPairExists){
-					samplePairsMap.put(cSample, stringList);
-				}
-			}
-		}
-		m.addAttribute("samplePairsMap", samplePairsMap);
-
+		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		m.addAttribute("submittedSamplesList", submittedSamplesList);
 		
+		Map<Sample, List<String>> samplePairsMap = jobService.decodeSamplePairs(samplePairs, submittedSamplesList); 
 		List<String> controlIsReferenceList = new ArrayList<String>();
 		List<String> testIsReferenceList = new ArrayList<String>();
- 		if(samplePairs!=null){
- 			System.out.println("inside reference testing loop");
-			for(Sample sample : submittedSamplesList){		
-				System.out.println("inside submittedSampleList loop for sampleId = " + sample.getSampleId().intValue());
-				String matchFoundForControlIsReference = "f";
-				String matchFoundForTestIsReference = "f";
-				for(String realPair : samplePairs.split(";")){
-					String[] stringArray = realPair.split(":");
-					Integer T;
-					try{
-						T = Integer.valueOf(stringArray[0]);
-					}catch(Exception e){T = null;}
-					Integer C;
-					try{
-						C = Integer.valueOf(stringArray[1]);
-					}catch(Exception e){C = null;}					
-					
-					if(C == null && T != null && sample.getSampleId().intValue()==T.intValue()){
-						matchFoundForControlIsReference = "t";
-					}
-					else if(T == null && C != null && sample.getSampleId().intValue()==C.intValue()){
-						matchFoundForTestIsReference = "t";
-					}
-				}
-				controlIsReferenceList.add(matchFoundForControlIsReference);
-				testIsReferenceList.add(matchFoundForTestIsReference);
-			}
-			boolean foundOne = false;
-			for(String s : controlIsReferenceList){
-				if(s.equals("t")){
-					foundOne = true;
-				}
-			}
-			if(!foundOne){
-				controlIsReferenceList.clear();
-			}
-			foundOne = false;
-			for(String s2 : testIsReferenceList){
-				if(s2.equals("t")){
-					foundOne = true;
-				}
-			}
-			if(!foundOne){
-				testIsReferenceList.clear();
-			}
-		}
- 		
+		jobService.decodeSamplePairsWithReference(samplePairs, submittedSamplesList, controlIsReferenceList, testIsReferenceList);
+		m.addAttribute("samplePairsMap", samplePairsMap);
 		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
 		m.addAttribute("testIsReferenceList", testIsReferenceList);
 		 
@@ -611,8 +512,7 @@ public class JobController extends WaspController {
 				User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
 				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
-				//float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
-				String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
+				String quoteAsString;
 				if(ajqcList.isEmpty()){
 					quoteAsString = "?.??";
 				}
@@ -622,7 +522,6 @@ public class JobController extends WaspController {
 						  quoteAsString = String.format("%.2f", price);
 					}
 					catch(Exception e){
-						  logger.warn("JobController: jobList : " + e);
 						  quoteAsString = "?.??"; 
 					}					
 				}
