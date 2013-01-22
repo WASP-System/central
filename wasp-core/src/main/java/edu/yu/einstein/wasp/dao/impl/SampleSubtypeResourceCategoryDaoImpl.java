@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleSubtypeResourceCategoryDaoImpl extends WaspDaoImpl<SampleSubtypeResourceCategory> implements edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao {
@@ -44,10 +44,9 @@ public class SampleSubtypeResourceCategoryDaoImpl extends WaspDaoImpl<SampleSubt
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSubtypeResourceCategory getSampleSubtypeResourceCategoryBySampleSubtypeResourceCategoryId (final Integer sampleSubtypeResourceCategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSubtypeResourceCategoryId", sampleSubtypeResourceCategoryId);
 
 		List<SampleSubtypeResourceCategory> results = this.findByMap(m);
@@ -60,10 +59,9 @@ public class SampleSubtypeResourceCategoryDaoImpl extends WaspDaoImpl<SampleSubt
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSubtypeResourceCategory getSampleSubtypeResourceCategoryBySampleSubtypeIdResourceCategoryId(final Integer sampleSubtypeId, final Integer resourceCategoryId){
-		HashMap m = new HashMap();
+		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSubtypeId", sampleSubtypeId);
 		m.put("resourcecategoryId", resourceCategoryId);
 

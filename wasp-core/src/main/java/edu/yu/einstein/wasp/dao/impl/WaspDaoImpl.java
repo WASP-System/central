@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
+@SuppressWarnings("unchecked")
 @Repository
 public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
@@ -100,7 +101,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	
 	public List<E> findAll() {
 		return this.entityManager.createQuery("FROM " + entityClass.getName()).getResultList();
 	}
@@ -111,8 +112,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMap(final Map m) {
+	
+	public List<E> findByMap(final Map<?, ?> m) {
 		boolean first = true;
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		for (Object key : m.keySet()) {
@@ -129,15 +130,15 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
+			System.out.println("KEY="+key.toString());
 			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
 		}
-
 		return q.getResultList();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapExcept(final Map m) {
+	
+	public List<E> findByMapExcept(final Map<?, ?> m) {
 		boolean first = true;
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		for (Object key : m.keySet()) {
@@ -163,8 +164,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
+	
+	public List<E> findByMapDistinctOrderBy(final Map<?, ?> m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
 		boolean where = false;
 		boolean firstMap = true;
 		boolean firstDistinct = true;
@@ -242,13 +243,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 	
 	@Override
-	public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction) {
+	public List<E> findByMapOrderBy(final Map<?, ?> m, final List<String> orderByColumnNames, final String direction) {
 		return findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
+	
+	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map<?, ?> m, final Map<?, ?> dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
 		boolean where = false;
 		//boolean firstMap = true;
 		boolean firstDistinct = true;
@@ -335,7 +336,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
+	
 	public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
 
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
@@ -356,8 +357,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List findAllOrderBy(final String orderByColumnName, final String direction) {
+	
+	public List<E> findAllOrderBy(final String orderByColumnName, final String direction) {
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		if (!"".equals(orderByColumnName) && "".equals(direction)) {
 			qString += " ORDER BY h." + orderByColumnName;
@@ -408,11 +409,12 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List findDistinctMetaOrderBy(final String metaKeyName, final String direction){
-		Map metaQueryMap = new HashMap();
+		Map<String, String> metaQueryMap = new HashMap<String, String>();
 		metaQueryMap.put("k", metaKeyName);
-	  	List<String> orderByList = new ArrayList();
+	  	List<String> orderByList = new ArrayList<String>();
 	  	orderByList.add("v");
 		return this.findByMapDistinctOrderBy(metaQueryMap, orderByList, orderByList, direction); 
 	}

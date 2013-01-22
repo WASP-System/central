@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleSource;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements edu.yu.einstein.wasp.dao.SampleSourceDao {
@@ -44,10 +44,9 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSourceId", sampleSourceId);
 
 		List<SampleSource> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
-    	HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
 		m.put("multiplexindex", multiplexindex);
 

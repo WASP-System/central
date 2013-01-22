@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SoftwareMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements edu.yu.einstein.wasp.dao.SoftwareMetaDao {
@@ -44,10 +44,9 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SoftwareMeta getSoftwareMetaBySoftwareMetaId (final Integer softwareMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("softwareMetaId", softwareMetaId);
 
 		List<SoftwareMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SoftwareMeta getSoftwareMetaByKSoftwareId (final String k, final Integer softwareId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("softwareId", softwareId);
 
@@ -95,7 +93,6 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList) {
 		for (SoftwareMeta m:metaList) {

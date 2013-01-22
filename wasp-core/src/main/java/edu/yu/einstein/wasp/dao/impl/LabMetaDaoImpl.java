@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.LabMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einstein.wasp.dao.LabMetaDao {
@@ -44,10 +44,9 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labMetaId", labMetaId);
 
 		List<LabMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabMeta getLabMetaByKLabId (final String k, final int labId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("labId", labId);
 
@@ -96,7 +94,6 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabId (final int labId, final List<LabMeta> metaList) {
 		for (LabMeta m:metaList) {

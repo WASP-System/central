@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileTypeMetaDao;
 import edu.yu.einstein.wasp.model.FileTypeMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements FileTypeMetaDao {
@@ -45,10 +45,9 @@ public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements Fi
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileTypeMeta getFileTypeMetaByFileTypeMetaId (final int fileTypeMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileTypeMetaId", fileTypeMetaId);
 
 		List<FileTypeMeta> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements Fi
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileTypeMeta getFileTypeMetaByKFileTypeId (final String k, final int fileTypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileTypeId", fileTypeId);
 

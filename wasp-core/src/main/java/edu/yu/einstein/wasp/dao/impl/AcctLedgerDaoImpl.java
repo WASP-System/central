@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctLedger;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu.einstein.wasp.dao.AcctLedgerDao {
@@ -44,10 +44,9 @@ public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("ledgerId", ledgerId);
 
 		List<AcctLedger> results = this.findByMap(m);

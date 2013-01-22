@@ -14,7 +14,6 @@ package edu.yu.einstein.wasp.dao;
 import java.util.List;
 
 import edu.yu.einstein.wasp.model.FileMeta;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 
 public interface FileMetaDao extends WaspDao<FileMeta> {

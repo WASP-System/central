@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements edu.yu.einstein.wasp.dao.ResourceMetaDao {
@@ -44,10 +44,9 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceMeta getResourceMetaByResourceMetaId (final Integer resourceMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceMetaId", resourceMetaId);
 
 		List<ResourceMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceMeta getResourceMetaByKResourceId (final String k, final Integer resourceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("resourceId", resourceId);
 
@@ -95,7 +93,6 @@ public class ResourceMetaDaoImpl extends WaspDaoImpl<ResourceMeta> implements ed
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourceId (final int resourceId, final List<ResourceMeta> metaList) {
 		for (ResourceMeta m:metaList) {

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Role;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wasp.dao.RoleDao {
@@ -44,10 +44,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByRoleId (final int roleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("roleId", roleId);
 
 		List<Role> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByRoleName (final String roleName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("roleName", roleName);
 
 		List<Role> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Role getRoleByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Role> results = this.findByMap(m);

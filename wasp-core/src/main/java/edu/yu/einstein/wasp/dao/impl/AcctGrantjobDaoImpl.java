@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctGrantjob;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements edu.yu.einstein.wasp.dao.AcctGrantjobDao {
@@ -44,10 +44,9 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 
 		List<AcctGrantjob> results = this.findByMap(m);

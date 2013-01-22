@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.model.FileType;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDao {

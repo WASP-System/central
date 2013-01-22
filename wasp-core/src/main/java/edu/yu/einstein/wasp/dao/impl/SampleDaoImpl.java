@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Sample;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstein.wasp.dao.SampleDao {
@@ -46,10 +46,9 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Sample getSampleBySampleId (final int sampleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
 
 		List<Sample> results = this.findByMap(m);
@@ -61,6 +60,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 		return results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Sample> getSamplesByJobId (final int jobId) {
 		   String sql=
@@ -93,7 +93,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 
 	@Override
 	public Sample getSampleByName(String name) {
-		HashMap m = new HashMap();
+		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Sample> results = this.findByMap(m);
@@ -105,19 +105,17 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 		return results.get(0);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Sample> findAllPlatformUnits() {
-		Map queryMap = new HashMap();
+		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 //		queryMap.put("sampleType.sampleTypeId", 5);
 		return this.findByMap(queryMap);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<Sample> findAllPlatformUnitsOrderByDescending() {
-		Map queryMap = new HashMap();
+		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");
 		List<String> orderByColumnNames = new ArrayList<String>();
 		orderByColumnNames.add("sampleId");
@@ -127,7 +125,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	
 	@Override
 	public List<Sample> getActiveSamples() {
-		Map queryMap = new HashMap();
+		Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		queryMap.put("isActive", 1);
 		return this.findByMap(queryMap);
 	}

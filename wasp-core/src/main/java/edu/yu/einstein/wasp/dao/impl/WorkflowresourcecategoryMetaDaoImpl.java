@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<WorkflowresourcecategoryMeta> implements edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao {
@@ -44,10 +44,9 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<Workflowres
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryMetaId (final Integer workflowresourcecategoryMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowresourcecategoryMetaId", workflowresourcecategoryMetaId);
 
 		List<WorkflowresourcecategoryMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<Workflowres
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryIdK (final Integer workflowresourcecategoryId, final String k) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("workflowresourcecategoryId", workflowresourcecategoryId);
 		m.put("k", k);
 

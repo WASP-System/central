@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> implements edu.yu.einstein.wasp.dao.SampleTypeCategoryDao {
@@ -44,10 +44,9 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleTypeCategory getSampleTypeCategoryBySampleTypecategoryId (final Integer sampleTypecategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleTypecategoryId", sampleTypecategoryId);
 
 		List<SampleTypeCategory> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleTypeCategory getSampleTypeCategoryByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<SampleTypeCategory> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleTypeCategory getSampleTypeCategoryByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<SampleTypeCategory> results = this.findByMap(m);

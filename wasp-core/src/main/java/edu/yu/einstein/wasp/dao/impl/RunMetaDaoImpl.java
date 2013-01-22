@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.RunMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einstein.wasp.dao.RunMetaDao {
@@ -44,10 +44,9 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runMetaId", runMetaId);
 
 		List<RunMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunMeta getRunMetaByKRunId (final String k, final int runId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("runId", runId);
 
@@ -96,7 +94,6 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByRunId (final int runId, final List<RunMeta> metaList) {
 		for (RunMeta m:metaList) {

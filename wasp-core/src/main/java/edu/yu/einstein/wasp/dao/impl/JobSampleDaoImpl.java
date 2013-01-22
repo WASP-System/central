@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobSample;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.einstein.wasp.dao.JobSampleDao {
@@ -44,10 +44,9 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobSampleId", jobSampleId);
 
 		List<JobSample> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSample getJobSampleByJobIdSampleId (final int jobId, final int sampleId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 		m.put("sampleId", sampleId);
 
@@ -95,10 +93,9 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public List<JobSample> getJobSampleByJobId(final int jobId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 
 		return (List<JobSample>) this.findByMap(m);

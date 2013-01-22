@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.File;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wasp.dao.FileDao {
@@ -44,10 +44,9 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public File getFileByFileId (final Integer fileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileId", fileId);
 
 		List<File> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class FileDaoImpl extends WaspDaoImpl<File> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public File getFileByFilelocation (final String filelocation) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("filelocation", filelocation);
 
 		List<File> results = this.findByMap(m);

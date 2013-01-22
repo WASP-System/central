@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UserMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.einstein.wasp.dao.UserMetaDao {
@@ -44,10 +44,9 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("userMetaId", userMetaId);
 
 		List<UserMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("UserId", UserId);
 
@@ -96,7 +94,6 @@ public class UserMetaDaoImpl extends WaspDaoImpl<UserMeta> implements edu.yu.ein
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByUserId (final int UserId, final List<UserMeta> metaList) {
 		for (UserMeta m:metaList) {

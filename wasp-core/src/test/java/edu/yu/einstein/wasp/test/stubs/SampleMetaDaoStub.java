@@ -97,14 +97,14 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 	}
 
 	@Override
-	public List<SampleMeta> findByMapDistinctOrderBy(Map m,
+	public List<SampleMeta> findByMapDistinctOrderBy(Map<?, ?> m,
 			List<String> distinctColumnNames, List<String> orderByColumnNames,
 			String direction) {
 		return stubSampleMetaList;
 	}
 
 	@Override
-	public List<SampleMeta> findByMapOrderBy(Map m,
+	public List<SampleMeta> findByMapOrderBy(Map<?, ?> m,
 			List<String> orderByColumnNames, String direction) {
 		return stubSampleMetaList;
 	}
@@ -145,8 +145,8 @@ public class SampleMetaDaoStub implements SampleMetaDao {
 	}
 
 	@Override
-	public List<SampleMeta> findByMapsIncludesDatesDistinctOrderBy(Map m,
-			Map dateMap, List<String> distinctColumnNames,
+	public List<SampleMeta> findByMapsIncludesDatesDistinctOrderBy(Map<?, ?> m,
+			Map<?, ?> dateMap, List<String> distinctColumnNames,
 			List<String> orderByColumnAndDirectionList) {
 		// TODO Auto-generated method stub
 		return null;

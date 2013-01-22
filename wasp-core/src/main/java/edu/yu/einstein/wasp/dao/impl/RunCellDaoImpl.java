@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.RunCell;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einstein.wasp.dao.RunCellDao {
@@ -44,10 +44,9 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunCell getRunCellByRunCellId (final int runCellId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runCellId", runCellId);
 
 		List<RunCell> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunCell getRunCellByRunIdResourcelaneId (final int runId, final int resourcecellId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runId", runId);
 		m.put("resourcecellId", resourcecellId);
 
@@ -97,10 +95,9 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunCell getRunCellBySampleIdRunId (final int sampleId, final int runId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
 		m.put("runId", runId);
 

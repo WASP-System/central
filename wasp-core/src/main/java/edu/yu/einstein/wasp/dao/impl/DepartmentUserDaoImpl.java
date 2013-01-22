@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.DepartmentUser;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implements edu.yu.einstein.wasp.dao.DepartmentUserDao {
@@ -44,10 +44,9 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("departmentUserId", departmentUserId);
 
 		List<DepartmentUser> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("departmentId", departmentId);
 		m.put("UserId", UserId);
 

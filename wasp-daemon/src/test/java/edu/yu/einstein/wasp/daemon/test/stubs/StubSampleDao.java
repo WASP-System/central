@@ -101,7 +101,7 @@ public class StubSampleDao implements SampleDao {
 	}
 
 	@Override
-	public List<Sample> findByMapDistinctOrderBy(Map m,
+	public List<Sample> findByMapDistinctOrderBy(Map<?, ?> m,
 			List<String> distinctColumnNames, List<String> orderByColumnNames,
 			String direction) {
 		// Auto-generated method stub
@@ -153,7 +153,7 @@ public class StubSampleDao implements SampleDao {
 	}
 
 	@Override
-	public List<Sample> findByMapOrderBy(Map m,
+	public List<Sample> findByMapOrderBy(Map<?, ?> m,
 			List<String> orderByColumnNames, String direction) {
 		// TODO Auto-generated method stub
 		return null;
@@ -166,8 +166,8 @@ public class StubSampleDao implements SampleDao {
 	}
 
 	@Override
-	public List<Sample> findByMapsIncludesDatesDistinctOrderBy(Map m,
-			Map dateMap, List<String> distinctColumnNames,
+	public List<Sample> findByMapsIncludesDatesDistinctOrderBy(Map<?, ?> m,
+			Map<?, ?> dateMap, List<String> distinctColumnNames,
 			List<String> orderByColumnAndDirectionList) {
 		// TODO Auto-generated method stub
 		return null;

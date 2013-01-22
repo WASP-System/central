@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implements edu.yu.einstein.wasp.dao.LabPendingMetaDao {
@@ -44,10 +44,9 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labPendingMetaId", labPendingMetaId);
 
 		List<LabPendingMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("labpendingId", labpendingId);
 
@@ -97,7 +95,6 @@ public class LabPendingMetaDaoImpl extends WaspDaoImpl<LabPendingMeta> implement
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByLabpendingId (final int labpendingId, final List<LabPendingMeta> metaList) {
 		for (LabPendingMeta m:metaList) {

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu.einstein.wasp.dao.SampleMetaDao {
@@ -44,10 +44,9 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleMeta getSampleMetaBySampleMetaId (final int sampleMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleMetaId", sampleMetaId);
 
 		List<SampleMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleMeta getSampleMetaByKSampleId (final String k, final int sampleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("sampleId", sampleId);
 
@@ -97,7 +95,6 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampleId (final int sampleId, final List<SampleMeta> metaList) {
 		for (SampleMeta m:metaList) {
@@ -124,7 +121,6 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampleId (final int sampleId, final SampleMeta m) {
 		SampleMeta currentMeta = getSampleMetaByKSampleId(m.getK(), sampleId);
@@ -144,7 +140,7 @@ public class SampleMetaDaoImpl extends WaspDaoImpl<SampleMeta> implements edu.yu
 
 	@Override
 	public List<SampleMeta> getSamplesMetaBySampleId (final int sampleId) {
-		HashMap m = new HashMap();
+		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
 
 		List<SampleMeta> results = this.findByMap(m);

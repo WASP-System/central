@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMeta> implements edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao {
@@ -44,10 +44,9 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategoryMeta getResourceCategoryMetaByResourceCategoryMetaId (final Integer resourceCategoryMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceCategoryMetaId", resourceCategoryMetaId);
 
 		List<ResourceCategoryMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategoryMeta getResourceCategoryMetaByKResourcecategoryId (final String k, final Integer resourcecategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("resourcecategoryId", resourcecategoryId);
 
@@ -95,7 +93,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {
 		for (ResourceCategoryMeta m:metaList) {

@@ -28,7 +28,7 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
@@ -56,11 +56,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
 		
-    	HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleDraftMetaId", sampleDraftMetaId);
 
 		List<SampleDraftMeta> results = this.findByMap(m);
@@ -83,11 +82,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
 		
-    	HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("sampledraftId", sampledraftId);
 
@@ -110,7 +108,6 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
 		for (SampleDraftMeta m:metaList) {
@@ -132,6 +129,7 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<SampleSubtype,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
