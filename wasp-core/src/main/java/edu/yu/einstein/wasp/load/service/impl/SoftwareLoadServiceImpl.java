@@ -115,6 +115,7 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 	    }
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Software> T update(ResourceType resourceType, List<SoftwareMeta> meta, String iname, String name, int isActive, Class<T> clazz){
 		Software software = addOrUpdateSoftware(resourceType, iname, name, isActive);

@@ -1192,7 +1192,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
 		
-		Map m = new HashMap();
+		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("UserId", user.getUserId().intValue());
 		List<String> orderByColumnNames = new ArrayList<String>();
 		orderByColumnNames.add("jobId");
