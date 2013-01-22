@@ -75,6 +75,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
@@ -2385,6 +2386,39 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return sampleDao.getSampleBySampleId(cellLibrary.getSourceSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	
-	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample){
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		List<Sample> sampleList = new ArrayList<Sample>();
+		String samplePairs = null;
+		for(JobMeta jm : job.getJobMeta()){
+			if(jm.getK().indexOf("samplePairs")>-1){
+				samplePairs = jm.getV();
+				break;
+			}
+		}
+		if(samplePairs != null && !samplePairs.isEmpty()){
+			for(String realPair : samplePairs.split(";")){
+				String [] stringArray = realPair.split(":");
+				if(!stringArray[0].isEmpty() && sample.getSampleId().toString().equals(stringArray[0])){
+					try{
+						Sample sc = this.getSampleById(Integer.valueOf(stringArray[1]));
+						if(sc.getSampleId() != null){
+							sampleList.add(sc);
+						}
+					}catch(Exception e){continue;}
+					
+				}
+				else{
+					continue;
+				}
+			}
+		}
+		return sampleList;
+	}
 }
 

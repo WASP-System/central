@@ -71,9 +71,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	@Override
 	public E merge(E entity) {
-
-		setUpdateTs(entity);
-		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "merging");
 		return entityManager.merge(entity);
 	}
@@ -421,6 +418,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException{
 		try{
 			this.merge(entity); // ensures attached to the session to start with

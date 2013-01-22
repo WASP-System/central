@@ -24,7 +24,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	private String workingDirectory;
 	private String resultsDirectory;
 	protected int finalStatus = 0;
-	transient protected String finalOutput = "";
+	transient protected String archivedResultOutputPath = "";
 
 	private int exitStatus;
 	transient private InputStream stdOutStream;
@@ -129,7 +129,12 @@ public class GridResultImpl implements GridResult, Serializable {
 	}
 
 	@Override
-	public String getFinalOutput() {
-		return this.finalOutput;
+	public String getArchivedResultOutputPath() {
+		return this.archivedResultOutputPath;
+	}
+	
+	@Override
+	public void setArchivedResultOutputPath(String path) {
+		this.archivedResultOutputPath = path;
 	}
 }

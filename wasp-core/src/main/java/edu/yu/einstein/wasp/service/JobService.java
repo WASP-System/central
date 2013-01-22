@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
@@ -439,7 +440,10 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public String getJobStatus(Job job, boolean comment);
 
+	public List<Software> getSoftwareForJob(Job job);
 
+	public  Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList);
+
+	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
 	
-
 }

@@ -4,6 +4,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,9 +98,20 @@ public class LocalhostTransportService implements GridTransportService {
 	@Override
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
-		if (isUserDirIsRoot()) prefix = "$HOME/";
+		if (isUserDirIsRoot() && !filespec.startsWith("$HOME")) prefix = "$HOME/";
 		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
+	}
+
+	@Override
+	public String prefixRemoteFile(URI uri) throws FileNotFoundException {
+		if ( !uri.getHost().toLowerCase().equals("localhost") && !uri.getHost().equals("127.0.0.1"))
+			throw new FileNotFoundException("file not found " + uri.toString());
+		// TODO: implement remote file management
+		if ( !uri.getScheme().equals("file"))
+			throw new FileNotFoundException("file not found " + uri.toString() + " unknown scheme " + uri.getScheme());
+		
+		return prefixRemoteFile(uri.getPath());
 	}
 
 }
