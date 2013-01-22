@@ -17,7 +17,7 @@ import java.util.Map;
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
 
-public interface WaspDao<E> {
+public interface WaspDao<E> extends WaspPersistenceDao {
 
  public void persist(E entity);
 

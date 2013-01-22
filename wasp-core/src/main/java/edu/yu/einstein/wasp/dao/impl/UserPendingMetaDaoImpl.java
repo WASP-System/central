@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 @Transactional
 @Repository
-public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> implements edu.yu.einstein.wasp.dao.UserPendingMetaDao {
+public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> implements edu.yu.einstein.wasp.dao.UserPendingMetaDao {
 
 	/**
 	 * UserPendingMetaDaoImpl() Constructor
@@ -83,35 +83,6 @@ public class UserPendingMetaDaoImpl extends WaspDaoImpl<UserPendingMeta> impleme
 		}
 		return results.get(0);
 	}
-
-
-	/**
-	 * updateByUserpendingId (final int userPendingId, final List<UserPendingMeta> metaList)
-	 *
-	 * @param userPendingId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByUserpendingId (final int userPendingId, final List<UserPendingMeta> metaList) {
-		for (UserPendingMeta m:metaList) {
-			UserPendingMeta currentMeta = getUserPendingMetaByKUserpendingId(m.getK(), userPendingId);
-			if (currentMeta.getUserPendingMetaId() == null){
-				// metadata value not in database yet
-				m.setUserPendingId(userPendingId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
-
 
 }
 

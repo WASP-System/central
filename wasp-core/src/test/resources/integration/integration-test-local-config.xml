@@ -2,13 +2,20 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:mockito="http://www.mockito.org/spring/mockito" default-autowire="byName"
+	xsi:schemaLocation="http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd 
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	
 	<!-- local imports  -->
-	<context:component-scan base-package="edu.yu.einstein.wasp.integration.test.stubs" />
 	<context:property-placeholder location="classpath:integration.properties" ignore-unresolvable="true"/>
 	
-	<bean id="sampleServiceImpl" class="edu.yu.einstein.wasp.test.stubs.StubSampleService" />
+	<mockito:mock id="authenticationService" class="edu.yu.einstein.wasp.service.impl.AuthenticationServiceImpl" />
+	
+	<mockito:mock id="runDao" class="edu.yu.einstein.wasp.dao.impl.RunDaoImpl" />
+		
+	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	
+	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
 
 </beans>

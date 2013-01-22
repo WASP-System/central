@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.Workflow;
 
 public interface WorkflowService extends WaspService {
@@ -17,8 +18,9 @@ public interface WorkflowService extends WaspService {
 	 * Set name of Batch Flow Job specified for the current workflow. 
 	 * @param workflow
 	 * @param name
+	 * @throws MetadataException 
 	 */
-	public void setJobFlowBatchJobName(Workflow workflow, String name);
+	public void setJobFlowBatchJobName(Workflow workflow, String name) throws MetadataException;
 	
 	/**
 	 * Get the list of pages specified for the current workflow. 
@@ -32,8 +34,9 @@ public interface WorkflowService extends WaspService {
 	 * Set the list of pages specified for the current workflow. 
 	 * @param workflow
 	 * @param pageList
+	 * @throws MetadataException 
 	 */
-	public void setPageFlowOrder(Workflow workflow, List<String> pageList);
+	public void setPageFlowOrder(Workflow workflow, List<String> pageList) throws MetadataException;
 	
 	
 

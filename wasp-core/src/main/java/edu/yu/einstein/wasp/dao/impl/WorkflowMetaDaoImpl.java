@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 @Transactional
 @Repository
-public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements edu.yu.einstein.wasp.dao.WorkflowMetaDao {
+public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implements edu.yu.einstein.wasp.dao.WorkflowMetaDao {
 
 	/**
 	 * WorkflowMetaDaoImpl() Constructor
@@ -83,47 +83,6 @@ public class WorkflowMetaDaoImpl extends WaspDaoImpl<WorkflowMeta> implements ed
 		}
 		return results.get(0);
 	}
-
-
-	/**
-	 * updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByWorkflowId (final int workflowId, final List<WorkflowMeta> metaList) {
-		for (WorkflowMeta m:metaList) {
-			updateByWorkflowId(workflowId, m);
-		}
-	}
-	
-	/**
-	 * updateByWorkflowId (final int workflowId, final WorkflowMeta m)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByWorkflowId (final int workflowId, final WorkflowMeta m) {
-		WorkflowMeta currentMeta = getWorkflowMetaByKWorkflowId(m.getK(), workflowId);
-		if (currentMeta.getWorkflowMetaId() == null){
-			// metadata value not in database yet
-			m.setWorkflowId(workflowId);
-			entityManager.persist(m);
-		} else if (!currentMeta.getV().equals(m.getV())){
-			// meta exists already but value has changed
-			currentMeta.setV(m.getV());
-			entityManager.merge(currentMeta);
-		} else{
-			// no change to meta so do nothing
-		}
-	}
-
 
 
 }

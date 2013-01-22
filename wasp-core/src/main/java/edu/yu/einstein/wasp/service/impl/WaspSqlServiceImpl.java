@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.dao.impl.WaspPersistenceDao;
+import edu.yu.einstein.wasp.dao.impl.WaspPersistenceDaoImpl;
 import edu.yu.einstein.wasp.service.WaspSqlService;
 
 @Service
@@ -14,12 +14,12 @@ import edu.yu.einstein.wasp.service.WaspSqlService;
 public class WaspSqlServiceImpl implements WaspSqlService{
 
 	@Autowired
-	WaspPersistenceDao waspPersistenceDao;
+	WaspPersistenceDaoImpl waspPersistenceDaoImpl;
 	
 	@Override
 	public void executeNativeSqlUpdateOnList(List<String> updateQuery){
 		for (String query: updateQuery)
-			waspPersistenceDao.getEntityManager().createNativeQuery(query).executeUpdate();
+			waspPersistenceDaoImpl.getEntityManager().createNativeQuery(query).executeUpdate();
 	}
 	
 }

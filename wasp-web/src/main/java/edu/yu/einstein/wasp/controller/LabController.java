@@ -371,16 +371,18 @@ public class LabController extends WaspController {
 			labDb.setDepartmentId(labForm.getDepartmentId());
 			this.labDao.merge(labDb);
 		}
-
-		labMetaDao.updateByLabId(labId, labMetaList);
-
-		// MimeMessageHelper a;
-
 		try {
-			response.getWriter().println(messageService.getMessage("lab.updated_success.label"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
+			try{
+				labMetaDao.setMeta(labMetaList, labId);
+				response.getWriter().println(messageService.getMessage("lab.updated_success.label"));
+				return null;
+			} catch (MetadataException e){
+				logger.warn(e.getMessage());
+				response.getWriter().println(this.messageService.getMessage("lab.updated.error"));
+				return null;
+			}
+		} catch (Throwable e1) {
+			throw new IllegalStateException("Cant output message ", e1);
 		}
 	}
 
@@ -408,16 +410,17 @@ public class LabController extends WaspController {
 
 			this.labPendingDao.merge(labPendingDb);
 		}
-
-		labPendingMetaDao.updateByLabpendingId(labPendingId, labPendingMetaList);
-
-		// MimeMessageHelper a;
-
-		try {
-			response.getWriter().println(messageService.getMessage("labPending.updated_success.label"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
+		try{
+			try {
+				labPendingMetaDao.setMeta(labPendingMetaList,labPendingId);
+				response.getWriter().println(messageService.getMessage("labPending.updated_success.label"));
+				return null;
+			} catch (MetadataException e){
+				response.getWriter().println(messageService.getMessage("labPending.updated.error"));
+				return null;
+			}
+		} catch (Throwable e1) {
+			throw new IllegalStateException("Cant output success message ", e1);
 		}
 	}
 
@@ -562,11 +565,14 @@ public class LabController extends WaspController {
 		labForm.setLastUpdTs(new Date());
 
 		Lab labDb = this.labDao.save(labForm);
-		labMetaDao.updateByLabId(labDb.getLabId(), labMetaList);
-
-		status.setComplete();
-
-		waspMessage("lab.created_success.label");
+		try {
+			labMetaDao.setMeta(labMetaList, labDb.getLabId());
+			status.setComplete();
+			waspMessage("lab.created_success.label");
+		} catch (MetadataException e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("lab.created.error");
+		}
 
 		return "redirect:/lab/detail_rw/" + labDb.getLabId() + ".do";
 	}
@@ -603,11 +609,14 @@ public class LabController extends WaspController {
 
 		this.labDao.merge(labDb);
 
-		labMetaDao.updateByLabId(labId, labMetaList);
-
-		status.setComplete();
-
-		waspMessage("lab.updated_success.label");
+		try {
+			labMetaDao.setMeta(labMetaList, labId);
+			status.setComplete();
+			waspMessage("lab.updated_success.label");
+		} catch (MetadataException e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("lab.updated.error");
+		}
 
 		// return "redirect:" + labId + ".do";
 		return "redirect:/lab/detail_ro/"
@@ -650,11 +659,14 @@ public class LabController extends WaspController {
 
 		this.labPendingDao.merge(labPendingDb);
 
-		labPendingMetaDao.updateByLabpendingId(labPendingId, labPendingMetaList);
-
-		status.setComplete();
-
-		waspMessage("labPending.updated_success.label");
+		try {
+			labPendingMetaDao.setMeta(labPendingMetaList, labPendingId);
+			status.setComplete();
+			waspMessage("labPending.updated_success.label");
+		} catch (MetadataException e) {
+			waspErrorMessage("labPending.updated.error");
+			logger.warn(e.getLocalizedMessage());
+		}
 
 		// return "redirect:" + labId + ".do";
 		return "redirect:/lab/pending/detail_ro/"
@@ -726,10 +738,10 @@ public class LabController extends WaspController {
 		return "lab/pendinguser/list";
 	}
 
-	@RequestMapping(value = "/user/role/{labId}/{userId}/{roleName}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/user/role/{labId}/{UserId}/{roleName}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lm-' + #labId)")
 	public String userDetail(@PathVariable("labId") Integer labId,
-			@PathVariable("userId") Integer userId,
+			@PathVariable("UserId") Integer userId,
 			@PathVariable("roleName") String roleName, ModelMap m) {
 
 		// TODO CHECK VALID LABUSER
@@ -812,7 +824,7 @@ public class LabController extends WaspController {
 				logger.warn("No match for labPendingMeta property with name '"	+ name + "' in labMeta properties");
 			}
 		}
-		labMetaDao.updateByLabId(labDb.getLabId(), (List<LabMeta>) labMetaHelperWebapp.getMetaList());
+		labMetaDao.setMeta((List<LabMeta>) labMetaHelperWebapp.getMetaList(), labDb.getLabId());
 		// set pi role
 		Role role = roleDao.getRoleByRoleName("pi");
 
@@ -910,7 +922,7 @@ public class LabController extends WaspController {
 				throw new MetadataException("Metadata user / pi meta name mismatch", e);
 			}
 		}
-		userMetaDao.updateByUserId(userId, (List<UserMeta>) userMetaHelperWebapp.getMetaList());
+		userMetaDao.setMeta((List<UserMeta>) userMetaHelperWebapp.getMetaList(), userId);
 
 		// userDb doesn't have associated metadata so add it
 		userDb.setUserMeta((List<UserMeta>) userMetaHelperWebapp.getMetaList());
@@ -953,7 +965,7 @@ public class LabController extends WaspController {
 			/*
 			 * iterate through list of pending labs. If this user was previously
 			 * registered as 'userPending' in a lab, remove reference to her
-			 * userPendingId and insert reference to her new userId instead
+			 * userPendingId and insert reference to her new UserId instead
 			 */
 			Map labPendingQueryMap = new HashMap();
 			labPendingQueryMap.put("userPendingId",	userPendingCurrent.getUserPendingId());
@@ -1221,13 +1233,17 @@ public class LabController extends WaspController {
 
 		LabPending labPendingDb = labPendingDao.save(labPendingForm);
 
-		labPendingMetaDao.updateByLabpendingId(labPendingDb.getLabPendingId(), labPendingMetaList);
+		try {
+			labPendingMetaDao.setMeta(labPendingMetaList, labPendingDb.getLabPendingId());
+			status.setComplete();
+			emailService.sendPendingPrincipalConfirmRequest(labPendingDb);
+			waspMessage("labuser.request_success.label");
+		} catch (MetadataException e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("user.created.error");
+		}
 
-		status.setComplete();
-
-		emailService.sendPendingPrincipalConfirmRequest(labPendingDb);
-
-		waspMessage("labuser.request_success.label");
+		
 
 		return "redirect:/dashboard.do";
 	}

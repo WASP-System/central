@@ -30,7 +30,7 @@ public interface UserService extends WaspService {
   public String getNewAuthcodeForUser(User user);
   
   /**
-	 * reverse sort a List<User> by userId so that the user with highest Id is first.
+	 * reverse sort a List<User> by UserId so that the user with highest Id is first.
 	 * @param List<User>
 	 * @return void
 	 */

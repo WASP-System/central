@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 
 @Transactional
 @Repository
-public class WorkflowresourcecategoryMetaDaoImpl extends WaspDaoImpl<WorkflowresourcecategoryMeta> implements edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao {
+public class WorkflowresourcecategoryMetaDaoImpl extends WaspMetaDaoImpl<WorkflowresourcecategoryMeta> implements edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao {
 
 	/**
 	 * WorkflowresourcecategoryMetaDaoImpl() Constructor

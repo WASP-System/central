@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.RunMeta;
 
 @Transactional
 @Repository
-public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einstein.wasp.dao.RunMetaDao {
+public class RunMetaDaoImpl extends WaspMetaDaoImpl<RunMeta> implements edu.yu.einstein.wasp.dao.RunMetaDao {
 
 	/**
 	 * RunMetaDaoImpl() Constructor
@@ -83,35 +83,6 @@ public class RunMetaDaoImpl extends WaspDaoImpl<RunMeta> implements edu.yu.einst
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * updateByRunId (final int runId, final List<RunMeta> metaList)
-	 *
-	 * @param runId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByRunId (final int runId, final List<RunMeta> metaList) {
-		for (RunMeta m:metaList) {
-			RunMeta currentMeta = getRunMetaByKRunId(m.getK(), runId);
-			if (currentMeta.getRunMetaId() == null){
-				// metadata value not in database yet
-				m.setRunId(runId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
- 	}
-
 
 
 }

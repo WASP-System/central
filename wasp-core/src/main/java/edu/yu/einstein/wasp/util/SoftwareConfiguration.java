@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Transient;
+
 import edu.yu.einstein.wasp.model.Software;
 
 /**
@@ -30,7 +32,11 @@ public class SoftwareConfiguration implements Serializable{
 	}
 	
 	public Map<String, String> getParameters() {
-		return parameterMap;
+		return this.parameterMap;
+	}
+	
+	public String getParameter(String name) {
+		return this.parameterMap.get(name);
 	}
 
 	public void setParameters(Map<String, String> parameterMap) {

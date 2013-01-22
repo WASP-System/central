@@ -3,6 +3,9 @@ package edu.yu.einstein.wasp.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSoftware;
@@ -16,6 +19,8 @@ import edu.yu.einstein.wasp.model.Software;
  *
  */
 public class WaspJobContext {
+	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private Job job; // contains userid. labid, workflowid
 	
@@ -45,12 +50,17 @@ public class WaspJobContext {
 	}
 	
 	/**
-	 * Get a configured software instance based on softwareType e.g. the ResourceType for an 'aligner'
+	 * Get a configured software instance based on softwareType e.g. the ResourceType for an 'aligner'. Returns null if not found
 	 * @param getResourceType
-	 * @return a {@link SoftwareConfiguration} object or null if nonew found
+	 * @return a {@link SoftwareConfiguration} object or null if no new found
 	 */
 	public SoftwareConfiguration getConfiguredSoftware(ResourceType softwareType){
+		if (softwareType == null){
+			logger.error("software ResourceType is null");
+			return null;
+		}
 		if (! configuredSoftwareByType.containsKey(softwareType)){
+			logger.error("Configured software does not contain an entry for ResourceType=" + softwareType.getIName());
 			return null;
 		}
 		return configuredSoftwareByType.get(softwareType);

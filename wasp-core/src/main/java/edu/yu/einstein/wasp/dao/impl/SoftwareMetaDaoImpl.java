@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 @Transactional
 @Repository
-public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements edu.yu.einstein.wasp.dao.SoftwareMetaDao {
+public class SoftwareMetaDaoImpl extends WaspMetaDaoImpl<SoftwareMeta> implements edu.yu.einstein.wasp.dao.SoftwareMetaDao {
 
 	/**
 	 * SoftwareMetaDaoImpl() Constructor
@@ -83,35 +83,6 @@ public class SoftwareMetaDaoImpl extends WaspDaoImpl<SoftwareMeta> implements ed
 		}
 		return results.get(0);
 	}
-
-
-	/**
-	 * updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList)
-	 *
-	 * @param softwareId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateBySoftwareId (final int softwareId, final List<SoftwareMeta> metaList) {
-		for (SoftwareMeta m:metaList) {
-			SoftwareMeta currentMeta = getSoftwareMetaByKSoftwareId(m.getK(), softwareId);
-			if (currentMeta.getSoftwareMetaId() == null){
-				// metadata value not in database yet
-				m.setSoftwareId(softwareId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
-
 
 }
 

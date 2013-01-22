@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.JobMeta;
 
 @Transactional
 @Repository
-public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einstein.wasp.dao.JobMetaDao {
+public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.einstein.wasp.dao.JobMetaDao {
 
 	/**
 	 * JobMetaDaoImpl() Constructor
@@ -83,36 +83,6 @@ public class JobMetaDaoImpl extends WaspDaoImpl<JobMeta> implements edu.yu.einst
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * updateByJobId (final int jobId, final List<JobMeta> metaList)
-	 *
-	 * @param jobId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByJobId (final int jobId, final List<JobMeta> metaList) {
-		for (JobMeta m:metaList) {
-			JobMeta currentMeta = getJobMetaByKJobId(m.getK(), jobId);
-			if (currentMeta.getJobMetaId() == null){
-				// metadata value not in database yet
-				m.setJobId(jobId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-  	}
-
-
 
 }
 

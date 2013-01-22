@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.FileMeta;
 
 @Transactional
 @Repository
-public class FileMetaDaoImpl extends WaspDaoImpl<FileMeta> implements edu.yu.einstein.wasp.dao.FileMetaDao {
+public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu.einstein.wasp.dao.FileMetaDao {
 
 	/**
 	 * FileMetaDaoImpl() Constructor
@@ -82,58 +82,6 @@ public class FileMetaDaoImpl extends WaspDaoImpl<FileMeta> implements edu.yu.ein
 			return rt;
 		}
 		return results.get(0);
-	}
-
-
-
-	/**
-	 * updateByFileId (final int fileId, final List<FileMeta> metaList)
-	 *
-	 * @param fileId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByFileId (final int fileId, final List<FileMeta> metaList) {
-		for (FileMeta m:metaList) {
-			FileMeta currentMeta = getFileMetaByKFileId(m.getK(), fileId);
-			if (currentMeta.getFileMetaId() == null){
-				// metadata value not in database yet
-				m.setFileId(fileId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-  	}
-	
-	/**
-	 * updateByFileId (final int fileId, final WorkflowMeta m)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByFileId (final int fileId, final FileMeta m) {
-		FileMeta currentMeta = getFileMetaByKWorkflowId(m.getK(), fileId);
-		if (currentMeta.getFileMetaId() == null){
-			// metadata value not in database yet
-			m.setFileId(fileId);
-			entityManager.persist(m);
-		} else if (!currentMeta.getV().equals(m.getV())){
-			// meta exists already but value has changed
-			currentMeta.setV(m.getV());
-			entityManager.merge(currentMeta);
-		} else{
-			// no change to meta so do nothing
-		}
 	}
 
 	/**

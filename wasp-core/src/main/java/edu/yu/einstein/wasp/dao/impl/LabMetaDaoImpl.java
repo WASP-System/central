@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.LabMeta;
 
 @Transactional
 @Repository
-public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einstein.wasp.dao.LabMetaDao {
+public class LabMetaDaoImpl extends WaspMetaDaoImpl<LabMeta> implements edu.yu.einstein.wasp.dao.LabMetaDao {
 
 	/**
 	 * LabMetaDaoImpl() Constructor
@@ -83,36 +83,6 @@ public class LabMetaDaoImpl extends WaspDaoImpl<LabMeta> implements edu.yu.einst
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * updateByLabId (final int labId, final List<LabMeta> metaList)
-	 *
-	 * @param labId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByLabId (final int labId, final List<LabMeta> metaList) {
-		for (LabMeta m:metaList) {
-			LabMeta currentMeta = getLabMetaByKLabId(m.getK(), labId);
-			if (currentMeta.getLabMetaId() == null){
-				// metadata value not in database yet
-				m.setLabId(labId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
-
 
 }
 

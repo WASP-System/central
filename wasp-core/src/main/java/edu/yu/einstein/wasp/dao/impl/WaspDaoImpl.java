@@ -33,7 +33,7 @@ import edu.yu.einstein.wasp.exception.ModelDetachException;
 
 @SuppressWarnings("unchecked")
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDaoImpl implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.
@@ -72,9 +72,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	@Override
 	public E merge(E entity) {
-
-		setUpdateTs(entity);
-		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "merging");
 		return entityManager.merge(entity);
 	}
@@ -382,13 +379,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 				try {
 					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 					if (!login.equals("anonymousUser")) {
-						Integer newUserId = (Integer) entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login", login).getSingleResult();
+						Integer newUserId = (Integer) entityManager.createNativeQuery("select UserId from user where login=:login").setParameter("login", login).getSingleResult();
 						if (newUserId != null) {
 							userId = newUserId;
 						}
 					}
 				} catch (Exception e) {
-					// empty catch in case login or userId can't be found.
+					// empty catch in case login or UserId can't be found.
 				}
 
 				method.invoke(entity, new Object[] { userId });
@@ -423,6 +420,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException{
 		try{
 			this.merge(entity); // ensures attached to the session to start with

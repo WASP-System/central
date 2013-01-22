@@ -11,9 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.integration.Message;
+import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * Registry for storing and retrieving plugin bean references.  {@link WaspPlugin}
@@ -127,19 +130,37 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 		}
 	}
 	
-	public Set<String> getFlowNamesFromArea(String area) {
-		HashSet<String> flownames = new HashSet<String>();
-		
+	
+	/**
+	 * gets all plugins handling a known area from the registry or returns null if there are no matches
+	 * to name or the object obtained cannot be cast to the specified type
+	 * @param name
+	 * @return
+	 */
+	public Set<WaspPlugin> getPluginsHandlingArea(String area){
+		Set<WaspPlugin> pluginsHandlingArea = new HashSet<WaspPlugin>();
 		for (String name : plugins.keySet()) {
 			WaspPlugin plugin = plugins.get(name);
 			Set<String> handles = plugin.getHandles();
-		
 			if (handles == null || ! handles.contains(area))
 				continue;
-			flownames.add(plugin.getFlowNameFromArea(area));
+			pluginsHandlingArea.add(plugin);
 		}
-		
-		return flownames;
+		return pluginsHandlingArea;
 	}
+	
+	/**
+	 * gets a named plugin from the registry or returns null if there are no matches
+	 * to name or the object obtained cannot be cast to the specified type
+	 * @param name
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends WaspPlugin> T getPlugin(String name, Class<T> clazz){
+		if (plugins.containsKey(name) && clazz.isInstance(plugins.get(name)))
+			return (T) plugins.get(name);
+		return null;	
+	}
+	
 
 }

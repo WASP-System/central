@@ -22,7 +22,7 @@ import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 
 @Transactional
 @Repository
-public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMeta> implements edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao {
+public class ResourceCategoryMetaDaoImpl extends WaspMetaDaoImpl<ResourceCategoryMeta> implements edu.yu.einstein.wasp.dao.ResourceCategoryMetaDao {
 
 	/**
 	 * ResourceCategoryMetaDaoImpl() Constructor
@@ -83,35 +83,6 @@ public class ResourceCategoryMetaDaoImpl extends WaspDaoImpl<ResourceCategoryMet
 		}
 		return results.get(0);
 	}
-
-
-	/**
-	 * updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList)
-	 *
-	 * @param resourcecategoryId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByResourcecategoryId (final int resourcecategoryId, final List<ResourceCategoryMeta> metaList) {
-		for (ResourceCategoryMeta m:metaList) {
-			ResourceCategoryMeta currentMeta = getResourceCategoryMetaByKResourcecategoryId(m.getK(), resourcecategoryId);
-			if (currentMeta.getResourceCategoryMetaId() == null){
-				// metadata value not in database yet
-				m.setResourcecategoryId(resourcecategoryId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
-
 
 }
 

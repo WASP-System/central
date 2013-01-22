@@ -1,8 +1,9 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -53,8 +54,20 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	@Override
 	public <T extends MetaBase> MetaMessage saveToGroup(String group,  String name, String value, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException{
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
-		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
-		String modelParentIdEntityIdSetterMethodName = "set" + parentClassName + "Id";
+		String modelParentIdEntityName = null;
+		for (Field field : clazz.getDeclaredFields()){
+			if (StringUtils.equalsIgnoreCase(field.getName(), WordUtils.uncapitalize(parentClassName) + "Id")){
+				modelParentIdEntityName = field.getName();
+				break;
+			}
+		}
+		String modelParentIdEntityIdSetterMethodName = null;
+		for (Method method : clazz.getMethods()){
+			if (StringUtils.equalsIgnoreCase(method.getName(), "set" + parentClassName + "Id")){
+				modelParentIdEntityIdSetterMethodName = method.getName();
+				break;
+			}
+		}
 		T meta = null;
 		logger.debug("Creating new instance of Metadata for current message key '" + group + "' and " + modelParentIdEntityName + "=" + modelParentId );
 		try {
@@ -148,7 +161,13 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	public <T extends MetaBase> List<MetaMessage> readAll(Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		List<MetaMessage> results = new ArrayList<MetaMessage>();
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
-		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
+		String modelParentIdEntityName = null;
+		for (Field field : clazz.getDeclaredFields()){
+			if (StringUtils.equalsIgnoreCase(field.getName(), WordUtils.uncapitalize(parentClassName) + "Id")){
+				modelParentIdEntityName = field.getName();
+				break;
+			}
+		}
 		Map<String, Object> searchMap = new HashMap<String, Object>();
 		searchMap.put(modelParentIdEntityName, modelParentId);
 		List<String> orderByColumnNames = new ArrayList<String>();
@@ -186,7 +205,13 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	private <T extends MetaBase> T getUniqueMeta(MetaMessage message, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException{
 		Map<String, Object> searchMap = new HashMap<String, Object>();
 		String parentClassName = StringUtils.substringBefore(clazz.getSimpleName(), "Meta");
-		String modelParentIdEntityName = WordUtils.uncapitalize(parentClassName) + "Id";
+		String modelParentIdEntityName = null;
+		for (Field field : clazz.getDeclaredFields()){
+			if (StringUtils.equalsIgnoreCase(field.getName(), WordUtils.uncapitalize(parentClassName) + "Id")){
+				modelParentIdEntityName = field.getName();
+				break;
+			}
+		}
 		searchMap.put(modelParentIdEntityName, modelParentId);
 		searchMap.put("k", message.getUniqueKey());
 		List<T> metaMatches = dao.findByMap(searchMap);

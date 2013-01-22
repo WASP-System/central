@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
+
 @Service
 public interface SampleService extends WaspMessageHandlingService {
 
@@ -623,8 +624,9 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @param platformunit
 	   * @param lockStatus
 	   * @throws SampleTypeException
+	 * @throws MetadataException 
 	   */
-	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException;
+	  public void setPlatformUnitLockStatus(Sample platformunit, LockStatus lockStatus) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * Get the current lock status for a platform unit or LockStatus.UNKNOWN if not set
@@ -738,33 +740,6 @@ public interface SampleService extends WaspMessageHandlingService {
 		 */
 	  public List<MetaMessage> getSampleQCComments(Integer sampleId);
 
-	  /**
-	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful (using provided runId)
-	   * @param runId
-	   * @return
-	   */
-	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Integer runId);
-	  
-	  /**
-	   * Gets a list of all non-control libraries on a run from cells that are marked as being successful
-	   * @param runId
-	   * @return
-	   */
-	  public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run);
-	  
-	  /**
-	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful (using provided runId)
-	   * @param runId
-	   * @return
-	   */
-	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Integer runId);
-	  
-	  /**
-	   * Gets a list of all libraries on a run (including controls) from cells that are marked as being successful
-	   * @param run
-	   * @return
-	   */
-	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
 
 	  /**
 	   * Returns true if the sample is a cell
@@ -773,25 +748,87 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isCell(Sample cell);
 
-	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
-	   * @param cell
-	   * @return
-	   * @throws SampleTypeException
-	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
 
-	  /**
-	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
-	   * assessment of a run
-	   * @param cell
-	   * @param success
-	   * @throws SampleTypeException
-	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException;
 
 	  public boolean isControlLibrary(Sample library);
 
-		
 
+	  /**
+		 * updateExistingSampleViaSampleWrapperWebapp
+		 * @param List<MetaMessage> sampleMetaList
+		 * @return void
+		 */
+	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
+
+	  /**
+	   * Set the concentration of library added to a cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @param valueInPicoM
+	   * @throws SampleException
+	   * @throws MetadataException
+	   */
+	  public void setLibraryOnCellConcentration(Sample cell, Sample library, Float valueInPicoM) throws SampleException, MetadataException;
+	  
+	  /**
+	   * get the concentration of library added to the cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleException
+	   */
+	  public Float getConcentrationOfLibraryAddedToCell(Sample cell, Sample library) throws SampleException;
+	  
+	  /**
+	   * Record the job associated with the library added to the cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @throws SampleException
+	   * @throws MetadataException
+	   */
+	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException;
+	  
+	  /**
+	   * get the job of the library on a cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleException
+	   */
+	  public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException;
+
+	  
+	  /**
+	   * Retrieve a SampleSource object which contains the relationship between and Library and Cell
+	   * @param cell
+	   * @param library
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException;
+
+	  /**
+	   * Retrieve the Cell object 
+	   * @param cellLibrary
+	   * @return
+	   */
+	  public Sample getCell(SampleSource cellLibrary);
+
+	  /**
+	   * Retrieve the library object
+	   * @param cellLibrary
+	   * @return
+	   */
+	  public Sample getLibrary(SampleSource cellLibrary);
+
+	  /**
+	   * Retrieve a list of samples that are designed as controls (encoded in a job's SamplePair Meta) for a specific sample in a specific job
+	   * Example: samplePairs = 273:272;274:272;276:275;277:275; for job 42
+	   * So getControlSamplesForAJobsSample(Job job 42, Sample sample 273) will return a list containing Sample 273
+	   * @param Job job
+	   * @param Sample sample
+	   * @return List<Sample>
+	   */
+	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
+	  
 }
