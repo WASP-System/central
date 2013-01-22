@@ -17,7 +17,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  */
 public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
-	protected Integer libraryId; // id of library being analysed
+	protected Integer libraryId; // id of library being analysed (optional)
 	
 	public Integer getLibraryId() {
 		return libraryId;
@@ -37,9 +37,14 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		this.jobId = jobId;
 	}
 	
-	public AnalysisStatusMessageTemplate(Integer libraryId){
+	public AnalysisStatusMessageTemplate(Integer jobId, Integer libraryId){
 		super();
 		this.libraryId = libraryId;
+		this.jobId = jobId;
+	}
+	
+	public AnalysisStatusMessageTemplate(Integer jobId){
+		super();
 		this.jobId = jobId;
 	}
 	
@@ -96,9 +101,16 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.libraryId, this.jobId);
-		return actUponMessage(message, this.libraryId, this.jobId, this.task);
+		if (this.task == null){
+			if (this.libraryId == null)
+				return actUponMessage(message, this.jobId);
+			else 
+				return actUponMessage(message, this.jobId, this.libraryId);
+		}
+		if (this.libraryId == null)
+			return actUponMessage(message, this.jobId, this.task);
+		else 
+			return actUponMessage(message, this.jobId, this.libraryId, this.task);
 	}
 	
 	/**
@@ -106,42 +118,76 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message){
-		if (this.task == null)
-			return actUponMessage(message, this.libraryId, this.jobId);
-		return actUponMessage(message, this.libraryId, this.jobId, null);
+		if (this.libraryId == null)
+			return actUponMessage(message, this.jobId, (String) null);
+		else 
+			return actUponMessage(message, this.jobId, this.libraryId, null);
 	}
 	
 	// Statics.........
 	
 	/**
-	 * Takes a message and checks its headers against the supplied libraryId value to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied JobId (and libraryId if not null) value to see if the message should be acted upon or not.
+	 * Ignores libraryId if null
 	 * @param message
-	 * @param libraryId 
 	 * @param jobId 
+	 * @param libraryId 
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer libraryId, Integer jobId ){
-		if (libraryId != null && jobId != null &&
+	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer libraryId ){
+		if ( !(message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS)) )
+			return false;
+		if ( libraryId != null && jobId != null &&
 				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) &&
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) &&
-				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS))
+				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
+			return true;
+		if ( jobId != null &&
+				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
 		return false;
 	}
 	
 	/**
-	 * Takes a message and checks its headers against the supplied libraryId value and task to see if the message should be acted upon or not
+	 * Takes a message and checks its headers against the supplied jobId value to see if the message should be acted upon or not
 	 * @param message
+	 * @param jobId 
+	 * @return
+	 */
+	public static boolean actUponMessage(Message<?> message, Integer jobId ){
+		return actUponMessage(message, jobId, (Integer) null);
+	}
+	
+	/**
+	 * Takes a message and checks its headers against the supplied jobId and libraryId value and task to see if the message should be acted upon or not
+	 * @param message
+	 * @param jobId 
 	 * @param libraryId 
+	 * @param task
+	 * @return
+	 */
+	public static boolean actUponMessage(Message<?> message, Integer jobId, Integer libraryId, String task ){
+		if (! actUponMessage(message, jobId, libraryId) )
+			return false;
+		if (task == null)
+			return true;
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * Takes a message and checks its headers against the supplied jobId value and task to see if the message should be acted upon or not
+	 * @param message
 	 * @param jobId 
 	 * @param task
 	 * @return
 	 */
-	public static boolean actUponMessage(Message<?> message, Integer libraryId, Integer jobId, String task ){
-		if (! actUponMessage(message, libraryId, jobId) )
+	public static boolean actUponMessage(Message<?> message, Integer jobId, String task ){
+		if (! actUponMessage(message, jobId) )
 			return false;
 		if (task == null)
 			return true;
