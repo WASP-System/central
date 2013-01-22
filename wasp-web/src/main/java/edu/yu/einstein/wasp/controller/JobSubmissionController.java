@@ -313,7 +313,7 @@ public class JobSubmissionController extends WaspController {
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		
-		String userId = request.getParameter("UserId");
+		String userId = request.getParameter("userId");
 		String labId = request.getParameter("labId");//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 		
 		//result
