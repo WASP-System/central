@@ -44,20 +44,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
-	private String name = "";
-	
 	private boolean stopStep = false;
 	
 	private boolean abandonStep = false;
 	
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name + "#";
-	}
 
 	public void setAdditionalAbortMonitoredTemplates(Set<StatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
 		this.abortMonitoredTemplates.addAll(additionalAbortMessageMonitoredTemplates);
