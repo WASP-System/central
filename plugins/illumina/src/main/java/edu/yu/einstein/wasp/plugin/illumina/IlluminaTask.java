@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.plugin.illumina;
 
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 
 public class IlluminaTask extends WaspTask {
 	

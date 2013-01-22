@@ -4,33 +4,26 @@
 package edu.yu.einstein.wasp.plugin.illumina;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
-import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.RunService;
@@ -144,13 +137,6 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 	}
 
 	@Override
-	public Set<String> getBatchJobNames() {
-		HashSet<String> names = new HashSet<String>();
-		names.add(FLOW_NAME);
-		return names;
-	}
-
-	@Override
 	public void afterPropertiesSet() throws Exception {
 		// TODO Auto-generated method stub
 
@@ -175,10 +161,17 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 				"wasp -T wasp-illumina -t getSampleSheet -m \'{runName:101010_RUN_ID}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
-
+	
 	@Override
-	public String getFlowNameFromArea(String area) {
-		return FLOW_NAME;
+	public String getBatchJobNameByArea(String batchJobType, String area){
+		if (batchJobType.equals(BatchJobTask.GENERIC))
+			return FLOW_NAME;
+		return null;
+	}
+	
+	@Override
+	public String getBatchJobName(String batchJobType) {
+		return getBatchJobNameByArea(batchJobType, null);
 	}
 
 }
