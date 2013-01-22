@@ -14,7 +14,7 @@ package edu.yu.einstein.wasp.dao;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 
 
-public interface WorkflowresourcecategoryMetaDao extends WaspDao<WorkflowresourcecategoryMeta> {
+public interface WorkflowresourcecategoryMetaDao extends WaspMetaDao<WorkflowresourcecategoryMeta> {
 
   public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryMetaId (final Integer workflowresourcecategoryMetaId);
 

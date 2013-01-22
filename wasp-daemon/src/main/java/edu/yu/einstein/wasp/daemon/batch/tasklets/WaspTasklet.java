@@ -4,11 +4,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -18,11 +16,18 @@ public abstract class WaspTasklet implements Tasklet {
 	
 	protected final static Logger logger = LoggerFactory.getLogger(WaspTasklet.class);
 	
+	protected String name = "";
+	
 	@Value("${wasp.task.delay:50}")
 	protected Long executeRepeatDelay;
 	
-	@Override
-	public abstract RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception;
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name + "#";
+	}
 
 	
 	/**

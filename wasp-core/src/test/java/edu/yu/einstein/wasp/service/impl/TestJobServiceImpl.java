@@ -1083,9 +1083,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  job.setJobId(1);
 	  
 	  Sample sample = new Sample();
-	  List<Sample> samples = new ArrayList<Sample>();
-	  samples.add(sample);
-	  job.setSample(samples);
+	  sample.setSampleId(1);
+	  JobSample js = new JobSample();
+	  js.setJobSampleId(1);
+	  js.setJob(job);
+	  js.setSample(sample);
+	  List<JobSample> jobSamples = new ArrayList<JobSample>();
+	  jobSamples.add(js);
+	  job.setJobSample(jobSamples);
 	  
 	  List<Job> activeJobs = new ArrayList<Job>();
 	  activeJobs.add(job);
@@ -1130,11 +1135,15 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		
 		Job job = new Job();
 		job.setJobId(1);
-		List<Sample> samples = new ArrayList<Sample>();
-
 		Sample sample = new Sample();
-		samples.add(sample);
-		job.setSample(samples);
+		sample.setSampleId(1);
+		JobSample js = new JobSample();
+		js.setJobSampleId(1);
+		js.setJob(job);
+		js.setSample(sample);
+		List<JobSample> jobSamples = new ArrayList<JobSample>();
+		jobSamples.add(js);
+		job.setJobSample(jobSamples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
 		
@@ -1168,11 +1177,15 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		
 		Job job = new Job();
 		job.setJobId(1);
-		List<Sample> samples = new ArrayList<Sample>();
-
 		Sample sample = new Sample();
-		samples.add(sample);
-		job.setSample(samples);
+		sample.setSampleId(1);
+		JobSample js = new JobSample();
+		js.setJobSampleId(1);
+		js.setJob(job);
+		js.setSample(sample);
+		List<JobSample> jobSamples = new ArrayList<JobSample>();
+		jobSamples.add(js);
+		job.setJobSample(jobSamples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);
 		
@@ -1214,10 +1227,15 @@ public class TestJobServiceImpl extends EasyMockSupport{
 
 		List<Sample> samples = new ArrayList<Sample>();
 		Sample sample = new Sample();
+		sample.setSampleId(1);
 		sample.setChildren(childrenList);
-		samples.add(sample);
-		
-		job.setSample(samples);
+		JobSample js = new JobSample();
+		js.setJobSampleId(1);
+		js.setJob(job);
+		js.setSample(sample);
+		List<JobSample> jobSamples = new ArrayList<JobSample>();
+		jobSamples.add(js);
+		job.setJobSample(jobSamples);
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);	
 		
@@ -1257,33 +1275,54 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		childrenList.add(children);
 		List<Sample> samples = new ArrayList<Sample>();
 		Sample sample = new Sample();
+		sample.setSampleId(1);
 		sample.setChildren(childrenList);
 		samples.add(sample);
 		Job job = new Job();
 		job.setJobId(1);
-		job.setSample(samples);
+		JobSample js = new JobSample();
+		js.setJobSampleId(1);
+		js.setJob(job);
+		js.setSample(sample);
+		List<JobSample> jobSamples = new ArrayList<JobSample>();
+		jobSamples.add(js);
+		job.setJobSample(jobSamples);
 		
 		List<Sample> childrenList2 = new ArrayList<Sample>();
 		Sample children2 = new Sample();
 		childrenList2.add(children2);
 		List<Sample> samples2 = new ArrayList<Sample>();
 		Sample sample2= new Sample();
+		sample2.setSampleId(2);
 		sample2.setChildren(childrenList2);
 		samples2.add(sample2);
 		Job job2 = new Job();
 		job2.setJobId(2);
-		job2.setSample(samples2);
+		JobSample js2 = new JobSample();
+		js2.setJobSampleId(2);
+		js2.setJob(job2);
+		js2.setSample(sample2);
+		List<JobSample> jobSamples2 = new ArrayList<JobSample>();
+		jobSamples2.add(js2);
+		job2.setJobSample(jobSamples2);
 		
 		List<Sample> childrenList3 = new ArrayList<Sample>();
 		Sample children3 = new Sample();
 		childrenList3.add(children3);
 		List<Sample> samples3 = new ArrayList<Sample>();
 		Sample sample3= new Sample();
+		sample3.setSampleId(3);
 		sample3.setChildren(childrenList3);
 		samples3.add(sample3);
 		Job job3 = new Job();
-		job3.setJobId(3);
-		job3.setSample(samples3);
+		job2.setJobId(3);
+		JobSample js3 = new JobSample();
+		js3.setJobSampleId(3);
+		js3.setJob(job3);
+		js3.setSample(sample3);
+		List<JobSample> jobSamples3 = new ArrayList<JobSample>();
+		jobSamples3.add(js3);
+		job3.setJobSample(jobSamples3);
 		
 		List<Job> activeJobs = new ArrayList<Job>();
 		activeJobs.add(job);	
@@ -1444,12 +1483,16 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  List<Sample> samples = new ArrayList<Sample>();
 	  Sample sample2 = new Sample();
 	  sample2.setSampleId(1);
-	  samples.add(sample2);
-	  
+	  sample.setSampleId(1);
 	  Job job = new Job();
 	  job.setJobId(1);
-	  job.setSample(samples);
-
+	  JobSample js = new JobSample();
+	  js.setJobSampleId(1);
+	  js.setJob(job);
+	  js.setSample(sample2);
+	  List<JobSample> jobSamples = new ArrayList<JobSample>();
+	  jobSamples.add(js);
+	  job.setJobSample(jobSamples);
 	  // TODO need to figure out how to mock logger and add a test for when the supplied sample is not associated with supplied job 
 	  //expect(LoggerFactory.getLogger(WaspServiceImpl.class)).andReturn(loggerMock);
 	  

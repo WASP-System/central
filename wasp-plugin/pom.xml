@@ -135,7 +135,6 @@
 		<dependency>
 			<groupId>org.kubek2k</groupId>
 			<artifactId>springockito</artifactId>
-			<version>1.0.4</version>
 			<scope>test</scope>
 		</dependency>
 

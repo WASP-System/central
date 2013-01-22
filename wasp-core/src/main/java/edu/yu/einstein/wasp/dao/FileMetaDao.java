@@ -17,15 +17,11 @@ import edu.yu.einstein.wasp.model.FileMeta;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 
-public interface FileMetaDao extends WaspDao<FileMeta> {
+public interface FileMetaDao extends WaspMetaDao<FileMeta> {
 
   public FileMeta getFileMetaByFileMetaId (final int fileMetaId);
 
   public FileMeta getFileMetaByKFileId (final String k, final int fileId);
-
-  public void updateByFileId (final int fileId, final List<FileMeta> metaList);
-
-  public void updateByFileId(int fileId, FileMeta m);
 
   public FileMeta getFileMetaByKWorkflowId(String k, Integer fileId);
 

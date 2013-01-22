@@ -99,10 +99,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</properties>
 
 	<modules>
+		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-daemon</module>
 		<module>../wasp-core</module>
 		<module>../wasp-interface</module>
-		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-web</module>
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
@@ -362,6 +362,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>1.4.4</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>1.4.1</version>
+			</dependency>
+			<dependency>
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
 				<version>1.8.3</version>
@@ -426,7 +431,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
-				<version>1.5.6</version>
+				<version>1.6</version>
 			</dependency>
 			<dependency>
 				<groupId>antlr</groupId>
@@ -797,6 +802,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<artifactId>testng</artifactId>
 				<version>6.3.1</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+    			<groupId>org.kubek2k</groupId>
+    			<artifactId>springockito</artifactId>
+    			<version>1.0.5</version>
+   				 <scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.easymock</groupId>

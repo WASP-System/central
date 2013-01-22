@@ -23,6 +23,7 @@ import edu.yu.einstein.wasp.dao.WorkflowResourceTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceTypeException;
 import edu.yu.einstein.wasp.exception.NullSampleSubtypeException;
 import edu.yu.einstein.wasp.load.service.WorkflowLoadService;
@@ -274,9 +275,12 @@ public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	Work
 	    for (SampleSubtype sampleSubtype: safeList(sampleSubtypes))
 	    	sampleSubtypeInames.add(sampleSubtype.getIName());
 	    syncWorkflowSampleSubtypes(workflow, sampleSubtypeInames);
-	    
-	    workflowService.setJobFlowBatchJobName(workflow, jobFlowBatchJobName);
-	    workflowService.setPageFlowOrder(workflow, pageFlowOrder);
+	    try{
+		    workflowService.setJobFlowBatchJobName(workflow, jobFlowBatchJobName);
+		    workflowService.setPageFlowOrder(workflow, pageFlowOrder);
+	    } catch (MetadataException e){
+	    	throw new RuntimeException(e);
+	    }
 	    return workflow;
 	}
 

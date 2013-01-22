@@ -146,15 +146,15 @@ public class SystemRoleController extends WaspController {
 
 	/**
 	 * Removes specified system role from specified user.
-	 * @param userId
+	 * @param UserId
 	 * @param roleName (e.g. da, fm etc)
 	 * @param m model 
 	 * @return view
 	 */
-	@RequestMapping(value="/remove/{userId}/{roleName}", method=RequestMethod.GET)
+	@RequestMapping(value="/remove/{UserId}/{roleName}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su')")
 	public String removeSystemUser(
-			@PathVariable("userId") Integer userId,
+			@PathVariable("UserId") Integer userId,
 			@PathVariable("roleName") String roleName,
 			ModelMap m) {
 

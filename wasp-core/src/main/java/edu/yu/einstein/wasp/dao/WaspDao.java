@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 
-public interface WaspDao<E> {
+public interface WaspDao<E> extends WaspPersistenceDao {
 
  public void persist(E entity);
 

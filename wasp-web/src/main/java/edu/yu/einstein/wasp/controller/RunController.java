@@ -33,7 +33,6 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
@@ -56,6 +55,7 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -85,15 +85,15 @@ public class RunController extends WaspController {
 	private RunCellDao	runCellDao;
 
 	@Autowired
-	public void setResourceDao(ResourceDao resourceDao) {
-		this.resourceDao = resourceDao;
+	public void setResourceService(ResourceService resourceService) {
+		this.resourceService = resourceService;
 	}
 
-	public ResourceDao getResourceDao() {
-		return this.resourceDao;
+	public ResourceService getResourceService() {
+		return this.resourceService;
 	}
 
-	private ResourceDao	resourceDao;
+	private ResourceService	resourceService;
 
 	@Autowired
 	public void setSampleDao(SampleDao sampleDao) {
@@ -163,7 +163,7 @@ public class RunController extends WaspController {
 	protected void prepareSelectListData(ModelMap m) {
 		super.prepareSelectListData(m);
 
-		m.addAttribute("machines", this.resourceDao.findAll());
+		m.addAttribute("machines", this.resourceService.getResourceDao().findAll());
 		
 		m.addAttribute("flowcells", this.sampleDao.findAllPlatformUnits());
 		
@@ -202,7 +202,7 @@ public class RunController extends WaspController {
 		} else {
 		
 			//first get the resourceCategoryId by resourceId
-			Resource machine = this.resourceDao.getById(resourceId);
+			Resource machine = this.resourceService.getResourceDao().getById(resourceId);
 			//then get all the sampleSubtypeId by resourceCatgegoryId 
 			Map queryMap = new HashMap();
 			queryMap.put("resourcecategoryId", machine.getResourcecategoryId());
@@ -238,7 +238,7 @@ public class RunController extends WaspController {
 		
 		if (sampleId.intValue() == -1) {
 			
-			for (Resource resource:resourceDao.findAll()) {
+			for (Resource resource:resourceService.getResourceDao().findAll()) {
 				resultsMap.put(resource.getResourceId(), resource.getName());
 			}
 			
@@ -256,7 +256,7 @@ public class RunController extends WaspController {
 			}
 			
 			//last filter all platform units by the list of sampleSubtypeId
-			for(Resource resource:resourceDao.findAll()) {
+			for(Resource resource:resourceService.getResourceDao().findAll()) {
 				if (idList.contains(resource.getResourcecategoryId()))
 					resultsMap.put(resource.getResourceId(), resource.getName());
 			}
@@ -597,13 +597,18 @@ public class RunController extends WaspController {
 			
 			// editing run is not allowed
 		}
-
-		runMetaDao.updateByRunId(runId, runMetaList);
-
 		try {
-			response.getWriter().println(adding ? messageService.getMessage("run.created_success.label") 
-					: messageService.getMessage("run.updated_success.label"));
-			return null;
+			try {
+				runMetaDao.setMeta(runMetaList, runId);
+				response.getWriter().println(adding ? messageService.getMessage("run.created_success.label") 
+						: messageService.getMessage("run.updated_success.label"));
+				return null;
+			} catch (MetadataException e1) {
+				response.getWriter().println(messageService.getMessage("run.created_failure.label"));
+				logger.warn(e1.getLocalizedMessage());
+				return null;
+			}
+
 		} catch (Throwable e) {
 			throw new IllegalStateException("Cant output success message ", e);
 		}

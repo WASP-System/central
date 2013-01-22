@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
@@ -114,7 +115,7 @@ public class Job2QuoteController extends WaspController {
 		String sidx = request.getParameter("sidx");
 		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
-		String userId = request.getParameter("userId");
+		String userId = request.getParameter("UserId");
 		String showall = request.getParameter("showall");
 		
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
@@ -134,7 +135,7 @@ public class Job2QuoteController extends WaspController {
 			}
 		}		
 				
-		//deal with submitter from grid and userId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
+		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
 		User submitter = null;
 		//from grid
 		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
@@ -378,36 +379,37 @@ public class Job2QuoteController extends WaspController {
 		
 		AcctQuote acctQuoteDb = this.acctQuoteDao.save(quoteForm);
 		Integer quoteId = acctQuoteDb.getQuoteId();
-		this.acctQuoteMetaDao.updateByQuoteId(quoteId, metaList);
-		
-		AcctJobquotecurrent acctJobquotecurrent = this.acctJobquotecurrentDao.getAcctJobquotecurrentByJobId(jobId);
-		acctJobquotecurrent.setQuoteId(quoteId);
-		// if jobid is null, create a new record in database table 
-		if(acctJobquotecurrent.getJobId() == null) {
-			acctJobquotecurrent.setJobId(jobId);
-			acctJobquotecurrentDao.persist(acctJobquotecurrent);
-		}
 		try{
-			jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
-		} catch (WaspMessageBuildingException e){
-			logger.warn(e.getMessage());
-			try {
+			try{
+				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
+			} catch (MetadataException e){
+				logger.warn(e.getMessage());
 				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
 				return null;
-			} catch (Throwable t) {
-				throw new IllegalStateException("Cant output message sending failure message", t);
 			}
-		}
-		
-		
-		try {
+			
+			AcctJobquotecurrent acctJobquotecurrent = this.acctJobquotecurrentDao.getAcctJobquotecurrentByJobId(jobId);
+			acctJobquotecurrent.setQuoteId(quoteId);
+			// if jobid is null, create a new record in database table 
+			if(acctJobquotecurrent.getJobId() == null) {
+				acctJobquotecurrent.setJobId(jobId);
+				acctJobquotecurrentDao.persist(acctJobquotecurrent);
+			}
+			try{
+				jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
+			} catch (WaspMessageBuildingException e){
+				logger.warn(e.getMessage());
+				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
+				return null;
+			}
+			
+			
 			response.getWriter().println(this.messageService.getMessage("acctQuote.created_success.label"));
 			return null;
 		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message", e);
+			throw new IllegalStateException("Cant output message to response.getWriter", e);
 		}
-	
-	    
+
 	}
 	
 	class JobIdComparator implements Comparator<Job> {

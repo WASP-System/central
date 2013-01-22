@@ -37,8 +37,8 @@ public class User extends WaspModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer	UserId;
 
-	public void setUserId(Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId(Integer userId) {
+		this.UserId = userId;
 	}
 
 	public Integer getUserId() {

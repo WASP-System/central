@@ -7,7 +7,7 @@ $(document).ready(function() {
 </script>
 <div class="wasptooltip">
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobName.label" />:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmitter.label" />:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
@@ -49,5 +49,11 @@ $(document).ready(function() {
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobComments.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="<c:url value="/job/comments/${job.jobId}.do" />">
 <fmt:message key="jobdetail_for_import.jobCommentsView.label" /><sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('fm')"><fmt:message key="jobdetail_for_import.jobCommentsPlusAddEdit.label" /></sec:authorize>
 </a> </td></tr>
+<tr class="FormData">
+ <td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobAnalysisParameters.label" />:</td>
+ <td class="DataTD">
+ 	<a style="color: #801A00;" href="<c:url value="/job/analysisParameters/${job.jobId}.do" />"><fmt:message key="jobdetail_for_import.jobAnalysisParametersView.label" /></a>
+ </td>
+</tr>
 </table>
 </div>

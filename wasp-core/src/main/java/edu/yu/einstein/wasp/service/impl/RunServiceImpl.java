@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,21 +28,29 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
-import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 /**
  * @author calder
@@ -60,6 +69,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	
 	@Autowired
 	protected WorkflowService workflowService;
+	
+	@Autowired
+	private SampleMetaDao sampleMetaDao;
 	
 	@Autowired
 	private WaspPluginRegistry waspPluginRegistry;
@@ -152,7 +164,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "platformUnit sampleId is zero");
 		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician userId is zero");
+		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician UserId is zero");
 		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
 		Assert.assertParameterNotNull(readType, "readType cannot be null");
 		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
@@ -195,15 +207,13 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
 		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
-		
-		Set<String> flownames = waspPluginRegistry.getFlowNamesFromArea(newRun.getResourceCategory().getIName());
-		
-		for (String flow : flownames) {
+		String rcIname = newRun.getResourceCategory().getIName();
+		for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
-			
+			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
 			try {
-				launchBatchJob(flow, jobParameters);
+				launchBatchJob(flowName, jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage(), e);
 			}
@@ -226,7 +236,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "platformUnit sampleId is zero");
 		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician userId is zero");
+		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician UserId is zero");
 		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
 		Assert.assertParameterNotNull(readType, "readType cannot be null");
 		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
@@ -319,6 +329,198 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			}
 		}
 		return runs;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
+						try{
+							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryJob;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCell(cell)){
+						try{
+							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryJob;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
+						try{
+							libraryCell.add(sampleService.getCellLibrary(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryCell;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell)){
+					for (Sample library: sampleService.getLibrariesOnCell(cell)){
+						try{
+							libraryCell.add(sampleService.getCellLibrary(cell, library));
+						} catch (SampleException e){
+							logger.warn("Unexpected SampleException caught: " + e.getLocalizedMessage());
+						}
+					}
+				}
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return libraryCell;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Set<Sample> librariesOnRun = new HashSet<Sample>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell))
+					librariesOnRun.addAll(sampleService.getLibrariesOnCellWithoutControls(cell));	
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return librariesOnRun;
+	}
+	
+
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Set<Sample> librariesOnRun = new HashSet<Sample>();
+		try {
+			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
+				if (isCellSequencedSuccessfully(cell))
+					librariesOnRun.addAll(sampleService.getLibrariesOnCell(cell));	
+			}
+		} catch (SampleTypeException e) {
+			logger.warn("Unexpected SampleTypeException caught: " + e.getLocalizedMessage());
+		}
+		return librariesOnRun;
+	}
+	
+
+	
+
+	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
+	private static final String CELL_SUCCESS_META_AREA = "cell";
+	private static final String CELL_SUCCESS_META_KEY = "success";
+	
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		String success = null;
+		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		try{
+			success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
+		} catch(MetadataException e) {
+			return false; // no value exists already
+		}
+		Boolean b = new Boolean(success);
+		return b.booleanValue();
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 * @throws MetadataException 
+	 */
+	@Override
+	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		Boolean b = new Boolean(success);
+		String successString = b.toString();
+		SampleMeta sampleMeta = new SampleMeta();
+		sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
+		sampleMeta.setV(successString);
+		sampleMeta.setSampleId(cell.getSampleId());
+		sampleMetaDao.setMeta(sampleMeta);
 	}
 
 }

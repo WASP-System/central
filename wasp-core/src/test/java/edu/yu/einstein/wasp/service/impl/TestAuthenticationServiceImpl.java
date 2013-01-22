@@ -236,7 +236,7 @@ public class TestAuthenticationServiceImpl {
 
   }
   /**
-   * Test scenario (by setting userId=1) when login name already exists.
+   * Test scenario (by setting UserId=1) when login name already exists.
    */
   @Test 
   public void isLoginAlreadyInUse2() {

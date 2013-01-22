@@ -229,7 +229,13 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setFirstName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getFirstName()));
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingDao.save(userPendingForm);
-		userPendingMetaDao.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+		try{
+			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getUserPendingId());
+		} catch (MetadataException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("user.created.error");
+			return "auth/newuser/form";
+		}
 		
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		status.setComplete();
@@ -439,7 +445,11 @@ public class UserPendingController extends WaspController {
 		userPendingForm.setLastName(StringHelper.removeExtraSpacesAndCapFirstLetter(userPendingForm.getLastName()));
 		UserPending userPendingDb = userPendingDao.save(userPendingForm);
 		List<UserPendingMeta> userPendingMetaList = (List<UserPendingMeta>) metaHelperWebapp.getMetaList();
-		userPendingMetaDao.updateByUserpendingId(userPendingDb.getUserPendingId(), userPendingMetaList);
+		try{
+			userPendingMetaDao.setMeta(userPendingMetaList, userPendingDb.getUserPendingId());
+		} catch (MetadataException e){
+			logger.warn(e.getLocalizedMessage());
+		}
 		request.getSession().removeAttribute(Captcha.NAME); // ensures fresh capcha issued if required in this session
 		request.getSession().removeAttribute("visibilityElementMap"); // remove visibilityElementMap from the session
 		status.setComplete();
@@ -580,7 +590,12 @@ public class UserPendingController extends WaspController {
 				}
 			}
 		}
-		labPendingMetaDao.updateByLabpendingId(labPendingDb.getLabPendingId(),  (List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList() );
+		try{
+			labPendingMetaDao.setMeta((List<LabPendingMeta>)labPendingMetaHelperWebapp.getMetaList(), labPendingDb.getLabPendingId() );
+		} catch (MetadataException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("labPending.created_meta.error");
+		}
 
 		return labPendingDb;
 	}

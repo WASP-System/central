@@ -3,11 +3,17 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -21,6 +27,10 @@ public class WorkUnit {
 	
 	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
 	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
+
+	private boolean isRegistering;
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
 	 * Unique ID for the job
@@ -45,7 +55,7 @@ public class WorkUnit {
 	 * Ordered set of possible environments where this job can be executed.  Provides a mechanism for determining
 	 * if work can be submitted to a remote computational resource.
 	 */
-	private Set<String> executionEnvironments;
+	private Set<String> executionEnvironments = new LinkedHashSet<String>();
 	/**
 	 * Amount of memory required in GB.
 	 */
@@ -64,10 +74,14 @@ public class WorkUnit {
 	 */
 	private String workingDirectory;
 	
+	protected String remoteWorkingDirectory = null;
+	
 	/**
 	 * Directory to write results to
 	 */
 	private String resultsDirectory;
+	
+	protected String remoteResultsDirectory = null;
 	
 	/**
 	 * Transport specific connection
@@ -77,23 +91,23 @@ public class WorkUnit {
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
 	 */
-	private Set<File> requiredFiles;
+	private LinkedHashSet<File> requiredFiles = new LinkedHashSet<File>();
 	
 	/**
 	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link File} objects
 	 * upon successful completion of the WorkUnit.
 	 */
-	private Set<String> resultFiles;
+	private LinkedHashSet<String> resultFiles = new LinkedHashSet<String>();
 	
 	/**
 	 * List of software packages that need to be configured by a {@link SoftwareManager}.
 	 */
-	private List<SoftwarePackage> softwareDependencies;
+	private List<SoftwarePackage> softwareDependencies = new ArrayList<SoftwarePackage>();
 	
 	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
-	private Set<String> pluginDependencies;
+	private Set<String> pluginDependencies = new LinkedHashSet<String>();
 	
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
@@ -175,6 +189,8 @@ public class WorkUnit {
 		this.executionEnvironments.add("default");
 		this.workingDirectory = SCRATCH_DIR_PLACEHOLDER;
 		this.resultsDirectory = RESULTS_DIR_PLACEHOLDER;
+		UUID resultID = UUID.randomUUID();
+		this.setId(resultID.toString());
 	}
 
 	public String getId() {
@@ -314,6 +330,81 @@ public class WorkUnit {
 	 */
 	protected void setProject(String project) {
 		this.project = project;
+	}
+	
+	protected void prepare() throws MisconfiguredWorkUnitException {
+		for (File f : getRequiredFiles()) {
+			if (f == null || f.getIsActive().equals(0)) {
+				if (!isRegistering()) {
+					String message = "File has not been registered " + f.getFileURI();
+					logger.warn(message);
+					throw new MisconfiguredWorkUnitException(message);
+				}
+			}
+			if (f.getIsArchived().equals(1)) {
+				// TODO: implement wait for de-archive step.
+				String message = "File is archived " + f.getFileURI();
+				logger.warn(message);
+				throw new MisconfiguredWorkUnitException(message);
+			}
+		}
+	}
+	/**
+	 * File objects available to the remote host.  Grid host resolver may use these files to determine
+	 * which host to go to and the GridWorkService should provision them if they are not present.
+	 * Accessible through the WASPFILE bash array.  
+	 * @return the requiredFiles
+	 */
+	public Set<File> getRequiredFiles() {
+		return requiredFiles;
+	}
+	
+	/**
+	 * @param requiredFiles the requiredFiles to set
+	 */
+	public void setRequiredFiles(LinkedHashSet<File> requiredFiles) {
+		this.requiredFiles = requiredFiles;
+	}
+	
+	public void addRequiredFile(File file) {
+		this.requiredFiles.add(file);
+	}
+	
+	
+	/**
+	 * Ordered set of relative string paths (in working directory) to result files.  Accessed in bash environment through
+	 * the WASPOUTPUT bash array.
+	 * @return the resultFiles
+	 */
+	public Set<String> getResultFiles() {
+		return resultFiles;
+	}
+	
+	/**
+	 * @param resultFiles the resultFiles to set
+	 */
+	public void setResultFiles(LinkedHashSet<String> resultFiles) {
+		this.resultFiles = resultFiles;
+	}
+	
+	public void addRequiredFiles(String file) {
+		this.resultFiles.add(file);
+	}
+	/**
+	 * Internal method to turn off file registration check when file is not yet registered.
+	 * 
+	 * @return the isRegistering
+	 */
+	public boolean isRegistering() {
+		return isRegistering;
+	}
+	/**
+	 * Internal method to turn off file registration check when file is not yet registered.
+	 * 
+	 * @param isRegistering the isRegistering to set
+	 */
+	public void setRegistering(boolean isRegistering) {
+		this.isRegistering = isRegistering;
 	}
 	
 
