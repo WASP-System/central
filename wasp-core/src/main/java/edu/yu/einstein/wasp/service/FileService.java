@@ -11,15 +11,20 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.grid.GridAccessException;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -115,6 +120,12 @@ public interface FileService extends WaspService {
 	public void addFile(File file);
 	
 	public void setSampleFile(File file, Sample sample);
+
+	public Set<FileType> getFileTypes();
+	
+	public FileType getFileType(String iname);
+	
+	public void registerFile(File file) throws FileNotFoundException, GridException;
 
 }
 

@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.exception;
 
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
+
 /**
  * @author calder
  *

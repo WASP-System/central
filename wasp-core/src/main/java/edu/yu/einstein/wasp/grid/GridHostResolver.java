@@ -47,8 +47,6 @@ public interface GridHostResolver {
 	 * @throws GridUnresolvableHostException
 	 */
 	public String getUsername(String hostname) throws GridUnresolvableHostException;
-	
-	
 		
 	/**
 	 * Given a work unit, return the appropriate work service.  
@@ -62,6 +60,16 @@ public interface GridHostResolver {
 	 * @return
 	 */
 	public GridWorkService getGridWorkService(GridResult r);
+	
+	/**
+	 * Get the work service from a FQDN.  This should be done only when the host is truly known, e.g. 
+	 * when there is a file operation on a particular host.  Normally, you should let the 
+	 * GridHostResolver inspect the work unit and determine the host for itself.
+	 * 
+	 * @param hostname
+	 * @return
+	 */
+	public GridWorkService getGridWorkService(String hostname) throws GridUnresolvableHostException;
 	
 	/**
 	 * get {@link GridWorkSercice}s.
@@ -83,8 +91,9 @@ public interface GridHostResolver {
 	 * @throws GridAccessException
 	 * @throws GridUnresolvableHostException
 	 * @throws GridExecutionException 
+	 * @throws GridException 
 	 */
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
+	public GridResult execute(WorkUnit w) throws GridException;
 	
 	/**
 	 * Pass through method to Test to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
@@ -94,7 +103,7 @@ public interface GridHostResolver {
 	 * @throws GridUnresolvableHostException 
 	 * @throws GridException
 	 */
-	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
+	public boolean isFinished(GridResult g) throws GridException;
 	
 	/*
 	 * Instances of GridHostResolver must declare the following method as abstract.  This provides a mechanism for 

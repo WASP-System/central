@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
 /**
  * {@link GridTransportConnection} implementation for execution of jobs over a
@@ -87,25 +88,28 @@ public class SshTransportConnection implements GridTransportConnection {
 	 * in the extra methods defined in the {@link GridWorkService} (used by GridWorkService to "execute" work unit).
 	 * 
 	 * {@inheritDoc}
+	 * @throws MisconfiguredWorkUnitException 
 	 */
 	@Override
-	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	public GridResult sendExecToRemote(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException, MisconfiguredWorkUnitException {
 
 		GridResultImpl result = new GridResultImpl();
 
 		try {
 			
 			logger.debug("Attempting to create SshTransportConnection to " + transportService.getHostName());
+			
+			// ensure set for direct remote execution
+			w.remoteWorkingDirectory = transportService.prefixRemoteFile(w.getWorkingDirectory());
+			w.remoteResultsDirectory = transportService.prefixRemoteFile(w.getResultsDirectory());
 
 			session = client.startSession();
 
 			String command = w.getCommand();
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
-			if (w.getWorkingDirectory() != null && !w.getWorkingDirectory().equals("") && !w.getWorkingDirectory().equals("~"))
-				w.setWorkingDirectory(transportService.prefixRemoteFile(w.getWorkingDirectory()));
-				command = "cd " + w.getWorkingDirectory() + " && " + command;
-			command = "source ~/.bash_profile && " + command;
+			command = "cd " + w.remoteWorkingDirectory + " && " + command;
+			command = "source $HOME/.bash_profile && " + command;
 			logger.debug("sending exec: " + command + " at: " + transportService.getHostName());
 
 				final Command exec = session.exec(command);

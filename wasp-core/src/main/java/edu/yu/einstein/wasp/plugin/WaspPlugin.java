@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * Abstract Class for defining Wasp System plugins. Requires that a name (string
  * that refers to the target of messages), siteProperties (which possibly has
  * local configuration for the plugin), a message channel (of the format:
- * wasp.channel.pluginName), and a handle to the {@link WaspPluginRegistry} (in
+ * wasp.channel.plugin.pluginName), and a handle to the {@link WaspPluginRegistry} (in
  * which the bean registers itself, after properties have been set.
  * 
  * Optionally, the plugin may declare properties "provides" and "handles"
@@ -66,15 +66,15 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 * 
 	 * @param pluginName String that represents a unique name and the name of the message channel
 	 * @param waspSiteProperties local configuration bean
-	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.pluginName)
+	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.plugin.pluginName)
 	 * @param pluginRegistry handle to the {@link WaspPluginRegistry}
 	 */
 	public WaspPlugin(String pluginName, Properties waspSiteProperties,
 			MessageChannel channel) {
+		Assert.assertParameterNotNull(pluginName, "plugin must be assigned a name");
 		this.setPluginName(pluginName);
 		this.waspSiteProperties = waspSiteProperties;
-		Assert.assertParameterNotNull(pluginName,
-				"plugin must be assigned a name");
+		
 		String prefix = "plugin." + pluginName;
 		if (waspSiteProperties != null){
 			for (String key : this.waspSiteProperties.stringPropertyNames()) {
@@ -88,6 +88,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 			}
 		}
 		this.messageChannel = channel;
+		logger.debug("created " + pluginName + " plugin bean");
 	}
 	
 	@Override
@@ -111,6 +112,8 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		try {
 			return (Message) method.invoke(this, m);
 		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage());
+			e.printStackTrace();
 			return MessageBuilder.withPayload("Unable to execute task " + method.getName()).build();
 		}
 		
