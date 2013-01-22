@@ -10,16 +10,16 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.wasp-illumina" />
+	<int:channel id="wasp.channel.plugin.wasp-illumina" />
 
-	<int:service-activator input-channel="wasp.channel.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
 	
 	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin">
 		<constructor-arg type="java.lang.String">
 			<value>wasp-illumina</value>
 		</constructor-arg>
 		<constructor-arg><ref bean="waspSiteProperties" /></constructor-arg>
-		<constructor-arg><ref bean="wasp.channel.wasp-illumina" /></constructor-arg>
+		<constructor-arg><ref bean="wasp.channel.plugin.wasp-illumina" /></constructor-arg>
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />

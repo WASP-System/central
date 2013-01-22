@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -65,11 +66,9 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 * 
 	 * @param platformUnit
 	 * @param ghs
-	 * @throws GridExecutionException
-	 * @throws GridAccessException
-	 * @throws GridUnresolvableHostException
+	 * @throws GridException 
 	 */
-	public void doSampleSheet(Run run) throws GridUnresolvableHostException, GridAccessException, GridExecutionException {
+	public void doSampleSheet(Run run) throws GridException {
 		
 		logger.debug("sample sheet for " + run.getName() + ":" + run.getPlatformUnit().getName());
 		
