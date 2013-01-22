@@ -395,13 +395,13 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	}
 
 	@Override
-	public Set<String> getBatchJobNames() {
+	public String getBatchJobName(String BatchJobType) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getFlowNameFromArea(String area) {
+	public String getBatchJobNameByArea(String BatchJobType, String area) {
 		// TODO Auto-generated method stub
 		return null;
 	}
