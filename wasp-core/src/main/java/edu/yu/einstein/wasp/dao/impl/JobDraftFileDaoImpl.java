@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobDraftFile;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobDraftFileDaoImpl extends WaspDaoImpl<JobDraftFile> implements edu.yu.einstein.wasp.dao.JobDraftFileDao {
@@ -44,10 +44,9 @@ public class JobDraftFileDaoImpl extends WaspDaoImpl<JobDraftFile> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftFile getJobDraftFileByJobDraftFileId (final int jobFileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer>m = new HashMap<String, Integer>();
 		m.put("jobFileId", jobFileId);
 
 		List<JobDraftFile> results = this.findByMap(m);

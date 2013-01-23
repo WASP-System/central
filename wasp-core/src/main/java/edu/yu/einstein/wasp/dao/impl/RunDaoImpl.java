@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Run;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp.dao.RunDao {
@@ -45,10 +45,9 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Run getRunByRunId (final int runId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runId", runId);
 
 		List<Run> results = this.findByMap(m);
@@ -63,7 +62,7 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 	  
 	  @Override
 	  public List<Run> getActiveRuns(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

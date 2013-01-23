@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleType;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleTypeDaoImpl extends WaspDaoImpl<SampleType> implements edu.yu.einstein.wasp.dao.SampleTypeDao {
@@ -44,10 +44,9 @@ public class SampleTypeDaoImpl extends WaspDaoImpl<SampleType> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleType getSampleTypeBySampleTypeId (final int sampleTypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleTypeId", sampleTypeId);
 
 		List<SampleType> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleTypeDaoImpl extends WaspDaoImpl<SampleType> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleType getSampleTypeByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<SampleType> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class SampleTypeDaoImpl extends WaspDaoImpl<SampleType> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleType getSampleTypeByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<SampleType> results = this.findByMap(m);

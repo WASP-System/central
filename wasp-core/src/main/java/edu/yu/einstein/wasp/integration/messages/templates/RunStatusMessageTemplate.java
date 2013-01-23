@@ -1,10 +1,14 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
 /**
  * Handling WaspRunStatus messages.

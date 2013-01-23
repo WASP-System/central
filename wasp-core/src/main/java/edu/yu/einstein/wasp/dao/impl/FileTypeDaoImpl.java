@@ -11,15 +11,18 @@
 package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.model.FileType;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDao {
@@ -81,6 +84,15 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 		return results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional
+	public Set<FileType> getFileTypes() {
+		HashSet<FileType> result = new HashSet<FileType>();
+		Query q = getEntityManager().createQuery("from FileType");
+		result.addAll(q.getResultList());
+		return result;
+	}
 
 }
 

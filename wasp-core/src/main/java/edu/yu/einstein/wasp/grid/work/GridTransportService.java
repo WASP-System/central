@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -50,5 +52,6 @@ public interface GridTransportService {
 	abstract File getIdentityFile();
 	
 	public String prefixRemoteFile(String filespec);
+	public String prefixRemoteFile(URI uri) throws FileNotFoundException, GridUnresolvableHostException;
 
 }

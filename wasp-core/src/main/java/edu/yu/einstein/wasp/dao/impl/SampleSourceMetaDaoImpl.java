@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> implements edu.yu.einstein.wasp.dao.SampleSourceMetaDao {
@@ -44,10 +44,9 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSourceMeta getSampleSourceMetaBySampleSourceMetaId (final int sampleSourceMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSourceMetaId", sampleSourceMetaId);
 
 		List<SampleSourceMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSourceMeta getSampleSourceMetaByKSampleSourceId (final String k, final int sampleSourceId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("sampleSourceId", sampleSourceId);
 
@@ -87,13 +85,9 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	}
 
 
-
-
-
-
 	@Override
 	public List<SampleSourceMeta> getSampleSourceMetaBySampleSourceId (final int sampleSourceId) {
-		HashMap m = new HashMap();
+		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSourceId", sampleSourceId);
 
 		List<SampleSourceMeta> results = this.findByMap(m);

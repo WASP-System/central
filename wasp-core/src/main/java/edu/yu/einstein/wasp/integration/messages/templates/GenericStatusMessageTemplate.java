@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
@@ -6,8 +6,9 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
-import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 

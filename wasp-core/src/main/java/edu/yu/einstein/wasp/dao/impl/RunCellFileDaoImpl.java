@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.RunCellFile;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RunCellFileDaoImpl extends WaspDaoImpl<RunCellFile> implements edu.yu.einstein.wasp.dao.RunCellFileDao {
@@ -44,10 +44,9 @@ public class RunCellFileDaoImpl extends WaspDaoImpl<RunCellFile> implements edu.
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunCellFile getRunCellFileByRunCellfileId (final int runCellfileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runCellfileId", runCellfileId);
 
 		List<RunCellFile> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RunCellFileDaoImpl extends WaspDaoImpl<RunCellFile> implements edu.
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunCellFile getRunCellFileByFileId (final int fileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileId", fileId);
 
 		List<RunCellFile> results = this.findByMap(m);

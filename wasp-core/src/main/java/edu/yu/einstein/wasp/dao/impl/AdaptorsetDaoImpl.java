@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Adaptorset;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu.einstein.wasp.dao.AdaptorsetDao {
@@ -45,10 +45,9 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptorset getAdaptorsetByAdaptorsetId (final Integer adaptorsetId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetId", adaptorsetId);
 
 		List<Adaptorset> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptorset getAdaptorsetByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<Adaptorset> results = this.findByMap(m);
@@ -97,10 +95,9 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptorset getAdaptorsetByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Adaptorset> results = this.findByMap(m);
@@ -114,7 +111,7 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 
 	  @Override
 	  public List<Adaptorset> getActiveAdaptorsets(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

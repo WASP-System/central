@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctGrant;
 
-@SuppressWarnings("unchecked")
 @Transactional
 @Repository
 public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.einstein.wasp.dao.AcctGrantDao {
@@ -44,10 +43,9 @@ public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctGrant getAcctGrantByGrantId (final int grantId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("grantId", grantId);
 
 		List<AcctGrant> results = this.findByMap(m);

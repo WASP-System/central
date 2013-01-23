@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctInvoice;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.yu.einstein.wasp.dao.AcctInvoiceDao {
@@ -44,10 +44,9 @@ public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("invoiceId", invoiceId);
 
 		List<AcctInvoice> results = this.findByMap(m);

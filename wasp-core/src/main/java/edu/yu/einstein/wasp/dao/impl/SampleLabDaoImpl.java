@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleLab;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.einstein.wasp.dao.SampleLabDao {
@@ -44,10 +44,9 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleLabId", sampleLabId);
 
 		List<SampleLab> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleLab getSampleLabBySampleIdLabId (final int sampleId, final int labId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
 		m.put("labId", labId);
 

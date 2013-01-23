@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> implements edu.yu.einstein.wasp.dao.UserpasswordauthDao {
@@ -44,10 +44,9 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("UserId", UserId);
 
 		List<Userpasswordauth> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("authcode", authcode);
 
 		List<Userpasswordauth> results = this.findByMap(m);

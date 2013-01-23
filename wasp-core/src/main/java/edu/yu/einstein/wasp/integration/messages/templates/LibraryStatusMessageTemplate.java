@@ -1,19 +1,23 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
 /**
- * Handling Wasp Analysis Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
+ * Handling Wasp Library Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
  * @author andymac
  *
  */
-public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
+public class LibraryStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
-	protected Integer libraryId; // id of library being analysed
+	protected Integer libraryId; // id of library
 	
 	public Integer getlibraryId() {
 		return libraryId;
@@ -23,12 +27,12 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		this.libraryId = libraryId;
 	}
 	
-	public AnalysisStatusMessageTemplate(Integer libraryId){
+	public LibraryStatusMessageTemplate(Integer libraryId){
 		super();
 		this.libraryId = libraryId;
 	}
 	
-	public AnalysisStatusMessageTemplate(Message<WaspStatus> message){
+	public LibraryStatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
@@ -38,7 +42,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
 	
 	/**
-	 * Build a Spring Integration Message using the ANALYSIS header, task header if not null, and the WaspStatus as payload .
+	 * Build a Spring Integration Message using the LIBRARY header, task header if not null, and the WaspStatus as payload .
 	 * @return
 	 * @throws WaspMessageBuildingException
 	 */
@@ -50,7 +54,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		try {
 			if (this.task == null){
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
@@ -58,7 +62,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 						.build();
 			} else {
 				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
+						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LIBRARY)
 						.setHeader(TARGET_KEY, target)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
@@ -105,7 +109,7 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) &&
 				message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS))
+				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.LIBRARY))
 			return true;
 		return false;
 	}
@@ -122,19 +126,19 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 			return false;
 		if (task == null)
 			return true;
-		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
+		if (message.getHeaders().containsKey(WaspJobTask.HEADER_KEY) &&	message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(task))
 			return true;
 		return false;
 	}
-
+	
 	/**
 	 * Returns true is the message is of the correct WaspMessageType
 	 * @param message
 	 * @return
 	 */
 	public static boolean isMessageOfCorrectType(Message<?> message) {
-		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) && 
-				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS);
+		return message.getHeaders().containsKey(WaspMessageType.HEADER_KEY) &&  
+				message.getHeaders().get(WaspMessageType.HEADER_KEY).equals(WaspMessageType.LIBRARY);
 	}
 	
 }

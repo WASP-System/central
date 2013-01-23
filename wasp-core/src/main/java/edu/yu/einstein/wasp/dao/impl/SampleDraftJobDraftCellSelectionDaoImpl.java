@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleDraftJobDraftCellSelectionDaoImpl extends WaspDaoImpl<SampleDraftJobDraftCellSelection> implements edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao {
@@ -44,10 +44,9 @@ public class SampleDraftJobDraftCellSelectionDaoImpl extends WaspDaoImpl<SampleD
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftJobDraftCellSelection getSampleDraftJobDraftCellSelectionBySampleDraftJobDraftCellSelectionId (final int sampleDraftJobDraftCellSelectionId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleDraftJobDraftCellSelectionId", sampleDraftJobDraftCellSelectionId);
 
 		List<SampleDraftJobDraftCellSelection> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class SampleDraftJobDraftCellSelectionDaoImpl extends WaspDaoImpl<SampleD
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftJobDraftCellSelection getSampleDraftJobDraftCellSelectionByJobDraftCellSelectionIdLibraryIndex (final int jobDraftCellSelectionId, final int libraryIndex) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobDraftCellSelectionId", jobDraftCellSelectionId);
 		m.put("libraryIndex", libraryIndex);
 

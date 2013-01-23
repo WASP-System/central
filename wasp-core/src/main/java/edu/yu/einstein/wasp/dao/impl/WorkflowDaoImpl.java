@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Workflow;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.einstein.wasp.dao.WorkflowDao {
@@ -45,10 +45,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByWorkflowId (final Integer workflowId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);
 
 		List<Workflow> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<Workflow> results = this.findByMap(m);
@@ -97,10 +95,9 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Workflow getWorkflowByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Workflow> results = this.findByMap(m);
@@ -114,7 +111,7 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 
 	  @Override
 	  public List<Workflow> getActiveWorkflows(){
-		  Map workflowQueryMap = new HashMap();
+		  Map<String, Integer> workflowQueryMap = new HashMap<String, Integer>();
 		  workflowQueryMap.put("isActive", 1);
 		  return this.findByMap(workflowQueryMap);
 	  }

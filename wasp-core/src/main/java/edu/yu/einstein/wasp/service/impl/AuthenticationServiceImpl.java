@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +61,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		this.userDao = userDao;
 	}
 
-	
 	@Autowired
 	private UserPendingDao userPendingDao;
 	
@@ -113,6 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String[] getRoles() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -256,7 +255,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public boolean authenticates(String name, String password){
 		try {
 	        Authentication authRequest = new UsernamePasswordAuthenticationToken(name, password);
-	        Authentication result = authenticationManager.authenticate(authRequest);
+	        authenticationManager.authenticate(authRequest);
 	    } catch(AuthenticationException e) {
 	    	logger.warn("failed to authenticate:" + e.getCause());
 	        return false;
@@ -291,7 +290,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (userDao.getUserByLogin(login).getUserId() != null){
 			return true;
 		} else {
-			Map loginQueryMap = new HashMap();
+			Map<String, String> loginQueryMap = new HashMap<String, String>();
 			loginQueryMap.put("login", login);
 			for (UserPending up : userPendingDao.findByMap(loginQueryMap)){
 				if ( (up.getStatus().equals("WAIT_EMAIL") || up.getStatus().equals("PENDING")) && !up.getEmail().equals(email) ){
@@ -373,7 +372,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	    	Assert.assertParameterNotNull(permission, "permission must be set");
 	    	if (parameterMap != null && !parameterMap.isEmpty()){
 	    		for (String key: parameterMap.keySet()){
-	    			Integer value = parameterMap.get(key);
+	    			parameterMap.get(key);
 	    			permission = permission.replaceAll("#" + key, parameterMap.get(key).toString());
 	    		}
 	    		if (permission.contains("#"))

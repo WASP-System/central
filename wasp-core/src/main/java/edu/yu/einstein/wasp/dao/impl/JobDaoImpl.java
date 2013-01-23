@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Job;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp.dao.JobDao {
@@ -48,10 +48,9 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Job getJobByJobId (final int jobId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 
 		List<Job> results = this.findByMap(m);
@@ -74,12 +73,11 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Job getJobByNameLabId (final String name, final int labId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
-		m.put("labId", labId);
+		m.put("labId", Integer.toString(labId));
 
 		List<Job> results = this.findByMap(m);
 
@@ -90,6 +88,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 		return results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
 		   String sql=
@@ -128,7 +127,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	
 	  @Override
 	  public List<Job> getActiveJobs(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

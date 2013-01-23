@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.integration.messages;
+package edu.yu.einstein.wasp.integration.messages.tasks;
 
 public class WaspTask {
 	// constant for use with message headers

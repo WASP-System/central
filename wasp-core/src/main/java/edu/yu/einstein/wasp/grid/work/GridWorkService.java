@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import edu.yu.einstein.wasp.exception.GridException;
@@ -27,8 +29,9 @@ public interface GridWorkService {
 	 * @throws GridAccessException
 	 * @throws GridUnresolvableHostException
 	 * @throws GridExecutionException 
+	 * @throws GridException 
 	 */
-	public GridResult execute(WorkUnit w) throws GridAccessException, GridUnresolvableHostException, GridExecutionException;
+	public GridResult execute(WorkUnit w) throws GridException;
 	
 	/**
 	 * Tests to see if the particular {@link GridWorkService} execution is still running. Throws a @{link GridException}
@@ -38,7 +41,7 @@ public interface GridWorkService {
 	 * @throws GridUnresolvableHostException 
 	 * @throws GridException
 	 */
-	public boolean isFinished(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException;
+	public boolean isFinished(GridResult g) throws GridException;
 	
 	/**
 	 * Prefix for the names of jobs that are sent to the scheduler. 
@@ -64,6 +67,9 @@ public interface GridWorkService {
 	public GridFileService getGridFileService();
 	
 	public GridTransportService getTransportService();
+
+	public InputStream readResultStdErr(GridResult r) throws IOException;
 	
+	public InputStream readResultStdOut(GridResult r) throws IOException;
 
 }

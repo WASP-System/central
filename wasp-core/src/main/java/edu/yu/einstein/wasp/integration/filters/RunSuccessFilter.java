@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Filter;
 
-import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 
 public class RunSuccessFilter {
 	

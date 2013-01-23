@@ -18,9 +18,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.FileMeta;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu.einstein.wasp.dao.FileMetaDao {
@@ -45,10 +44,9 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileMeta getFileMetaByFileMetaId (final int fileMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileMetaId", fileMetaId);
 
 		List<FileMeta> results = this.findByMap(m);
@@ -71,10 +69,9 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileMeta getFileMetaByKFileId (final String k, final int fileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileId", fileId);
 
@@ -87,9 +84,6 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 		return results.get(0);
 	}
 
-
-
-
 	/**
 	 * getWorkflowMetaByKWorkflowId(final String k, final Integer workflowId)
 	 *
@@ -99,10 +93,9 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileMeta getFileMetaByKWorkflowId (final String k, final Integer fileId) {
-    	HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileId", fileId);
 

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> implements edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao {
@@ -46,10 +46,9 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	*/
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
-	    HashMap m = new HashMap();
+	    HashMap<String, Integer> m = new HashMap<String, Integer>();
 	    		m.put("confirmEmailAuthId", confirmEmailAuthId);
 	
 	    List<ConfirmEmailAuth> results = this.findByMap(m);
@@ -72,10 +71,9 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	*/
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ConfirmEmailAuth getConfirmEmailAuthByAuthcode (final String authcode) {
-	    HashMap m = new HashMap();
+	    HashMap<String, String> m = new HashMap<String, String>();
 	    		m.put("authcode", authcode);
 	
 	    List<ConfirmEmailAuth> results = this.findByMap(m);
@@ -91,7 +89,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	
 	@Override
 	public ConfirmEmailAuth getConfirmEmailAuthByUserpendingId(int userPendingId) {
-	    HashMap m = new HashMap();
+	    HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("userPendingId", userPendingId);
 	
 		List<ConfirmEmailAuth> results = this.findByMap(m);
@@ -107,7 +105,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	
 	@Override
 	public ConfirmEmailAuth getConfirmEmailAuthByUserId(int userId) {
-	    HashMap m = new HashMap();
+	    HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("UserId", userId);
 	
 		List<ConfirmEmailAuth> results = this.findByMap(m);

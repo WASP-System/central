@@ -31,17 +31,19 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml"})
 
@@ -49,6 +51,9 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 	
 	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
 	// but MUST be re-mocked here (not @Autowied in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
+	
+	@Mock private SampleService mockSampleService; 
+	
 	@Mock private RunService mockRunService; 
 	
 	@Mock private RunDao mockRunDao;
@@ -84,6 +89,7 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 		MockitoAnnotations.initMocks(this);
 		Assert.assertNotNull(mockRunDao);
 		Assert.assertNotNull(mockRunService);
+		Assert.assertNotNull(mockSampleService);
 		Assert.assertNotNull(mockWaspPluginRegistry);
 	}
 	
@@ -100,6 +106,7 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 		// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
 		runSuccessSplitter.setRunService(mockRunService);
 		runSuccessSplitter.setWaspPluginRegistry(mockWaspPluginRegistry);
+		runSuccessSplitter.setSampleService(mockSampleService);
 	}
 
 	@AfterMethod
@@ -118,24 +125,32 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 			
 			Sample library = new Sample();
 			library.setSampleId(1);
+			
+			Sample cell = new Sample();
+			cell.setSampleId(2);
+			
+			SampleSource libraryCell = new SampleSource();
+			libraryCell.setSampleSourceId(1);
+			libraryCell.setSample(cell);
+			libraryCell.setSourceSample(library);
+			
+			Set<SampleSource> libraryCells = new HashSet<SampleSource>();
+			libraryCells.add(libraryCell);
+		
 			Job job = new Job();
 			job.setJobId(1);
 			job.setWorkflow(wf);
-			Sample library2 = new Sample();
-			library2.setSampleId(2);
-			Job job2 = new Job();
-			job2.setJobId(2);
-			job2.setWorkflow(wf);
-			Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
-			libraryJob.put(library, job);
-			libraryJob.put(library2, job2);
 			
 			Run run = new Run();
 			run.setRunId(1);
 			
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
-			PowerMockito.when(mockRunService.getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryJob);
+			PowerMockito.when(mockRunService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
+			PowerMockito.when(mockSampleService.getCell(libraryCell)).thenReturn(cell);
+			PowerMockito.when(mockSampleService.getLibrary(libraryCell)).thenReturn(library);
+			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(cell, library)).thenReturn(job);
+			
 			
 			WaspPlugin plugin = new WaspPlugin("test-plugin", null, null){
 				@Override public void destroy() throws Exception {}
@@ -155,9 +170,8 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 			if (replyMessage != null)
 				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
 			Thread.sleep(500); // wait for message receiving and job completion events
-			Assert.assertEquals(messages.size(), 2);
+			Assert.assertEquals(messages.size(), 1);
 			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
-			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(1)));
 		} catch (Exception e){
 			// caught an unexpected exception
 			Assert.fail("Caught Exception: "+e.getMessage());

@@ -21,9 +21,9 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel for a message with a task and status specified in the
@@ -44,20 +44,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
-	private String name = "";
-	
 	private boolean stopStep = false;
 	
 	private boolean abandonStep = false;
 	
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name + "#";
-	}
 
 	public void setAdditionalAbortMonitoredTemplates(Set<StatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
 		this.abortMonitoredTemplates.addAll(additionalAbortMessageMonitoredTemplates);

@@ -81,7 +81,7 @@
 	
 	
 	<bean id="waspMessageType" class="edu.yu.einstein.wasp.integration.messages.WaspMessageType" />
-	<bean id="waspTask" class="edu.yu.einstein.wasp.integration.messages.WaspTask" />
+	<bean id="waspTask" class="edu.yu.einstein.wasp.integration.messages.tasks.WaspTask" />
 	
 	<!-- channel for receiving messages intended for batch system.  -->
 	<!-- messages can be routed here by injecting into internal or secure message gateway with header 'target' = 'batch' -->

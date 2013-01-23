@@ -63,14 +63,14 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.LibraryStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.WaspLibraryTask;
-import edu.yu.einstein.wasp.integration.messages.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspLibraryTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspSampleTask;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -1836,7 +1836,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * @param Sample platformUnit
 	 * @return List<Resource>
 	*/
-	  public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException{
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
 		if(!this.isPlatformUnit(platformUnit)){
@@ -1922,8 +1923,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 		//first check compatibility, then perform create or update
 		
-		//check paramaters and parameter compatibility
-		String action = new String("create");
 		Sample platformUnit = null;
 		Resource sequencingMachineInstance = null;
 		ResourceCategory resourceCategory = null;
@@ -1937,7 +1936,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		try{//regular (rather than runtime) exceptions
 			if(runInstance.getRunId()!=null && runInstance.getRunId().intValue()>0){
 				run = this.getSequenceRun(runInstance.getRunId());//throws an exception if problem
-				action = new String("update");
 			}
 			else{
 				run = new Run();

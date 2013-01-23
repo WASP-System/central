@@ -8,16 +8,16 @@
 	
 	<!-- create beans for classes containing constants -->
 	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspJobParameters" />
-	<bean id='jobTasks' class="edu.yu.einstein.wasp.integration.messages.WaspJobTask" />
-	<bean id='sampleTasks' class="edu.yu.einstein.wasp.integration.messages.WaspSampleTask" />
-	<bean id='libraryTasks' class="edu.yu.einstein.wasp.integration.messages.WaspLibraryTask" />
+	<bean id='jobTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask" />
+	<bean id='sampleTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspSampleTask" />
+	<bean id='libraryTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspLibraryTask" />
 	
 	<!-- create common tasklet beans -->
 	<bean id="listenForJobQuotedTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate" >
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.QUOTE}" />
 				<property name="status" value="COMPLETED" />
@@ -30,7 +30,7 @@
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.PI_APPROVE}" />
 				<property name="status" value="COMPLETED" />
@@ -43,7 +43,7 @@
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.DA_APPROVE}" />
 				<property name="status" value="COMPLETED" />
@@ -56,7 +56,7 @@
 		<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
 		<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 		<constructor-arg name="messageTemplate">
-			<bean class="edu.yu.einstein.wasp.integration.messages.JobStatusMessageTemplate">
+			<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
 				<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
 				<property name="task" value="#{jobTasks.FM_APPROVE}" />
 				<property name="status" value="COMPLETED" />

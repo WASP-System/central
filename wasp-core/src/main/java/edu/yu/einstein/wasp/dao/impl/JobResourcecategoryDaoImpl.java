@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory> implements edu.yu.einstein.wasp.dao.JobResourcecategoryDao {
@@ -44,10 +44,9 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResourcecategory getJobResourcecategoryByJobResourcecategoryId (final Integer jobResourcecategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobResourcecategoryId", jobResourcecategoryId);
 
 		List<JobResourcecategory> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobResourcecategory getJobResourcecategoryByResourcecategoryIdJobId (final Integer resourcecategoryId, final Integer jobId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourcecategoryId", resourcecategoryId);
 		m.put("jobId", jobId);
 

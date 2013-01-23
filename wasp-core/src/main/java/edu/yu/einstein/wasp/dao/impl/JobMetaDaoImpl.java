@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.einstein.wasp.dao.JobMetaDao {
@@ -44,10 +44,9 @@ public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobMeta getJobMetaByJobMetaId (final int jobMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobMetaId", jobMetaId);
 
 		List<JobMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobMeta getJobMetaByKJobId (final String k, final int jobId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("jobId", jobId);
 
@@ -85,10 +83,6 @@ public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.e
 		}
 		return results.get(0);
 	}
-
-
-
-
 
 }
 

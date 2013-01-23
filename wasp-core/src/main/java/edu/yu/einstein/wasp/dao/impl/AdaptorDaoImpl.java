@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Adaptor;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AdaptorDaoImpl extends WaspDaoImpl<Adaptor> implements edu.yu.einstein.wasp.dao.AdaptorDao {
@@ -44,10 +44,9 @@ public class AdaptorDaoImpl extends WaspDaoImpl<Adaptor> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptor getAdaptorByAdaptorId (final Integer adaptorId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorId", adaptorId);
 
 		List<Adaptor> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class AdaptorDaoImpl extends WaspDaoImpl<Adaptor> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptor getAdaptorByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<Adaptor> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class AdaptorDaoImpl extends WaspDaoImpl<Adaptor> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Adaptor getAdaptorByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Adaptor> results = this.findByMap(m);

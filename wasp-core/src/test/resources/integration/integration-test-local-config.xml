@@ -15,5 +15,7 @@
 	<mockito:mock id="runDao" class="edu.yu.einstein.wasp.dao.impl.RunDaoImpl" />
 		
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	
+	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
 
 </beans>
