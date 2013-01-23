@@ -10,6 +10,9 @@
 
     <http use-expressions="true">
 
+		<remember-me key="einsteinGenomicsAndEpigenomicsCores_7184285558" />
+		
+		
         <intercept-url pattern="/auth/**" access="permitAll" />
         <intercept-url pattern="/scripts/**" access="permitAll" />
         <intercept-url pattern="/autocomplete/**" access="permitAll" />
@@ -25,7 +28,7 @@
            always-use-default-target="true"
            />
         <logout />
-
+		
     </http>
 
    
