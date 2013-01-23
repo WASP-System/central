@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubtype> implements edu.yu.einstein.wasp.dao.WorkflowSampleSubtypeDao {
@@ -44,10 +44,9 @@ public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubt
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowSampleSubtype getWorkflowSampleSubtypeByWorkflowsamplesubtypeId (final Integer workflowsamplesubtypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowsamplesubtypeId", workflowsamplesubtypeId);
 
 		List<WorkflowSampleSubtype> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubt
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowSampleSubtype getWorkflowSampleSubtypeByWorkflowIdSampleSubtypeId (final Integer workflowId, final Integer sampleSubtypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);
 		m.put("sampleSubtypeId", sampleSubtypeId);
 

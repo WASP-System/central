@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Barcode;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einstein.wasp.dao.BarcodeDao {
@@ -44,10 +44,9 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Barcode getBarcodeByBarcodeId (final int barcodeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("barcodeId", barcodeId);
 
 		List<Barcode> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Barcode getBarcodeByBarcode (final String barcode) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String>m = new HashMap<String, String>();
 		m.put("barcode", barcode);
 
 		List<Barcode> results = this.findByMap(m);

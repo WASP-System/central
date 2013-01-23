@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> implements edu.yu.einstein.wasp.dao.AcctQuoteMetaDao {
@@ -44,10 +44,9 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuoteMeta getAcctQuoteMetaByQuotemetaId (final Integer quotemetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("quotemetaId", quotemetaId);
 
 		List<AcctQuoteMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuoteMeta getAcctQuoteMetaByKQuoteId (final String k, final Integer quoteId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("quoteId", quoteId);
 
@@ -85,8 +83,6 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 		}
 		return results.get(0);
 	}
-
-
 
 
 

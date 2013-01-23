@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.RunFile;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einstein.wasp.dao.RunFileDao {
@@ -44,10 +44,9 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunFile getRunFileByRunlanefileId (final int runcellfileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runcellfileId", runcellfileId);
 
 		List<RunFile> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public RunFile getRunFileByFileId (final int fileId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileId", fileId);
 
 		List<RunFile> results = this.findByMap(m);

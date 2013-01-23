@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Project;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ProjectDaoImpl extends WaspDaoImpl<Project> implements edu.yu.einstein.wasp.dao.ProjectDao {
@@ -44,10 +44,9 @@ public class ProjectDaoImpl extends WaspDaoImpl<Project> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Project getProjectByProjectId (final int projectId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("projectId", projectId);
 
 		List<Project> results = this.findByMap(m);
@@ -70,12 +69,11 @@ public class ProjectDaoImpl extends WaspDaoImpl<Project> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Project getProjectByNameLabId (final String name, final int labId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
-		m.put("labId", labId);
+		m.put("labId", Integer.toString(labId));
 
 		List<Project> results = this.findByMap(m);
 

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceCell;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements edu.yu.einstein.wasp.dao.ResourceCellDao {
@@ -44,10 +44,9 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCell getResourceCellByResourceCellId (final Integer resourceCellId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceCellId", resourceCellId);
 
 		List<ResourceCell> results = this.findByMap(m);
@@ -70,12 +69,11 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCell getResourceCellByINameResourceId (final String iName, final Integer resourceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
-		m.put("resourceId", resourceId);
+		m.put("resourceId", resourceId.toString());
 
 		List<ResourceCell> results = this.findByMap(m);
 
@@ -97,12 +95,11 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCell getResourceCellByNameResourceId (final String name, final Integer resourceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
-		m.put("resourceId", resourceId);
+		m.put("resourceId", resourceId.toString());
 
 		List<ResourceCell> results = this.findByMap(m);
 

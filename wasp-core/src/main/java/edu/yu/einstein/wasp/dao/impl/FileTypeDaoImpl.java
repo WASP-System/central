@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.model.FileType;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDao {
@@ -84,6 +84,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 		return results.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public Set<FileType> getFileTypes() {

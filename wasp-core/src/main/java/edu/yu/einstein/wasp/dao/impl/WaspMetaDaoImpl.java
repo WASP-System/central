@@ -18,8 +18,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +27,6 @@ import edu.yu.einstein.wasp.model.MetaBase;
 
 @Repository
 public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {
-	
-	private Logger logger = LoggerFactory.getLogger(WaspMetaDaoImpl.class.getName());
 	
 	/**
 	 * {@inheritDoc}

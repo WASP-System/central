@@ -23,8 +23,6 @@ import edu.yu.einstein.wasp.dao.FileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;

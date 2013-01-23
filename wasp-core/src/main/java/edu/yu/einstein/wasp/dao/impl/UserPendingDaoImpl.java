@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UserPending;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.yu.einstein.wasp.dao.UserPendingDao {
@@ -30,10 +30,9 @@ public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.
   }
 
   @Override
-@SuppressWarnings("unchecked")
   @Transactional
   public UserPending getUserPendingByUserPendingId (final int userPendingId) {
-    HashMap m = new HashMap();
+    HashMap<String, Integer> m = new HashMap<String, Integer>();
     m.put("userPendingId", userPendingId);
     List<UserPending> results = this.findByMap(m);
     if (results.size() == 0) {

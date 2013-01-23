@@ -134,12 +134,11 @@
 			<para>In order for a plugin to be recognized and picked up by the wasp system
 			some common elements need to be in place.</para>
 			<orderedlist numeration="arabic">
-				<listitem>
-				<para></para>
-				</listitem>
+			<listitem>
+			<para></para>
+			</listitem>
 			</orderedlist>
 		</section>
-	</section>
 	<section>
 		<title>Data collection forms</title>
 		<para>Description of job sumbission form creation</para>
@@ -153,5 +152,6 @@
 			<title>Task example</title>
 			this is a task.
 		</example>
+	</section>
 	</section>
 </chapter>
