@@ -137,9 +137,8 @@
 			<listitem>
 			<para></para>
 			</listitem>
-
-		<section>
-	</section>
+			</orderedlist>
+		</section>
 	<section>
 		<title>Data collection forms</title>
 		<para>Description of job sumbission form creation</para>
@@ -153,5 +152,6 @@
 			<title>Task example</title>
 			this is a task.
 		</example>
+	</section>
 	</section>
 </chapter>
