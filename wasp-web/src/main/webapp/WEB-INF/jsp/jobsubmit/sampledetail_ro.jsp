@@ -8,7 +8,7 @@
 <table class="EditTable ui-widget ui-widget-content">
   	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobDraft.sample_name.label"/>:</td><td class="DataTD"><c:out value="${sampleDraft.name}" /></td></tr>
   	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobDraft.sample_type.label"/>:</td><td class="DataTD"><c:out value="${sampleDraft.sampleType.name}" /></td></tr>
-  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobDraft.sample_subtype.label"/>:</td><td class="DataTD"><c:out value="${sampleDraft.sampleSubtype.name}" /></td><td class="CaptionTD error"><form:errors path="" /></td></tr>
+  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobDraft.sample_subtype.label"/>:</td><td class="DataTD"><c:out value="${sampleDraft.sampleSubtype.name}" /></td></tr>
     <c:set var="_area" value = "sampleDraft" scope="request"/>
 	<c:set var="_metaList" value = "${normalizedMeta}" scope="request" />		
     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>

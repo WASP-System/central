@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctWorkflowcost;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> implements edu.yu.einstein.wasp.dao.AcctWorkflowcostDao {
@@ -44,10 +44,9 @@ public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);
 
 		List<AcctWorkflowcost> results = this.findByMap(m);

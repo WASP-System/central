@@ -19,9 +19,9 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
-import edu.yu.einstein.wasp.integration.messages.StatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 
 /**
  * Listens on the provided subscribable channel(s) for relevant completion messages. Also monitors the abort monitoring channel
@@ -41,16 +41,6 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	private Message<WaspStatus> message = null;
 	
 	private boolean stopJobNotificationReceived = false;
-	
-	private String name = "";
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name + "#";
-	}
 	
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();

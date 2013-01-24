@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Department;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu.einstein.wasp.dao.DepartmentDao {
@@ -45,10 +45,9 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Department getDepartmentByDepartmentId (final int departmentId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("departmentId", departmentId);
 
 		List<Department> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Department getDepartmentByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Department> results = this.findByMap(m);
@@ -88,7 +86,7 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 
 	 @Override
 	  public List<Department> getActiveDepartments(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

@@ -11,18 +11,15 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import java.util.List;
-
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 
 
-public interface UserPendingMetaDao extends WaspDao<UserPendingMeta> {
+public interface UserPendingMetaDao extends WaspMetaDao<UserPendingMeta> {
 
   public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId);
 
   public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userPendingId);
 
-  public void updateByUserpendingId (final int userPendingId, final List<UserPendingMeta> metaList);
 
 
 

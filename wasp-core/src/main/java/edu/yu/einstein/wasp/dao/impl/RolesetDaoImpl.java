@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Roleset;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einstein.wasp.dao.RolesetDao {
@@ -44,10 +44,9 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Roleset getRolesetByRolesetId (final int rolesetId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("rolesetId", rolesetId);
 
 		List<Roleset> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("parentroleId", parentroleId);
 		m.put("childroleId", childroleId);
 

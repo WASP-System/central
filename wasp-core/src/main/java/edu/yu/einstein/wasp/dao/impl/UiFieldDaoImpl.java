@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UiField;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einstein.wasp.dao.UiFieldDao {
@@ -28,7 +28,8 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
   }
 
   //returns list of unique areas
-  @Override
+@SuppressWarnings("unchecked")
+@Override
 public List<String> getUniqueAreas() {
 	String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
     return entityManager.createNativeQuery(sql).getResultList();
@@ -66,7 +67,7 @@ public boolean exists(final String locale, final String area, final String name,
       }
 
   }
-  
+ /* 
   private void process(StringBuffer result,Integer value) {
       if (value==null) {
     	  result.append("NULL");
@@ -76,6 +77,7 @@ public boolean exists(final String locale, final String area, final String name,
       }
 
   }
+ */
   
   //returns content of UIField table as a list of SQL insert statements 
   @Override

@@ -11,20 +11,46 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.annotation.Splitter;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.BatchJobLaunchMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.integration.messages.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
+/**
+ * Splitter to react to a successful run by generating launch messages for all libraries on successful cells
+ * @author asmclellan
+ *
+ */
 public class RunSuccessSplitter extends AbstractMessageSplitter{
+	
+	private WaspPluginRegistry waspPluginRegistry;
+	
+	@Autowired
+	public void setWaspPluginRegistry(WaspPluginRegistry waspPluginRegistry) {
+		this.waspPluginRegistry = waspPluginRegistry;
+	}
+	
+	private RunService runService;
+	
+	@Autowired
+	public void setRunService(RunService runService) {
+		this.runService = runService;
+	}
 	
 	private SampleService sampleService;
 	
@@ -34,8 +60,6 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	}
 
 
-	private static final String ANALYSIS_FLOW_NAME = "wasp.analysis.libraryPreprocessFlow.v1";
-	
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
 
 
@@ -51,20 +75,34 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			logger.warn("Message has the wrong status or payload value. Check filter and imput channel are correct");
 			return outputMessages; // empty list
 		}
-		Set<Sample> libraries = sampleService.getLibrariesOnSuccessfulRunCellsWithoutControls(runStatusMessageTemplate.getRunId());
-		logger.debug("Based on successful run (" + runStatusMessageTemplate.getRunId() + "), preparing to send " + libraries.size() + " launch messages for " + ANALYSIS_FLOW_NAME);
-		for (Sample library: libraries){
+		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());
+		Set<SampleSource> cellLibraries = runService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
+		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
-			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getSampleId().toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(ANALYSIS_FLOW_NAME, jobParameters) );
+			Sample cell = sampleService.getCell(cellLibrary);
+			Sample library = sampleService.getLibrary(cellLibrary);
+			Job job;
 			try {
-				Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-				logger.debug("preparing new message to send: " + launchMessage);
-				outputMessages.add(launchMessage);
-			} catch (WaspMessageBuildingException e) {
-				logger.warn("Message Building Exception caught. Abandoning sending current message:" + e.getLocalizedMessage());
-				//throw new MessagingException(e.getLocalizedMessage(), e);
+				job = sampleService.getJobOfLibraryOnCell(cell, library);
+			} catch (SampleException e1) {
+				logger.error(e1.getLocalizedMessage());
+				continue;
+			}
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			jobParameters.put(WaspJobParameters.LIBRARY_ID, job.getJobId().toString());
+			jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL, cellLibrary.getSampleSourceId().toString());
+			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
+				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+						new BatchJobLaunchContext(flowName, jobParameters) );
+				try {
+					Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+					logger.debug("preparing new message to send: " + launchMessage);
+					outputMessages.add(launchMessage);
+				} catch (WaspMessageBuildingException e) {
+					throw new MessagingException(e.getLocalizedMessage(), e);
+				}
 			}
 		}
 		return outputMessages;

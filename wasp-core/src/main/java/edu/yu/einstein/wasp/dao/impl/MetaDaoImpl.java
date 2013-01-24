@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Meta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wasp.dao.MetaDao {
@@ -44,10 +44,9 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByMetaId (final int metaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("metaId", metaId);
 
 		List<Meta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByPropertyK (final String property, final String k) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("property", property);
 		m.put("k", k);
 
@@ -97,10 +95,9 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Meta getMetaByPropertyV (final String property, final String v) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("property", property);
 		m.put("v", v);
 

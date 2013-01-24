@@ -60,16 +60,16 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 
 
 	/** 
-	 * sampledraftId
+	 * sampleDraftId
 	 *
 	 */
 	@Column(name="sampledraftid")
 	protected Integer sampledraftId;
 
 	/**
-	 * setSampledraftId(Integer sampledraftId)
+	 * setSampledraftId(Integer sampleDraftId)
 	 *
-	 * @param sampledraftId
+	 * @param sampleDraftId
 	 *
 	 */
 	
@@ -80,7 +80,7 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	/**
 	 * getSampledraftId()
 	 *
-	 * @return sampledraftId
+	 * @return sampleDraftId
 	 *
 	 */
 	public Integer getSampledraftId () {

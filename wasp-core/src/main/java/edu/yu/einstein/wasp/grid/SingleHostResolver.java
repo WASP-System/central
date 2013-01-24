@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -89,20 +90,28 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	@Override
-	public GridResult execute(WorkUnit w) throws GridAccessException,
-			GridUnresolvableHostException, GridExecutionException {
+	public GridResult execute(WorkUnit w) throws GridException {
 		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getTransportService().getName());
 		return getGridWorkService(w).execute(w);
 	}
 
 	@Override
-	public boolean isFinished(GridResult g) throws GridAccessException,
-			GridExecutionException, GridUnresolvableHostException {
+	public boolean isFinished(GridResult g) throws GridException {
 		return gws.isFinished(g);
 	}
 
 	@Override
 	public GridWorkService getGridWorkService(GridResult r) {
+		return gws;
+	}
+
+	@Override
+	public GridWorkService getGridWorkService(String hostname) throws GridUnresolvableHostException {
+		if (! gws.getTransportService().getHostName().toLowerCase().equals(hostname.toLowerCase())) {
+			String message = "host " + hostname + " not known";
+			logger.error(message);
+			throw new GridUnresolvableHostException(message);
+		}
 		return gws;
 	}
 

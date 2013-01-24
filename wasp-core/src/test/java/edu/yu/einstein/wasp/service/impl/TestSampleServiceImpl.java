@@ -31,9 +31,11 @@ import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleSourceDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.WorkflowDaoImpl;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -132,8 +134,12 @@ public class TestSampleServiceImpl {
 	  
 	  expect(mockSampleDao.save(newsample)).andReturn(newsample);
 	  replay(mockSampleDao);
-	  mockSampleMetaDao.updateBySampleId(1, sampleMetaList);
-	  EasyMock.expectLastCall();
+	  try {
+		expect(mockSampleMetaDao.setMeta(sampleMetaList, 1)).andReturn(null);
+		replay(mockSampleMetaDao);
+		} catch (MetadataException e) {
+			Assert.fail(e.getLocalizedMessage());
+		}
 	  sampleServiceImpl.saveSampleWithAssociatedMeta(newsample);
 	  verify(mockSampleDao);
   }
@@ -143,14 +149,29 @@ public class TestSampleServiceImpl {
 	  SampleType sampleType = new SampleType();
 	  sampleType.setIName("sample1");
 	  Job job = new Job();
-	  Sample sample = new Sample();
-	  sample.setName("sample1");
-	  sample.setSampleType(sampleType);
-	  List<Sample> sampleList =  new ArrayList<Sample>();
-	  sampleList.add(sample);
-	  job.setSample(sampleList);
+	  job.setJobId(1);
+	  Sample sample1 = new Sample();
+	  sample1.setSampleId(1);
+	  sample1.setName("sample1");
+	  sample1.setSampleType(sampleType);
+	  JobSample js1 = new JobSample();
+	  js1.setJobSampleId(1);
+	  js1.setJob(job);
+	  js1.setSample(sample1);
+	  List<JobSample> jobSamples = new ArrayList<JobSample>();
+	  jobSamples.add(js1);
+	  Sample sample2 = new Sample();
+	  sample2.setSampleId(2);
+	  sample2.setName("sample1"); // same name as sample1
+	  sample2.setSampleType(sampleType);
+	  JobSample js2 = new JobSample();
+	  js2.setJobSampleId(2);
+	  js2.setJob(job);
+	  js2.setSample(sample2);
+	  jobSamples.add(js2);
+	  job.setJobSample(jobSamples);
 	  
-	  Assert.assertEquals(sampleServiceImpl.isSampleNameUniqueWithinJob(sample, sampleType, job), false);
+	  Assert.assertEquals(sampleServiceImpl.isSampleNameUniqueWithinJob(sample1, sampleType, job), false);
 
 	  
   }

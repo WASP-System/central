@@ -6,6 +6,9 @@
 	<!-- import common configuration  -->
 	<import resource="daemon-common-config.xml" />
 	
+	<!-- import default plugin configuration  -->
+	<import resource="daemon-plugin-config.xml" />
+	
 	<!-- import local configuration -->
 	<import resource="daemon-local-config.xml" />
 

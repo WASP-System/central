@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobSampleMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
-public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements edu.yu.einstein.wasp.dao.JobSampleMetaDao {
+public class JobSampleMetaDaoImpl extends WaspMetaDaoImpl<JobSampleMeta> implements edu.yu.einstein.wasp.dao.JobSampleMetaDao {
 
 	/**
 	 * JobSampleMetaDaoImpl() Constructor
@@ -44,10 +44,9 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobSampleMetaId", jobSampleMetaId);
 
 		List<JobSampleMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobSampleMeta getJobSampleMetaByKJobsampleId (final String k, final int jobsampleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("jobsampleId", jobsampleId);
 
@@ -85,36 +83,6 @@ public class JobSampleMetaDaoImpl extends WaspDaoImpl<JobSampleMeta> implements 
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList)
-	 *
-	 * @param jobsampleId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByJobsampleId (final int jobsampleId, final List<JobSampleMeta> metaList) {
-		for (JobSampleMeta m:metaList) {
-			JobSampleMeta currentMeta = getJobSampleMetaByKJobsampleId(m.getK(), jobsampleId);
-			if (currentMeta.getJobSampleMetaId() == null){
-				// metadata value not in database yet
-				m.setJobsampleId(jobsampleId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
- 	}
-
 
 
 }

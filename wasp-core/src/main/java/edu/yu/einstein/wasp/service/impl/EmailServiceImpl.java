@@ -10,8 +10,6 @@ import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,10 +84,6 @@ public class EmailServiceImpl implements EmailService{
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 
-	private static Logger logger = LoggerFactory.getLogger("EmailServiceImpl");
-	
-
-
 	/**
 	 * {@inheritDoc} 
 	 */
@@ -121,6 +115,7 @@ public class EmailServiceImpl implements EmailService{
 	 * @param authcode
 	 * @param emailTemplate
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void sendEmailConfirm(final User user, final String authcode, final String template){
 		String urlEncodedEmail = "";
 		try{
@@ -153,6 +148,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}  
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingUserNotifyAccepted(final User user, final Lab lab){
 		Map model = new HashMap();
@@ -164,6 +160,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingUserNotifyRejected(final UserPending userPending, final Lab lab){
 		User pendinguser = new User();
@@ -181,7 +178,8 @@ public class EmailServiceImpl implements EmailService{
 	public void sendPendingLabUserNotifyAccepted(User user, Lab lab) {
 		sendPendingUserNotifyAccepted(user, lab);
 	}
-
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabUserNotifyRejected(User user, Lab lab) {
 		Map model = new HashMap();
@@ -193,6 +191,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabNotifyAccepted(final Lab lab){
 		User primaryUser = userDao.getUserByUserId(lab.getPrimaryUserId());
@@ -206,6 +205,7 @@ public class EmailServiceImpl implements EmailService{
 	 * {@inheritDoc}
 	 * @throws MailPreparationException 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
 		User user = new User();
@@ -234,6 +234,7 @@ public class EmailServiceImpl implements EmailService{
 	 * {@inheritDoc}
 	 * @throws MailPreparationException 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingUserConfirmRequest(final UserPending userPending) throws MailPreparationException {
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, Locale.US);
@@ -275,6 +276,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabUserConfirmRequest(final LabUser labUser) {
 		Lab lab = labUser.getLab(); 
@@ -303,6 +305,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingPrincipalConfirmRequest(final LabPending labPending) {
 		User user;
@@ -315,7 +318,7 @@ public class EmailServiceImpl implements EmailService{
 			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
 		}
 		else{
-			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated userId or userPendingId");
+			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated UserId or userPendingId");
 		}
 		
 		Department department = departmentDao.getDepartmentByDepartmentId(labPending.getDepartmentId());
@@ -333,6 +336,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendRequestNewPassword(final User user, final String authcode) {
 		Map model = new HashMap();
@@ -344,6 +348,7 @@ public class EmailServiceImpl implements EmailService{
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void informUserLoginChanged(User user) {
 		Map model = new HashMap();
@@ -367,6 +372,7 @@ public class EmailServiceImpl implements EmailService{
 	 * @param template velocityEngine .vm template file prefix (localisation and extension added within this method)
 	 * @param model a Map object containing model data referenced within velocityEngine template
 	 */
+	@SuppressWarnings("rawtypes")
 	protected void prepareAndSend(final User user, final String template, final Map model){
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			@Override
@@ -387,6 +393,7 @@ public class EmailServiceImpl implements EmailService{
 	 * @param mimeMessage MIME style email message
 	 * @throws MailPreparationException
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
 		model.put("baseUrl", baseUrl);
 		String lang=user.getLocale().substring(0, 2);

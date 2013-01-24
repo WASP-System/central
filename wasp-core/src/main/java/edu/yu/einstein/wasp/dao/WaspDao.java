@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
-import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 
-public interface WaspDao<E> {
+public interface WaspDao<E> extends WaspPersistenceDao {
 
  public void persist(E entity);
 
@@ -36,9 +35,9 @@ public interface WaspDao<E> {
  public List<E> findAll();
  public Integer removeAll();
 
- public List<E> findByMap(Map m);
+ public List<E> findByMap(Map<?, ?> m);
  
- public List<E> findByMapExcept(Map m);
+ public List<E> findByMapExcept(Map<?, ?> m);
  
  
  
@@ -95,9 +94,9 @@ public interface WaspDao<E> {
   *	String direction = "ASC";
   *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
   */
-  public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
+  public List<E> findByMapDistinctOrderBy(final Map<?, ?> m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction);
   
-  public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction);
+  public List<E> findByMapOrderBy(final Map<?, ?> m, final List<String> orderByColumnNames, final String direction);
 
   /**
    * Generates and executes SQL statement that includes
@@ -123,8 +122,9 @@ public interface WaspDao<E> {
    *	orderConstraints.add("name direction");	//ie: "jobId desc"  
    *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
    */
-   public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList);
+   public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map<?, ?> m, final Map<?, ?> dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList);
 
+  @SuppressWarnings("rawtypes")
   public List findDistinctMetaOrderBy(String metaKeyName, String direction);
 
   /**
@@ -134,7 +134,7 @@ public interface WaspDao<E> {
    * @return detached entity with all fields pre-populated (Eagerly loaded).
    * @throws ModelDetachException
    */
-  public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException;
+   public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException;
 
 
 

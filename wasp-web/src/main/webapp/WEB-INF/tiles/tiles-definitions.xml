@@ -319,6 +319,11 @@
 	<definition name="job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.jsp" />
 	</definition>
+	<definition name="job/analysisParameters" extends="template-base">
+		<!--  <put-attribute name="head-js" value="/WEB-INF/jsp/job/analysisParameters.js.jsp" /> -->
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/analysisParameters.jsp" />
+	</definition>
+	
 	<definition name="job/comments" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/comments.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/comments.jsp" />

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleSubtype;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SampleSubtypeDaoImpl extends WaspDaoImpl<SampleSubtype> implements edu.yu.einstein.wasp.dao.SampleSubtypeDao {
@@ -45,10 +45,9 @@ public class SampleSubtypeDaoImpl extends WaspDaoImpl<SampleSubtype> implements 
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSubtype getSampleSubtypeBySampleSubtypeId (final int sampleSubtypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleSubtypeId", sampleSubtypeId);
 
 		List<SampleSubtype> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class SampleSubtypeDaoImpl extends WaspDaoImpl<SampleSubtype> implements 
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleSubtype getSampleSubtypeByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<SampleSubtype> results = this.findByMap(m);
@@ -88,7 +86,7 @@ public class SampleSubtypeDaoImpl extends WaspDaoImpl<SampleSubtype> implements 
 
 	  @Override
 	  public List<SampleSubtype> getActiveSampleSubtypes(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

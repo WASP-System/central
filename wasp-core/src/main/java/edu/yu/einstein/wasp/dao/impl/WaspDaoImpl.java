@@ -31,8 +31,9 @@ import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
 
+@SuppressWarnings("unchecked")
 @Repository
-public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDao implements edu.yu.einstein.wasp.dao.WaspDao<E> {
+public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenceDaoImpl implements edu.yu.einstein.wasp.dao.WaspDao<E> {
 	protected Class<E>	entityClass;
 
 	// generic logger included with every class.
@@ -71,9 +72,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	@Override
 	public E merge(E entity) {
-
-		setUpdateTs(entity);
-		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "merging");
 		return entityManager.merge(entity);
 	}
@@ -100,7 +98,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	
 	public List<E> findAll() {
 		return this.entityManager.createQuery("FROM " + entityClass.getName()).getResultList();
 	}
@@ -111,8 +109,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMap(final Map m) {
+	
+	public List<E> findByMap(final Map<?, ?> m) {
 		boolean first = true;
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		for (Object key : m.keySet()) {
@@ -129,15 +127,15 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
+			System.out.println("KEY="+key.toString());
 			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
 		}
-
 		return q.getResultList();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapExcept(final Map m) {
+	
+	public List<E> findByMapExcept(final Map<?, ?> m) {
 		boolean first = true;
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		for (Object key : m.keySet()) {
@@ -163,8 +161,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapDistinctOrderBy(final Map m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
+	
+	public List<E> findByMapDistinctOrderBy(final Map<?, ?> m, final List<String> distinctColumnNames, final List<String> orderByColumnNames, final String direction) {
 		boolean where = false;
 		boolean firstMap = true;
 		boolean firstDistinct = true;
@@ -242,13 +240,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 	
 	@Override
-	public List<E> findByMapOrderBy(final Map m, final List<String> orderByColumnNames, final String direction) {
+	public List<E> findByMapOrderBy(final Map<?, ?> m, final List<String> orderByColumnNames, final String direction) {
 		return findByMapDistinctOrderBy(m, null, orderByColumnNames, direction);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map m, final Map dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
+	
+	public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map<?, ?> m, final Map<?, ?> dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList) {
 		boolean where = false;
 		//boolean firstMap = true;
 		boolean firstDistinct = true;
@@ -335,7 +333,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
+	
 	public List<E> findDistinctOrderBy(final String distinctColumnName, final String orderByColumnName, final String direction) {
 
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
@@ -356,8 +354,8 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List findAllOrderBy(final String orderByColumnName, final String direction) {
+	
+	public List<E> findAllOrderBy(final String orderByColumnName, final String direction) {
 		String qString = "SELECT h FROM " + entityClass.getName() + " h";
 		if (!"".equals(orderByColumnName) && "".equals(direction)) {
 			qString += " ORDER BY h." + orderByColumnName;
@@ -381,13 +379,13 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 				try {
 					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 					if (!login.equals("anonymousUser")) {
-						Integer newUserId = (Integer) entityManager.createNativeQuery("select userId from user where login=:login").setParameter("login", login).getSingleResult();
+						Integer newUserId = (Integer) entityManager.createNativeQuery("select UserId from user where login=:login").setParameter("login", login).getSingleResult();
 						if (newUserId != null) {
 							userId = newUserId;
 						}
 					}
 				} catch (Exception e) {
-					// empty catch in case login or userId can't be found.
+					// empty catch in case login or UserId can't be found.
 				}
 
 				method.invoke(entity, new Object[] { userId });
@@ -408,11 +406,12 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List findDistinctMetaOrderBy(final String metaKeyName, final String direction){
-		Map metaQueryMap = new HashMap();
+		Map<String, String> metaQueryMap = new HashMap<String, String>();
 		metaQueryMap.put("k", metaKeyName);
-	  	List<String> orderByList = new ArrayList();
+	  	List<String> orderByList = new ArrayList<String>();
 	  	orderByList.add("v");
 		return this.findByMapDistinctOrderBy(metaQueryMap, orderByList, orderByList, direction); 
 	}
@@ -421,6 +420,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Deprecated
 	public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException{
 		try{
 			this.merge(entity); // ensures attached to the session to start with

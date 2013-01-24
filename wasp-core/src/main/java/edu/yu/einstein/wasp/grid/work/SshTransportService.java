@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
 import java.security.Provider.Service;
 import java.security.Security;
 import java.util.Arrays;
@@ -240,9 +242,20 @@ public class SshTransportService implements GridTransportService {
 	@Override
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
-		if (isUserDirIsRoot()) prefix = "$HOME/";
+		if (isUserDirIsRoot() && !filespec.startsWith("$HOME")) prefix = "$HOME/";
 		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
+	}
+
+	@Override
+	public String prefixRemoteFile(URI uri) throws FileNotFoundException, GridUnresolvableHostException {
+		if ( !uri.getHost().toLowerCase().equals(hostname))
+			throw new GridUnresolvableHostException("file " + uri.toString() + " not registered on " + hostname);
+		// TODO: implement remote file management
+		if ( !uri.getScheme().equals("file"))
+			throw new FileNotFoundException("file not found " + uri.toString() + " unknown scheme " + uri.getScheme());
+		
+		return prefixRemoteFile(uri.getPath());
 	}
 
 }

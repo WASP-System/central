@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetResourceCategory> implements edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao {
@@ -44,10 +44,9 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetresourcecategoryId (final Integer adaptorsetresourcecategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetresourcecategoryId", adaptorsetresourcecategoryId);
 
 		List<AdaptorsetResourceCategory> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId (final Integer adaptorsetId, final Integer resourcecategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetId", adaptorsetId);
 		m.put("resourcecategoryId", resourcecategoryId);
 

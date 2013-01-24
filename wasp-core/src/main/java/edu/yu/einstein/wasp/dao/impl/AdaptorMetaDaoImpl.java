@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AdaptorMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
-public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.yu.einstein.wasp.dao.AdaptorMetaDao {
+public class AdaptorMetaDaoImpl extends WaspMetaDaoImpl<AdaptorMeta> implements edu.yu.einstein.wasp.dao.AdaptorMetaDao {
 
 	/**
 	 * AdaptorMetaDaoImpl() Constructor
@@ -44,10 +44,9 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorMeta getAdaptorMetaByAdaptorMetaId (final Integer adaptorMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorMetaId", adaptorMetaId);
 
 		List<AdaptorMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorMeta getAdaptorMetaByKAdaptorId (final String k, final Integer adaptorId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("adaptorId", adaptorId);
 
@@ -86,33 +84,6 @@ public class AdaptorMetaDaoImpl extends WaspDaoImpl<AdaptorMeta> implements edu.
 		return results.get(0);
 	}
 
-
-	/**
-	 * updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList)
-	 *
-	 * @param adaptorId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByAdaptorId (final int adaptorId, final List<AdaptorMeta> metaList) {
-		for (AdaptorMeta m:metaList) {
-			AdaptorMeta currentMeta = getAdaptorMetaByKAdaptorId(m.getK(), adaptorId);
-			if (currentMeta.getAdaptorMetaId() == null){
-				// metadata value not in database yet
-				m.setAdaptorId(adaptorId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
 
 
 

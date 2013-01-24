@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
-public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMeta> implements edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao {
+public class WorkflowsoftwareMetaDaoImpl extends WaspMetaDaoImpl<WorkflowsoftwareMeta> implements edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao {
 
 	/**
 	 * WorkflowsoftwareMetaDaoImpl() Constructor
@@ -44,10 +44,9 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowsoftwareMetaId", workflowsoftwareMetaId);
 
 		List<WorkflowsoftwareMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("workflowsoftwareId", workflowsoftwareId);
 		m.put("k", k);
 
@@ -85,36 +83,6 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspDaoImpl<WorkflowsoftwareMet
 		}
 		return results.get(0);
 	}
-	
-	/**
-	 * updateByWorkflowsoftwareId (final int workflowsoftwareId, final List<WorkflowsoftwareMeta> metaList)
-	 *
-	 * @param workflowId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateByWorkflowsoftwareId (final int workflowsoftwareId, final List<WorkflowsoftwareMeta> metaList) {
-		for (WorkflowsoftwareMeta m:metaList) {
-			WorkflowsoftwareMeta currentMeta = getWorkflowsoftwareMetaByWorkflowsoftwareIdK(workflowsoftwareId, m.getK());
-			if (currentMeta.getWorkflowsoftwareMetaId() == null){
-				// metadata value not in database yet
-				m.setWorkflowsoftwareId(workflowsoftwareId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-	}
-
-
-
 
 }
 

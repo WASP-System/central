@@ -11,18 +11,14 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import java.util.List;
-
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 
 
-public interface WorkflowsoftwareMetaDao extends WaspDao<WorkflowsoftwareMeta> {
+public interface WorkflowsoftwareMetaDao extends WaspMetaDao<WorkflowsoftwareMeta> {
 
   public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId);
 
   public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k);
-
-  public void updateByWorkflowsoftwareId (final int workflowsoftwareId, final List<WorkflowsoftwareMeta> metaList);
 
 }
 

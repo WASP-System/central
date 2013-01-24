@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileTypeMetaDao;
 import edu.yu.einstein.wasp.model.FileTypeMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
-public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements FileTypeMetaDao {
+public class FileTypeMetaDaoImpl extends WaspMetaDaoImpl<FileTypeMeta> implements FileTypeMetaDao {
 
 	/**
 	 * FileTypeMetaDaoImpl() Constructor
@@ -45,10 +45,9 @@ public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements Fi
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileTypeMeta getFileTypeMetaByFileTypeMetaId (final int fileTypeMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileTypeMetaId", fileTypeMetaId);
 
 		List<FileTypeMeta> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements Fi
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public FileTypeMeta getFileTypeMetaByKFileTypeId (final String k, final int fileTypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileTypeId", fileTypeId);
 
@@ -86,36 +84,6 @@ public class FileTypeMetaDaoImpl extends WaspDaoImpl<FileTypeMeta> implements Fi
 		}
 		return results.get(0);
 	}
-
-
-
-	/**
-	 * updateByFileTypeId (final int fileTypeId, final List<FileTypeMeta> metaList)
-	 *
-	 * @param fileTypeId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@Transactional
-	public void updateByFileTypeId (final int fileTypeId, final List<FileTypeMeta> metaList) {
-		for (FileTypeMeta m:metaList) {
-			FileTypeMeta currentMeta = getFileTypeMetaByKFileTypeId(m.getK(), fileTypeId);
-			if (currentMeta.getFileTypeMetaId() == null){
-				// metadata value not in database yet
-				m.setFileTypeId(fileTypeId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
-  	}
-
-
 
 }
 

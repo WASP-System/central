@@ -16,7 +16,7 @@ import java.util.List;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 
 
-public interface SampleSubtypeMetaDao extends WaspDao<SampleSubtypeMeta> {
+public interface SampleSubtypeMetaDao extends WaspMetaDao<SampleSubtypeMeta> {
 
   public SampleSubtypeMeta getSampleSubtypeMetaBySampleSubtypeMetaId (final int sampleSubtypeMetaId);
 
@@ -24,7 +24,6 @@ public interface SampleSubtypeMetaDao extends WaspDao<SampleSubtypeMeta> {
 
   List<SampleSubtypeMeta> getSampleSubtypesMetaBySampleSubtypeId (final int sampleSubtypeId);
 
-  public void updateBySampleSubtypeId (final int sampleSubtypeId, final List<SampleSubtypeMeta> metaList);
 
 
 

@@ -11,13 +11,28 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -26,10 +41,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.grid.GridAccessException;
+import edu.yu.einstein.wasp.grid.GridExecutionException;
+import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -43,7 +67,6 @@ import edu.yu.einstein.wasp.service.SampleService;
 @Transactional("entityManager")
 public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
-
 	@Autowired
 	private MessageSource messageSource;
 	
@@ -55,6 +78,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	
 	@Autowired
 	private SampleFileDao sampleFileDao;
+	
+	@Autowired
+	private FileTypeDao fileTypeDao;
+	
+	@Autowired
+	private GridHostResolver hostResolver;
+	
+	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 	
 	/**
 	 * fileDao;
@@ -154,6 +185,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return jobDraftFileDao.save(jobDraftFile);
 	}
 	
+	@Override
+	public Set<FileType> getFileTypes() {
+		return fileTypeDao.getFileTypes();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -241,6 +277,105 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			s.getSampleFile().add(sfi);
 		}
 	}
+
+	@Override
+	public FileType getFileType(String iname) {
+		return fileTypeDao.getFileTypeByIName(iname);
+	}
+
+	/**
+	 * Take a new (isActive == 0) entity managed file and register it.
+	 * @throws FileNotFoundException 
+	 * @throws GridUnresolvableHostException 
+	 */
+	@Override
+	public void registerFile(File file) throws FileNotFoundException, GridException {
+		file = fileDao.merge(file);
+		URI uri = file.getFileURI();
+		if (uri == null)
+			throw new FileNotFoundException("File URI was null");
+		
+		// TODO: implement grid resolution of URNs
+		if (!uri.getScheme().equals("file")) {
+			String message = "unable to locate " + uri.toString() + ", unimplemented scheme: " + uri.getScheme();
+			logger.warn(message);
+			throw new FileNotFoundException(message);
+		}
+		
+		logger.debug("attempting to register " + file.getFileURI().toString());
+		
+		setMD5(file);
+		file.setIsActive(1);
+		file.setIsArchived(0);
+		fileDao.save(file);
+	}
+
+	private void setMD5(File file) throws GridException, FileNotFoundException {
+		URL url;
+		try {
+			url = file.getFileURI().toURL();
+		} catch (MalformedURLException e) {
+			String message = "malformed url " + file.getFileURI().toString();
+			logger.warn(message);
+			throw new FileNotFoundException(message);
+		}
+		
+		GridWorkService gws = hostResolver.getGridWorkService(url.getHost());
+		
+		String path = url.getPath();
+		
+		try {
+			if (!gws.getGridFileService().exists(path)) {
+				String message = "unable to locate" + url.toString() + ", file does not exist";
+				logger.warn(message);
+				throw new FileNotFoundException(message);
+			}
+		} catch (IOException e) {
+			String message = e.getLocalizedMessage();
+			logger.error(message);
+			throw new GridAccessException(message);
+		}
+		
+		logger.debug("checking MD5 of " + file.getFileURI().toString());
+		
+		WorkUnit w = new WorkUnit();
+		w.setRegistering(true);
+		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
+		w.addRequiredFile(file);
+		w.setCommand("md5sum ${WASPFILE[0]} | awk '{print $1}'");
+		GridResult r = gws.execute(w);
+		
+		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+		while(!gws.isFinished(r)) {
+			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
+				@Override
+				public void run() {
+					
+				}}, 10, TimeUnit.SECONDS);
+			while (!md5t.isDone()) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+		ex.shutdownNow();
+		
+		try {
+			InputStream is = gws.readResultStdOut(r);
+			StringWriter sw = new StringWriter();
+			IOUtils.copy(is, sw);
+			String md5 = sw.toString();
+			file.setMd5hash(StringUtils.chomp(md5));
+			logger.debug("file registered with MD5: " + file.getMd5hash());
+		} catch (IOException e) {
+			String message = "Unable to obtain stdout: " + e.getLocalizedMessage();
+			logger.warn(message);
+			throw new GridExecutionException(message);
+		}
+	}
+	
 	
 }
 

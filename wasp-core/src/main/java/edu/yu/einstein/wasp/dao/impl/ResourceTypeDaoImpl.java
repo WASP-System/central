@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceType;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements edu.yu.einstein.wasp.dao.ResourceTypeDao {
@@ -44,10 +44,9 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceType getResourceTypeByResourceTypeId (final Integer resourceTypeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceTypeId", resourceTypeId);
 
 		List<ResourceType> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceType getResourceTypeByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<ResourceType> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceType getResourceTypeByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<ResourceType> results = this.findByMap(m);

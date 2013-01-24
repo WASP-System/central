@@ -15,14 +15,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.model.Adaptor;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.User;
 
 @Service
 public interface JobDraftService extends WaspService {
@@ -40,6 +35,7 @@ public interface JobDraftService extends WaspService {
 	 * @param List<SampleDraft> samplesOnThisJobDraft
 	 * @return Map<Integer, List<SampleDraft>>
 	 */
+	@SuppressWarnings("rawtypes")
 	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft);
 
 	/**
@@ -69,6 +65,7 @@ public interface JobDraftService extends WaspService {
 	 * @param JobDraft jobdraft
 	 * @return void
 	 */
+	@SuppressWarnings("rawtypes")
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params);
 
 	/**

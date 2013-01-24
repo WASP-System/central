@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
@@ -140,7 +141,7 @@ public class UserController extends WaspController {
 								new String[] {
 										"<a href=/wasp/job/list.do?labId=" 
 										+ uLab.getLabId().intValue() 
-										+ "&userId=" + userId + ">" + 
+										+ "&UserId=" + userId + ">" + 
 											//uLab.getLab().getName() + 
 											pi.getFirstName() + " " + pi.getLastName() + " " + "Lab" +
 											"</a>"
@@ -178,7 +179,7 @@ public class UserController extends WaspController {
 		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
 		
 		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
-		String userIdFromURL = request.getParameter("selId");//if not passed, userId is the empty string (interestingly, it's value is not null)
+		String userIdFromURL = request.getParameter("selId");//if not passed, UserId is the empty string (interestingly, it's value is not null)
 		//logger.debug("selId = " + userIdFromURL);logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);logger.debug("selId = " + selId);
 
 		//Parameters coming from grid's toolbar
@@ -221,7 +222,7 @@ public class UserController extends WaspController {
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			orderByList.add(sidx);
 		}
-		else{//default orderBy will be userId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
+		else{//default orderBy will be UserId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
 			orderByList.add("UserId");
 			sord = new String("desc");
 		}
@@ -361,9 +362,9 @@ public class UserController extends WaspController {
 				
 		List<UserMeta> userMetaList = getMetaHelperWebapp().getFromJsonForm(request, UserMeta.class);
 		userForm.setUserMeta(userMetaList);
-		//NV 12282011 - The code userForm.setUserId(userId) below throws exception: "detached entity passed to persist" when adding a new user. 
-		//				Do not set userId for a new user here - it is configured as a generated value, therefore, Hibernate expects userId to be null when EntityManager#persist is called.
-		//userForm.setUserId(userId);
+		//NV 12282011 - The code userForm.setUserId(UserId) below throws exception: "detached entity passed to persist" when adding a new user. 
+		//				Do not set UserId for a new user here - it is configured as a generated value, therefore, Hibernate expects UserId to be null when EntityManager#persist is called.
+		//userForm.setUserId(UserId);
 		if (!adding) {
 			userForm.setUserId(userId);
 		}
@@ -377,8 +378,18 @@ public class UserController extends WaspController {
 			userForm.setIsActive(1);
 			User userDb = this.userDao.save(userForm);
 			userId=userDb.getUserId();
-			userMetaDao.updateByUserId(userId, userMetaList);
-			emailService.informUserAccountCreatedByAdmin(userDb, userService.getNewAuthcodeForUser(userDb));
+			try {
+				userMetaDao.setMeta(userMetaList, userId);
+				emailService.informUserAccountCreatedByAdmin(userDb, userService.getNewAuthcodeForUser(userDb));
+			} catch (MetadataException e){
+				logger.warn(e.getLocalizedMessage());
+				try{
+					response.getWriter().println(messageService.getMessage("user.updated_fail.error"));
+				} catch (Throwable e1) {
+					throw new IllegalStateException("Cant output error "+messageService.getMessage("user.updated_fail.error"),e1);
+				}
+				return null;
+			}
 		} else {
 			User userDb = this.userDao.getById(userId);
 			
@@ -414,7 +425,17 @@ public class UserController extends WaspController {
 			userDb.setIsActive(userForm.getIsActive());
 			userDb.setLastUpdTs(new Date());
 			this.userDao.merge(userDb);
-			userMetaDao.updateByUserId(userId, userMetaList);
+			try {
+				userMetaDao.setMeta(userMetaList, userId);
+			} catch (MetadataException e){
+				logger.warn(e.getLocalizedMessage());
+				try{
+					response.getWriter().println(messageService.getMessage("user.updated_fail.error"));
+				} catch (Throwable e1) {
+					throw new IllegalStateException("Cant output error "+messageService.getMessage("user.updated_fail.error"),e1);
+				}
+				return null;
+			}
 		}
 		
 		//waspMessage("user.updated.success");
@@ -460,9 +481,9 @@ public class UserController extends WaspController {
 	 * 
 	 * @Author Sasha Levchuk 
 	 */
-	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/detail_rw/{UserId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su')")
-	public String updateDetail(@PathVariable("userId") Integer userId,
+	public String updateDetail(@PathVariable("UserId") Integer userId,
 			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 		
@@ -509,13 +530,16 @@ public class UserController extends WaspController {
 		
 		//this.userDao.merge(userDb);
 
-		userMetaDao.updateByUserId(userId, userMetaList);
+		try {
+			userMetaDao.setMeta(userMetaList, userId);
+			status.setComplete();
 
-		MimeMessageHelper a;
-		
-		status.setComplete();
-
-		waspMessage("user.updated_success.label");
+			waspMessage("user.updated_success.label");
+			
+		} catch (MetadataException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("user.updated.error");
+		}
 		if (isMyEmailChanged){
 			authenticationService.logoutUser();
 			return "redirect:/auth/confirmemail/emailchanged.do";
@@ -661,14 +685,14 @@ public class UserController extends WaspController {
 	}
 */
 	
-	@RequestMapping(value = "/detail_rw/{userId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/detail_rw/{UserId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su')")
-	public String detailRW(@PathVariable("userId") Integer userId, ModelMap m) {		
+	public String detailRW(@PathVariable("UserId") Integer userId, ModelMap m) {		
 		return detail(userId,m,true);
 	}
 	
-	@RequestMapping(value = "/detail_ro/{userId}.do", method = RequestMethod.GET)	
-	public String detailRO(@PathVariable("userId") Integer userId, ModelMap m) {
+	@RequestMapping(value = "/detail_ro/{UserId}.do", method = RequestMethod.GET)	
+	public String detailRO(@PathVariable("UserId") Integer userId, ModelMap m) {
 		return detail(userId,m,false);
 	}
 	

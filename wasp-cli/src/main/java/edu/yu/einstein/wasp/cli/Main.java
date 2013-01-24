@@ -57,7 +57,7 @@ public class Main {
 				        .setHeader("user", parser.getUser())
 				        .setHeader("password", parser.getPassword());
 				
-				if(cl.hasOption("T")) m.setHeader("target", cl.getOptionValue("T"));
+				if(cl.hasOption("T")) m.setHeader("target", "plugin." + cl.getOptionValue("T"));
 				if(cl.hasOption("t")) m.setHeader("task", cl.getOptionValue("t"));
 				if(cl.hasOption("h")) m.setHeader("help", "true");
 				

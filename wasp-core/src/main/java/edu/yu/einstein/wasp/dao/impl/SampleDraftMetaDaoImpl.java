@@ -28,10 +28,10 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
-public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
+public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
 
 	
 	@Autowired
@@ -56,11 +56,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
 		
-    	HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleDraftMetaId", sampleDraftMetaId);
 
 		List<SampleDraftMeta> results = this.findByMap(m);
@@ -75,21 +74,20 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 
 
 	/**
-	 * getSampleDraftMetaByKSampledraftId(final String k, final int sampledraftId)
+	 * getSampleDraftMetaByKSampledraftId(final String k, final int sampleDraftId)
 	 *
-	 * @param final String k, final int sampledraftId
+	 * @param final String k, final int sampleDraftId
 	 *
 	 * @return sampleDraftMeta
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
 		
-    	HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
-		m.put("sampledraftId", sampledraftId);
+		m.put("sampleDraftId", sampledraftId);
 
 		List<SampleDraftMeta> results = this.findByMap(m);
 
@@ -101,37 +99,10 @@ public class SampleDraftMetaDaoImpl extends WaspDaoImpl<SampleDraftMeta> impleme
 	}
 
 
-
-	/**
-	 * updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList)
-	 *
-	 * @param sampledraftId
-	 * @param metaList
-	 *
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional
-	public void updateBySampledraftId (final int sampledraftId, final List<SampleDraftMeta> metaList) {
-		for (SampleDraftMeta m:metaList) {
-			SampleDraftMeta currentMeta = getSampleDraftMetaByKSampledraftId(m.getK(), sampledraftId);
-			if (currentMeta.getSampleDraftMetaId() == null){
-				// metadata value not in database yet
-				m.setSampledraftId(sampledraftId);
-				entityManager.persist(m);
-			} else if (!currentMeta.getV().equals(m.getV())){
-				// meta exists already but value has changed
-				currentMeta.setV(m.getV());
-				entityManager.merge(currentMeta);
-			} else{
-				// no change to meta so do nothing
-			}
-		}
- 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<SampleSubtype,List<SampleDraftMeta>> getAllowableMetaFields(final int workflowId) {
 		
