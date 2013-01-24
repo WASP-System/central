@@ -80,10 +80,10 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
 		
-		String dataDir = gws.getTransportService().getConfiguredSetting("illumina.data.dir");
+		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
-		String stageDir = gws.getTransportService().getConfiguredSetting("illumina.data.stage");
+		String stageDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		

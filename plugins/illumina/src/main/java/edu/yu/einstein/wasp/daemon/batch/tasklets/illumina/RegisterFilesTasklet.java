@@ -18,7 +18,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
@@ -26,7 +25,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -74,7 +73,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	@Autowired
 	private IlluminaSequenceRunProcessor casava;
 	
-	private GridTransportService transportService;
+	private GridTransportConnection transportConnection;
 	
 	@Autowired
 	private FileType fastqFileType;
@@ -110,9 +109,9 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		// save the GridWorkService so we can send many jobs there
 		GridWorkService gws = hostResolver.getGridWorkService(w);
 		
-		transportService = gws.getTransportService();
+		transportConnection = gws.getTransportConnection();
 
-		String stageDir = transportService.getConfiguredSetting("illumina.data.stage");
+		String stageDir = transportConnection.getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		
@@ -162,8 +161,8 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		// will return when complete (also gives access to stdout), only do
 		// this
 		// when the work is expected to be very short running.
-		hostResolver.getGridWorkService(w).getTransportService().connect(w);
-		GridResult r = w.getConnection().sendExecToRemote(w);
+		
+		GridResult r = transportConnection.sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
 
@@ -218,7 +217,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		fqs.setFileNumber(file, fileNum);
 		fqs.setFastqReadSegmentNumber(file, read);
 		
-		SoftwareManager sm = transportService.getSoftwareManager();
+		SoftwareManager sm = transportConnection.getSoftwareManager();
 		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
 		
 		boolean f = false;

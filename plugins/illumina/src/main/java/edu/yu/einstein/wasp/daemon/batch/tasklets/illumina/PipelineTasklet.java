@@ -94,14 +94,14 @@ public class PipelineTasklet extends WaspTasklet {
 		w.setProcessMode(ProcessMode.FIXED);
 		w.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(w);
-		SoftwareManager sm = gws.getTransportService().getSoftwareManager();
+		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
 		String p = sm.getConfiguredSetting("casava.env.processors");
 		Integer procs = 1;
 		if (PropertyHelper.isSet(p)) {
 			procs = new Integer(p);
 		}
 		w.setProcessorRequirements(procs);
-		String dataDir = gws.getTransportService().getConfiguredSetting("illumina.data.dir");
+		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
 		

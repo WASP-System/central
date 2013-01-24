@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -110,7 +111,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	private GridWorkService workService;
 	private GridFileService fileService;
 	
-	private GridTransportService transportService;
+	private GridTransportConnection transportConnection;
 	
 	private Run run;
 
@@ -131,8 +132,8 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	@BeforeMethod
 	public void prepare() {
 		workService = PowerMockito.mock(GridWorkService.class);
-		transportService = PowerMockito.mock(GridTransportService.class);
-		fileService = new SshFileService(transportService);
+		transportConnection = PowerMockito.mock(GridTransportConnection.class);
+		fileService = new SshFileService(transportConnection);
 		fileService = PowerMockito.spy(fileService);
 		sampleService = PowerMockito.mock(SampleService.class);
 		adaptorService = PowerMockito.mock(AdaptorService.class);
@@ -166,8 +167,8 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
-		PowerMockito.when(workService.getTransportService()).thenReturn(transportService);
-		PowerMockito.when(transportService.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
+		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
+		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
@@ -186,8 +187,8 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
-		PowerMockito.when(workService.getTransportService()).thenReturn(transportService);
-		PowerMockito.when(transportService.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
+		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
+		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(false);
 		
@@ -205,8 +206,8 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 	public void testListenRunComplete() throws Exception {
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
-		PowerMockito.when(workService.getTransportService()).thenReturn(transportService);
-		PowerMockito.when(transportService.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
+		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
+		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.anyString())).thenReturn("configuredSetting");
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
@@ -239,8 +240,8 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		PowerMockito.when(hostResolver.getGridWorkService(Mockito.any(WorkUnit.class))).thenReturn(workService);
 		PowerMockito.when(workService.getGridFileService()).thenReturn(fileService);
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnit.class))).thenReturn("test.host");
-		PowerMockito.when(workService.getTransportService()).thenReturn(transportService);
-		PowerMockito.when(transportService.getConfiguredSetting(Mockito.any(String.class))).thenReturn("TESTVALUE");
+		PowerMockito.when(workService.getTransportConnection()).thenReturn(transportConnection);
+		PowerMockito.when(transportConnection.getConfiguredSetting(Mockito.any(String.class))).thenReturn("TESTVALUE");
 		
 		Sample cell = new Sample();
 		cell.setName("testcell");

@@ -100,7 +100,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		String directory = "";
 		
 		try {
-			directory = gws.getTransportService().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
+			directory = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(run);
 			String newDir = directory + "/Data/Intensities/BaseCalls/";
