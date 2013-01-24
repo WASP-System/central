@@ -36,6 +36,11 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 @Table(name="sampledraft")
 public class SampleDraft extends WaspModel {
 
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7802756907357416771L;
+
 public static enum Status {
 pending,
 inprocess,

@@ -33,6 +33,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="run")
 public class Run extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9196704657950211850L;
 	/** 
 	 * runId
 	 *

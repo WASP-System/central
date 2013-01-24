@@ -28,6 +28,14 @@ import edu.yu.einstein.wasp.exception.ModelCopyException;
 public abstract class WaspModel implements Serializable {
 
   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8306199017533320113L;
+/**
+	 * 
+	 */
+//private static final long serialVersionUID = 1L;
+/**
    * generic logger included with every class.
    */
   protected static Logger logger = LoggerFactory.getLogger(WaspModel.class);
@@ -42,6 +50,7 @@ public abstract class WaspModel implements Serializable {
    * @return
    * @throws ModelCopyException 
    */
+  @SuppressWarnings("unchecked")
   public static <T extends WaspModel> T getDeepCopy(T waspModelObj) throws ModelCopyException{
 	  return (T) getDeepCopy(waspModelObj, waspModelObj.getClass());
   }
@@ -53,7 +62,8 @@ public abstract class WaspModel implements Serializable {
    * @return
    * @throws ModelCopyException 
    */
-  private static <T extends WaspModel> Object getDeepCopy(Object waspModelObj, Class<T> clazz) throws ModelCopyException{
+  @SuppressWarnings("unchecked")
+private static <T extends WaspModel> Object getDeepCopy(Object waspModelObj, Class<T> clazz) throws ModelCopyException{
 	  Object clonedObj = null;
 	  try {
 		  clonedObj = clazz.newInstance();
@@ -152,7 +162,8 @@ public abstract class WaspModel implements Serializable {
    * @param waspModelObj
    * @return
    */
-  public static <T extends WaspModel> T getShallowCopy(T waspModelObj){
+  @SuppressWarnings("unchecked")
+public static <T extends WaspModel> T getShallowCopy(T waspModelObj){
 	  Object clonedObj = null;
 	  Class<T> clazz = (Class<T>) waspModelObj.getClass();
 	  try {

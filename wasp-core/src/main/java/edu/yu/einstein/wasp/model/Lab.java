@@ -35,6 +35,10 @@ import org.hibernate.validator.constraints.Range;
 @Table(name="lab")
 public class Lab extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7721869798227853055L;
 	/** 
 	 * labId
 	 *

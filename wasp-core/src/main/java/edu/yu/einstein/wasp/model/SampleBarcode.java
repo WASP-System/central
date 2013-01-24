@@ -30,6 +30,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="samplebarcode")
 public class SampleBarcode extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7468259363636944918L;
 	/** 
 	 * sampleBarcode
 	 *

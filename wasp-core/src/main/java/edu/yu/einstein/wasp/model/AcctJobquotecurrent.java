@@ -30,6 +30,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_jobquotecurrent")
 public class AcctJobquotecurrent extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1955514379181334967L;
 	/** 
 	 * currentId
 	 *

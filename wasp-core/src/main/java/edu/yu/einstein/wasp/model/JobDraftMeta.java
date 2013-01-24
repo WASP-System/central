@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="jobdraftmeta")
 public class JobDraftMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8631916645941369570L;
 	/** 
 	 * jobDraftMetaId
 	 *

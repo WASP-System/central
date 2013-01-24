@@ -30,6 +30,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="jobdraftresourcecategory")
 public class JobDraftresourcecategory extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5178604899408106578L;
 	/** 
 	 * jobDraftresourcecategoryId
 	 *

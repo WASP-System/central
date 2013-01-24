@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="sampledraftjobdraftcellselection")
 public class SampleDraftJobDraftCellSelection extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9219452726472951422L;
 	/** 
 	 * sampleDraftJobDraftCellSelectionId
 	 *
