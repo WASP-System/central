@@ -1123,7 +1123,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modifyAdditionalMeta (
-			@PathVariable String additionalMetaArea,
+			@PathVariable("meta") String additionalMetaArea,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -1741,8 +1741,7 @@ public class JobSubmissionController extends WaspController {
 			for (WorkflowMeta wfm: wfmList) {
 				if (wfm.getK().equals("workflow.validatorClass")) {
 					ClassLoader cl = JobSubmissionController.class.getClassLoader();
-					// jdv = (JobDraftValidator) cl.loadClass(wfm.getV()).newInstance();
-					Object o = cl.loadClass(wfm.getV()).newInstance();
+					cl.loadClass(wfm.getV()).newInstance();
 
 
 					break;
