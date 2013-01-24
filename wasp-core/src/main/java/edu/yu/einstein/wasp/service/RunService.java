@@ -166,23 +166,7 @@ public interface RunService extends WaspMessageHandlingService {
 	   */
 	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
 	  
-	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
-	   * @param cell
-	   * @return
-	   * @throws SampleTypeException
-	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
-
-	  /**
-	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
-	   * assessment of a run
-	   * @param cell
-	   * @param success
-	   * @throws SampleTypeException
-	   * @throws MetadataException 
-	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  
 
 	  
 	  
