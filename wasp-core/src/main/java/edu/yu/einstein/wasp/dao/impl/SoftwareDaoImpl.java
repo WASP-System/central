@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Software;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.einstein.wasp.dao.SoftwareDao {
@@ -45,10 +45,9 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareBySoftwareId (final Integer softwareId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("softwareId", softwareId);
 
 		List<Software> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareByIName (final String iName) {
-    		HashMap m = new HashMap();
+    	HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<Software> results = this.findByMap(m);
@@ -97,10 +95,9 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Software getSoftwareByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Software> results = this.findByMap(m);
@@ -115,7 +112,7 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	  
 	  @Override
 	  public List<Software> getActiveSoftware(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

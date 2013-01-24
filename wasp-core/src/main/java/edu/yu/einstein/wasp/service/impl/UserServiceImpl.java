@@ -26,7 +26,6 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userrole;

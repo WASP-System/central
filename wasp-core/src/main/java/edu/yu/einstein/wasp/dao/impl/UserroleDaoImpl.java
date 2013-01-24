@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Userrole;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.einstein.wasp.dao.UserroleDao {
@@ -44,10 +44,9 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userrole getUserroleByUserroleId (final int userroleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("userroleId", userroleId);
 
 		List<Userrole> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("UserId", UserId);
 		m.put("roleId", roleId);
 

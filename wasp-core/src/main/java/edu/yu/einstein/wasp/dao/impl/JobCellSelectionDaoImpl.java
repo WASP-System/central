@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobCellSelection;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobCellSelectionDaoImpl extends WaspDaoImpl<JobCellSelection> implements edu.yu.einstein.wasp.dao.JobCellSelectionDao {
@@ -44,10 +44,9 @@ public class JobCellSelectionDaoImpl extends WaspDaoImpl<JobCellSelection> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobCellSelection getJobCellSelectionByJobCellSelectionId (final int jobCellSelectionId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobCellSelectionId", jobCellSelectionId);
 
 		List<JobCellSelection> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobCellSelectionDaoImpl extends WaspDaoImpl<JobCellSelection> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobCellSelection getJobCellSelectionByJobIdCellIndex (final int jobId, final int cellIndex) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
 		m.put("cellIndex", cellIndex);
 

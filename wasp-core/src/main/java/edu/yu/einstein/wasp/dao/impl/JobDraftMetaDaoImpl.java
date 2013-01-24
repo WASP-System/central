@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implements edu.yu.einstein.wasp.dao.JobDraftMetaDao {
@@ -44,10 +44,9 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobDraftMetaId", jobDraftMetaId);
 
 		List<JobDraftMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraftMeta getJobDraftMetaByKJobDraftId (final String k, final Integer jobDraftId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("jobDraftId", jobDraftId);
 
@@ -96,7 +94,6 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 *
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public void replaceByJobDraftId (final String area, final int jobDraftId, final List<JobDraftMeta> metaList) {
 		entityManager.createNativeQuery("delete from jobdraftmeta where jobDraftId=:jobDraftId and k like :area").setParameter("jobDraftId", jobDraftId).setParameter("area", area + ".%").executeUpdate();
@@ -106,7 +103,6 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 			entityManager.persist(m);
 		}
 	}
-
 
 }
 

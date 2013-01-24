@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.User;
 
-@SuppressWarnings("unchecked")
 @Transactional
 @Repository
 public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wasp.dao.UserDao {
@@ -31,10 +30,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
   }
 
   @Override
-@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByUserId (final int UserId) {
-    HashMap m = new HashMap();
+    HashMap<String, Integer> m = new HashMap<String, Integer>();
     m.put("UserId", UserId);
     List<User> results = this.findByMap(m);
     if (results.size() == 0) {
@@ -46,10 +44,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
 
 
   @Override
-@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByLogin (final String login) {
-    HashMap m = new HashMap();
+    HashMap<String, String> m = new HashMap<String, String>();
     m.put("login", login);
     List<User> results = this.findByMap(m);
     if (results.size() == 0) {
@@ -61,10 +58,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
 
 
   @Override
-@SuppressWarnings("unchecked")
   @Transactional
   public User getUserByEmail (final String email) {
-    HashMap m = new HashMap();
+    HashMap<String, String> m = new HashMap<String, String>();
     m.put("email", email);
     List<User> results = this.findByMap(m);
     if (results.size() == 0) {
@@ -77,7 +73,7 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
  
   @Override
   public List<User> getActiveUsers(){
-	  Map queryMap = new HashMap();
+	  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 	  queryMap.put("isActive", 1);
 	  return this.findByMap(queryMap);
   }

@@ -1,11 +1,11 @@
 package edu.yu.einstein.wasp.service;
 
-import edu.yu.einstein.wasp.exception.LoginNameException;
+import java.util.List;
+
 import edu.yu.einstein.wasp.model.Department;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
-import java.util.List;
+import edu.yu.einstein.wasp.model.User;
 
 public interface FilterService {
 

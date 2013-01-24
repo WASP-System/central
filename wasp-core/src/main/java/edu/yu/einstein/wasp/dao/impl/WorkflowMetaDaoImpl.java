@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implements edu.yu.einstein.wasp.dao.WorkflowMetaDao {
@@ -44,10 +44,9 @@ public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final Integer workflowMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowMetaId", workflowMetaId);
 
 		List<WorkflowMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implement
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowMeta getWorkflowMetaByKWorkflowId (final String k, final Integer workflowId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("workflowId", workflowId);
 
@@ -85,7 +83,6 @@ public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implement
 		}
 		return results.get(0);
 	}
-
 
 
 }

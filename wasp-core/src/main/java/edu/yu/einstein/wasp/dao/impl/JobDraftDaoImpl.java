@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.JobDraft;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.einstein.wasp.dao.JobDraftDao {
@@ -46,10 +46,9 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public JobDraft getJobDraftByJobDraftId (final Integer jobDraftId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobDraftId", jobDraftId);
 
 		List<JobDraft> results = this.findByMap(m);
@@ -61,7 +60,6 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 		return results.get(0);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<JobDraft> getPendingJobDrafts() {
 		Map<String, String> queryMap = new HashMap<String, String>();
@@ -69,7 +67,6 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 		return this.findByMap(queryMap);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<JobDraft> getPendingJobDraftsOrderBy(String orderByColumnName, String direction) {
 		Map<String, String> queryMap = new HashMap<String, String>();

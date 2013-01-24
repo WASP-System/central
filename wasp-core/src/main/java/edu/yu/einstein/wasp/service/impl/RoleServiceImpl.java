@@ -27,7 +27,6 @@ import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
@@ -99,7 +98,6 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		List<LabUser> labUsers = user.getLabUser();//picks up PI, LabManager, LabMember 
 		for(LabUser labUser : labUsers){
 			String piLastName = labUser.getLab().getUser().getLastName();
-			String labName = labUser.getLab().getName();//not used
 			String roleName = labUser.getRole().getRoleName();
 			if(roleName.equals("lm") || roleName.equals("lu")){//lab manager (lm) or lab member (lu)
 				rolesAsSet.add(labUser.getRole().getName() + " (" + piLastName + " Lab)");

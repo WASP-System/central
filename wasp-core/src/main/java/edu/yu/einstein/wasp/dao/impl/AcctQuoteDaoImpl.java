@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctQuote;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.einstein.wasp.dao.AcctQuoteDao {
@@ -44,10 +44,9 @@ public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.e
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("quoteId", quoteId);
 
 		List<AcctQuote> results = this.findByMap(m);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceCategory;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> implements edu.yu.einstein.wasp.dao.ResourceCategoryDao {
@@ -45,10 +45,9 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceCategoryId", resourceCategoryId);
 
 		List<ResourceCategory> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByIName (final String iName) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
 
 		List<ResourceCategory> results = this.findByMap(m);
@@ -97,10 +95,9 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceCategory getResourceCategoryByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<ResourceCategory> results = this.findByMap(m);
@@ -114,7 +111,7 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	
 	@Override
 	public List<ResourceCategory> getActiveResourceCategories() {
-		Map queryMap = new HashMap();
+		Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		queryMap.put("isActive", 1);
 		return this.findByMap(queryMap);
 	}

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.Lab;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp.dao.LabDao {
@@ -45,10 +45,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Lab getLabByLabId (final int labId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labId", labId);
 
 		List<Lab> results = this.findByMap(m);
@@ -71,10 +70,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Lab getLabByName (final String name) {
-    		HashMap m = new HashMap();
+    		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
 		List<Lab> results = this.findByMap(m);
@@ -97,10 +95,9 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public Lab getLabByPrimaryUserId (final int primaryUserId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("primaryUserId", primaryUserId);
 
 		List<Lab> results = this.findByMap(m);
@@ -115,7 +112,7 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
 	  
 	  @Override
 	  public List<Lab> getActiveLabs(){
-		  Map queryMap = new HashMap();
+		  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		  queryMap.put("isActive", 1);
 		  return this.findByMap(queryMap);
 	  }

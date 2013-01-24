@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.ResourceBarcode;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> implements edu.yu.einstein.wasp.dao.ResourceBarcodeDao {
@@ -44,10 +44,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceBarcodeId", resourceBarcodeId);
 
 		List<ResourceBarcode> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByResourceId (final Integer resourceId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourceId", resourceId);
 
 		List<ResourceBarcode> results = this.findByMap(m);
@@ -96,10 +94,9 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByBarcodeId (final Integer barcodeId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("barcodeId", barcodeId);
 
 		List<ResourceBarcode> results = this.findByMap(m);

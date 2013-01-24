@@ -11,8 +11,6 @@
 
 package edu.yu.einstein.wasp.dao;
 
-import java.util.List;
-
 import edu.yu.einstein.wasp.model.ResourceMeta;
 
 

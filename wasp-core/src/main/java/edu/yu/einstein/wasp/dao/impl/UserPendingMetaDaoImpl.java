@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> implements edu.yu.einstein.wasp.dao.UserPendingMetaDao {
@@ -44,10 +44,9 @@ public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> imp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("userPendingMetaId", userPendingMetaId);
 
 		List<UserPendingMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> imp
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public UserPendingMeta getUserPendingMetaByKUserpendingId (final String k, final int userPendingId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("userPendingId", userPendingId);
 
@@ -85,9 +83,6 @@ public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> imp
 		}
 		return results.get(0);
 	}
-
-
-
 
 }
 

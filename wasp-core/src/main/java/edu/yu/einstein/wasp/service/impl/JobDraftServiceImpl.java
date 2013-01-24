@@ -89,6 +89,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	/**
 	* {@inheritDoc}
 	*/
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Map<Integer, List<SampleDraft>> convertWebCellsToMapCells(Map params, List<SampleDraft> samplesOnThisJobDraft){
 		
@@ -206,6 +207,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	/**
 	* {@inheritDoc}
 	*/
+	@SuppressWarnings("rawtypes")
 	@Override
 	@Transactional("entityManager")   
 	public void createUpdateJobDraftCells(JobDraft jobDraft, Map params){

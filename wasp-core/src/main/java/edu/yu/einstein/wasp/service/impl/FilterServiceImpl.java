@@ -3,8 +3,6 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,8 +26,6 @@ import edu.yu.einstein.wasp.service.MessageService;
 @Transactional("entityManager")
 public class FilterServiceImpl implements FilterService {
 	
-	private Logger logger = LoggerFactory.getLogger(FilterServiceImpl.class);
-
 	@Autowired
 	private UserDao userDao;
 	

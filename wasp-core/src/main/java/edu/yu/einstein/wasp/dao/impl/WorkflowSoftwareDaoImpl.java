@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class WorkflowSoftwareDaoImpl extends WaspDaoImpl<WorkflowSoftware> implements edu.yu.einstein.wasp.dao.WorkflowSoftwareDao {
@@ -44,10 +44,9 @@ public class WorkflowSoftwareDaoImpl extends WaspDaoImpl<WorkflowSoftware> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowSoftware getWorkflowSoftwareByWorkflowSoftwareId (final Integer workflowSoftwareId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowSoftwareId", workflowSoftwareId);
 
 		List<WorkflowSoftware> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class WorkflowSoftwareDaoImpl extends WaspDaoImpl<WorkflowSoftware> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public WorkflowSoftware getWorkflowSoftwareByWorkflowIdSoftwareId (final Integer workflowId, final Integer softwareId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);
 		m.put("softwareId", softwareId);
 

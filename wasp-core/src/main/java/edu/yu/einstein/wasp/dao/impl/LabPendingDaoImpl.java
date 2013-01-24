@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.LabPending;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu.einstein.wasp.dao.LabPendingDao {
@@ -44,10 +44,9 @@ public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public LabPending getLabPendingByLabPendingId (final int labPendingId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labPendingId", labPendingId);
 
 		List<LabPending> results = this.findByMap(m);

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 
-@SuppressWarnings("unchecked")
+
 @Transactional
 @Repository
 public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> implements edu.yu.einstein.wasp.dao.AdaptorsetMetaDao {
@@ -44,10 +44,9 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorsetMeta getAdaptorsetMetaByAdaptorsetMetaId (final Integer adaptorsetMetaId) {
-    		HashMap m = new HashMap();
+    		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetMetaId", adaptorsetMetaId);
 
 		List<AdaptorsetMeta> results = this.findByMap(m);
@@ -70,10 +69,9 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	 */
 
 	@Override
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public AdaptorsetMeta getAdaptorsetMetaByKAdaptorsetId (final String k, final Integer adaptorsetId) {
-    		HashMap m = new HashMap();
+    	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("adaptorsetId", adaptorsetId);
 
@@ -85,6 +83,7 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 		}
 		return results.get(0);
 	}
+
 
 }
 
