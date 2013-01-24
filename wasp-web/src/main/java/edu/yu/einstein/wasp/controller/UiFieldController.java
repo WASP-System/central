@@ -166,12 +166,12 @@ public class UiFieldController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 			
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			
 			for (UiField field:uiFieldList) {
 				
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", field.getUiFieldId());
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {

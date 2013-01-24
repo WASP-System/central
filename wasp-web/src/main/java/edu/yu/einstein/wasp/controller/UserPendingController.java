@@ -137,6 +137,7 @@ public class UserPendingController extends WaspController {
 	 * @return view
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/newuser", method=RequestMethod.POST)
 	public String createNewPendingUser (
 			 @Valid UserPending userPendingForm, 
@@ -255,7 +256,7 @@ public class UserPendingController extends WaspController {
 	 */
 	private boolean isUserPendingEmailApproved(String email){
 		// see if pending user has already confirmed their email
-		Map confirmedEmailQueryMap = new HashMap();
+		Map<String, String> confirmedEmailQueryMap = new HashMap<String, String>();
 		confirmedEmailQueryMap.put("email", email);
 		for (UserPending up: userPendingDao.findByMap(confirmedEmailQueryMap)){
 			// if any userPending instances with same email are not in state WAIT_EMAIL we assume the email address
@@ -276,7 +277,7 @@ public class UserPendingController extends WaspController {
 	@RequestMapping(value="/newpi/institute", method=RequestMethod.GET)
 	public String selectPiInstitute(ModelMap m) {
 		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
-		List<String> instituteList = new ArrayList();
+		List<String> instituteList = new ArrayList<String>();
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
 		return "auth/newpi/institute";
@@ -290,13 +291,14 @@ public class UserPendingController extends WaspController {
 	 * @return view
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/newpi/institute", method=RequestMethod.POST)
 	public String selectPiInstitute(
 			@RequestParam(value="instituteSelect") String instituteSelect,
 			@RequestParam(value="instituteOther", required = false) String instituteOther,
 			ModelMap m) throws MetadataException {
 		String internalInstituteList = messageService.getMessage("piPending.internal_institute_list.data");
-		List<String> instituteList = new ArrayList();
+		List<String> instituteList = new ArrayList<String>();
 		Collections.addAll(instituteList,internalInstituteList.split(";")); 
 		m.addAttribute("instituteList", instituteList);
 		if ( (instituteSelect == null || instituteSelect.equals("other") || instituteSelect.isEmpty()) && (instituteOther == null || instituteOther.isEmpty()) ){
@@ -311,7 +313,7 @@ public class UserPendingController extends WaspController {
 		MetaHelperWebapp metaHelperWebapp=getMetaHelperWebapp();
 		metaHelperWebapp.setArea("piPending");
 		String instituteName = "";
-		Map visibilityElementMap = new HashMap();
+		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = new HashMap<String, MetaAttribute.FormVisibility>();
 		visibilityElementMap.put("piPending.institution", MetaAttribute.FormVisibility.immutable);
 		if (instituteSelect != null && !instituteSelect.equals("other")){
 			// internal institute
@@ -322,7 +324,7 @@ public class UserPendingController extends WaspController {
 			instituteName = StringHelper.removeExtraSpacesAndCapFirstLetter(instituteOther);
 			visibilityElementMap.put("piPending.departmentId", MetaAttribute.FormVisibility.immutable);
 			metaHelperWebapp.getMasterList(visibilityElementMap, UserPendingMeta.class);
-			Map departmentQueryMap = new HashMap();
+			Map<String, Integer> departmentQueryMap = new HashMap<String, Integer>();
 			departmentQueryMap.put("isInternal", 0);
 			List<Department> extDepartments = departmentDao.findByMap(departmentQueryMap);
 			if (extDepartments.isEmpty() || extDepartments.size() >1 ){
@@ -354,6 +356,7 @@ public class UserPendingController extends WaspController {
 	 * @return view
 	 * @throws MetadataException 
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/newpi/form", method=RequestMethod.POST)
 	public String createNewPendingPi (
 			 @Valid UserPending userPendingForm, 
@@ -365,7 +368,7 @@ public class UserPendingController extends WaspController {
 		
 		metaHelperWebapp.setArea("piPending"); 
 		// get the visibilityElement Map previously saved in session
-		Map visibilityElementMap = (Map<String, MetaAttribute.FormVisibility>) request.getSession().getAttribute("visibilityElementMap");
+		Map<String, MetaAttribute.FormVisibility> visibilityElementMap = (Map<String, MetaAttribute.FormVisibility>) request.getSession().getAttribute("visibilityElementMap");
 		metaHelperWebapp.getFromRequest(request, visibilityElementMap, UserPendingMeta.class);
 		metaHelperWebapp.validate(result);
 		
@@ -499,7 +502,7 @@ public class UserPendingController extends WaspController {
 	 */
 	protected void sendPendingUserConfRequestEmail(String email) throws MetadataException{
 		// now find any existing userPending instances with same email and process them too
-		Map userPendingQueryMap = new HashMap();
+		Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
 		List<UserPending> userPendingList = userPendingDao.findByMap(userPendingQueryMap);
@@ -527,13 +530,14 @@ public class UserPendingController extends WaspController {
 	 * @return {@link LabPending}
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	protected LabPending getNewLabPending(UserPending userPending) throws MetadataException{
 		MetaHelperWebapp userPendingMetaHelperWebapp=getMetaHelperWebapp();
 		userPendingMetaHelperWebapp.setArea("piPending");		
 		List<UserPendingMeta> userPendingMetaList = null;
 		userPendingMetaList = userPending.getUserPendingMeta();//11-08-12 (Rob): this hibernate-type call will not work if the userPending object was just now created (second request by a PI that has confirmed email address) and not completely committed
 		if(userPendingMetaList==null){
-			Map filterMap = new HashMap();
+			Map<String, Integer> filterMap = new HashMap<String, Integer>();
 			filterMap.put("userPendingId", userPending.getUserPendingId());
 			userPendingMetaList = userPendingMetaDao.findByMap(filterMap);
 			List<UserPendingMeta> toRemoveList = new ArrayList<UserPendingMeta>();
@@ -624,7 +628,7 @@ public class UserPendingController extends WaspController {
 			waspErrorMessage("auth.confirmemail_corruptemail.error");
 			return "redirect:/auth/confirmUserEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		}
-		Map userPendingQueryMap = new HashMap();
+		Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		userPendingQueryMap.put("email", decodedEmail);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
 		if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
@@ -665,7 +669,7 @@ public class UserPendingController extends WaspController {
 		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 
-		  Map userPendingQueryMap = new HashMap();
+		  Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		  userPendingQueryMap.put("email", email);
 		  userPendingQueryMap.put("status", "WAIT_EMAIL");
 		  if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
@@ -701,7 +705,7 @@ public class UserPendingController extends WaspController {
 			 waspErrorMessage("auth.confirmemail_corruptemail.error");
 			 return "redirect:/auth/confirmPIEmail.do"; // do this to clear GET parameters and forward to authcodeform view
 		 }
-		 Map userPendingQueryMap = new HashMap();
+		 Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		 userPendingQueryMap.put("email", decodedEmail);
 		 userPendingQueryMap.put("status", "WAIT_EMAIL");
 		 if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
@@ -740,7 +744,7 @@ public class UserPendingController extends WaspController {
 		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 
-		Map userPendingQueryMap = new HashMap();
+		Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		userPendingQueryMap.put("email", email);
 		userPendingQueryMap.put("status", "WAIT_EMAIL");
 		if (userPendingDao.findByMap(userPendingQueryMap).isEmpty()){
@@ -772,7 +776,7 @@ public class UserPendingController extends WaspController {
 		}
 		prepareSelectListData(m);
 		if (isInternal != -1){
-			Map departmentQueryMap = new HashMap();
+			Map<String, Integer> departmentQueryMap = new HashMap<String, Integer>();
 			departmentQueryMap.put("isInternal",  isInternal );
 			m.addAttribute("department", departmentDao.findByMap(departmentQueryMap));
 		}

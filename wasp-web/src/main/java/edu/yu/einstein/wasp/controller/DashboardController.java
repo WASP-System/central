@@ -86,6 +86,8 @@ public class DashboardController extends WaspController {
 				case lu: labList.add(labDao.getLabByLabId(roleObjectId)); break; 
 				case jv: jobViewableCount++; break;
 				case jd: jobDraftCount++; break;
+				default:
+					break;
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
