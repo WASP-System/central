@@ -342,7 +342,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 						try{
 							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
@@ -369,7 +369,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						try{
 							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
@@ -396,7 +396,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 						try{
 							libraryCell.add(sampleService.getCellLibrary(cell, library));
@@ -423,7 +423,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						try{
 							libraryCell.add(sampleService.getCellLibrary(cell, library));
@@ -449,7 +449,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
+				if (sampleService.isCellSequencedSuccessfully(cell))
 					librariesOnRun.addAll(sampleService.getLibrariesOnCellWithoutControls(cell));	
 			}
 		} catch (SampleTypeException e) {
@@ -469,7 +469,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
+				if (sampleService.isCellSequencedSuccessfully(cell))
 					librariesOnRun.addAll(sampleService.getLibrariesOnCell(cell));	
 			}
 		} catch (SampleTypeException e) {
@@ -481,46 +481,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 
 	
 
-	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
-	private static final String CELL_SUCCESS_META_AREA = "cell";
-	private static final String CELL_SUCCESS_META_KEY = "success";
 	
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
-		if (!sampleService.isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		String success = null;
-		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
-		if (sampleMetaList == null)
-			sampleMetaList = new ArrayList<SampleMeta>();
-		try{
-			success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
-		} catch(MetadataException e) {
-			return false; // no value exists already
-		}
-		Boolean b = new Boolean(success);
-		return b.booleanValue();
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		if (!sampleService.isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		Boolean b = new Boolean(success);
-		String successString = b.toString();
-		SampleMeta sampleMeta = new SampleMeta();
-		sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
-		sampleMeta.setV(successString);
-		sampleMeta.setSampleId(cell.getSampleId());
-		sampleMetaDao.setMeta(sampleMeta);
-	}
 
 }
