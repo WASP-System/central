@@ -445,5 +445,7 @@ public interface JobService extends WaspMessageHandlingService {
 	public  Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList);
 
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
+
+	public boolean isJobActive(Job job);
 	
 }

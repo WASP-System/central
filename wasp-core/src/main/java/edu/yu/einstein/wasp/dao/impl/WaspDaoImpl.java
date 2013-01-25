@@ -38,6 +38,11 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	// generic logger included with every class.
 	private Logger logger = LoggerFactory.getLogger(WaspDaoImpl.class.getName());
+	
+	@Override
+	public boolean isAttached(final E entity){
+		return entityManager.contains(entity);
+	}
 
 	@Override
 	public void persist(final E entity) {
