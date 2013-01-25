@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class FileMoveException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6364663450908194686L;
+
 	public FileMoveException(){
 		super();
 	}

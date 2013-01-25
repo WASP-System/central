@@ -7,6 +7,12 @@ package edu.yu.einstein.wasp.exception;
  */
 public class ParameterValueRetrievalException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7599675746968882039L;
+
+
 	public ParameterValueRetrievalException(String arg0) {
 		super(arg0);
 	}

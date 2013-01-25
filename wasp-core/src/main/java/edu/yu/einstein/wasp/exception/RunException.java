@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class RunException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1534779448596947231L;
+
 	public RunException(){
 		super();
 	}

@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class ModelCopyException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6856575697596625297L;
+
 	public ModelCopyException(){
 		super();
 	}

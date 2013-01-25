@@ -1,6 +1,11 @@
 package edu.yu.einstein.wasp.exception;
 
 public class MetaRangeException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1338923470791612803L;
+
 	public MetaRangeException(){
 		super();
 	}
