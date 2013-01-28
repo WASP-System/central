@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
  *
  */
 public interface DirectoryPlaceholderRewriter {
-	
-	public void replaceDirectoryPlaceholders(GridTransportService transportService, WorkUnit w) throws MisconfiguredWorkUnitException;
+
+	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException;
 
 }
