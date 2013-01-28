@@ -37,7 +37,6 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.file.SshFileService;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
