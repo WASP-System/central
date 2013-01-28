@@ -43,7 +43,7 @@ import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -78,8 +78,6 @@ public class ResultViewController extends WaspController {
 	private FilterService	filterService;
 
 	@Autowired
-	private MessageService	messageService;
-	@Autowired
 	private AuthenticationService	authenticationService;
 
 	@Autowired
@@ -89,7 +87,7 @@ public class ResultViewController extends WaspController {
 	private DummyFileUrlResolver fileUrlResolver;
 
 	//get locale-specific message
-	private String getMessage(String key, String defaultMessage) {
+	protected String getMessage(String key, String defaultMessage) {
 		String r=getMessage(key);
 		
 		if (defaultMessage!=null && r!=null && r.equals(key)) return defaultMessage; 
@@ -97,7 +95,7 @@ public class ResultViewController extends WaspController {
 		return r;
 	}
 	
-	private String getMessage(String key) {
+	protected String getMessage(String key) {
 		HttpSession session = this.request.getSession();
 		
 		Locale locale = (Locale)session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);

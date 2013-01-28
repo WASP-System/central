@@ -32,6 +32,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
@@ -238,6 +239,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	private AuthenticationService authenticationService;
 	
 	@Autowired
+	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
 	@Autowired
@@ -1582,7 +1584,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  throw new Exception("listJobSamples.jobNotFound.label");
 		}
 		
-		jsDetails.put(messageService.getMessage("job.name.label"), job.getName());
+		jsDetails.put(messageService.getMessage("job.name.label", Locale.US), job.getName());
 		jsDetails.putAll(getExtraJobDetails(job));
 	
 		List<JobMeta> metaList = job.getJobMeta();
@@ -1592,7 +1594,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			//logger.debug(Arrays.deepToString(metaNameSplit));
 			
 			try {
-				String msg = messageService.getMessage("job."+key+".label");
+				String msg = messageService.getMessage("job."+key+".label", Locale.US);
 				jsDetails.put(msg, mt.getV());
 			} 
 			catch (NoSuchMessageException e) {

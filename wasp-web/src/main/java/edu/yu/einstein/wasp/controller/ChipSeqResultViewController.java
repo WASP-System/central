@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -42,7 +43,7 @@ import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.integration.messages.payload.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -76,8 +77,6 @@ public class ChipSeqResultViewController extends WaspController {
 	@Autowired
 	private FilterService	filterService;
 
-	@Autowired
-	private MessageService	messageService;
 	@Autowired
 	private AuthenticationService	authenticationService;
 
