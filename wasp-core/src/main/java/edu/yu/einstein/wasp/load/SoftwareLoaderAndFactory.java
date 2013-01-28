@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLoader implements FactoryBean<T>, ApplicationContextAware {
 
+	@SuppressWarnings("unchecked")
 	private Class<T> clazz = (Class<T>) Software.class ; // default
 	
 	private ApplicationContext ctx;

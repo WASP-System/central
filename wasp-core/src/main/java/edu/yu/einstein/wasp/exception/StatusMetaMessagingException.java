@@ -10,6 +10,11 @@ public class StatusMetaMessagingException extends Exception {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -7251670189324084012L;
+
+	/**
+	 * 
+	 */
 	public StatusMetaMessagingException() {
 		
 	}

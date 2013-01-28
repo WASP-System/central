@@ -156,9 +156,6 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.jsp" />
 	</definition>
-	<definition name="sampleDnaToLibrary/updateLibrary" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/updateLibrary.jsp" />
-	</definition>
 	<definition name="sampleDnaToLibrary/createLibrary" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/createLibrary.jsp" />

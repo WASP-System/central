@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="workflowsamplesubtype")
 public class WorkflowSampleSubtype extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 719894564264715796L;
 	/** 
 	 * workflowsamplesubtypeId
 	 *

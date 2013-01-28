@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -193,7 +192,7 @@ public class LabController extends WaspController {
 
 		List<Lab> labList = new ArrayList<Lab>();
 
-		Map queryMap = new HashMap();
+		Map<String, Integer> queryMap = new HashMap<String, Integer>();
 		if(pi != null){
 			queryMap.put("primaryUserId", pi.getUserId().intValue());
 		}
@@ -225,8 +224,6 @@ public class LabController extends WaspController {
 			labList.retainAll(labsToKeep);
 		}
 	
-		ObjectMapper mapper = new ObjectMapper();//????
-
 		try {
 			// String labs = mapper.writeValueAsString(labList);
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
@@ -243,7 +240,7 @@ public class LabController extends WaspController {
 			userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 			jqgrid.put("userdata", userData);
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -264,7 +261,7 @@ public class LabController extends WaspController {
 			
 			List<Lab> labPage = labList.subList(frId, toId);
 			for (Lab lab : labPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", lab.getLabId());
 
 				List<LabMeta> labMeta = getMetaHelperWebapp().syncWithMaster(
@@ -285,7 +282,6 @@ public class LabController extends WaspController {
 					cellList.add(meta.getV());
 				}
 
-				int l = cellList.size();
 				cell.put("cell", cellList);
 
 				rows.add(cell);
@@ -329,10 +325,10 @@ public class LabController extends WaspController {
 				j++;
 			}
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			for (j = 0; j < max; j++) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				rows.add(cell);
 				cell.put("id", j + "");
 				List<String> cellList = Arrays.asList(mtrx[j]);
@@ -678,7 +674,7 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
-		List<LabUser> labUsers = new ArrayList();
+		List<LabUser> labUsers = new ArrayList<LabUser>();
 		for (LabUser lu: lab.getLabUser()){
 			if (!lu.getRole().getRoleName().equals("lp")){
 				labUsers.add(lu);
@@ -696,8 +692,8 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('lu-' + #labId)")
 	public String userList(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
-		List<User> labManagers = new ArrayList();
-		List<User> labMembers= new ArrayList();
+		List<User> labManagers = new ArrayList<User>();
+		List<User> labMembers= new ArrayList<User>();
 		User pi = new User();
 		for(LabUser labUser : lab.getLabUser() ){
 			User currentUser = userDao.getUserByUserId(labUser.getUserId());
@@ -721,12 +717,12 @@ public class LabController extends WaspController {
 	public String pendingUserList(@PathVariable("labId") Integer labId,	ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
 
-		Map userPendingQueryMap = new HashMap();
+		Map<String, Object> userPendingQueryMap = new HashMap<String, Object>();
 		userPendingQueryMap.put("labId", labId);
 		userPendingQueryMap.put("status", "PENDING");
 		List<UserPending> userPending = userPendingDao.findByMap(userPendingQueryMap);
 		
-		Map labUserPendingQueryMap = new HashMap();
+		Map<String, Integer> labUserPendingQueryMap = new HashMap<String, Integer>();
 		labUserPendingQueryMap.put("labId", labId);
 		labUserPendingQueryMap.put("roleId", roleDao.getRoleByRoleName("lp").getRoleId());
 		List<LabUser> labUserPending = labUserDao.findByMap(labUserPendingQueryMap);
@@ -783,6 +779,7 @@ public class LabController extends WaspController {
 	 * @return {@link Lab} the created lab
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	public Lab createLabFromLabPending(LabPending labPending) throws MetadataException {
 		Lab lab = new Lab();
 		User user;
@@ -837,7 +834,7 @@ public class LabController extends WaspController {
 		// set status to 'CREATED' for any other pending labs of the same name
 		// (user may have attempted to apply for their
 		// lab account more than once)
-		Map pendingLabQueryMap = new HashMap();
+		Map<String, Object> pendingLabQueryMap = new HashMap<String, Object>();
 		pendingLabQueryMap.put("primaryUserId", user.getUserId());
 		pendingLabQueryMap.put("name", labDb.getName());
 		for (LabPending lp : labPendingDao.findByMap(pendingLabQueryMap)) {
@@ -864,6 +861,7 @@ public class LabController extends WaspController {
 	 * @return {@link User} the created user
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	public User createUserFromUserPending(UserPending userPending) throws MetadataException {
 		boolean isPiPending = (userPending.getLabId() == null) ? true : false;
 		User user = new User();
@@ -934,7 +932,7 @@ public class LabController extends WaspController {
 		 * to that lab (via entry into the labUser table) and set their status
 		 * as 'lp' (lab-pending).
 		 */
-		Map userPendingQueryMap = new HashMap();
+		Map<String, String> userPendingQueryMap = new HashMap<String, String>();
 		userPendingQueryMap.put("email", userPending.getEmail());
 		userPendingQueryMap.put("status", "PENDING");
 		List<UserPending> userPendingList = userPendingDao.findByMap(userPendingQueryMap);
@@ -967,7 +965,7 @@ public class LabController extends WaspController {
 			 * registered as 'userPending' in a lab, remove reference to her
 			 * userPendingId and insert reference to her new UserId instead
 			 */
-			Map labPendingQueryMap = new HashMap();
+			Map<String, Integer> labPendingQueryMap = new HashMap<String, Integer>();
 			labPendingQueryMap.put("userPendingId",	userPendingCurrent.getUserPendingId());
 
 			List<LabPending> labPendingList = labPendingDao.findByMap(labPendingQueryMap);
@@ -1161,6 +1159,7 @@ public class LabController extends WaspController {
 	 * @return view
 	 * @throws MetadataException
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm(ModelMap m) throws MetadataException {
 		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
@@ -1282,14 +1281,14 @@ public class LabController extends WaspController {
 		LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
 
 		if (labUser.getLabUserId() != null) {
-			ArrayList<String> alreadyPendingRoles = new ArrayList();
+			ArrayList<String> alreadyPendingRoles = new ArrayList<String>();
 			alreadyPendingRoles.add("lp");
 			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
 				waspErrorMessage("labuser.request_alreadypending.error");
 				return "redirect:/lab/newrequest.do";
 			}
 			
-			ArrayList<String> alreadyAccessRoles = new ArrayList();
+			ArrayList<String> alreadyAccessRoles = new ArrayList<String>();
 			alreadyAccessRoles.add("pi");
 			alreadyAccessRoles.add("lm");
 			alreadyAccessRoles.add("lu");

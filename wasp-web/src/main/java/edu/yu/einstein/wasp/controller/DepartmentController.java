@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -119,8 +118,6 @@ public class DepartmentController extends WaspController {
 	public String list(ModelMap m) {
 
 		List<Department> departmentList;
-		int departmentAdminPendingTasks = 0;
-
 		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) {
 			departmentList = this.getDepartmentDao().findAllOrderBy("name", "ASC");
 		} else {
@@ -150,6 +147,8 @@ public class DepartmentController extends WaspController {
 				case da:
 					departmentList.add(departmentDao.getDepartmentByDepartmentId(roleObjectId));
 					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -175,7 +174,7 @@ public class DepartmentController extends WaspController {
 		List<DepartmentUser> departmentUserList = department.getDepartmentUser();
 		departmentUserList.size();
 
-		Map labPendingQueryMap = new HashMap();
+		Map<String, Object> labPendingQueryMap = new HashMap<String, Object>();
 		labPendingQueryMap.put("status", "PENDING");
 		labPendingQueryMap.put("departmentId", departmentId);
 
@@ -228,8 +227,6 @@ public class DepartmentController extends WaspController {
 			}
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		/***** Sort lab list by lab name OR PI name *****/
 		class LabNameComparator implements Comparator<Lab> {
 			@Override
@@ -274,14 +271,14 @@ public class DepartmentController extends WaspController {
 			labData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 			jqgrid.put("labdata", labData);
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			int frId = pageRowNum * (pageId - 1);
 			int toId = pageRowNum * pageId;
 			toId = toId <= rowNum ? toId : rowNum;
 			List<Lab> labPage = labList.subList(frId, toId);
 			for (Lab lab : labPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", lab.getLabId());
 
 				List<LabMeta> labMeta = getLabMetaHelperWebapp().syncWithMaster(lab.getLabMeta());

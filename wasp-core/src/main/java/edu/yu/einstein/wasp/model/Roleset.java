@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="roleset")
 public class Roleset extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6496614966405537598L;
 	/** 
 	 * rolesetId
 	 *

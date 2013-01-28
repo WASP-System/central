@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="resourcebarcode")
 public class ResourceBarcode extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 487166448262644474L;
 	/** 
 	 * resourceBarcodeId
 	 *

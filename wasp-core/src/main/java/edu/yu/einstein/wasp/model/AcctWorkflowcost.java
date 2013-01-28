@@ -30,6 +30,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_workflowcost")
 public class AcctWorkflowcost extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9017613478598432503L;
 	/** 
 	 * workflowId
 	 *

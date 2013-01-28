@@ -1,6 +1,11 @@
 package edu.yu.einstein.wasp.exception;
 
 public class NullResourceException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3183216884295253644L;
+
 	public NullResourceException(){
 		super();
 	}

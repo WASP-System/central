@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="workflowresourcecategorymeta")
 public class WorkflowresourcecategoryMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8413076598054141252L;
 	/** 
 	 * workflowresourcecategoryMetaId
 	 *

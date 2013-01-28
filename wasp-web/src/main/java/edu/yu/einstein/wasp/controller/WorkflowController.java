@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -125,8 +124,6 @@ public class WorkflowController extends WaspController {
 			}
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		try {
 			
 			int pageIndex = Integer.parseInt(request.getParameter("page"));		// index of page
@@ -158,7 +155,7 @@ public class WorkflowController extends WaspController {
 			/***** End Sort by Workflow Name *****/
 			
 			
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -167,7 +164,7 @@ public class WorkflowController extends WaspController {
 			List<Workflow> workflowPage = workflowList.subList(frId, toId);
 
 			for (Workflow workflow: workflowPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", workflow.getWorkflowId());
 
 				List<WorkflowMeta> workflowMeta = getMetaHelperWebapp()
@@ -278,7 +275,7 @@ public class WorkflowController extends WaspController {
 				if (wsm.getK().matches(".*\\.allowableUiField\\..*")) {
 					String optionName = ws.getSoftware().getIName() + ";" + 
 							wsm.getK().replaceAll(".*\\.allowableUiField\\.", "");
-					Set<String> options = new HashSet();
+					Set<String> options = new HashSet<String>();
 					for (String option : wsm.getV().split(";")){
 						options.add(option);
 					}
@@ -458,7 +455,7 @@ public class WorkflowController extends WaspController {
 						rcRcmMap.get(rc).add(key);
 					}
 				} else {
-					Set<String> meta = new HashSet();
+					Set<String> meta = new HashSet<String>();
 					meta.add(key);
 					rcRcmMap.put(rc, meta);
 				}

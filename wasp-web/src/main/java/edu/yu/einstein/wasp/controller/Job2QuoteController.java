@@ -105,19 +105,15 @@ public class Job2QuoteController extends WaspController {
 	 * @return
 	 */
 	private Map<String, Object> getQuoteListJGrid(List<Job> restrictedJobList){
-		List<Job> job2quoteList = new ArrayList();
+		List<Job> job2quoteList = new ArrayList<Job>();
 		
 		Map<String, Object> jqgrid = new HashMap<String, Object>();
 
 		String search = request.getParameter("_search");
-		String searchStr = request.getParameter("searchString");
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
-		String userId = request.getParameter("UserId");
-		String showall = request.getParameter("showall");
-		
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
@@ -192,7 +188,7 @@ public class Job2QuoteController extends WaspController {
 		
 		
 		
-		Map m = new HashMap();
+		Map<String, Integer> m = new HashMap<String, Integer>();
 		if(jobId != null){
 			m.put("jobId", jobId.intValue());
 		}
@@ -203,7 +199,7 @@ public class Job2QuoteController extends WaspController {
 			m.put("labId", piLab.getLabId().intValue());
 		}
 		
-		Map dateMap = new HashMap();
+		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(submittedOnAsDate != null){
 			dateMap.put("createts", submittedOnAsDate);
 		}
@@ -272,7 +268,7 @@ public class Job2QuoteController extends WaspController {
 		userData.put("selId", StringUtils.isEmpty(request.getParameter("selId")) ? "" : request.getParameter("selId"));
 		jqgrid.put("userdata", userData);
 
-		List<Map> rows = new ArrayList<Map>();
+		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 		int frId = pageRowNum * (pageIndex - 1);
 		int toId = pageRowNum * pageIndex;
@@ -295,7 +291,7 @@ public class Job2QuoteController extends WaspController {
 
 		List<Job> page = job2quoteList.subList(frId, toId);
 		for (Job item : page) {
-			Map cell = new HashMap();
+			Map<String, Object> cell = new HashMap<String, Object>();
 			cell.put("id", item.getJobId());
 
 			User user = userDao.getById(item.getUserId());
@@ -316,7 +312,7 @@ public class Job2QuoteController extends WaspController {
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList() : 
+			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList<AcctQuoteMeta>() : 
 				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
 			
 			Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");

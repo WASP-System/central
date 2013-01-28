@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.exception;
 
-import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
 /**
  * @author calder
@@ -11,6 +10,11 @@ import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
  */
 public class GridException extends WaspException {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7882336435964214096L;
+
 	public GridException(){
 		super();
 	}

@@ -32,6 +32,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="jobcellselection")
 public class JobCellSelection extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7027295909006312786L;
 	/** 
 	 * jobCellSelectionId
 	 *
