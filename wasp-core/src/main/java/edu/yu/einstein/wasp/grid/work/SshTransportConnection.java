@@ -66,13 +66,18 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	
 
 	public SshTransportConnection() {
-		
+		try {
+			client.loadKnownHosts();
+		} catch (IOException e) {
+			logger.error("unable to load known hosts file");
+			e.printStackTrace();
+			throw new RuntimeException("sshj unable to load known hosts file");
+		}
 	} 
 
 	private void initClient() throws GridAccessException {
 		try {
-			logger.debug("attempting to configure SSH connection");
-			client.loadKnownHosts();
+			logger.debug("attempting to configure and connect SSH connection");
 
 			logger.debug("loading identity file " + getIdentityFile().getAbsolutePath());
 			logger.debug("BouncyCastle: " + SecurityUtils.isBouncyCastleRegistered());
@@ -303,8 +308,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		logger.debug("creating sshTransportConnection");
-		initClient();
+		logger.debug("created sshTransportConnection");
 	}
 
 	@Override
