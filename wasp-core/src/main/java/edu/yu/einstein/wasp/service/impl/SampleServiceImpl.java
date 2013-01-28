@@ -2350,6 +2350,22 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 *  {@inheritDoc}
 	 */
 	@Override
+	public Set<SampleSource> getCellLibrariesForJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Set<SampleSource> cellLibraries = new HashSet<SampleSource>();
+		Map<String, String> m = new HashMap<String, String>();
+		m.put(LIBRARY_ON_CELL_AREA + "." + JOB_ID, job.getJobId().toString());
+		for (SampleSourceMeta ssm: sampleSourceMetaDao.findByMap(m)){
+			cellLibraries.add(ssm.getSampleSource());
+		}
+		return cellLibraries;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
 	public SampleSource getCellLibrary(Sample cell, Sample library) throws SampleTypeException{
 		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
@@ -2418,5 +2434,125 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		}
 		return sampleList;
 	}
+	
+	// statics 
+		private static final String CELL_SUCCESS_META_AREA = "cell";
+		private static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
+		
+		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
+		private static final String CELL_LIBRARY_META_KEY_PREPROCESS = "preprocess_complete";
+		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
+		
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
+			if (!isCell(cell))
+				throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+			String success = null;
+			List<SampleMeta> sampleMetaList = cell.getSampleMeta();
+			if (sampleMetaList == null)
+				sampleMetaList = new ArrayList<SampleMeta>();
+			try{
+				success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY_RUN, sampleMetaList);
+			} catch(MetadataException e) {
+				return false; // no value exists already
+			}
+			Boolean b = new Boolean(success);
+			return b.booleanValue();
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 * @throws MetadataException 
+		 */
+		@Override
+		public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
+			if (!isCell(cell))
+				throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+			Boolean b = new Boolean(success);
+			String successString = b.toString();
+			SampleMeta sampleMeta = new SampleMeta();
+			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY_RUN);
+			sampleMeta.setV(successString);
+			sampleMeta.setSampleId(cell.getSampleId());
+			sampleMetaDao.setMeta(sampleMeta);
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			String isPreprocessed = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null)
+				metaList = new ArrayList<SampleSourceMeta>();
+			try{
+				isPreprocessed = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PREPROCESS, metaList);
+			} catch(MetadataException e) {
+				return false; // no value exists already
+			}
+			Boolean b = new Boolean(isPreprocessed);
+			return b.booleanValue();
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 * @throws MetadataException 
+		 */
+		@Override
+		public void setIsCellLibraryPreprocessed(SampleSource cellLibrary, boolean isPreprocessed) throws SampleTypeException, MetadataException {
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Boolean b = new Boolean(isPreprocessed);
+			String isPreprocessedString = b.toString();
+			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PREPROCESS);
+			sampleSourceMeta.setV(isPreprocessedString);
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			String isPassedQC = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null)
+				metaList = new ArrayList<SampleSourceMeta>();
+			try{
+				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PASS_QC, metaList);
+			} catch(MetadataException e) {
+				return false; // no value exists already
+			}
+			Boolean b = new Boolean(isPassedQC);
+			return b.booleanValue();
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 * @throws MetadataException 
+		 */
+		@Override
+		public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Boolean b = new Boolean(isPassedQC);
+			String isPreprocessedString = b.toString();
+			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PASS_QC);
+			sampleSourceMeta.setV(isPreprocessedString);
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
 }
 

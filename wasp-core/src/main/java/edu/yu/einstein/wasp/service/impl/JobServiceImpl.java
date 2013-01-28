@@ -489,6 +489,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return activeJobList;
 	}
 	
+	/**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public boolean isJobActive(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (!jobDao.isAttached(job))
+			job = jobDao.getJobByJobId(job.getJobId()); // was detached so get again by id
+		if (getActiveJobs().contains(job))
+			return true;
+		return false;
+	}
+	
 	 /**
 	   * {@inheritDoc}
 	   */

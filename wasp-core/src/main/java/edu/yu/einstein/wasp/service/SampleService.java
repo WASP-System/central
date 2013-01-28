@@ -9,12 +9,15 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -38,9 +41,11 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
+import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
 
@@ -798,6 +803,13 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	  
 	  /**
+	   * Gets a SampleSource object representing cell / library relationships associated with given job
+	   * @param job
+	   * @return
+	   */
+	  public Set<SampleSource> getCellLibrariesForJob(Job job);
+	  
+	  /**
 	   * Retrieve a SampleSource object which contains the relationship between and Library and Cell
 	   * @param cell
 	   * @param library
@@ -829,5 +841,58 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return List<Sample>
 	   */
 	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
+
+	  /**
+	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * @param cell
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
+	   * assessment of a run
+	   * @param cell
+	   * @param success
+	   * @throws SampleTypeException
+	   * @throws MetadataException 
+	   */
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  
+	  /**
+	   * is cellLibrary pre-processed?
+	   * @param cellLibrary
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
+			
+		/**
+		 * Sets whether cellLibrary is pre-processed or not
+		 * @param cellLibrary
+		 * @param isPreprocessed
+		 * @throws SampleTypeException
+		 * @throws MetadataException
+		 */
+	  public void setIsCellLibraryPreprocessed(SampleSource cellLibrary, boolean isPreprocessed) throws SampleTypeException, MetadataException;
+			
+	  /**
+		 * has cellLibrary passed QC?
+		 * @param cellLibrary
+		 * @param isPreprocessed
+		 * @throws SampleTypeException
+		 * @throws MetadataException
+		 */
+	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException;
+		
+	  /**
+	   * Sets if cellLibrary has passed QC
+	   * @param cellLibrary
+	   * @param isPassedQC
+	   * @throws SampleTypeException
+	   * @throws MetadataException
+	   */
+	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 	  
 }
