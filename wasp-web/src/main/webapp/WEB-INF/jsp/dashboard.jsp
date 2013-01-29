@@ -41,9 +41,11 @@
 					<a href='<c:url value="/user/mypassword.do"/>'><fmt:message key="dashboard.myPassword.label" /></a>
 				</li>
 			</sec:authorize>
+			<!-- commented out by Dubin, 01-29-13; does not appear to ever be used. doReauth() seems to be called programmatically where needed. 
 			<li>
 				<a href='<c:url value="/auth/reauth.do"/>'><fmt:message key="dashboard.refreshAuth.label" /></a>
 			</li>
+			-->
 			<li>
 				<a href='<c:url value="/lab/newrequest.do"/>'><fmt:message key="dashboard.requestAccessToLab.label" /></a> (<fmt:message key="dashboard.requestAccessNote.label" />)
 			</li>
