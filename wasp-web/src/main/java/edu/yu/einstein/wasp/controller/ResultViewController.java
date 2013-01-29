@@ -123,7 +123,7 @@ public class ResultViewController extends WaspController {
 	
 
 	// get the JSON data to construct the tree 
-	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
+	@RequestMapping(value="/getJSTreeJson", method = RequestMethod.GET)
 	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
 //		Map <String, Object> jsTree = new HashMap<String, Object>();
 //		
