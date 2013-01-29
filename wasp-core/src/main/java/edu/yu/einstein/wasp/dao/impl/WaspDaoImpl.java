@@ -132,7 +132,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		Query q = entityManager.createQuery(qString);
 
 		for (Object key : m.keySet()) {
-			System.out.println("KEY="+key.toString());
+			//System.out.println("KEY="+key.toString());
 			q.setParameter(key.toString().replaceAll("\\W+", ""), m.get(key));
 		}
 		return q.getResultList();

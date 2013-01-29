@@ -3,7 +3,7 @@
    
   <h1><fmt:message key="pageTitle.auth/newpi/form.label" /></h1>
 
-  <div class="instructions"><fmt:message key="piPending.form_instructions.label" /> </div>
+  <div class="instructions"><fmt:message key="piPending.form_instructions.label" /><br /><br /><div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div></div>
 
   <form:form  cssClass="FormGrid" commandName="userPending" action="/wasp/auth/newpi/form.do">
     <table class="EditTable ui-widget ui-widget-content">
@@ -14,9 +14,14 @@
       </tr> 
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="piPending.password.label"/>:</td>
-        <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" /><span class="requiredField" >*</span></td>
+        <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" onFocus="var x = document.getElementById('passwordInstructions'); x.style.color='red';x.style.fontWeight='bold'"  /><span class="requiredField" >*</span></td>
         <td class="CaptionTD error"><form:errors path="password" /></td>
-      </tr>     	   
+      </tr> 
+      <tr >
+          <td >&nbsp;</td>
+          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="piPending.password_instructions_above.label" /></div></td>
+          <td >&nbsp;</td>
+      </tr>    	   
       <c:if test="${isAuthenticationExternal == (1==1)}">
         <input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="password2" value="" />
       </c:if>
