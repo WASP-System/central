@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class FileDownloadException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6253124859872377745L;
+
 	public FileDownloadException(){
 		super();
 	}

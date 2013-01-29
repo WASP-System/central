@@ -22,6 +22,11 @@ import edu.yu.einstein.wasp.exception.UiFieldParseException;
 @Table(name = "uifield")
 public final class UiField implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3854600504514244535L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer uiFieldId;

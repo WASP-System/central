@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class SampleIndexException extends SampleException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8039737549313881599L;
+
 	public SampleIndexException(){
 		super();
 	}

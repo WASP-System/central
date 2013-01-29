@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="sshTransportConnection" class="edu.yu.einstein.wasp.grid.work.SshTransportConnection" scope="prototype" lazy-init="false">
+		<property name="hostName" value="frankfurt.aecom.yu.edu" />
+		<property name="userName" value="wasp" />
+		<property name="identityFileName" value="~/.ssh/id_rsa.testing" />
+		<property name="softwareManager" ref="waspSoftwareManager" />
+		<property name="name" value="frankfurt}" />
+		<property name="userDirIsRoot" value="true" />
+	</bean>
+
+	<bean id="testGridTransportConnection" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetSource">
+			<bean class="org.springframework.aop.target.CommonsPoolTargetSource" lazy-init="false">
+				<property name="targetClass" value="edu.yu.einstein.wasp.grid.work.SshTransportConnection"/>
+				<property name="targetBeanName" value="sshTransportConnection" />
+				<property name="maxSize" value="5" />
+				<property name="maxWait" value="1000" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="waspSoftwareManager" class="edu.yu.einstein.wasp.grid.work.NoneManager"/>
+
+</beans>

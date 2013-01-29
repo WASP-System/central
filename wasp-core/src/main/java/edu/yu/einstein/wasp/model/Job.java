@@ -34,6 +34,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="job")
 public class Job extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6968610621273206934L;
 	/** 
 	 * jobId
 	 *

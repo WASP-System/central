@@ -32,6 +32,11 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_grant")
 public class AcctGrant extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1564045006597566511L;
+
 	/** 
 	 * grantId
 	 *

@@ -1,18 +1,15 @@
 package edu.yu.einstein.wasp.controller;
 
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import java.net.URL;
 
 import javax.validation.Valid;
 
@@ -20,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -47,25 +43,18 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.File;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
-import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
-import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -73,7 +62,6 @@ import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
-import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 
 @Controller
 @RequestMapping("/sampleDnaToLibrary")
@@ -133,8 +121,6 @@ public class SampleDnaToLibraryController extends WaspController {
 
     String context = request.getContextPath();
     String uri = request.getRequestURI();
-    String path = request.getServletPath();
-
     // strips context, lead slash ("/"), spring mapping
     String currentMapping = uri.replaceFirst(context, "").replaceFirst("\\.do.*$", "");
 
@@ -619,8 +605,6 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  
 	  libraryForm.setName(libraryForm.getName().trim());
-	  //confirm that this new library's name is different from all other sample.name in this job for samples of the same sample type (library)
-	  SampleType sampleType = sampleTypeDao.getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId());
 	  SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());
 	  validateSampleNameUnique(libraryForm.getName(), macromolSampleId, jobForThisSample, result);
 
@@ -766,20 +750,12 @@ public class SampleDnaToLibraryController extends WaspController {
 	  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
 		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn);
 		
-  		Adaptorset selectedAdaptorset = null;
-		Adaptor adaptor = null;
-		
+  		
 		libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
 				sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
 				libraryInManaged.getAllSampleMeta()));
-		try{	
-  			adaptor = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryIn.getSampleMeta())) );
-  			selectedAdaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", libraryIn.getSampleMeta())) );
-  		} catch(MetadataException e){
-  			logger.warn("Cannot get metadata : " + e.getMessage());
-  		} catch(NumberFormatException e){
-  			logger.warn("Cannot convert to numeric value for metadata " + e.getMessage());
-  		}
+		
+
 		SampleWrapperWebapp persistentLibraryManaged;
 		if (libraryIn.getSampleId() == null){
 			persistentLibraryManaged = new SampleWrapperWebapp(sampleDao.getSampleBySampleId(libraryInId));

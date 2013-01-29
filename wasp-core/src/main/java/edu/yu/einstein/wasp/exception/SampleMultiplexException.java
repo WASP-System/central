@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class SampleMultiplexException extends SampleException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7380478181996350278L;
+
 	public SampleMultiplexException(){
 		super();
 	}

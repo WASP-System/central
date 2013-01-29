@@ -9,16 +9,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +54,6 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
-import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -73,14 +69,11 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
-import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -275,7 +268,7 @@ public class PlatformUnitController extends WaspController {
 			}
 		}		
 		
-		Map queryMap = new HashMap();
+		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
 		//deal with those attributes that can be searched for directly in table sample (sample.name and sample.sampleSubtype)
 		if(nameFromGrid != null){
@@ -285,7 +278,7 @@ public class PlatformUnitController extends WaspController {
 			queryMap.put("sampleSubtype.name", sampleSubtypeNameFromGrid);//and restrict to the passed sampleSubtypeName
 		}
 		
-		Map dateMap = new HashMap();
+		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(dateFromGridAsDate != null){
 			dateMap.put("receiveDts", dateFromGridAsDate);
 		}
@@ -422,7 +415,7 @@ public class PlatformUnitController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 					
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -443,7 +436,7 @@ public class PlatformUnitController extends WaspController {
 
 			List<Sample> samplePage = platformUnitList.subList(frId, toId);
 			for (Sample sample : samplePage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", sample.getSampleId());
 				 
 				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
@@ -453,10 +446,6 @@ public class PlatformUnitController extends WaspController {
 				String readlength = "";
 				String readType = "";
 				
-				String comment = "";
-				String resourceCategoryIdAsString = "";
-				Integer resourceCategoryIdAsInteger;
-				ResourceCategory resourceCategory;
 				for(SampleMeta sm : sampleMetaList){
 					if( sm.getK().indexOf("readlength") > -1 ){
 						readlength = sm.getV();
@@ -469,22 +458,14 @@ public class PlatformUnitController extends WaspController {
 					//	lanecount = sm.getV();
 					//}
 					if( sm.getK().indexOf("comment") > -1 ){
-						comment = sm.getV();
 					}
 					if( sm.getK().indexOf("resourceCategoryId") > -1 ){
-						resourceCategoryIdAsString = sm.getV();
 					}
 				}
 				//logger.debug("resourceCategoryIdAsString: " + resourceCategoryIdAsString);
 				try{
-					resourceCategoryIdAsInteger = Integer.valueOf(resourceCategoryIdAsString);
 				}catch(NumberFormatException e){
-					resourceCategoryIdAsInteger = new Integer(0);
 				}
-				//logger.debug("resourceCategoryIdAsInteger: " + resourceCategoryIdAsInteger.toString());
-				resourceCategory = resourceCategoryDao.getResourceCategoryByResourceCategoryId(resourceCategoryIdAsInteger);
-				//logger.debug("resourceCategoryName: " + resourceCategory.getName());
-				
 				String barcode = "";
 				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
 				if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
@@ -564,6 +545,7 @@ public class PlatformUnitController extends WaspController {
 	
 	
 	//createUpdatePlatformunit - GET
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnit(@RequestParam("sampleSubtypeId") Integer sampleSubtypeId, 
@@ -589,14 +571,12 @@ public class PlatformUnitController extends WaspController {
 			
 				SampleSubtype sampleSubtype = null;
 				Sample platformunitInstance = null;
-				String barcode;
 				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();			
 				
 				if(sampleId.intValue() < 1){//most likely it's zero; new platformunit
 					platformunitInstance = new Sample();
 					platformunitInstance.setName("fake name to suppress name not empty requirement");//9-28-12
 					platformunitInstance.setSampleMeta(metaHelperWebapp.getMasterList(SampleMeta.class));
-					barcode = new String("");
 					m.addAttribute("numberOfCellsOnThisPlatformUnit", new Integer(0));
 				}
 				else{//valid sampleId
@@ -634,6 +614,7 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 	//createUpdatePlatformunit - Post
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/createUpdatePlatformUnit.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnitPost(

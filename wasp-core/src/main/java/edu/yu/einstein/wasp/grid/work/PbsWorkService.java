@@ -45,7 +45,7 @@ public class PbsWorkService { // implements GridWorkService {
 		this.namePrefix = np + "-";
 	}
 
-	private GridTransportService transportService;
+	private GridTransportConnection transportConnection;
 
 	@Autowired
 	protected GridFileService waspGridFileService;

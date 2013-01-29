@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_quotemeta")
 public class AcctQuoteMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3927428785556020796L;
 	/** 
 	 * quotemetaId
 	 *

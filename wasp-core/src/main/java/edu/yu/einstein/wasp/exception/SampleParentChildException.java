@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class SampleParentChildException extends SampleException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1960235309685236141L;
+
 	public SampleParentChildException(){
 		super();
 	}

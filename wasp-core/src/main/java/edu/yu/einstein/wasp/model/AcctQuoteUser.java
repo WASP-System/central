@@ -30,6 +30,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_quoteuser")
 public class AcctQuoteUser extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2132481097171369036L;
 	/** 
 	 * quoteUserId
 	 *

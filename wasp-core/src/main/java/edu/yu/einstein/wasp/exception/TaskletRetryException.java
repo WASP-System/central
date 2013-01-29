@@ -12,6 +12,11 @@ public class TaskletRetryException extends WaspException {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 4603679143584746567L;
+
+	/**
+	 * 
+	 */
 	public TaskletRetryException() {
 		// TODO Auto-generated constructor stub
 	}

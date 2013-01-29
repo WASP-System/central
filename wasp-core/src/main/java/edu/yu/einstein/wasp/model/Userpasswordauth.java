@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="userpasswordauth")
 public class Userpasswordauth extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2900128970352856878L;
 	/** 
 	 * UserId
 	 *

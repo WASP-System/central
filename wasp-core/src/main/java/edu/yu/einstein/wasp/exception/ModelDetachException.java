@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class ModelDetachException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4986686206350471948L;
+
 	public ModelDetachException(){
 		super();
 	}

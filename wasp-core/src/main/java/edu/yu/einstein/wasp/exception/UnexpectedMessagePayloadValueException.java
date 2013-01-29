@@ -10,6 +10,11 @@ public class UnexpectedMessagePayloadValueException extends Exception {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 5692091449415070641L;
+
+	/**
+	 * 
+	 */
 	public UnexpectedMessagePayloadValueException() {
 		
 	}

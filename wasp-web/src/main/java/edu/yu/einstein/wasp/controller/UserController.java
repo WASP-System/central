@@ -11,9 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,18 +118,14 @@ public class UserController extends WaspController {
 		
 		List<LabUser> uLabs=userDb.getLabUser();
 		
-		int rowNum = uLabs.size();
-		
-	 	ObjectMapper mapper = new ObjectMapper();
-    	
 		try {
 //			jqgrid.put("page","1");
 //			jqgrid.put("records",max+"");
 //			jqgrid.put("total",max+"");
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			for (LabUser uLab:uLabs) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", uLab.getLabId());
 				
 				User pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
@@ -174,10 +168,6 @@ public class UserController extends WaspController {
 	
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
-		String search = request.getParameter("_search");
-		String searchField = request.getParameter("searchField");//no longer user; replaced by filterToolbar items
-		String searchString = request.getParameter("searchString");//no longer user; replaced by filterToolbar items
-		
 		//Parameter coming from url anchor within lab grid (not coming from the filterToolbar)
 		String userIdFromURL = request.getParameter("selId");//if not passed, UserId is the empty string (interestingly, it's value is not null)
 		//logger.debug("selId = " + userIdFromURL);logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);logger.debug("selId = " + selId);
@@ -196,7 +186,7 @@ public class UserController extends WaspController {
 
 		List<User> userList = new ArrayList<User>();
 		
-		Map m = new HashMap();
+		Map<String, Object> m = new HashMap<String, Object>();
 		if(userIdFromURL != null && !userIdFromURL.isEmpty()){
 			Integer userIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL.trim());//returns null is unable to convert
 			if(userIdAsInteger == null){
@@ -249,7 +239,7 @@ public class UserController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 			 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -270,7 +260,7 @@ public class UserController extends WaspController {
 
 			List<User> userPage = userList.subList(frId, toId);
 			for (User user:userPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", user.getUserId());
 				 
 				List<UserMeta> userMeta=getMetaHelperWebapp().syncWithMaster(user.getUserMeta());
@@ -368,8 +358,6 @@ public class UserController extends WaspController {
 		if (!adding) {
 			userForm.setUserId(userId);
 		}
-		boolean myemailChanged = false;
-
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.

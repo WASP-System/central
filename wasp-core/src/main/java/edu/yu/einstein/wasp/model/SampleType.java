@@ -32,6 +32,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="sampletype")
 public class SampleType extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2989890943056660096L;
 	/** 
 	 * sampleTypeId
 	 *

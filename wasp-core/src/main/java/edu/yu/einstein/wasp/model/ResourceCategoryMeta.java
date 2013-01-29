@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="resourcecategorymeta")
 public class ResourceCategoryMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 499820160323772514L;
 	/** 
 	 * resourceCategoryMetaId
 	 *

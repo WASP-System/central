@@ -186,7 +186,7 @@ public class AutoCompleteController extends WaspController{
 	    	  User viewer = authenticationService.getAuthenticatedUser();
 	    	  selectLabsList.addAll(viewer.getLab());//current web viewer's labs
 	    	  //now get labs whose jobs this viewer can view
-	    	  Map filterMap = new HashMap();
+	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 	    	  filterMap.put("UserId", viewer.getUserId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
@@ -247,6 +247,7 @@ public class AutoCompleteController extends WaspController{
 	   * @param instituteNameFragment
 	   * @return
 	   */
+	  @SuppressWarnings("unchecked")
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
 		  	
@@ -254,7 +255,7 @@ public class AutoCompleteController extends WaspController{
 		  	list.addAll(userPendingMetaDao.findDistinctMetaOrderBy("piPending.institution","ASC") );
 		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
-	        SortedSet<String> uniqueInstitutes = new TreeSet();
+	        SortedSet<String> uniqueInstitutes = new TreeSet<String>();
 	        for (MetaBase meta : list){
 	        	if (meta.getV() != null && !meta.getV().isEmpty())
 	        		uniqueInstitutes.add(meta.getV());
@@ -295,7 +296,7 @@ public class AutoCompleteController extends WaspController{
 		    	  User viewer = authenticationService.getAuthenticatedUser();
 		    	  selectJobsList.addAll(viewer.getJob());//list of viewer's jobs
 		    	  //now get other jobs this viewer can view
-		    	  Map filterMap = new HashMap();
+		    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 		    	  filterMap.put("UserId", viewer.getUserId().intValue());
 		    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 		    	  for(JobUser jobUser : jobUserList){
@@ -343,7 +344,7 @@ public class AutoCompleteController extends WaspController{
 			  List<String> orderbyList = new ArrayList<String>();
 			  orderbyList.add("lastName");
 			  orderbyList.add("firstName");
-		      userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+		      userList = userDao.findByMapDistinctOrderBy(new HashMap<Object, Object>(), null, orderbyList, "asc");
 	    	  
 	    	  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
 	    		  List<User> usersToKeep = filterService.filterUserListForDA(userList);
@@ -355,7 +356,7 @@ public class AutoCompleteController extends WaspController{
 	    	  User viewer = authenticationService.getAuthenticatedUser();
 	    	  selectUserList.add(viewer);//current web viewer
 	    	  //now get other submitters whose jobs this viewer can view
-	    	  Map filterMap = new HashMap();
+	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 	    	  filterMap.put("UserId", viewer.getUserId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
@@ -549,7 +550,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPlatformUnitNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllPlatformUnitNames(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -621,7 +622,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPlatformUnitSubtypesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllPlatformUnitSubtypes(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleType.iName", "platformunit");
 		  List<String> orderByList = new ArrayList<String>();
 		  orderByList.add("name");
@@ -648,7 +649,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getReadTypesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllReadTypes(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
 
@@ -691,7 +692,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getMpsResourceCategoryNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllMpsResourceCategories(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
 		  List<String> resourceCategoryNameList = new ArrayList<String>();
@@ -722,7 +723,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getMpsResourceNamesAndCategoryForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllMpsResourcesAndCategory(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -751,7 +752,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSequenceRunNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSequenceRunNames(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resource.resourceType.iName", "mps");
 		  queryMap.put("resourceCategory.resourceType.iName", "mps");
 		  List<String> orderByColumnNames = new ArrayList<String>();
@@ -780,7 +781,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSampleTypesThatAreBiomaterials(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -814,7 +815,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplayAsLabelValue", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSampleTypesThatAreBiomaterialsAsLabelValue(@RequestParam String str) {
 	      
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");

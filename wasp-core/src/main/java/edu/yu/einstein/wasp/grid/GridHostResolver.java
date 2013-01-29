@@ -5,7 +5,6 @@ import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 

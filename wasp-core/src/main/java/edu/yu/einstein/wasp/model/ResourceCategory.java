@@ -33,6 +33,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="resourcecategory")
 public class ResourceCategory extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -378972557561200358L;
 	/** 
 	 * resourceCategoryId
 	 *

@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class SampleDuplicationException extends SampleException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3469138157771399295L;
+
 	public SampleDuplicationException(){
 		super();
 	}
