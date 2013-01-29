@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 	
-	private int messageTimeoutInMillis = 5000;
+	private int messageTimeoutInMillis;
 	
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).

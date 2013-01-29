@@ -208,7 +208,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	@Autowired
 	 private ResourceDao resourceDao;
-
+	
 	/**
 	 * Setter for the sampleMetaDao
 	 * @param sampleMetaDao
@@ -2203,6 +2203,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	/**
 	 * @return the sampleSourceDao
 	 */
+	@Override
 	public SampleSourceDao getSampleSourceDao() {
 		return sampleSourceDao;
 	}
@@ -2329,11 +2330,20 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException{
-		SampleSource sampleSource = getCellLibrary(cell, library);
-		if (sampleSource == null)
-			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		SampleSource libraryCell = getCellLibrary(cell, library);
+		return getJobOfLibraryOnCell(libraryCell);
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 * @throws SampleException 
+	 */
+	@Override
+	public Job getJobOfLibraryOnCell(SampleSource libraryCell){
+		Assert.assertParameterNotNull(libraryCell, "libraryCell cannot be null");
+		Assert.assertParameterNotNull(libraryCell.getSampleSourceId(), "libraryCell must have a valid id");
 		Job job = null;
-		List<SampleSourceMeta> ssMetaList = sampleSource.getSampleSourceMeta();
+		List<SampleSourceMeta> ssMetaList = libraryCell.getSampleSourceMeta();
 		if (ssMetaList == null)
 			return job;
 		try{

@@ -19,7 +19,7 @@ public class MessageChannelRegistry {
 	
 	public static final String OUTBOUND_MESSAGE_CHANNEL = "wasp.channel.remoting.outbound";
 	public static final String REPLY_MESSAGE_CHANNEL = "wasp.channel.reply";
-
+	public static final String LAUNCH_MESSAGE_CHANNEL = "wasp.channel.queue.launch";
 	public static final String JOB_MESSAGE_CHANNEL = "wasp.channel.notification.job";
 	public static final String RUN_MESSAGE_CHANNEL = "wasp.channel.notification.run";
 	public static final String SAMPLE_MESSAGE_CHANNEL = "wasp.channel.notification.sample";

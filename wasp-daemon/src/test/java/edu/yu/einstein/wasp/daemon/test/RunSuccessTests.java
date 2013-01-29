@@ -147,9 +147,7 @@ public class RunSuccessTests extends AbstractTestNGSpringContextTests implements
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
 			PowerMockito.when(mockRunService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
-			PowerMockito.when(mockSampleService.getCell(libraryCell)).thenReturn(cell);
-			PowerMockito.when(mockSampleService.getLibrary(libraryCell)).thenReturn(library);
-			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(cell, library)).thenReturn(job);
+			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
 			
 			
 			WaspPlugin plugin = new WaspPlugin("test-plugin", null, null){

@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
@@ -9,6 +10,8 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * Handling Wasp Analysis Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
@@ -17,6 +20,13 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  */
 public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	
+	protected SampleService sampleService;
+	
+	@Autowired
+	public void setSampleService(SampleService sampleService){
+		this.sampleService = sampleService;
+	}
+
 	protected Integer libraryId; // id of library being analysed (optional)
 	
 	public Integer getLibraryId() {
@@ -46,6 +56,12 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 	public AnalysisStatusMessageTemplate(Integer jobId){
 		super();
 		this.jobId = jobId;
+	}
+	
+	public void setLibraryCellId(Integer libraryCellId){
+		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId);
+		this.libraryId = sampleService.getLibrary(libraryCell).getSampleId();
+		this.jobId  = sampleService.getJobOfLibraryOnCell(libraryCell).getJobId();
 	}
 	
 	public AnalysisStatusMessageTemplate(Message<WaspStatus> message){

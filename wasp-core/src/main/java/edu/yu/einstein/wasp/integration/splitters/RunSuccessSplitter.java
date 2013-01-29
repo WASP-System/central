@@ -17,6 +17,7 @@ import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
@@ -79,19 +80,9 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 		Set<SampleSource> cellLibraries = runService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
-			Sample cell = sampleService.getCell(cellLibrary);
-			Sample library = sampleService.getLibrary(cellLibrary);
-			Job job;
-			try {
-				job = sampleService.getJobOfLibraryOnCell(cell, library);
-			} catch (SampleException e1) {
-				logger.error(e1.getLocalizedMessage());
-				continue;
-			}
+			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_ID, job.getJobId().toString());
-			jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL, cellLibrary.getSampleSourceId().toString());
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, cellLibrary.getSampleSourceId().toString());
 			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
 				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
