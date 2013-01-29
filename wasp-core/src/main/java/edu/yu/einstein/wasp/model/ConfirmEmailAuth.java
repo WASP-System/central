@@ -30,7 +30,11 @@ import org.hibernate.envers.NotAudited;
     @Table(name="confirmemailauth")
     public class ConfirmEmailAuth extends WaspModel {
 
-        /** 
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 8037977046022874756L;
+		/** 
         * confirmEmailAuthId
         *
         */

@@ -33,6 +33,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_invoice")
 public class AcctInvoice extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6225389694897517159L;
 	/** 
 	 * invoiceId
 	 *

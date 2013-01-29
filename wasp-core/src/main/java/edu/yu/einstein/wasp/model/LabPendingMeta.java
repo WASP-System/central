@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="labpendingmeta")
 public class LabPendingMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7711196439883404327L;
 	/** 
 	 * labPendingMetaId
 	 *

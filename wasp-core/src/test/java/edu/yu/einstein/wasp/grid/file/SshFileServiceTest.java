@@ -11,29 +11,32 @@ import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.SingleHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.SshTransportService;
 import edu.yu.einstein.wasp.grid.work.SshWorkService;
 
 /**
  * @author calder
  *
  */
-public class SshFileServiceTest {
+@ContextConfiguration(locations = {"classpath:/META-INF/application-context-ssh-test.xml" })
+public class SshFileServiceTest extends AbstractTestNGSpringContextTests {
 	
 	GridFileService gfs;
-	GridTransportService gts;
+	
+	@Autowired
+	GridTransportConnection testGridTransportConnection;
 	GridWorkService gws;
 	GridHostResolver ghr;
 	
@@ -45,16 +48,9 @@ public class SshFileServiceTest {
 	@BeforeClass
 	public void setUp() throws Exception {
 		
-		gts = new SshTransportService();
-		gts.setName("frankfurt");
-		gts.setHostName("frankfurt.aecom.yu.edu");
-		gts.setUserName("wasp");
-		gts.setIdentityFile("~/.ssh/id_rsa.testing");
-		gts.setUserDirIsRoot(true);
+		gfs = new SshFileService(testGridTransportConnection);
 		
-		gfs = new SshFileService(gts);
-		
-		gws = new SshWorkService(gts);
+		gws = new SshWorkService(testGridTransportConnection);
 		gws.setGridFileService(gfs);
 		
 		ghr = new SingleHostResolver(gws);
@@ -75,7 +71,7 @@ public class SshFileServiceTest {
 	 */
 	@Test (groups = { "ssh" })
 	public void testPut() throws IOException, URISyntaxException {
-		logger.debug("configured transport service: " + gts.getUserName() + "@" + gts.getHostName());
+		logger.debug("configured transport service: " + testGridTransportConnection.getUserName() + "@" + testGridTransportConnection.getHostName());
 		URL testFile = getClass().getClassLoader().getResource("wasp/grid/file/ssh/test.txt");
 		gfs.put(new File(testFile.toURI()).getAbsoluteFile(), "testing/test.txt");
 		gfs.put(new File(testFile.toURI()).getAbsoluteFile(), "testing/test2.txt");
@@ -120,7 +116,7 @@ public class SshFileServiceTest {
 	public void testURI() throws Exception {
 		URI remotefile = gfs.remoteFileRepresentationToLocalURI("/illumina/test.txt");
 		URI remoteuri = gfs.remoteFileRepresentationToLocalURI("sftp://wasp@remotehost.net/folder/file.txt");
-		Assert.assertEquals(remotefile.toString(), "file://" + gts.getHostName() + "/illumina/test.txt");
+		Assert.assertEquals(remotefile.toString(), "file://" + testGridTransportConnection.getHostName() + "/illumina/test.txt");
 		
 		// This is the correct behavior, but the remote host should be set by the transport connection
 		// not the user. 

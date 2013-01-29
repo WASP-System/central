@@ -118,7 +118,7 @@ public class WaspController {
 	    ErrorMessageTag.addMessage(request.getSession(), propertyString);
   }
 
-  protected String outputJSON(Map jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {
+  protected String outputJSON(Map<?, ?> jqgridMap, HttpServletResponse response) throws JsonMappingException, IOException {
 	  
 	  	ObjectMapper mapper = new ObjectMapper();
 	  
@@ -130,7 +130,7 @@ public class WaspController {
 		 
 		return null;		
   }
-  protected String outputJSON(List list, HttpServletResponse response) throws JsonMappingException, IOException {
+  protected String outputJSON(List<?> list, HttpServletResponse response) throws JsonMappingException, IOException {
 	  
 	  	ObjectMapper mapper = new ObjectMapper();
 	  

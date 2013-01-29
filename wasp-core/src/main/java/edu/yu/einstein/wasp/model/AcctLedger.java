@@ -33,6 +33,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_ledger")
 public class AcctLedger extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2976336579608094205L;
 	/** 
 	 * ledgerId
 	 *

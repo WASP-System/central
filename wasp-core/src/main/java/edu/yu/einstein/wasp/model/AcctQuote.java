@@ -33,6 +33,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_quote")
 public class AcctQuote extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1878774856095048045L;
 	/** 
 	 * quoteId
 	 *

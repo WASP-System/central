@@ -1,6 +1,11 @@
 package edu.yu.einstein.wasp.exception;
 
 public class WaspMessageInitializationException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9130420184417963265L;
+
 	public WaspMessageInitializationException(){
 		super();
 	}

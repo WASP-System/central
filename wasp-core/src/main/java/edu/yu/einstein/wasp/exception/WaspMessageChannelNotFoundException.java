@@ -1,6 +1,11 @@
 package edu.yu.einstein.wasp.exception;
 
 public class WaspMessageChannelNotFoundException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 831964799200345424L;
+
 	public WaspMessageChannelNotFoundException(){
 		super();
 	}

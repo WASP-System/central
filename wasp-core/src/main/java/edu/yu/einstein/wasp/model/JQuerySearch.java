@@ -9,6 +9,11 @@ import java.util.List;
  */
 public final class JQuerySearch implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7669968072116619631L;
+
 	public String groupOp;
 	
 	public List<Rules> rules;

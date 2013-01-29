@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class SampleSubtypeException extends SampleException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5033194381805211907L;
+
 	public SampleSubtypeException(){
 		super();
 	}

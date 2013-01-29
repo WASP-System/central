@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="filemeta")
 public class FileMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8558940671046911453L;
 	/** 
 	 * fileMetaId
 	 *

@@ -102,7 +102,7 @@ public class ExternalFileExistsTasklet extends WaspTasklet {
 		GridWorkService gws = gridHostResolver.getGridWorkService(w);
 		GridFileService gfs = gws.getGridFileService();
 		
-		String directory = gws.getTransportService().getConfiguredSetting(rootDirectory);
+		String directory = gws.getTransportConnection().getConfiguredSetting(rootDirectory);
 		if (!PropertyHelper.isSet(directory)) {
 			throw new GridAccessException("Unable to determine remote root directory");
 		}

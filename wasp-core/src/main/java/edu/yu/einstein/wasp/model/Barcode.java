@@ -26,13 +26,16 @@ import javax.persistence.Table;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
 @Table(name="barcode")
 public class Barcode extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4750981400438838305L;
 	/** 
 	 * barcodeId
 	 *

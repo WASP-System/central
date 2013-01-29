@@ -330,7 +330,7 @@ public class RunController extends WaspController {
 			}
 		}
 		
-		Map queryMap = new HashMap();
+		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("resource.resourceType.iName", "mps");//restrict to mps
 		queryMap.put("resourceCategory.resourceType.iName", "mps");//restrict to mps
 		//deal with those attributes that can be searched for directly in table sample (sample.name and sample.sampleSubtype)
@@ -338,7 +338,7 @@ public class RunController extends WaspController {
 			queryMap.put("name", nameFromGrid);//and restrict to the passed name
 		}		
 		
-		Map dateMap = new HashMap();
+		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(dateRunStartedFromGridAsDate != null){
 			dateMap.put("startts", dateRunStartedFromGridAsDate);
 		}
@@ -464,7 +464,7 @@ public class RunController extends WaspController {
 			runData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("rundata",runData);
 			 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -519,22 +519,17 @@ public class RunController extends WaspController {
 				
 				//deal with platformUnit and its barcode
 				Sample platformUnit = null;
-				String platformUnitType = null;
 				String platformUnitBarcode = null;
 				try{
 					platformUnit = sampleService.getPlatformUnit(run.getSampleId());
-					platformUnitType = platformUnit.getSampleSubtype().getName();//not used
 					List<SampleBarcode> sampleBarcodeList = platformUnit.getSampleBarcode();
 					platformUnitBarcode = sampleBarcodeList.size()>0 ? sampleBarcodeList.get(0).getBarcode().getBarcode() : new String("");
 					
-				}catch(Exception e){platformUnitType = new String("???"); platformUnitBarcode = new String("???");}
+				}catch(Exception e){platformUnitBarcode = new String("???");}
 				
 								
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", run.getRunId());	//used??			 
-				//List<RunMeta> runMeta = getMetaHelperWebapp().syncWithMaster(run.getRunMeta());	//used??			
-				User user = userDao.getById(run.getUserId());//used??
-								
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+run.getName()+"</a>",
 						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+platformUnitBarcode+"</a>",
@@ -573,7 +568,7 @@ public class RunController extends WaspController {
 		if (adding) {
 			// To add new run to DB
 			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
-			Map queryMap = new HashMap();
+			Map<String, String> queryMap = new HashMap<String, String>();
 			queryMap.put("name", runForm.getName());
 			List<Run> runList = this.runDao.findByMap(queryMap);
 			if(runList!=null && runList.size()>0) {
@@ -656,6 +651,7 @@ public class RunController extends WaspController {
 			return "default";
 		}
 
+		@SuppressWarnings("unused")
 		Integer runId;
 		try {
 			runId = new Integer(strRunId);
@@ -696,6 +692,7 @@ public class RunController extends WaspController {
 	}
 	
 	//createUpdatePlatformunit - GET
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/createUpdateRun.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdateRun(@RequestParam("resourceId") Integer resourceId,
@@ -793,6 +790,7 @@ public class RunController extends WaspController {
 	}
 
 	//createUpdatePlatformunit - Post
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/createUpdateRun.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String createUpdatePlatformUnitPost(

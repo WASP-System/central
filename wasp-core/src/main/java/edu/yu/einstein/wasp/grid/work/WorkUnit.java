@@ -86,7 +86,7 @@ public class WorkUnit {
 	/**
 	 * Transport specific connection
 	 */
-	private GridTransportConnection connection;
+	//private GridTransportConnection connection;
 	
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
@@ -269,19 +269,19 @@ public class WorkUnit {
 		}
 	}
 
-	/**
-	 * @return the connection
-	 */
-	public GridTransportConnection getConnection() {
-		return connection;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	protected void setConnection(GridTransportConnection connection) {
-		this.connection = connection;
-	}
+//	/**
+//	 * @return the connection
+//	 */
+//	public GridTransportConnection getConnection() {
+//		return connection;
+//	}
+//
+//	/**
+//	 * @param connection the connection to set
+//	 */
+//	protected void setConnection(GridTransportConnection connection) {
+//		this.connection = connection;
+//	}
 
 	/**
 	 * @return the wrapperCommand

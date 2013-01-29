@@ -1,10 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +42,6 @@ public class FileController extends WaspController{
 	public String downloadSampleDraftFile(@RequestParam("id") Integer fileId,HttpServletResponse response) throws FileDownloadException {
 		
 		logger.error("THIS METHOD IS DEPRECATED AND DOES NOT DO WHAT YOU THINK IT DOES.");
-		
-		final int FILEBUFFERSIZE=1000000; //megabyte
 		
 		File file=fileDao.findById(fileId);
 		

@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="runmeta")
 public class RunMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3221677859444192982L;
 	/** 
 	 * runMetaId
 	 *
