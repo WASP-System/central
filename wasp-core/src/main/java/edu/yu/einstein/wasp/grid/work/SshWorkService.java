@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
  * @author calder
  *
  */
+@SuppressWarnings("unused")
 public class SshWorkService implements GridWorkService {
 	
 	private GridTransportService transportService;

@@ -3,28 +3,10 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
-import java.security.Provider.Service;
-import java.security.Security;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import net.schmizz.sshj.common.Factory;
-import net.schmizz.sshj.transport.cipher.AES128CBC;
-import net.schmizz.sshj.transport.cipher.AES128CTR;
-import net.schmizz.sshj.transport.cipher.AES192CBC;
-import net.schmizz.sshj.transport.cipher.AES192CTR;
-import net.schmizz.sshj.transport.cipher.AES256CBC;
-import net.schmizz.sshj.transport.cipher.AES256CTR;
-import net.schmizz.sshj.transport.cipher.BlowfishCBC;
-import net.schmizz.sshj.transport.cipher.Cipher;
-import net.schmizz.sshj.transport.cipher.TripleDESCBC;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,11 +97,13 @@ public class SshTransportService implements GridTransportService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SshTransportService.class);
 
+	@SuppressWarnings("unused")
 	@Override
 	public void connect(WorkUnit w) throws GridAccessException, GridUnresolvableHostException {
 		SshTransportConnection stc = new SshTransportConnection(this, w);
 	}
 
+	@SuppressWarnings("unused")
 	private static class SshUserInfo implements UserInfo {
 
 		@Override

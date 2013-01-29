@@ -5,14 +5,12 @@ package edu.yu.einstein.wasp.grid;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -77,7 +75,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	@Override
-	public List getAvailableWorkServices() {
+	public List<GridWorkService> getAvailableWorkServices() {
 		List<GridWorkService> l = new ArrayList<GridWorkService>();
 		l.add(gws);
 		return l;

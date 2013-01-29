@@ -1,11 +1,9 @@
 package edu.yu.einstein.wasp.grid;
 
 import java.util.List;
-import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 
@@ -75,6 +73,7 @@ public interface GridHostResolver {
 	 * get {@link GridWorkSercice}s.
 	 * @param gws
 	 */
+	@SuppressWarnings("rawtypes")
 	public List getAvailableWorkServices();
 	
 	/**
