@@ -4,8 +4,10 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +33,8 @@ public class WorkUnit {
 	private boolean isRegistering;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private Map<String,String> environmentVars = new LinkedHashMap<String,String>();
 	
 	/**
 	 * Unique ID for the job
@@ -405,6 +409,34 @@ public class WorkUnit {
 	 */
 	public void setRegistering(boolean isRegistering) {
 		this.isRegistering = isRegistering;
+	}
+	
+	/**
+	 * Automatically configured environment variables formatted as key=value.  
+	 * These are typically set via AOP, users may set them here if they take
+	 * care to generate unique names.
+	 * 
+	 * @return the environmentVars
+	 */
+	public Map<String,String> getEnvironmentVars() {
+		return environmentVars;
+	}
+	
+	/**
+	 * environment variable setting, generally automatically set.
+	 * @param name ENVIRONMENT_VAR
+	 * @param value host-specific setting
+	 */
+	public void putEnvironmentVariable(String name, String value) {
+		environmentVars.put(name, value);
+	}
+	
+	/**
+	 * Variables processed by the {@link GridWorkService}.
+	 * @param environmentVars the environmentVars to set
+	 */
+	public void setEnvironmentVars(Map<String,String> environmentVars) {
+		this.environmentVars = environmentVars;
 	}
 	
 

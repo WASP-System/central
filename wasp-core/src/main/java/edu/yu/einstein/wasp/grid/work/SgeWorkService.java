@@ -500,7 +500,15 @@ public class SgeWorkService implements GridWorkService {
 					"#$ -V\n" +
 					"#$ -o " + w.remoteWorkingDirectory + jobNamePrefix + name + ".out\n" +
 					"#$ -e " + w.remoteWorkingDirectory + jobNamePrefix + name + ".err\n";
-			preamble = "cd " + w.remoteWorkingDirectory + "\n" +
+			
+			preamble = "\nset -o errexit\n" + 	// die if any script returns non 0 exit
+												// code
+					"set -o pipefail\n" + 		// die if any script in a pipe returns
+												// non 0 exit code
+					"set -o physical\n"; 		// replace symbolic links with
+												// physical path
+			
+			preamble += "\ncd " + w.remoteWorkingDirectory + "\n" +
 					"WASPNAME=" + name + "\n" +
 					"WASP_WORK_DIR=" + w.remoteWorkingDirectory + "\n" +
 					"WASP_RESULT_DIR=" + w.remoteResultsDirectory + "\n";
@@ -520,13 +528,15 @@ public class SgeWorkService implements GridWorkService {
 				preamble += "WASPOUTPUT[" + fi + "]=" + of + "\n";
 			}
 			
-			preamble +=		"\nset -o errexit\n" + // die if any script returns non 0 exit
-											// code
-					"set -o pipefail\n" + // die if any script in a pipe returns
-											// non 0 exit code
-					"set -o physical\n" + // replace symbolic links with
-											// physical path
-					"echo $JOB_ID >> " + jobNamePrefix + "${WASPNAME}.start\n" +
+			preamble += "\n# Configured environment variables\n\n";
+			
+			for (String key : w.getEnvironmentVars().keySet()) {
+				preamble += key + "=" + w.getEnvironmentVars().get(key) + "\n";
+			}
+			
+			preamble += "\n####\n";
+			
+			preamble +=	"\necho $JOB_ID >> " + jobNamePrefix + "${WASPNAME}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
