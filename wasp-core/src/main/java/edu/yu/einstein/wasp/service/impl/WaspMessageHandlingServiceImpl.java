@@ -47,7 +47,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 				replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
 				if(replyMessage == null)
 					throw new MessageHandlingException(message, "Did not receive a reply on sending outbound message :"+ message.toString());
-				logger.debug("Recieved reply  :"+ replyMessage.toString());
+				logger.debug("Received reply  :"+ replyMessage.toString());
 				if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
 					throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
 				if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))

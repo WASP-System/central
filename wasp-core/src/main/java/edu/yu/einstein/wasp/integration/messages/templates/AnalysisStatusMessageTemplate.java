@@ -58,6 +58,10 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		this.jobId = jobId;
 	}
 	
+	public AnalysisStatusMessageTemplate(){
+		super();
+	}
+	
 	public void setLibraryCellId(Integer libraryCellId){
 		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId);
 		this.libraryId = sampleService.getLibrary(libraryCell).getSampleId();

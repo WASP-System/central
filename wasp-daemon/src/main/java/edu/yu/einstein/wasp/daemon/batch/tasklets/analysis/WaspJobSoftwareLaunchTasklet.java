@@ -10,24 +10,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
@@ -36,7 +35,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
-public class WaspJobSoftwareLaunchTasklet implements Tasklet {
+public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTasklet");
 	
@@ -50,11 +49,11 @@ public class WaspJobSoftwareLaunchTasklet implements Tasklet {
 		this.messageTimeoutInMillis = messageTimeout;
 	}
 	
-	private DirectChannel launchChannel; // channel to send messages out of system
+	private QueueChannel launchChannel; // channel to send messages out of system
 	
 	@Autowired
 	@Qualifier(MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL)
-	public void setLaunchChannel(DirectChannel launchChannel) {
+	public void setLaunchChannel(QueueChannel launchChannel) {
 		this.launchChannel = launchChannel;
 	}
 	
@@ -106,20 +105,18 @@ public class WaspJobSoftwareLaunchTasklet implements Tasklet {
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
 		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
-		Job job = jobService.getJobByJobId(jobId);
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
-		for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
-			String flowName = plugin.getBatchJobName(BatchJobTask.GENERIC);
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
-					new BatchJobLaunchContext(flowName, jobParameters) );
-			try {
-				Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-				logger.debug("Sending the following launch message via channel " + launchChannel + " : " + launchMessage);
-				messagingTemplate.send(launchChannel, launchMessage);
-			} catch (WaspMessageBuildingException e) {
-				throw new MessagingException(e.getLocalizedMessage(), e);
-			}
+		WaspPlugin softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), WaspPlugin.class);
+		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+				new BatchJobLaunchContext(flowName, jobParameters) );
+		try {
+			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
+			Message<?> reply = messagingTemplate.sendAndReceive(launchChannel, launchMessage);
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
 		}
 		return RepeatStatus.FINISHED;
 	}
