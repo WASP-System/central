@@ -19,6 +19,8 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
@@ -38,6 +40,8 @@ public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 	private JobRegistry jobRegistry;
 	
 	private static Logger logger = LoggerFactory.getLogger(BatchJobLaunchServiceImpl.class);
+	
+	public BatchJobLaunchServiceImpl(){};
 	
 	public BatchJobLaunchServiceImpl(JobLauncher jobLauncher, JobRegistry jobRegistry) {
 		this.jobLauncher = jobLauncher;
@@ -74,6 +78,7 @@ public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 		}
 	}
 	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public static JobExecution launchBatchJob(BatchJobLaunchContext batchJobLaunchContext, JobLauncher jobLauncher, JobRegistry jobRegistry) throws WaspBatchJobExecutionException{
 		try{
 			Assert.assertParameterNotNull(batchJobLaunchContext, "No BatchJobLaunchContext set");

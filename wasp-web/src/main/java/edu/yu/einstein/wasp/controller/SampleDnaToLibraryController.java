@@ -468,7 +468,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		  logger.warn(e.getMessage());
 		  waspErrorMessage(e.getMessage());
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-	  }	   
+	  }	
+	  // if i am the user, reauth
+	  User me = authenticationService.getAuthenticatedUser();
+	  if (me.getUserId().intValue() == userId.intValue()) {
+		doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+	  }
 	  waspMessage("listJobSamples.jobViewerRemoved.label");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
   }

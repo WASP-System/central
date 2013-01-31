@@ -48,7 +48,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 				entityClass.getMethod(modelParentIdEntityIdSetterMethodName, Integer.class).invoke(meta, modelParentId);
 				returnMetaList.add(setMeta(meta));
 			} catch (Exception e){
-				 throw new MetadataException("Problem invoking method '" + modelParentIdEntityIdSetterMethodName + "'on instance of class '"+ entityClass.getName()+"' ", e);
+				 throw new MetadataException("Problem invoking method '" + modelParentIdEntityIdSetterMethodName + "'on instance of class '"+ entityClass.getName()+"' with modelParentId=" + modelParentId, e);
 			}
 		}
 		return returnMetaList;
