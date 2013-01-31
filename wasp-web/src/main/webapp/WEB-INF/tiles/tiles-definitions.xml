@@ -117,7 +117,10 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/newrequest.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
 	</definition>
-
+	<definition name="lab/joinAnotherLab/form" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/joinAnotherLab/form.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/joinAnotherLab/form.jsp" />
+	</definition>
 	<definition name="user/mypassword" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />

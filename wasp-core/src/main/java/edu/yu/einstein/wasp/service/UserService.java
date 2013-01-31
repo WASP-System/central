@@ -42,5 +42,12 @@ public interface UserService extends WaspService {
 	 */
   public List<User> getFacilityTechnicians();
   
+  /**
+ 	 * get user by unique login. If login is null, empty, or login.trim is empty, return new User();
+ 	 * @param String login
+ 	 * @return User 
+ 	 */
+  public User getUserByLogin(String login);
+  
 }
 

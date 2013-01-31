@@ -51,9 +51,11 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -99,6 +101,9 @@ public class LabController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
+	private LabService labService;
+
+	@Autowired
 	private MessageServiceWebapp messageService; 
 	
 	@Autowired
@@ -109,6 +114,9 @@ public class LabController extends WaspController {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private UserService userService;
 
 	
 
@@ -1152,6 +1160,129 @@ public class LabController extends WaspController {
 		return "redirect:"+ referer;
 	}
 	
+	/**
+	 * Request to join a new lab by GET
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/joinAnotherLab", method = RequestMethod.GET)
+	public String requestAcessToAnotherLab(ModelMap m)  {
+		return "lab/joinAnotherLab/form";
+	}
+	/**
+	 * Handles request to join a new lab by POST
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/joinAnotherLab", method = RequestMethod.POST)
+	public String handleRequestAcessToAnotherLab(@RequestParam("piLogin") String piLogin, ModelMap m)  {
+		
+		String view = "lab/joinAnotherLab/form";
+		
+		if (piLogin == null || piLogin.isEmpty() || piLogin.trim().isEmpty()){
+			waspErrorMessage("lab.joinAnotherLab_piLoginEmpty.error");
+			return view;
+		}
+		
+		User pi = userService.getUserByLogin(piLogin.trim());
+		if (pi==null || pi.getUserId() == null || pi.getUserId() <= 0) {
+			waspErrorMessage("lab.joinAnotherLab_piNotFoundInDatabase.error");
+			return view;
+		}
+		
+		Lab lab = labService.getLabByPI(pi);
+		if (lab.getLabId() == null || lab.getLabId() == null || lab.getLabId() <= 0) {
+			waspErrorMessage("lab.joinAnotherLab_loginDoesNotBelongToLabPI.error");
+			return view;
+		}
+		if(lab.getIsActive() != 1){
+			waspErrorMessage("lab.joinAnotherLab_labNotActive.error");
+			return view;
+		}
+		
+		User me = authenticationService.getAuthenticatedUser();
+		Role role = labService.getUserRoleInLab(lab, me);//role is empty if user is not in this lab
+		
+		if(role != null && role.getRoleId() != null && role.getRoleId().intValue() > 0){
+			String roleAsString = role.getRoleName();
+			if("lx".equals(roleAsString)){//Lab Member Inactive. Message informs user to request the PI to reactivate your account.
+				//Please, DO NOT programatically re-set this role to member pending. The PI or Lab Manager can do this, as can the Facility Manager or Superuser.
+				waspMessage("lab.joinAnotherLab_requestToReactivateLabMember.label");				
+				return view;
+			}
+			else if("lp".equals(roleAsString)){//already registered as lab member pending approval
+				waspErrorMessage("lab.joinAnotherLab_userIsLabMemberPending.error");
+				return view;
+			}
+			else{//user is already pi, lab manager, or lab member
+				waspErrorMessage("lab.joinAnotherLab_userIsLabMember.error");
+				return view;
+			}
+		}
+		
+		LabUser labUser = labService.addExistingUserToLabAsLabMemberPending(lab, me);
+		if(labUser != null && labUser.getLabUserId() != null && labUser.getLabUserId().intValue() > 0){			
+			emailService.sendPendingLabUserConfirmRequest(labUser);
+			waspMessage("lab.joinAnotherLab_requestSuccess.label");
+		}else{waspErrorMessage("lab.joinAnotherLab_unexpectedError.error");}
+		
+		return view;
+		
+		/* Ed's old code
+		 		// check existence of primaryUser/lab
+		if (primaryUserLogin == null || primaryUserLogin.isEmpty()){
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+		
+		User primaryUser = userDao.getUserByLogin(primaryUserLogin);
+		if (primaryUser.getUserId() == null || primaryUser.getUserId() == 0) {
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+
+		Lab lab = labDao.getLabByPrimaryUserId(primaryUser.getUserId());
+		if (lab.getLabId() == null || lab.getLabId() == 0) {
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+
+		// check role of lab user
+		User me = authenticationService.getAuthenticatedUser();
+		LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
+
+		if (labUser.getLabUserId() != null) {
+			ArrayList<String> alreadyPendingRoles = new ArrayList<String>();
+			alreadyPendingRoles.add("lp");
+			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
+				waspErrorMessage("labuser.request_alreadypending.error");
+				return "redirect:/lab/newrequest.do";
+			}
+			
+			ArrayList<String> alreadyAccessRoles = new ArrayList<String>();
+			alreadyAccessRoles.add("pi");
+			alreadyAccessRoles.add("lm");
+			alreadyAccessRoles.add("lu");
+			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
+				waspErrorMessage("labuser.request_alreadyaccess.error");
+				return "redirect:/lab/newrequest.do";
+			}
+		}
+
+		Role role = roleDao.getRoleByRoleName("lp");
+
+		labUser.setLabId(lab.getLabId());
+		labUser.setUserId(me.getUserId());
+		labUser.setRoleId(role.getRoleId());
+		labUser = labUserDao.save(labUser);
+
+		emailService.sendPendingLabUserConfirmRequest(labUser);
+
+		waspMessage("labuser.request_success.label");
+
+		return "redirect:/dashboard.do";
+		 */
+	}
 	/**
 	 * Handles request to create new laboratory by GET. 
 	 * Pre-populates as much of the form as possible given current user information.
