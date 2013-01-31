@@ -12,8 +12,6 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jcraft.jsch.UserInfo;
-
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -31,11 +29,14 @@ import edu.yu.einstein.wasp.grid.file.GridFileService;
 @SuppressWarnings("unused")
 public class SshWorkService implements GridWorkService {
 	
-	private GridTransportService transportService;
+	/**
+	 * Target source pool
+	 */
+	private GridTransportConnection transportConnection;
 	
-	public SshWorkService(GridTransportService transportService) {
-		this.transportService = transportService;
-		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
+	public SshWorkService(GridTransportConnection transportConnection) {
+		this.transportConnection = transportConnection;
+		logger.debug("configured transport service: " + transportConnection.getUserName() + "@" + transportConnection.getHostName());
 	}
 	
 	private String hostKeyChecking = "no";
@@ -87,10 +88,10 @@ public class SshWorkService implements GridWorkService {
 	@Override
 	public GridResult execute(WorkUnit w) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("attempting to execute " + w.getCommand());
-		transportService.connect(w);
+		
 		GridResult result;
 		try {
-			result = w.getConnection().sendExecToRemote(w);
+			result = transportConnection.sendExecToRemote(w);
 		} catch (MisconfiguredWorkUnitException e) {
 			logger.warn(e.getLocalizedMessage());
 			throw new GridAccessException(e.getLocalizedMessage(),e);
@@ -99,44 +100,6 @@ public class SshWorkService implements GridWorkService {
 		
 	}
 
-	private static class SshUserInfo implements UserInfo {
-
-		@Override
-		public String getPassphrase() {
-			// not implemented
-			return null;
-		}
-
-		@Override
-		public String getPassword() {
-			// not implemented
-			return null;
-		}
-
-		@Override
-		public boolean promptPassphrase(String arg0) {
-			// not implemented
-			return false;
-		}
-
-		@Override
-		public boolean promptPassword(String arg0) {
-			// not implemented
-			return false;
-		}
-
-		@Override
-		public boolean promptYesNo(String arg0) {
-			// not implemented
-			return false;
-		}
-
-		@Override
-		public void showMessage(String arg0) {
-			// not implemented
-		}
-		
-	}
 	
 	public void setHostKeyChecking(String s) {
 		if (s == "yes" || s == "true") {
@@ -178,8 +141,8 @@ public class SshWorkService implements GridWorkService {
 	}
 
 	@Override
-	public GridTransportService getTransportService() {
-		return transportService;
+	public GridTransportConnection getTransportConnection() {
+		return transportConnection;
 	}
 
 	@Override

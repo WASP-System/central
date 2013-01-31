@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridTransportService;
+import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 
 /**
  * Implementation of {@link GridFileService} that manages file transfer over
@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.grid.work.GridTransportService;
  */
 public class SshFileService implements GridFileService {
 	
-	private GridTransportService transportService;
+	private GridTransportConnection transportConnection;
 
 	private final static Logger logger = LoggerFactory.getLogger(SshFileService.class);
 
@@ -42,10 +42,10 @@ public class SshFileService implements GridFileService {
 		this.retries = retries;
 	}
 
-	public SshFileService(GridTransportService transportService) {
-		this.transportService = transportService;
-		identityFile = transportService.getIdentityFile();
-		logger.debug("configured transport service: " + transportService.getUserName() + "@" + transportService.getHostName());
+	public SshFileService(GridTransportConnection transportConnection) {
+		this.transportConnection = transportConnection;
+		identityFile = transportConnection.getIdentityFile();
+		logger.debug("configured transport service: " + transportConnection.getUserName() + "@" + transportConnection.getHostName());
 	}
 
 	public void setUserDirIsRoot(boolean isRoot) {
@@ -56,7 +56,7 @@ public class SshFileService implements GridFileService {
 	public void put(File localFile, String remoteFile)
 			throws IOException {
 
-		logger.debug("put called: " + localFile + " to " + transportService.getHostName() + " as " + remoteFile);
+		logger.debug("put called: " + localFile + " to " + transportConnection.getHostName() + " as " + remoteFile);
 
 		if (!localFile.exists())
 			throw new IOException("File " + localFile.getAbsolutePath()
@@ -88,13 +88,13 @@ public class SshFileService implements GridFileService {
 	public void get(String remoteFile, File localFile)
 			throws IOException {
 
-		logger.debug("get called: " + remoteFile + " from " + transportService.getHostName() + " as " + localFile);
+		logger.debug("get called: " + remoteFile + " from " + transportConnection.getHostName() + " as " + localFile);
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		try {
 			if (!exists(remoteFile))
-				throw new IOException("File " + remoteFile + "@" + transportService.getHostName() + " not found");
+				throw new IOException("File " + remoteFile + "@" + transportConnection.getHostName() + " not found");
 			
 			manager.init();
 
@@ -126,7 +126,7 @@ public class SshFileService implements GridFileService {
 
 	private boolean exists(String remoteFile, int attempts, int delayMillis) throws IOException {
 
-		logger.debug("exists called: " + remoteFile + " at " + transportService.getHostName());
+		logger.debug("exists called: " + remoteFile + " at " + transportConnection.getHostName());
 
 		int attempt = 0;
 		FileObject file;
@@ -168,7 +168,7 @@ public class SshFileService implements GridFileService {
 	public void delete(String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
-		logger.debug("delete called: " + remoteFile + " at " + transportService.getHostName());
+		logger.debug("delete called: " + remoteFile + " at " + transportConnection.getHostName());
 
 		try {
 			manager.init();
@@ -179,7 +179,7 @@ public class SshFileService implements GridFileService {
 
 			if (file.exists()) {
 				file.delete();
-				logger.debug("Deleted " + remoteFile + "@" + transportService.getHostName());
+				logger.debug("Deleted " + remoteFile + "@" + transportConnection.getHostName());
 			}
 		} catch (Exception e) {
 			logger.error("problem deleting file: " + e.getLocalizedMessage());
@@ -190,7 +190,7 @@ public class SshFileService implements GridFileService {
 	}
 
 	private String getRemoteFileURL(String path) throws GridUnresolvableHostException {
-		String remote = "sftp://" + transportService.getUserName() + "@" + transportService.getHostName() + "/" + path;
+		String remote = "sftp://" + transportConnection.getUserName() + "@" + transportConnection.getHostName() + "/" + path;
 		logger.debug("constructed remote file string: " + remote);
 		return remote;
 	}
@@ -226,7 +226,7 @@ public class SshFileService implements GridFileService {
 	public void touch(String remoteFile) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
-		logger.debug("touch called: " + remoteFile + " at " + transportService.getHostName());
+		logger.debug("touch called: " + remoteFile + " at " + transportConnection.getHostName());
 
 		try {
 			manager.init();
@@ -258,7 +258,7 @@ public class SshFileService implements GridFileService {
 			}
 		} else {
 			logger.debug("creating host-based file url of: " + file.toString());
-			fileURI = "file://" + transportService.getHostName() + "/" + file;
+			fileURI = "file://" + transportConnection.getHostName() + "/" + file;
 		}
 		URI result = URI.create(fileURI).normalize();
 		logger.debug("remote file URI: " + result.toString());
@@ -268,7 +268,7 @@ public class SshFileService implements GridFileService {
 	public void mkdir(String remoteDir) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
-		logger.debug("mkdir called: " + remoteDir + " at " + transportService.getHostName());
+		logger.debug("mkdir called: " + remoteDir + " at " + transportConnection.getHostName());
 
 		try {
 			manager.init();

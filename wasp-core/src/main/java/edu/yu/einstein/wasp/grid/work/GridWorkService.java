@@ -66,7 +66,7 @@ public interface GridWorkService {
 	
 	public GridFileService getGridFileService();
 	
-	public GridTransportService getTransportService();
+	public GridTransportConnection getTransportConnection();
 
 	public InputStream readResultStdErr(GridResult r) throws IOException;
 	

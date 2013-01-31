@@ -34,24 +34,24 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	public String getHostname(WorkUnit w) {
-		return gws.getTransportService().getHostName();
+		return gws.getTransportConnection().getHostName();
 	}
 
 	/**
 	 * @return the username
 	 */
 	public String getUsername() {
-		return gws.getTransportService().getUserName();
+		return gws.getTransportConnection().getUserName();
 	}
 
 	@Override
 	public String getUsername(WorkUnit w) {
-		return gws.getTransportService().getUserName();
+		return gws.getTransportConnection().getUserName();
 	}
 
 	@Override
 	public String getUsername(String hostname) {
-		return this.gws.getTransportService().getUserName();
+		return this.gws.getTransportConnection().getUserName();
 	}
 
 	public String getAccount() {
@@ -89,7 +89,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 
 	@Override
 	public GridResult execute(WorkUnit w) throws GridException {
-		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getTransportService().getName());
+		logger.debug("executing WorkUnit: " + w.toString() + " handing off to: " + getGridWorkService(w).getTransportConnection().getName());
 		return getGridWorkService(w).execute(w);
 	}
 
@@ -105,7 +105,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 
 	@Override
 	public GridWorkService getGridWorkService(String hostname) throws GridUnresolvableHostException {
-		if (! gws.getTransportService().getHostName().toLowerCase().equals(hostname.toLowerCase())) {
+		if (! gws.getTransportConnection().getHostName().toLowerCase().equals(hostname.toLowerCase())) {
 			String message = "host " + hostname + " not known";
 			logger.error(message);
 			throw new GridUnresolvableHostException(message);
