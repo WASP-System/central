@@ -41,6 +41,8 @@ public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 	
 	private static Logger logger = LoggerFactory.getLogger(BatchJobLaunchServiceImpl.class);
 	
+	public BatchJobLaunchServiceImpl(){};
+	
 	public BatchJobLaunchServiceImpl(JobLauncher jobLauncher, JobRegistry jobRegistry) {
 		this.jobLauncher = jobLauncher;
 		this.jobRegistry = jobRegistry;
