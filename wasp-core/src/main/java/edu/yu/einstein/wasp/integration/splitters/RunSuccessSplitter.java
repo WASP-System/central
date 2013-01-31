@@ -63,6 +63,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
