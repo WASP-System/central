@@ -26,6 +26,6 @@ public interface GenomeService extends WaspService {
 	
 	public boolean exists(GridWorkService workService, Build build, String index);
 	
-	public Build getBuild(String genome, String build) throws ParameterValueRetrievalException;
+	//public Build getBuild(String genome, String build) throws ParameterValueRetrievalException;
 	  
 }

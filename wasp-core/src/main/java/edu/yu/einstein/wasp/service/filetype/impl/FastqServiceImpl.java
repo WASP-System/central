@@ -10,17 +10,6 @@ import edu.yu.einstein.wasp.service.filetype.FastqService;
 @Service
 @Transactional("entityManager")
 public class FastqServiceImpl extends FileTypeServiceImpl implements FastqService {
-	
-	public static final String READ_SEGMENT_NUMBER_META_KEY = "readSegmentNumber";
-	
-	public static final String NUMBER_OF_READS_META_KEY = "numberOfReads";
-	
-	public static final String NUMBER_OF_PASS_FILTER_READS_META_KEY = "numberOfPFReads";
-	
-	public static final String CONTAINS_FAILED_READS_META_KEY = "containsFailed";
-	
-	public static final String FILE_AREA = "fastqFile";
-
 
 	@Override
 	public Integer getFastqReadSegmentNumber(File file) throws InvalidFileTypeException {

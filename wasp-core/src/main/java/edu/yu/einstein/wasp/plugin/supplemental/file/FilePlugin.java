@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,7 +70,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			}
 			Set<File> files = doAdd(in);
 			return returnResult(files);
-		} catch (InvalidParameterException e) {
+		} catch (EntityNotFoundException e) {
 			return badParameter(e);
 		} catch (JSONException e) {
 			return badJSON(e);
@@ -86,7 +88,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			Set<File> files = getFiles(in);
 			files = doRegister(files);
 			return returnResult(files);
-		} catch (InvalidParameterException e) {
+		} catch (EntityNotFoundException e) {
 			return badParameter(e);
 		} catch (JSONException e) {
 			return badJSON(e);
@@ -160,12 +162,14 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 
 	}
 
-	private Set<File> doAdd(Set<JSONObject> in) throws JSONException, URISyntaxException {
+	private Set<File> doAdd(Set<JSONObject> in) throws EntityNotFoundException, JSONException, URISyntaxException {
 		LinkedHashSet<File> files = new LinkedHashSet<File>();
 		for (JSONObject o : in) {
 			File f = new File();
 			String t = o.get("fileType").toString();
 			FileType ft = fileService.getFileType(t);
+			if (ft.getFileTypeId() == null)
+				throw new EntityNotFoundException("filetype " + t + " not found");
 			f.setFileType(ft);
 			f.setFileURI(new URI(o.get("uri").toString()));
 			f.setIsActive(0);
@@ -176,7 +180,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		return files;
 	}
 
-	private Set<File> getFiles(Set<JSONObject> in) throws JSONException {
+	private Set<File> getFiles(Set<JSONObject> in) throws EntityNotFoundException, JSONException {
 
 		Set<File> files = new LinkedHashSet<File>();
 
@@ -185,7 +189,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 				throw new InvalidParameterException("required \"id\" missing");
 			File f = fileService.getFileByFileId(o.getInt("id"));
 			if (f == null) {
-				throw new InvalidParameterException("File id=" + o.getInt("id") + " is not known");
+				throw new EntityNotFoundException("File id=" + o.getInt("id") + " is not known");
 			}
 			logger.debug("got file: " + f.getFileId());
 			files.add(f);
