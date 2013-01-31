@@ -52,7 +52,6 @@ public class TaskMappingRegistry {
 	 * @param name
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public WaspTaskMapping getTaskMapping(String name){
 		return taskMappings.get(name);
 	}
