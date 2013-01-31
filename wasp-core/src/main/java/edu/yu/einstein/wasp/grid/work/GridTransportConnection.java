@@ -10,7 +10,6 @@ import java.net.URI;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 
