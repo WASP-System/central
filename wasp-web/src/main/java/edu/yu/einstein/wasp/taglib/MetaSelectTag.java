@@ -24,6 +24,11 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
  */
 public class MetaSelectTag extends BodyTagSupport {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8443129746956179867L;
+
 	Logger log=LoggerFactory.getLogger(MetaSelectTag.class);
 	
 	private MetaAttribute.Control control;

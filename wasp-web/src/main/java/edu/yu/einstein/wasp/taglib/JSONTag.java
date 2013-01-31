@@ -18,6 +18,11 @@ import org.springframework.util.StringUtils;
  */
 public class JSONTag extends BodyTagSupport {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3228211300174272597L;
+
 	Logger log=LoggerFactory.getLogger(JSONTag.class);
 	
 	private Object object;
