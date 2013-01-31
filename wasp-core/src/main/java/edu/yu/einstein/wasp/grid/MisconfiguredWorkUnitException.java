@@ -15,6 +15,11 @@ import edu.yu.einstein.wasp.exception.WaspException;
 public class MisconfiguredWorkUnitException extends WaspException {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3492348601377304232L;
+
+	/**
 	 * @param message
 	 */
 	public MisconfiguredWorkUnitException(String message) {
