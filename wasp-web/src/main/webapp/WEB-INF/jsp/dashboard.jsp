@@ -48,9 +48,15 @@
 			-->
 			<li>
 				<a href='<c:url value="/lab/newrequest.do"/>'><fmt:message key="dashboard.requestAccessToLab.label" /></a> (<fmt:message key="dashboard.requestAccessNote.label" />)
-				<br />
+			</li>
+			<li>
 				<a href='<c:url value="/lab/joinAnotherLab.do"/>'><fmt:message key="dashboard.joinAnotherLab.label" /></a>
 			</li>
+			<sec:authorize access="not hasRole('pi-*')">
+				<li>
+					<a href='<c:url value="/lab/upgradeStatusToPI.do"/>'><fmt:message key="dashboard.upgradeStatusToPI.label" /></a>
+				</li>
+			</sec:authorize>
 		</ul>
 	</div>
 
