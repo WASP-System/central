@@ -527,7 +527,8 @@ public class JobController extends WaspController {
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
-							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View files</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {

@@ -86,6 +86,10 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
+	<definition name="jobresults/treeview" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobresults/treeview.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobresults/treeview.jsp" />
+	</definition>
 	<definition name="user/detail_rw" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/detail_rw.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/detail_rw.jsp" />

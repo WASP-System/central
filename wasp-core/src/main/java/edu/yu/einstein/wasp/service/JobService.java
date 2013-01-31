@@ -442,6 +442,23 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public List<Software> getSoftwareForJob(Job job);
 
+
+	/**
+	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param int jobId
+	 * @return Map<String, Object>
+	 * @throws Exception 
+	 */
+	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+
+	/**
+	 * getJobDetailWithMeta() returns all detail information with meta for a job
+	 * @param jobId
+	 * @return
+	 * @throws Exception
+	 */
+	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception;
+
 	public  Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList);
 
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
