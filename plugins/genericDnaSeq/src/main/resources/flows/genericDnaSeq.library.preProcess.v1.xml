@@ -13,9 +13,8 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<constructor-arg name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+							<property name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
@@ -26,8 +25,7 @@
 		<batch:step id="genericDnaSeq.library.preProcess.step.align" next="genericDnaSeq.library.preProcess.step.listenForAlignComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet" scope="step">
-					<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-					<constructor-arg name="sampleCellId" value="#{jobParameters[waspJobParameters.SAMPLE_CELL_ID]}"/>
+					<constructor-arg name="libraryCellId" value="#{jobParameters[waspSoftwareJobParameters.LIBRARY_CELL_ID]}"/>
 					<constructor-arg name="softwareResourceType" ref="referenceBasedAlignerResourceType" />
 					<property name="name" value="genericDnaSeq.library.preProcess.step.align" />
 				</bean>
@@ -40,8 +38,7 @@
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
 							<property name="task" value="#{sequencingBatchJobTask.ALIGNMENT}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -61,9 +58,8 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-							<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
-							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<constructor-arg name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+							<property name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
+							<property name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
@@ -91,7 +87,7 @@
 							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
 								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-								<constructor-arg name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
+								<property name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 								<property name="status" value="COMPLETED" />
 							</bean>
 						</set>
