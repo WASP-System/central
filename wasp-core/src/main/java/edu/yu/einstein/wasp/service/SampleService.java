@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -800,6 +801,13 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleException
 	   */
 	  public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException;
+	  
+	  /**
+	   * get the job of the library on a cell
+	   * @param libraryCell
+	   * @return
+	   */
+	  Job getJobOfLibraryOnCell(SampleSource libraryCell);
 
 	  
 	  /**
@@ -894,5 +902,9 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws MetadataException
 	   */
 	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+
+	  public SampleSourceDao getSampleSourceDao();
+
+	
 	  
 }
