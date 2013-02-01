@@ -19,7 +19,7 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
-            <p>Displays localized error messages using list of keys stored in session under name "_feedback"</p>
+            <p>Displays localized error messages using list of keys stored in session under name "_feedbackError"</p>
         ]]></description>
 		<name>errorMessage</name>
 		<tag-class>edu.yu.einstein.wasp.taglib.ErrorMessageTag</tag-class>
