@@ -47,6 +47,8 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -57,6 +59,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -85,6 +88,9 @@ public class ResultViewController extends WaspController {
 	
 	@Autowired
 	private DummyFileUrlResolver fileUrlResolver;
+
+	@Autowired
+	private FileService fileService;
 
 	//get locale-specific message
 	protected String getMessage(String key, String defaultMessage) {
@@ -168,11 +174,11 @@ public class ResultViewController extends WaspController {
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
 	public @ResponseBody String getDetailsJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
 		//Map <String, Object> jsTree = new HashMap<String, Object>();
-		LinkedHashMap<String, Object> jsDetails = null;
+		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
 			if(type.equalsIgnoreCase("job")) {
-/*				Integer jobId = id;
+				Integer jobId = id;
 				Job job = this.jobService.getJobDao().getById(jobId);
 				if(job==null || job.getJobId()==null){
 					  waspErrorMessage("listJobSamples.jobNotFound.label");
@@ -180,10 +186,20 @@ public class ResultViewController extends WaspController {
 				}
 				
 				jsDetails.put(getMessage("job.name.label"), job.getName());
-				jsDetails.putAll(jobService.getExtraJobDetails(job));
+				
+				HashMap<String, String> extraJobDetails = jobService.getExtraJobDetails(job);
+				for (String lblEJD : extraJobDetails.keySet()) {
+					try {
+						String msg = getMessage(lblEJD);
+						jsDetails.put(msg, extraJobDetails.get(lblEJD));
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
 			
 				List<JobMeta> metaList = job.getJobMeta();
-				Map <String, Map<String, String>> metaListMap = new HashMap();
+/*				Map <String, Map<String, String>> metaListMap = new HashMap();
 				for (JobMeta mt : metaList) {
 					String key = mt.getK();
 					//logger.debug(Arrays.deepToString(metaNameSplit));
@@ -209,8 +225,19 @@ public class ResultViewController extends WaspController {
 				}
 				jsDetails.putAll(metaListMap);
 */
-				jsDetails = jobService.getJobDetailWithMeta(id);
-				
+				//jsDetails = jobService.getJobDetailWithMeta(id);
+
+				for (JobMeta mt : metaList) {
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
+
 			} else if(type.equalsIgnoreCase("sample")) {
 				Integer sampleId = id;
 				Sample sample = this.sampleService.getSampleById(sampleId);
@@ -222,7 +249,8 @@ public class ResultViewController extends WaspController {
 				jsDetails.put(getMessage("sample.name.label"), sample.getName());
 			
 				List<SampleMeta> metaList = sample.getSampleMeta();
-				Map <String, Map<String, String>> metaListMap = new HashMap();
+				
+/*				Map <String, Map<String, String>> metaListMap = new HashMap();
 				for (SampleMeta mt : metaList) {
 					String key = mt.getK();
 					//logger.debug(Arrays.deepToString(metaNameSplit));
@@ -247,6 +275,40 @@ public class ResultViewController extends WaspController {
 					}
 				}
 				jsDetails.putAll(metaListMap);
+*/				
+				for (SampleMeta mt : metaList) {
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
+			} else if(type.equalsIgnoreCase("file")) {
+				Integer fileId = id;
+				File file = this.fileService.getFileByFileId(fileId);
+				if(file==null || file.getFileId()==null){
+					  waspErrorMessage("file.not_found.error");
+					  return null;
+				}
+				
+				jsDetails.put(getMessage("file.name.label"), file.getDescription());
+				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
+			
+				List<FileMeta> metaList = file.getFileMeta();
+				
+				for (FileMeta mt : metaList) {
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
 			}
 			
 			//return outputJSON(jsTree, response);
