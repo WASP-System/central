@@ -48,6 +48,7 @@ public class SeleniumHelper {
 	  public static String[][] getTableArray(String xlFilePath, String sheetName, String tableName){
 	    String[][] tabArray=null;
 	    try{
+	        logger.debug("xlFilePath="+xlFilePath);
 	        Workbook workbook = Workbook.getWorkbook(new File(xlFilePath));
 	        if (workbook == null) logger.debug("workbook is null");
 
@@ -58,7 +59,7 @@ public class SeleniumHelper {
 	        int startRow,startCol, endRow, endCol,ci,cj;
 	        logger.debug("table name="+tableName);
 	        Cell tableStart=sheet.findCell(tableName);
-	        logger.debug("tableStart="+tableStart+"\n table name"+tableName);
+	        logger.debug("tableStart="+tableStart+"\n table name="+tableName);
 	        startRow=tableStart.getRow();
 	        logger.debug("got row start");
 
@@ -76,6 +77,8 @@ public class SeleniumHelper {
 	            cj=0;
 	            for (int j=startCol+1;j<endCol;j++,cj++){
 	            	tabArray[ci][cj]=sheet.getCell(j,i).getContents();
+	    	        logger.debug("contents="+sheet.getCell(j,i).getContents());
+
 	            }
 	        }
 	    }
