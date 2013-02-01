@@ -1297,24 +1297,24 @@ public class LabController extends WaspController {
 	 * @return String view
 	 */
 	@RequestMapping(value = "/joinAnotherLab", method = RequestMethod.POST)
-	public String handleRequestAcessToAnotherLab(@RequestParam("piLogin") String piLogin, ModelMap m)  {
+	public String handleRequestAcessToAnotherLab(@RequestParam("piEmail") String piEmail, ModelMap m)  {
 		
 		String view = "lab/joinAnotherLab/form";
 		
-		if (piLogin == null || piLogin.isEmpty() || piLogin.trim().isEmpty()){
-			waspErrorMessage("lab.joinAnotherLab_piLoginEmpty.error");
+		if (piEmail == null || piEmail.isEmpty() || piEmail.trim().isEmpty()){
+			waspErrorMessage("lab.joinAnotherLab_piEmailEmpty.error");
 			return view;
 		}
 		
-		User pi = userService.getUserByLogin(piLogin.trim());
+		User pi = userService.getUserByEmail(piEmail.trim());
 		if (pi==null || pi.getUserId() == null || pi.getUserId() <= 0) {
-			waspErrorMessage("lab.joinAnotherLab_piNotFoundInDatabase.error");
+			waspErrorMessage("lab.joinAnotherLab_emailNotFoundInDatabase.error");
 			return view;
 		}
 		
 		Lab lab = labService.getLabByPI(pi);
 		if (lab.getLabId() == null || lab.getLabId() == null || lab.getLabId() <= 0) {
-			waspErrorMessage("lab.joinAnotherLab_loginDoesNotBelongToLabPI.error");
+			waspErrorMessage("lab.joinAnotherLab_emailDoesNotBelongToLabPI.error");
 			return view;
 		}
 		if(lab.getIsActive() != 1){

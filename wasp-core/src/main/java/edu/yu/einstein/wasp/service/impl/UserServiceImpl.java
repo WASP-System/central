@@ -159,5 +159,16 @@ public String getUniqueLoginName(final User user){
 		  }
 		  else{ return userDao.getUserByLogin(login.trim());}
 	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public User getUserByEmail(String emailAddress){
+		  if(emailAddress==null || emailAddress.isEmpty() || emailAddress.trim().isEmpty()){
+			  return new User();
+		  }
+		  else{ return userDao.getUserByEmail(emailAddress);}
+	  }
 }
 

@@ -48,6 +48,13 @@ public interface UserService extends WaspService {
  	 * @return User 
  	 */
   public User getUserByLogin(String login);
-  
+
+  /**
+ 	 * get user by unique email address. If email is null, empty, or login.trim is empty, return new User();
+ 	 * @param String emailAddress
+ 	 * @return User 
+ 	 */
+  public User getUserByEmail(String emailAddress);
+
 }
 
