@@ -1161,7 +1161,7 @@ public class LabController extends WaspController {
 	}
 
 	/**
-	 * Request to upgrade status of a regular user to PI by GET
+	 * Request to upgrade status of a regular existing user to PI by GET
 	 * (NOT AVAILABLE TO ANYONE THAT IS ALREADY A PI; Any person can only be the PI OF ONE LAB IN WASP - CONFIRMED WITH ANDY, 1/2013)
 	 * Pre-populates as much of the form as possible given current user information	
 	 * @param ModelMap m
@@ -1171,7 +1171,7 @@ public class LabController extends WaspController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upgradeStatusToPI", method = RequestMethod.GET)
 	public String requestUpgradeStatusToPI(ModelMap m) throws MetadataException  {
-		
+		//this is for an existing user!!
 		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 		labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
 		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
@@ -1223,7 +1223,9 @@ public class LabController extends WaspController {
 	}
 	
 	/**
-	 * Request to upgrade status of a regular user to PI by POST.
+	 * Request to upgrade status of a regular existing 
+	 * 
+	 * user to PI by POST.
 	 * Validates LabPending form.
 	 * @param labPendingForm
 	 * @param result
@@ -1233,7 +1235,7 @@ public class LabController extends WaspController {
 	 */
 	@RequestMapping(value = "/upgradeStatusToPI", method = RequestMethod.POST)
 	public String handleRequestUpgradeStatusToPI(@Valid LabPending labPendingForm,	BindingResult result, SessionStatus status, ModelMap m) {
-		
+		//this is for an existing user!!
 		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
@@ -1270,7 +1272,7 @@ public class LabController extends WaspController {
 		try {
 			labPendingMetaDao.setMeta(labPendingMetaList, labPendingDb.getLabPendingId());
 			status.setComplete();
-			emailService.sendPendingPrincipalConfirmRequest(labPendingDb);
+			emailService.sendExistingUserPendingPrincipalConfirmRequest(labPendingDb);
 			waspMessage("lab.upgradeStatusToPI_requestSuccess.label");
 		} catch (MetadataException e) {
 			logger.warn(e.getLocalizedMessage());

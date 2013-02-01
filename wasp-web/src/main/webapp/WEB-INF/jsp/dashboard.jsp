@@ -46,9 +46,11 @@
 				<a href='<c:url value="/auth/reauth.do"/>'><fmt:message key="dashboard.refreshAuth.label" /></a>
 			</li>
 			-->
+			<!-- commented out by Dubin, 02-01-13; replaced by the two list items immediately below this one
 			<li>
 				<a href='<c:url value="/lab/newrequest.do"/>'><fmt:message key="dashboard.requestAccessToLab.label" /></a> (<fmt:message key="dashboard.requestAccessNote.label" />)
 			</li>
+			-->
 			<li>
 				<a href='<c:url value="/lab/joinAnotherLab.do"/>'><fmt:message key="dashboard.joinAnotherLab.label" /></a>
 			</li>
