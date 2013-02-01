@@ -222,7 +222,8 @@ public class ResultViewController extends WaspController {
 				jsDetails.put(getMessage("sample.name.label"), sample.getName());
 			
 				List<SampleMeta> metaList = sample.getSampleMeta();
-				Map <String, Map<String, String>> metaListMap = new HashMap();
+				
+/*				Map <String, Map<String, String>> metaListMap = new HashMap();
 				for (SampleMeta mt : metaList) {
 					String key = mt.getK();
 					//logger.debug(Arrays.deepToString(metaNameSplit));
@@ -247,6 +248,17 @@ public class ResultViewController extends WaspController {
 					}
 				}
 				jsDetails.putAll(metaListMap);
+*/				
+				for (SampleMeta mt : metaList) {
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
 			}
 			
 			//return outputJSON(jsTree, response);
