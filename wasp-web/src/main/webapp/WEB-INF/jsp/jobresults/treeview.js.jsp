@@ -204,7 +204,7 @@ var labelClick = false;
 function clickLabel(d) {
   labelClick = true;
   $.ajax({
-        url: '/wasp/jobresults/helpTag/getDetailsJson.do?type='+d.type+'&id='+d.myid,
+        url: '/wasp/jobresults/getDetailsJson.do?type='+d.type+'&id='+d.myid,
         type: 'GET',
         dataType: 'json',
         success: function (result) {
