@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 
 public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 	
-	private int messageTimeoutInMillis = 5000;
+	private int messageTimeoutInMillis;
 	
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
@@ -47,7 +47,7 @@ public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl{
 				replyMessage = messagingTemplate.sendAndReceive(outboundRemotingChannel, message);
 				if(replyMessage == null)
 					throw new MessageHandlingException(message, "Did not receive a reply on sending outbound message :"+ message.toString());
-				logger.debug("Recieved reply  :"+ replyMessage.toString());
+				logger.debug("Received reply  :"+ replyMessage.toString());
 				if (replyMessage.getHeaders().containsKey(WaspTask.EXCEPTION))
 					throw new MessageHandlingException(message, "Problem encountered sending message '" + message.toString() + "' : " + replyMessage.getHeaders().get(WaspTask.EXCEPTION));
 				if (WaspStatus.class.isInstance(replyMessage.getPayload()) && replyMessage.getPayload().equals(WaspStatus.FAILED))

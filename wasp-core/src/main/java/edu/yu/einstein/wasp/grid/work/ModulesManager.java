@@ -22,6 +22,11 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 public class ModulesManager extends HashMap<String, String> implements
 		SoftwareManager {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5307186653702281648L;
+
 	private Logger logger = LoggerFactory.getLogger(ModulesManager.class);
 
 	// wasp instance properties

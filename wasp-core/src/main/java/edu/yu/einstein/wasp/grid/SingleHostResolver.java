@@ -75,7 +75,7 @@ public class SingleHostResolver extends AbstractGridHostResolver {
 	}
 
 	@Override
-	public List getAvailableWorkServices() {
+	public List<GridWorkService> getAvailableWorkServices() {
 		List<GridWorkService> l = new ArrayList<GridWorkService>();
 		l.add(gws);
 		return l;

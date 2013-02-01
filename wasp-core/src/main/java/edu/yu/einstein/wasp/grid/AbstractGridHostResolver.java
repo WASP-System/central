@@ -14,7 +14,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
  */
 public abstract class AbstractGridHostResolver implements GridHostResolver {
 	
-	private UnresolvableStrategy unresolvableStrategy = UnresolvableStrategy.DEFAULT; 
+	//private UnresolvableStrategy unresolvableStrategy = UnresolvableStrategy.DEFAULT; 
 	
 	/**
 	 * (@link GridHostResolver}s need to be able to choose how to resolve when a host can

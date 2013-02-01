@@ -36,18 +36,18 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 
 
 	/**
-	 * getAcctQuoteMetaByQuotemetaId(final Integer quotemetaId)
+	 * getAcctQuoteMetaByQuoteMetaId(final Integer quoteMetaId)
 	 *
-	 * @param final Integer quotemetaId
+	 * @param final Integer quoteMetaId
 	 *
 	 * @return acctQuoteMeta
 	 */
 
 	@Override
 	@Transactional
-	public AcctQuoteMeta getAcctQuoteMetaByQuotemetaId (final Integer quotemetaId) {
+	public AcctQuoteMeta getAcctQuoteMetaByQuoteMetaId (final Integer quoteMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("quotemetaId", quotemetaId);
+		m.put("quoteMetaId", quoteMetaId);
 
 		List<AcctQuoteMeta> results = this.findByMap(m);
 
@@ -83,8 +83,6 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 		}
 		return results.get(0);
 	}
-
-
 
 
 }

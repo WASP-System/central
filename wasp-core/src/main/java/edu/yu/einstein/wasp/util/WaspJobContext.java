@@ -37,7 +37,7 @@ public class WaspJobContext {
 				configuredSoftwareByType.put(softwareType, new SoftwareConfiguration(software, parameters));
 			}
 		} catch(Exception e){
-			throw new JobContextInitializationException(e.getMessage(), e); 
+			throw new JobContextInitializationException(e.getMessage(), e);
 		}
 	}
 	
