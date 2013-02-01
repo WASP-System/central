@@ -47,6 +47,8 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -57,6 +59,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -85,6 +88,9 @@ public class ResultViewController extends WaspController {
 	
 	@Autowired
 	private DummyFileUrlResolver fileUrlResolver;
+
+	@Autowired
+	private FileService fileService;
 
 	//get locale-specific message
 	protected String getMessage(String key, String defaultMessage) {
@@ -271,6 +277,29 @@ public class ResultViewController extends WaspController {
 				jsDetails.putAll(metaListMap);
 */				
 				for (SampleMeta mt : metaList) {
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
+			} else if(type.equalsIgnoreCase("file")) {
+				Integer fileId = id;
+				File file = this.fileService.getFileByFileId(fileId);
+				if(file==null || file.getFileId()==null){
+					  waspErrorMessage("file.not_found.error");
+					  return null;
+				}
+				
+				jsDetails.put(getMessage("file.name.label"), file.getDescription());
+				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
+			
+				List<FileMeta> metaList = file.getFileMeta();
+				
+				for (FileMeta mt : metaList) {
 					String mKey = mt.getK();
 					try {
 						String msg = getMessage(mKey+".label");

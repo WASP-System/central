@@ -1544,30 +1544,44 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception{
 		
-		Map <String, Object> jsTree = new HashMap<String, Object>();
+		Map <String, Object> jobRoot = new HashMap<String, Object>();
 		
 		Job job = getJobByJobId(jobId);
 		if(job==null || job.getJobId()==null){
 			  throw new Exception("listJobSamples.jobNotFound.label");
 		}
 		
-		jsTree.put("name", job.getName());
-		jsTree.put("myid", jobId);
-		jsTree.put("type", "job");
+		jobRoot.put("name", job.getName());
+		jobRoot.put("myid", jobId);
+		jobRoot.put("type", "job");
 		
-		List<Map> children = new ArrayList<Map>();
+		List<Map> sampleNodes = new ArrayList<Map>();
 
 		List<JobSample> jobSampleList = job.getJobSample();
 		for (JobSample js : jobSampleList) {
-			Map sample = new HashMap();
-			sample.put("name", js.getSample().getName());
-			sample.put("myid", js.getSampleId());
-			sample.put("type", "sample");
-			children.add(sample);
+			Map sampleNode = new HashMap();
+			sampleNode.put("name", js.getSample().getName());
+			sampleNode.put("myid", js.getSampleId());
+			sampleNode.put("type", "sample");
+			
+			List<Map> fileNodes = new ArrayList<Map>();
+			List<SampleFile> sampleFileList = js.getSample().getSampleFile();
+			for (SampleFile sf : sampleFileList) {
+				Map fileNode = new HashMap();
+				fileNode.put("name", sf.getName());
+				fileNode.put("myid", sf.getFileId());
+				fileNode.put("type", "file");
+				
+				fileNodes.add(fileNode);
+			}
+			
+			sampleNode.put("children", fileNodes);
+			
+			sampleNodes.add(sampleNode);
 		}
-		jsTree.put("children",children);
+		jobRoot.put("children",sampleNodes);
 
-		return jsTree;
+		return jobRoot;
 	}
 
 	

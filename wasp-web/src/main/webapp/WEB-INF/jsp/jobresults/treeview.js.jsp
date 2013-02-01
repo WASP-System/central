@@ -116,7 +116,46 @@ function update(source) {
       .style("fill-opacity", 1e-6)
       .attr("pointer-events", "all")
       .on("click", clickLabel);
+//Add checkbox
+/* 	barHeight=20;
+	barWidth=80;
+	function color(d) {
+	    return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+	}
 
+  nodeEnter.append("svg:rect")
+  	.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+  	.attr("y", -barHeight / 2)
+  	.attr("height", barHeight)
+  	.attr("width", barWidth)
+  	.style("stroke", color)
+  	.style("fill", "white")
+  	.style("fill-opacity", 1e-6)
+  	.on("click", function(d) {
+    	if (d.selected) {
+     		d.selected = false;
+     		d3.select(this).attr("fill", "white");
+    	} else {
+     		d.selected = true;
+     		d3.select(this).attr("fill", "black");
+    	}
+    });
+ */  
+/*   nodeEnter.append("svg:circle")
+  	.attr("x", function(d) { return d.children || d._children ? -50 : 50; })
+  	.attr("r", 5)
+  	.attr("fill", "white")
+  	.on("click", function(d) {
+    	if (d.selected) {
+     		d.selected = false;
+     		d3.select(this).attr("fill", "white");
+    	} else {
+     		d.selected = true;
+     		d3.select(this).attr("fill", "black");
+    	}
+    	//printSelectedNodes();
+  	});
+ */
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
       .duration(duration)
