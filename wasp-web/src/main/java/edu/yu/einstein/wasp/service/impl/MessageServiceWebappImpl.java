@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 @Service
+@Qualifier("messageServiceWebappImpl")
 @Transactional("entityManager")
 public class MessageServiceWebappImpl extends MessageServiceImpl implements MessageServiceWebapp{
 
