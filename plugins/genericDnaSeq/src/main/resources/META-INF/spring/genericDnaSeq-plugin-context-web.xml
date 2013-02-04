@@ -9,5 +9,5 @@
 	<context:component-scan base-package="edu.yu.einstein.wasp.controller.genericDnaSeq" />
 
 	<!-- common definitions -->
-	<import resource="plugin-context-common.xml" />
+	<import resource="genericDnaSeq-plugin-context-common.xml" />
 </beans>
