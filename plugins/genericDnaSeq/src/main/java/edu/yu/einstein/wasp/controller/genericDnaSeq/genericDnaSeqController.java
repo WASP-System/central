@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.genericDnaSeq.controller;
+package edu.yu.einstein.wasp.controller.genericDnaSeq;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
