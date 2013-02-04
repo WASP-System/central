@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="wasp-illumina/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/description.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/task/illuminaQC/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/illuminaQC.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/illuminaQC.jsp" />
+	</definition>
+
+
+</tiles-definitions>
+

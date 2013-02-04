@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+
+	<bean id="genericDnaSeqPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.illumina</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="illuminaPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>wasp-illumina</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.wasp-illumina" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
+	
+	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin">
+		<constructor-arg name="pluginName" ref="illuminaPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-illumina" />
+		<property name="provides" >
+			<set>
+				<ref bean="casava" />
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="illuminaHiSeq2000Area" />
+				<ref bean="illuminaMiSeqPersonalSequencerArea" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.illumina.IlluminaRunQCTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.illuminaRunQc.label" />
+		<constructor-arg name="targetLink" value="#{illuminaPluginArea}/task/illuminaQC/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm')" />
+	</bean>
+
+</beans>

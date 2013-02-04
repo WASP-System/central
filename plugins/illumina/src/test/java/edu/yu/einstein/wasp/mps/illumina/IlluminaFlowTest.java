@@ -47,7 +47,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin;
 import edu.yu.einstein.wasp.service.AdaptorService;
-import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
