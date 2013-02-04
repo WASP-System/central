@@ -17,5 +17,5 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.controller.chipseq" />
 
   <!-- common definitions -->
-  <import resource="plugin-context-common.xml" />
+  <import resource="chipseq-plugin-context-common.xml" />
 </beans>
