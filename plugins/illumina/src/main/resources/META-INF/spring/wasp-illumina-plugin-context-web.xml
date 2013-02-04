@@ -7,6 +7,6 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- common definitions -->
-	<import resource="plugin-context-common.xml" />
-	<import resource="plugin-context-local.xml" />
+	<import resource="wasp-illumina-plugin-context-common.xml" />
+	<import resource="wasp-illumina-plugin-context-local.xml" />
 </beans>
