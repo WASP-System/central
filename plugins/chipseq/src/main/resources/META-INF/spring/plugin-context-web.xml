@@ -14,7 +14,7 @@
   xmlns="http://www.springframework.org/schema/beans"
   default-autowire="byName">
 
-  <context:component-scan base-package="edu.yu.einstein.wasp.chipseq.controller" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.controller.chipseq" />
 
   <!-- common definitions -->
   <import resource="plugin-context-common.xml" />
