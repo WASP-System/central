@@ -98,4 +98,5 @@ MANIFEST.MF
 /wasp-web/.DS_Store
 /wasp-web/.localized
 /wasp-web/test-output
+/wasp-web/.externalToolBuilders
 
