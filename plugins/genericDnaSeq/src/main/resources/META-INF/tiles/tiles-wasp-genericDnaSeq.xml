@@ -6,8 +6,8 @@
 
 
 	<definition name="genericdnaseq/description" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/genericDnaSeq/description.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/genericDnaSeq/description.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-genericDnaSeq/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-genericDnaSeq/description.jsp" />
 	</definition>
 
 

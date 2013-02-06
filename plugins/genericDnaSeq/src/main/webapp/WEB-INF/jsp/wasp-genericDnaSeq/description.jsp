@@ -6,5 +6,5 @@
 	<fmt:message key="pageTitle.genericdnaseq/description.label" />
 </h1>
 <div class="instructions">
-	<fmt:message key="genericDnaSeq.maintext.label" />
+	<fmt:message key="waspGenericDnaSeq.maintext.label" />
 </div>
