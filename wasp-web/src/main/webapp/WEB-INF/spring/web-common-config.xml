@@ -39,7 +39,7 @@
 	</bean>
     
 	<!-- spring plugin definitions -->
-	<import resource="classpath*:META-INF/spring/*plugin-context-web.xml" />
+	<import resource="classpath*:META-INF/spring/*-plugin-context-web.xml" />
 
 
 	<!-- extracts plugin's precompiled jsp files --> 

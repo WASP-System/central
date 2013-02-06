@@ -70,7 +70,7 @@
 	<import resource="classpath*:flows/*.xml" />
 	
 	<!-- loads all the plugin root contexts -->
-  	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
+  	<import resource="classpath*:META-INF/spring/*-plugin-context-batch.xml" />
 
 	<!-- WorkUnit prototype bean, provides mechanism for pre-setting the runId when getting
 		a WorkUnit in a step context. 
