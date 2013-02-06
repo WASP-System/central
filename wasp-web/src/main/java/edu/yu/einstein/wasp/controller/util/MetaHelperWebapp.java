@@ -140,7 +140,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	 */
 	public final <T extends MetaBase> List<T> getFromRequest(HttpServletRequest request, List<T> list, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 
-		Map params = request.getParameterMap();
+		Map<String, String[]> params = request.getParameterMap();
 		for (T obj: list) {
 			String requestKey = parentArea + "Meta" + "_" + obj.getK();
 			if (! params.containsKey(requestKey)) { continue; }
@@ -177,7 +177,7 @@ public class MetaHelperWebapp extends MetaHelper {
 	public final <T extends MetaBase> List<T> getFromJsonForm(HttpServletRequest request, Map<String, MetaAttribute.FormVisibility> visibility, Class<T> clazz) {
 		List<T> list = getMasterList(visibility, clazz);
 
-		Map params = request.getParameterMap();
+		Map<String, String[]> params = request.getParameterMap();
 
 		for (T obj: list) {
 			String requestKey = obj.getK();
