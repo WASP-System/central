@@ -10,5 +10,5 @@
 
 	
 	<!-- common definitions -->
-	<import resource="plugin-context-common.xml" />
+	<import resource="wasp-genericDnaSeq-plugin-context-common.xml" />
 </beans>
