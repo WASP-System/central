@@ -6,8 +6,8 @@
 
 
 	<definition name="jobsubmit/helptagform" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/helptagpair.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/helptagpair.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-helptag/helptagpair.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-helptag/helptagpair.jsp" />
 	</definition>
 
 
