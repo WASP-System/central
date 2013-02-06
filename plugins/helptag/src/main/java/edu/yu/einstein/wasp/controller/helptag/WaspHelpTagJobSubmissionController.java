@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.helptag.controller;
+package edu.yu.einstein.wasp.controller.helptag;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 
@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.dao.SampleDraftDao;
 @Controller
 @Transactional
 @RequestMapping("/jobsubmit/helpTag")
-public class HelpTagJobSubmissionController extends JobSubmissionController {
+public class WaspHelpTagJobSubmissionController extends JobSubmissionController {
 
 	@Autowired
 	protected JobDraftDao jobDraftDao;
