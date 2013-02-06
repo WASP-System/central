@@ -5,14 +5,14 @@
 <tiles-definitions>
 
 
-	<definition name="wasp-illumina/description" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/description.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/description.jsp" />
+	<definition name="waspillumina/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/description.jsp" />
 	</definition>
 	
-	<definition name="wasp-illumina/task/illuminaQC/list" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/illuminaQC.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/illuminaQC.jsp" />
+	<definition name="waspillumina/task/qc/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/illuminaQC.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/illuminaQC.jsp" />
 	</definition>
 
 

@@ -6,5 +6,5 @@
 	<fmt:message key="pageTitle.illuminaPlugin/description.label" />
 </h1>
 <div class="instructions">
-	<fmt:message key="illuminaPlugin.maintext.label" />
+	<fmt:message key="waspIlluminaPlugin.maintext.label" />
 </div>

@@ -8,5 +8,4 @@
 
 	<!-- common definitions -->
 	<import resource="wasp-illumina-plugin-context-common.xml" />
-	<import resource="wasp-illumina-plugin-context-local.xml" />
 </beans>

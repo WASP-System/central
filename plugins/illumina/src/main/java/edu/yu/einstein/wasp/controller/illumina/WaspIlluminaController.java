@@ -9,16 +9,16 @@ import edu.yu.einstein.wasp.controller.WaspController;
 
 @Controller
 @RequestMapping("/wasp-illumina")
-public class illuminaController extends WaspController {
+public class WaspIlluminaController extends WaspController {
 
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
-		return "/wasp-illumina/description";
+		return "waspillumina/description";
 	}
 	
-	@RequestMapping(value="/task/illuminaQC/list", method=RequestMethod.GET)
+	@RequestMapping(value="/task/qc/list", method=RequestMethod.GET)
 	public String display(ModelMap m){
-		return "/task/illuminaQC/list";
+		return "waspillumina/task/qc/list";
 	}
 	
 
