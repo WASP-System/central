@@ -132,8 +132,7 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	
 	
 	/**
-	 * gets all plugins handling a known area from the registry or returns null if there are no matches
-	 * to name or the object obtained cannot be cast to the specified type
+	 * gets all plugins handling a known area from the registry
 	 * @param name
 	 * @return
 	 */
@@ -150,13 +149,45 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	}
 	
 	/**
+	 * gets all plugins from the registry which handle a known area and which can be cast to an instance of the provided type.
+	 * @param name
+	 * @return
+	 */
+	public <T> Set<T> getPluginsHandlingArea(String area, Class<T> clazz){
+		Set<T> pluginsHandlingArea = new HashSet<T>();
+		for (String name : plugins.keySet()) {
+			WaspPlugin plugin = plugins.get(name);
+			Set<String> handles = plugin.getHandles();
+			if (handles == null || ! handles.contains(area) || !clazz.isInstance(plugin))
+				continue;
+			pluginsHandlingArea.add((T) plugin);
+		}
+		return pluginsHandlingArea;
+	}
+	
+	/**
+	 * gets a set of plugins from the registry which can be cast to an instance of the provided type
+	 * @param clazz
+	 * @return
+	 */
+	public <T> Set<T> getPlugins(Class<T> clazz){
+		Set<T> pluginsMatchingType = new HashSet<T>();
+		for (String name : plugins.keySet()) {
+			WaspPlugin plugin = plugins.get(name);
+			if (clazz.isInstance(plugin))
+				pluginsMatchingType.add((T) plugin);
+		}
+		return pluginsMatchingType;
+	}
+	
+	/**
 	 * gets a named plugin from the registry or returns null if there are no matches
 	 * to name or the object obtained cannot be cast to the specified type
 	 * @param name
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends WaspPlugin> T getPlugin(String name, Class<T> clazz){
+	public <T> T getPlugin(String name, Class<T> clazz){
 		if (plugins.containsKey(name) && clazz.isInstance(plugins.get(name)))
 			return (T) plugins.get(name);
 		return null;	

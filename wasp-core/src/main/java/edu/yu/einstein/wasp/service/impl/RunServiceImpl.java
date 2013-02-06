@@ -42,6 +42,7 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
@@ -204,7 +205,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
 		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
 		String rcIname = newRun.getResourceCategory().getIName();
-		for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname)) {
+		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
 			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
