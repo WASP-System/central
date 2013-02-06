@@ -39,9 +39,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -63,7 +65,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Autowired
 	private UserPendingDao userPendingDao;
-	
+
+	@Autowired
+	private LabPendingDao labPendingDao;
+
 	public void setUserPendingDao(UserPendingDao userPendingDao) {
 		this.userPendingDao = userPendingDao;
 	}
@@ -471,5 +476,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			FilterInvocation f = new FilterInvocation(request.getServletPath(), request.getMethod());
 			return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
 
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isThisExistingUserPIPending(){
+			User me = this.getAuthenticatedUser();
+			Map<String, Object> m = new HashMap<String, Object>();
+			m.put("primaryUserId", me.getUserId());
+			m.put("status", "PENDING");
+			List<LabPending> lpList = labPendingDao.findByMap(m);
+			if(lpList.isEmpty()){return false;}
+			return true;
 		}
 }

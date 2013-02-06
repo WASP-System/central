@@ -1,13 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
 
+<h1><fmt:message key="piPending.form_header.label" /></h1>
 
-<h1>
-	<fmt:message key="pageTitle.auth/newpi/institute.label" />
-</h1>
-
-<div class="instructions">
-	<fmt:message key="piPending.select_institute_message.label" />
-</div>
+<div class="instructions"><fmt:message key="piPending.select_institute_message.label" /></div>
 
 <div>
 	<form name="f" method="POST" action='<c:url value="/auth/newpi/institute.do"/>'>

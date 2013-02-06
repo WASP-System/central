@@ -51,9 +51,11 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -99,6 +101,9 @@ public class LabController extends WaspController {
 	private JobService jobService;
 
 	@Autowired
+	private LabService labService;
+
+	@Autowired
 	private MessageServiceWebapp messageService; 
 	
 	@Autowired
@@ -109,6 +114,9 @@ public class LabController extends WaspController {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private UserService userService;
 
 	
 
@@ -1151,7 +1159,252 @@ public class LabController extends WaspController {
 		
 		return "redirect:"+ referer;
 	}
+
+	/**
+	 * Request to upgrade status of a regular existing user to PI by GET
+	 * (NOT AVAILABLE TO ANYONE THAT IS ALREADY A PI; Any person can only be the PI OF ONE LAB IN WASP - CONFIRMED WITH ANDY, 1/2013)
+	 * Pre-populates as much of the form as possible given current user information	
+	 * @param ModelMap m
+	 * @return String view
+	 * @throws MetadataException
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/upgradeStatusToPI", method = RequestMethod.GET)
+	public String requestUpgradeStatusToPI(ModelMap m) throws MetadataException  {
+		//this is for an existing user!!
+		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
+		labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
+		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
+
+		// Pre-populate some metadata from user's current information
+		User me = authenticationService.getAuthenticatedUser();
+		userMetaHelperWebapp.syncWithMaster(me.getUserMeta()); // get user meta from database and sync with current properties
+		LabPending labPending = new LabPending();
+		try {
+			String departmentId = userMetaHelperWebapp.getMetaByName("departmentId").getV();
+			if (departmentId != null && !departmentId.isEmpty()){
+				labPendingMetaHelperWebapp.setMetaValueByName("billing_departmentId",departmentId);
+				labPending.setDepartmentId(Integer.valueOf(departmentId));
+				String internalExternal = (deptDao.findById( Integer.valueOf(departmentId) ).getIsInternal().intValue() == 1) ? "internal" : "external";
+				labPendingMetaHelperWebapp.setMetaValueByName("internal_external_lab", internalExternal);
+			}
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_institution", userMetaHelperWebapp.getMetaByName("institution").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_state", userMetaHelperWebapp.getMetaByName("state").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_city", userMetaHelperWebapp.getMetaByName("city").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_country", userMetaHelperWebapp.getMetaByName("country").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_zip", userMetaHelperWebapp.getMetaByName("zip").getV());
+			labPendingMetaHelperWebapp.setMetaValueByName("billing_contact", me.getFirstName() + " " + me.getLastName());
+			
+		} catch (MetadataException e) {
+			// report meta problem
+			logger.warn("Meta data mismatch when pre-populating labMeta data from userMeta (" + e.getMessage() + ")");
+		}
+		
+		labPending.setLabPendingMeta( (List<LabPendingMeta>) labPendingMetaHelperWebapp.getMetaList());
+		m.addAttribute("labPending", labPending);
+		String userIsPI = authenticationService.hasRole("pi")?new String("true"):new String("false");
+		m.addAttribute("userIsPI", userIsPI);
+		if("true".equals(userIsPI)){//should never ever occur, but...
+			waspErrorMessage("lab.upgradeStatusToPI_userIsAlreadyPI.error");
+			return "redirect:/dashboard.do";
+		}
+		String userIsPIPending = authenticationService.isThisExistingUserPIPending()?new String("true"):new String("false");
+		m.addAttribute("userIsPIPending", userIsPIPending);
+		if("true".equals(userIsPIPending)){//this existing user is already PIPending, so don't let them apply again to be a pi
+			waspErrorMessage("lab.upgradeStatusToPI_userIsAlreadyPIPending.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		prepareSelectListData(m);
+
+		//return "lab/newrequest";
+
+		return "lab/upgradeStatusToPI/form";
+	}
 	
+	/**
+	 * Request to upgrade status of a regular existing 
+	 * 
+	 * user to PI by POST.
+	 * Validates LabPending form.
+	 * @param labPendingForm
+	 * @param result
+	 * @param status
+	 * @param m model
+	 * @return view
+	 */
+	@RequestMapping(value = "/upgradeStatusToPI", method = RequestMethod.POST)
+	public String handleRequestUpgradeStatusToPI(@Valid LabPending labPendingForm,	BindingResult result, SessionStatus status, ModelMap m) {
+		//this is for an existing user!!
+		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
+
+		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
+		pendingMetaHelperWebapp.validate(result);
+
+		User me = authenticationService.getAuthenticatedUser();
+		
+		String userIsPI = authenticationService.hasRole("pi")?new String("true"):new String("false");
+		m.addAttribute("userIsPI", userIsPI);
+		if("true".equals(userIsPI)){//should never ever occur, but...
+			waspErrorMessage("lab.upgradeStatusToPI_userIsAlreadyPI.error");
+			return "redirect:/dashboard.do";
+		}
+		String userIsPIPending = authenticationService.isThisExistingUserPIPending()?new String("true"):new String("false");
+		m.addAttribute("userIsPIPending", userIsPIPending);
+		if("true".equals(userIsPIPending)){//this existing user is already PIPending, so don't let them apply again to be a pi
+			waspErrorMessage("lab.upgradeStatusToPI_userIsAlreadyPIPending.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		labPendingForm.setPrimaryUserId(me.getUserId());
+		labPendingForm.setStatus("PENDING");
+
+		if (result.hasErrors()) {
+			labPendingForm.setLabPendingMeta(labPendingMetaList);
+			prepareSelectListData(m);
+			waspErrorMessage("lab.upgradeStatusToPI_fixErrorsInForm.error");
+
+			return "lab/upgradeStatusToPI/form";
+		}
+
+		LabPending labPendingDb = labPendingDao.save(labPendingForm);
+
+		try {
+			labPendingMetaDao.setMeta(labPendingMetaList, labPendingDb.getLabPendingId());
+			status.setComplete();
+			emailService.sendExistingUserPendingPrincipalConfirmRequest(labPendingDb);
+			waspMessage("lab.upgradeStatusToPI_requestSuccess.label");
+		} catch (MetadataException e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("lab.upgradeStatusToPI_unexpectedError.error");
+		}
+		return "redirect:/dashboard.do";
+	}
+	
+	
+	/**
+	 * Request to join a new lab by GET
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/joinAnotherLab", method = RequestMethod.GET)
+	public String requestAcessToAnotherLab(ModelMap m)  {
+		return "lab/joinAnotherLab/form";
+	}
+	/**
+	 * Handles request to join a new lab by POST
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/joinAnotherLab", method = RequestMethod.POST)
+	public String handleRequestAcessToAnotherLab(@RequestParam("piEmail") String piEmail, ModelMap m)  {
+		
+		String view = "lab/joinAnotherLab/form";
+		
+		if (piEmail == null || piEmail.isEmpty() || piEmail.trim().isEmpty()){
+			waspErrorMessage("lab.joinAnotherLab_piEmailEmpty.error");
+			return view;
+		}
+		
+		User pi = userService.getUserByEmail(piEmail.trim());
+		if (pi==null || pi.getUserId() == null || pi.getUserId() <= 0) {
+			waspErrorMessage("lab.joinAnotherLab_emailNotFoundInDatabase.error");
+			return view;
+		}
+		
+		Lab lab = labService.getLabByPI(pi);
+		if (lab.getLabId() == null || lab.getLabId() == null || lab.getLabId() <= 0) {
+			waspErrorMessage("lab.joinAnotherLab_emailDoesNotBelongToLabPI.error");
+			return view;
+		}
+		if(lab.getIsActive() != 1){
+			waspErrorMessage("lab.joinAnotherLab_labNotActive.error");
+			return view;
+		}
+		
+		User me = authenticationService.getAuthenticatedUser();
+		Role role = labService.getUserRoleInLab(lab, me);//role is empty if user is not in this lab
+		
+		if(role != null && role.getRoleId() != null && role.getRoleId().intValue() > 0){
+			String roleAsString = role.getRoleName();
+			if("lx".equals(roleAsString)){//Lab Member Inactive. Message informs user to request the PI to reactivate your account.
+				//Please, DO NOT programatically re-set this role to member pending. The PI or Lab Manager can do this, as can the Facility Manager or Superuser.
+				waspMessage("lab.joinAnotherLab_requestToReactivateLabMember.label");				
+				return view;
+			}
+			else if("lp".equals(roleAsString)){//already registered as lab member pending approval
+				waspErrorMessage("lab.joinAnotherLab_userIsLabMemberPending.error");
+				return view;
+			}
+			else{//user is already pi, lab manager, or lab member
+				waspErrorMessage("lab.joinAnotherLab_userIsLabMember.error");
+				return view;
+			}
+		}
+		
+		LabUser labUser = labService.addExistingUserToLabAsLabMemberPending(lab, me);
+		if(labUser != null && labUser.getLabUserId() != null && labUser.getLabUserId().intValue() > 0){			
+			emailService.sendPendingLabUserConfirmRequest(labUser);
+			waspMessage("lab.joinAnotherLab_requestSuccess.label");
+		}else{waspErrorMessage("lab.joinAnotherLab_unexpectedError.error");}
+		
+		return view;
+		
+		/* Ed's old code
+		 		// check existence of primaryUser/lab
+		if (primaryUserLogin == null || primaryUserLogin.isEmpty()){
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+		
+		User primaryUser = userDao.getUserByLogin(primaryUserLogin);
+		if (primaryUser.getUserId() == null || primaryUser.getUserId() == 0) {
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+
+		Lab lab = labDao.getLabByPrimaryUserId(primaryUser.getUserId());
+		if (lab.getLabId() == null || lab.getLabId() == 0) {
+			waspErrorMessage("labuser.request_primaryuser.error");
+			return "redirect:/lab/newrequest.do";
+		}
+
+		// check role of lab user
+		User me = authenticationService.getAuthenticatedUser();
+		LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), me.getUserId());
+
+		if (labUser.getLabUserId() != null) {
+			ArrayList<String> alreadyPendingRoles = new ArrayList<String>();
+			alreadyPendingRoles.add("lp");
+			if (alreadyPendingRoles.contains(labUser.getRole().getRoleName())) {
+				waspErrorMessage("labuser.request_alreadypending.error");
+				return "redirect:/lab/newrequest.do";
+			}
+			
+			ArrayList<String> alreadyAccessRoles = new ArrayList<String>();
+			alreadyAccessRoles.add("pi");
+			alreadyAccessRoles.add("lm");
+			alreadyAccessRoles.add("lu");
+			if (alreadyAccessRoles.contains(labUser.getRole().getRoleName())) {
+				waspErrorMessage("labuser.request_alreadyaccess.error");
+				return "redirect:/lab/newrequest.do";
+			}
+		}
+
+		Role role = roleDao.getRoleByRoleName("lp");
+
+		labUser.setLabId(lab.getLabId());
+		labUser.setUserId(me.getUserId());
+		labUser.setRoleId(role.getRoleId());
+		labUser = labUserDao.save(labUser);
+
+		emailService.sendPendingLabUserConfirmRequest(labUser);
+
+		waspMessage("labuser.request_success.label");
+
+		return "redirect:/dashboard.do";
+		 */
+	}
 	/**
 	 * Handles request to create new laboratory by GET. 
 	 * Pre-populates as much of the form as possible given current user information.
@@ -1162,6 +1415,7 @@ public class LabController extends WaspController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/newrequest", method = RequestMethod.GET)
 	public String showRequestForm(ModelMap m) throws MetadataException {
+		//no longer used as of 1-30-13, replaced by updateStatusToPI above
 		MetaHelperWebapp labPendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 		labPendingMetaHelperWebapp.getMasterList(LabPendingMeta.class);
 		MetaHelperWebapp userMetaHelperWebapp = new MetaHelperWebapp(UserMeta.class, request.getSession());
@@ -1211,7 +1465,7 @@ public class LabController extends WaspController {
 	 */
 	@RequestMapping(value = "/newrequest", method = RequestMethod.POST)
 	public String createNewLabPending(@Valid LabPending labPendingForm,	BindingResult result, SessionStatus status, ModelMap m) {
-		
+		//no longer used as of 1-30-13, replaced by updateStatusToPI above
 		MetaHelperWebapp pendingMetaHelperWebapp = new MetaHelperWebapp(LabPendingMeta.class, request.getSession());
 
 		List<LabPendingMeta> labPendingMetaList = pendingMetaHelperWebapp.getFromRequest(request, LabPendingMeta.class);
