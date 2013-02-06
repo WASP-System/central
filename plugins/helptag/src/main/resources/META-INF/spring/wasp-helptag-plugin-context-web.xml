@@ -14,8 +14,8 @@
   xmlns="http://www.springframework.org/schema/beans"
   default-autowire="byName">
 
-  <context:component-scan base-package="edu.yu.einstein.wasp.helptag.controller" />
+  <context:component-scan base-package="edu.yu.einstein.wasp.controller.helptag" />
 
   <!-- common definitions -->
-  <import resource="plugin-context-common.xml" />
+  <import resource="wasp-helptag-plugin-context-common.xml" />
 </beans>
