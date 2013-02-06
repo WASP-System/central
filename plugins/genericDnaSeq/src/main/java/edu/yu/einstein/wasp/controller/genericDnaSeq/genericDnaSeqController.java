@@ -13,7 +13,7 @@ public class genericDnaSeqController extends WaspController {
 
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
-		return "/genericDnaSeq/description";
+		return "genericdnaseq/description";
 	}
 	
 
