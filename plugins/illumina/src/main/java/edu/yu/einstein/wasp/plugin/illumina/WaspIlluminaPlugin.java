@@ -179,7 +179,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("pageTitle.waspillumina/description.label", "/wasp-illumina/description.do");
+		return new Hyperlink("waspIlluminaPlugin.hyperlink.label", "/wasp-illumina/description.do");
 	}
 
 }
