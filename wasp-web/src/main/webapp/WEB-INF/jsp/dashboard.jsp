@@ -113,12 +113,14 @@
 						<li>
 							<a href='<c:url value="/lab/detail_ro/${l.departmentId}/${l.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
 						</li>
+						<!--  
 						<sec:authorize access="not hasRole('lm-${l.labId}' )">
 							<li>
 								<a href='<c:url value="/lab/user_list/${l.labId}.do"/>'><fmt:message key="dashboard.labMembers.label" /></a>
 							</li>
 						</sec:authorize>
-						<sec:authorize access="hasRole('lm-${l.labId}' )">
+						-->
+						<sec:authorize access="hasRole('lu-${l.labId}' )">
 							<li>
 								<a href='<c:url value="/lab/user_manager/${l.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
 							</li>							
