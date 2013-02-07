@@ -89,8 +89,34 @@
     <c:set var="ableToChangeStatus" value="false" />
     <sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('pi-${labId}') or hasRole('lm-${labId}')">
         <c:set var="colSpan" value="4" />
-    	<c:set var="ableToChangeStatus" value="true" />
-    </sec:authorize>  
+    	<c:set var="ableToChangeStatus" value="true" /> 	
+    </sec:authorize> 
+    
+       	<table class="EditTable ui-widget ui-widget-content">	
+		<tr class="FormData">
+		  	<td class="CaptionTD top-heading">Roles</td>
+		  	<td class="CaptionTD top-heading">Responsibilities</td>
+		</tr>
+		<tr class="FormData">
+			<td class="DataTD">Principal Investigator</td>
+			<td class="DataTD">Can Perform All Lab Manager Functions<br />Can View Data From All Current And Former Lab Members<br />Can Grant Other Wasp Users The Ability To View Data From Any Current And Former Lab Member</td>
+		</tr>
+		<tr>
+			<td class="DataTD">Lab Manager</td>
+			<td class="DataTD">Can Perform All Lab Member Functions<br />Can Approve/Reject Job Requests From Lab Members<br />Can Approve/Reject New Lab Members<br />Can Inactivate Lab Members (no longer able to submit jobs from this lab)<br />Can Upgrade A Lab Member To Lab Manager<br />Can Downgrade A Lab Manager To Lab Member</td>
+		</tr>
+		<tr>
+			<td class="DataTD">Lab Member</td>
+			<td class="DataTD">Can Submit Job Requests From This Lab<br />Can Perform All Inactive Lab Member Functions</td>
+		</tr>
+		<tr>
+			<td class="DataTD">Inactive Lab Member</td>
+			<td class="DataTD">Can View Ones Own Data<br />Can Grant Access To Other WASP Users To View Ones Own Data (on a job-by-job basis)</td>
+		</tr>
+		</table>
+		<br />
+   
+    
 	<table class="EditTable ui-widget ui-widget-content">	
 		<tr class="FormData">
 			<td colspan="${colSpan}" class="CaptionTD top-heading"><fmt:message key="labuser.userManager_currentAnFormerLabMembers.label"/></td>
