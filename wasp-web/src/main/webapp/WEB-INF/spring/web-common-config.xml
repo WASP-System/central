@@ -39,14 +39,14 @@
 	</bean>
     
 	<!-- spring plugin definitions -->
-	<import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
+	<import resource="classpath*:META-INF/spring/*-plugin-context-web.xml" />
 
 
 	<!-- extracts plugin's precompiled jsp files --> 
 	<bean id="jspSupport" class="edu.yu.einstein.wasp.pluginhandler.WaspPluginSupport">
-		<constructor-arg index="0" value="WEB-INF/jsp"/>
-		<constructor-arg index="1" value="${catalina.home}/waspPlugins"/>
-		<constructor-arg index="2" value="**/*.*"/>
+		<constructor-arg name="resourceDirectory" value="WEB-INF/jsp"/>
+		<constructor-arg name="resourceUrlFilter" value="${catalina.home}/waspPlugins"/>
+		<constructor-arg name="resourceFilePattern" value="**/*.*"/>
 	</bean>
 	
 	<bean id="taskMappingRegistry" class="edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry" />

@@ -214,10 +214,17 @@ public class UserPendingController extends WaspController {
 			return "auth/newuser/form";
 		}
 		
-		// form passes validation so finalize and persist userPending data and metadata		
-		String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();	
+		// form passes validation so finalize and persist userPending data and metadata	
+
+		//NOTE: AS OF 02-04-2013, metadata primaryuserid on the userpending web form is requesting the email address of the PI whose lab the new user wants to join
+		//String piUserLogin = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();	//replaced by next line, 02-04-2013
+		String piUserEmail = userPendingMetaHelperWebapp.getMetaByName("primaryuserid").getV();
 		
-		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByLogin(piUserLogin).getUserId());
+		//reset this meta primaryuserid back to the PI's login name (rather than the pi's email), so that everything downstream from here is maintained as before
+		userPendingMetaHelperWebapp.getMetaByName("primaryuserid").setV(userDao.getUserByEmail(piUserEmail).getLogin());
+		
+		//Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByLogin(piUserLogin).getUserId()); //replaced by next line, 02-04-2013
+		Lab lab = labDao.getLabByPrimaryUserId(userDao.getUserByEmail(piUserEmail).getUserId());
 		userPendingForm.setLabId(lab.getLabId());
 		userPendingForm.setStatus("WAIT_EMAIL"); // set to WAIT_EMAIL even if isEmailApproved == true or sendPendingUserConfRequestEmail() won't work properly
 				
