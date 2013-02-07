@@ -4,16 +4,25 @@
   <h1><fmt:message key="pageTitle.lab/detail_rw.label" /> ${lab.name}</h1>
 
   <form:form  cssClass="FormGrid" commandName="lab">
+    <input type="hidden" name='primaryUserId' value="${lab.primaryUserId}" />
     <table class="EditTable ui-widget ui-widget-content">
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="lab.name.label" />:</td>
         <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="name" /></td>
         <td class="CaptionTD error"><form:errors path="name"/></td>
-      </tr>
+      </tr>  
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="lab.primaryUserId.label"/>:</td>
         <td class="DataTD">
-        <select class="FormElement ui-widget-content ui-corner-all" name=primaryUserId>
+        <c:out value="${puserFullName}"/>
+        </td> 
+        <td>&nbsp;</td>            
+      </tr>
+      <!--  The PI's name should not be editable
+      <tr class="FormData">
+        <td class="CaptionTD"><fmt:message key="lab.primaryUserId.label"/>:</td>
+        <td class="DataTD">
+        <select disabled class="FormElement ui-widget-content ui-corner-all" name=primaryUserId>
         <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
         <c:forEach var="puser" items="${pusers}">
         <option value="${puser.userId}" <c:if test="${puser.userId == lab.primaryUserId}"> selected</c:if>><c:out value="${puser.lastName}, ${puser.firstName}"/></option>
@@ -22,6 +31,7 @@
         </td>
         <td class="CaptionTD error"><form:errors path="primaryUserId" /></td>
       </tr>
+      -->
       <tr class="FormData">
         <td class="CaptionTD"><fmt:message key="lab.departmentId.label"/>:</td>
         <td class="DataTD">
