@@ -79,6 +79,9 @@
 				<li>
 					<a href='<c:url value="/workflow/list.do"/>'><fmt:message key="dashboard.workflowUtils.label" /></a>
 				</li>
+				<li>
+					<a href='<c:url value="/plugin/listAll.do"/>'><fmt:message key="plugin.list.label" /></a>
+				</li>
 			</ul>
 		</div>
 	</sec:authorize>
@@ -224,9 +227,9 @@
 			</div>
 			<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
 			<c:if test="${isTasks == true}">
-				<c:forEach items="${tasks}" var="task">
+				<c:forEach items="${taskHyperlinks}" var="hyperlink">
 					<li>
-						<a href='<c:url value="${task.getTargetLink()}"/>'>${task.getLocalizedLabel()}</a>
+						<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLocalizedLabel()}</a>
 					</li>
 		
 				</c:forEach>

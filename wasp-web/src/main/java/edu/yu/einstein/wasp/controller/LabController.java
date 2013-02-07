@@ -456,6 +456,7 @@ public class LabController extends WaspController {
 
 		prepareSelectListData(m);
 		if (isRW) {
+			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));
 			return "lab/detail_rw";
 		} else {
 			m.addAttribute("puserFullName", getPiFullNameFromLabId(labId));

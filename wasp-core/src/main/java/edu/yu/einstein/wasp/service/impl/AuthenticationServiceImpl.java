@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.expression.EvaluationContext;
@@ -77,13 +78,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
-// 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
-
-// TODO: no autowire... so that i can run outside the tomcat container	
-//	@Autowired
-//	HttpServletRequest request;
+	
+	@Value("${authentication.method.external:false}")
+	boolean isAuthenticationExternal;
 
 	public static HttpServletRequest getHttpServletRequest() {
 		try {
@@ -142,14 +141,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public boolean isAuthenticationSetExternal() {
-		String authenticationIsExternalString = messageService.getMetadataValue("wasp.isAuthenticationExternal.data");
-		if (authenticationIsExternalString != null && 
-				!authenticationIsExternalString.isEmpty() && 
-				(authenticationIsExternalString.toUpperCase().equals("TRUE") ||
-				authenticationIsExternalString.equals("1") ) ){
-			return true;
-		}
-		return false;
+		return isAuthenticationExternal;
 	}
 
 	@Override

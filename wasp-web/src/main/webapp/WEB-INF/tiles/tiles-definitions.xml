@@ -333,6 +333,9 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/comments.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/comments.jsp" />
 	</definition>
+	<definition name="plugin/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/plugin/list.jsp" />
+	</definition>
 	<definition name="facility/platformunit/detail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
 	</definition>
@@ -444,10 +447,6 @@
 	<definition name="workflow/resource/configure" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/workflow/resource/configure.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/resource/configure.jsp" />
-	</definition>
-
-	<definition name="hello" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
 	</definition>
 
 	<definition name="job/metaform_rw" extends="template-base">
