@@ -24,6 +24,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTempl
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
@@ -81,7 +82,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, cellLibrary.getSampleSourceId().toString());
-			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
+			for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), BatchJobProviding.class)) {
 				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 						new BatchJobLaunchContext(flowName, jobParameters) );

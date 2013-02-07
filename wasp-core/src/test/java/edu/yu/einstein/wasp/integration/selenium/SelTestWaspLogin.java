@@ -43,7 +43,7 @@ public class SelTestWaspLogin extends SelBaseTest {
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "login");
+                "Test_001", "user_login");
         return(retObjArr);
     }
     /**
