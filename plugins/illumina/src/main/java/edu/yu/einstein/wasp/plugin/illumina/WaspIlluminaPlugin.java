@@ -25,14 +25,17 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.web.Hyperlink;
 
 /**
  * @author calder
  * 
  */
-public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
+public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding, WebInterfacing {
 
 	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaPlugin.class);
 
@@ -172,6 +175,11 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI {
 	@Override
 	public String getBatchJobName(String batchJobType) {
 		return getBatchJobNameByArea(batchJobType, null);
+	}
+
+	@Override
+	public Hyperlink getDescriptionPageHyperlink(){
+		return new Hyperlink("pageTitle.waspillumina/description.label", "/wasp-illumina/description.do");
 	}
 
 }
