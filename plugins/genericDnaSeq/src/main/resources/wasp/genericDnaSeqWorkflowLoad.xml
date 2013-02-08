@@ -10,11 +10,11 @@
 	
 	<bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="genericDnaSeqUiFieldWrapper">
 	    <property name="baseLocale" value="en_US" />
-	    <property name="baseArea" ref="genericDnaSeqPluginArea" />
+	    <property name="baseArea" ref="waspGenericDnaSeqPluginArea" />
   	</bean>
 
 	<bean id="genericDnaSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
-		<property name="area" ref="genericDnaSeqPluginArea" />
+		<property name="area" ref="waspGenericDnaSeqPluginArea" />
 		<property name="name" value="Generic DNA Seq" />
 		<property name="pageFlowOrder">
 			<list>
