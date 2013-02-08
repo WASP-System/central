@@ -1,8 +1,10 @@
 package edu.yu.einstein.wasp.plugin;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -153,8 +155,10 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	 * @param name
 	 * @return
 	 */
-	public <T> Set<T> getPluginsHandlingArea(String area, Class<T> clazz){
-		Set<T> pluginsHandlingArea = new HashSet<T>();
+	public <T> List<T> getPluginsHandlingArea(String area, Class<T> clazz){
+		// Note: was trying to use Set here but for some reason casting to T prevented
+		// any more than the first entry to be returned
+		List<T> pluginsHandlingArea = new ArrayList<T>();
 		for (String name : plugins.keySet()) {
 			WaspPlugin plugin = plugins.get(name);
 			Set<String> handles = plugin.getHandles();
@@ -170,8 +174,10 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	 * @param clazz
 	 * @return
 	 */
-	public <T> Set<T> getPlugins(Class<T> clazz){
-		Set<T> pluginsMatchingType = new HashSet<T>();
+	public <T> List<T> getPlugins(Class<T> clazz){
+		// Note: was trying to use Set here but for some reason casting to T prevented
+		// any more than the first entry to be returned
+		List<T> pluginsMatchingType = new ArrayList<T>();
 		for (String name : plugins.keySet()) {
 			WaspPlugin plugin = plugins.get(name);
 			if (clazz.isInstance(plugin))
