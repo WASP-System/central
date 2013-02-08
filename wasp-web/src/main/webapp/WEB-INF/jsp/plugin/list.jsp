@@ -12,7 +12,7 @@
 		<ul class="navTabs">
 		<c:forEach items="${pluginDescriptionHyperlinks}" var="hyperlink">
 			<li>
-				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLocalizedLabel()}</a>
+				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
 			</li>
 		</c:forEach>
 		</ul>

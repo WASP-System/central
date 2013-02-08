@@ -5,13 +5,14 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageServiceWebapp;
-import edu.yu.einstein.wasp.web.Hyperlink;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
-public abstract class WaspTaskMapping extends Hyperlink{
+public abstract class WaspTaskMapping extends WebHyperlink{
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -27,8 +28,9 @@ public abstract class WaspTaskMapping extends Hyperlink{
 	}
 	
 	@Autowired
+	@Qualifier("messageServiceWebappImpl")
 	@Override // override to autowire
-	public void setMessageService(MessageServiceWebapp messageService) {
+	public void setMessageService(MessageService messageService) {
 		this.messageService = messageService;
 	}
 	

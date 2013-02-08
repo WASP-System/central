@@ -229,7 +229,7 @@
 			<c:if test="${isTasks == true}">
 				<c:forEach items="${taskHyperlinks}" var="hyperlink">
 					<li>
-						<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLocalizedLabel()}</a>
+						<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
 					</li>
 		
 				</c:forEach>
