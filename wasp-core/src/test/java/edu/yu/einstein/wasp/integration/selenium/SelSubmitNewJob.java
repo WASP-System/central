@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -55,7 +57,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	driver.findElement(By.xpath("//a[contains(@href, '/wasp/jobsubmit/create.do')]")).click();
     	
     	Assert.assertTrue(driver.findElements(By.name("name")).size() != 0, "Cannot locate 'Job Name' input text box");
-		driver.findElement(By.name("name")).sendKeys("Test Job 015");
+		driver.findElement(By.name("name")).sendKeys("Test Job 037");
 		
 		Select select = new Select(driver.findElement(By.name("labId")));
 		select.selectByVisibleText("natalia's lab");
@@ -65,19 +67,19 @@ public class SelSubmitNewJob extends SelBaseTest{
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
-    	Select selectResource = new Select(driver.findElement(By.name("changeResource")));
-    	selectResource.selectByVisibleText("Illumina HiSeq 2000");
+    	select = new Select(driver.findElement(By.name("changeResource")));
+    	select.selectByVisibleText("Illumina HiSeq 2000");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
     	
     	//Create DNA
     	driver.findElement(By.linkText("+ ChIP-seq DNA")).click();
     	driver.findElement(By.id("name")).sendKeys("Library 001");    	
-    	Select selectSpecies = new Select(driver.findElement(By.id("species")));
-    	selectSpecies.selectByValue("Human [Homo sapiens - GRCh37]");
+    	select = new Select(driver.findElement(By.id("species")));
+    	select.selectByValue("Human [Homo sapiens - GRCh37]");
     	driver.findElement(By.id("concentration")).sendKeys("100");
     	driver.findElement(By.id("volume")).sendKeys("100");
-    	Select selectBuffer = new Select(driver.findElement(By.id("buffer")));
-    	selectBuffer.selectByValue("Water");    	
+    	select = new Select(driver.findElement(By.id("buffer")));
+    	select.selectByValue("Water");    	
     	driver.findElement(By.id("A260_280")).sendKeys("200");
     	driver.findElement(By.id("A260_230")).sendKeys("300");
     	driver.findElement(By.id("fragmentSize")).sendKeys("150");
@@ -88,46 +90,58 @@ public class SelSubmitNewJob extends SelBaseTest{
     	//Create LIBRARY
     	driver.findElement(By.linkText("+ ChIP-seq Library")).click();
     	driver.findElement(By.id("name")).sendKeys("Sample 001");  	
-    	Select selectSpeciesLib = new Select(driver.findElement(By.id("species")));
-    	selectSpeciesLib.selectByValue("Human [Homo sapiens - GRCh37]");
+    	select = new Select(driver.findElement(By.id("species")));
+    	select.selectByValue("Human [Homo sapiens - GRCh37]");
     	driver.findElement(By.id("fragmentSize")).sendKeys("150");
     	driver.findElement(By.id("fragmentSizeSD")).sendKeys("5");
     	driver.findElement(By.id("antibody")).sendKeys("10");	
     	driver.findElement(By.id("concentration")).sendKeys("100");
     	driver.findElement(By.id("volume")).sendKeys("100");  	
-    	Select selectBufferLib = new Select(driver.findElement(By.id("buffer")));
-    	selectBufferLib.selectByValue("Water");    	
-    	Select selectAdaptorSet = new Select(driver.findElement(By.id("adaptorset")));
-    	selectAdaptorSet.selectByValue("1");  	
-    	Select selectAdaptor = new Select(driver.findElement(By.id("adaptor")));
-    	selectAdaptor.selectByValue("1");  	
+    	select = new Select(driver.findElement(By.id("buffer")));
+    	select.selectByValue("Water");    	
+    	select = new Select(driver.findElement(By.id("adaptorset")));
+    	select.selectByValue("1");  	
+    	select = new Select(driver.findElement(By.id("adaptor")));
+    	select.selectByValue("1");  	
     	driver.findElement(By.id("size")).sendKeys("100");
     	driver.findElement(By.id("sizeSd")).sendKeys("10");
 
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
-
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Next']")).click();
+ 
+    	Assert.assertTrue(driver.findElement(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']")).isDisplayed());
     	
-        driver.findElement(By.name("sdc_45_1")).click();
-
-
-    	Assert.assertTrue(driver.findElement(By.xpath("//table[contains(@id='cells')//input[@type='checkbox' ]")).isDisplayed(), "checkbox not displayed");
-    	
-    	int checkboxCount = driver.findElements(By.xpath("//checkbox")).size();
+    	int checkboxCount = driver.findElements(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']")).size();
+    	List<WebElement> checkboxes = driver.findElements(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']"));
     	logger.debug("checkboxCount="+checkboxCount);
         for (int i = 0; i < checkboxCount; i++) {  
-        	driver.findElement(By.xpath("//tr[" + (checkboxCount) + "]//checkbox")).click();  
+        	checkboxes.get(i).click();  
         }  
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
+    	
+    	List<WebElement> checkboxesTestVsControl = driver.findElements(By.xpath("//input[@type='checkbox']"));
+    	checkboxCount = driver.findElements(By.xpath("//input[@type='checkbox']")).size();
+    	for (int i = 0; i < checkboxCount; i++) {  
+    		checkboxesTestVsControl.get(i).click();  
+        } 
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
 
-		
-		/*
-        if(SeleniumHelper.verifyTextPresent("Logout", driver)) {
-        	driver.findElement(By.linkText("Logout")).click();
-        }
-        else {
-        	driver.get("http://localhost:8080/wasp/auth/login.do");
-        }
-        */
+    	select = new Select(driver.findElement(By.name("changeResource")));
+    	select.selectByIndex(1); 
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
+    	
+    	select = new Select(driver.findElement(By.name("changeResource")));
+    	select.selectByIndex(1); 
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Save Changes']")).click();
+    	
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Add A Comment", driver), "Cannot find 'Add A Comment' page");
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Next']")).click();
+    	
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Verify New Job", driver), "Cannot find 'Verify New Job' page");
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Submit Job']")).click();
+    	
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Job Successfully Submitted", driver), "Job submission did not go through. Check that wasp-daemon application is running.");
+    	
     }
     
     @Override
