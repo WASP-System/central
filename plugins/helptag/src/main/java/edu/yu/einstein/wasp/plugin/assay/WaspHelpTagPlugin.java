@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.MessageChannel;
 
+import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.interfaces.WebInterfacing;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
-import edu.yu.einstein.wasp.web.Hyperlink;
 
 /**
  * @author asmclellan
