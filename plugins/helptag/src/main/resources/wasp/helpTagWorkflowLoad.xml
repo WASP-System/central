@@ -11,12 +11,12 @@
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="helpTagUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{helpTagPluginArea}" />
+    <property name="baseArea" ref="waspHelpTagPluginArea" />
   </bean>
 
 
   <bean id="helpTagWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
-    <property name="area" ref="helpTagPluginArea" />
+    <property name="area" ref="waspHelpTagPluginArea" />
     <property name="name" value="HELP Tagging" />
     <property name="pageFlowOrder">
       <list>
