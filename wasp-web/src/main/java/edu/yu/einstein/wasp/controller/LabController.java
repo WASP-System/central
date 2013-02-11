@@ -695,19 +695,12 @@ public class LabController extends WaspController {
 		List<LabUser> labManagerList = new ArrayList<LabUser>();
 		List<LabUser> labUserList = new ArrayList<LabUser>();
 		List<LabUser> labUserInactiveList = new ArrayList<LabUser>();
-		List<LabUser> labUserPendingList = new ArrayList<LabUser>();
+		//List<LabUser> labUserPendingList = new ArrayList<LabUser>();
 		List<LabUser> labUserFinalList = new ArrayList<LabUser>();
 		
-		List<LabUser> labUsers = new ArrayList<LabUser>();
 		for (LabUser lu: lab.getLabUser()){
 			
-			//for original; no longer used
-			if (!lu.getRole().getRoleName().equals("lp")){
-				labUsers.add(lu);
-			}
-			
-			
-			if(lu.getRole().getRoleName().equals("pi")){//active and lab manager
+			if(lu.getRole().getRoleName().equals("pi")){//active and pi
 				labUserPI = lu;
 			}
 			else if(lu.getRole().getRoleName().equals("lm")){//active and lab manager
@@ -719,9 +712,9 @@ public class LabController extends WaspController {
 			else if(lu.getRole().getRoleName().equals("lx")){//inactive
 				labUserInactiveList.add(lu);
 			}
-			else if(lu.getRole().getRoleName().equals("lp")){//pending lab member
-				labUserPendingList.add(lu);
-			}
+			//else if(lu.getRole().getRoleName().equals("lp")){//pending lab member
+			//	labUserPendingList.add(lu);
+			//}
 		}
 		class LabUser_UserNameComparator implements Comparator<LabUser> {
 		    @Override
@@ -747,16 +740,27 @@ public class LabController extends WaspController {
 		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
 		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();//won't be used but needed for the next call
 		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
-		//finish up with pending jobs		
-		//jobService.sortJobsByJobId(jobsPendingLmApprovalList);//not needed here		
+		//IF the web user is a superuser, facility manager, facility tech, or DA, 
+		//existingUsersPendingLmApprovalList and newUsersPendingLmApprovalList and jobsPendingLmApprovalList
+		//contain ALL users needing approval and ALL jobs needing approval, not just those for this lab.
+		//SO, go through these lists and make sure labId matches
+		List<UserPending> removeListnewUsersPendingLmApproval = new ArrayList<UserPending>();
+		List<LabUser> removeListexistingUsersPendingLmApproval  = new ArrayList<LabUser>();
+		for(UserPending up : newUsersPendingLmApprovalList){
+			if(up.getLabId() != labId){
+				removeListnewUsersPendingLmApproval.add(up);
+			}
+		}
+		for(LabUser lu : existingUsersPendingLmApprovalList){
+			if(lu.getLabId() != labId){
+				removeListexistingUsersPendingLmApproval.add(lu);
+			}
+		}
+		newUsersPendingLmApprovalList.removeAll(removeListnewUsersPendingLmApproval);
+		existingUsersPendingLmApprovalList.removeAll(removeListexistingUsersPendingLmApproval);
 		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
 		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
 		//m.addAttribute("jobspendinglist", jobsPendingLmApprovalList);//not needed here 
-		
-		//for original (no longer needed)
-		m.addAttribute("labuser", labUsers);
-		// add pending users applying to lab //for original (no longer needed)
-		pendingUserList(labId, m);
 
 		return "lab/user_manager";
 	}
