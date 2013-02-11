@@ -701,7 +701,7 @@ public class LabController extends WaspController {
 		List<LabUser> labUsers = new ArrayList<LabUser>();
 		for (LabUser lu: lab.getLabUser()){
 			
-			//for original
+			//for original; no longer used
 			if (!lu.getRole().getRoleName().equals("lp")){
 				labUsers.add(lu);
 			}
@@ -732,7 +732,7 @@ public class LabController extends WaspController {
 		Collections.sort(labManagerList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
 		Collections.sort(labUserList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
 		Collections.sort(labUserInactiveList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
-		Collections.sort(labUserPendingList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
+		//NOT USED; instead used existingUsersPendingLmApprovalList below;     Collections.sort(labUserPendingList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
 
 		labUserFinalList.add(labUserPI);
 		labUserFinalList.addAll(labManagerList);
@@ -740,10 +740,22 @@ public class LabController extends WaspController {
 		labUserFinalList.addAll(labUserInactiveList);
 		m.addAttribute("labUserFinalList", labUserFinalList);
 		m.addAttribute("labId", lab.getLabId().intValue());
+		m.addAttribute("piName", labUserPI.getUser().getNameFstLst());
 		
-		//for original
+		// 02/11/13 add userPending - stolen from task/piapprove
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();//won't be used but needed for the next call
+		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		//finish up with pending jobs		
+		//jobService.sortJobsByJobId(jobsPendingLmApprovalList);//not needed here		
+		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
+		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
+		//m.addAttribute("jobspendinglist", jobsPendingLmApprovalList);//not needed here 
+		
+		//for original (no longer needed)
 		m.addAttribute("labuser", labUsers);
-		// add pending users applying to lab
+		// add pending users applying to lab //for original (no longer needed)
 		pendingUserList(labId, m);
 
 		return "lab/user_manager";

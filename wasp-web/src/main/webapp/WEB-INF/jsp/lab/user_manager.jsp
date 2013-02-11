@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<!--  
+<!--  this is ed's version, replaced with code below ; February, 2013
     <p></p>
     <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
 	<h2><fmt:message key="labuser.current.label"/></h2>
@@ -83,14 +83,19 @@
 	</table>
 -->
 
-    <p></p>
-    <h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
-    <c:set var="colSpan" value="3" />
-    <c:set var="ableToChangeStatus" value="false" />
-    <sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('pi-${labId}') or hasRole('lm-${labId}')">
-        <c:set var="colSpan" value="4" />
-    	<c:set var="ableToChangeStatus" value="true" /> 	
-    </sec:authorize> 
+<p></p>
+<h1><fmt:message key="pageTitle.lab/user_manager.label"/></h1>
+<h2><fmt:message key="labuser.userManager_principalInvestigator.label" />: <c:out value="${piName}" /></h2>
+
+<c:set var="colSpan" value="3" />
+<c:set var="ableToChangeStatus" value="false" />
+<sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('pi-${labId}') or hasRole('lm-${labId}')">
+    <c:set var="colSpan" value="4" />
+	<c:set var="ableToChangeStatus" value="true" /> 
+	<sec:authorize access="hasRole('pi-${labId}')">
+		<div class="instructions"><fmt:message key="labuser.userManager_piInstructions.label" /></div>
+	</sec:authorize>	
+</sec:authorize> 
    
 
 <script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
@@ -112,8 +117,39 @@ $(document).ready(function() {
 </div>
    
 	<table class="EditTable ui-widget ui-widget-content">	
+	 	<c:if test="${ableToChangeStatus=='true'}" >
+	 		<c:if test="${not empty newuserspendinglist || not empty existinguserspendinglist }" >
+	 			<tr class="FormData">
+					<td colspan="${colSpan}" class="CaptionTD top-heading" style="font-size:large"><fmt:message key="labuser.userManager_usersRequestingToJoinThisLab.label"/></td>
+				</tr>
+				<tr class="FormData">
+					<td colspan="1" class="CaptionTD top-heading"><fmt:message key="labuser.userManager_name.label"/></td>
+					<td colspan="1" class="CaptionTD top-heading"><fmt:message key="labuser.userManager_email.label"/></td>
+					<td colspan="${colSpan - 2}" class="CaptionTD top-heading"><fmt:message key="labuser.approveOrReject.label"/></td>
+				</tr>
+	 		
+	 		<c:forEach items="${newuserspendinglist}" var="up">
+	 		  <tr class="FormData">
+	 			<td class="DataTD" style="text-align:center"><c:out value="${up.lastName}, ${up.firstName}" /></td>
+	 			<td class="DataTD" style="text-align:center"><c:out value="${up.email}" /></td>
+	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<c:url value="/lab/userpending/approve/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/userpending/reject/${labId}/${up.userPendingId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
+	 		  </tr>
+	 		</c:forEach>
+	 		<c:forEach items="${existinguserspendinglist}" var="lu">
+	 		  <tr class="FormData">
+	 			<td class="DataTD" style="text-align:center"><a href="/wasp/user/detail_ro/<c:out value="${lu.user.userId}" />.do"><c:out value="${lu.user.lastName}, ${lu.user.firstName}" /></a>
+	 			</td>
+	 			<td class="DataTD" style="text-align:center"><c:out value="${lu.user.email}" /></td>
+	 			<td colspan="${colSpan - 2}" class="DataTD" style="text-align:center"><div class="submit" ><a href="<c:url value="/lab/labuserpending/approve/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.approve.label" /></a> <a href="<c:url value="/lab/labuserpending/reject/${labId}/${lu.labUserId}.do"/>"><fmt:message key="lmpendingtask.reject.label" /></a></div></td>    
+	 		  </tr>
+	 		</c:forEach>
+	 		  <tr class="FormData">
+				<td colspan="${colSpan}" class="CaptionTD top-heading" style="background:black;" ></td>
+			  </tr>
+			</c:if>
+	 	</c:if>
 		<tr class="FormData">
-			<td colspan="${colSpan}" class="CaptionTD top-heading"><fmt:message key="labuser.userManager_currentAnFormerLabMembers.label"/></td>
+			<td colspan="${colSpan}" class="CaptionTD top-heading" style="font-size:large"><fmt:message key="labuser.userManager_currentAnFormerLabMembers.label"/></td>
 		</tr>
 		<tr class="FormData">
 		  	<td class="CaptionTD top-heading"><fmt:message key="labuser.userManager_name.label"/></td>
