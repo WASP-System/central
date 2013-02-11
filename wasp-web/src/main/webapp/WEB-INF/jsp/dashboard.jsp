@@ -26,10 +26,13 @@
 			<li><a href="#tabs-facilityUtils"><fmt:message key="dashboard.facilityUtils.label" /></a></li>
 		</sec:authorize>
 		<%-- <li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${fn:length(tasks)}" /></span>)</a></li> --%>
-		<li><a href="#tabs-taskList"><fmt:message key="dashboard.tasks.label" /> (<span class="taskAlert">
+		<%--<li><a href="#tabs-taskList"><fmt:message key="dashboard.tasks.label" /> (<span class="taskAlert">
 		<c:if test="${isTasks == false}">0</c:if>
 		<c:if test="${isTasks == true}">&gt;= 1</c:if>
-		</span>)</a></li>
+		</span>)</a></li>--%>
+		<c:if test="${isTasks == true}">
+			<li><a href="#tabs-taskList"><fmt:message key="dashboard.myTasks.label" /></a></li>
+		</c:if>
 	</ul>
 	<div id="tabs-home">
 		<ul class="navTabs">
@@ -222,23 +225,25 @@
 			</ul>
 		</div>
 	</sec:authorize>
-	<div id="tabs-taskList">
-		<ul class="navTabs">
-			<div class="instructions">
-				<fmt:message key="task.instructions.label" />
-			</div>
-			<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
-			<c:if test="${isTasks == true}">
-				<c:forEach items="${taskHyperlinks}" var="hyperlink">
-					<li>
-						<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
-					</li>
-		
-				</c:forEach>
-			</c:if>
+	<c:if test="${isTasks == true}">
+		<div id="tabs-taskList">
+			<ul class="navTabs">
+				<div class="instructions">
+					<fmt:message key="task.instructions2.label" />
+				</div>
+				<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
+				<c:if test="${isTasks == true}">
+					<c:forEach items="${taskHyperlinks}" var="hyperlink">
+						<li>
+							<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
+						</li>
 			
-		</ul>
-	</div>
+					</c:forEach>
+				</c:if>
+				
+			</ul>
+		</div>
+	</c:if>
 </div>
 
 
