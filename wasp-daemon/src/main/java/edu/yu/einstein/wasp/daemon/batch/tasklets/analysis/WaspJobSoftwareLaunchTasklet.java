@@ -28,6 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.ResourceType;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
@@ -107,7 +108,7 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
-		WaspPlugin softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), WaspPlugin.class);
+		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
 		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 				new BatchJobLaunchContext(flowName, jobParameters) );
