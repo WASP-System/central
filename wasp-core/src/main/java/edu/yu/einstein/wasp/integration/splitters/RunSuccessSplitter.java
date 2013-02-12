@@ -82,6 +82,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, cellLibrary.getSampleSourceId().toString());
+			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), BatchJobProviding.class)) {
 				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 

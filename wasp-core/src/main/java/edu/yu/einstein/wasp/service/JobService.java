@@ -464,5 +464,12 @@ public interface JobService extends WaspMessageHandlingService {
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
 
 	public boolean isJobActive(Job job);
+
+	/**
+	 * return true if any sample associated with the job is in any stage of processing.
+	 * @param job
+	 * @return
+	 */
+	boolean isAnySampleCurrentlyBeingProcessed(Job job);
 	
 }

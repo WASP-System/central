@@ -65,6 +65,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspLibraryTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspSampleTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
@@ -2365,7 +2366,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
 		Set<SampleSource> cellLibraries = new HashSet<SampleSource>();
 		Map<String, String> m = new HashMap<String, String>();
-		m.put(LIBRARY_ON_CELL_AREA + "." + JOB_ID, job.getJobId().toString());
+		m.put("k", LIBRARY_ON_CELL_AREA + "." + JOB_ID);
+		m.put("v", job.getJobId().toString());
 		for (SampleSourceMeta ssm: sampleSourceMetaDao.findByMap(m)){
 			cellLibraries.add(ssm.getSampleSource());
 		}
@@ -2450,7 +2452,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		private static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
 		
 		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
-		private static final String CELL_LIBRARY_META_KEY_PREPROCESS = "preprocess_complete";
 		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
 		
 		
@@ -2498,34 +2499,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
-			String isPreprocessed = null;
-			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
-			if (metaList == null)
-				metaList = new ArrayList<SampleSourceMeta>();
-			try{
-				isPreprocessed = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PREPROCESS, metaList);
-			} catch(MetadataException e) {
-				return false; // no value exists already
-			}
-			Boolean b = new Boolean(isPreprocessed);
-			return b.booleanValue();
-		}
-		
-		/**
-		 *  {@inheritDoc}
-		 * @throws MetadataException 
-		 */
-		@Override
-		public void setIsCellLibraryPreprocessed(SampleSource cellLibrary, boolean isPreprocessed) throws SampleTypeException, MetadataException {
-			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
-			Boolean b = new Boolean(isPreprocessed);
-			String isPreprocessedString = b.toString();
-			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
-			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PREPROCESS);
-			sampleSourceMeta.setV(isPreprocessedString);
-			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
-			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
+			Set<String> ssIdStringSet = new HashSet<String>();
+			ssIdStringSet.add(cellLibrary.getSampleSourceId().toString());
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
+			Set<String> jobTaskSet = new HashSet<String>();
+			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
+			if (!batchJobExplorer.getJobExecutions(jobParameters, true, BatchStatus.COMPLETED).isEmpty())
+				return true; // at least one job execution with the parameters provided is completed
+			if (!batchJobExplorer.getJobExecutions(jobParameters, true, BatchStatus.FAILED).isEmpty())
+				return true; // at least one job execution with the parameters provided has completed (albeit failed)
+			return false;
 		}
 		
 		/**

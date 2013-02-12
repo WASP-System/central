@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
@@ -94,6 +95,7 @@ import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
@@ -101,12 +103,14 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -145,6 +149,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public JobDao getJobDao() {
 		return this.jobDao;
 	}
+	
+	@Autowired
+	private RunService runService;
 	
 	public void setJobMetaDao(JobMetaDao jobMetaDao) {
 		this.jobMetaDao = jobMetaDao;
@@ -1800,5 +1807,73 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isAnySampleCurrentlyBeingProcessed(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		if (!this.isJobActive(job)){
+			logger.debug("job " + job.getJobId() + " not active - returning false");
+			return false;
+		}
+		// if cellLibraries exist check these first (for efficiency)
+		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
+			try{
+				List<Run> runs = runService.getRunsForPlatformUnit(sampleService.getPlatformUnitForCell(sampleService.getCell(cellLibrary)));
+				if (runs.isEmpty()){
+					logger.debug("job " + job.getJobId() + " no runs - returning true");
+					return true; // library on platform unit but not yet run
+				}
+				for (Run run : runs){
+					if (runService.isRunActive(run)){
+						logger.debug("job " + job.getJobId() + " a run is active - returning true");
+						return true; // the library is on an active run
+					}
+				}
+				if (sampleService.isCellLibraryPassedQC(cellLibrary)){
+					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
+						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
+						return true; // the library has been run and passed QC but has not been pre-processed yet
+					}
+				}
+			} catch(SampleTypeException e){
+				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());
+			} catch (SampleParentChildException e1){
+				logger.warn("recieved unexpected SampleParentChildException: " + e1.getLocalizedMessage());
+			}
+		}
+		// no in-process samples on platform units so ...
+		if (this.isJobAwaitingDaApproval(job) || this.isJobAwaitingFmApproval(job) || this.isJobAwaitingPiApproval(job) || this.isJobAwaitingQuote(job)){
+			logger.debug("job " + job.getJobId() + "  Job is awaiting approval - returning true");
+			return true; // Job is awaiting approval
+		}
+		if (!this.getSubmittedSamplesNotYetReceived(job).isEmpty()){
+			logger.debug("job " + job.getJobId() + " At least one sample hasn't been received - returning true");
+			return true; // at least one sample hasn't been received
+		}
+		if (!this.getSubmittedSamplesNotYetQC(job).isEmpty()){
+			logger.debug("job " + job.getJobId() + " At least one sample is awaiting QC - returning true");
+			return true; // at least one sample is awaiting QC
+		}
+		if (this.getJobsAwaitingLibraryCreation().contains(job)){
+			logger.debug("job " + job.getJobId() + " At least one library needs to be created - returning true");
+			return true; // At least one library needs to be created
+		}
+		if (!this.getLibrariesNotYetQC(job).isEmpty()){
+			logger.debug("job " + job.getJobId() + " At least one library is awaiting QC - returning true");
+			return true; // At least one library is awaiting QC
+		}
+		if (this.getJobsWithLibrariesToGoOnPlatformUnit().contains(job)){
+			logger.debug("job " + job.getJobId() + " At least one library is awaiting platform unit placement - returning true");
+			return true; // At least one library is awaiting platform unit placement
+		}
+		logger.debug("job " + job.getJobId() + " got to end - returning false");
+		return false;
+	}
+	
+	
 	
 }
