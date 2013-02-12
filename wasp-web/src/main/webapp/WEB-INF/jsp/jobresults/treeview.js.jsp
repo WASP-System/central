@@ -53,8 +53,8 @@ function collapse(d) {
 //d3.json("../data/flare.json", function(json) {
 //d3.json("../data/flare100.json", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${jobId}", function(json) {
-d3.json("http://localhost:8080/wasp/jobresults/getJSTreeJson.do?id=${myid}&type=${type}", function(json) {
-	
+//d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {
+d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {	
   if (height < json.children.length * min_branch_int) {
 	  height = json.children.length * min_branch_int;
   }
