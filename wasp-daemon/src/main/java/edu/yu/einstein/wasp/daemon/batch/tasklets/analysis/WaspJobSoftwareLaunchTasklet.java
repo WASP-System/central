@@ -110,6 +110,8 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
 		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+		if (flowName == null)
+			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 				new BatchJobLaunchContext(flowName, jobParameters) );
 		try {
