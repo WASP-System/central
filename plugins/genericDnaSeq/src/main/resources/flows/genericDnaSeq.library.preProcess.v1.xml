@@ -71,7 +71,7 @@
 	
 	
 	<batch:flow id="genericDnaSeq.library.preProcess.exitCondition">
-		<!-- will receive message of COMPLETED if the 'default.waspJob.flow.approvals.v1' flow is finished -->
+		<!-- will receive message of COMPLETED if the 'genericDnaSeq.library.preProcess.flow.v1' flow is finished -->
 		<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
 		<batch:step id="genericDnaSeq.library.preProcess.step.listenForExitCondition">
 			<batch:tasklet>
@@ -85,8 +85,7 @@
 								<property name="status" value="COMPLETED" />
 							</bean>
 							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-								<constructor-arg name="libraryId" value="#{jobParameters[waspJobParameters.LIBRARY_ID]}"/>
-								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="libraryCellId" value="#{jobParameters[waspJobParameters.LIBRARY_CELL_ID]}"/>
 								<property name="task" value="#{BatchJobTasks.ANALYSIS_LIBRARY_PREPROCESS}"/>
 								<property name="status" value="COMPLETED" />
 							</bean>
