@@ -59,6 +59,7 @@
 </table>
 
 <div class="submit">
-  <input type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
+  <input type="submit" value="<fmt:message key="jobDraft.continue.label" />" />
+  <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
 </div>
 </form>
