@@ -29,13 +29,33 @@
 					<additionalClasspathElements>
 						<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
 					</additionalClasspathElements>
-					<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
-						</suiteXmlFiles> -->
+					<suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
+						</suiteXmlFiles>
+
+				
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
 
+	</build>
+<profiles>			
+	<profile>
+			<id>selenium-tests</id>
+			<build>
+			<plugins>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<configuration>
+			<suiteXmlFiles>
+			<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
+			</suiteXmlFiles>
+			</configuration>
+			</plugin>     
+			</plugins>
+			</build>
+	</profile>
+</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
