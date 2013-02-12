@@ -25,6 +25,11 @@
 		<constructor-arg name="pluginName" ref="waspHelpTagPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-helptag" />
+		<property name="handles">
+			<set>
+				<ref bean="waspHelpTagPluginArea" />
+			</set>
+		</property>
 	</bean>
 
 </beans>
