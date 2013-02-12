@@ -2,6 +2,8 @@ package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +45,7 @@ import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.UserPending;
@@ -683,18 +686,134 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
-		List<LabUser> labUsers = new ArrayList<LabUser>();
+		if(lab==null || lab.getLabId()==null || lab.getLabId().intValue()<=0){
+			waspErrorMessage("labuser.labNotFound.error");
+			String referer = request.getHeader("Referer");
+			return "redirect:"+ referer;
+		}
+		LabUser labUserPI = null;
+		List<LabUser> labManagerList = new ArrayList<LabUser>();
+		List<LabUser> labUserList = new ArrayList<LabUser>();
+		List<LabUser> labUserInactiveList = new ArrayList<LabUser>();
+		//List<LabUser> labUserPendingList = new ArrayList<LabUser>();
+		List<LabUser> labUserFinalList = new ArrayList<LabUser>();
+		
 		for (LabUser lu: lab.getLabUser()){
-			if (!lu.getRole().getRoleName().equals("lp")){
-				labUsers.add(lu);
+			
+			if(lu.getRole().getRoleName().equals("pi")){//active and pi
+				labUserPI = lu;
+			}
+			else if(lu.getRole().getRoleName().equals("lm")){//active and lab manager
+				labManagerList.add(lu);
+			}
+			else if(lu.getRole().getRoleName().equals("lu") ){//active regular lab member
+				labUserList.add(lu);
+			}
+			else if(lu.getRole().getRoleName().equals("lx")){//inactive
+				labUserInactiveList.add(lu);
+			}
+			//else if(lu.getRole().getRoleName().equals("lp")){//pending lab member
+			//	labUserPendingList.add(lu);
+			//}
+		}
+		class LabUser_UserNameComparator implements Comparator<LabUser> {
+		    @Override
+		    public int compare(LabUser arg0, LabUser arg1) {
+		        return arg0.getUser().getLastName().concat(arg0.getUser().getFirstName()).compareToIgnoreCase(arg1.getUser().getLastName().concat(arg1.getUser().getFirstName()));
+		    }
+		}
+		Collections.sort(labManagerList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
+		Collections.sort(labUserList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
+		Collections.sort(labUserInactiveList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
+		//NOT USED; instead used existingUsersPendingLmApprovalList below;     Collections.sort(labUserPendingList, new LabUser_UserNameComparator());//sort by labUser's lastname,firstname
+
+		labUserFinalList.add(labUserPI);
+		labUserFinalList.addAll(labManagerList);
+		labUserFinalList.addAll(labUserList);
+		labUserFinalList.addAll(labUserInactiveList);
+		m.addAttribute("labUserFinalList", labUserFinalList);
+		m.addAttribute("labId", lab.getLabId().intValue());
+		m.addAttribute("piName", labUserPI.getUser().getNameFstLst());
+		
+		// 02/11/13 add userPending - stolen from task/piapprove
+		List<UserPending> newUsersPendingLmApprovalList = new ArrayList<UserPending>();
+		List<LabUser> existingUsersPendingLmApprovalList = new ArrayList<LabUser>();
+		List<Job> jobsPendingLmApprovalList = new ArrayList<Job>();//won't be used but needed for the next call
+		taskService.getLabManagerPendingTasks(newUsersPendingLmApprovalList, existingUsersPendingLmApprovalList, jobsPendingLmApprovalList);
+		//IF the web user is a superuser, facility manager, facility tech, or DA, 
+		//existingUsersPendingLmApprovalList and newUsersPendingLmApprovalList and jobsPendingLmApprovalList
+		//contain ALL users needing approval and ALL jobs needing approval, not just those for this lab.
+		//SO, go through these lists and make sure labId matches
+		List<UserPending> removeListnewUsersPendingLmApproval = new ArrayList<UserPending>();
+		List<LabUser> removeListexistingUsersPendingLmApproval  = new ArrayList<LabUser>();
+		for(UserPending up : newUsersPendingLmApprovalList){
+			if(up.getLabId() != labId){
+				removeListnewUsersPendingLmApproval.add(up);
 			}
 		}
-
-		m.addAttribute("labuser", labUsers);
-		// add pending users applying to lab
-		pendingUserList(labId, m);
+		for(LabUser lu : existingUsersPendingLmApprovalList){
+			if(lu.getLabId() != labId){
+				removeListexistingUsersPendingLmApproval.add(lu);
+			}
+		}
+		newUsersPendingLmApprovalList.removeAll(removeListnewUsersPendingLmApproval);
+		existingUsersPendingLmApprovalList.removeAll(removeListexistingUsersPendingLmApproval);
+		m.addAttribute("newuserspendinglist", newUsersPendingLmApprovalList); 
+		m.addAttribute("existinguserspendinglist", existingUsersPendingLmApprovalList); 
+		//m.addAttribute("jobspendinglist", jobsPendingLmApprovalList);//not needed here 
 
 		return "lab/user_manager";
+	}
+	
+	@RequestMapping(value = "/user_manager/update.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
+	public String userManagerUpdate(
+			@RequestParam("labId") Integer labId,
+		    @RequestParam("userId") Integer userId,
+		    @RequestParam("newRole") String newRole, 
+		    ModelMap m) {
+
+		String referer = request.getHeader("Referer");
+		
+		//CHECK VALID LAB, USER, and LabUser
+		Lab lab = labDao.findById(labId.intValue());
+		User user = userDao.getUserByUserId(userId.intValue());
+		if(lab==null || lab.getLabId()==null || lab.getLabId().intValue()<=0){
+			waspErrorMessage("labUser.userManager_labNotFound.error");
+			return "redirect:"+ referer;
+		}
+		else if(user==null || user.getUserId()==null || user.getUserId().intValue()<=0){
+			waspErrorMessage("labUser.userManager_userNotFound.error");
+			return "redirect:"+ referer;
+		}
+		LabUser labUser = labUserDao.getLabUserByLabIdUserId(labId, userId);
+		if(labUser==null || labUser.getLabUserId()==null || labUser.getLabUserId().intValue()<=0){
+			waspErrorMessage("labUser.userManager_userNotInLab.error");
+			return "redirect:"+ referer;
+		}
+
+		//CHECK VALID ROLE NAME
+		Role role = roleDao.getRoleByRoleName(newRole);
+		if(role==null || role.getRoleId()==null || role.getRoleId().intValue()<=0){
+			waspErrorMessage("labUser.userManager_roleNotFound.error");
+			return "redirect:"+ referer;
+		}
+
+		labUser.setRoleId(role.getRoleId());
+		LabUser labUserDB = labUserDao.merge(labUser);
+		if(labUserDB==null || labUserDB.getLabUserId()==null){
+			waspErrorMessage("labUser.userManager_updateUnexpectedlyFailed.error");
+			return "redirect:"+ referer;
+		}
+		waspMessage("labUser.userManager_labRoleSuccessfullyUpdated.label");
+
+		// if i am the user, reauth
+		User me = authenticationService.getAuthenticatedUser();
+		if (me.getUserId().intValue() == userId.intValue()) {
+			doReauth();
+		}
+			
+		return "redirect:"+ referer;
 	}
 	
 	@RequestMapping(value = "/user_list/{labId}.do", method = RequestMethod.GET)

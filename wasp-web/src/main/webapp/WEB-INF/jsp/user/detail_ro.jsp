@@ -5,10 +5,12 @@
 
 
      <table class="EditTable ui-widget ui-widget-content">
+       <sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('u-${user.userId}')">
      	  <tr class="FormData">
               <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="user.login.label" />:</td>
               <td class="DataTD">${user.login}</td>            
-          </tr>          	
+          </tr> 
+        </sec:authorize>         	
           <tr class="FormData">
               <td class="CaptionTD"><fmt:message key="user.firstName.label" />:</td>
               <td class="DataTD">${user.firstName}</td>              

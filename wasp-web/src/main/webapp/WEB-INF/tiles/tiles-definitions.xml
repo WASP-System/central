@@ -249,6 +249,10 @@
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryQC/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryQC/list.jsp" />
 	</definition>
+	<definition name="task/initiateanalysis/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/initiateAnalysis/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/initiateAnalysis/list.jsp" />
+	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/department/detail.jsp" />

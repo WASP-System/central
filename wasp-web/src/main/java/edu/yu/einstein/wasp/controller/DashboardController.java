@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
-import edu.yu.einstein.wasp.web.Hyperlink;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
 @Transactional
@@ -102,7 +102,7 @@ public class DashboardController extends WaspController {
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		
-		List<Hyperlink> taskMappingHyperlinksToDisplay = new ArrayList<Hyperlink>();
+		List<WebHyperlink> taskMappingHyperlinksToDisplay = new ArrayList<WebHyperlink>();
 		for (String name: taskMappingRegistry.getNames()){
 			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
 			if (taskMapping == null){

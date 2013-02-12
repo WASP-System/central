@@ -26,10 +26,13 @@
 			<li><a href="#tabs-facilityUtils"><fmt:message key="dashboard.facilityUtils.label" /></a></li>
 		</sec:authorize>
 		<%-- <li><a href="#tabs-taskList">Tasks (<span class="taskAlert"><c:out value="${fn:length(tasks)}" /></span>)</a></li> --%>
-		<li><a href="#tabs-taskList"><fmt:message key="dashboard.tasks.label" /> (<span class="taskAlert">
+		<%--<li><a href="#tabs-taskList"><fmt:message key="dashboard.tasks.label" /> (<span class="taskAlert">
 		<c:if test="${isTasks == false}">0</c:if>
 		<c:if test="${isTasks == true}">&gt;= 1</c:if>
-		</span>)</a></li>
+		</span>)</a></li>--%>
+		<c:if test="${isTasks == true}">
+			<li><a href="#tabs-taskList"><fmt:message key="dashboard.myTasks.label" /></a></li>
+		</c:if>
 	</ul>
 	<div id="tabs-home">
 		<ul class="navTabs">
@@ -116,12 +119,14 @@
 						<li>
 							<a href='<c:url value="/lab/detail_ro/${l.departmentId}/${l.labId}.do"/>'><fmt:message key="dashboard.labDetails.label" /></a>
 						</li>
+						<!--  
 						<sec:authorize access="not hasRole('lm-${l.labId}' )">
 							<li>
 								<a href='<c:url value="/lab/user_list/${l.labId}.do"/>'><fmt:message key="dashboard.labMembers.label" /></a>
 							</li>
 						</sec:authorize>
-						<sec:authorize access="hasRole('lm-${l.labId}' )">
+						-->
+						<sec:authorize access="hasRole('lu-${l.labId}' )">
 							<li>
 								<a href='<c:url value="/lab/user_manager/${l.labId}.do"/>'><fmt:message key="dashboard.userManager.label" /></a>
 							</li>							
@@ -220,23 +225,25 @@
 			</ul>
 		</div>
 	</sec:authorize>
-	<div id="tabs-taskList">
-		<ul class="navTabs">
-			<div class="instructions">
-				<fmt:message key="task.instructions.label" />
-			</div>
-			<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
-			<c:if test="${isTasks == true}">
-				<c:forEach items="${taskHyperlinks}" var="hyperlink">
-					<li>
-						<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLocalizedLabel()}</a>
-					</li>
-		
-				</c:forEach>
-			</c:if>
+	<c:if test="${isTasks == true}">
+		<div id="tabs-taskList">
+			<ul class="navTabs">
+				<div class="instructions">
+					<fmt:message key="task.instructions2.label" />
+				</div>
+				<c:if test="${isTasks == false}"><fmt:message key="task.none.label" /></c:if>
+				<c:if test="${isTasks == true}">
+					<c:forEach items="${taskHyperlinks}" var="hyperlink">
+						<li>
+							<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
+						</li>
 			
-		</ul>
-	</div>
+					</c:forEach>
+				</c:if>
+				
+			</ul>
+		</div>
+	</c:if>
 </div>
 
 

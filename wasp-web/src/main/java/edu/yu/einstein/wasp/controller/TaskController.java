@@ -639,5 +639,16 @@ public class TaskController extends WaspController {
 	  return "redirect:"+ referer;	
 	}
   
+  @RequestMapping(value = "/initiateAnalysis/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
+	public String initiateAnalysis(ModelMap m) {
+
+	
+
+		return "task/initiateanalysis/list";
+	}
+  
+ 
+  
 }
 

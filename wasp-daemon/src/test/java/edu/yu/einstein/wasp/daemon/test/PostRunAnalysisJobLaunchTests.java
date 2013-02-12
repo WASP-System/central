@@ -222,7 +222,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
 			};
 			
-			Set<BatchJobProviding> plugins = new HashSet<BatchJobProviding>();
+			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
 			plugins.add(plugin);
 			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
 			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);

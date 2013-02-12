@@ -32,9 +32,13 @@ public class MessageServiceImpl implements MessageService {
 		}
 		return message;
 	}
-
+	
+	/**
+	 * Defaults to message defined for Locale.US
+	 */
 	@Override
-	public String getMetadataValue(String key) {
+	public String getMessage(String key) {
 		return getMessage(key, Locale.US);
 	}
+
 }

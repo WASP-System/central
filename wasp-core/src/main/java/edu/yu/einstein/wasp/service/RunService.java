@@ -164,6 +164,20 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
+
+	  /**
+	   * Returns true if the run is registered to be in a COMPLETED state
+	   * @param run
+	   * @return
+	   */
+	  public boolean isRunSucessfullyCompleted(Run run);
+
+	  /**
+	   * Returns true if the run is registered to be in a STARTED state
+	   * @param run
+	   * @return
+	   */
+	  public boolean isRunActive(Run run);
 	  
 	  
 
