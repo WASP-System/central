@@ -25,6 +25,11 @@
 		<constructor-arg name="pluginName" ref="waspGenericDnaSeqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-genericDnaSeq" />
+		<property name="handles">
+			<set>
+				<ref bean="waspGenericDnaSeqPluginArea" />
+			</set>
+		</property>
 	</bean>
 
 </beans>
