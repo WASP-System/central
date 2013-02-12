@@ -522,7 +522,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		for (Job job: getActiveJobs()){
 			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
-			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+			if (this.isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				jobsAwaitingReceivingOfSamples.add(job);
 		}
 		
@@ -537,29 +537,24 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobsAwaitingReceivingOfSamples(){
 		for (Job job: getActiveJobs())
-			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+			if (isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				return true;
 		return false;
 	}
 	
-	 /**
-	   * {@inheritDoc}
-	   */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<Job> getJobsAwaitingSampleQC(){
-		
-		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
-		
-		for (Job job: getActiveJobs()){
-			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
-			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet QCd
-				jobsAwaitingQCOfSamples.add(job);
-		}
-		
-		sortJobsByJobId(jobsAwaitingQCOfSamples);
-		
-		return jobsAwaitingQCOfSamples;
+	public boolean isJobAwaitingReceivingOfSamples(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (! getSubmittedSamplesNotYetReceived(job).isEmpty())
+			return true;
+		return false;
 	}
+	
+	
 	
 	@Override
 	public List<Job> getJobsAwaitingFmApproval() {
@@ -588,13 +583,46 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return allJobsPendingDaApproval;
 	}
 	
+	
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingSampleQC(){
+		
+		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
+			if (this.isJobAwaitingSampleQC(job)) // some samples not yet QCd
+				jobsAwaitingQCOfSamples.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfSamples);
+		
+		return jobsAwaitingQCOfSamples;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingSampleQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (!this.getSubmittedSamplesNotYetQC(job).isEmpty())
+			return true;
+		return false;
+	}
+	
 	/**
 	   * {@inheritDoc}
 	   */
 	@Override
 	public boolean isJobsAwaitingSampleQC(){
 		for (Job job: getActiveJobs())
-			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet received
+			if (this.isJobAwaitingSampleQC(job)) // some samples not yet received
 				return true;
 		return false;
 	}
@@ -609,7 +637,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		for (Job job: getActiveJobs()){
 			logger.debug("examining library QC status of job with id='" + job.getJobId() + "'");
-			if (! getLibrariesNotYetQC(job).isEmpty()) // some samples not yet QCd
+			if (this.isJobAwaitingLibraryQC(job)) // some samples not yet QCd
 				jobsAwaitingQCOfLibraries.add(job);
 		}
 		
@@ -624,8 +652,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobsAwaitingLibraryQC(){
 		for (Job job: getActiveJobs())
-			if (! getLibrariesNotYetQC(job).isEmpty()) // some libraries not yet received
+			if (this.isJobAwaitingLibraryQC(job)) // some libraries not yet received
 				return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingLibraryQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (!this.getLibrariesNotYetQC(job).isEmpty())
+			return true;
 		return false;
 	}
 	
@@ -689,6 +729,22 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobPendingApprovalOrQuote(Job job){
+			if (this.isJobAwaitingDaApproval(job))
+				return true;
+			if (this.isJobAwaitingFmApproval(job))
+				return true;
+			if (this.isJobAwaitingPiApproval(job))
+				return true;
+			if (this.isJobAwaitingQuote(job))
 				return true;
 			return false;
 		}
@@ -1159,6 +1215,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isJobAwaitingLibraryCreation(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		for (Sample sample: job.getSample()){
+			if (sampleService.isSampleAwaitingLibraryCreation(sample))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
 		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
 		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
@@ -1176,37 +1246,41 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
-			for (Sample sample: job.getSample()){
-				boolean foundLibrary = false;
-				if (sampleService.isLibrary(sample)){
-					try {
-						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample)){
-							jobsWithLibrariesToGoOnFlowCell.add(job);
-							foundLibrary = true;
-						}
+			if (isJobWithLibrariesToGoOnPlatformUnit(job))
+				jobsWithLibrariesToGoOnFlowCell.add(job);
+		}
+		return jobsWithLibrariesToGoOnFlowCell;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobWithLibrariesToGoOnPlatformUnit(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		for (Sample sample: job.getSample()){
+			if (sampleService.isLibrary(sample)){
+				try {
+					if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample))
+						return true;
+				} catch (SampleTypeException e){
+					logger.warn(e.getLocalizedMessage());
+				}
+			} else {
+				if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
+					continue;
+				for (Sample library: sample.getChildren()){
+					try{
+						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library))
+							return true;
 					} catch (SampleTypeException e){
 						logger.warn(e.getLocalizedMessage());
 					}
-				} else {
-					if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
-						continue;
-					for (Sample library: sample.getChildren()){
-						try{
-							if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library)){
-								jobsWithLibrariesToGoOnFlowCell.add(job);
-								foundLibrary = true;
-								break;
-							}
-						} catch (SampleTypeException e){
-							logger.warn(e.getLocalizedMessage());
-						}
-					}
 				}
-				if (foundLibrary)
-					break;
 			}
 		}
-		return jobsWithLibrariesToGoOnFlowCell;
+		return false;
 	}
 
 	/**
@@ -1846,31 +1920,31 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 		}
 		// no in-process samples on platform units so ...
-		if (this.isJobAwaitingDaApproval(job) || this.isJobAwaitingFmApproval(job) || this.isJobAwaitingPiApproval(job) || this.isJobAwaitingQuote(job)){
+		if (this.isJobPendingApprovalOrQuote(job)){
 			logger.debug("job " + job.getJobId() + "  Job is awaiting approval - returning true");
 			return true; // Job is awaiting approval
 		}
-		if (!this.getSubmittedSamplesNotYetReceived(job).isEmpty()){
+		if (this.isJobAwaitingReceivingOfSamples(job)){
 			logger.debug("job " + job.getJobId() + " At least one sample hasn't been received - returning true");
 			return true; // at least one sample hasn't been received
 		}
-		if (!this.getSubmittedSamplesNotYetQC(job).isEmpty()){
+		if (this.isJobAwaitingSampleQC(job)){
 			logger.debug("job " + job.getJobId() + " At least one sample is awaiting QC - returning true");
 			return true; // at least one sample is awaiting QC
 		}
-		if (this.getJobsAwaitingLibraryCreation().contains(job)){
+		if (this.isJobAwaitingLibraryCreation(job)){
 			logger.debug("job " + job.getJobId() + " At least one library needs to be created - returning true");
 			return true; // At least one library needs to be created
 		}
-		if (!this.getLibrariesNotYetQC(job).isEmpty()){
+		if (this.isJobAwaitingLibraryQC(job)){
 			logger.debug("job " + job.getJobId() + " At least one library is awaiting QC - returning true");
 			return true; // At least one library is awaiting QC
 		}
-		if (this.getJobsWithLibrariesToGoOnPlatformUnit().contains(job)){
+		if (this.isJobWithLibrariesToGoOnPlatformUnit(job)){
 			logger.debug("job " + job.getJobId() + " At least one library is awaiting platform unit placement - returning true");
 			return true; // At least one library is awaiting platform unit placement
 		}
-		logger.debug("job " + job.getJobId() + " got to end - returning false");
+		logger.debug("job " + job.getJobId() + " seems no active samples in pipeline - returning false");
 		return false;
 	}
 	
