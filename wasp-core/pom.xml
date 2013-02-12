@@ -28,9 +28,9 @@
 				<configuration>
 					<additionalClasspathElements>
 						<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
-					</additionalClasspathElements>
-					<suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
-						</suiteXmlFiles>
+					</additionalClasspathElements>				
+					<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
+						</suiteXmlFiles> -->
 
 				
 				</configuration>
