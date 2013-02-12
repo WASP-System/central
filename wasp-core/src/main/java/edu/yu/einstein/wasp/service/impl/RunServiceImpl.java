@@ -291,9 +291,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getCurrentlyActiveRuns(){
 		Set<Run> runs = new HashSet<Run>();
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add("*");
-		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
@@ -304,6 +304,21 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			}
 		}
 		return runs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override	public boolean isRunActive(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add(run.getRunId().toString());
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		if (! batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED).isEmpty())
+			return true;
+		return false;
 	}
 	
 	/**
@@ -326,6 +341,22 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			}
 		}
 		return runs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isRunSucessfullyCompleted(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add(run.getRunId().toString());
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED).isEmpty())
+			return true;
+		return false;
 	}
 	
 	/**
