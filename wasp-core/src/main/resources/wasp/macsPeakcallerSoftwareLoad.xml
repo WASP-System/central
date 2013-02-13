@@ -53,7 +53,7 @@
           <property name="baseName" value="genomeSize" />
           <property name="metaposition" value="30" />
           <property name="label" value="Effective Genome Size" />
-          <property name="default" value="1000000000" />
+          <property name="default" value="1e9" />
           <property name="type" value="NUMBER" />
         </bean>
         
