@@ -51,7 +51,8 @@
 			<tiles:insertAttribute name="banner-content" />
 		</div>
   		<div id="content">
-  			<wasp:breadcrumbs /> 
+  			<wasp:breadcrumbs />
+  			<tiles:insertAttribute name="menu-content" /> 
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

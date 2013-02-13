@@ -7,6 +7,7 @@
 	<definition name="template-base" template="/WEB-INF/jsp/layouts/base.jsp">
 		<put-attribute name="head-js" value="" />
 		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="menu-content" value="/WEB-INF/jsp/sections/menu.jsp" />
 		<put-attribute name="body-content" value="" />
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
@@ -19,6 +20,7 @@
 		<put-attribute name="grid-customAttributes" value="" />
 		<put-attribute name="toolbar-buttons" value="" />
 		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="menu-content" value="/WEB-INF/jsp/sections/menu.jsp" />
 		<put-attribute name="body-content" value="" />
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
@@ -103,6 +105,9 @@
 	</definition>
 	<definition name="lab/detail_ro" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/detail_ro.jsp" />
+	</definition>
+	<definition name="lab/viewerLabList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/viewerLabList.jsp" />
 	</definition>
 	<definition name="lab/user_list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/user_list.jsp" />

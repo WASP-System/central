@@ -637,6 +637,7 @@
 		</div>
   		<div id="content">
   			<wasp:breadcrumbs />
+  			<tiles:insertAttribute name="menu-content" />
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />
