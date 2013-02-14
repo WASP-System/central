@@ -15,8 +15,18 @@
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
-  <script type="text/javascript" src="/wasp/scripts/jquery/jquery-1.7.1.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
+  
   <script type="text/javascript">
+  
+  	$( document ).ready( function(){
+  		$( document ).tooltip();
+  		waspFade("waspErrorMessage");
+  		waspFade("waspMessage");
+  		waspOnLoad();
+  	});
+  
   	function waspFade(el, msg) {
 		if (msg != null && msg != ""){
 			$('#'+el).html(msg);
@@ -39,13 +49,13 @@
       // re-define the waspOnLoad var 
       // in head-js if you need custom body 
       // onLoad function
+      
     }
   </script>
   <tiles:insertAttribute name="head-js" />
 </head>
 
-<body onload='waspFade("waspErrorMessage");waspFade("waspMessage");waspOnLoad()'>
-	
+<body >
 	<div id="container">
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
