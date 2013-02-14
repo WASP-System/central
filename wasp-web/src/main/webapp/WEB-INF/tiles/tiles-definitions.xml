@@ -234,7 +234,11 @@
 	<definition name="task/fmapprove/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/fmapprove/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmapprove/list.jsp" />
+	</definition>
+	<definition name="task/myTaskList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/myTaskList.jsp" />
 	</definition>	
+	
 	<definition name="task/piapprove/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/task/piapprove/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/piapprove/list.jsp" />

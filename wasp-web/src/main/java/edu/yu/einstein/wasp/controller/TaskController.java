@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,20 +23,29 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
+import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
 @Transactional
 @RequestMapping("/task")
 public class TaskController extends WaspController {
+
+  @Autowired
+  private AuthenticationService authenticationService;
 
    @Autowired
   private SampleDao sampleDao;
@@ -53,6 +64,10 @@ public class TaskController extends WaspController {
   
   @Autowired
   private TaskService taskService;
+  
+  @Autowired
+  private TaskMappingRegistry taskMappingRegistry;
+
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
@@ -639,5 +654,53 @@ public class TaskController extends WaspController {
 	  return "redirect:"+ referer;	
 	}
   
+	/**
+	 * Request get list of user's tasks
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/myTaskList.do", method = RequestMethod.GET)
+	public String getMyTasks(ModelMap m)  {
+		
+		List<WebHyperlink> taskMappingHyperlinksToDisplay = new ArrayList<WebHyperlink>();
+		for (String name: taskMappingRegistry.getNames()){
+			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
+			if (taskMapping == null){
+				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
+				continue;
+			}
+			if (taskMapping.isLinkToBeShown()){
+				//if viewer is da, then display Department Administration Tasks (DA tasks to approve new pi and approve new job submissions)
+				//if viewer is pi or labmanager, then display Lab Management Tasks (PI or labmanager tasks to approve new lab memeber and new job submissions) 
+				//otherwise display all other tasks
+				//su is special, as it is pi and lm 
+				if( taskMapping.getLabel().equals("Department Administration Tasks") &&	!authenticationService.hasRole("da-*")){
+					continue;
+				}
+				else if( taskMapping.getLabel().equals("Lab Management Tasks")  && authenticationService.hasRole("su") ){
+					continue;
+				}
+				else if( taskMapping.getLabel().equals("Lab Management Tasks")  && !(authenticationService.hasRole("pi-*") || authenticationService.hasRole("lm-*")) ){
+					continue;
+				}
+				else{
+					taskMappingHyperlinksToDisplay.add(taskMapping);
+				}
+			}
+		}
+		
+		if(taskMappingHyperlinksToDisplay.size()>1){
+			class WebHyperlinkComparator implements Comparator<WebHyperlink> {
+			    @Override
+			    public int compare(WebHyperlink arg0, WebHyperlink arg1) {
+			        return arg0.getLabel().compareToIgnoreCase(arg1.getLabel());//sort by label
+			    }
+			}
+			Collections.sort(taskMappingHyperlinksToDisplay, new WebHyperlinkComparator());
+		}
+		m.addAttribute("taskHyperlinks",taskMappingHyperlinksToDisplay);
+		m.addAttribute("isTasks", taskMappingHyperlinksToDisplay.size() > 0);
+		return "task/myTaskList";
+	}
 }
 
