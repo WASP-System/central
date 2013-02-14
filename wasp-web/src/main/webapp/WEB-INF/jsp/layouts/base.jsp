@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
   
   <script type="text/javascript">
