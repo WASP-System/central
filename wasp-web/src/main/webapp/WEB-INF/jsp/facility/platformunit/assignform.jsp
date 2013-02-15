@@ -1,7 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-
-<script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
 <script>
 function showAssignForm(e) {
   e.parentNode.getElementsByTagName("A")[0].style.display = "none";

@@ -75,6 +75,7 @@ public class UiFieldController extends WaspController {
 	  ATTR_NAMES.put("constraint","Validation Constraint");
 	  ATTR_NAMES.put("error","Validation Constraint Message");	  	  
 	  ATTR_NAMES.put("control","Dropdown Options");
+	  ATTR_NAMES.put("tooltip","Tooltip");
 	  ATTR_NAMES.put("suffix","Suffix");
 	  ATTR_NAMES.put("metaposition","Position");
 	  ATTR_NAMES.put("data","Area-specific data");

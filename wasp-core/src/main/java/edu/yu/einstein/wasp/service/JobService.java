@@ -516,6 +516,12 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	boolean isAnySampleCurrentlyBeingProcessed(Job job);
 
+	/**
+	 * Send message to wasp-daemon to trigger aggregation analysis for a job
+	 * @param job
+	 */
+	public void triggerAggregationAnalysisBatchJob(Job job);
+
 	
 	
 }

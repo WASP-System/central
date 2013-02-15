@@ -1,9 +1,6 @@
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18/external/jquery.cookie.js"></script>
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script>
-
-<script type="text/javascript" src="/wasp/scripts/d3/d3.v2.js"></script>
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
 <script>
 

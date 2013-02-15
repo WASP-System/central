@@ -10,12 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -24,7 +21,6 @@ import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.MetaUtil;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
-
 import edu.yu.einstein.wasp.service.RoleService;
 
 
@@ -348,6 +344,7 @@ public class MetaHelper {
 			p.setError(bundleResource.get(qualifiedName + ".error"));
 			p.setMetaType(bundleResource.get(qualifiedName + ".type"));
 			p.setRange(bundleResource.get(qualifiedName + ".range"));
+			p.setTooltip(bundleResource.get(qualifiedName + ".tooltip"));
 			p.setDefaultVal(bundleResource.get(qualifiedName + ".default"));
 			if (visibility != null && visibility.containsKey(qualifiedName)){
 				p.setFormVisibility(visibility.get(qualifiedName));

@@ -57,7 +57,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	driver.findElement(By.xpath("//a[contains(@href, '/wasp/jobsubmit/create.do')]")).click();
     	
     	Assert.assertTrue(driver.findElements(By.name("name")).size() != 0, "Cannot locate 'Job Name' input text box");
-		driver.findElement(By.name("name")).sendKeys("Test Job 037");
+		driver.findElement(By.name("name")).sendKeys("Test Job 041");
 		
 		Select select = new Select(driver.findElement(By.name("labId")));
 		select.selectByVisibleText("natalia's lab");

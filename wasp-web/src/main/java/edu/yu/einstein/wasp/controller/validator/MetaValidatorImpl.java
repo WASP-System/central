@@ -76,17 +76,17 @@ public class MetaValidatorImpl implements MetaValidator {
 			if (!meta.getV().isEmpty()){
 				if (metaType == MetaAttribute.MetaType.INTEGER || metaType == MetaAttribute.MetaType.NUMBER){
 					// validate 
-					Pattern numberPattern = Pattern.compile("^-?[0-9]+\\.?[0-9]*$");
-					Pattern integerPattern = Pattern.compile("^-?[0-9]+$");
 					if (metaType == MetaAttribute.MetaType.INTEGER){
-						Matcher m = integerPattern.matcher(meta.getV());
-						if (!m.matches()){
+						try {
+							Integer.valueOf(meta.getV());
+						} catch(NumberFormatException e){
 							errors.rejectValue(errorFieldName, "metadata.metaType.error", "metadata.metaType.error (no message has been defined for this property)");
 							continue;
 						}
 					} else{
-						Matcher m = numberPattern.matcher(meta.getV());
-						if (!m.matches()){
+						try {
+							Float.valueOf(meta.getV());
+						} catch(NumberFormatException e){
 							errors.rejectValue(errorFieldName, "metadata.metaType.error", "metadata.metaType.error (no message has been defined for this property)");
 							continue;
 						}

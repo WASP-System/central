@@ -1401,6 +1401,31 @@ public class LabController extends WaspController {
 		return "redirect:/dashboard.do";
 	}
 	
+	/**
+	 * Request get list of webviewer's labs
+	 * @param ModelMap m
+	 * @return String view
+	 */
+	@RequestMapping(value = "/viewerLabList", method = RequestMethod.GET)
+	public String getMyLabs(ModelMap m)  {
+		User user = authenticationService.getAuthenticatedUser();
+		List<LabUser> labUserList = user.getLabUser();
+		List<Lab> labList = new ArrayList<Lab>();
+		for(LabUser lu : labUserList){
+			labList.add(lu.getLab());
+		}
+		class LabPIComparator implements Comparator<LabUser> {
+		    @Override
+		    public int compare(LabUser arg0, LabUser arg1) {
+		        return arg0.getLab().getUser().getLastName().compareToIgnoreCase(arg1.getLab().getUser().getLastName());//sort by PI's last name
+		    }
+		}
+		Collections.sort(labUserList, new LabPIComparator());
+		
+		m.addAttribute("labUserList", labUserList);
+		return "lab/viewerLabList";
+	}
+	
 	
 	/**
 	 * Request to join a new lab by GET

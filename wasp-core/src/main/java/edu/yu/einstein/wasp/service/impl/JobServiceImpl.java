@@ -34,6 +34,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +77,7 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
@@ -106,6 +108,8 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -152,6 +156,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	private RunService runService;
+	
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
 	
 	public void setJobMetaDao(JobMetaDao jobMetaDao) {
 		this.jobMetaDao = jobMetaDao;
@@ -1948,6 +1955,29 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return false;
 	}
 	
+	@Override
+	public void triggerAggregationAnalysisBatchJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
+		String workflowIname = job.getWorkflow().getIName();
+		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(workflowIname, BatchJobProviding.class)) {
+			String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_AGGREGATE);
+			if (flowName == null){
+				logger.warn("No generic flow found for plugin handling " + workflowIname + " with batch job task " + BatchJobTask.ANALYSIS_AGGREGATE);
+				continue;
+			}
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+					new BatchJobLaunchContext(flowName, jobParameters) );
+			try {
+				sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+			} catch (WaspMessageBuildingException e) {
+				throw new MessagingException(e.getLocalizedMessage(), e);
+			}
+		}
+	}
 	
 	
 }

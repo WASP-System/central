@@ -30,8 +30,8 @@
 	<tr class="FormData">
 	<td class="CaptionTD"><fmt:message key="jobDraft.sample.label" /></td>
 	  <c:forEach var="i" begin="1" end="15">
-	    <td name="column_${i}" class="input-centered" style="display:none">
-	      <fmt:message key="jobDraft.cell.label" /> <c:out value="${i}" />
+	    <td name="column_${i}" class="input-centered" style="display:none;">
+	      <%-- <fmt:message key="jobDraft.cell.label" />--%> <c:out value="${i}" />
 	    </td>
 	  </c:forEach>
 	</tr>
@@ -62,8 +62,9 @@
 </div>
 <br />
 <div class="submit">
-  <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.submit.label" />" />
-</div>
+  <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label" />" />
+  <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+  </div>
 
 </form>
 
