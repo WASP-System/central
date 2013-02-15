@@ -80,7 +80,8 @@ import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -247,8 +248,11 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	protected AuthenticationService authenticationService;
 	
-	@Value("${wasp.download.folder}")
+	@Value("${wasp.temporary.dir}")
 	protected String downloadFolder;
+	
+	@Value("${wasp.primaryfilehost}")
+	protected String fileHost;
 
 
 	protected final MetaHelperWebapp getMetaHelperWebapp() {
@@ -1189,9 +1193,9 @@ public class JobSubmissionController extends WaspController {
 		String[] roles = new String[1];
 		roles[0] = "lu";
 		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<File> files = new ArrayList<File>();
+		List<FileGroup> files = new ArrayList<FileGroup>();
 		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
-			files.add(jdf.getFile());
+			files.add(jdf.getFileGroup());
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
 		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
@@ -1219,8 +1223,8 @@ public class JobSubmissionController extends WaspController {
 					continue;
 				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
-					fileService.linkFileWithJobDraft(file, jobDraft);
+					FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount));
+					fileService.linkFileGroupWithJobDraft(group, jobDraft);
 				} catch(FileUploadException e){
 					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");

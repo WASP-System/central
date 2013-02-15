@@ -97,31 +97,31 @@ public class RunCellFile extends WaspModel {
 
 
 	/** 
-	 * fileId
+	 * fileGroupId
 	 *
 	 */
-	@Column(name="fileid")
-	protected Integer fileId;
+	@Column(name="fileGroupid")
+	protected Integer fileGroupId;
 
 	/**
-	 * setFileId(Integer fileId)
+	 * setFileGroupId(Integer fileGroupId)
 	 *
-	 * @param fileId
+	 * @param fileGroupId
 	 *
 	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	public void setFileGroupId (Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
 	}
 
 	/**
-	 * getFileId()
+	 * getFileGroupId()
 	 *
-	 * @return fileId
+	 * @return fileGroupId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	public Integer getFileGroupId () {
+		return this.fileGroupId;
 	}
 
 
@@ -185,39 +185,6 @@ public class RunCellFile extends WaspModel {
 	public String getName () {
 		return this.name;
 	}
-
-
-
-
-	/** 
-	 * isActive
-	 *
-	 */
-	@Column(name="isactive")
-	protected Integer isActive;
-
-	/**
-	 * setIsActive(Integer isActive)
-	 *
-	 * @param isActive
-	 *
-	 */
-	
-	public void setIsActive (Integer isActive) {
-		this.isActive = isActive;
-	}
-
-	/**
-	 * getIsActive()
-	 *
-	 * @return isActive
-	 *
-	 */
-	public Integer getIsActive () {
-		return this.isActive;
-	}
-
-
 
 
 	/** 
@@ -320,18 +287,18 @@ public class RunCellFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid")
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileGroup fileGroup)
 	 *
-	 * @param file
+	 * @param fileGroup
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFile (FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
+		this.fileGroupId = fileGroup.fileGroupId;
 	}
 
 	/**
@@ -341,8 +308,8 @@ public class RunCellFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFileGroup() {
+		return this.fileGroup;
 	}
 
 

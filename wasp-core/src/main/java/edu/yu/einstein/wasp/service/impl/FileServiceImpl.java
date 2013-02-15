@@ -11,9 +11,12 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -28,19 +31,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.FileGroupDao;
+import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.SampleFileDao;
@@ -51,11 +55,14 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
@@ -83,7 +90,19 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	private FileTypeDao fileTypeDao;
 	
 	@Autowired
+	private FileGroupDao fileGroupDao;
+	
+	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private FileService fileService;
+	
+	@Value("${wasp.temporary.dir}")
+	protected String tempDir;
+	
+	@Value("${wasp.primaryfilehost}")
+	protected String fileHost;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 	
@@ -91,7 +110,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * fileDao;
 	 *
 	 */
-	private FileDao fileDao;
+	private FileHandleDao fileHandleDao;
 
 	/**
 	 * setFileDao(FileDao fileDao)
@@ -101,86 +120,170 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	@Autowired
-	public void setFileDao(FileDao fileDao) {
-		this.fileDao = fileDao;
+	public void setFileHandleDao(FileHandleDao fileHandleDao) {
+		this.fileHandleDao = fileHandleDao;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FileDao getFileDao() {
-		return this.fileDao;
+	public FileHandleDao getFileHandleDao() {
+		return this.fileHandleDao;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public File getFileByFileId (final int fileId) {
-		return this.getFileDao().getFileByFileId(fileId);
-	}
-  
- 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public File getFileByFilelocation (final String filelocation) {
-		return this.getFileDao().getFileByFilelocation(filelocation);
+	public FileHandle getFileHandleById (final int id) {
+		return this.getFileHandleDao().getFileHandleById(id);
 	}
 	
 	/**
-	 * TODO: 
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public FileGroup getFileGroupById(final int id) {
+		return fileGroupDao.getFileGroupById(id);
+	}
+	
+	/**
+	 * Upload submitted file to a temporary location on the remote host.
 	 * {@inheritDoc}
 	 */
 	@Override 
-	public File processUploadedFile(MultipartFile mpFile, String destPath, String description) throws FileUploadException{
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description) {
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
-		//String absolutePath = destPath+"/"+mpFile.getOriginalFilename();
-		String absolutePath = destPath+"/"+noSpacesFileName;
-		java.io.File pathFile = new java.io.File(destPath);
-		if (!pathFile.exists()){
+		
+		File temporaryDirectory = new File(tempDir);
+		
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+		
+		if (!temporaryDirectory.exists()){
 			try{
-				pathFile.mkdir();
+				temporaryDirectory.mkdir();
 			} catch(Exception e){
-				throw new FileUploadException("File upload failure trying to create '"+destPath+"': "+e.getMessage());
+				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
 			}
 		}
-						
-		String md5Hash = "";
+		
+		FileGroup retGroup = new FileGroup();
+		FileHandle file = new FileHandle();
+		file = fileHandleDao.save(file);
+		retGroup.addFileHandle(file);
+		retGroup = fileGroupDao.save(retGroup);
+		
+		if (fileHost == null) {
+			String mess = "Primary file host has not been configured!  Please set \"wasp.primaryfilehost\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+		
+		GridWorkService gws;
+		GridFileService gfs;
 		try {
-			md5Hash = DigestUtils.md5Hex(mpFile.getInputStream());
+			gws = hostResolver.getGridWorkService(fileHost);
+			gfs = gws.getGridFileService();
+		} catch (GridUnresolvableHostException e) {
+			String mess = "Unable to resolve remote host ";
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+		 
+		
+		String draftDir = gws.getTransportConnection().getConfiguredSetting("draft.dir");
+		
+		if (draftDir == null) {
+			String mess = "Attempted to configure for file copy to " + fileHost + ", but hostname.settings.draft.dir has not been set.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+		
+		String remoteDir = draftDir + "/" + "jobDraft/";
+		String remoteFile;
+		try {
+			gfs.mkdir(remoteDir);
+			remoteFile = remoteDir + "/" + noSpacesFileName;
+			
+			if (gfs.exists(remoteFile)) {
+				noSpacesFileName = retGroup.getFileGroupId() + "__" + noSpacesFileName;
+				remoteFile = remoteDir + "/" + noSpacesFileName;
+			}
 		} catch (IOException e) {
-			//logger.warn("Cannot generate MD5 Hash for '"+mpFile.getOriginalFilename()+"': "+ e.getMessage());
-			logger.warn("Cannot generate MD5 Hash for '"+noSpacesFileName+"': "+ e.getMessage());
+			String mess = "problem creating resources on remote host " + gws.getTransportConnection().getHostName();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
 		}
-		//String fileName = mpFile.getOriginalFilename();
-		String fileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
-		Integer fileSizeK = (int)((mpFile.getSize()/1024) + 0.5);
-		logger.debug("Uploading file '"+fileName+"' to '"+absolutePath+"' (size="+fileSizeK+"Kb, md5Hash="+md5Hash+")");
-		java.io.File newFile = new java.io.File(absolutePath);
-		try{
-			mpFile.transferTo(newFile);
-		} catch(Exception e){
-			throw new FileUploadException("File upload failure trying to save '"+absolutePath+"': "+e.getMessage());
+		
+		
+		file.setFileName(noSpacesFileName);
+		
+		try {
+			OutputStream tmpFile = new FileOutputStream(localFile);
+			 
+			int read = 0;
+			byte[] bytes = new byte[1024];
+ 
+			while ((read = mpFile.getInputStream().read(bytes)) != -1) {
+				tmpFile.write(bytes, 0, read);
+			}
+ 
+			mpFile.getInputStream().close();
+			tmpFile.flush();
+			tmpFile.close();
+		} catch (IOException e) {
+			String mess = "Unable to generate local temporary file with contents of multipart file";
+			logger.warn(mess);
+			e.printStackTrace();
+			localFile.delete();
+			throw new FileUploadException(mess);
 		}
-		File file = new File();
-		file.setDescription(description);
-		//file.setFileURI(absolutePath);
-		file.setIsActive(1);
-		file.setMd5hash(md5Hash);
-		file.setSizek(fileSizeK);		
-		return fileDao.save(file);
+		
+		retGroup.setDescription(description);
+		
+		// TODO: Determine file type and set on the group.
+		
+		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
+		
+		try {
+			gfs.put(localFile, remoteFile);
+			fileService.registerFileGroup(retGroup);
+		} catch (GridException e) {
+			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} catch (IOException e) {
+			String mess = "Problem putting remote file " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} finally {
+			localFile.delete();
+		}
+		
+		fileHandleDao.save(file);
+		return fileGroupDao.save(retGroup);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JobDraftFile linkFileWithJobDraft(File file, JobDraft jobDraft){
+	public JobDraftFile linkFileGroupWithJobDraft(FileGroup filegroup, JobDraft jobDraft){
 		JobDraftFile jobDraftFile = new JobDraftFile();
-		jobDraftFile.setFile(file);
+		jobDraftFile.setFileGroup(filegroup);
 		jobDraftFile.setJobDraft(jobDraft);
 		return jobDraftFileDao.save(jobDraftFile);
 	}
@@ -194,12 +297,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<File> getFilesByType(FileType fileType){
+	public List<FileGroup> getFilesByType(FileType fileType){
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileTypeId", fileType.getFileTypeId());
-		return fileDao.findByMap(m);
+		return fileGroupDao.findByMap(m);
 	}
 	
 	/**
@@ -207,15 +310,15 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException 
 	 */
 	@Override
-	public List<File> getFilesForLibrary(Sample library) throws SampleTypeException{
+	public List<FileGroup> getFilesForLibrary(Sample library) throws SampleTypeException {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", library.getSampleId());
-		List<File> files = new ArrayList<File>();
+		List<FileGroup> files = new ArrayList<FileGroup>();
 		for (SampleFile sf: sampleFileDao.findByMap(m))
-			files.add(sf.getFile());
+			files.add(sf.getFileGroup());
 		return files;
 	}
 	
@@ -224,12 +327,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException 
 	 */
 	@Override
-	public List<File> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException{
+	public List<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException {
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
-		Map<FileType, List<File>> filesByType = getFilesForLibraryMappedToFileType(library);
+		Map<FileType, List<FileGroup>> filesByType = getFilesForLibraryMappedToFileType(library);
 		if (!filesByType.containsKey(fileType))
-			return new ArrayList<File>();
+			return new ArrayList<FileGroup>();
 		return filesByType.get(fileType);
 	}
 	
@@ -238,41 +341,46 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException 
 	 */
 	@Override
-	public Map<FileType, List<File>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException{
+	public Map<FileType, List<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException{
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", library.getSampleId());
-		Map<FileType, List<File>> filesByType = new HashMap<FileType, List<File>>();
+		Map<FileType, List<FileGroup>> filesByType = new HashMap<FileType, List<FileGroup>>();
 		for (SampleFile sf: sampleFileDao.findByMap(m)){
-			File f = sf.getFile();
-			FileType ft = f.getFileType();
+			FileGroup g = sf.getFileGroup();
+			FileType ft = g.getFileType();
 			if (!filesByType.containsKey(ft))
-				filesByType.put(ft, new ArrayList<File>());
-			filesByType.get(ft).add(f);
+				filesByType.put(ft, new ArrayList<FileGroup>());
+			filesByType.get(ft).add(g);
 		}
 		return filesByType;
 	}
-
+	
 	@Override
-	public void addFile(File file) {
-		fileDao.save(file);
+	public void addFile(FileHandle file) {
+		fileHandleDao.save(file);
 	}
 
 	@Override
-	public void setSampleFile(File file, Sample sample) {
+	public void addFileGroup(FileGroup group) {
+		fileGroupDao.save(group);
+	}
+
+	@Override
+	public void setSampleFile(FileGroup group, Sample sample) {
 		Sample s = sampleService.getSampleById(sample.getSampleId());
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sample.getSampleId());
-		m.put("fileId", file.getFileId());
+		m.put("fileGroupId", group.getFileGroupId());
 		List<SampleFile> sf = sampleFileDao.findByMap(m);
 		if (sf.size() == 0) {
 			if (s.getSampleFile() == null) {
 				s.setSampleFile(new ArrayList<SampleFile>());
 			}
 			SampleFile sfi = new SampleFile();
-			sfi.setFile(file);
+			sfi.setFileGroup(group);
 			sfi.setSample(s);
 			s.getSampleFile().add(sfi);
 		}
@@ -289,11 +397,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
-	public void registerFile(File file) throws FileNotFoundException, GridException {
-		file = fileDao.merge(file);
+	public void registerFile(FileHandle file) throws FileNotFoundException, GridException {
+		file = fileHandleDao.merge(file);
 		URI uri = file.getFileURI();
 		if (uri == null)
-			throw new FileNotFoundException("File URI was null");
+			throw new FileNotFoundException("FileHandle URI was null");
 		
 		// TODO: implement grid resolution of URNs
 		if (!uri.getScheme().equals("file")) {
@@ -305,12 +413,21 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		logger.debug("attempting to register " + file.getFileURI().toString());
 		
 		setMD5(file);
-		file.setIsActive(1);
-		file.setIsArchived(0);
-		fileDao.save(file);
+		fileHandleDao.save(file);
+	}
+	
+	@Override
+	public void registerFileGroup(FileGroup group) throws FileNotFoundException, GridException {
+		group = fileGroupDao.merge(group);
+		for (FileHandle f : group.getFileHandles()) {
+			registerFile(f);
+		}
+		group.setIsActive(1);
+		group.setIsArchived(0);
+		fileGroupDao.save(group);
 	}
 
-	private void setMD5(File file) throws GridException, FileNotFoundException {
+	private void setMD5(FileHandle file) throws GridException, FileNotFoundException {
 		URL url;
 		try {
 			url = file.getFileURI().toURL();
@@ -375,7 +492,42 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new GridExecutionException(message);
 		}
 	}
-	
+
+	@Override
+	public FileGroup promoteJobDraftFileGroupToJob(Job job, FileGroup filegroup) throws GridUnresolvableHostException, IOException {
+		for (FileHandle fh : filegroup.getFileHandles()) {
+			URI uri = fh.getFileURI();
+			String host = uri.getHost();
+			
+			if (!host.equals(fileHost)) {
+				String mess = "Job Draft File is located on " + host + ", not the primary file host " + fileHost;
+				logger.warn(mess);
+				throw new GridUnresolvableHostException(mess);
+			}
+			
+			GridWorkService gws = hostResolver.getGridWorkService(host);
+			GridFileService gfs = hostResolver.getGridWorkService(uri.getHost()).getGridFileService();
+			
+			String resultsDir = gws.getTransportConnection().getConfiguredSetting("results.dir");
+			
+			String path = uri.getPath();
+			
+			String basename = path.substring(path.lastIndexOf('/') + 1);
+			
+			String resultPath = resultsDir + "/" + job.getJobId() + "/submitted/";
+			
+			gfs.mkdir(resultPath);
+			String resultFile = resultPath + basename;
+			gfs.copy(path, resultFile);
+			
+			URI newUri = gfs.remoteFileRepresentationToLocalURI(resultFile);
+			
+			fh.setFileURI(newUri);
+			fileHandleDao.save(fh);
+			
+		}
+		return fileGroupDao.findById(filegroup.getFileGroupId());
+	}
 	
 }
 

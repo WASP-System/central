@@ -3,7 +3,7 @@
  */
 package edu.yu.einstein.wasp.service.filetype;
 
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * @author calder
@@ -21,7 +21,7 @@ public interface FileTypeService {
 	 * @param file
 	 * @return
 	 */
-	public boolean isSingleFile(File file);
+	public boolean isSingleFile(FileHandle file);
 	
 	/**
 	 * get the number of the file in the series.  Always 0-based and 0 or null if there is only one file.
@@ -33,6 +33,6 @@ public interface FileTypeService {
 	 * @param file
 	 * @return integer or null
 	 */
-	public Integer getFileNumber(File file);
+	public Integer getFileNumber(FileHandle file);
 
 }

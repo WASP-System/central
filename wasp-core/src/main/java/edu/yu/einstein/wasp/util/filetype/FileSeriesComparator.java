@@ -5,13 +5,13 @@ package edu.yu.einstein.wasp.util.filetype;
 
 import java.util.Comparator;
 
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * @author calder
  *
  */
-public class FileSeriesComparator implements Comparator<File> {
+public class FileSeriesComparator implements Comparator<FileHandle> {
 
 	/**
 	 * 
@@ -21,7 +21,7 @@ public class FileSeriesComparator implements Comparator<File> {
 	}
 
 	@Override
-	public int compare(File arg0, File arg1) {
+	public int compare(FileHandle arg0, FileHandle arg1) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

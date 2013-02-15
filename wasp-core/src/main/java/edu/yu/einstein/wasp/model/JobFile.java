@@ -100,28 +100,28 @@ public class JobFile extends WaspModel {
 	 * fileId
 	 *
 	 */
-	@Column(name="fileid")
-	protected Integer fileId;
+	@Column(name="filegroupid")
+	protected Integer fileGroupId;
 
 	/**
-	 * setFileId(Integer fileId)
+	 * setFileGroupId(Integer fileGroupId)
 	 *
-	 * @param fileId
+	 * @param fileGroupId
 	 *
 	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	public void setFileGroupId (Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
 	}
 
 	/**
-	 * getFileId()
+	 * getFileGroupId()
 	 *
-	 * @return fileId
+	 * @return fileGroupId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	public Integer getFileGroupId () {
+		return this.fileGroupId;
 	}
 
 
@@ -351,18 +351,18 @@ public class JobFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileHandle file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFileGroup(FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
+		this.fileGroupId = fileGroup.fileGroupId;
 	}
 
 	/**
@@ -372,8 +372,8 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFile () {
+		return this.fileGroup;
 	}
 
 

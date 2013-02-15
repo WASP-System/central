@@ -787,22 +787,54 @@ create table filetypemeta (
   constraint unique index u_filemeta_k_jid (k, filetypeid)
 ) ENGINE=InnoDB charset=utf8;
 
+create table filegroup {
+	filegroupid int(10) primary key auto_increment,
+	filetypeid int(10),
+	softwaregeneratedbyid int(10),
+	description varchar(2048),
+	isarchived int(1)  default 0,
+	isactive int(1)  default 1,
+	lastupdts timestamp  default current_timestamp,
+	lastupduser int(10)  default 0 
+	foreign key fk_filegroupfiletypeid_rid (filetypeid) references filetype(filetypeid),
+	foreign key fk_filegroupsoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
+
+) ENGINE=InnoDB charset=utf8;
+
+create table filegroupmeta (
+	filegroupmetaid int(10) primary key auto_increment,
+	filegroupid int(10),
+
+	k varchar(250),
+	v text,
+	position int(10)  default 0, 
+	rolevisibility VARCHAR(250), 
+	lastupdts timestamp  default current_timestamp,
+	lastupduser int(10)  default 0,
+	foreign key fk_filegroupmeta_filegroupid (filegroupid) references file(filegroupid),
+	constraint unique index u_filegroupmeta_k_jid (k, filegroupid)
+
+) ENGINE=InnoDB charset=utf8;
+
+create table filegroup_rel (
+	filegroupid int(10),
+	childfilegroupid int(10),
+	foreign key fk_filegrouprel_filegroupid (filegroupid) references filegroup(filegroupid),
+	foreign key fk_filegrouprel_childfilegroupid (filegroupid) references filegroup(filegroupid)
+) ENGINE=InnoDB charset=utf8;
+
 create table file (
   fileid int(10)  primary key auto_increment,
-  file_uri varchar(2048) , 
-  filetypeid int(10) , 
-  softwaregeneratedbyid int(10),
-  sizek int(10) ,
-  md5hash varchar(250) ,
-  description varchar(250),
-
-  isarchived int(1)  default 0,
-  isactive int(1)  default 1,
+  file_uri varchar(2048), 
+  file_name varchar(256),
+  filegroupid int(10),
+  sizek int(10),
+  md5hash varchar(250),
 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0 ,
-  foreign key fk_filefiletypeid_rid (filetypeid) references filetype(filetypeid),
-  foreign key fk_filesoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
+
+  foreign key fk_filefilegroupid_rid (filegroupid) references filegroup(filegroupid)
   -- constraint unique index u_file_flocation (filelocation)
 ) ENGINE=InnoDB charset=utf8;
 
@@ -888,18 +920,17 @@ create table samplesubtyperesourcecategory (
 create table jobdraftfile ( 
   jobdraftfileid int(10)  primary key auto_increment,
   jobdraftid int(10) , 
-  fileid int(10) , 
+  filegroupid int(10) , 
 
   iname varchar(2048), -- 
   name varchar(250), 
   description varchar(2048), 
 
-  isactive int(1)  default 1, 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_jobdraftfile_fgid (filegroupid) references filegroup(filegroupid) -- ,
 
   -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1110,7 +1141,7 @@ create table sampledraft (
   jobdraftid int(10) null,
 
   sourcesampleid int(10) null,
-  fileid int(10) null,
+  filegroupid int(10) null,
 
   name varchar(250),
   status varchar(50), 
@@ -1123,7 +1154,7 @@ create table sampledraft (
   foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
   foreign key fk_sampledraft_slid (labid) references lab(labid),
   foreign key fk_sampledraft_suid (userid) references user(userid),
-  foreign key fk_sampledraft_fid (fileid) references file(fileid)
+  foreign key fk_sampledraft_fid (filegroupid) references filegroup(filegroupid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table sampledraftmeta (
@@ -1371,18 +1402,17 @@ create table acct_grantjob (
 create table jobfile ( 
   jobfileid int(10)  primary key auto_increment,
   jobid int(10) , 
-  fileid int(10) , 
+  filegroupid int(10) , 
 
   iname varchar(2048), -- 
   name varchar(250), 
   description varchar(2048), 
 
-  isactive int(1)  default 1, 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_jobfile_jid (jobid) references job(jobid),
-  foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_jobfile_fgid (filegroupid) references filegroup(filegroupid) -- ,
 
   -- constraint unique index u_jobfile_iname_jid (iname, jobid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1392,18 +1422,17 @@ create table jobfile (
 create table samplefile ( 
   samplefileid int(10)  primary key auto_increment,
   sampleid int(10) , 
-  fileid int(10) , 
+  filegroupid int(10) , 
 
   iname varchar(2048), -- 
   name varchar(250), 
   description varchar(2048), 
 
-  isactive int(1)  default 1, 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_samplefile_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
+  foreign key fk_samplefile_fgid (filegroupid) references filegroup(filegroupid) -- ,
 
   -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
 ) ENGINE=InnoDB charset=utf8;
@@ -1574,37 +1603,35 @@ create table runfile (
   runcellfileid int(10)  primary key auto_increment,
 
   runid int(10) ,
-  fileid int(10) , 
+  filegroupid int(10) , 
 
   iname varchar(2048) , 
   name varchar(250) , 
 
-  isactive int(1)  default 1, 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_rfile_rid (runid) references run(runid),
-  foreign key fk_rfile_fid (fileid) references file(fileid),
+  foreign key fk_rfile_fgid (filegroupid) references filegroup(filegroupid),
 
-  constraint unique index u_rlfile_fileid (fileid)
+  constraint unique index u_rlfile_filegroupid (filegroupid)
 ) ENGINE=InnoDB charset=utf8;
 
 create table runcellfile (
   runcellfileid int(10)  primary key auto_increment,
 
   runcellid int(10) ,
-  fileid int(10) , 
+  filegroupid int(10) , 
   iname varchar(2048) , 
   name varchar(250) , 
 
-  isactive int(1)  default 1, 
   lastupdts timestamp  default current_timestamp,
   lastupduser int(10)  default 0,
 
   foreign key fk_rlfile_rlid (runcellid) references runcell(runcellid),
-  foreign key fk_rlfile_fileid (fileid) references file(fileid),
+  foreign key fk_rlfile_fgid (filegroupid) references filegroup(filegroupid),
 
-  constraint unique index u_rlfile_fileid (fileid)
+  constraint unique index u_rlfile_filegroupid (filegroupid)
 ) ENGINE=InnoDB charset=utf8;
 
 

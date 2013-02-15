@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -95,10 +95,10 @@ public class WorkUnit {
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
 	 */
-	private LinkedHashSet<File> requiredFiles = new LinkedHashSet<File>();
+	private LinkedHashSet<FileHandle> requiredFiles = new LinkedHashSet<FileHandle>();
 	
 	/**
-	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link File} objects
+	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link FileHandle} objects
 	 * upon successful completion of the WorkUnit.
 	 */
 	private LinkedHashSet<String> resultFiles = new LinkedHashSet<String>();
@@ -337,40 +337,40 @@ public class WorkUnit {
 	}
 	
 	protected void prepare() throws MisconfiguredWorkUnitException {
-		for (File f : getRequiredFiles()) {
-			if (f == null || f.getIsActive().equals(0)) {
+		for (FileHandle f : getRequiredFiles()) {
+			if (f == null || f.getFileGroup().getIsActive().equals(0)) {
 				if (!isRegistering()) {
-					String message = "File has not been registered " + f.getFileURI();
+					String message = "FileHandle has not been registered " + f.getFileURI();
 					logger.warn(message);
 					throw new MisconfiguredWorkUnitException(message);
 				}
 			}
-			if (f.getIsArchived().equals(1)) {
+			if (f.getFileGroup().getIsArchived().equals(1)) {
 				// TODO: implement wait for de-archive step.
-				String message = "File is archived " + f.getFileURI();
+				String message = "FileHandle is archived " + f.getFileURI();
 				logger.warn(message);
 				throw new MisconfiguredWorkUnitException(message);
 			}
 		}
 	}
 	/**
-	 * File objects available to the remote host.  Grid host resolver may use these files to determine
+	 * FileHandle objects available to the remote host.  Grid host resolver may use these files to determine
 	 * which host to go to and the GridWorkService should provision them if they are not present.
 	 * Accessible through the WASPFILE bash array.  
 	 * @return the requiredFiles
 	 */
-	public Set<File> getRequiredFiles() {
+	public Set<FileHandle> getRequiredFiles() {
 		return requiredFiles;
 	}
 	
 	/**
 	 * @param requiredFiles the requiredFiles to set
 	 */
-	public void setRequiredFiles(LinkedHashSet<File> requiredFiles) {
+	public void setRequiredFiles(LinkedHashSet<FileHandle> requiredFiles) {
 		this.requiredFiles = requiredFiles;
 	}
 	
-	public void addRequiredFile(File file) {
+	public void addRequiredFile(FileHandle file) {
 		this.requiredFiles.add(file);
 	}
 	

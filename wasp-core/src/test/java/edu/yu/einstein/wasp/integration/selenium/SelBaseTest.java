@@ -30,7 +30,7 @@ public class SelBaseTest {
 		ProfilesIni allProfiles = new ProfilesIni();
 		FirefoxProfile profile = allProfiles.getProfile("default");
 
-	    //profile.addExtension(new File(firebugPath));
+	    //profile.addExtension(new FileHandle(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
 
 	    // Add more if needed

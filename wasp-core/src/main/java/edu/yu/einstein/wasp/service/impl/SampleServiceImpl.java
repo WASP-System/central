@@ -1193,8 +1193,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public SampleDraft cloneSampleDraft(final SampleDraft sampleDraft){
 		  Assert.assertParameterNotNull(sampleDraft, "No SampleDraft provided");
 		  SampleDraft clone = new SampleDraft();
-		  if (sampleDraft.getFile() != null)
-			  clone.setFile(sampleDraft.getFile());
+		  if (sampleDraft.getFileGroup() != null)
+			  clone.setFile(sampleDraft.getFileGroup());
 		  if (sampleDraft.getJobDraft() != null)
 			  clone.setJobDraft(sampleDraft.getJobDraft());
 		  if (sampleDraft.getLab() != null)

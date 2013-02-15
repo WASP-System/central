@@ -97,21 +97,21 @@ public class JobDraftFile extends WaspModel {
 
 
 	/** 
-	 * fileId
+	 * fileGroupId
 	 *
 	 */
-	@Column(name="fileid")
-	protected Integer fileId;
+	@Column(name="filegroupid")
+	protected Integer fileGroupId;
 
 	/**
-	 * setFileId(Integer fileId)
+	 * setFileId(Integer fileGroupId)
 	 *
-	 * @param fileId
+	 * @param filegroupId
 	 *
 	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	public void setFileGroupId (Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
 	}
 
 	/**
@@ -120,8 +120,8 @@ public class JobDraftFile extends WaspModel {
 	 * @return fileId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	public Integer getFileGroupId () {
+		return this.fileGroupId;
 	}
 
 
@@ -217,40 +217,6 @@ public class JobDraftFile extends WaspModel {
 		return this.description;
 	}
 
-
-
-
-	/** 
-	 * isActive
-	 *
-	 */
-	@Column(name="isactive")
-	protected Integer isActive;
-
-	/**
-	 * setIsActive(Integer isActive)
-	 *
-	 * @param isActive
-	 *
-	 */
-	
-	public void setIsActive (Integer isActive) {
-		this.isActive = isActive;
-	}
-
-	/**
-	 * getIsActive()
-	 *
-	 * @return isActive
-	 *
-	 */
-	public Integer getIsActive () {
-		return this.isActive;
-	}
-
-
-
-
 	/** 
 	 * lastUpdTs
 	 *
@@ -278,8 +244,6 @@ public class JobDraftFile extends WaspModel {
 	public Date getLastUpdTs () {
 		return this.lastUpdTs;
 	}
-
-
 
 
 	/** 
@@ -340,7 +304,7 @@ public class JobDraftFile extends WaspModel {
 	 *
 	 */
 	
-	public JobDraft getJobDraft () {
+	public JobDraft getJobDraft() {
 		return this.jobDraft;
 	}
 
@@ -351,18 +315,18 @@ public class JobDraftFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid")
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileGroup fileGroup)
 	 *
-	 * @param file
+	 * @param fileGroup
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFileGroup(FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
+		this.fileGroupId = fileGroup.fileGroupId;
 	}
 
 	/**
@@ -372,8 +336,8 @@ public class JobDraftFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFileGroup() {
+		return this.fileGroup;
 	}
 
 

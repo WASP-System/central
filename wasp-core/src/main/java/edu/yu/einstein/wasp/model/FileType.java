@@ -252,7 +252,7 @@ public class FileType extends WaspModel {
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="filetypeid", insertable=false, updatable=false)
-	protected List<File> file;
+	protected List<FileHandle> file;
 
 
 	/** 
@@ -262,7 +262,7 @@ public class FileType extends WaspModel {
 	 *
 	 */
 	@JsonIgnore
-	public List<File> getFile() {
+	public List<FileHandle> getFile() {
 		return this.file;
 	}
 
@@ -273,7 +273,7 @@ public class FileType extends WaspModel {
 	 * @param file
 	 *
 	 */
-	public void setFile (List<File> file) {
+	public void setFile (List<FileHandle> file) {
 		this.file = file;
 	}
 	

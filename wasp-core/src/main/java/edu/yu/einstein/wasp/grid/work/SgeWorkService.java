@@ -514,7 +514,7 @@ public class SgeWorkService implements GridWorkService {
 					"WASP_RESULT_DIR=" + w.remoteResultsDirectory + "\n";
 			
 			int fi = 0;
-			for (edu.yu.einstein.wasp.model.File f : w.getRequiredFiles()) {
+			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {
 				
 				try {
 					preamble += "WASPFILE[" + fi + "]=" + provisionRemoteFile(f) + "\n";
@@ -723,7 +723,7 @@ public class SgeWorkService implements GridWorkService {
 	 * This needs to be fleshed out.  Files which are not
 	 * 
 	 */
-	private String provisionRemoteFile(edu.yu.einstein.wasp.model.File file) throws FileNotFoundException, GridException {
+	private String provisionRemoteFile(edu.yu.einstein.wasp.model.FileHandle file) throws FileNotFoundException, GridException {
 		
 		String fileName;
 		try {
@@ -750,7 +750,7 @@ public class SgeWorkService implements GridWorkService {
 		return fileName;
 	}
 	
-	private void doProvisionRemoteFile(edu.yu.einstein.wasp.model.File file) throws FileNotFoundException, GridException {
+	private void doProvisionRemoteFile(edu.yu.einstein.wasp.model.FileHandle file) throws FileNotFoundException, GridException {
 		// TODO: provision remote file from other host.
 	}
 	
