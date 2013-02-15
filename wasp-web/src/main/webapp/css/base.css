@@ -353,6 +353,10 @@ div.waspErrorMessage {
 	display:none;
 }
 
+div#accordion h4, div#accordion2 h4{
+	padding-left: 15px;
+}
+
 span.requiredField{
 	color: #FF0000;
 	margin: 10px;
