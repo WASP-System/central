@@ -872,14 +872,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
 			
-		/**
-		 * Sets whether cellLibrary is pre-processed or not
-		 * @param cellLibrary
-		 * @param isPreprocessed
-		 * @throws SampleTypeException
-		 * @throws MetadataException
-		 */
-	  public void setIsCellLibraryPreprocessed(SampleSource cellLibrary, boolean isPreprocessed) throws SampleTypeException, MetadataException;
 			
 	  /**
 		 * has cellLibrary passed QC?

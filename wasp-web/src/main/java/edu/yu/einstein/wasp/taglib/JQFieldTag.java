@@ -287,6 +287,9 @@ public class JQFieldTag extends BodyTagSupport {
 			//get column label
 			String label=getMessage(area+"."+name+".label");
 			
+			// get tooltip
+			String tooltip=getMessage(area+"."+name+".tooltip","");
+			
 			//get suffix to show after field's input
 			String suffix=getMessage(area+"."+name+".suffix","");
 		
@@ -296,10 +299,13 @@ public class JQFieldTag extends BodyTagSupport {
 			//display red star if the field is required
 			if (required) {
 				editrules="{custom:true,custom_func:_validate_required}";
-				formoptions="{elmsuffix:'"+suffix+"<span class=\"requiredField\">*</span>'}";
+				formoptions="{elmsuffix:'"+suffix+"<span class=\"requiredField\">*</span>";
 			} else {
-				formoptions="{elmsuffix:'"+suffix+"'}";
+				formoptions="{elmsuffix:'"+suffix;
 			}
+			if (!tooltip.isEmpty())
+				formoptions += "<img src='qmark.png' height='13px' width='12px' border='0' title='" + tooltip + "'>";
+			formoptions += "'}";
 			
 			// override validation with email validation if isEmail == true
 			if (isEmail) {

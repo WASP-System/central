@@ -41,6 +41,7 @@
            <property name="default" value="2" />
            <property name="constraint" value="NotEmpty" />
            <property name="error" value="A value for number of mismatches must be specified" />
+           <property name="tooltip" value="Maximum number of mismatches permitted in the seed, i.e. the first L base pairs of the read. This may be 0, 1, 2 or 3." />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -49,9 +50,10 @@
           <property name="label" value="Seed Length" />
           <property name="type" value="NUMBER" />
           <property name="range" value="5:1000" />
-          <property name="default" value="32" />
+          <property name="default" value="28" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for seed length must be specified" />
+          <property name="tooltip" value="The number of bases on the high-quality end of the read to which the # mismatches ceiling applies. The lowest permitted setting is 5." />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -62,6 +64,7 @@
           <property name="default" value="1" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for number of alignments must be specified" />
+          <property name="tooltip" value="Report up to N valid alignments per read or pair " />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -72,6 +75,7 @@
           <property name="default" value="1" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the discard threshold must be specified" />
+          <property name="tooltip" value="Suppress all alignments for a particular read or pair if more than N reportable alignments exist for it." />
         </bean>
         
         <bean parent="bowtieAlignerUiFieldWrapper">
@@ -82,6 +86,7 @@
           <property name="default" value="yes" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value must be selected" />
+          <property name="tooltip" value="Make Bowtie guarantee that reported singleton alignments are best in terms of stratum (i.e. number of mismatches in the seed) and in terms of the quality values at the mismatched position(s)" />
         </bean>     
       </list>
     </property>

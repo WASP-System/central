@@ -15,8 +15,6 @@
 </sec:authorize> 
    
 
-<script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
-<script src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript" ></script> 
 <script>
 $(document).ready(function() {
 	$("#rightsResponsibilitiesButton").click(function() {

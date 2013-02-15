@@ -36,24 +36,26 @@
           <property name="baseName" value="pValueCutoff" />
           <property name="metaposition" value="10" />
           <property name="label" value="p Value Cutoff" />
-          <property name="default" value="100000" />
+          <property name="default" value="1e-5" />
           <property name="type" value="NUMBER" />
+          <property name="tooltip" value="Pvalue cutoff for peak detection" />
         </bean>
         
         <bean parent="macsPeakcallerUiFieldWrapper">
           <property name="baseName" value="bandwidth" />
           <property name="metaposition" value="20" />
-          <property name="label" value="Bandwidth" />
+          <property name="label" value="Band width" />
           <property name="type" value="NUMBER" />
           <property name="range" value="0:5000" />
           <property name="default" value="300" />
+          <property name="tooltip" value="This value is only used while building the shifting model." />
         </bean>
         
         <bean parent="macsPeakcallerUiFieldWrapper">
           <property name="baseName" value="genomeSize" />
           <property name="metaposition" value="30" />
           <property name="label" value="Effective Genome Size" />
-          <property name="default" value="1000000000" />
+          <property name="default" value="1e9" />
           <property name="type" value="NUMBER" />
         </bean>
         
@@ -63,6 +65,7 @@
           <property name="label" value="Keep Duplicates?" />
           <property name="control" value="select:yes:yes;no:no" />
           <property name="default" value="no" />
+          <property name="tooltip" value="Controls MACS behavior towards duplicate tags at the exact same location -- the same coordination and the same strand." />
         </bean>
       </list>
     </property>

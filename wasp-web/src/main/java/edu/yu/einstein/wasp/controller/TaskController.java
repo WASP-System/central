@@ -652,8 +652,8 @@ public class TaskController extends WaspController {
 	  jobApprove("daApprove", jobId, action, comment);
 	  String referer = request.getHeader("Referer");
 	  return "redirect:"+ referer;	
-	}
-  
+	}  
+
 	/**
 	 * Request get list of user's tasks
 	 * @param ModelMap m
@@ -702,5 +702,15 @@ public class TaskController extends WaspController {
 		m.addAttribute("isTasks", taskMappingHyperlinksToDisplay.size() > 0);
 		return "task/myTaskList";
 	}
+
+  @RequestMapping(value = "/initiateAnalysis/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
+	public String initiateAnalysis(ModelMap m) {
+
+	
+
+		return "task/initiateanalysis/list";
+	}
+  
 }
 

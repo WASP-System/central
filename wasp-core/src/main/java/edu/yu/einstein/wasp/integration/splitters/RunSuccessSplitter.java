@@ -82,8 +82,14 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, cellLibrary.getSampleSourceId().toString());
-			for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), BatchJobProviding.class)) {
+			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+			String worflowIname = job.getWorkflow().getIName();
+			for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(worflowIname, BatchJobProviding.class)) {
 				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+				if (flowName == null){
+					logger.warn("No generic flow found for plugin handling workflow " + worflowIname);
+					continue;
+				}
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 						new BatchJobLaunchContext(flowName, jobParameters) );
 				try {
