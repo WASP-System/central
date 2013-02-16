@@ -669,23 +669,8 @@ public class TaskController extends WaspController {
 				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
 				continue;
 			}
-			if (taskMapping.isLinkToBeShown()){
-				//if viewer is da, then display Department Administration Tasks (DA tasks to approve new pi and approve new job submissions)
-				//if viewer is pi or labmanager, then display Lab Management Tasks (PI or labmanager tasks to approve new lab memeber and new job submissions) 
-				//otherwise display all other tasks
-				//su is special, as it is pi and lm 
-				if( taskMapping.getLabel().equals("Department Administration Tasks") &&	!authenticationService.hasRole("da-*")){
-					continue;
-				}
-				else if( taskMapping.getLabel().equals("Lab Management Tasks")  && authenticationService.hasRole("su") ){
-					continue;
-				}
-				else if( taskMapping.getLabel().equals("Lab Management Tasks")  && !(authenticationService.hasRole("pi-*") || authenticationService.hasRole("lm-*")) ){
-					continue;
-				}
-				else{
+			if (taskMapping.isLinkToBeShown()){				
 					taskMappingHyperlinksToDisplay.add(taskMapping);
-				}
 			}
 		}
 		

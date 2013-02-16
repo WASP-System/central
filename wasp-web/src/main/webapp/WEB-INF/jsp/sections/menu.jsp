@@ -78,17 +78,20 @@
 						-->
 					</li>
 				</sec:authorize>
-				<sec:authorize access="not hasRole('su') and (   hasRole('lu-*') or (   hasRole('lx-*') and hasRole('jv-*')   )   ) ">
+				<sec:authorize access="hasRole('su') or  hasRole('lu-*') or (   hasRole('lx-*') and hasRole('jv-*')   ) ">
 					<li class="memu-root">
 						<a href="#"><fmt:message key="menu.jobs.label" /></a>
 						<ul>
-							<sec:authorize access="hasRole('jv-*')">
+							<sec:authorize access="hasRole('su')">
+								<li><a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.allJobs.label" /></a></li>
+							</sec:authorize>
+							<sec:authorize access="not hasRole('su') and hasRole('jv-*')">
 								<li><a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.mySubmittedJobs.label" /></a></li>
 							</sec:authorize>
-							<sec:authorize access="hasRole('jd-*') and hasRole('lu-*')">
+							<sec:authorize access="hasRole('su') or ( hasRole('jd-*') and hasRole('lu-*') )">
 								<li><a href='<c:url value="/jobsubmit/list.do"/>'><fmt:message key="menu.myJobDrafts.label" /></a></li>
 							</sec:authorize>
-							<sec:authorize access="hasRole('lu-*')">
+							<sec:authorize access="hasRole('su') or hasRole('lu-*')">
 								<li><a href='<c:url value="/jobsubmit/create.do" />'><fmt:message key="menu.submitNewJob.label" /></a></li>
 							</sec:authorize>
 						</ul>
@@ -102,24 +105,8 @@
 								<li><a href='<c:url value="/department/list.do"/>'><fmt:message key="menu.deptAdmin.label" /></a></li>
 							</sec:authorize>
 							<li><a href='<c:url value="/lab/list.do"/>'><fmt:message key="menu.labs.label" /></a></li>
-							<sec:authorize access="not hasRole('da-*')">
-								<li class="has-children">
-									<a href="#"><fmt:message key="menu.plugins.label" /></a>
-									<ul>
-										<li><a href='#'><fmt:message key="menu.bisulfateseq.label" /></a></li>
-										<li><a href='<c:url value="/wasp-chipseq/description.do"/>'><fmt:message key="menu.chipseq.label" /></a></li>
-										<li><a href='#'><fmt:message key="dashboard.helptag.label" /></a></li>
-										<li><a href='<c:url value="/wasp-illumina/description.do"/>'><fmt:message key="menu.illumina.label" /></a></li>								
-									</ul>
-								</li>
-							</sec:authorize>
-							<sec:authorize access="not hasRole('da-*')">
-								<li><a href='<c:url value="/job2quote/list_all.do"/>'><fmt:message key="menu.jobQuotes.label" /></a></li>
-							</sec:authorize>
-							<sec:authorize access="hasRole('da-*')">
-								<li><a href='<c:url value="/job2quote/list.do"/>'><fmt:message key="menu.jobQuotes.label" /></a></li>
-							</sec:authorize>
-							<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm')">
+							<li><a href='<c:url value="/job2quote/list_all.do"/>'><fmt:message key="menu.jobQuotes.label" /></a></li>
+							<sec:authorize access="hasRole('fm')">
 								<li class="has-children">
 									<a href="#"><fmt:message key="menu.tasksForOthers.label" /></a>
 									<ul>
@@ -136,6 +123,9 @@
 										<li><a href='<c:url value="/sysrole/list.do"/>'><fmt:message key="menu.systemUsers.label" /></a></li>
 									</ul>
 								</li>
+								<sec:authorize access="hasRole('su-*') or hasRole('ga') or hasRole('fm')">
+									<li><a href='<c:url value="/plugin/listAll.do"/>'><fmt:message key="menu.webPlugins.label" /></a></li>
+								</sec:authorize>
 								<li><a href='<c:url value="/workflow/list.do"/>'><fmt:message key="menu.workflows.label" /></a></li>
 							</sec:authorize>
 						</ul>
@@ -168,7 +158,7 @@
 					</li>
 				</sec:authorize>
 				
-				<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm') or hasRole('ft')">
+				<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('lu-*')">
 					<li class="memu-root">
 						<a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.jobs.label" /></a>
 					</li>
@@ -177,12 +167,6 @@
 				<li class="memu-root">
 					<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label" /></a>
 				</li>
-				
-				<li class="memu-root">
-						<a href='<c:url value="/j_spring_security_logout"/>'><fmt:message key="menu.logout.label" /></a>
-				</li>
-				
 			</ul>
-			
 		 </div>
 </sec:authorize>
