@@ -1723,11 +1723,13 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public String getJobStatusComment(Job job){
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+			return null;
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 		for(String jobApproveCode : jobApprovalsMap.keySet()){
 			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
 			if(! "rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode)))
-				return null;
+				continue;
 			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
 			if(jobApprovalCommentsList.size()>0){
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
@@ -1745,12 +1747,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 */
 	@Override
 	public String getJobStatus(Job job){
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
 			return "Unknown";
-		}
 		String currentStatus = "Not Yet Set";
 		//String approvalStatus = "Not Yet Set";
-		String currentStatusComment = null;
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 		for(String jobApproveCode : jobApprovalsMap.keySet()){
 			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
