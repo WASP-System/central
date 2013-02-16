@@ -14,20 +14,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
+import edu.yu.einstein.wasp.web.Tooltip;
 
 /**
- * Displays tooltip icon and provides tooltip
+ * Displays comment icon and provides comment
  * @author asmclellan
  *
  */
-public class Tooltip extends BodyTagSupport {
+public class CommentTag extends BodyTagSupport {
 	
 	
 	private static final long serialVersionUID = -7313415827087355691L;
 
-	Logger log = LoggerFactory.getLogger(Tooltip.class);
+	Logger log = LoggerFactory.getLogger(CommentTag.class);
 	
-	private String tooltipText;
+	private String commentText;
 	
 	public void setKey(String key){
 		HttpSession session=((HttpServletRequest) this.pageContext.getRequest()).getSession();
@@ -36,21 +37,21 @@ public class Tooltip extends BodyTagSupport {
 		Locale locale=(Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
 		if (locale==null) 
 			locale=Locale.US;
-		this.tooltipText = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale);
+		this.commentText = DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null,locale);
 	}
 	
 	public void setValue(String value){
-		this.tooltipText = value;
+		this.commentText = value;
 	}
 	
 		
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
-		if (tooltipText == null) 
+		if (commentText == null) 
 			return Tag.SKIP_BODY;
 		
 		StringBuffer buf=new StringBuffer("");
-		buf.append("<img src='/wasp/images/qmark.png' height='13px' width='12px' border='0' title='" + tooltipText + "' id='tooltip'>");
+		buf.append(Tooltip.getCommentHtmlString(commentText));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

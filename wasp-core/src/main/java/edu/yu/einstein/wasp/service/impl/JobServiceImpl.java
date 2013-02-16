@@ -34,7 +34,6 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1718,12 +1717,34 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 		return jsDetails;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobStatusComment(Job job){
+		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
+		for(String jobApproveCode : jobApprovalsMap.keySet()){
+			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
+			if(! "rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode)))
+				return null;
+			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
+			if(jobApprovalCommentsList.size()>0){
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
+				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+				if(currentStatusComment != null && !currentStatusComment.isEmpty())
+					return currentStatusComment;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getJobStatus(Job job, boolean comment){
+	public String getJobStatus(Job job){
 		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
 			return "Unknown";
 		}
@@ -1745,17 +1766,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 				else {//should never occur
 					currentStatus = "Withdrawn";
-				}
-				if(comment==true){
-					List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
-					if(jobApprovalCommentsList.size()>0){
-						Format formatter = new SimpleDateFormat("MM/dd/yyyy");
-						MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-						currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
-						if(currentStatusComment != null && !currentStatusComment.isEmpty()){
-							currentStatus = "<a href='javascript:void(0)' title='"+ currentStatusComment + "' >"+currentStatus+"</a>";
-						}
-					}
 				}
 				break;
 			}

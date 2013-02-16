@@ -22,7 +22,6 @@ $(document).ready(function() {
   		if($(this).prop("value")=="<fmt:message key="labuser.userManager_showRandR.label" />"){$(this).prop("value", "<fmt:message key="labuser.userManager_hideRandR.label" />");}
   		else{$(this).prop("value", "<fmt:message key="labuser.userManager_showRandR.label" />");}
  	}); 
-  	//$(".wasptooltip a[title]").tooltip({ position: "top right"});
 });
 </script>
 <input  class="button" type="button" id="rightsResponsibilitiesButton" value="<fmt:message key="labuser.userManager_showRandR.label" />"  />

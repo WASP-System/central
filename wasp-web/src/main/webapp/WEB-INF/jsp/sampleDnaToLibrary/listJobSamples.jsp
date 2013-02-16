@@ -133,12 +133,13 @@
 				</sec:authorize>
 				
 				<c:if test='${qcStatusMap.get(userSubmittedMacromolecule) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedMacromolecule) == "RECEIVED"}'>
-				  <div class="wasptooltip">
+				  <div>
 					<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedMacromolecule)}"/>
 					<c:set value="${qcStatusCommentsMap.get(userSubmittedMacromolecule)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
 						<%-- <c:forEach items="${metaMessageList}" var="metaMessage">--%>
-							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+		  					<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 						<%--</c:forEach>--%>
 					</c:if>
 				  </div>
@@ -169,12 +170,13 @@
 							<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 							<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
 							<c:if test='${qcStatusMap.get(facilityLibraryForThisMacromolecule) != "NONEXISTENT"}'>
-							  <div class="wasptooltip">
+							  <div>
 								<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(facilityLibraryForThisMacromolecule)}"/>						
 								<c:set value="${qcStatusCommentsMap.get(facilityLibraryForThisMacromolecule)}" var="metaMessageList" />
 								<c:if test="${metaMessageList.size()>0}">
 									<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
-										<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+										<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+		  								<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 									<%--</c:forEach>--%>
 								</c:if>
 								</div>
@@ -286,12 +288,13 @@
 			<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedLibrary)}"/>
 			<sec:authorize access="hasRole('su') or hasRole('ft')">&nbsp;<%--<a href="<c:url value="/task/updatesamplereceive/${job.jobId}.do" />">[update]</a>--%><%-- <c:if test='${receiveSampleStatusMap.get(userSubmittedLibrary) == true}'><a href="<c:url value="/task/samplereceive/list.do" />">[<fmt:message key="listJobSamples.logSample.label" />]</a></c:if>--%></sec:authorize><br />
 			<c:if test='${qcStatusMap.get(userSubmittedLibrary) != "NONEXISTENT" && receivedStatusMap.get(userSubmittedLibrary)=="RECEIVED"}'>
-			  <div class="wasptooltip">
+			  <div>
 				<fmt:message key="listJobSamples.qcStatus.label" />: <c:out value="${qcStatusMap.get(userSubmittedLibrary)}"/>
 				<c:set value="${qcStatusCommentsMap.get(userSubmittedLibrary)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
 						<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
-							<a href="javascript:void(0)" title="<c:out value="${metaMessageList[0].getValue()}" /> (<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+		  					<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 						<%--</c:forEach>--%>
 					</c:if>
 			   </div>

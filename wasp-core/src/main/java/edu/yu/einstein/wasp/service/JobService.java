@@ -482,7 +482,7 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
 	
-	public String getJobStatus(Job job, boolean comment);
+	public String getJobStatus(Job job);
 
 	public List<Software> getSoftwareForJob(Job job);
 
@@ -521,6 +521,8 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param job
 	 */
 	public void triggerAggregationAnalysisBatchJob(Job job);
+
+	public String getJobStatusComment(Job job);
 
 	
 	
