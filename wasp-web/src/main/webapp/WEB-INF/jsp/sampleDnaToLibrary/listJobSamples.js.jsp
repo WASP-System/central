@@ -24,8 +24,6 @@ $(document).ready(function() {
     	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showJobFiles.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideJobFiles.label" />");}
     	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showJobFiles.label" />");}
     	}); 
-  	
-  	//$(".wasptooltip a[title]").tooltip({ position: "top right"});
 });
 
 

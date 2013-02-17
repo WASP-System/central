@@ -62,7 +62,7 @@ public class SystemRoleController extends WaspController {
 	 * @return view 
 	 */
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String listSystemUser(ModelMap m) {
 
 		Map<String, String> roleQueryMap = new HashMap<String, String>();

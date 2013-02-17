@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Transient;
-
 import edu.yu.einstein.wasp.model.Software;
 
 /**
