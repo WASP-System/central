@@ -11,6 +11,7 @@
 	</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 	

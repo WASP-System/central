@@ -1,32 +1,10 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %>     
 
-   
- 	<!-- requires jquery which is already imported in base.jsp or grid.jsp -->  
-	<script src="/wasp/scripts/memu/jquery.memu-0.1.min.js" type="text/javascript" ></script> 
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/memu/memu-0.1.css" />
-
- 	 <script language="JavaScript">
-		<!--
-		$('.js-enabled').memu({ 
-			icon: {
-				inset: true,		// create an inset where there is no icon
-				margin: {		// specify the margins of the icon (put them how it's right for you
-					top: 4,
-					right: 10
-				}
-			},
-			width: 150,			// the width of the (drop down) items
-			rootWidth: 75,			// the width of the (root) items
-			height: 25			// the height of the items
-		});			
-		//-->
-	</script>      
-
-		<ul class="memu">
-			<li class="memu-root">
+		<ul class="main_menu">
+			<li class="main_menu-root">
 				<a href='<c:url value="/dashboard.do"/>'><fmt:message key="menu.home.label" /></a>
 			</li>
-			<li class="memu-root">
+			<li class="main_menu-root">
 				<a href="#"><fmt:message key="menu.user.label" /></a>
 				<ul>
 					<li><a href='<c:url value="/user/me_ro.do"/>'><fmt:message key="menu.myProfile.label" /></a></li>
@@ -42,7 +20,7 @@
 				</ul>
 			</li>
 			<sec:authorize access="not hasRole('su') and ( hasRole('lu-*') or hasRole('lx-*') or hasRole('lp-*') )">
-				<li class="memu-root">
+				<li class="main_menu-root">
 					<a href="<c:url value="/lab/viewerLabList.do"/>"><fmt:message key="menu.labs.label" /></a>
 					<!--  
 					<ul>
@@ -52,7 +30,7 @@
 				</li>
 			</sec:authorize>
 			<sec:authorize access="hasRole('su') or  hasRole('lu-*') or (   hasRole('lx-*') and hasRole('jv-*')   ) ">
-				<li class="memu-root">
+				<li class="main_menu-root">
 					<a href="#"><fmt:message key="menu.jobs.label" /></a>
 					<ul>
 						<sec:authorize access="hasRole('su')">
@@ -71,7 +49,7 @@
 				</li>
 			</sec:authorize>
 			<sec:authorize access="hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm') or hasRole('ft')">
-				<li class="memu-root">
+				<li class="main_menu-root">
 					<a href="#"><fmt:message key="menu.admin.label" /></a>
 					<ul>
 						<sec:authorize access="hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm')">
@@ -106,7 +84,7 @@
 			</sec:authorize>
 			
 			<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm') or hasRole('ft')">
-				<li class="memu-root">
+				<li class="main_menu-root">
 					<a href="#"><fmt:message key="menu.facility.label" /></a>
 					<ul>
 						<li><a href="<c:url value="/resource/list.do"/>"><fmt:message key="menu.machines.label" /></a></li>
@@ -132,12 +110,12 @@
 			</sec:authorize>
 			
 			<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('lu-*')">
-				<li class="memu-root">
+				<li class="main_menu-root">
 					<a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.jobs.label" /></a>
 				</li>
 			</sec:authorize>
 			
-			<li class="memu-root">
+			<li class="main_menu-root">
 				<a href='<c:url value="/task/myTaskList.do"/>'><fmt:message key="menu.tasks.label" /></a>
 			</li>
 		</ul>
