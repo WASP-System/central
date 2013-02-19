@@ -4,31 +4,7 @@
     
  	<!-- requires jquery which is already imported in base.jsp or grid.jsp -->  
 	<script src="/wasp/scripts/memu/jquery.memu-0.1.min.js" type="text/javascript" ></script> 
-	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/scripts/memu/memu-0.1.css" />
-
-	<style type="text/css" media="screen">
-		.menu-container {
-			margin: 0 auto;
-			padding: 0;
-			height: 30px;
-			width: 100%;
-			background: gray;
-			border: 1px solid #222;
-			/*next set of lines stolen from .instructions in base.css */
-			text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
-			background: -webkit-gradient(linear, left top, left bottom, from(#ffffe6), to(#fefec1));
-			background: -moz-linear-gradient(top, #ffffe6, #fefec1);
-			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffe6', endColorstr='#fefec1');
-			background-color: #fefec1;
-			-webkit-border-radius: 10px;
-			-moz-border-radius: 10px;
-			-o-border-radius: 10px;
-			border-radius: 10px;
-			line-height: 16px;
-			margin: 10px 0 10px;
-			/*padding: 10px;*/
-		}
-	</style> 
+	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/memu/memu-0.1.css" />
 
  	 <script language="JavaScript">
 		<!--

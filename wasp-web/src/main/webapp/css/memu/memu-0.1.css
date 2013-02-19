@@ -1,4 +1,4 @@
-/* http://codebrewery.blogspot.com/2011/01/memu-simple-css-javascript-jquery-menu.html */
+/* http://salatsosse.ch/2012/05/12/memu-a-simple-css-javascript-jquery-menu/ */
 
 .memu {
     list-style: none outside none;
@@ -58,7 +58,7 @@
     float: left;
 }
 .memu li.has-children > a {
-    background: url("arrow.png") no-repeat scroll #fff;
+    background: url("/wasp/images/memu/arrow.png") no-repeat scroll #fff;
 	background-position: 130px center;
     background-color: rgba(255, 255, 255, 0.98);
 }
@@ -88,3 +88,25 @@
 	background-color: #abcdef !important;
 	background-color: rgba(235, 245, 255, 0.98 !important);
 }
+
+.menu-container {
+		margin: 0 auto;
+		padding: 0;
+		height: 30px;
+		width: 100%;
+		background: gray;
+		border: 1px solid #222;
+		/*next set of lines stolen from .instructions in base.css */
+		text-shadow: 0 1px 1px rgba(255, 255, 255, 0.85);
+		background: -webkit-gradient(linear, left top, left bottom, from(#ffffe6), to(#fefec1));
+		background: -moz-linear-gradient(top, #ffffe6, #fefec1);
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffe6', endColorstr='#fefec1');
+		background-color: #fefec1;
+		-webkit-border-radius: 10px;
+		-moz-border-radius: 10px;
+		-o-border-radius: 10px;
+		border-radius: 10px;
+		line-height: 16px;
+		margin: 10px 0 10px;
+		/*padding: 10px;*/
+  }
