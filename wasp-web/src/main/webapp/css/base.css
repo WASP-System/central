@@ -22,13 +22,12 @@
 }
 
 #menu {
-  background-image: url("/wasp/images/memu/menu_bar3.png") ; 
-  height: 30px;
-  
-  
+  background-image: url("/wasp/images/memu/menu_bar.png") ; 
+  height: 26px;
   -moz-box-shadow: 5px 7px 5px black;
   -webkit-box-shadow: 5px 7px 5px black;
   box-shadow: 5px 7px 5px black;
+  border-top: 1px solid #fff;
 }
 
 

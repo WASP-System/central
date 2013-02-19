@@ -27,7 +27,7 @@
 .memu a {
     background: #fff;
     background-color: rgba(236, 203, 124, 0.98);
-    border: 1px solid #f7f7f7;
+    margin-top: 1px;
     color: #333;
     display: block;
     font: bold 12px/25px segoe ui,verdana,sans-serif;
@@ -65,9 +65,10 @@
 .memu li:hover {
     position: relative;
     z-index: 100;
+    background-color: #FFEB99;
 }
 .memu li:hover > a {
-    background-color: rgba(236, 203, 124, 0.98);
+    background-color: #FFEB99;
     border-color: #fafafa;
     color: #aa0000;
 }
