@@ -77,9 +77,13 @@
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
 		</div>
-  		<div id="content">
+		<sec:authorize access="isAuthenticated()">
+			<div id="menu">
+				<tiles:insertAttribute name="menu-content" />
+			</div>
+		</sec:authorize>
+  		<div id="content"> 
   			<wasp:breadcrumbs />
-  			<tiles:insertAttribute name="menu-content" /> 
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />

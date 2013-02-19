@@ -21,6 +21,16 @@
   box-shadow: 5px 7px 5px black;
 }
 
+#menu {
+  background-image: url("/wasp/images/memu/menu_bar3.png") ; 
+  height: 30px;
+  
+  
+  -moz-box-shadow: 5px 7px 5px black;
+  -webkit-box-shadow: 5px 7px 5px black;
+  box-shadow: 5px 7px 5px black;
+}
+
 
 #content {
   background-color: #FFFFE6;
