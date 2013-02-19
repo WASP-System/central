@@ -893,6 +893,24 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	  public SampleSourceDao getSampleSourceDao();
 
+	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
+
+	Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
+
+	Job getJobBySamplePair(SampleSource samplePair);
+
+	Set<SampleSource> getSamplePairsByJob(Job job);
+
+	SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
+
+	Sample getTestSample(SampleSource samplePair);
+
+	Sample getControlSample(SampleSource samplePair);
+
+	Sample getControlSampleByTestSample(Sample testSample);
+
+	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+
 	
 	  
 }

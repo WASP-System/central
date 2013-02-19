@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -955,6 +956,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  return jobApprovalsMap;
 
 	  }
+
+public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
+		
+
 	  /**
 	   * {@inheritDoc}
 	 * @throws WaspMessageBuildingException 
@@ -983,7 +988,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			String sampleDraftPairsKey = null;
 			String sampleDraftPairs = null;
 			for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
-				if(jdm.getK().indexOf("samplePairs")>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
+				if(jdm.getK().indexOf(SAMPLE_PAIR_META_KEY)>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
 					sampleDraftPairsKey = jdm.getK();
 					sampleDraftPairs = jdm.getV();
 					continue; 
@@ -1108,8 +1113,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 			}
 			
-			//translate sampleDraftPairs to samplePairs
-			StringBuffer samplePairsSB = new StringBuffer();
+			//translate sampleDraftPairs to samplePairs, and save them in the samplesource table
+			//StringBuffer samplePairsSB = new StringBuffer();
 			if(sampleDraftPairs != null){
 				for(String pair : sampleDraftPairs.split(";")){
 					String[] pairList = pair.split(":");
@@ -1117,23 +1122,33 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					try{
 						T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
 					}catch(Exception e){}
-					String t;
-					t = T==null ? pairList[0] : T.toString();
+//					String t;
+//					t = T==null ? pairList[0] : T.toString();
 					Integer C = null;
 					try{
 						C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
 					}catch(Exception e){}					
-					String c;
-					c = C==null ? pairList[1] : C.toString();
-					samplePairsSB.append(t + ":" + c + ";");
+//					String c;
+//					c = C==null ? pairList[1] : C.toString();
+					//samplePairsSB.append(t + ":" + c + ";");
+					
+					try {
+						sampleService.createTestControlSamplePairsByIds(T, C);
+					} catch (SampleTypeException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SampleException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-				String samplePairs = new String(samplePairsSB);
-				//save the samplePair metadata
-				JobMeta jobMeta = new JobMeta();
-				jobMeta.setJobId(jobDb.getJobId());
-				jobMeta.setK(sampleDraftPairsKey);
-				jobMeta.setV(samplePairs);			
-				jobMetaDao.save(jobMeta);
+//				String samplePairs = new String(samplePairsSB);
+//				//save the samplePair metadata
+//				JobMeta jobMeta = new JobMeta();
+//				jobMeta.setJobId(jobDb.getJobId());
+//				jobMeta.setK(sampleDraftPairsKey);
+//				jobMeta.setV(samplePairs);			
+//				jobMetaDao.save(jobMeta);
 			}
 			
 			

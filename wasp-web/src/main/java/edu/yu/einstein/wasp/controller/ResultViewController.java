@@ -28,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -110,18 +111,16 @@ public class ResultViewController extends WaspController {
 	}
 
 
-	@RequestMapping(value="/treeview")
-	public String treeView(ModelMap m) {
-		
-		int id = Integer.parseInt(this.request.getParameter("id"));
-		String type = this.request.getParameter("type");
+	@RequestMapping(value = "/treeview/{type}/{id}", method = RequestMethod.GET)
+	public String treeView(@PathVariable("type") String type, @PathVariable("id") Integer id, ModelMap m) {
 		
 		if(type.equalsIgnoreCase("job")) {
-			Job job = this.jobService.getJobDao().getById(id);
+			Job job = this.jobService.getJobDao().getById(id.intValue());
 			
-			m.addAttribute("myid", id);
+			m.addAttribute("myid", id.intValue());
 			m.addAttribute("type", type);
 			m.addAttribute("workflow", job.getWorkflow().getIName());
+			m.addAttribute("wf_name", job.getWorkflow().getName());
 		}
 		
 		return "jobresults/treeview"; 	
@@ -129,33 +128,8 @@ public class ResultViewController extends WaspController {
 	
 
 	// get the JSON data to construct the tree 
-	@RequestMapping(value="/getJSTreeJson", method = RequestMethod.GET)
+	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
 	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
-//		Map <String, Object> jsTree = new HashMap<String, Object>();
-//		
-//		if(type.equalsIgnoreCase("job")) {
-//			Job job = this.jobService.getJobDao().getById(id);
-//			if(job==null || job.getJobId()==null){
-//				  waspErrorMessage("listJobSamples.jobNotFound.label");
-//				  return null;
-//			}
-//			
-//			jsTree.put("name", job.getName());
-//			jsTree.put("myid", id);
-//			jsTree.put("type", "job");
-//			
-//			List<Map> children = new ArrayList<Map>();
-//	
-//			List<JobSample> jobSampleList = job.getJobSample();
-//			for (JobSample js : jobSampleList) {
-//				Map sample = new HashMap();
-//				sample.put("name", js.getSample().getName());
-//				sample.put("myid", js.getSampleId());
-//				sample.put("type", "sample");
-//				children.add(sample);
-//			}
-//			jsTree.put("children",children);
-//		}
 		
 		try {
 			Map <String, Object> jsTree = null;
