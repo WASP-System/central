@@ -76,6 +76,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -2549,5 +2550,174 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
 		}
+
+
+
+		public static final String SAMPLE_PAIR_AREA = "SamplePair";
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException{
+			SampleSource sampleSource = getSamplePair(testSample, controlSample);
+			if (sampleSource == null)
+				throw new SampleException("no relationship between provided sample pair exists in the samplesource table");
+			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			sampleSourceMeta.setK(SAMPLE_PAIR_AREA + "." + JOB_ID);
+			sampleSourceMeta.setV(testSample.getJob().getJobId().toString());
+			sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 * @throws SampleException 
+		 */
+		@Override
+		public Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException{
+			SampleSource samplePair = getSamplePair(testSample, controlSample);
+			return getJobBySamplePair(samplePair);
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 * @throws SampleException 
+		 */
+		@Override
+		public Job getJobBySamplePair(SampleSource samplePair){
+			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be null");
+			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			
+			Job job = null;
+			List<SampleSourceMeta> ssMetaList = samplePair.getSampleSourceMeta();
+			if (ssMetaList == null)
+				return job;
+			try{
+				job = jobDao.getJobByJobId(Integer.valueOf(MetaHelper.getMetaValue(SAMPLE_PAIR_AREA, JOB_ID, ssMetaList)));
+				if (job.getJobId() == null)
+					job = null;
+			} catch(Exception e) {
+				// value not found or not a sensible value
+			}
+			return job;
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public Set<SampleSource> getSamplePairsByJob(Job job){
+			Assert.assertParameterNotNull(job, "job cannot be null");
+			Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+			
+			Set<SampleSource> samplePairs = new HashSet<SampleSource>();
+			Map<String, String> m = new HashMap<String, String>();
+			m.put("k", SAMPLE_PAIR_AREA + "." + JOB_ID);
+			m.put("v", job.getJobId().toString());
+			for (SampleSourceMeta ssm: sampleSourceMetaDao.findByMap(m)){
+				samplePairs.add(ssm.getSampleSource());
+			}
+			return samplePairs;
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException{
+//			if (!isCell(testSample))
+//				throw new SampleTypeException("Expected 'cell' but got Sample of type '" + testSample.getSampleType().getIName() + "' instead.");
+			if (!isLibrary(controlSample))
+				throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
+
+			Assert.assertParameterNotNull(testSample, "Test sample cannot be null");
+			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample id cannot be null");
+			Assert.assertParameterNotNull(controlSample, "Control sample cannot be null");
+			Assert.assertParameterNotNull(controlSample.getSampleId(), "Control sample id cannot be null");
+			
+			Map<String, Integer> m = new HashMap<String, Integer>();
+			m.put("sourceSampleId", controlSample.getSampleId());
+			m.put("sampleId", testSample.getSampleId());
+			List<SampleSource> ss = sampleSourceDao.findByMap(m);
+			if (ss.isEmpty())
+				return null;
+			return ss.get(0); // should be one
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public Sample getTestSample(SampleSource samplePair){
+			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be empty");
+			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			
+			return sampleDao.getSampleBySampleId(samplePair.getSampleId()); // get from Dao in case sample pair not entity managed
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public Sample getControlSample(SampleSource samplePair){
+			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be empty");
+			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			
+			return sampleDao.getSampleBySampleId(samplePair.getSourceSampleId()); // get from Dao in case sample pair not entity managed
+		}
+
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public Sample getControlSampleByTestSample(Sample testSample){
+			Assert.assertParameterNotNull(testSample, "Test sample cannot be empty");
+			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample must have a valid id");
+			
+			Map<String, Integer> m = new HashMap<String, Integer>();
+			m.put("sampleId", testSample.getSampleId());
+			List<SampleSource> ss = sampleSourceDao.findByMap(m);
+			if (ss.isEmpty())
+				return null;
+			
+			return sampleDao.getSampleBySampleId(ss.get(0).getSourceSampleId()); // get from Dao in case sample pair not entity managed
+		}
+
+		  /**
+		   * {@inheritDoc}
+		   */
+		  @Override
+		  public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException {
+			  Assert.assertParameterNotNull(testSampleId, "No test sample id provided");
+			  Assert.assertParameterNotNull(controlSampleId, "No control sample id provided");
+			  
+			  Sample testSample = this.getSampleById(testSampleId);
+			  Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample does not exist!");
+			  Sample controlSample = this.getSampleById(controlSampleId);
+			  Assert.assertParameterNotNull(controlSample.getSampleId(), "Control sample does not exist!");
+
+			  if (!this.isLibrary(controlSample)){
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
+			  }
+
+			  //check if the test sample already has been paired with a control sample 
+			  if( getControlSampleByTestSample(testSample) != null ){ //case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
+				  throw new SampleException("Sample "+testSample.getName()+" is already paired with another control sample.");
+			  }
+
+			  SampleSource newSampleSource = new SampleSource(); 
+			  newSampleSource.setSample(testSample);
+			  newSampleSource.setSourceSample(controlSample);
+			  newSampleSource.setIndex(null);
+			  newSampleSource = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
+			  
+			  try{
+				  this.setJobByTestAndControlSamples(testSample, controlSample);
+			  } catch(Exception e){
+				  logger.warn("Unable to set 'jobId' SampleSourceMeta for sample "+testSample.getName()+" and sample "+controlSample.getName());
+			  }
+			  
+		  }
 }
 
