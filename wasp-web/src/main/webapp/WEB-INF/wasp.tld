@@ -19,7 +19,7 @@
 	</tag>
 	<tag>
 		<description><![CDATA[
-            <p>Displays localized error messages using list of keys stored in session under name "_feedback"</p>
+            <p>Displays localized error messages using list of keys stored in session under name "_feedbackError"</p>
         ]]></description>
 		<name>errorMessage</name>
 		<tag-class>edu.yu.einstein.wasp.taglib.ErrorMessageTag</tag-class>
@@ -246,4 +246,44 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>        
     </tag>
+    <tag>
+        <!-- 
+		<description>Displays tooltip</description>
+          -->
+		<name>tooltip</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.TooltipTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Provide a resource key to decode, e.g., sample.name.tooltip</description>
+			<name>key</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Provide a literal value for the tooltip text</description>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
+	<tag>
+        <!-- 
+		<description>Displays comment</description>
+          -->
+		<name>comment</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.CommentTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Provide a resource key to decode, e.g., sample.comment.label</description>
+			<name>key</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Provide a literal value for the comment text</description>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
 </taglib>

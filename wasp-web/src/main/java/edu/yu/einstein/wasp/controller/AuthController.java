@@ -2,12 +2,11 @@ package edu.yu.einstein.wasp.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+
 
 import nl.captcha.Captcha;
 
@@ -415,8 +414,7 @@ public class AuthController extends WaspController {
 			m.addAttribute("isAdminCreated", isAdminCreated);
 			return "auth/confirmemail/authcodeform";
 		}
-		Map userQueryMap = new HashMap();
-		userQueryMap.put("email", email);
+		
 		User user = userDao.getUserByEmail(email);
 		if (user.getUserId() == null){
 			waspErrorMessage("auth.confirmemail_bademail.error");

@@ -1,0 +1,88 @@
+/* based on: http://salatsosse.ch/2012/05/12/memu-a-simple-css-javascript-jquery-menu/ */
+
+.main_menu {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+	
+}
+
+.main_menu ul {
+	list-style: none outside none;
+	background-color:#FFFFE6;
+    margin: 0;
+    padding: 0;
+	position: absolute;
+    left: -9999px;
+	margin-left: 20px;
+    width: 150px;
+    -moz-box-shadow: 3px 3px 3px #333;
+    -webkit-box-shadow: 3px 3px 3px #333;
+    box-shadow: 3px 3px 3px #333;
+}
+.main_menu ul ul {
+	margin-left: 0px;
+	margin-top: 0px;
+	
+}
+.main_menu a {
+	text-decoration: none;
+    background: #FFFFE6;
+    background-color: rgba(236, 203, 124, 0.98);
+    border: 1px solid #f7f7f7;
+    color: #333;
+    display: block;
+    font: bold 12px/25px segoe ui,verdana,sans-serif;
+    margin: 0 -1px -1px 0;
+    padding-left: 10px;
+    text-decoration: none;
+    width: 139px;
+	text-overflow: ellipsis;
+}
+
+
+.main_menu li.main_menu-root > a {
+	border-left: 0 !important;
+	border-right: 0 !important;
+	border-top: 1px solid transparent !important;
+	border-bottom: 1px solid transparent !important;
+	background: transparent !important;
+}
+
+.main_menu li {
+    float: left;
+}
+.main_menu li.has-children > a {
+    background: url("/wasp/images/menu/arrow.png") no-repeat scroll #eccb7c;
+	background-position: 130px center;
+    background-color: #eccb7c;
+}
+.main_menu li:hover {
+    position: relative;
+    z-index: 100;
+    background-color: #FFEB99;
+}
+.main_menu li:hover > a {
+    background-color: #FFEB99;
+    border-color: #fafafa;
+    color: #aa0000;
+    text-decoration: none;
+}
+.main_menu li:hover > ul {
+    left: -20px;
+    opacity: 1;
+    top: 26px;
+    z-index: -1;
+}
+.main_menu li:hover li:hover > ul {
+    left: 145px;
+    opacity: 1;
+    top: 5px;
+    z-index: 100;
+}
+
+.main_menu-current {
+	background-color: #abcdef !important;
+	background-color: rgba(235, 245, 255, 0.98 !important);
+}
+

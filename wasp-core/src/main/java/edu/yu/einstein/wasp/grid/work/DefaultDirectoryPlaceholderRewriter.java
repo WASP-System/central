@@ -6,8 +6,8 @@ package edu.yu.einstein.wasp.grid.work;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.util.PropertyHelper;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
+import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
  * Default implementation of {@link DirectoryPlaceholderRewriter}. Rewrites
@@ -43,19 +43,19 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 	 * edu.yu.einstein.wasp.grid.work.WorkUnit)
 	 */
 	@Override
-	public void replaceDirectoryPlaceholders(GridTransportService transportService, WorkUnit w) throws MisconfiguredWorkUnitException {
-		String scratch = transportService.getConfiguredSetting("scratch.dir");
-		String results = transportService.getConfiguredSetting("results.dir");
+	public void replaceDirectoryPlaceholders(GridTransportConnection transportConnection, WorkUnit w) throws MisconfiguredWorkUnitException {
+		String scratch = transportConnection.getConfiguredSetting("scratch.dir");
+		String results = transportConnection.getConfiguredSetting("results.dir");
 		logger.debug("scratch: " + scratch + " & " + "results: " + results);
 		logger.debug("Work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory());
 		if (!PropertyHelper.isSet(scratch)) {
 			logger.warn("Scratch directory has not been set!  Set this value in the properties file of the config project: ("
-					+ transportService.getName() + ".settings.scratch.dir).  Defaulting to \"$HOME/\".");
+					+ transportConnection.getName() + ".settings.scratch.dir).  Defaulting to \"$HOME/\".");
 			scratch = "$HOME/";
 		}
 		if (!PropertyHelper.isSet(results)) {
 			logger.warn("Scratch directory has not been set!  Set this value in the properties file of the config project: ("
-					+ transportService.getName() + ".settings.results.dir).  Defaulting to \"$HOME/\".");
+					+ transportConnection.getName() + ".settings.results.dir).  Defaulting to \"$HOME/\".");
 			results = "$HOME/";
 		}
 		

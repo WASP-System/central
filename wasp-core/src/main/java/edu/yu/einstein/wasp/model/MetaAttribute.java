@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Holds attributes for a *meta" object
@@ -15,6 +12,11 @@ import org.slf4j.LoggerFactory;
  */
 public final class MetaAttribute implements Serializable {
 
+	
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5376828098218595820L;
 	
 		public static enum MetaType {
 			INTEGER,
@@ -37,6 +39,8 @@ public final class MetaAttribute implements Serializable {
 		private String suffix;
 		
 		private String range;
+		
+		private String tooltip;
 		
 		private String defaultVal;
 		
@@ -84,8 +88,17 @@ public final class MetaAttribute implements Serializable {
 			}
 		}
 		
+		
 		public String getRange(){
 			return range;
+		}
+		
+		public String getTooltip() {
+			return tooltip;
+		}
+
+		public void setTooltip(String tooltip) {
+			this.tooltip = tooltip;
 		}
 		
 		public String getDefaultVal() {
@@ -139,8 +152,6 @@ public final class MetaAttribute implements Serializable {
 			this.suffix = suffix;
 		}
 		
-		private Logger logger = LoggerFactory.getLogger(MetaAttribute.class);
-		
 		/**
 		 * 
 		 * Represents a control element such as a select box. An object of this class will typically either use the options attribute OR
@@ -149,6 +160,11 @@ public final class MetaAttribute implements Serializable {
 		 *
 		 */
 		public static final class Control implements Serializable{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 2993903667298872860L;
+
 			public enum Type {
 				input, select
 			}
@@ -192,6 +208,10 @@ public final class MetaAttribute implements Serializable {
 			 *
 			 */
 			public static final class Option implements Serializable {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = -436008295959041019L;
 				private String value;
 				private String label;
 

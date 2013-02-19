@@ -86,7 +86,7 @@ public class WorkUnit {
 	/**
 	 * Transport specific connection
 	 */
-	private GridTransportConnection connection;
+	//private GridTransportConnection connection;
 	
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
@@ -107,17 +107,20 @@ public class WorkUnit {
 	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
+	@SuppressWarnings("unused")
 	private Set<String> pluginDependencies = new LinkedHashSet<String>();
 	
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
+	@SuppressWarnings("unused")
 	private boolean clean = true;
 	
 	/**
 	 * whether or not to copy results files to the remote archive upon completion.  Execution of subsequent steps on the 
 	 * same host will greatly benefit by setting this to true.
 	 */
+	@SuppressWarnings("unused")
 	private boolean provisionResults = false;
 	
 	/**
@@ -269,19 +272,19 @@ public class WorkUnit {
 		}
 	}
 
-	/**
-	 * @return the connection
-	 */
-	public GridTransportConnection getConnection() {
-		return connection;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	protected void setConnection(GridTransportConnection connection) {
-		this.connection = connection;
-	}
+//	/**
+//	 * @return the connection
+//	 */
+//	public GridTransportConnection getConnection() {
+//		return connection;
+//	}
+//
+//	/**
+//	 * @param connection the connection to set
+//	 */
+//	protected void setConnection(GridTransportConnection connection) {
+//		this.connection = connection;
+//	}
 
 	/**
 	 * @return the wrapperCommand

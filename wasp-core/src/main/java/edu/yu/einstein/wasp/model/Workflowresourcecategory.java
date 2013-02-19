@@ -32,6 +32,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="workflowresourcecategory")
 public class Workflowresourcecategory extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4091500561560541120L;
 	/** 
 	 * workflowresourcecategoryId
 	 *

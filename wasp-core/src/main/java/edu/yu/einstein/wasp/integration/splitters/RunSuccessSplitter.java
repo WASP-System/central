@@ -14,7 +14,6 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -24,8 +23,8 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
@@ -63,6 +62,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessSplitter.class);
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
 		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
@@ -79,21 +79,17 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 		Set<SampleSource> cellLibraries = runService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
 		for (SampleSource cellLibrary :  cellLibraries){
 			// send message to initiate job processing
-			Sample cell = sampleService.getCell(cellLibrary);
-			Sample library = sampleService.getLibrary(cellLibrary);
-			Job job;
-			try {
-				job = sampleService.getJobOfLibraryOnCell(cell, library);
-			} catch (SampleException e1) {
-				logger.error(e1.getLocalizedMessage());
-				continue;
-			}
+			Job job = sampleService.getJobOfLibraryOnCell(cellLibrary);
 			Map<String, String> jobParameters = new HashMap<String, String>();
-			jobParameters.put(WaspJobParameters.LIBRARY_ID, job.getJobId().toString());
-			jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL, cellLibrary.getSampleSourceId().toString());
-			for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName())) {
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, cellLibrary.getSampleSourceId().toString());
+			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+			String worflowIname = job.getWorkflow().getIName();
+			for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(worflowIname, BatchJobProviding.class)) {
 				String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
+				if (flowName == null){
+					logger.warn("No generic flow found for plugin handling workflow " + worflowIname);
+					continue;
+				}
 				BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 						new BatchJobLaunchContext(flowName, jobParameters) );
 				try {

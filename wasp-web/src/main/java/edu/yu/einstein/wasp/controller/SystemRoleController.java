@@ -62,14 +62,14 @@ public class SystemRoleController extends WaspController {
 	 * @return view 
 	 */
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('fm')")
 	public String listSystemUser(ModelMap m) {
 
-		Map roleQueryMap = new HashMap();
+		Map<String, String> roleQueryMap = new HashMap<String, String>();
 		roleQueryMap.put("domain", "system");
 		List<Role> systemRoleList = roleDao.findByMap(roleQueryMap);
 
-		SortedMap userRoleMap = new TreeMap();
+		SortedMap<String, ArrayList<Userrole>> userRoleMap = new TreeMap<String, ArrayList<Userrole>>();
 		for (Userrole ur : userroleDao.findAll()){
 			if (systemRoleList.contains(ur.getRole())){
 				// current userrole user has a systems role
@@ -120,7 +120,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		Map userroleQueryMap = new HashMap();
+		Map<String, Integer> userroleQueryMap = new HashMap<String, Integer>();
 		userroleQueryMap.put("UserId", user.getUserId());
 		userroleQueryMap.put("roleId", role.getRoleId());
 		if (!userroleDao.findByMap(userroleQueryMap).isEmpty()){
@@ -177,7 +177,7 @@ public class SystemRoleController extends WaspController {
 		}
 		// ensure we do not remove the only userrole entry for the chosen role
 		// must have at least one user granted each system role.
-		Map roleIdQuery = new HashMap();
+		Map<String, Integer> roleIdQuery = new HashMap<String, Integer>();
 		roleIdQuery.put("roleId", role.getRoleId());
 		if (userroleDao.findByMap(roleIdQuery).size() == 1){
 			waspErrorMessage("sysrole.onlyUserWithRole.error");

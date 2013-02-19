@@ -75,6 +75,7 @@ public class UiFieldController extends WaspController {
 	  ATTR_NAMES.put("constraint","Validation Constraint");
 	  ATTR_NAMES.put("error","Validation Constraint Message");	  	  
 	  ATTR_NAMES.put("control","Dropdown Options");
+	  ATTR_NAMES.put("tooltip","TooltipTag");
 	  ATTR_NAMES.put("suffix","Suffix");
 	  ATTR_NAMES.put("metaposition","Position");
 	  ATTR_NAMES.put("data","Area-specific data");
@@ -166,12 +167,12 @@ public class UiFieldController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 			
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			
 			for (UiField field:uiFieldList) {
 				
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", field.getUiFieldId());
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {

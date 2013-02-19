@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +50,6 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
@@ -176,29 +174,6 @@ public class SampleController extends WaspController {
   }
 	
 	/**
-	 * Prepares page to display JQGrid table with a list of samples where SampleTypeCategory.iName="biomaterial"
-	 * 
-	 * @Author Natalia Volnova
-	 */
-  	private static List<Sample>  joinById (List <Sample> listOne, List <SampleType> ListTwo) {
-  		
-  		List <Sample> finalList = new ArrayList <Sample> ();
-
-		for (Iterator <SampleType> it=ListTwo.iterator(); it.hasNext();) {
-			SampleType tempSampleType = it.next();
-			for (Iterator <Sample> itSample=listOne.iterator(); itSample.hasNext();) {
-				Sample tempSample = itSample.next();
-				
-				if (tempSample.getSampleTypeId().intValue() == tempSampleType.getSampleTypeId().intValue()) {
-					finalList.add(tempSample);
-				}
-			}
-		}
-  		
-  		return finalList;
-  	}
-  	
-  	/**
   	 * 
   	 * @param response
   	 * @return
@@ -213,7 +188,6 @@ public class SampleController extends WaspController {
 		//Parameters coming from the jobGrid
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
-		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
 		String selIdAsString = request.getParameter("selId");//not really used here
 		//logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 		//String selIdAsString = request.getParameter("selId");
@@ -292,7 +266,7 @@ public class SampleController extends WaspController {
 		//List<JobSample> jobSamplesFoundInSearch = new ArrayList<JobSample>();//not currently used
 		List<JobSample> jobSampleList = new ArrayList<JobSample>();
 		
-		Map queryMap = new HashMap();
+		Map<String, Object> queryMap = new HashMap<String, Object>();
 		if(jobId != null){
 			queryMap.put("jobId", jobId.intValue());
 		}
@@ -355,7 +329,7 @@ public class SampleController extends WaspController {
 			sampleData.put("selId", StringUtils.isEmpty(selIdAsString) ? "" : selIdAsString);
 			jqgrid.put("sampledata", sampleData);
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -376,7 +350,7 @@ public class SampleController extends WaspController {
 			List<JobSample> jobSamplePage = jobSampleList.subList(frId, toId);
 			for (JobSample jobSample : jobSamplePage) {
 
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", jobSample.getSampleId());
 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {

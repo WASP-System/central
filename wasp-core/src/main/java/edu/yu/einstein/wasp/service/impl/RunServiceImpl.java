@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.service.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +28,6 @@ import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -42,15 +40,14 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 /**
  * @author calder
@@ -208,10 +205,14 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
 		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
 		String rcIname = newRun.getResourceCategory().getIName();
-		for (WaspPlugin plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname)) {
+		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
 			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
+			if (flowName == null){
+				logger.warn("No generic flow found for plugin handling " + rcIname);
+				continue;
+			}
 			try {
 				launchBatchJob(flowName, jobParameters);
 			} catch (WaspMessageBuildingException e) {
@@ -294,9 +295,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getCurrentlyActiveRuns(){
 		Set<Run> runs = new HashSet<Run>();
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> jobIdStringSet = new HashSet<String>();
-		jobIdStringSet.add("*");
-		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
@@ -307,6 +308,21 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			}
 		}
 		return runs;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override	public boolean isRunActive(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add(run.getRunId().toString());
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		if (! batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED).isEmpty())
+			return true;
+		return false;
 	}
 	
 	/**
@@ -332,6 +348,22 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isRunSucessfullyCompleted(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new HashSet<String>();
+		runIdStringSet.add(run.getRunId().toString());
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED).isEmpty())
+			return true;
+		return false;
+	}
+	
+	/**
 	 *  {@inheritDoc}
 	 */
 	@Override
@@ -342,7 +374,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 						try{
 							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
@@ -369,7 +401,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						try{
 							libraryJob.put(library, sampleService.getJobOfLibraryOnCell(cell, library));
@@ -396,7 +428,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCellWithoutControls(cell)){
 						try{
 							libraryCell.add(sampleService.getCellLibrary(cell, library));
@@ -423,7 +455,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<SampleSource> libraryCell = new HashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell)){
+				if (sampleService.isCellSequencedSuccessfully(cell)){
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						try{
 							libraryCell.add(sampleService.getCellLibrary(cell, library));
@@ -449,7 +481,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
+				if (sampleService.isCellSequencedSuccessfully(cell))
 					librariesOnRun.addAll(sampleService.getLibrariesOnCellWithoutControls(cell));	
 			}
 		} catch (SampleTypeException e) {
@@ -469,7 +501,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<Sample> librariesOnRun = new HashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
-				if (isCellSequencedSuccessfully(cell))
+				if (sampleService.isCellSequencedSuccessfully(cell))
 					librariesOnRun.addAll(sampleService.getLibrariesOnCell(cell));	
 			}
 		} catch (SampleTypeException e) {
@@ -481,46 +513,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 
 	
 
-	// statics for use by isCellSequencedSuccessfully() and setIsCellSequencedSuccessfully()
-	private static final String CELL_SUCCESS_META_AREA = "cell";
-	private static final String CELL_SUCCESS_META_KEY = "success";
 	
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
-		if (!sampleService.isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		String success = null;
-		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
-		if (sampleMetaList == null)
-			sampleMetaList = new ArrayList<SampleMeta>();
-		try{
-			success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY, sampleMetaList);
-		} catch(MetadataException e) {
-			return false; // no value exists already
-		}
-		Boolean b = new Boolean(success);
-		return b.booleanValue();
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		if (!sampleService.isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		Boolean b = new Boolean(success);
-		String successString = b.toString();
-		SampleMeta sampleMeta = new SampleMeta();
-		sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY);
-		sampleMeta.setV(successString);
-		sampleMeta.setSampleId(cell.getSampleId());
-		sampleMetaDao.setMeta(sampleMeta);
-	}
 
 }

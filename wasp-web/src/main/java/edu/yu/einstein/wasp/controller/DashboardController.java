@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
 @Transactional
@@ -48,6 +49,7 @@ public class DashboardController extends WaspController {
 	
 	@Autowired
 	private TaskMappingRegistry taskMappingRegistry;
+	
 
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -86,6 +88,8 @@ public class DashboardController extends WaspController {
 				case lu: labList.add(labDao.getLabByLabId(roleObjectId)); break; 
 				case jv: jobViewableCount++; break;
 				case jd: jobDraftCount++; break;
+				default:
+					break;
 			}
 		}
 		jobsAllCount = jobDao.findAll().size();
@@ -98,7 +102,7 @@ public class DashboardController extends WaspController {
 		m.addAttribute("jobsAllCount", jobsAllCount);
 		m.addAttribute("jobDraftCount", jobDraftCount);	
 		
-		List<WaspTaskMapping> taskMappingsToDisplay = new ArrayList<WaspTaskMapping>();
+		List<WebHyperlink> taskMappingHyperlinksToDisplay = new ArrayList<WebHyperlink>();
 		for (String name: taskMappingRegistry.getNames()){
 			WaspTaskMapping taskMapping = taskMappingRegistry.getTaskMapping(name);
 			if (taskMapping == null){
@@ -106,12 +110,11 @@ public class DashboardController extends WaspController {
 				continue;
 			}
 			if (taskMapping.isLinkToBeShown())
-				taskMappingsToDisplay.add(taskMapping);
+				taskMappingHyperlinksToDisplay.add(taskMapping);
 		}
 		
-		m.addAttribute("tasks",taskMappingsToDisplay);
-		m.addAttribute("isTasks", taskMappingsToDisplay.size() > 0);
-		
+		m.addAttribute("taskHyperlinks",taskMappingHyperlinksToDisplay);
+		m.addAttribute("isTasks", taskMappingHyperlinksToDisplay.size() > 0);
 		return "dashboard";
 	}
 }

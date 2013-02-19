@@ -307,15 +307,13 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)	
 	public String getListJSON(HttpServletResponse response) {
 		
-		String search = request.getParameter("_search");
-		String searchStr = request.getParameter("searchString");
-	
 		String sord = request.getParameter("sord");
 		String sidx = request.getParameter("sidx");
 		
 		String userId = request.getParameter("userId");
-		String labId = request.getParameter("labId");//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
-		
+		if(userId==null || "".equals(userId)){//added 2-13-13 by Dubin; this way, if no parameter, get drafts for the authenticated user
+			userId = authenticationService.getAuthenticatedUser().getUserId().toString();
+		}
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
@@ -340,7 +338,7 @@ public class JobSubmissionController extends WaspController {
 			  
 				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getUserId().intValue() ) ){
 				
-					Map m = new HashMap();	
+					Map<String, Object> m = new HashMap<String, Object>();	
 				
 					//if (search.equals("true") && !searchStr.isEmpty()){
 					//	m.put(request.getParameter("searchField"), request.getParameter("searchString"));
@@ -374,7 +372,7 @@ public class JobSubmissionController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 			 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -395,7 +393,7 @@ public class JobSubmissionController extends WaspController {
 
 			List<JobDraft> itemPage = jobDraftList.subList(frId, toId);
 			for (JobDraft item : itemPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", item.getJobDraftId());
 				 
 				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
@@ -436,7 +434,7 @@ public class JobSubmissionController extends WaspController {
 
 		List <LabUser> labUserAllRoleList = me.getLabUser();
 
-		List <Lab> labList = new ArrayList();
+		List <Lab> labList = new ArrayList<Lab>();
 		for (LabUser lu: labUserAllRoleList) {
 			String roleName =	lu.getRole().getRoleName();
 
@@ -749,7 +747,7 @@ public class JobSubmissionController extends WaspController {
 		// make list of available resources
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		List<Workflowresourcecategory> allWorkflowResourceCategories = jobDraft.getWorkflow().getWorkflowresourcecategory();
-		List<Workflowresourcecategory> workflowResourceCategories = new ArrayList();
+		List<Workflowresourcecategory> workflowResourceCategories = new ArrayList<Workflowresourcecategory>();
 		for (Workflowresourcecategory w: allWorkflowResourceCategories) {
 			if (! w.getResourceCategory().getResourceType().getIName().equals(resourceTypeIName)) { continue; }
 			workflowResourceCategories.add(w); 
@@ -839,7 +837,7 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
 		}
-		Map params = request.getParameterMap();
+		Map<String, String[]> params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
 			changeResource = Integer.parseInt(((String[])params.get("changeResource"))[0]);
@@ -1024,7 +1022,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		
-		Map params = request.getParameterMap();
+		Map<String, String[]> params = request.getParameterMap();
 		Integer changeResource = null;
 		try {
 			changeResource = Integer.parseInt(((String[])params.get("changeResource"))[0]);
@@ -1100,12 +1098,10 @@ public class JobSubmissionController extends WaspController {
 
 		List<JobDraftMeta> jobDraftMeta = workflowMetaHelperWebapp.syncWithMaster(jobDraft.getJobDraftMeta()); 
 
-		JobDraftMeta ametaJdm = new JobDraftMeta();
 		String ametaArea = "";
 		for (JobDraftMeta jdm: jobDraftMeta) {
 			if (! jdm.getK().equals(workflowMetaHelperWebapp.getArea() + "." + additionalMetaArea)) { continue; }
 			ametaArea = jdm.getV();
-			ametaJdm = jdm;
 		}
 		if (ametaArea.isEmpty()){
 			// no additional meta found with supplied meta area
@@ -1130,7 +1126,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/additionalMeta/{meta}/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String modifyAdditionalMeta (
-			@PathVariable String additionalMetaArea,
+			@PathVariable("meta") String additionalMetaArea,
 			@PathVariable Integer jobDraftId,
 			@Valid JobDraft jobDraftForm,
 			BindingResult result,
@@ -1176,7 +1172,7 @@ public class JobSubmissionController extends WaspController {
 
 		// sync meta data in DB (e.g.removes old aligners)
 		for (MetaAttribute.Control.Option opt: ametaJdm.getProperty().getControl().getOptions()) {
-			jobDraftMetaDao.replaceByJobDraftId(opt.getValue(), jobDraftId, new ArrayList());
+			jobDraftMetaDao.replaceByJobDraftId(opt.getValue(), jobDraftId, new ArrayList<JobDraftMeta>());
 		}
 
 		jobDraftMetaDao.replaceByJobDraftId(metaHelperWebapp.getArea(), jobDraftId, jobDraftMetaList);
@@ -1635,7 +1631,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		}		
 
-		Map params = request.getParameterMap();
+		Map<String, String[]> params = request.getParameterMap();
 		List<SampleDraft> samplesOnThisJobDraft = jobDraft.getSampleDraft();
 		Map<Integer, List<SampleDraft>> cellMap = jobDraftService.convertWebCellsToMapCells(params, samplesOnThisJobDraft);
 		//cellMap is used to confirm validity of cell selections. cellMap stores the info from the web regarding sampleDraft placement on cells
@@ -1748,8 +1744,7 @@ public class JobSubmissionController extends WaspController {
 			for (WorkflowMeta wfm: wfmList) {
 				if (wfm.getK().equals("workflow.validatorClass")) {
 					ClassLoader cl = JobSubmissionController.class.getClassLoader();
-					// jdv = (JobDraftValidator) cl.loadClass(wfm.getV()).newInstance();
-					Object o = cl.loadClass(wfm.getV()).newInstance();
+					cl.loadClass(wfm.getV()).newInstance();
 
 
 					break;

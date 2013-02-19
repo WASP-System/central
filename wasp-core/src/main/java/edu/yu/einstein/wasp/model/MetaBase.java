@@ -19,6 +19,11 @@ import javax.persistence.Transient;
 @MappedSuperclass
 public class MetaBase extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6102066799409219687L;
+
 	public MetaBase() {
 
 	}

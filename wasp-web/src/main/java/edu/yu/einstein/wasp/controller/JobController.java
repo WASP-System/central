@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,12 +36,9 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -66,6 +62,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
 @Transactional
@@ -256,9 +253,6 @@ public class JobController extends WaspController {
 
 		prepareSelectListData(m);
 		
-		String userId = request.getParameter("UserId");//don't think these two params are used here
-		String labId = request.getParameter("labId");
-		
 		m.addAttribute("viewerIsFacilityMember", "false");
 		if(authenticationService.isFacilityMember()){
 			m.addAttribute("viewerIsFacilityMember", "true");//send to jsp; this way don't have to perform multiple sec:authorize access= tests!!
@@ -274,15 +268,11 @@ public class JobController extends WaspController {
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		List<Job> tempJobList = new ArrayList<Job>();
-		List<Job> jobsFoundInSearch = new ArrayList<Job>();//not currently used
 		List<Job> jobList = new ArrayList<Job>();
 
 		//Parameters coming from the jobGrid
 		String sord = request.getParameter("sord");//grid is set so that this always has a value
 		String sidx = request.getParameter("sidx");//grid is set so that this always has a value
-		String search = request.getParameter("_search");//from grid (will return true or false, depending on the toolbar's parameters)
-		//logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
-
 		//Parameters coming from grid's toolbar
 		//The jobGrid's toolbar's is it's search capability. The toolbar's attribute stringResult is currently set to false, 
 		//meaning that each parameter on the toolbar is sent as a key:value pair
@@ -399,7 +389,7 @@ public class JobController extends WaspController {
 		//if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
 		//		||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
 		//if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
-		Map m = new HashMap();
+		Map<String, Object> m = new HashMap<String, Object>();
 		if(jobId != null){
 			m.put("jobId", jobId.intValue());
 		}
@@ -412,7 +402,7 @@ public class JobController extends WaspController {
 		if(piLab != null){
 			m.put("labId", piLab.getLabId().intValue());
 		}
-		Map dateMap = new HashMap();
+		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(createts != null){
 			dateMap.put("createts", createts);
 		}
@@ -482,7 +472,7 @@ public class JobController extends WaspController {
 			userData.put("selId",StringUtils.isEmpty(request.getParameter("selId"))?"":request.getParameter("selId"));
 			jqgrid.put("userdata",userData);
 					
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -503,7 +493,7 @@ public class JobController extends WaspController {
 
 			List<Job> jobPage = jobList.subList(frId, toId);
 			for (Job job:jobPage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", job.getJobId());
 				 
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
@@ -525,7 +515,10 @@ public class JobController extends WaspController {
 					}					
 				}
 				
-				String currentStatus = jobService.getJobStatus(job, true);
+				String currentStatus = jobService.getJobStatus(job);
+				String jobStatusComment = jobService.getJobStatusComment(job);
+				if (jobStatusComment != null)
+					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment);
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
@@ -538,7 +531,9 @@ public class JobController extends WaspController {
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
-							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
+							"<a href=/wasp/jobresults/treeview/job/"+job.getJobId()+".do>View Results</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {
@@ -573,7 +568,7 @@ public class JobController extends WaspController {
 		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
 		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
 		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
-		Map filter = new HashMap();
+		Map<String, Integer> filter = new HashMap<String, Integer>();
 		filter.put("jobId", job.getJobId());
 		List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filter);
 		for(JobCellSelection jobCellSelection : jobCellSelections){
@@ -582,7 +577,7 @@ public class JobController extends WaspController {
 				samplesAsSet.add(sampleJobCellSelection.getSample());
 			}
 		}
-		List<Sample> samples = new ArrayList();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
+		List<Sample> samples = new ArrayList<Sample>();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
 		for(Sample sample : samplesAsSet){
 			samples.add(sample);
 		}
@@ -595,9 +590,9 @@ public class JobController extends WaspController {
 		Collections.sort(samples, new SampleNameComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
 
 		try {
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 			for (Sample sample:samples) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", sample.getSampleId());
 					 					
 				List<String> cellList = new ArrayList<String>(

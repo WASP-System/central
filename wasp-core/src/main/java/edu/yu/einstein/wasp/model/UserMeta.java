@@ -28,6 +28,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="usermeta")
 public class UserMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8388877884886731036L;
 	/** 
 	 * userMetaId
 	 *

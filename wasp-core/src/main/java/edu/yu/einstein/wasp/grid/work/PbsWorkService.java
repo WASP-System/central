@@ -3,32 +3,9 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.UUID;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 
 /**
  * {@link GridWorkService} implementation for PBS/torque.  Based on version 2.4.6.
@@ -38,14 +15,14 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
  */
 public class PbsWorkService { // implements GridWorkService {
 	
-	private Logger logger = LoggerFactory.getLogger(PbsWorkService.class);
-
+	@SuppressWarnings("unused")
 	private String namePrefix = "WASP-";
 	public void setNamePrefix(String np) {
 		this.namePrefix = np + "-";
 	}
 
-	private GridTransportService transportService;
+
+	private GridTransportConnection transportConnection;
 
 	@Autowired
 	protected GridFileService waspGridFileService;

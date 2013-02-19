@@ -28,63 +28,67 @@ import org.hibernate.envers.NotAudited;
 @Table(name="acct_quotemeta")
 public class AcctQuoteMeta extends MetaBase {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3927428785556020796L;
 	/** 
-	 * quotemetaId
+	 * quoteMetaId
 	 *
 	 */
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer quotemetaId;
+	protected Integer quoteMetaId;
 
 	/**
-	 * setQuotemetaId(Integer quotemetaId)
+	 * setQuoteMetaId(Integer quoteMetaId)
 	 *
-	 * @param quotemetaId
+	 * @param quoteMetaId
 	 *
 	 */
 	
-	public void setQuotemetaId (Integer quotemetaId) {
-		this.quotemetaId = quotemetaId;
+	public void setQuoteMetaId (Integer quoteMetaId) {
+		this.quoteMetaId = quoteMetaId;
 	}
 
 	/**
-	 * getQuotemetaId()
+	 * getQuoteMetaId()
 	 *
-	 * @return quotemetaId
+	 * @return quoteMetaId
 	 *
 	 */
-	public Integer getQuotemetaId () {
-		return this.quotemetaId;
+	public Integer getQuoteMetaId () {
+		return this.quoteMetaId;
 	}
 
 
 
 
 	/** 
-	 * quoteId
+	 * acctQuoteId
 	 *
 	 */
 	@Column(name="quoteid")
-	protected Integer quoteId;
+	protected Integer acctQuoteId;
 
 	/**
-	 * setQuoteId(Integer quoteId)
+	 * setQuoteId(Integer acctQuoteId)
 	 *
-	 * @param quoteId
+	 * @param acctQuoteId
 	 *
 	 */
 	
-	public void setQuoteId (Integer quoteId) {
-		this.quoteId = quoteId;
+	public void setAcctQuoteId (Integer acctQuoteId) {
+		this.acctQuoteId = acctQuoteId;
 	}
 
 	/**
-	 * getQuoteId()
+	 * getAcctQuoteId()
 	 *
-	 * @return quoteId
+	 * @return acctQuoteId
 	 *
 	 */
-	public Integer getQuoteId () {
-		return this.quoteId;
+	public Integer getAcctQuoteId () {
+		return this.acctQuoteId;
 	}
 
 
@@ -107,7 +111,7 @@ public class AcctQuoteMeta extends MetaBase {
 	 */
 	public void setAcctQuote (AcctQuote acctQuote) {
 		this.acctQuote = acctQuote;
-		this.quoteId = acctQuote.quoteId;
+		this.acctQuoteId = acctQuote.quoteId;
 	}
 
 	/**

@@ -153,6 +153,13 @@ public interface EmailService  {
 
 	public String getNewAuthcodeForUserPending(UserPending userpending);
 
+	/**
+	 * Sends an email message to the department administrator to confirm or deny a principal investigator
+	 * application from an already existing user that is now trying to create a lab of his/her own.
+	 * @param userPending
+	 */
+	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending);
+
 
 }
 

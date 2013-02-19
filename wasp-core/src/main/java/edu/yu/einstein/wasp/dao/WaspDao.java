@@ -136,6 +136,13 @@ public interface WaspDao<E> extends WaspPersistenceDao {
    */
    public E getEagerLoadedDetachedEntity(E entity) throws ModelDetachException;
 
+   /**
+    * returns true if entity is a managed entity instance belonging to the current persistence context
+    * @param entity
+    * @return
+    */
+   boolean isAttached(E entity);
+
 
 
 }

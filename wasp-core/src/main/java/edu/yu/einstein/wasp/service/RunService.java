@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Job;
@@ -165,24 +164,22 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run);
-	  
-	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
-	   * @param cell
-	   * @return
-	   * @throws SampleTypeException
-	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
 
 	  /**
-	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
-	   * assessment of a run
-	   * @param cell
-	   * @param success
-	   * @throws SampleTypeException
-	   * @throws MetadataException 
+	   * Returns true if the run is registered to be in a COMPLETED state
+	   * @param run
+	   * @return
 	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  public boolean isRunSucessfullyCompleted(Run run);
+
+	  /**
+	   * Returns true if the run is registered to be in a STARTED state
+	   * @param run
+	   * @return
+	   */
+	  public boolean isRunActive(Run run);
+	  
+	  
 
 	  
 	  

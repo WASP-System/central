@@ -7,6 +7,7 @@
 	<definition name="template-base" template="/WEB-INF/jsp/layouts/base.jsp">
 		<put-attribute name="head-js" value="" />
 		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="menu-content" value="/WEB-INF/jsp/sections/menu.jsp" />
 		<put-attribute name="body-content" value="" />
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
@@ -19,6 +20,7 @@
 		<put-attribute name="grid-customAttributes" value="" />
 		<put-attribute name="toolbar-buttons" value="" />
 		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
+		<put-attribute name="menu-content" value="/WEB-INF/jsp/sections/menu.jsp" />
 		<put-attribute name="body-content" value="" />
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
@@ -89,6 +91,10 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
+	<definition name="jobresults/treeview" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobresults/treeview.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/jobresults/treeview.jsp" />
+	</definition>
 	<definition name="user/detail_rw" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/detail_rw.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/detail_rw.jsp" />
@@ -102,6 +108,9 @@
 	</definition>
 	<definition name="lab/detail_ro" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/detail_ro.jsp" />
+	</definition>
+	<definition name="lab/viewerLabList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/viewerLabList.jsp" />
 	</definition>
 	<definition name="lab/user_list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/user_list.jsp" />
@@ -120,7 +129,15 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/newrequest.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/newrequest.jsp" />
 	</definition>
-
+	<definition name="lab/upgradeStatusToPI/form" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/upgradeStatusToPI/form.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/upgradeStatusToPI/form.jsp" />
+	</definition>
+	
+	<definition name="lab/joinAnotherLab/form" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/lab/joinAnotherLab/form.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/joinAnotherLab/form.jsp" />
+	</definition>
 	<definition name="user/mypassword" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/user/mypassword.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/user/mypassword.jsp" />
@@ -158,9 +175,6 @@
 	<definition name="sampleDnaToLibrary/listJobSamples" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/listJobSamples.jsp" />
-	</definition>
-	<definition name="sampleDnaToLibrary/updateLibrary" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/updateLibrary.jsp" />
 	</definition>
 	<definition name="sampleDnaToLibrary/createLibrary" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
@@ -223,7 +237,11 @@
 	<definition name="task/fmapprove/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/fmapprove/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/fmapprove/list.jsp" />
+	</definition>
+	<definition name="task/myTaskList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/myTaskList.jsp" />
 	</definition>	
+	
 	<definition name="task/piapprove/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/task/piapprove/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/piapprove/list.jsp" />
@@ -242,6 +260,10 @@
 	<definition name="task/libraryqc/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryQC/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryQC/list.jsp" />
+	</definition>
+	<definition name="task/initiateanalysis/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/initiateAnalysis/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/initiateAnalysis/list.jsp" />
 	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />
@@ -326,6 +348,9 @@
 	<definition name="job/comments" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/comments.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/comments.jsp" />
+	</definition>
+	<definition name="plugin/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/plugin/list.jsp" />
 	</definition>
 	<definition name="facility/platformunit/detail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/detail_rw.jsp" />
@@ -438,10 +463,6 @@
 	<definition name="workflow/resource/configure" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/workflow/resource/configure.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/workflow/resource/configure.jsp" />
-	</definition>
-
-	<definition name="hello" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/hello.jsp" />
 	</definition>
 
 	<definition name="job/metaform_rw" extends="template-base">

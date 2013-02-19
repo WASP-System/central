@@ -26,6 +26,12 @@
 			<td class="CaptionTD"><fmt:message key="auth.login_password.label" />:</td>
 			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='password' name='j_password' /></td>
 		</tr>
+		
+		<tr class="FormData">
+			<td class="CaptionTD">Remember me:</td>
+			<td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all" type='checkbox' name='_spring_security_remember_me'/></td>
+		</tr>
+		
 	</table>
 
 	<div class="submit">

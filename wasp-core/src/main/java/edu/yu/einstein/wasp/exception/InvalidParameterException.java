@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class InvalidParameterException extends RuntimeException{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1820303546324198526L;
+
 	public InvalidParameterException(){
 		super();
 	}

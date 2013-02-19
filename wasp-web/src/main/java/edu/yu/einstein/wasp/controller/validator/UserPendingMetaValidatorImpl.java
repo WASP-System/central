@@ -19,7 +19,7 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 	protected LabDao labDao;
 	
 	public UserPendingMetaValidatorImpl(UserDao userDao, LabDao labDao){
-		this.allowableConstraints.add(Constraint.isValidPiId);
+		this.allowableConstraints.add(Constraint.isValidPiId); 
 		this.userDao = userDao;
 		this.labDao = labDao;
 	}
@@ -44,7 +44,8 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		        } else {
 		        	errorMessageKey = meta.getK() + "_notvalid.error";
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-					User primaryInvestigator = userDao.getUserByLogin(meta.getV());
+					//User primaryInvestigator = userDao.getUserByLogin(meta.getV()); //02-04-2013, replaced by next line, as the web page is now accessing the PI via his/her email address rather than login name
+					User primaryInvestigator = userDao.getUserByEmail(meta.getV());
 					if (primaryInvestigator.getUserId() == null || primaryInvestigator.getIsActive() == null){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {

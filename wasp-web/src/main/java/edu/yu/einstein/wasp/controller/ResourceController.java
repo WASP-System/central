@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -153,8 +152,6 @@ public class ResourceController extends WaspController {
 			}
 		}
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		try {
 			
 			Map<Integer, Integer> allResourceBarcode = new TreeMap<Integer, Integer>();
@@ -205,7 +202,7 @@ public class ResourceController extends WaspController {
 			}
 			/***** End Sort by Resource name *****/
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			int frId = pageRowNum * (pageIndex - 1);
 			int toId = pageRowNum * pageIndex;
@@ -226,7 +223,7 @@ public class ResourceController extends WaspController {
 
 			List<Resource> resourcePage = resourceList.subList(frId, toId);
 			for (Resource resource : resourcePage) {
-				Map cell = new HashMap();
+				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", resource.getResourceId());
 
 				List<ResourceMeta> resourceMeta = getMetaHelperWebapp()
@@ -419,8 +416,6 @@ public class ResourceController extends WaspController {
 
 		String[] mtrx = new String[max];
 
-		ObjectMapper mapper = new ObjectMapper();
-
 		try {
 
 			jqgrid.put("page", "1");
@@ -429,7 +424,6 @@ public class ResourceController extends WaspController {
 
 			String text;
 
-			int i = 0;
 			int j = 0;
 			for (Run run : runs) {
 
@@ -442,11 +436,11 @@ public class ResourceController extends WaspController {
 
 			}
 
-			List<Map> rows = new ArrayList<Map>();
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
 
 			for (j = 0; j < max; j++) {
 
-				Map cell = new HashMap();
+				Map <String, Object>cell = new HashMap<String, Object>();
 				rows.add(cell);
 
 				cell.put("id", j + "");

@@ -42,6 +42,8 @@ public class UiFieldFamilyWrapper {
 	
 	private Map<String, String> localizedData;
 	
+	private Map<String, String> localizedTooltip;
+	
 	public UiFieldFamilyWrapper(){}
 	
 	public UiFieldFamilyWrapper(String baseLocale, String baseArea, String baseName){
@@ -88,6 +90,7 @@ public class UiFieldFamilyWrapper {
 	public void setConstraint(String constraint) {
 		this.constraint = constraint;
 	}
+	
 
 
 	public String getMetaposition() {
@@ -153,6 +156,22 @@ public class UiFieldFamilyWrapper {
 			this.localizedLabel = new HashMap<String, String>();
 		}
 		this.localizedLabel.put(this.baseLocale, label);
+	}
+	
+	public Map<String, String> getLocalizedTooltip() {
+		return localizedTooltip;
+	}
+
+
+	public void setLocalizedTooltip(Map<String, String> localizedTooltip) {
+		this.localizedTooltip = localizedTooltip;
+	}
+	
+	public void setTooltip(String tooltip) {
+		if (this.localizedTooltip == null){
+			this.localizedTooltip = new HashMap<String, String>();
+		}
+		this.localizedTooltip.put(this.baseLocale, tooltip);
 	}
 
 
@@ -293,6 +312,18 @@ public class UiFieldFamilyWrapper {
 				uiField.setName(this.baseName);
 				uiField.setAttrName("label");
 				uiField.setAttrValue(this.localizedLabel.get(locale));
+				uiFieldList.add(uiField);
+			}
+		}
+		
+		if (this.localizedTooltip != null){
+			for (String locale : this.localizedTooltip.keySet()){
+				UiField uiField = new UiField();
+				uiField.setLocale(locale);
+				uiField.setArea(this.baseArea);
+				uiField.setName(this.baseName);
+				uiField.setAttrName("tooltip");
+				uiField.setAttrValue(this.localizedTooltip.get(locale));
 				uiFieldList.add(uiField);
 			}
 		}

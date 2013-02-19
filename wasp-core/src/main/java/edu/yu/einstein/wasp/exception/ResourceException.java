@@ -7,6 +7,11 @@ package edu.yu.einstein.wasp.exception;
  */
 public class ResourceException extends Exception{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2205022157280444376L;
+
 	public ResourceException(){
 		super();
 	}

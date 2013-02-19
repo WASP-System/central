@@ -26,7 +26,11 @@ import org.hibernate.envers.Audited;
 @Audited
 @Table(name="meta")
 public class Meta extends WaspModel {
-  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8135307692214003015L;
+@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   protected Integer metaId;
   public void setMetaId (Integer metaId) {
     this.metaId = metaId;

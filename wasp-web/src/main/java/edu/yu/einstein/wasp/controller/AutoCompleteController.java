@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +38,16 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
+
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
+
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobSample;
+
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -51,8 +58,12 @@ import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
+
+import edu.yu.einstein.wasp.service.JobService;
+
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
@@ -67,7 +78,6 @@ public class AutoCompleteController extends WaspController{
 	  
 	@Autowired
 	private UserMetaDao userMetaDao;
-	
 	
 	@Autowired
 	private UserPendingMetaDao userPendingMetaDao;
@@ -110,6 +120,9 @@ public class AutoCompleteController extends WaspController{
 	
 	@Autowired
 	private AuthenticationService authenticationService;
+
+	@Autowired
+	private JobService jobService;
 
 	/**
 	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
@@ -173,7 +186,7 @@ public class AutoCompleteController extends WaspController{
 	    	  User viewer = authenticationService.getAuthenticatedUser();
 	    	  selectLabsList.addAll(viewer.getLab());//current web viewer's labs
 	    	  //now get labs whose jobs this viewer can view
-	    	  Map filterMap = new HashMap();
+	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 	    	  filterMap.put("UserId", viewer.getUserId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
@@ -206,6 +219,8 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	  
+
+
 	/**
 	   * Obtains a json message containing list of all current users where each entry in the list looks something like "Peter Piper (PPiper)"
 	   * Used to populate a JQuery autocomplete managed input box
@@ -232,6 +247,7 @@ public class AutoCompleteController extends WaspController{
 	   * @param instituteNameFragment
 	   * @return
 	   */
+	  @SuppressWarnings("unchecked")
 	  @RequestMapping(value="/getInstitutesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getInstitutes(@RequestParam String instituteNameFragment) {
 		  	
@@ -239,7 +255,7 @@ public class AutoCompleteController extends WaspController{
 		  	list.addAll(userPendingMetaDao.findDistinctMetaOrderBy("piPending.institution","ASC") );
 		  	String jsonString = new String();
 	        jsonString = jsonString + "{\"source\": [";
-	        SortedSet<String> uniqueInstitutes = new TreeSet();
+	        SortedSet<String> uniqueInstitutes = new TreeSet<String>();
 	        for (MetaBase meta : list){
 	        	if (meta.getV() != null && !meta.getV().isEmpty())
 	        		uniqueInstitutes.add(meta.getV());
@@ -250,6 +266,7 @@ public class AutoCompleteController extends WaspController{
 	        jsonString = jsonString.replaceAll(",$", "") + "]}";
 	        return jsonString;                
 	  }
+
 	  
 	  /**
 	   * Obtains a json message containing a list of all names from the job list. 
@@ -279,7 +296,7 @@ public class AutoCompleteController extends WaspController{
 		    	  User viewer = authenticationService.getAuthenticatedUser();
 		    	  selectJobsList.addAll(viewer.getJob());//list of viewer's jobs
 		    	  //now get other jobs this viewer can view
-		    	  Map filterMap = new HashMap();
+		    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 		    	  filterMap.put("UserId", viewer.getUserId().intValue());
 		    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 		    	  for(JobUser jobUser : jobUserList){
@@ -327,7 +344,7 @@ public class AutoCompleteController extends WaspController{
 			  List<String> orderbyList = new ArrayList<String>();
 			  orderbyList.add("lastName");
 			  orderbyList.add("firstName");
-		      userList = userDao.findByMapDistinctOrderBy(new HashMap(), null, orderbyList, "asc");
+		      userList = userDao.findByMapDistinctOrderBy(new HashMap<Object, Object>(), null, orderbyList, "asc");
 	    	  
 	    	  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
 	    		  List<User> usersToKeep = filterService.filterUserListForDA(userList);
@@ -339,7 +356,7 @@ public class AutoCompleteController extends WaspController{
 	    	  User viewer = authenticationService.getAuthenticatedUser();
 	    	  selectUserList.add(viewer);//current web viewer
 	    	  //now get other submitters whose jobs this viewer can view
-	    	  Map filterMap = new HashMap();
+	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
 	    	  filterMap.put("UserId", viewer.getUserId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
@@ -533,7 +550,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPlatformUnitNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllPlatformUnitNames(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -605,7 +622,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getPlatformUnitSubtypesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllPlatformUnitSubtypes(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleType.iName", "platformunit");
 		  List<String> orderByList = new ArrayList<String>();
 		  orderByList.add("name");
@@ -632,7 +649,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getReadTypesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllReadTypes(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
 
@@ -675,7 +692,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getMpsResourceCategoryNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllMpsResourceCategories(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<ResourceCategory> resourceCategoryList = resourceCategoryDao.findByMap(queryMap); 
 		  List<String> resourceCategoryNameList = new ArrayList<String>();
@@ -706,7 +723,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getMpsResourceNamesAndCategoryForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllMpsResourcesAndCategory(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resourceType.iName", "mps");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -735,7 +752,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSequenceRunNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSequenceRunNames(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("resource.resourceType.iName", "mps");
 		  queryMap.put("resourceCategory.resourceType.iName", "mps");
 		  List<String> orderByColumnNames = new ArrayList<String>();
@@ -764,7 +781,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSampleTypesThatAreBiomaterials(@RequestParam String str) {
 		  
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -798,7 +815,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getSampleTypesThatAreBiomaterialsForDisplayAsLabelValue", method=RequestMethod.GET)
 	  public @ResponseBody String getAllSampleTypesThatAreBiomaterialsAsLabelValue(@RequestParam String str) {
 	      
-		  Map queryMap = new HashMap();
+		  Map<String, String> queryMap = new HashMap<String, String>();
 		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
 		  List<String> orderByColumnNames = new ArrayList<String>();
 		  orderByColumnNames.add("name");
@@ -854,4 +871,46 @@ public class AutoCompleteController extends WaspController{
 	      return jsonString;                
 	  }
 	 
+
+
+		@RequestMapping(value="/getJobSampleTreeJson", method = RequestMethod.GET)
+		public @ResponseBody String getJobSampleTreeJson(@RequestParam("jobId") Integer jobId,  HttpServletResponse response ) {
+			  	
+			Map <String, Object> jsTree = new HashMap<String, Object>();
+			
+			Job job = this.jobService.getJobDao().getById(jobId);
+			if(job == null){
+				return "";
+			}
+			
+			jsTree.put("name", job.getName());
+			jsTree.put("jid", jobId);
+			
+			List<Map> children = new ArrayList<Map>();
+
+			//String jsonString = new String();
+			//jsonString = "{\"name\":\"" + job.getName() + "\", \"jid\":" + jobId + ", \"children\": [";
+
+			List<JobSample> jobSampleList = job.getJobSample();
+			for (JobSample js : jobSampleList) {
+				//jsonString = jsonString + "{\"name\":\"" + js.getSample().getName() + "\",\"sid\":" + js.getSampleId() + "},";
+				Map sample = new HashMap();
+				sample.put("name", js.getSample().getName());
+				sample.put("sid", js.getSampleId());
+				children.add(sample);
+			}
+			//jsonString = jsonString.replaceAll(",$", "") + "]}";
+
+			//return jsonString;
+//			return "{\"name\":\"testjson\"}";
+			jsTree.put("children",children);
+			
+			try {
+				return outputJSON(jsTree, response); 	
+			} 
+			catch (Throwable e) {
+				throw new IllegalStateException("Can't marshall to JSON " + job,e);
+			}	
+		}
+
 }

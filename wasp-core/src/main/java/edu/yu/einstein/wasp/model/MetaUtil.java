@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.model.MetaAttribute.Control;
@@ -22,9 +20,6 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  */
 public final class MetaUtil {
 	
-		private Logger logger = LoggerFactory.getLogger(MetaUtil.class);
-			
-		
 		/**
 		 * 1. populates "control" and "position" property of each object in the list
 		 * with values from the uifield messages database table
@@ -34,6 +29,7 @@ public final class MetaUtil {
 		 * @param area
 		 * @param locale
 		 */
+		@SuppressWarnings("unchecked")
 		public static final <T> void setAttributesAndSort(List<T> list, String area, Locale locale) {
 			 
 			 for(T t:list) {
@@ -180,6 +176,7 @@ public final class MetaUtil {
 			return DBResourceBundle.MESSAGE_SOURCE.getMessage(key, null, locale);
 	}
 		 
+	@SuppressWarnings("rawtypes")
 	private final static Comparator META_POSITION_COMPARATOR =  new Comparator() {
 		@Override
 		public int compare(Object o1, Object o2) {

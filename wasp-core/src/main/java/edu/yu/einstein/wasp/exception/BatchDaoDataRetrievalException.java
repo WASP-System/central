@@ -11,6 +11,11 @@ public class BatchDaoDataRetrievalException extends SQLException {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -3539806342820146061L;
+
+	/**
+	 * 
+	 */
 	public BatchDaoDataRetrievalException() {
 		
 	}

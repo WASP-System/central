@@ -25,7 +25,7 @@ For demonstration purposes only the Chip Seq workflow is currently enabled
       <select class="FormElement ui-widget-content ui-corner-all" name="labId">
         <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
         <c:forEach var="lab" items="${labs}">
-          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.name}"/></option>
+          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> Lab</option>
         </c:forEach>
       </select>
     </td>
@@ -46,7 +46,10 @@ For demonstration purposes only the Chip Seq workflow is currently enabled
   </table>
 
   <div class="submit">
-    <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.submit.label"/>">
+    <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
+    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
+      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+    </c:if>
   </div>
 
   </form:form>

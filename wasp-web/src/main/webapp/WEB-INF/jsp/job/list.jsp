@@ -19,10 +19,6 @@
 	}
 </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
-<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
-
-
 <%-- <c:if test='${viewerIsFacilityMember=="true"}'> --%>
 <script type="text/javascript">
    //http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
@@ -150,9 +146,9 @@ jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:tr
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
 
 //disable all the td tooltips that the grid automatically sets  and in line after, enable the other tooltip (on anchors)
-$("td").attr('title', '');
-//enable the "new, blackbox tooltip
-$(".wasptooltip a[title]").tooltip({ position: "top left"});
+//$("td").attr('title', '');
+
+	waspTooltip();
 
 });//end document.ready() 
   
@@ -160,7 +156,7 @@ $(".wasptooltip a[title]").tooltip({ position: "top left"});
 <%-- </c:if> --%>
  
 <center>  
-<div class="wasptooltip">
+<div>
 <br /><br />
 <table id="grid_id"></table> 
 <div id="gridpager"></div>

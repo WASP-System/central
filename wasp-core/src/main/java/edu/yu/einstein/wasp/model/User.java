@@ -33,6 +33,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name = "user")
 public class User extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2757029352222424543L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer	UserId;

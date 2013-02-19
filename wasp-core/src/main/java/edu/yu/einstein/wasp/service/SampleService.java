@@ -11,12 +11,14 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -795,7 +797,21 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleException
 	   */
 	  public Job getJobOfLibraryOnCell(Sample cell, Sample library) throws SampleException;
+	  
+	  /**
+	   * get the job of the library on a cell
+	   * @param libraryCell
+	   * @return
+	   */
+	  Job getJobOfLibraryOnCell(SampleSource libraryCell);
 
+	  
+	  /**
+	   * Gets a SampleSource object representing cell / library relationships associated with given job
+	   * @param job
+	   * @return
+	   */
+	  public Set<SampleSource> getCellLibrariesForJob(Job job);
 	  
 	  /**
 	   * Retrieve a SampleSource object which contains the relationship between and Library and Cell
@@ -829,5 +845,72 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @return List<Sample>
 	   */
 	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
+
+	  /**
+	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * @param cell
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+
+	  /**
+	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
+	   * assessment of a run
+	   * @param cell
+	   * @param success
+	   * @throws SampleTypeException
+	   * @throws MetadataException 
+	   */
+	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  
+	  /**
+	   * is cellLibrary pre-processed?
+	   * @param cellLibrary
+	   * @return
+	   * @throws SampleTypeException
+	   */
+	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
+			
+			
+	  /**
+		 * has cellLibrary passed QC?
+		 * @param cellLibrary
+		 * @param isPreprocessed
+		 * @throws SampleTypeException
+		 * @throws MetadataException
+		 */
+	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException;
+		
+	  /**
+	   * Sets if cellLibrary has passed QC
+	   * @param cellLibrary
+	   * @param isPassedQC
+	   * @throws SampleTypeException
+	   * @throws MetadataException
+	   */
+	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+
+	  public SampleSourceDao getSampleSourceDao();
+
+	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
+
+	Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
+
+	Job getJobBySamplePair(SampleSource samplePair);
+
+	Set<SampleSource> getSamplePairsByJob(Job job);
+
+	SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
+
+	Sample getTestSample(SampleSource samplePair);
+
+	Sample getControlSample(SampleSource samplePair);
+
+	Sample getControlSampleByTestSample(Sample testSample);
+
+	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+
+	
 	  
 }

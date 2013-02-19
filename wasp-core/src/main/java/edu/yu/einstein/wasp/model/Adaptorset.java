@@ -32,6 +32,10 @@ import org.hibernate.envers.NotAudited;
 @Table(name="adaptorset")
 public class Adaptorset extends WaspModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3907895623535511740L;
 	/** 
 	 * adaptorsetId
 	 *

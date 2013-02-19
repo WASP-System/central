@@ -10,6 +10,11 @@ public class WaspMessageBuildingException extends Exception {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -6883849114144054696L;
+
+	/**
+	 * 
+	 */
 	public WaspMessageBuildingException() {
 		
 	}

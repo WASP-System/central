@@ -20,7 +20,7 @@ public class WaspTilesViewResolver extends UrlBasedViewResolver {
 	 * Requires {@link TilesView}.
 	 */
 	@Override
-	protected Class requiredViewClass() {
+	protected Class<WaspTilesView> requiredViewClass() {
 		return WaspTilesView.class;
 	}
 

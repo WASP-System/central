@@ -17,7 +17,7 @@
           <property name="baseName" value="species" />
           <property name="label" value="Species" />
           <property name="metaposition" value="10" />
-          <property name="control" value="select:Human:Human;Mouse:Mouse" />
+          <property name="control" value="select:Human [Homo sapiens - GRCh37]:Human [Homo sapiens - GRCh37];Mouse [Mus musculus - GRCm38]:Mouse [Mus musculus - GRCm38]; Other:Other" />
          <!-- TODO: <property name="control" value="select:Human:Human;Mouse:Mouse" /> -->
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must select a species" />

@@ -22,7 +22,7 @@
      <tr class="FormData">
         <td colspan="3" align="left" class="submitBottom">
         	<input type="submit" name="submit" value="<fmt:message key="jobDraft.cancel.label"/>" />
-            <input type="submit" name="submit" value="<fmt:message key="jobDraft.submit.label"/>" />
+            <input type="submit" name="submit" value="<fmt:message key="jobDraft.save.label"/>" />
         </td>
     </tr>
 </table>

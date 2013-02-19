@@ -28,14 +28,34 @@
 				<configuration>
 					<additionalClasspathElements>
 						<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
-					</additionalClasspathElements>
+					</additionalClasspathElements>				
 					<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
 						</suiteXmlFiles> -->
+
+				
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>
 
+	</build>
+<profiles>			
+	<profile>
+			<id>selenium-tests</id>
+			<build>
+			<plugins>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<configuration>
+			<suiteXmlFiles>
+			<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
+			</suiteXmlFiles>
+			</configuration>
+			</plugin>     
+			</plugins>
+			</build>
+	</profile>
+</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
@@ -71,6 +91,11 @@
 		<dependency>
 		        <groupId>org.bouncycastle</groupId>
 		        <artifactId>bcprov-jdk15on</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		        <groupId>org.bouncycastle</groupId>
+		        <artifactId>bcpkix-jdk15on</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -264,12 +289,10 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-tx</artifactId>
 			</dependency>
-			<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aop</artifactId>
 			</dependency>
-			-->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -426,6 +449,14 @@
 			<dependency>
 			        <groupId>cglib</groupId>
 			        <artifactId>cglib</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>batik-ext</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
