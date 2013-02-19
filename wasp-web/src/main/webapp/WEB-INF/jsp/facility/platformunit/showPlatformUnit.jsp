@@ -17,7 +17,7 @@
 <c:if test="${sequenceRuns.size()==0}">
 | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
 </c:if>
-| <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a> 
+<%-- | <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a> --%>
 </td></tr>
 </table>
 </div>
