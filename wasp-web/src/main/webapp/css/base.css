@@ -55,6 +55,11 @@
   box-shadow: 5px 5px 5px black;
 }
 
+#mainLogo{
+	display: block;
+	margin-left: auto;   margin-right: auto;
+}
+
 
 
 .header_nav {
