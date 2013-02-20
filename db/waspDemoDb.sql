@@ -3227,7 +3227,7 @@ VALUES
 	(3,'amplicon','DNA Amplicon',1),
 	(4,'peakcaller','Peak Caller',1),
 	(5,'sequenceRunProcessor','Sequence Run Processor',1),
-	(6,'bisulseqPipeline','Bi-sulphite-seq Pipeline',1),
+	(6,'bisulfiteSeqPipeline','Bi-sulphite-seq Pipeline',1),
 	(7,'helptagPipeline','HELP-tag Pipeline',1);
 
 /*!40000 ALTER TABLE `resourcetype` ENABLE KEYS */;
@@ -3260,7 +3260,7 @@ VALUES
 	(3,6,0,'amplicon',1,'DNA Amplicon'),
 	(4,7,0,'peakcaller',1,'Peak Caller'),
 	(5,8,0,'sequenceRunProcessor',1,'Sequence Run Processor'),
-	(6,16,0,'bisulseqPipeline',1,'Bi-sulphite-seq Pipeline'),
+	(6,16,0,'bisulfiteSeqPipeline',1,'Bi-sulphite-seq Pipeline'),
 	(7,28,0,'helptagPipeline',1,'HELP-tag Pipeline');
 
 /*!40000 ALTER TABLE `resourcetype_AUD` ENABLE KEYS */;
@@ -5030,7 +5030,7 @@ INSERT INTO `software` (`softwareid`, `resourcetypeid`, `iname`, `name`, `isacti
 VALUES
 	(1,1,'bowtieAligner','Bowtie Aligner',1,'2012-12-20 11:03:29',0),
 	(2,4,'macsPeakcaller','MACS Peakcaller',1,'2012-12-20 11:03:30',0),
-	(3,6,'bisulseqPipeline','BISUL-seq Pipeline',1,'2012-12-20 11:03:30',0),
+	(3,6,'bisulfiteSeqPipeline','BISUL-seq Pipeline',1,'2012-12-20 11:03:30',0),
 	(4,7,'helptagPipeline','HELP-tag Pipeline',1,'2012-12-20 11:03:31',0),
 	(5,5,'casava','CASAVA',1,'2012-12-20 11:03:31',0);
 
@@ -5064,7 +5064,7 @@ INSERT INTO `software_AUD` (`softwareId`, `REV`, `REVTYPE`, `iname`, `isactive`,
 VALUES
 	(1,2,0,'bowtieAligner',1,'2012-12-20 11:03:29',0,'Bowtie Aligner',1),
 	(2,15,0,'macsPeakcaller',1,'2012-12-20 11:03:30',0,'MACS Peakcaller',4),
-	(3,16,0,'bisulseqPipeline',1,'2012-12-20 11:03:30',0,'BISUL-seq Pipeline',6),
+	(3,16,0,'bisulfiteSeqPipeline',1,'2012-12-20 11:03:30',0,'BISUL-seq Pipeline',6),
 	(4,28,0,'helptagPipeline',1,'2012-12-20 11:03:31',0,'HELP-tag Pipeline',7),
 	(5,31,0,'casava',1,'2012-12-20 11:03:31',0,'CASAVA',5);
 
@@ -5101,8 +5101,8 @@ VALUES
 	(2,1,'bowtieAligner.priorVersions','',2,NULL,'2012-12-20 11:03:29',0),
 	(3,2,'macsPeakcaller.currentVersion','4.1',1,NULL,'2012-12-20 11:03:30',0),
 	(4,2,'macsPeakcaller.priorVersions','',2,NULL,'2012-12-20 11:03:30',0),
-	(5,3,'bisulseqPipeline.currentVersion','1.0',1,NULL,'2012-12-20 11:03:30',0),
-	(6,3,'bisulseqPipeline.priorVersions','',2,NULL,'2012-12-20 11:03:30',0),
+	(5,3,'bisulfiteSeqPipeline.currentVersion','1.0',1,NULL,'2012-12-20 11:03:30',0),
+	(6,3,'bisulfiteSeqPipeline.priorVersions','',2,NULL,'2012-12-20 11:03:30',0),
 	(7,4,'helptagPipeline.currentVersion','1.0',1,NULL,'2012-12-20 11:03:31',0),
 	(8,4,'helptagPipeline.priorVersions','',2,NULL,'2012-12-20 11:03:31',0),
 	(9,5,'casava.currentVersion','1.8.2',1,NULL,'2012-12-20 11:03:31',0),
@@ -6781,28 +6781,28 @@ VALUES
 	(1566,'en_US',NULL,'macsPeakcaller','keepDup','default','no','2012-12-20 11:03:30',0),
 	(1567,'en_US',NULL,'macsPeakcaller','keepDup','label','Keep Duplicates?','2012-12-20 11:03:30',0),
 	(1568,'en_US',NULL,'macsPeakcaller','keepDup','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
-	(1569,'en_US',NULL,'bisulseqPipeline','SeqMode','metaposition','10','2012-12-20 11:03:30',0),
-	(1570,'en_US',NULL,'bisulseqPipeline','SeqMode','default','no','2012-12-20 11:03:30',0),
-	(1571,'en_US',NULL,'bisulseqPipeline','SeqMode','label','Is Reduced Representation Bisul-Seq?','2012-12-20 11:03:30',0),
-	(1572,'en_US',NULL,'bisulseqPipeline','SeqMode','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
-	(1573,'en_US',NULL,'bisulseqPipeline','NumMismatch','metaposition','20','2012-12-20 11:03:30',0),
-	(1574,'en_US',NULL,'bisulseqPipeline','NumMismatch','type','NUMBER','2012-12-20 11:03:30',0),
-	(1575,'en_US',NULL,'bisulseqPipeline','NumMismatch','range','2:15','2012-12-20 11:03:30',0),
-	(1576,'en_US',NULL,'bisulseqPipeline','NumMismatch','default','2','2012-12-20 11:03:30',0),
-	(1577,'en_US',NULL,'bisulseqPipeline','NumMismatch','label','Number of mismatch allowed','2012-12-20 11:03:30',0),
-	(1578,'en_US',NULL,'bisulseqPipeline','ReportMode','metaposition','30','2012-12-20 11:03:30',0),
-	(1579,'en_US',NULL,'bisulseqPipeline','ReportMode','default','yes','2012-12-20 11:03:30',0),
-	(1580,'en_US',NULL,'bisulseqPipeline','ReportMode','label','Only report unique hits?','2012-12-20 11:03:30',0),
-	(1581,'en_US',NULL,'bisulseqPipeline','ReportMode','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
-	(1582,'en_US',NULL,'bisulseqPipeline','TrimQ','metaposition','40','2012-12-20 11:03:30',0),
-	(1583,'en_US',NULL,'bisulseqPipeline','TrimQ','type','NUMBER','2012-12-20 11:03:30',0),
-	(1584,'en_US',NULL,'bisulseqPipeline','TrimQ','range','0:30','2012-12-20 11:03:30',0),
-	(1585,'en_US',NULL,'bisulseqPipeline','TrimQ','default','0','2012-12-20 11:03:30',0),
-	(1586,'en_US',NULL,'bisulseqPipeline','TrimQ','label','Quality threshold in trimming','2012-12-20 11:03:30',0),
-	(1587,'en_US',NULL,'bisulseqPipeline','MapFormard','metaposition','50','2012-12-20 11:03:30',0),
-	(1588,'en_US',NULL,'bisulseqPipeline','MapFormard','default','yes','2012-12-20 11:03:30',0),
-	(1589,'en_US',NULL,'bisulseqPipeline','MapFormard','label','Only map to forward strands?','2012-12-20 11:03:30',0),
-	(1590,'en_US',NULL,'bisulseqPipeline','MapFormard','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
+	(1569,'en_US',NULL,'bisulfiteSeqPipeline','SeqMode','metaposition','10','2012-12-20 11:03:30',0),
+	(1570,'en_US',NULL,'bisulfiteSeqPipeline','SeqMode','default','no','2012-12-20 11:03:30',0),
+	(1571,'en_US',NULL,'bisulfiteSeqPipeline','SeqMode','label','Is Reduced Representation Bisul-Seq?','2012-12-20 11:03:30',0),
+	(1572,'en_US',NULL,'bisulfiteSeqPipeline','SeqMode','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
+	(1573,'en_US',NULL,'bisulfiteSeqPipeline','NumMismatch','metaposition','20','2012-12-20 11:03:30',0),
+	(1574,'en_US',NULL,'bisulfiteSeqPipeline','NumMismatch','type','NUMBER','2012-12-20 11:03:30',0),
+	(1575,'en_US',NULL,'bisulfiteSeqPipeline','NumMismatch','range','2:15','2012-12-20 11:03:30',0),
+	(1576,'en_US',NULL,'bisulfiteSeqPipeline','NumMismatch','default','2','2012-12-20 11:03:30',0),
+	(1577,'en_US',NULL,'bisulfiteSeqPipeline','NumMismatch','label','Number of mismatch allowed','2012-12-20 11:03:30',0),
+	(1578,'en_US',NULL,'bisulfiteSeqPipeline','ReportMode','metaposition','30','2012-12-20 11:03:30',0),
+	(1579,'en_US',NULL,'bisulfiteSeqPipeline','ReportMode','default','yes','2012-12-20 11:03:30',0),
+	(1580,'en_US',NULL,'bisulfiteSeqPipeline','ReportMode','label','Only report unique hits?','2012-12-20 11:03:30',0),
+	(1581,'en_US',NULL,'bisulfiteSeqPipeline','ReportMode','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
+	(1582,'en_US',NULL,'bisulfiteSeqPipeline','TrimQ','metaposition','40','2012-12-20 11:03:30',0),
+	(1583,'en_US',NULL,'bisulfiteSeqPipeline','TrimQ','type','NUMBER','2012-12-20 11:03:30',0),
+	(1584,'en_US',NULL,'bisulfiteSeqPipeline','TrimQ','range','0:30','2012-12-20 11:03:30',0),
+	(1585,'en_US',NULL,'bisulfiteSeqPipeline','TrimQ','default','0','2012-12-20 11:03:30',0),
+	(1586,'en_US',NULL,'bisulfiteSeqPipeline','TrimQ','label','Quality threshold in trimming','2012-12-20 11:03:30',0),
+	(1587,'en_US',NULL,'bisulfiteSeqPipeline','MapFormard','metaposition','50','2012-12-20 11:03:30',0),
+	(1588,'en_US',NULL,'bisulfiteSeqPipeline','MapFormard','default','yes','2012-12-20 11:03:30',0),
+	(1589,'en_US',NULL,'bisulfiteSeqPipeline','MapFormard','label','Only map to forward strands?','2012-12-20 11:03:30',0),
+	(1590,'en_US',NULL,'bisulfiteSeqPipeline','MapFormard','control','select:yes:yes;no:no','2012-12-20 11:03:30',0),
 	(1591,'en_US',NULL,'genericDna','concentration','constraint','NotEmpty','2012-12-20 11:03:30',0),
 	(1592,'en_US',NULL,'genericDna','concentration','metaposition','10','2012-12-20 11:03:30',0),
 	(1593,'en_US',NULL,'genericDna','concentration','type','NUMBER','2012-12-20 11:03:30',0),
@@ -6840,13 +6840,13 @@ VALUES
 	(1625,'en_US',NULL,'bisulseqDna','fragmentSizeSD','error','You must provide a standard deviation','2012-12-20 11:03:30',0),
 	(1626,'en_US',NULL,'bisulseqDna','antibody','metaposition','30','2012-12-20 11:03:30',0),
 	(1627,'en_US',NULL,'bisulseqDna','antibody','label','Antibody','2012-12-20 11:03:30',0),
-	(1628,'en_US',NULL,'bisulSeq','workflow','label','BISUL Seq','2012-12-20 11:03:30',0),
-	(1629,'en_US',NULL,'bisulSeq','jobsubmit/modifymeta','label','Modify BisulSeq Metadata','2012-12-20 11:03:30',0),
-	(1630,'en_US',NULL,'bisulSeq','jobsubmit/resource/mps','label','MPS Sequencer Options','2012-12-20 11:03:30',0),
-	(1631,'en_US',NULL,'bisulSeq','jobsubmit/samples','label','Samples','2012-12-20 11:03:30',0),
-	(1632,'en_US',NULL,'bisulSeq','jobsubmit/cells','label','DNA Sequencer Cells','2012-12-20 11:03:30',0),
-	(1633,'en_US',NULL,'bisulSeq','jobsubmit/software/bisulseqPipeline','label','BISUL-seq Pipeline Selection','2012-12-20 11:03:30',0),
-	(1634,'en_US',NULL,'bisulSeq','jobsubmit/verify','label','Verify Submission','2012-12-20 11:03:30',0),
+	(1628,'en_US',NULL,'wasp-bisulfiteSeqPlugin','workflow','label','BISUL Seq','2012-12-20 11:03:30',0),
+	(1629,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/modifymeta','label','Modify BisulSeq Metadata','2012-12-20 11:03:30',0),
+	(1630,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/resource/mps','label','MPS Sequencer Options','2012-12-20 11:03:30',0),
+	(1631,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/samples','label','Samples','2012-12-20 11:03:30',0),
+	(1632,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/cells','label','DNA Sequencer Cells','2012-12-20 11:03:30',0),
+	(1633,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/software/bisulfiteSeqPipeline','label','BISUL-seq Pipeline Selection','2012-12-20 11:03:30',0),
+	(1634,'en_US',NULL,'wasp-bisulfiteSeqPlugin','jobsubmit/verify','label','Verify Submission','2012-12-20 11:03:30',0),
 	(1635,'en_US',NULL,'chipseqDna','fragmentSize','constraint','NotEmpty','2012-12-20 11:03:30',0),
 	(1636,'en_US',NULL,'chipseqDna','fragmentSize','metaposition','10','2012-12-20 11:03:30',0),
 	(1637,'en_US',NULL,'chipseqDna','fragmentSize','type','NUMBER','2012-12-20 11:03:30',0),
@@ -7411,10 +7411,10 @@ LOCK TABLES `workflow` WRITE;
 
 INSERT INTO `workflow` (`workflowid`, `iname`, `name`, `createts`, `isactive`, `lastupdts`, `lastupduser`)
 VALUES
-	(1,'bisulSeq','BISUL Seq','2012-12-20 11:03:30',1,'2012-12-20 11:03:30',0),
-	(2,'chipSeqPlugin','ChIP Seq','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0),
-	(3,'genericDnaSeqPlugin','Generic DNA Seq','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0),
-	(4,'helpTagPlugin','HELP Tagging','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0);
+	(1,'wasp-bisulfiteSeqPlugin','BISUL Seq','2012-12-20 11:03:30',1,'2012-12-20 11:03:30',0),
+	(2,'wasp-chipSeqPlugin','ChIP Seq','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0),
+	(3,'wasp-genericDnaSeqPlugin','Generic DNA Seq','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0),
+	(4,'wasp-helpTagPlugin','HELP Tagging','2012-12-20 11:03:31',1,'2012-12-20 11:03:31',0);
 
 /*!40000 ALTER TABLE `workflow` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -7444,7 +7444,7 @@ LOCK TABLES `workflow_AUD` WRITE;
 
 INSERT INTO `workflow_AUD` (`workflowId`, `REV`, `REVTYPE`, `createts`, `iname`, `isactive`, `lastupdts`, `lastupduser`, `name`)
 VALUES
-	(1,20,0,'2012-12-20 11:03:30','bisulSeq',1,'2012-12-20 11:03:30',0,'BISUL Seq'),
+	(1,20,0,'2012-12-20 11:03:30','wasp-bisulfiteSeqPlugin',1,'2012-12-20 11:03:30',0,'BISUL Seq'),
 	(2,24,0,'2012-12-20 11:03:31','chipSeqPlugin',1,'2012-12-20 11:03:31',0,'ChIP Seq'),
 	(3,25,0,'2012-12-20 11:03:31','genericDnaSeqPlugin',1,'2012-12-20 11:03:31',0,'Generic DNA Seq'),
 	(4,30,0,'2012-12-20 11:03:31','helpTagPlugin',1,'2012-12-20 11:03:31',0,'HELP Tagging');
@@ -7479,7 +7479,7 @@ LOCK TABLES `workflowmeta` WRITE;
 INSERT INTO `workflowmeta` (`workflowmetaid`, `workflowid`, `k`, `v`, `position`, `rolevisibility`, `lastupdts`, `lastupduser`)
 VALUES
 	(1,1,'workflow.jobFlowBatchJob','default.waspJob.jobflow.v1',0,NULL,'2012-12-20 11:03:30',NULL),
-	(2,1,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/software/bisulseqPipeline/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,NULL,'2012-12-20 11:03:30',NULL),
+	(2,1,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/software/bisulfiteSeqPipeline/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,NULL,'2012-12-20 11:03:30',NULL),
 	(3,2,'workflow.jobFlowBatchJob','default.waspJob.jobflow.v1',0,NULL,'2012-12-20 11:03:31',NULL),
 	(4,2,'workflow.submitpageflow','/jobsubmit/modifymeta/{n};/jobsubmit/resource/mps/{n};/jobsubmit/samples/{n};/jobsubmit/cells/{n};/jobsubmit/chipSeq/pair/{n};/jobsubmit/software/aligner/{n};/jobsubmit/software/peakcaller/{n};/jobsubmit/comment/{n};/jobsubmit/verify/{n};/jobsubmit/submit/{n};/jobsubmit/ok',0,NULL,'2012-12-20 11:03:31',NULL),
 	(5,3,'workflow.jobFlowBatchJob','default.waspJob.jobflow.v1',0,NULL,'2012-12-20 11:03:31',NULL),
