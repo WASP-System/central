@@ -84,13 +84,13 @@
 						<groupId>org.bouncycastle</groupId>
 						<artifactId>bcprov-jdk15on</artifactId>
 						<type>jar</type>
-						<outputDirectory>${catalina.home}/waspPlugins</outputDirectory>
+						<outputDirectory>${catalina.home}/lib</outputDirectory>
 					</artifactItem>
 					<artifactItem>
 						<groupId>org.bouncycastle</groupId>
 						<artifactId>bcpkix-jdk15on</artifactId>
 						<type>jar</type>
-						<outputDirectory>${catalina.home}/waspPlugins</outputDirectory>
+						<outputDirectory>${catalina.home}/lib</outputDirectory>
 					</artifactItem>
 				</artifactItems>
 				</configuration>
