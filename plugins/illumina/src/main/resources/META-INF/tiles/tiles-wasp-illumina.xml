@@ -15,6 +15,36 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/illuminaQC.jsp" />
 	</definition>
 
+	<definition name="wasp-illumina/postrunqc/displayfocusqualitycharts" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayFocusQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayFocusQualityCharts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displayintensitycharts" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayIntensityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayIntensityCharts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displaynumgt30Charts" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayNumGT30Charts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayNumGT30Charts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displayclusterdensitychart" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayClusterDensityChart.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayClusterDensityChart.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/updatequalityreport" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/done" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/done.jsp" />
+	</definition>
+
+
 
 </tiles-definitions>
 
