@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.WaspController;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 @Controller
 @RequestMapping("/wasp-illumina/postRunQC")
@@ -24,14 +26,11 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	@Autowired
 	RunService runService;
 	
-	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.GET)
-	public String displayFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
-		Run run = runService.getRunById(runId);
-		if (run.getRunId() == null){
-			waspErrorMessage("run.invalid_id.error");
-			return "redirect:/dashboard.do";
-		}
-		// TODO: replace imageFileUrlList with proper list from database (filegroups)
+	@Autowired
+	SampleService sampleService;
+	
+	private List<URL> getTestImageFileUrlList(){
+		// TODO: remove this method in production code
 		List<URL> imageFileUrlList = new ArrayList<URL>();
 		String[] bases = {"a", "c", "t", "g"};
 		for (int i=1; i <= 120; i++)
@@ -41,17 +40,35 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 				} catch (MalformedURLException e) {
 					logger.warn("malformed url: " + e.getLocalizedMessage());
 				}
-		// end of replacement required
+		return imageFileUrlList;
+	}
+	
+	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.GET)
+	public String displayFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
+		Run run = runService.getRunById(runId);
+		if (run.getRunId() == null){
+			waspErrorMessage("run.invalid_id.error");
+			return "redirect:/dashboard.do";
+		}
+		// TODO: replace imageFileUrlList with proper list from database (filegroups)
+		List<URL> imageFileUrlList = getTestImageFileUrlList();
 		
 		List<Integer> cellList = new ArrayList<Integer>();
-		for (int i=1; i <= run.getPlatformUnit().getRunCell().size(); i++)
-			cellList.add(i);
+		
+		try {
+			for (int i=1; i <= sampleService.getNumberOfIndexedCellsOnPlatformUnit(run.getPlatformUnit()); i++)
+				cellList.add(i);
+		} catch (SampleTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		String runReportBaseImagePath = StringUtils.substringBeforeLast(imageFileUrlList.get(0).toString(), "/");
 		m.addAttribute("runReportBaseImagePath", runReportBaseImagePath);
 		m.addAttribute("imageFileUrlList", imageFileUrlList);
 		m.addAttribute("numCycles", imageFileUrlList.size() / 4);
 		m.addAttribute("cellList", cellList);
+		m.addAttribute("runName", run.getName());
 		return "wasp-illumina/postrunqc/displayfocusqualitycharts";
 	}
 	

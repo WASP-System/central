@@ -12,17 +12,16 @@
 </div>
 
 <div id="main" class="center">
-	<p class="ui-state-default ui-corner-all ui-helper-clearfix" style="padding:4px; font-size: 14px">
-		<span class="ui-icon ui-icon-info" style="float:left; margin:-2px 5px 0 0;"></span>
-		Illumina OLB Stats: Focus Quality
+	<p class="ui-state-default ui-corner-all ui-helper-clearfix qc_title" >
+		Illumina OLB Stats: Focus Quality For <c:out value="${runName}" />
 	</p>
 	<div id="slider_frame">
 		<div id="cycle_number">
 			<label for="amount">Cycle Number: </label>
-			<input type="text" id="amount" style="border:0;font-weight:bold;" size="4" readonly="readonly"/>
+			<input type="text" id="amount" size="4" readonly="readonly"/>
 		</div>
 		<div id="slider" ></div>
-		<div id="displayWindow" style="float:left; margin-left: 20px;"><button id="showForm">Continue</button></div>
+		<div id="displayWindow" ><button id="showForm">Continue</button></div>
 	</div>
 	<div id="intA" class="ui-widget-content ui-corner-all"></div>
 	<div id="intC" class="ui-widget-content ui-corner-all"></div>
@@ -32,17 +31,17 @@
 </div>	
 
 <div id="error_dialog-modal" title="Warning" >
-	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;" ></span><span id="warningText"></span></p>
+	<p><span class="ui-icon ui-icon-alert alert_icon" ></span><span id="warningText"></span></p>
 </div>
 
 
 <div id="selectionWindow">
 	<div class="ui-overlay" >
-		<div class="ui-widget-shadow ui-corner-all" style="width: 302px; height: 542px; position: absolute; left:50%; margin-left: -148px; top:100px" ></div>
+		<div class="ui-widget-shadow ui-corner-all selection_dialog_shadow" ></div>
 	</div>
-	<div style="position: absolute; left:50%; margin-left: -150px; top:100px; width: 300px; height: 540px; padding: 2px;" class="ui-widget-content ui-corner-all">
-		<div class="ui-widget-header ui-corner-all" style="font-size: 14px; padding:4px">Assessment of Lane Focus Quality</div>
-		<div style="padding: 10px" class="verifyQualityForm">		
+	<div class="selection_dialog ui-widget-content ui-corner-all">
+		<div class="ui-widget-header ui-corner-all dialog_header" >Assessment of Lane Focus Quality</div>
+		<div  class="verifyQualityForm">		
 			<p>Please click either 'Pass' or 'Fail' for each lane based on your interpretation of the LANE FOCUS QUALITY charts only, then click the 'Continue' button.</p>
 			<form id="qualityForm"  method="post">
 			<table align="center">

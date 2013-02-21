@@ -11,19 +11,68 @@
 		background-color:red;
 		background:red;
 	}
-	
-	
-	#error_dialog-modal .ui-icon
-	{
-	    background-image: url(/wasp/css/jquery/images/ui-icons_c91313_256x240.png);
-	}
-	
+
 	.center
 	{
 		margin-left:auto;
 		margin-right:auto;
 		display: block;
 	}
+	
+	.selection_dialog
+	{
+		position: absolute; 
+		left:50%; 
+		margin-left: -150px; 
+		top:0px; 
+		width: 300px; 
+		height: 540px; 
+		padding: 2px;
+		
+	}
+	
+	.selection_dialog_shadow
+	{
+		width: 302px; 
+		height: 542px; 
+		position: absolute; 
+		left:50%; 
+		margin-left: -142px; 
+		top:12px;
+		padding: 2px;
+		
+	}
+	
+	.alert_icon {
+		float: left; 
+		margin-right: .3em;
+	}
+	
+	.dialog_header{
+		font-size: 14px; 
+		padding:4px;
+	}
+	
+	.qc_title{
+		margin-top:10px; 
+		padding:4px; 
+		font-size: 14px;
+	}
+	
+	.verifyQualityForm{
+		padding: 10px;
+	}
+	
+	#displayWindow{
+		float:left; 
+		margin-left: 20px;
+	}
+	
+	#amount{
+		border:0;
+		font-weight:bold;
+	}
+	
 
 	td.formLabel {
 		text-align: right;
@@ -49,6 +98,7 @@
 		float:left;
 		margin-top:10px;
 		margin-right:10px;
+		
 	}
 	
 	#cycle_number{
@@ -99,6 +149,7 @@
 	{
 		padding:15px;
 		font-size: 14px;
+		
 	}
 
 	
@@ -136,7 +187,7 @@
 		$( "#intG" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}"/>/Chart_" + value_update + "_g.png)");
 	}	
 
-	$( document ).load( function(){
+	$( window ).load( function(){
 		$( "#main" ).show();
 		$( '#loading_dialog-modal' ).dialog( 'close' );
 	});
