@@ -28,7 +28,7 @@
 		width: 300px; 
 		height: 540px; 
 		padding: 2px;
-		
+		z-index:20;
 	}
 	
 	.selection_dialog_shadow
@@ -40,7 +40,7 @@
 		margin-left: -142px; 
 		top:12px;
 		padding: 2px;
-		
+		z-index:10;
 	}
 	
 	.alert_icon {
@@ -149,7 +149,7 @@
 	{
 		padding:15px;
 		font-size: 14px;
-		
+		z-index:100;
 	}
 
 	
