@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,16 +20,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -49,7 +58,10 @@ public class TaskController extends WaspController {
 
    @Autowired
   private SampleDao sampleDao;
-  
+
+   @Autowired
+  private SampleSourceDao sampleSourceDao;
+
   @Autowired
   private JobDao jobDao;
 
@@ -697,5 +709,263 @@ public class TaskController extends WaspController {
 		return "task/initiateanalysis/list";
 	}
   
+  @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
+	public String listCellLibraryQC(ModelMap m) {
+
+	  class JobIdComparator implements Comparator<Job> {
+		  @Override
+		  public int compare(Job arg0, Job arg1) {
+			  return arg0.getJobId().compareTo(arg1.getJobId());
+		  }
+	  }
+	  //to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
+	  class SampleSourceComparator implements Comparator<SampleSource> {
+		    @Override
+		    public int compare(SampleSource arg0, SampleSource arg1) {
+		    	Sample library0 = sampleService.getLibrary(arg0);
+		    	Sample macromolecule0 = library0.getParent();
+		    	if(macromolecule0==null || macromolecule0.getSampleId()==null){
+		    		macromolecule0 = new Sample();
+		    		macromolecule0.setName("User-Supplied Library");
+		    	}	    	
+				Sample cell0 = sampleService.getCell(arg0);
+				Sample platformUnit0 = null;
+				try{
+					platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
+				}catch(SampleException e){logger.warn(e.getMessage());}
+				List<Run> runs = platformUnit0.getRun();
+				Run run0=null;
+				if(!runs.isEmpty()){
+					run0 = runs.get(0);
+				}
+				else{
+					run0 = new Run();
+					run0.setName("Not Run");
+				}
+			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + arg0.getIndex().toString() + run0.getName(); 
+				
+		    	Sample library1 = sampleService.getLibrary(arg1);
+		    	Sample macromolecule1 = library1.getParent();
+		    	if(macromolecule1==null || macromolecule1.getSampleId()==null){
+		    		macromolecule1 = new Sample();
+		    		macromolecule1.setName("User-Supplied Library");
+		    	}		    	
+				Sample cell1 = sampleService.getCell(arg1);
+				Sample platformUnit1 = null;
+				try{
+					platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
+				}catch(SampleException e){logger.warn(e.getMessage());}
+				List<Run> moreRuns = platformUnit0.getRun();
+				Run run1;
+				if(!moreRuns.isEmpty()){
+					run1 = moreRuns.get(0);
+				}
+				else{
+					run1 = new Run();
+					run1.setName("Not Run");
+				}
+				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + arg1.getIndex().toString() + run1.getName(); 
+					
+		        return str0.compareToIgnoreCase(str1);
+		    }
+		}
+	  
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndCellLibrariesThatPassedQCAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<Job>();
+	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
+	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+	  
+	  for(Job job : activeJobsWithNoSamplesCurrentlyBeingProcessed){
+		  try{
+			  //List<SampleSource> cellLibrariesThatPassedQCForJob = sampleService.getCellLibrariesThatPassedQCForJob(job);
+			  List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = 
+					  sampleService.getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(job);
+			  if(cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.size()>0){
+				  Collections.sort(cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis, new SampleSourceComparator());//sort the SampleSourceList
+				  activeJobsWithNoSamplesCurrentlyBeingProcessedAndCellLibrariesThatPassedQCAndHaveNotBeenRecordedForAggregateAnalysis.add(job);
+				  jobCellLibraryMap.put(job, cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis);
+				  //next section is to fill up the other 4 maps, which are needed for easy data display on jsp page
+				  for(SampleSource cellLibrary : cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis){//TODO this can be a service
+					  
+					  Sample library = sampleService.getLibrary(cellLibrary);
+					  cellLibraryLibraryMap.put(cellLibrary, library);
+					  Sample macromolecule = library.getParent();
+					  if(macromolecule == null || macromolecule.getSampleId() == null){
+						  macromolecule = new Sample();
+						  macromolecule.setName("User-Supplied Library");
+					  }
+					  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
+					  
+					  Sample cell = sampleService.getCell(cellLibrary);
+					  
+					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+					  cellLibraryPUMap.put(cellLibrary, platformUnit);
+					  
+					  List<Run> runs = platformUnit.getRun();
+					  Run run = null;
+					  if(!runs.isEmpty()){
+						  run = platformUnit.getRun().get(0);
+					  }
+					  else{
+						  run = new Run();
+						  run.setName("Not run");					  
+					  }
+					  cellLibraryRunMap.put(cellLibrary, run);					  
+				  }
+			  }
+		  }catch(Exception e){
+			  logger.warn(e.getLocalizedMessage());
+			  waspErrorMessage("wasp.unexpected_error.error");///WHAT SHOULD OCCUR HERE?
+			  return "task/cellLibraryQC/list";
+		  }
+	  }
+	  //sort by job ID
+	  Collections.sort(activeJobsWithNoSamplesCurrentlyBeingProcessedAndCellLibrariesThatPassedQCAndHaveNotBeenRecordedForAggregateAnalysis, new JobIdComparator()); 
+/*
+	  m.addAttribute("jobs", activeJobsWithNoSamplesCurrentlyBeingProcessedAndCellLibrariesThatPassedQCAndHaveNotBeenRecordedForAggregateAnalysis);
+	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
+	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
+	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
+	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
+	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
+*/	 
+	  // I needed this next section (below) in order to make sure that the jsp page functioned properly
+	  //   This can be removed once Andy has got this working.	   
+	  //testing only
+	  List<Job> testJobs = new ArrayList<Job>();
+	  Map<Job, List<SampleSource>> testJobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
+	  Map<SampleSource, Sample> testCellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> testCellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> testCellLibraryPUMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Run> testCellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+
+	  for(Job job : jobService.getActiveJobs()){
+		  Set<SampleSource> sampleSourcesSet = sampleService.getCellLibrariesForJob(job);
+		  Set<SampleSource> sampleSourcesSetForRemoval = new HashSet<SampleSource>();
+		  for(SampleSource ss : sampleSourcesSet){
+			  try{
+				  sampleService.isCellLibraryInAggregateAnalysis(ss);//remove whether true or false
+				  sampleSourcesSetForRemoval.add(ss);
+			  }catch(Exception e){}//not yet set, so do not target for removal
+		  }
+		  sampleSourcesSet.removeAll(sampleSourcesSetForRemoval); 
+		  List<SampleSource> sampleSources = new ArrayList<SampleSource>(sampleSourcesSet);
+		  Collections.sort(sampleSources, new SampleSourceComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
+		  if(sampleSources.size()>0){
+			  testJobs.add(job);
+			  System.out.println("jobname: " + job.getName());
+			  testJobCellLibraryMap.put(job, sampleSources);
+			  try{
+				  for(SampleSource cellLibrary : sampleSources){
+					  
+					  System.out.println("cellLibrary Index " + cellLibrary.getIndex() );
+					  
+					  Sample library = sampleService.getLibrary(cellLibrary);
+					  testCellLibraryLibraryMap.put(cellLibrary, library);
+					  System.out.println("Library Name: " + library.getName());
+					  Sample macromolecule = library.getParent();
+					  if(macromolecule == null || macromolecule.getSampleId() == null){
+						  macromolecule = new Sample();
+						  macromolecule.setName("User-supplied Library");
+					  }
+					  testCellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
+					  System.out.println("Macromolecule Name: " + macromolecule.getName());
+					  
+					  Sample cell = sampleService.getCell(cellLibrary);
+					  
+					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+					  testCellLibraryPUMap.put(cellLibrary, platformUnit);
+					  System.out.println("PU Name: " + platformUnit.getName());
+					  
+					  List<Run> runs = platformUnit.getRun();
+					  Run run = null;
+					  if(!runs.isEmpty()){
+						  run = platformUnit.getRun().get(0);
+					  }
+					  else{
+						  run = new Run();
+						  run.setName("Not run");					  
+					  }
+					  testCellLibraryRunMap.put(cellLibrary, run);
+					  System.out.println("Run: " + run.getName());
+				  }
+			  }catch(Exception e){
+				  waspErrorMessage("wasp.unexpected_error.error");///WHAT SHOULD OCCUR HERE? 
+				  return "task/cellLibraryQC/list";
+			  }
+		  }
+	  }
+	  Collections.sort(testJobs, new JobIdComparator());//sort by job ID 
+
+	  m.addAttribute("jobs", testJobs);
+	  m.addAttribute("jobCellLibraryMap", testJobCellLibraryMap);
+	  m.addAttribute("cellLibraryLibraryMap", testCellLibraryLibraryMap);
+	  m.addAttribute("cellLibraryMacromoleculeMap", testCellLibraryMacromoleculeMap);
+	  m.addAttribute("cellLibraryPUMap", testCellLibraryPUMap);
+	  m.addAttribute("cellLibraryRunMap", testCellLibraryRunMap);
+	  
+	  
+	  return "task/cellLibraryQC/list";
+	}
+  
+
+  
+  @RequestMapping(value = "/cellLibraryQC/qc", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
+	public String updateCellLibraryQC(
+			@RequestParam("sampleSourceId") Integer sampleSourceId,
+		    @RequestParam("qcStatus") String qcStatus,
+		    @RequestParam("comment") String comment,
+		    ModelMap m) {
+	  
+	  SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);
+	  if(sampleSource==null || sampleSource.getSampleId()==null){
+		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if(qcStatus == null ||  qcStatus.equals("")){
+		  waspErrorMessage("task.cellLibraryqc_qcStatus_invalid.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if( ! "INCLUDE".equals(qcStatus) && ! "EXCLUDE".equals(qcStatus) ){
+		  waspErrorMessage("task.cellLibraryqc_qcStatus_invalid.error");	
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if("EXCLUDE".equals(qcStatus) && comment.trim().isEmpty() ){
+		  waspErrorMessage("task.cellLibraryqc_comment_empty.error");	
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	 	 
+	  try{
+		  if(qcStatus.equals("INCLUDE")){
+			  sampleService.setCellLibraryInAggregateAnalysis(sampleSource, true);
+		  }
+		  else if(qcStatus.equals("EXCLUDE")){
+			  sampleService.setCellLibraryInAggregateAnalysis(sampleSource, false);
+		  }
+	  } catch (Exception e){
+		  logger.warn(e.getLocalizedMessage());
+		  waspErrorMessage("task.cellLibraryqc_message.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  
+	  //12-11-12 as per Andy, perform the two updates separately
+	  //unfortunately, they are not easily linked within a single transaction.
+	  try{
+		  if(!comment.trim().isEmpty()){
+			  sampleService.setInAggregateAnalysisComment(sampleSourceId, comment.trim());
+		  }
+	  }
+	  catch(Exception e){
+		  logger.warn(e.getMessage());
+	  }
+	
+	  waspMessage("task.cellLibraryqc_update_success.label");	
+	  return "redirect:/task/cellLibraryQC/list.do";
+  }
 }
 

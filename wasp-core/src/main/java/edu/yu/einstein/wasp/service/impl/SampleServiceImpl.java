@@ -53,6 +53,7 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -2255,6 +2256,24 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
+		try{
+			metaMessageService.saveToGroup(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId){
+		return metaMessageService.read(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList){
 		sw.updateMetaToList(sampleMetaList, sampleMetaDao);
 		sw.saveAll(this);
@@ -2453,7 +2472,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
 		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
-		
+		private static final String CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
 		
 		/**
 		 *  {@inheritDoc}
@@ -2517,7 +2536,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException{
+		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			String isPassedQC = null;
@@ -2527,7 +2546,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			try{
 				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PASS_QC, metaList);
 			} catch(MetadataException e) {
-				return false; // no value exists already
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_PASS_QC"); // no value exists already
 			}
 			Boolean b = new Boolean(isPassedQC);
 			return b.booleanValue();
@@ -2538,13 +2557,78 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 * @throws MetadataException 
 		 */
 		@Override
-		public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+		public void setCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PASS_QC);
+			sampleSourceMeta.setV(isPreprocessedString);
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
+		
+		public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException{
+			Set<SampleSource> cellLibrariesForJob = this.getCellLibrariesForJob(job);
+			List<SampleSource> cellLibrariesThatPassedQC = new ArrayList<SampleSource>();
+			for(SampleSource cellLibrary : cellLibrariesForJob){
+				try{
+					if(this.isCellLibraryPassedQC(cellLibrary)){
+						cellLibrariesThatPassedQC.add(cellLibrary);
+					}
+				}catch(MetaAttributeNotFoundException e){
+					logger.warn("recieved possibly anticipated MetaAttributeNotFoundException: " + e.getLocalizedMessage()); 				
+				}
+			}
+			return cellLibrariesThatPassedQC;
+		}
+		
+		public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException{
+			List<SampleSource> cellLibrariesThatPassedQC = getCellLibrariesThatPassedQCForJob(job);
+			List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
+			for(SampleSource cellLibrary : cellLibrariesThatPassedQC){
+				try{
+					if(this.isCellLibraryInAggregateAnalysis(cellLibrary)){//throws exception if this meta has not been created/set
+						continue;
+					}
+				}catch(MetaAttributeNotFoundException e){cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.add(cellLibrary);}
+			}
+			return cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis;			
+		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			String isPassedQC = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null)
+				metaList = new ArrayList<SampleSourceMeta>();
+			try{
+				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, metaList);
+			} catch(MetadataException e) {
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS"); // no value exists already
+			}
+			Boolean b = new Boolean(isPassedQC);
+			return b.booleanValue();
+		}
+
+		/**
+		 *  {@inheritDoc}
+		 * @throws MetadataException 
+		 */
+		@Override
+		public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Boolean b = new Boolean(isPassedQC);
+			String isPreprocessedString = b.toString();
+			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);

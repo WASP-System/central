@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -733,7 +734,18 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @throws Exception
 		 */
 	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
-		
+
+	  public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId);
+	  
+	  /**
+		 * save an InAggregateAnalysis comment
+		 * @param Integer sampleSourceId
+		 * @param String comment
+		 * @return void
+		 * @throws Exception
+		 */
+	  public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
+
 		/**
 		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
 		 * @param Integer sampleId
@@ -867,32 +879,43 @@ public interface SampleService extends WaspMessageHandlingService {
 	  /**
 	   * is cellLibrary pre-processed?
 	   * @param cellLibrary
-	   * @return
+	   * @return boolean
 	   * @throws SampleTypeException
 	   */
 	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
 			
-			
 	  /**
 		 * has cellLibrary passed QC?
-		 * @param cellLibrary
-		 * @param isPreprocessed
+		 * @param SampleSource
 		 * @throws SampleTypeException
-		 * @throws MetadataException
+		 * @throws MetaAttributeNotFoundException
 		 */
-	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException;
+	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
 		
 	  /**
-	   * Sets if cellLibrary has passed QC
+	   * Creates samplesource metadata to record whether cellLibrary has passed QC
 	   * @param cellLibrary
 	   * @param isPassedQC
+	   * @return void
 	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
-	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+	  public void setCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 
 	  public SampleSourceDao getSampleSourceDao();
 
-	
+	  public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException;
+	  public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException;
+	  
+	  /**
+		 * has cellLibrary passed QC?
+		 * @param SampleSource
+		 * @throws SampleTypeException
+		 * @throws MetaAttributeNotFoundException
+		 */
+	  public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
+
+	  public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+		
 	  
 }

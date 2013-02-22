@@ -524,6 +524,10 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public String getJobStatusComment(Job job);
 
-	
+	/**
+	 * return list of active jobs that do NOT have samples in the pipleline (samples either failed or ran sucessfully)
+	 * @return List<Job>
+	 */
+	public List<Job> getActiveJobsWithNoSamplesCurrentlyBeingProcessed();
 	
 }

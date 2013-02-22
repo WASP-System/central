@@ -70,6 +70,7 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -1924,7 +1925,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 						return true; // the library is on an active run
 					}
 				}
-				if (sampleService.isCellLibraryPassedQC(cellLibrary)){
+				if (sampleService.isCellLibraryPassedQC(cellLibrary)){//if this metadata has not yet been set (doesn't exist), then MetaAttributeNotFoundException is thrown 
 					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
 						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
 						return true; // the library has been run and passed QC but has not been pre-processed yet
@@ -1934,6 +1935,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());
 			} catch (SampleParentChildException e1){
 				logger.warn("recieved unexpected SampleParentChildException: " + e1.getLocalizedMessage());
+			} catch (MetaAttributeNotFoundException e2){//from sampleService.isCellLibraryPassedQC(cellLibrary) because meta attribute not yet created/set
+				logger.warn("recieved possibly anticipated MetaAttributeNotFoundException: " + e2.getLocalizedMessage());
+				return true;
 			}
 		}
 		// no in-process samples on platform units so ...
@@ -1989,5 +1993,18 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		}
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getActiveJobsWithNoSamplesCurrentlyBeingProcessed(){
+		List<Job> activeJobList = this.getActiveJobs();
+		List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = new ArrayList<Job>();		
+		for(Job job : activeJobList){
+			if(!this.isAnySampleCurrentlyBeingProcessed(job)){
+				activeJobsWithNoSamplesCurrentlyBeingProcessed.add(job);
+			}
+		}
+		return activeJobsWithNoSamplesCurrentlyBeingProcessed;
+	}
 }
