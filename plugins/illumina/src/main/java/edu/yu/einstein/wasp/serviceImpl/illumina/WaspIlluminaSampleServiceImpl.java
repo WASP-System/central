@@ -195,12 +195,6 @@ public class WaspIlluminaSampleServiceImpl extends SampleServiceImpl implements 
 		return messages.get(0).getValue(); // should only be one message
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void update
-	
 	
 	
 	private boolean isPassedQc(Sample cell, String metaKey) throws SampleTypeException, MetadataException{
