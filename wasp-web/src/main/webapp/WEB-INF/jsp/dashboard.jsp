@@ -13,4 +13,8 @@
 			</li>	
 		</c:forEach>-->
 	</c:if>
+	
+</div>
+<div>
+		<img alt="Wasp System Button" src="/wasp/images/waspSystemLogoFancy_270x270.png" id="mainLogo">
 </div>

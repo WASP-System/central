@@ -12,6 +12,7 @@ package edu.yu.einstein.wasp.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -92,4 +93,20 @@ public interface JobDraftService extends WaspService {
 	 * @throws Exception
 	 */
 	public String getUserJobDraftComment(Integer jobDraftId) throws Exception;
+
+	/**
+	 * get the set of all pairs of test/control samples for given jobdraft
+	 * @param JobDraft jobDraft
+	 * @return Set<Map<SampleDraft, SampleDraft>>  
+	 * @throws Exception
+	 */
+	public Set<Map<SampleDraft, SampleDraft>> getSampleDraftPairsByJobDraft(JobDraft jobDraft);
+
+	/**
+	 * set all pairs of test/control samples for given jobdraft in the jobdraftmeta
+	 * @param JobDraft jobDraft, Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet
+	 * @return 
+	 * @throws Exception
+	 */
+	public void setSampleDraftPairsByJobDraft(JobDraft jobDraft, Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet);
 }

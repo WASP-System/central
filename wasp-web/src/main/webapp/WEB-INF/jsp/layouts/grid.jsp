@@ -11,6 +11,7 @@
 	</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 	
@@ -658,9 +659,13 @@
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
 		</div>
+		<sec:authorize access="isAuthenticated()">
+			<div id="menu">
+				<tiles:insertAttribute name="menu-content" />
+			</div>
+		</sec:authorize>
   		<div id="content">
   			<wasp:breadcrumbs />
-  			<tiles:insertAttribute name="menu-content" />
   			<wasp:errorMessage />
   			<wasp:message />
 			<tiles:insertAttribute name="body-content" />
