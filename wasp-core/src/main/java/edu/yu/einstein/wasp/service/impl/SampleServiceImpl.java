@@ -2521,6 +2521,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			if (!this.isCellSequencedSuccessfully(this.getCell(cellLibrary)))
+				return false;
 			String isPassedQC = null;
 			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
 			if (metaList == null)
