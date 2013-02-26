@@ -108,7 +108,13 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 			throw new StatusMetaMessagingException("invalid meta key provided");
 		if (!sampleService.isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
+		Integer cellId = cell.getSampleId();
+		List<MetaMessage> existingMessages = metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, cellId, SampleMeta.class, sampleMetaDao);
+		if (existingMessages.isEmpty()){
+			metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, comment, cellId, SampleMeta.class, sampleMetaDao);
+		} else {
+			metaMessageService.edit(existingMessages.get(0), comment, cellId, SampleMeta.class, sampleMetaDao);
+		}
 	}
 	
 	/**

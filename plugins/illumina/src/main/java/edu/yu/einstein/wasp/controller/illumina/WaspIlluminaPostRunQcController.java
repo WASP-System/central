@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.controller.illumina;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,11 +67,24 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		// TODO: replace imageFileUrlList with proper list from database (filegroups)
 		List<URL> imageFileUrlList = getTestImageFileUrlList();
 		
-		List<Integer> cellList = new ArrayList<Integer>();
+		List<Integer> cellIndexList = new ArrayList<Integer>();
+		Map<Integer, IlluminaQcContext> indexedQcData = new HashMap<Integer, IlluminaQcContext>();
 		
 		try {
-			for (int i=1; i <= sampleService.getNumberOfIndexedCellsOnPlatformUnit(run.getPlatformUnit()); i++)
-				cellList.add(i);
+			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
+			cellIndexList.addAll(cells.keySet());
+			for (Integer index: cellIndexList){
+				IlluminaQcContext qcContext = new IlluminaQcContext();
+				Sample cell = cells.get(index);
+				qcContext.setCell(cell);
+				try{
+					qcContext.setPassedQc(illuminaQcService.isCellPassedQc(cell, CellSuccessQcMetaKey.FOCUS));
+				} catch(Exception e){ } // do nothing, leave set to null
+				try{
+					qcContext.setComment(illuminaQcService.getCellQcComment(cell, CellSuccessQcMetaKey.FOCUS));
+				} catch(Exception e){ }	// do nothing, leave set to null
+				indexedQcData.put(index, qcContext);
+			}
 		} catch (SampleTypeException e) {
 			logger.warn(e.getLocalizedMessage());
 		}
@@ -79,8 +93,9 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		m.addAttribute("runReportBaseImagePath", runReportBaseImagePath);
 		m.addAttribute("imageFileUrlList", imageFileUrlList);
 		m.addAttribute("numCycles", imageFileUrlList.size() / 4);
-		m.addAttribute("cellList", cellList);
+		m.addAttribute("cellIndexList", cellIndexList);
 		m.addAttribute("runName", run.getName());
+		m.addAttribute("existingQcValuesIndexed",indexedQcData);
 		return "wasp-illumina/postrunqc/displayfocusqualitycharts";
 	}
 	

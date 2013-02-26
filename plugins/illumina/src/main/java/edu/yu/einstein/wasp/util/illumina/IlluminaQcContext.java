@@ -9,9 +9,9 @@ import edu.yu.einstein.wasp.model.Sample;
  */
 public class IlluminaQcContext {
 
-	private Sample cell;
+	private Sample cell = null;
 	
-	private boolean passedQc = false;
+	private Boolean passedQc = null;
 	
 	private String comment = "";
 
@@ -23,7 +23,7 @@ public class IlluminaQcContext {
 		this.cell = cell;
 	}
 
-	public boolean isPassedQc() {
+	public Boolean isPassedQc() {
 		return passedQc;
 	}
 

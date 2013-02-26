@@ -45,20 +45,20 @@
 			<p>Please click either 'Pass' or 'Fail' for each lane based on your interpretation of the LANE FOCUS QUALITY charts only, then click the 'Continue' button.</p>
 			<form id="qualityForm"  method="post">
 			<table >
-<c:forEach items="${cellList}" var="cell" >
+<c:forEach items="${cellIndexList}" var="index" >
 
 				<tr>
-					<td class="formLabel vcenter">Lane <c:out value="${cell}" /> : </td>
+					<td class="formLabel vcenter">Lane <c:out value="${index}" /> : </td>
 					<td class="vcenter">
-						<div id="radioL<c:out value="${cell}" />">
-							<input type="radio" id="passL<c:out value="${cell}" />" name="radioL<c:out value="${cell}" />" size="25" value="1" />
-							<label for="passL<c:out value="${cell}" />" >Pass</label>
-							<input type="radio" id="failL<c:out value="${cell}" />" name="radioL<c:out value="${cell}" />" size="25" value="0" />
-							<label for="failL<c:out value="${cell}" />" >Fail</label>
+						<div id="radioL<c:out value="${index}" />">
+							<input type="radio" id="passL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="1" 
+								<c:if test="${not empty(existingQcValuesIndexed.get(index).isPassedQc()) && existingQcValuesIndexed.get(index).isPassedQc() == true}"> checked="checked"</c:if> /><label for="passL<c:out value="${index}" />" >Pass</label>
+							<input type="radio" id="failL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="0"  
+								<c:if test="${(not empty(existingQcValuesIndexed.get(index).isPassedQc())) && existingQcValuesIndexed.get(index).isPassedQc() == false}"> checked="checked"</c:if> /><label for="failL<c:out value="${index}" />" >Fail</label>
 						</div>
 					</td>
 					<td class="formLabel vcenter">Comments: </td>
-					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${cell}" />" rows="3" cols="20" maxlength="100"></textarea></td>
+					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" rows="3" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed.get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
 				</tr>
 </c:forEach>
 					
