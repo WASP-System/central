@@ -131,6 +131,19 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	 * {@inheritDoc}
 	 */
 	@Override
+	public <T extends MetaBase> List<MetaMessage> read(String group, String name, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
+		List<MetaMessage> results = new ArrayList<MetaMessage>();
+		for (MetaMessage message : readAll(modelParentId, clazz, dao)){
+			if (message.getGroup().equals(group) && message.getName().equals(name))
+				results.add(message);
+		}
+		return results;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public <T extends MetaBase> List<MetaMessage> read(Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		return read(DEFAULT_GROUP,  modelParentId, clazz, dao);
 	}
