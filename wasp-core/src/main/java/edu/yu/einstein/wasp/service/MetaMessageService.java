@@ -126,7 +126,7 @@ public interface MetaMessageService extends WaspService {
 	 * @return
 	 * @throws WaspException
 	 */
-	public <T extends MetaBase> MetaMessage edit(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException;
+	public <T extends MetaBase> MetaMessage edit(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException;
 
 	
 	/**
