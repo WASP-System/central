@@ -4,8 +4,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -16,18 +19,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.illumina.WaspIlluminaSampleService;
+import edu.yu.einstein.wasp.serviceImpl.illumina.WaspIlluminaSampleServiceImpl;
+import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 
 @Controller
 @RequestMapping("/wasp-illumina/postRunQC")
 public class WaspIlluminaPostRunQcController extends WaspController{
+	
+	Logger logger = LoggerFactory.getLogger(WaspIlluminaPostRunQcController.class);
 
 	@Autowired
 	RunService runService;
 	
 	@Autowired
-	SampleService sampleService;
+	WaspIlluminaSampleService sampleService;
 	
 	private List<URL> getTestImageFileUrlList(){
 		// TODO: remove this method in production code
@@ -59,8 +68,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			for (int i=1; i <= sampleService.getNumberOfIndexedCellsOnPlatformUnit(run.getPlatformUnit()); i++)
 				cellList.add(i);
 		} catch (SampleTypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn(e.getLocalizedMessage());
 		}
 		
 		String runReportBaseImagePath = StringUtils.substringBeforeLast(imageFileUrlList.get(0).toString(), "/");
@@ -72,9 +80,49 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "wasp-illumina/postrunqc/displayfocusqualitycharts";
 	}
 	
-	@RequestMapping(value="/displayFocusQualityCharts", method=RequestMethod.POST)
-	public String processFocusQualityCharts(ModelMap m){
-		// TODO: add functionality here 
+	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.POST)
+	public String processFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
+		Run run = runService.getRunById(runId);
+		if (run.getRunId() == null){
+			waspErrorMessage("run.invalid_id.error");
+			return "redirect:/dashboard.do";
+		}
+		Sample pu = run.getPlatformUnit();
+		List<IlluminaQcContext> qcContextList = new ArrayList<IlluminaQcContext>();
+		try {
+			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(pu);
+			for(Integer cellIndex : cells.keySet()){
+				IlluminaQcContext qcContext = new IlluminaQcContext();
+				qcContext.setCell(cells.get(cellIndex));
+				int passed = 0;
+				try{
+					passed = Integer.parseInt(request.getParameter("radioL" + cellIndex));
+				} catch(NumberFormatException e){
+					waspErrorMessage("waspIlluminaPlugin.formParameter.error");
+					logger.warn("Could not parse form parameter radioL" + cellIndex);
+					return "redirect:/dashboard.do";
+				}
+				qcContext.setPassed((passed == 1) ? true:false);
+				String comment = request.getParameter("commentsL");
+				if (comment == null){
+					waspErrorMessage("waspIlluminaPlugin.formParameter.error");
+					logger.warn("Could not parse form parameter commentsL" + cellIndex);
+					return "redirect:/dashboard.do";
+				}
+				qcContext.setComment(comment);
+				qcContextList.add(qcContext);
+			}
+		} catch (SampleTypeException e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("waspIlluminaPlugin.puCells.error");
+			return "redirect:/dashboard.do";
+		} 
+		try{
+			sampleService.updateQc(qcContextList, WaspIlluminaSampleServiceImpl.CELL_SUCCESS_META_KEY_FOCUS_QC);
+		} catch (Exception e){
+			waspErrorMessage("waspIlluminaPlugin.update.error");
+			return "redirect:/dashboard.do";
+		}
 		return "redirect:/wasp-illumina/postRunQC/displayIntensityCharts.do";
 	}
 	

@@ -41,15 +41,15 @@
 	</div>
 	<div class="selection_dialog ui-widget-content ui-corner-all">
 		<div class="ui-widget-header ui-corner-all dialog_header" >Assessment of Lane Focus Quality</div>
-		<div  class="verifyQualityForm">		
+		<div  class="verifyQualityForm" class="center">		
 			<p>Please click either 'Pass' or 'Fail' for each lane based on your interpretation of the LANE FOCUS QUALITY charts only, then click the 'Continue' button.</p>
 			<form id="qualityForm"  method="post">
-			<table align="center">
+			<table >
 <c:forEach items="${cellList}" var="cell" >
 
 				<tr>
-					<td class="formLabel">Lane <c:out value="${cell}" /> : </td>
-					<td>
+					<td class="formLabel vcenter">Lane <c:out value="${cell}" /> : </td>
+					<td class="vcenter">
 						<div id="radioL<c:out value="${cell}" />">
 							<input type="radio" id="passL<c:out value="${cell}" />" name="radioL<c:out value="${cell}" />" size="25" value="1" />
 							<label for="passL<c:out value="${cell}" />" >Pass</label>
@@ -57,12 +57,11 @@
 							<label for="failL<c:out value="${cell}" />" >Fail</label>
 						</div>
 					</td>
+					<td class="formLabel vcenter">Comments: </td>
+					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${cell}" />" rows="3" cols="20" maxlength="100"></textarea></td>
 				</tr>
 </c:forEach>
-					<tr>
-						<td class="formLabel">Comments: </td>
-						<td><textarea style="resize: none;" name="comments" id="comments" rows="5" cols="13" maxlength="100"></textarea></td>
-					</tr>
+					
 				</table>
 				</form>
 				<br />

@@ -22,22 +22,22 @@
 	.selection_dialog
 	{
 		position: absolute; 
-		left:50%; 
+		left:40%; 
 		margin-left: -150px; 
 		top:0px; 
-		width: 300px; 
-		height: 540px; 
+		width: 550px; 
+		height: 630px; 
 		padding: 2px;
 		z-index:20;
 	}
 	
 	.selection_dialog_shadow
 	{
-		width: 302px; 
-		height: 542px; 
+		width: 550px; 
+		height: 630px; 
 		position: absolute; 
-		left:50%; 
-		margin-left: -142px; 
+		left:40%; 
+		margin-left: -144px; 
 		top:12px;
 		padding: 2px;
 		z-index:10;
@@ -78,6 +78,12 @@
 		text-align: right;
 		color: #191975;
 		font-size: 14px;
+	}
+	
+	td.vcenter {
+		vertical-align:middle;
+		border-bottom: solid 1px;
+		
 	}
 	
 
@@ -158,18 +164,29 @@
 	
 	function validate(){
 		TOTAL_LANES = 8;
-		incomplete = false;
-		message = "You must choose either 'Pass' or 'Fail' for ALL lanes. You have not yet scored lanes ";
+		messagePassFailRoot = "You must choose either 'Pass' or 'Fail' for ALL lanes. You have not yet scored lanes ";
+		messagePassFailLanes = "";
+		messageCommentsRoot = "You must write a comment for all failed lanes: ";
+		messageCommentsLanes = "";
 		for (i=1; i <= TOTAL_LANES; i++){
-			laneResult = $("input[name=radioL" + i + "]:checked").val();
+			laneResult = $("input[name='radioL" + i + "']:checked").val();
+			laneComment = $("textarea[name='commentsL" + i + "']").val();
 			if (laneResult == null){
-				message += i + ", ";
-				incomplete = true;
+				if (messagePassFailLanes.length > 0)
+					messagePassFailLanes += ", ";
+				messagePassFailLanes += i;
+			} else if (laneResult == 0 && (laneComment == null || laneComment == "")){
+				if (messageCommentsLanes.length > 0)
+					messageCommentsLanes += ", ";
+				messageCommentsLanes += i;
 			}
 		}
-		if (incomplete){
-			message = message.substring(0, message.length-2); // trim trailing comma and space 
-			message += ".";
+		message = "";
+		if (messagePassFailLanes.length > 0 )
+			message += messagePassFailRoot + messagePassFailLanes + ". ";
+		if (messageCommentsLanes.length > 0 )
+			message += messageCommentsRoot + messageCommentsLanes + ". ";
+		if (message.length > 0){
 			$( "#warningText" ).html(message);
 			$( "#error_dialog-modal" ).dialog("open");
 		}

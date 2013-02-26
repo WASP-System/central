@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.illumina.WaspIlluminaSampleService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 
 @Component
 @Transactional
@@ -26,178 +27,16 @@ public class WaspIlluminaSampleServiceImpl extends SampleServiceImpl implements 
 	public static final String CELL_SUCCESS_META_KEY_CLUSTER_QC = "clusterDensityQC";
 	
 	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP = "RunQcComments";
-	public static final String CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS = "Focus QC Comment";
-	public static final String CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY = "Intensity QC Comment";
-	public static final String CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30 = "Num Bases QS > 30 Comment";
-	public static final String CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER = "Cluster Density QC Comment";
+	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS = "Focus QC Comment";
+	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY = "Intensity QC Comment";
+	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30 = "Num Bases QS > 30 Comment";
+	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER = "Cluster Density QC Comment";
 	
 	/**
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public boolean isCellPassedFocusQc(Sample cell) throws SampleTypeException, MetadataException{
-		return isPassedQc(cell, CELL_SUCCESS_META_KEY_FOCUS_QC);
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * 
-	 */
-	@Override
-	public void setCellPassedFocusQc(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		setPassedQc(cell, CELL_SUCCESS_META_KEY_FOCUS_QC, success);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 */
-	@Override
-	public void setCellPassedFocusQcComment(Sample cell, String comment) throws SampleTypeException, StatusMetaMessagingException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCellPassedFocusQcComment(Sample cell) throws SampleTypeException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-		if (messages.isEmpty())
-			return null;
-		return messages.get(0).getValue(); // should only be one message
-	}
-
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellPassedIntensityQc(Sample cell) throws SampleTypeException, MetadataException{
-		return isPassedQc(cell, CELL_SUCCESS_META_KEY_INTENSITY_QC);
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setCellPassedIntensityQc(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		setPassedQc(cell, CELL_SUCCESS_META_KEY_INTENSITY_QC, success);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 */
-	@Override
-	public void setCellPassedIntensityQcComment(Sample cell, String comment) throws SampleTypeException, StatusMetaMessagingException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCellPassedIntensityQcComment(Sample cell) throws SampleTypeException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-		if (messages.isEmpty())
-			return null;
-		return messages.get(0).getValue(); // should only be one message
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellPassedNumGt30Qc(Sample cell) throws SampleTypeException, MetadataException{
-		return isPassedQc(cell, CELL_SUCCESS_META_KEY_NUMGT30_QC);
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setCellPassedNumGt30Qc(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		setPassedQc(cell, CELL_SUCCESS_META_KEY_NUMGT30_QC, success);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 */
-	@Override
-	public void setCellPassedNumGt30QcComment(Sample cell, String comment) throws SampleTypeException, StatusMetaMessagingException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCellPassedNumGt30QcComment(Sample cell) throws SampleTypeException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-		if (messages.isEmpty())
-			return null;
-		return messages.get(0).getValue(); // should only be one message
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	@Override
-	public boolean isCellPassedClusterDensityQc(Sample cell) throws SampleTypeException, MetadataException{
-		return isPassedQc(cell, CELL_SUCCESS_META_KEY_CLUSTER_QC);
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 * @throws MetadataException 
-	 */
-	@Override
-	public void setCellPassedClusterDensityQc(Sample cell, boolean success) throws SampleTypeException, MetadataException {
-		setPassedQc(cell, CELL_SUCCESS_META_KEY_CLUSTER_QC, success);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 * 
-	 */
-	@Override
-	public void setCellPassedClusterDensityQcComment(Sample cell, String comment) throws SampleTypeException, StatusMetaMessagingException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getCellPassedClusterDensityQcComment(Sample cell) throws SampleTypeException{
-		if (!isCell(cell))
-			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
-		if (messages.isEmpty())
-			return null;
-		return messages.get(0).getValue(); // should only be one message
-	}
-	
-	
-	
-	private boolean isPassedQc(Sample cell, String metaKey) throws SampleTypeException, MetadataException{
+	public boolean isCellPassedQc(Sample cell, String metaKey) throws SampleTypeException, MetadataException{
 		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		String success = null;
@@ -209,7 +48,12 @@ public class WaspIlluminaSampleServiceImpl extends SampleServiceImpl implements 
 		return b.booleanValue();
 	}
 	
-	private void setPassedQc(Sample cell, String metaKey, boolean success) throws SampleTypeException, MetadataException {
+	/**
+	 *  {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public void setCellPassedQc(Sample cell, String metaKey, boolean success) throws SampleTypeException, MetadataException {
 		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		Boolean b = new Boolean(success);
@@ -219,6 +63,50 @@ public class WaspIlluminaSampleServiceImpl extends SampleServiceImpl implements 
 		sampleMeta.setV(successString);
 		sampleMeta.setSampleId(cell.getSampleId());
 		sampleMetaDao.setMeta(sampleMeta);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public void setCellQcComment(Sample cell, String metaKey, String comment) throws SampleTypeException, StatusMetaMessagingException{
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, comment, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getCellQcComment(Sample cell, String metaKey) throws SampleTypeException, StatusMetaMessagingException{
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
+		if (messages.isEmpty())
+			throw new StatusMetaMessagingException("No message found for given key: " + metaKey);
+		return messages.get(0).getValue(); // should only be one message
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateQc(List<IlluminaQcContext> qcContextList, String metaKey){
+		//TODO: functionality here
+	}
+	
+	private String getQcCommentKey(String metaKey) throws StatusMetaMessagingException{
+		if (metaKey.equals(CELL_SUCCESS_META_KEY_FOCUS_QC))
+			return CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS;
+		if (metaKey.equals(CELL_SUCCESS_META_KEY_INTENSITY_QC))
+			return CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY;
+		if (metaKey.equals(CELL_SUCCESS_META_KEY_NUMGT30_QC))
+			return CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30;
+		if (metaKey.equals(CELL_SUCCESS_META_KEY_CLUSTER_QC))
+			return CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER;
+		throw new StatusMetaMessagingException("Unable to determine key for setting status message");
 	}
 
 }
