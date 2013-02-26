@@ -1939,7 +1939,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						return true; // the library is on an active run
 					}
 				}
-				if (sampleService.isCellLibraryPassedQC(cellLibrary)){
+				if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
 						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
 						return true; // the library has been run and passed QC but has not been pre-processed yet
