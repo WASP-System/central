@@ -11,7 +11,7 @@ public class IlluminaQcContext {
 
 	private Sample cell;
 	
-	private boolean passed = false;
+	private boolean passedQc = false;
 	
 	private String comment = "";
 
@@ -23,12 +23,12 @@ public class IlluminaQcContext {
 		this.cell = cell;
 	}
 
-	public boolean isPassed() {
-		return passed;
+	public boolean isPassedQc() {
+		return passedQc;
 	}
 
-	public void setPassed(boolean passed) {
-		this.passed = passed;
+	public void setPassedQc(boolean passedQc) {
+		this.passedQc = passedQc;
 	}
 
 	public String getComment() {
@@ -41,10 +41,10 @@ public class IlluminaQcContext {
 	
 	public IlluminaQcContext(){}
 
-	public IlluminaQcContext(Sample cell, boolean passed, String comment) {
+	public IlluminaQcContext(Sample cell, boolean passedQc, String comment) {
 		super();
 		this.cell = cell;
-		this.passed = passed;
+		this.passedQc = passedQc;
 		this.comment = comment;
 	}
 

@@ -6,10 +6,10 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 
-public interface WaspIlluminaSampleService extends SampleService {
+public interface WaspIlluminaQcService extends WaspService {
 
 	/**
 	 * returns true if cell has passed QC for the chosen meta key, otherwise throws false, or a MetadataException if the value is not set

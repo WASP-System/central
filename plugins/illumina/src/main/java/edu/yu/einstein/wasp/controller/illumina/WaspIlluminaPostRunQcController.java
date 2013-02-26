@@ -22,8 +22,9 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.illumina.WaspIlluminaSampleService;
-import edu.yu.einstein.wasp.serviceImpl.illumina.WaspIlluminaSampleServiceImpl;
+import edu.yu.einstein.wasp.service.illumina.WaspIlluminaQcService;
+import edu.yu.einstein.wasp.service.impl.illumina.WaspIlluminaQcServiceImpl;
+import edu.yu.einstein.wasp.service.impl.illumina.WaspIlluminaQcServiceImpl.CellSuccessQcMetaKey;
 import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 
 @Controller
@@ -36,7 +37,10 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	RunService runService;
 	
 	@Autowired
-	WaspIlluminaSampleService sampleService;
+	SampleService sampleService;
+	
+	@Autowired
+	WaspIlluminaQcService illuminaQcService;
 	
 	private List<URL> getTestImageFileUrlList(){
 		// TODO: remove this method in production code
@@ -102,8 +106,8 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 					logger.warn("Could not parse form parameter radioL" + cellIndex);
 					return "redirect:/dashboard.do";
 				}
-				qcContext.setPassed((passed == 1) ? true:false);
-				String comment = request.getParameter("commentsL");
+				qcContext.setPassedQc((passed == 1) ? true:false);
+				String comment = request.getParameter("commentsL" + cellIndex);
 				if (comment == null){
 					waspErrorMessage("waspIlluminaPlugin.formParameter.error");
 					logger.warn("Could not parse form parameter commentsL" + cellIndex);
@@ -118,7 +122,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			return "redirect:/dashboard.do";
 		} 
 		try{
-			sampleService.updateQc(qcContextList, WaspIlluminaSampleServiceImpl.CELL_SUCCESS_META_KEY_FOCUS_QC);
+			illuminaQcService.updateQc(qcContextList, CellSuccessQcMetaKey.FOCUS);
 		} catch (Exception e){
 			waspErrorMessage("waspIlluminaPlugin.update.error");
 			return "redirect:/dashboard.do";
