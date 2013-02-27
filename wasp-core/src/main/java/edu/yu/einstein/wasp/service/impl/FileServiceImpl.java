@@ -95,9 +95,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Autowired
 	private GridHostResolver hostResolver;
 	
-	@Autowired
-	private FileService fileService;
-	
 	@Value("${wasp.temporary.dir}")
 	protected String tempDir;
 	
@@ -258,7 +255,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		
 		try {
 			gfs.put(localFile, remoteFile);
-			fileService.registerFileGroup(retGroup);
+			registerFileGroup(retGroup);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);

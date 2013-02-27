@@ -31,9 +31,5 @@ public interface FastqService extends WaspService {
 	
 	public boolean isReadsMarkedFailed(FileHandle file) throws InvalidFileTypeException;
 	
-	
-	
-	
-	
 
 }
