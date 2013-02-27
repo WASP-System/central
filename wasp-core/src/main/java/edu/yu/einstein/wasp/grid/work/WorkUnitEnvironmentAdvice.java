@@ -18,13 +18,13 @@ public class WorkUnitEnvironmentAdvice {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public static enum WorkUnitEnvironmentVariable {
+	public static enum WORKUNIT_ENV_VAR_TYPE {
 		FILE, VALUE
 	}
 	
 	private String key;
 	private String name;
-	private WorkUnitEnvironmentVariable type = WorkUnitEnvironmentVariable.VALUE;
+	private WORKUNIT_ENV_VAR_TYPE type = WORKUNIT_ENV_VAR_TYPE.VALUE;
 
 	/**
 	 * 
@@ -38,7 +38,7 @@ public class WorkUnitEnvironmentAdvice {
 	 * @param key Host specific value setting key
 	 * @param name name of the environment variable
 	 */
-	public WorkUnitEnvironmentAdvice(String key, String name, WorkUnitEnvironmentVariable type) {
+	public WorkUnitEnvironmentAdvice(String key, String name, WORKUNIT_ENV_VAR_TYPE type) {
 		this.key = key;
 		this.name = name;
 		this.type = type;
@@ -54,7 +54,7 @@ public class WorkUnitEnvironmentAdvice {
 		logger.debug("name=" + name);
 		logger.debug("type=" + type);
 		logger.debug("value=" + value);
-		if (type == WorkUnitEnvironmentVariable.FILE) {
+		if (type == WORKUNIT_ENV_VAR_TYPE.FILE) {
 			value = gws.getTransportConnection().prefixRemoteFile(value);
 		}
 		logger.debug("setting environment variable in work unit: " + name + "=" + value);
