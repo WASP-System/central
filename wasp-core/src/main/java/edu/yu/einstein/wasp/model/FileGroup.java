@@ -198,11 +198,11 @@ public class FileGroup extends WaspModel {
 	}
 
 	/** 
-	 * isArchived
+	 * isArchived default 0
 	 *
 	 */
 	@Column(name="isarchived")
-	protected Integer isArchived;
+	protected Integer isArchived = 0;
 
 	/**
 	 * setIsArchived(Integer isArchived)
@@ -227,11 +227,11 @@ public class FileGroup extends WaspModel {
 
 
 	/** 
-	 * isActive
+	 * isActive default 0
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 0;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -254,62 +254,7 @@ public class FileGroup extends WaspModel {
 		return this.isActive;
 	}
 
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
 	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
 	/** 
 	 * sampleDraft
 	 *
@@ -575,6 +520,7 @@ public class FileGroup extends WaspModel {
 	@JoinColumn(name="filegroupid")
 	protected Set<FileHandle> filehandles;
 	
+	@JsonIgnore
 	public Set<FileHandle> getFileHandles() {
 		return this.filehandles;
 	}

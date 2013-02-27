@@ -114,7 +114,7 @@ public class User extends WaspModel {
 	}
 
 	@Column(name = "isactive")
-	protected Integer	isActive;
+	protected Integer isActive = 1;
 
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
@@ -122,28 +122,6 @@ public class User extends WaspModel {
 
 	public Integer getIsActive() {
 		return this.isActive;
-	}
-
-	@Column(name = "lastupdts")
-	protected Date	lastUpdTs;
-
-	public void setLastUpdTs(Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	public Date getLastUpdTs() {
-		return this.lastUpdTs;
-	}
-
-	@Column(name = "lastupduser")
-	protected Integer	lastUpdUser;
-
-	public void setLastUpdUser(Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	public Integer getLastUpdUser() {
-		return this.lastUpdUser;
 	}
 
 	@NotAudited
@@ -286,9 +264,9 @@ public class User extends WaspModel {
 		this.run = run;
 	}
 
-	@Column(name = "locale")
+	@Column(name = "locale", length=5)
 	@NotEmpty
-	protected String	locale;
+	protected String	locale = "en_US";
 
 	public void setLocale(String locale) {
 		this.locale = locale;

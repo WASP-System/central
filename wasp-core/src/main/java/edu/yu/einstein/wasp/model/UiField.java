@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.exception.UiFieldParseException;
  */
 @Entity
 @Table(name = "uifield")
-public final class UiField implements Serializable {
+public final class UiField extends WaspModel implements Serializable {
 
 	/**
 	 * 
@@ -49,7 +49,7 @@ public final class UiField implements Serializable {
 	@Column(name = "attrvalue")
 	protected String attrValue;
 
-	@Column(name = "locale")
+	@Column(name = "locale", length=5)
 	@NotEmpty
 	protected String locale;
 
@@ -102,26 +102,6 @@ public final class UiField implements Serializable {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
-
-	  @Column(name="lastupdts")
-	  protected Date lastUpdTs;
-	  public void setLastUpdTs (Date lastUpdTs) {
-	    this.lastUpdTs = lastUpdTs;
-	  }
-	  public Date getLastUpdTs () {
-	    return this.lastUpdTs;
-	  }
-
-
-	  @Column(name="lastupduser")
-	  protected Integer lastUpdUser;
-	  public void setLastUpdUser (Integer lastUpdUser) {
-	    this.lastUpdUser = lastUpdUser;
-	  }
-	  public Integer getLastUpdUser () {
-	    return this.lastUpdUser;
-	  }
-
 
 		public String getName() {
 			return name;

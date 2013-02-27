@@ -93,40 +93,6 @@ public class SampleFile extends WaspModel {
 		return this.sampleId;
 	}
 
-
-
-
-	/** 
-	 * fileGroupId
-	 *
-	 */
-	@Column(name="filegroupid")
-	protected Integer fileGroupId;
-
-	/**
-	 * setFileId(Integer fileGroupId)
-	 *
-	 * @param fileGroupId
-	 *
-	 */
-	
-	public void setFileId (Integer fileGroupId) {
-		this.fileGroupId = fileGroupId;
-	}
-
-	/**
-	 * getFileId()
-	 *
-	 * @return fileGroupId
-	 *
-	 */
-	public Integer getFileGroupId () {
-		return this.fileGroupId;
-	}
-
-
-
-
 	/** 
 	 * iName
 	 *
@@ -217,62 +183,7 @@ public class SampleFile extends WaspModel {
 		return this.description;
 	}
 
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
 	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
 	/**
 	 * sample
 	 *
@@ -322,7 +233,6 @@ public class SampleFile extends WaspModel {
 	 */
 	public void setFileGroup (FileGroup fileGroup) {
 		this.fileGroup = fileGroup;
-		this.fileGroupId = fileGroup.fileGroupId;
 	}
 
 	/**
