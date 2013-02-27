@@ -2809,5 +2809,25 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  }
 			  
 		  }
+		  
+		  public List<SampleSource> getPreprocessedCellLibraries(Job job){
+			  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();//preprocessed means sequenced and aligned
+			  for (SampleSource cellLibrary: this.getCellLibrariesForJob(job)){
+				  try{
+					  if (this.isCellLibraryPreprocessed(cellLibrary)){
+						  preprocessedCellLibraries.add(cellLibrary);
+					  }
+					  /*
+					  if (this.isCellLibraryPreprocessed(cellLibrary)){
+						  if(this.isCellLibraryInAggregateAnalysis(cellLibrary)){//if in_aggregate_analysis metadata does Not exist, then exception is thrown
+							  alignedCellLibrariesAwaitingAnalysisInclusionOrExclusion.add(cellLibrary);
+						  }
+					  */
+				  }
+				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getSampleSourceId()); 
+				  }						  
+			  }
+			  return preprocessedCellLibraries;
+		  }
 }
 

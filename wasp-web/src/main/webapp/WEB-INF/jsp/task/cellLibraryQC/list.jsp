@@ -24,8 +24,8 @@
 	<c:if test='${currentJobId != "-1"}'>
  		<tr><td colspan="7" style='background-color:black'></td></tr>
  	</c:if>
- 	<form action="<c:url value="/task/cellLibraryQC/qc.do"/>" id="theForm${cellLibrary.getSampleSourceId()}" method="POST" onsubmit="return validate(this);"  >
- 	
+ 	<form action="<c:url value="/task/cellLibraryQC/qc.do"/>" id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
+ 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
  	<tr class="FormData">
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_jobId.label" /></th>
 		<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_jobName.label" /></th>
@@ -62,11 +62,10 @@
 			
 				<c:if test="${status.first}"><br /></c:if>
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSourceId" value="${cellLibrary.getSampleSourceId()}"> 
- 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "INCLUDE"><fmt:message key="task.cellLibraryqc_include.label" /> &nbsp;
- 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedExclude("theForm<c:out value="${cellLibrary.getSampleSourceId()}" />");' type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "EXCLUDE"><fmt:message key="task.cellLibraryqc_exclude.label" /> 
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}A" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "INCLUDE"><fmt:message key="task.cellLibraryqc_include.label" /> &nbsp;
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}B" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "EXCLUDE"><fmt:message key="task.cellLibraryqc_exclude.label" /> 
 				<br />
- 				 <textarea id="comment" name="comment" cols="25" rows="2"></textarea><br />
- 
+ 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'></textarea><br /><c:if test="${!status.last}"><br /></c:if>
 			</td>
 		</tr>	
 			
@@ -81,8 +80,8 @@
 			<tr style='text-align:center'>
 				<td colspan="6" >&nbsp;</td>
 				<td>
-				<span style="font-size:10px"><a href="javascript:void(0)" onclick='set("theForm${cellLibrary.getSampleSourceId()}", "INCLUDE");'><fmt:message key="task.cellLibraryqc_setAllInclude.label" /></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick='set("theForm${cellLibrary.getSampleSourceId()}", "EXCLUDE");'><fmt:message key="task.cellLibraryqc_setAllExclude.label" /></a><br /></span>
-				
+				<span style="font-size:10px"><a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "INCLUDE");'><fmt:message key="task.cellLibraryqc_setAllInclude.label" /></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "EXCLUDE");'><fmt:message key="task.cellLibraryqc_setAllExclude.label" /></a><br /></span>
+				<br /><input type="checkbox" name="startAnalysis"  value="true">Start Analysis<br />
 				<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.cellLibraryqc_reset.label" />">
 				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.cellLibraryqc_submit.label" />">
 				</td>

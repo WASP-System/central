@@ -937,5 +937,6 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
+	public List<SampleSource> getPreprocessedCellLibraries(Job job);
 	  
 }
