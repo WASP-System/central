@@ -49,7 +49,7 @@ public class SshFileService implements GridFileService {
 	}
 
 	public void setUserDirIsRoot(boolean isRoot) {
-		this.userDirIsRoot = isRoot;
+		SshFileService.userDirIsRoot = isRoot;
 	}
 
 	@Override

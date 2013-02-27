@@ -173,6 +173,11 @@ public interface AuthenticationService {
 		 */
 		public Set<Integer> idsOfLabsManagedByCurrentUser();
 	    
-	
+		/**
+		 * is the authenticated user PI pending? (check labpending table)
+		 * NOTE THAT THIS IS AN EXISTING USER (so, he/she is already a member of some lab)
+		 * @return boolean
+		 */
+	    public boolean isThisExistingUserPIPending();
 	
 }

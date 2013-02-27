@@ -95,7 +95,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<powermock.version>1.4.12</powermock.version>
 		<excluded.groups>integration-tests,db-tests,a,ssh,schema</excluded.groups>
 		<json.version>20080701</json.version>
-		<bouncycastle.version>1.47</bouncycastle.version>
+		<bouncycastle.version>1.48</bouncycastle.version>
 	</properties>
 
 	<modules>
@@ -843,9 +843,20 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>2.2.2</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>batik-ext</artifactId>
+				<version>1.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore</artifactId>
+				<version>4.2.3</version>
+			</dependency>
+			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-firefox-driver</artifactId>
-				<version>2.15.0</version>
+				<version>2.28.0</version>
+				<scope>test</scope>
 				<exclusions>
 					<exclusion>
 						<groupId>cglib</groupId>
@@ -856,7 +867,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
-				<version>2.16.1</version>
+				<version>2.28.0</version>				
 				<scope>test</scope>
 			</dependency>
 			<dependency>

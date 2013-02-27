@@ -45,9 +45,9 @@
     	<td class="DataTD"><select class="FormElement ui-widget-content ui-corner-all" name="roleName">
 		    <option value="" SELECTED><fmt:message key="wasp.default_select.label"/></option>
 		    <c:forEach items="${role}" var="r">
-		      <option value="<c:out value="${r.roleName}"/>">
-		         <c:out value="${r.name}"/>
-		      </option>
+		      <c:if test="${r.roleName != 'su' }"><%--2-15-13: do not permit any user (other than Super User) to be granted superuser status --%>
+		      	<option value="<c:out value="${r.roleName}"/>"><c:out value="${r.name}"/></option>
+		      </c:if>
 		    </c:forEach>
 		    </select>
 		</td>

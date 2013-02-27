@@ -3,8 +3,6 @@
  */
 package edu.yu.einstein.wasp.grid.work;
 
-import java.util.HashMap;
-
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 
 /**

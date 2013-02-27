@@ -70,6 +70,6 @@
 	<import resource="classpath*:flows/*.xml" />
 	
 	<!-- loads all the plugin root contexts -->
-  	<import resource="classpath*:META-INF/spring/plugin-context-batch.xml" />
+  	<import resource="classpath*:META-INF/spring/*-plugin-context-batch.xml" />
 
 </beans>

@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -335,5 +336,68 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			throw new Exception(e.getMessage());
 		}
 		return comment;
+	}
+	
+	public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public Set<Map<SampleDraft,SampleDraft>> getSampleDraftPairsByJobDraft(JobDraft jobDraft){
+		Set<Map<SampleDraft,SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft,SampleDraft>>();
+		
+		String samplePairsKey = jobDraft.getWorkflow().getIName()+"."+SAMPLE_PAIR_META_KEY;
+		
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getJobDraftId());
+		if (samplePairsTvsC.getJobDraftMetaId() != null){
+			for(String pair: samplePairsTvsC.getV().split(";")){
+				String[] pairList = pair.split(":");
+				
+				Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
+				Integer T = Integer.valueOf(pairList[0]);
+				Integer C = Integer.valueOf(pairList[1]);
+				sampleDraftPair.put(sampleDraftDao.getSampleDraftBySampleDraftId(T.intValue()), 
+						sampleDraftDao.getSampleDraftBySampleDraftId(C.intValue()));	
+				
+				sampleDraftPairSet.add(sampleDraftPair);
+			}
+		}
+		return sampleDraftPairSet;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
+	public void setSampleDraftPairsByJobDraft(JobDraft jobDraft, Set<Map<SampleDraft,SampleDraft>> sampleDraftPairSet){
+		
+	    String samplePairsKey = jobDraft.getWorkflow().getIName()+"."+SAMPLE_PAIR_META_KEY;
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getJobDraftId());
+		
+		// remove old paired sample for jobdraft
+		if (samplePairsTvsC.getJobDraftMetaId() != null){
+			jobDraftMetaDao.remove(samplePairsTvsC);
+			jobDraftMetaDao.flush(samplePairsTvsC);
+		}
+		
+		List<SampleDraft> samples =  jobDraft.getSampleDraft();
+	    String pairMetaString = ""; 
+		
+	    if (!sampleDraftPairSet.isEmpty()){
+			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
+				pairMetaString += e.getKey().getSampleDraftId()+":"+e.getValue().getSampleDraftId()+";";
+			}
+		}
+	    
+		if (!pairMetaString.isEmpty()){
+			// persist pair meta string
+			JobDraftMeta jdm = new JobDraftMeta(); 
+			jdm.setJobDraftId(jobDraft.getJobDraftId());
+			jdm.setK(samplePairsKey);
+			jdm.setV(pairMetaString); 
+			jobDraftMetaDao.save(jdm);
+		}
 	}
 }

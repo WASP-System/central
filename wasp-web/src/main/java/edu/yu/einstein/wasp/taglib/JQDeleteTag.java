@@ -11,6 +11,10 @@ import javax.servlet.jsp.tagext.Tag;
  */
 public class JQDeleteTag extends BodyTagSupport {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2710236781967172501L;
 	private String url;
 
 	public void setUrl(String url) {

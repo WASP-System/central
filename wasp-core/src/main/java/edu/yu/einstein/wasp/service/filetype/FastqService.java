@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.service.filetype;
 
-import java.util.List;
-
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Workflow;

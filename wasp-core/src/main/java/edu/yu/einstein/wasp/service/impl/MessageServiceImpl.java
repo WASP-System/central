@@ -5,6 +5,7 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.service.MessageService;
 
 @Service
+@Qualifier("messageServiceImpl")
 @Transactional("entityManager")
 public class MessageServiceImpl implements MessageService {
 
@@ -30,9 +32,13 @@ public class MessageServiceImpl implements MessageService {
 		}
 		return message;
 	}
-
+	
+	/**
+	 * Defaults to message defined for Locale.US
+	 */
 	@Override
-	public String getMetadataValue(String key) {
+	public String getMessage(String key) {
 		return getMessage(key, Locale.US);
 	}
+
 }
