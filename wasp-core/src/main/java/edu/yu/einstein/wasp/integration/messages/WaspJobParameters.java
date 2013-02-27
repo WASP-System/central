@@ -13,5 +13,6 @@ public class WaspJobParameters {
 	public static final String RUN_NAME = "runName";
 	public static final String PLATFORM_UNIT_ID = "platformUnitId";
 	public static final String PLATFORM_UNIT_NAME = "platformUnitName";
+	public static final String BATCH_JOB_TASK = "batchJobTask";
 	
 }

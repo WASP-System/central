@@ -1315,7 +1315,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		sample3.setChildren(childrenList3);
 		samples3.add(sample3);
 		Job job3 = new Job();
-		job2.setJobId(3);
+		job3.setJobId(3);
 		JobSample js3 = new JobSample();
 		js3.setJobSampleId(3);
 		js3.setJob(job3);

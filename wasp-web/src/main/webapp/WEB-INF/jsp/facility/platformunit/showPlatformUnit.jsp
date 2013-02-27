@@ -10,14 +10,14 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readType.label"/>:</td><td class="DataTD"><c:out value="${readType}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readlength.label"/>:</td><td class="DataTD"><c:out value="${readlength}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.numberOfCellsOnThisPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' READONLY cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' DISABLED cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
 <a href='<c:url value="/facility/platformunit/createUpdatePlatformUnit.do?sampleSubtypeId=${platformUnitSampleSubtypeId}&sampleId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.edit.label"/></a> 
 <%--permit platformUnit to be deleted only if it has no runs --%>
 <c:if test="${sequenceRuns.size()==0}">
 | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
+| <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a>
 </c:if>
-| <a href='<c:url value="/run/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a> 
 </td></tr>
 </table>
 </div>

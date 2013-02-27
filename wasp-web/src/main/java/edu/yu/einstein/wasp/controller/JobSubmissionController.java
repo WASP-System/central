@@ -311,6 +311,9 @@ public class JobSubmissionController extends WaspController {
 		String sidx = request.getParameter("sidx");
 		
 		String userId = request.getParameter("userId");
+		if(userId==null || "".equals(userId)){//added 2-13-13 by Dubin; this way, if no parameter, get drafts for the authenticated user
+			userId = authenticationService.getAuthenticatedUser().getUserId().toString();
+		}
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		

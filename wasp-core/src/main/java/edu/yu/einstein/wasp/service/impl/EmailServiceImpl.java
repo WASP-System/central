@@ -480,6 +480,35 @@ public class EmailServiceImpl implements EmailService{
 		return authcode;
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending) {
+		User user;
+		if (labPending.getUserpendingId() != null){
+			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
+			user = new User();
+			user.setFirstName(userPending.getFirstName());
+			user.setLastName(userPending.getLastName());
+		} else if (labPending.getPrimaryUserId() != null){
+			user = userDao.getUserByUserId(labPending.getPrimaryUserId());
+		}
+		else{
+			throw new MailPreparationException("Cannot prepare email as labPending does not have an associated UserId or userPendingId");
+		}
+		
+		Department department = departmentDao.getDepartmentByDepartmentId(labPending.getDepartmentId());
+		Map model = new HashMap();
+		model.put("labpending", labPending);
+		model.put("user", user);
+		model.put("department", department);
+		for (DepartmentUser du: department.getDepartmentUser()){
+			User administrator = userDao.getUserByUserId(du.getUserId());
+			model.put("administrator", administrator);
+			prepareAndSend(administrator, "emails/existing_user_pending_pi_request_confirm", model); 
+		}
+	}
 }
 

@@ -23,6 +23,9 @@
 	    
   </c:if>
   <c:if test="${empty _meta.property.control}">${_meta.v}</c:if>
+  <c:if test="${not empty _meta.property.tooltip}">
+	<wasp:tooltip value="${_meta.property.tooltip}" />
+  </c:if>
   </td>  	 
     
 </tr>         

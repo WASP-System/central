@@ -66,18 +66,6 @@ public class PluginTest {
 			
 		}
 
-		@Override
-		public String getBatchJobName(String BatchJobType) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		@Override
-		public String getBatchJobNameByArea(String BatchJobType, String area) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 		
 		
 	}

@@ -56,6 +56,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
@@ -216,17 +217,14 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			PowerMockito.when(mockRunService.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Mockito.any(Run.class))).thenReturn(libraryCells);
 			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
 			
-			
-			WaspPlugin plugin = new WaspPlugin("test-plugin", null, null){
-				@Override public void destroy() throws Exception {}
-				@Override public void afterPropertiesSet() throws Exception {}
+			BatchJobProviding plugin = new BatchJobProviding() {
 				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
 			};
-			Set<WaspPlugin> plugins = new HashSet<WaspPlugin>();
-			plugins.add(plugin);
-			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow")).thenReturn(plugins);
 			
+			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
+			plugins.add(plugin);
+			PowerMockito.when(mockWaspPluginRegistry.getPluginsHandlingArea("test_workflow", BatchJobProviding.class)).thenReturn(plugins);
 			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
 			template.setStatus(WaspStatus.COMPLETED);
 			Message<WaspStatus> runCompletedMessage = template.build();
@@ -248,19 +246,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	public void softwareLaunch() {
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
 		final String ALIGN_JOB_NAME = "test.doAlign";
-		
-		WaspPlugin testPlugin = new WaspPlugin("testPlugin", new Properties(), new DirectChannel()) {
-			
-			@Override public void destroy() throws Exception {}
-			
-			@Override public void afterPropertiesSet() throws Exception {}
-			
+		BatchJobProviding testPlugin = new BatchJobProviding() {
 			@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
-			
-			@Override
-			public String getBatchJobName(String BatchJobType) {
-				return ALIGN_JOB_NAME; // this is the alignment job
-			}
+			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
 		};
 		
 		List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
@@ -294,7 +282,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		waspJobSoftwareLaunchTasklet.setSampleService(mockSampleService);
 		waspJobSoftwareLaunchTasklet.setWaspPluginRegistry(mockWaspPluginRegistry);
 		PowerMockito.when(mockJobService.getJobByJobId(job.getJobId())).thenReturn(job);
-		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(WaspPlugin.class))).thenReturn(testPlugin);
+		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
 		try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, CELL_LIBRARY_ID);

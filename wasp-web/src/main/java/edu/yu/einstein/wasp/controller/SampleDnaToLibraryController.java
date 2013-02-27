@@ -331,7 +331,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
-	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
 	  
 	  List<Adaptorset> adaptorsetList = adaptorsetDao.findAll();
 	  m.addAttribute("adaptorsets", adaptorsetList);
@@ -549,7 +549,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
-	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
 
 	  
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
@@ -606,7 +606,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
-	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample, false));
+	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample));
 
 	  
 	  libraryForm.setName(libraryForm.getName().trim());
@@ -782,7 +782,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 		//get the current jobStatus
-		m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
+		m.addAttribute("jobStatus", jobService.getJobStatus(job));
 
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
@@ -821,7 +821,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
-	  m.addAttribute("jobStatus", jobService.getJobStatus(job, false));
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
 
 	  Sample sample= sampleDao.getSampleBySampleId(sampleId);
 	  //confirm these two objects exist and part of same job
@@ -860,7 +860,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
-	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample, false));
+	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample));
 		  	  		  
 	  sampleForm.setName(sampleForm.getName().trim());//from the form
 	  validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);

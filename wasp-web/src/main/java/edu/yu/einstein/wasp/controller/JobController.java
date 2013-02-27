@@ -62,6 +62,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
 @Transactional
@@ -514,7 +515,10 @@ public class JobController extends WaspController {
 					}					
 				}
 				
-				String currentStatus = jobService.getJobStatus(job, true);
+				String currentStatus = jobService.getJobStatus(job);
+				String jobStatusComment = jobService.getJobStatusComment(job);
+				if (jobStatusComment != null)
+					currentStatus += Tooltip.getCommentHtmlString(jobStatusComment);
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
@@ -527,7 +531,9 @@ public class JobController extends WaspController {
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
-							"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
+							//"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
+							"<a href=/wasp/jobresults/treeview/job/"+job.getJobId()+".do>View Results</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {

@@ -3,10 +3,8 @@ package edu.yu.einstein.wasp.plugin.supplemental.file;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +27,6 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.File;
@@ -126,7 +123,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			throw new JSONException("JSON evaluated to null");
 		if (jo.has("set") || ((jo.has("uri") && jo.has("fileType")) || (jo.has("id")))) {
 			String keystring = "";
-			Iterator i = jo.keys();
+			Iterator<?> i = jo.keys();
 			while (i.hasNext()) {
 				keystring += i.next().toString() + " ";
 			}
@@ -396,18 +393,6 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	public void destroy() throws Exception {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public String getBatchJobName(String BatchJobType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getBatchJobNameByArea(String BatchJobType, String area) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -12,4 +12,9 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public abstract class ReferenceBasedAligner extends SoftwarePackage implements ReferenceGenomeConsumer {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2127449571098605751L;
+
 }

@@ -40,6 +40,8 @@ public final class MetaAttribute implements Serializable {
 		
 		private String range;
 		
+		private String tooltip;
+		
 		private String defaultVal;
 		
 		private MetaType metaType = MetaType.STRING;
@@ -86,8 +88,17 @@ public final class MetaAttribute implements Serializable {
 			}
 		}
 		
+		
 		public String getRange(){
 			return range;
+		}
+		
+		public String getTooltip() {
+			return tooltip;
+		}
+
+		public void setTooltip(String tooltip) {
+			this.tooltip = tooltip;
 		}
 		
 		public String getDefaultVal() {

@@ -85,7 +85,5 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	}
 
 
-
-
 }
 

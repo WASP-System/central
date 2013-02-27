@@ -5,36 +5,33 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.AuthenticationService;
-import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
-public abstract class WaspTaskMapping {
+public abstract class WaspTaskMapping extends WebHyperlink{
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private String localizedLabelKey;
-	
-	private String targetLink;
 	
 	private String permission;
 	
 	private Integer dashboardSortOrder;
 	
 	private AuthenticationService authenticationService;
-	
-	private MessageServiceWebapp messageService;
-
-	@Autowired
-	public void setMessageService(MessageServiceWebapp messageService) {
-		this.messageService = messageService;
-	}
 
 	public WaspTaskMapping(String localizedLabelKey, String targetLink, String permission) {
-		this.localizedLabelKey = localizedLabelKey;
-		this.targetLink = targetLink;
+		super(localizedLabelKey, targetLink);
 		this.permission = permission;
+	}
+	
+	@Autowired
+	@Qualifier("messageServiceWebappImpl")
+	@Override // override to autowire
+	public void setMessageService(MessageService messageService) {
+		this.messageService = messageService;
 	}
 	
 	@Autowired
@@ -48,32 +45,6 @@ public abstract class WaspTaskMapping {
 
 	public void setPermission(String permission) {
 		this.permission = permission;
-	}
-
-
-	public String getLocalizedLabelKey() {
-		return localizedLabelKey;
-	}
-
-	public void setLocalizedLabelKey(String localizedLabelKey) {
-		this.localizedLabelKey = localizedLabelKey;
-	}
-	
-	/**
-	 * Translates localized label key into display text, e.g. 'wasp.my.message' to 'My Message'
-	 * @return
-	 */
-	public String getLocalizedLabel() {
-		return messageService.getMessage(localizedLabelKey);
-	}
-
-	
-	public String getTargetLink() {
-		return targetLink;
-	}
-
-	public void setTargetLink(String targetLink) {
-		this.targetLink = targetLink;
 	}
 
 	public Integer getDashboardSortOrder() {

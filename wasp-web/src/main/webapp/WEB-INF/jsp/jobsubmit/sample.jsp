@@ -65,7 +65,17 @@
 	<tr>
 		<td colspan="6" class="value-centered button-padding">
 			<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
-				<a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>
+				<%-- <a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">+ <c:out value="${ sampleSubtype.getName() }"/></a>--%>
+				<a class="button" href="/wasp/jobsubmit/samples/add/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleSubtype.getSampleSubtypeId() }"/>.do">
+				<c:choose>
+					<c:when test="${sampleSubtype.getSampleType().getIName()=='library'}">
+						<fmt:message key="jobDraft.newLibrary.label"/>
+					</c:when>
+					<c:otherwise>
+						<fmt:message key="jobDraft.newSample.label"/>
+					</c:otherwise>
+				</c:choose>
+				</a>
 			</c:forEach>
 			<!-- TODO: re-implement line below when functionality added
 			<a class="button" href="/wasp/jobsubmit/samples/addExisting/<c:out value="${ jobDraft.getJobDraftId() }"/>.do">+ <fmt:message key="jobDraft.sample_add_existing.label"/></a>  
@@ -93,7 +103,8 @@
 		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered" ><input class="FormElement ui-widget-content ui-corner-all" type="text" name="file_description" /></td>
 	</tr>
 </table>
-<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.next.label"/>">
+<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
+<input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
 </form>
 
 

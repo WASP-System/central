@@ -32,6 +32,8 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,10 +71,13 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
@@ -92,6 +97,7 @@ import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
@@ -99,11 +105,16 @@ import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -142,6 +153,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public JobDao getJobDao() {
 		return this.jobDao;
 	}
+	
+	@Autowired
+	private RunService runService;
+	
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
 	
 	public void setJobMetaDao(JobMetaDao jobMetaDao) {
 		this.jobMetaDao = jobMetaDao;
@@ -234,6 +251,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	@Qualifier("messageServiceImpl")
+	private MessageService messageService;
 
 	@Autowired
 	private JobMetaDao jobMetaDao;
@@ -508,7 +529,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		for (Job job: getActiveJobs()){
 			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
-			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+			if (this.isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				jobsAwaitingReceivingOfSamples.add(job);
 		}
 		
@@ -523,29 +544,24 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobsAwaitingReceivingOfSamples(){
 		for (Job job: getActiveJobs())
-			if (! getSubmittedSamplesNotYetReceived(job).isEmpty()) // some samples not yet received
+			if (isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				return true;
 		return false;
 	}
 	
-	 /**
-	   * {@inheritDoc}
-	   */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<Job> getJobsAwaitingSampleQC(){
-		
-		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
-		
-		for (Job job: getActiveJobs()){
-			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
-			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet QCd
-				jobsAwaitingQCOfSamples.add(job);
-		}
-		
-		sortJobsByJobId(jobsAwaitingQCOfSamples);
-		
-		return jobsAwaitingQCOfSamples;
+	public boolean isJobAwaitingReceivingOfSamples(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (! getSubmittedSamplesNotYetReceived(job).isEmpty())
+			return true;
+		return false;
 	}
+	
+	
 	
 	@Override
 	public List<Job> getJobsAwaitingFmApproval() {
@@ -574,13 +590,46 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return allJobsPendingDaApproval;
 	}
 	
+	
+	
+	 /**
+	   * {@inheritDoc}
+	   */
+	@Override
+	public List<Job> getJobsAwaitingSampleQC(){
+		
+		List<Job> jobsAwaitingQCOfSamples = new ArrayList<Job>();
+		
+		for (Job job: getActiveJobs()){
+			logger.debug("examining sample QC status of job with id='" + job.getJobId() + "'");
+			if (this.isJobAwaitingSampleQC(job)) // some samples not yet QCd
+				jobsAwaitingQCOfSamples.add(job);
+		}
+		
+		sortJobsByJobId(jobsAwaitingQCOfSamples);
+		
+		return jobsAwaitingQCOfSamples;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingSampleQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (!this.getSubmittedSamplesNotYetQC(job).isEmpty())
+			return true;
+		return false;
+	}
+	
 	/**
 	   * {@inheritDoc}
 	   */
 	@Override
 	public boolean isJobsAwaitingSampleQC(){
 		for (Job job: getActiveJobs())
-			if (! getSubmittedSamplesNotYetQC(job).isEmpty()) // some samples not yet received
+			if (this.isJobAwaitingSampleQC(job)) // some samples not yet received
 				return true;
 		return false;
 	}
@@ -595,7 +644,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		
 		for (Job job: getActiveJobs()){
 			logger.debug("examining library QC status of job with id='" + job.getJobId() + "'");
-			if (! getLibrariesNotYetQC(job).isEmpty()) // some samples not yet QCd
+			if (this.isJobAwaitingLibraryQC(job)) // some samples not yet QCd
 				jobsAwaitingQCOfLibraries.add(job);
 		}
 		
@@ -610,8 +659,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobsAwaitingLibraryQC(){
 		for (Job job: getActiveJobs())
-			if (! getLibrariesNotYetQC(job).isEmpty()) // some libraries not yet received
+			if (this.isJobAwaitingLibraryQC(job)) // some libraries not yet received
 				return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingLibraryQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		if (!this.getLibrariesNotYetQC(job).isEmpty())
+			return true;
 		return false;
 	}
 	
@@ -675,6 +736,22 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			jobIdStringSet.add(job.getJobId().toString());
 			parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			if (!batchJobExplorer.getStepExecutions("step.fmApprove", parameterMap, true, BatchStatus.STARTED).isEmpty())
+				return true;
+			return false;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isJobPendingApprovalOrQuote(Job job){
+			if (this.isJobAwaitingDaApproval(job))
+				return true;
+			if (this.isJobAwaitingFmApproval(job))
+				return true;
+			if (this.isJobAwaitingPiApproval(job))
+				return true;
+			if (this.isJobAwaitingQuote(job))
 				return true;
 			return false;
 		}
@@ -879,6 +956,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  return jobApprovalsMap;
 
 	  }
+
+public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
+		
+
 	  /**
 	   * {@inheritDoc}
 	 * @throws WaspMessageBuildingException 
@@ -907,7 +988,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			String sampleDraftPairsKey = null;
 			String sampleDraftPairs = null;
 			for (JobDraftMeta jdm: jobDraft.getJobDraftMeta()) {
-				if(jdm.getK().indexOf("samplePairs")>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
+				if(jdm.getK().indexOf(SAMPLE_PAIR_META_KEY)>-1){//we need to deal with this piece of metadata separately; it must occur following the save of all the job's samples
 					sampleDraftPairsKey = jdm.getK();
 					sampleDraftPairs = jdm.getV();
 					continue; 
@@ -1032,8 +1113,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 			}
 			
-			//translate sampleDraftPairs to samplePairs
-			StringBuffer samplePairsSB = new StringBuffer();
+			//translate sampleDraftPairs to samplePairs, and save them in the samplesource table
+			//StringBuffer samplePairsSB = new StringBuffer();
 			if(sampleDraftPairs != null){
 				for(String pair : sampleDraftPairs.split(";")){
 					String[] pairList = pair.split(":");
@@ -1041,23 +1122,33 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 					try{
 						T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
 					}catch(Exception e){}
-					String t;
-					t = T==null ? pairList[0] : T.toString();
+//					String t;
+//					t = T==null ? pairList[0] : T.toString();
 					Integer C = null;
 					try{
 						C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
 					}catch(Exception e){}					
-					String c;
-					c = C==null ? pairList[1] : C.toString();
-					samplePairsSB.append(t + ":" + c + ";");
+//					String c;
+//					c = C==null ? pairList[1] : C.toString();
+					//samplePairsSB.append(t + ":" + c + ";");
+					
+					try {
+						sampleService.createTestControlSamplePairsByIds(T, C);
+					} catch (SampleTypeException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SampleException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-				String samplePairs = new String(samplePairsSB);
-				//save the samplePair metadata
-				JobMeta jobMeta = new JobMeta();
-				jobMeta.setJobId(jobDb.getJobId());
-				jobMeta.setK(sampleDraftPairsKey);
-				jobMeta.setV(samplePairs);			
-				jobMetaDao.save(jobMeta);
+//				String samplePairs = new String(samplePairsSB);
+//				//save the samplePair metadata
+//				JobMeta jobMeta = new JobMeta();
+//				jobMeta.setJobId(jobDb.getJobId());
+//				jobMeta.setK(sampleDraftPairsKey);
+//				jobMeta.setV(samplePairs);			
+//				jobMetaDao.save(jobMeta);
 			}
 			
 			
@@ -1145,6 +1236,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isJobAwaitingLibraryCreation(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		for (Sample sample: job.getSample()){
+			if (sampleService.isSampleAwaitingLibraryCreation(sample))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(ResourceCategory resourceCategory){
 		List<Job> jobsFilteredByResourceCategory = new ArrayList<Job>();
 		for (Job currentJob: getJobsWithLibrariesToGoOnPlatformUnit()){
@@ -1162,37 +1267,41 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit(){
 		List<Job> jobsWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 		for (Job job: getActiveJobs()){
-			for (Sample sample: job.getSample()){
-				boolean foundLibrary = false;
-				if (sampleService.isLibrary(sample)){
-					try {
-						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample)){
-							jobsWithLibrariesToGoOnFlowCell.add(job);
-							foundLibrary = true;
-						}
+			if (isJobWithLibrariesToGoOnPlatformUnit(job))
+				jobsWithLibrariesToGoOnFlowCell.add(job);
+		}
+		return jobsWithLibrariesToGoOnFlowCell;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobWithLibrariesToGoOnPlatformUnit(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		for (Sample sample: job.getSample()){
+			if (sampleService.isLibrary(sample)){
+				try {
+					if (sampleService.isLibraryAwaitingPlatformUnitPlacement(sample) && sampleService.isLibraryPassQC(sample))
+						return true;
+				} catch (SampleTypeException e){
+					logger.warn(e.getLocalizedMessage());
+				}
+			} else {
+				if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
+					continue;
+				for (Sample library: sample.getChildren()){
+					try{
+						if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library))
+							return true;
 					} catch (SampleTypeException e){
 						logger.warn(e.getLocalizedMessage());
 					}
-				} else {
-					if (sample.getChildren() == null) // no libraries made (TODO: make sure at least one is successful)
-						continue;
-					for (Sample library: sample.getChildren()){
-						try{
-							if (sampleService.isLibraryAwaitingPlatformUnitPlacement(library) && sampleService.isLibraryPassQC(library)){
-								jobsWithLibrariesToGoOnFlowCell.add(job);
-								foundLibrary = true;
-								break;
-							}
-						} catch (SampleTypeException e){
-							logger.warn(e.getLocalizedMessage());
-						}
-					}
 				}
-				if (foundLibrary)
-					break;
 			}
 		}
-		return jobsWithLibrariesToGoOnFlowCell;
+		return false;
 	}
 
 	/**
@@ -1458,7 +1567,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return metaMessageService.read("userSubmittedJobComment", jobId, JobMeta.class, jobMetaDao);
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1536,17 +1644,128 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return map;
 	}
 
+	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception{
+		
+		Map <String, Object> jobRoot = new HashMap<String, Object>();
+		
+		Job job = getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null){
+			  throw new Exception("listJobSamples.jobNotFound.label");
+		}
+		
+		jobRoot.put("name", job.getName());
+		jobRoot.put("myid", jobId);
+		jobRoot.put("type", "job");
+		
+		List<Map> sampleNodes = new ArrayList<Map>();
+
+		List<JobSample> jobSampleList = job.getJobSample();
+		for (JobSample js : jobSampleList) {
+			Map sampleNode = new HashMap();
+			sampleNode.put("name", js.getSample().getName());
+			sampleNode.put("myid", js.getSampleId());
+			sampleNode.put("type", "sample");
+			
+			List<Map> fileNodes = new ArrayList<Map>();
+			List<SampleFile> sampleFileList = js.getSample().getSampleFile();
+			for (SampleFile sf : sampleFileList) {
+				Map fileNode = new HashMap();
+				fileNode.put("name", sf.getName());
+				fileNode.put("myid", sf.getFileId());
+				fileNode.put("type", "file");
+				
+				fileNodes.add(fileNode);
+			}
+			
+			sampleNode.put("children", fileNodes);
+			
+			sampleNodes.add(sampleNode);
+		}
+		jobRoot.put("children",sampleNodes);
+
+		return jobRoot;
+	}
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getJobStatus(Job job, boolean comment){
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
-			return "Unknown";
+	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception {
+		
+		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
+		
+		Job job = getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null){
+			  throw new Exception("listJobSamples.jobNotFound.label");
 		}
+		
+		jsDetails.put(messageService.getMessage("job.name.label", Locale.US), job.getName());
+		jsDetails.putAll(getExtraJobDetails(job));
+	
+		List<JobMeta> metaList = job.getJobMeta();
+		Map <String, Map<String, String>> metaListMap = new HashMap();
+		for (JobMeta mt : metaList) {
+			String key = mt.getK();
+			//logger.debug(Arrays.deepToString(metaNameSplit));
+			
+			try {
+				String msg = messageService.getMessage("job."+key+".label", Locale.US);
+				jsDetails.put(msg, mt.getV());
+			} 
+			catch (NoSuchMessageException e) {
+				String[] metaKeySplit = key.split("\\.");
+				//logger.debug(Arrays.deepToString(metaNameSplit));
+				if(metaKeySplit.length == 1) {
+					jsDetails.put(key, mt.getV());
+				} else if (metaKeySplit.length == 2) {
+					Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
+					if(subKeyMap == null) {
+						subKeyMap = new HashMap();
+						metaListMap.put(metaKeySplit[0], subKeyMap);
+					}
+					subKeyMap.put(metaKeySplit[1], mt.getV());
+				}
+			}
+		}
+		jsDetails.putAll(metaListMap);
+
+		return jsDetails;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobStatusComment(Job job){
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+			return null;
+		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
+		for(String jobApproveCode : jobApprovalsMap.keySet()){
+			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
+			if(! "rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode)))
+				continue;
+			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
+			if(jobApprovalCommentsList.size()>0){
+				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
+				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+				if(currentStatusComment != null && !currentStatusComment.isEmpty())
+					return currentStatusComment;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getJobStatus(Job job){
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0)
+			return "Unknown";
 		String currentStatus = "Not Yet Set";
 		//String approvalStatus = "Not Yet Set";
-		String currentStatusComment = null;
 		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 		for(String jobApproveCode : jobApprovalsMap.keySet()){
 			//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
@@ -1562,17 +1781,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				}
 				else {//should never occur
 					currentStatus = "Withdrawn";
-				}
-				if(comment==true){
-					List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
-					if(jobApprovalCommentsList.size()>0){
-						Format formatter = new SimpleDateFormat("MM/dd/yyyy");
-						MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-						currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
-						if(currentStatusComment != null && !currentStatusComment.isEmpty()){
-							currentStatus = "<a href='javascript:void(0)' title='"+ currentStatusComment + "' >"+currentStatus+"</a>";
-						}
-					}
 				}
 				break;
 			}
@@ -1705,5 +1913,96 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			}
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isAnySampleCurrentlyBeingProcessed(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		if (!this.isJobActive(job)){
+			logger.debug("job " + job.getJobId() + " not active - returning false");
+			return false;
+		}
+		// if cellLibraries exist check these first (for efficiency)
+		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
+			try{
+				List<Run> runs = runService.getRunsForPlatformUnit(sampleService.getPlatformUnitForCell(sampleService.getCell(cellLibrary)));
+				if (runs.isEmpty()){
+					logger.debug("job " + job.getJobId() + " no runs - returning true");
+					return true; // library on platform unit but not yet run
+				}
+				for (Run run : runs){
+					if (runService.isRunActive(run)){
+						logger.debug("job " + job.getJobId() + " a run is active - returning true");
+						return true; // the library is on an active run
+					}
+				}
+				if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
+					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
+						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
+						return true; // the library has been run and passed QC but has not been pre-processed yet
+					}
+				}
+			} catch(SampleTypeException e){
+				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());
+			} catch (SampleParentChildException e1){
+				logger.warn("recieved unexpected SampleParentChildException: " + e1.getLocalizedMessage());
+			}
+		}
+		// no in-process samples on platform units so ...
+		if (this.isJobPendingApprovalOrQuote(job)){
+			logger.debug("job " + job.getJobId() + "  Job is awaiting approval - returning true");
+			return true; // Job is awaiting approval
+		}
+		if (this.isJobAwaitingReceivingOfSamples(job)){
+			logger.debug("job " + job.getJobId() + " At least one sample hasn't been received - returning true");
+			return true; // at least one sample hasn't been received
+		}
+		if (this.isJobAwaitingSampleQC(job)){
+			logger.debug("job " + job.getJobId() + " At least one sample is awaiting QC - returning true");
+			return true; // at least one sample is awaiting QC
+		}
+		if (this.isJobAwaitingLibraryCreation(job)){
+			logger.debug("job " + job.getJobId() + " At least one library needs to be created - returning true");
+			return true; // At least one library needs to be created
+		}
+		if (this.isJobAwaitingLibraryQC(job)){
+			logger.debug("job " + job.getJobId() + " At least one library is awaiting QC - returning true");
+			return true; // At least one library is awaiting QC
+		}
+		if (this.isJobWithLibrariesToGoOnPlatformUnit(job)){
+			logger.debug("job " + job.getJobId() + " At least one library is awaiting platform unit placement - returning true");
+			return true; // At least one library is awaiting platform unit placement
+		}
+		logger.debug("job " + job.getJobId() + " seems no active samples in pipeline - returning false");
+		return false;
+	}
+	
+	@Override
+	public void triggerAggregationAnalysisBatchJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Map<String, String> jobParameters = new HashMap<String, String>();
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
+		String workflowIname = job.getWorkflow().getIName();
+		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(workflowIname, BatchJobProviding.class)) {
+			String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_AGGREGATE);
+			if (flowName == null){
+				logger.warn("No generic flow found for plugin handling " + workflowIname + " with batch job task " + BatchJobTask.ANALYSIS_AGGREGATE);
+				continue;
+			}
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+					new BatchJobLaunchContext(flowName, jobParameters) );
+			try {
+				sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+			} catch (WaspMessageBuildingException e) {
+				throw new MessagingException(e.getLocalizedMessage(), e);
+			}
+		}
+	}
+	
 	
 }

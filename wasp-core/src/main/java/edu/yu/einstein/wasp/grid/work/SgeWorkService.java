@@ -5,7 +5,6 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,7 +23,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -33,7 +31,6 @@ import org.xml.sax.SAXException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
@@ -66,6 +63,7 @@ public class SgeWorkService implements GridWorkService {
 	
 	private GridFileService gridFileService;
 	
+	@SuppressWarnings("unused")
 	private String name;
 	
 	private List<String> parallelEnvironments;
@@ -264,6 +262,7 @@ public class SgeWorkService implements GridWorkService {
 		return isJobExists(w.getWorkingDirectory(), w.getId());
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isJobExists(GridResult g) throws GridAccessException {
 		return isJobExists(g.getWorkingDirectory(), g.getUuid().toString());
 	}
@@ -463,6 +462,7 @@ public class SgeWorkService implements GridWorkService {
 	 * @author calder
 	 * 
 	 */
+	@SuppressWarnings("unused")
 	private class SgeSubmissionScript {
 
 		public static final int HELD = 16;
