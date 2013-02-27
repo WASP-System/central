@@ -51,10 +51,12 @@ public final class UiField extends WaspModel implements Serializable {
 
 	
 
+	@Deprecated
 	public Integer getUiFieldId() {
 		return getId();
 	}
 
+	@Deprecated
 	public void setUiFieldId(Integer uiFieldId) {
 		setId(uiFieldId);
 	}

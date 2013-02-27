@@ -70,10 +70,10 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 
 	@Override
 	@Transactional
-	public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId) {
+	public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("departmentId", departmentId);
-		m.put("UserId", UserId);
+		m.put("userId", userId);
 
 		List<DepartmentUser> results = this.findByMap(m);
 

@@ -1398,10 +1398,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
   @Test
   public void getJobsSubmittedOrViewableByUser2() {
 	  User user = new User();
-	  user.setUserId(1);
+	  user.setId(1);
 	   
 	  Map m = new HashMap();
-	  m.put("UserId", user.getUserId().intValue()); 
+	  m.put("userId", user.getId().intValue()); 
 	  List<String> orderByColumnNames = new ArrayList<String>();
 	  orderByColumnNames.add("jobId");
 	  

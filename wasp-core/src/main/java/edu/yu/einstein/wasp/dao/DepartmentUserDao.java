@@ -18,7 +18,7 @@ public interface DepartmentUserDao extends WaspDao<DepartmentUser> {
 
   public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId);
 
-  public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int UserId);
+  public DepartmentUser getDepartmentUserByDepartmentIdUserId (final int departmentId, final int userId);
 
 
 }

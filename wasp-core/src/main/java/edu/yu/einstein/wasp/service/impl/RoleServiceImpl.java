@@ -70,7 +70,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		
 		//pick up Department Administrator (via departmentuser table; interestingly, no roleId in this table, since entries can only mean that user is a Depart. Admin)
 		Map<String, Integer> departmentuserQueryMap = new HashMap<String, Integer>();
-		departmentuserQueryMap.put("UserId", user.getUserId());
+		departmentuserQueryMap.put("userId", user.getId());
 		List<DepartmentUser> departmentUsers = departmentUserDao.findByMap(departmentuserQueryMap);
 		if(departmentUsers.size() > 0){
 			rolesAsSet.add("Dep't. Admin.");
@@ -107,7 +107,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		
 		//pick up Department Administrator (via departmentuser table; interestingly, no roleId in this table, since entries can only mean that user is a Depart. Admin)
 		Map<String, Integer> departmentuserQueryMap = new HashMap<String, Integer>();
-		departmentuserQueryMap.put("UserId", user.getUserId());
+		departmentuserQueryMap.put("userId", user.getId());
 		List<DepartmentUser> departmentUsers = departmentUserDao.findByMap(departmentuserQueryMap);
 		if(departmentUsers.size() > 0){
 			rolesAsSet.add("Dep't. Admin.");
@@ -128,7 +128,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 			String[] rolenamesAsStringArray = StringUtils.delimitedListToStringArray(roleVisibility, DELIMITER);
 			for(String rolename : rolenamesAsStringArray){
 				Role role = this.getRoleByRolename(rolename);
-				if(role!=null && role.getRoleId()!=null && role.getRoleId().intValue()>0){
+				if(role!=null && role.getId() !=null && role.getId().intValue()>0){
 					roleList.add(role);
 				}
 			}

@@ -193,10 +193,10 @@ public class Job2QuoteController extends WaspController {
 			m.put("jobId", jobId.intValue());
 		}
 		if(submitter != null){
-			m.put("UserId", submitter.getUserId().intValue());
+			m.put("userId", submitter.getId().intValue());
 		}
 		if(piLab != null){
-			m.put("labId", piLab.getLabId().intValue());
+			m.put("labId", piLab.getId().intValue());
 		}
 		
 		Map<String, Date> dateMap = new HashMap<String, Date>();

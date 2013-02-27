@@ -26,7 +26,7 @@ import org.hibernate.envers.NotAudited;
 @Entity
 @Audited
 @Table(name="userpasswordauth")
-public class Userpasswordauth extends WaspModel {
+public class Userpasswordauth extends WaspCoreModel {
 
 	/**
 	 * 
@@ -36,8 +36,16 @@ public class Userpasswordauth extends WaspModel {
 	 * UserId
 	 *
 	 */
-	@Id 
+	@Id
 	protected Integer id;
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public Integer getId() {
+		return this.id;
+	}
 
 	/**
 	 * setUserId(Integer UserId)

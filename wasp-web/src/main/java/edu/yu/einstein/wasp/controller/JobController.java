@@ -397,10 +397,10 @@ public class JobController extends WaspController {
 			m.put("name", jobname.trim());
 		}
 		if(submitter != null){
-			m.put("UserId", submitter.getUserId().intValue());
+			m.put("userId", submitter.getId().intValue());
 		}
 		if(piLab != null){
-			m.put("labId", piLab.getLabId().intValue());
+			m.put("labId", piLab.getId().intValue());
 		}
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(createts != null){

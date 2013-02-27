@@ -111,7 +111,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
+	public void setUserId (Integer userId) {
 		this.userId = userId;
 	}
 

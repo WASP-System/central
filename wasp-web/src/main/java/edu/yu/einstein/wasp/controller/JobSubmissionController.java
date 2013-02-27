@@ -316,7 +316,7 @@ public class JobSubmissionController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		if(userId==null || "".equals(userId)){//added 2-13-13 by Dubin; this way, if no parameter, get drafts for the authenticated user
-			userId = authenticationService.getAuthenticatedUser().getUserId().toString();
+			userId = authenticationService.getAuthenticatedUser().getId().toString();
 		}
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -340,7 +340,7 @@ public class JobSubmissionController extends WaspController {
 			
 			if(userIdAsInteger!=null){
 			  
-				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getUserId().intValue() ) ){
+				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getId().intValue() ) ){
 				
 					Map<String, Object> m = new HashMap<String, Object>();	
 				
@@ -351,7 +351,7 @@ public class JobSubmissionController extends WaspController {
 					//	  m.put("labId", Integer.parseInt(labId));//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 
 					m.put("status", "PENDING");
-					m.put("UserId", userIdAsInteger);				  	  
+					m.put("userId", userIdAsInteger);				  	  
 					jobDraftList = this.jobDraftDao.findByMap(m);
 				}
 			}

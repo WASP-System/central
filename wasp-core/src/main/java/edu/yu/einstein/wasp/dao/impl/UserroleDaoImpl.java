@@ -70,9 +70,9 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 
 	@Override
 	@Transactional
-	public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId) {
+	public Userrole getUserroleByUserIdRoleId (final int userId, final int roleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("UserId", UserId);
+		m.put("userId", userId);
 		m.put("roleId", roleId);
 
 		List<Userrole> results = this.findByMap(m);

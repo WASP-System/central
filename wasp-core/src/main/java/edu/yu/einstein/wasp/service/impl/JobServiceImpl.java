@@ -1312,13 +1312,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
 		Assert.assertParameterNotNull(user, "No User provided");
-		Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
+		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("UserId", user.getUserId().intValue());
+		m.put("userId", user.getId().intValue());
 		List<String> orderByColumnNames = new ArrayList<String>();
 		orderByColumnNames.add("jobId");
 		
@@ -1673,7 +1673,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			for (SampleFile sf : sampleFileList) {
 				Map fileNode = new HashMap();
 				fileNode.put("name", sf.getName());
-				fileNode.put("myid", sf.getFileId());
+				fileNode.put("myid", sf.getFileGroup().getFileGroupId());
 				fileNode.put("type", "file");
 				
 				fileNodes.add(fileNode);
