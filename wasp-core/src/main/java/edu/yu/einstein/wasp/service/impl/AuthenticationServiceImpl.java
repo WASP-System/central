@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.expression.EvaluationContext;
@@ -39,9 +40,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -63,7 +66,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Autowired
 	private UserPendingDao userPendingDao;
-	
+
+	@Autowired
+	private LabPendingDao labPendingDao;
+
 	public void setUserPendingDao(UserPendingDao userPendingDao) {
 		this.userPendingDao = userPendingDao;
 	}
@@ -72,13 +78,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
-// 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
-
-// TODO: no autowire... so that i can run outside the tomcat container	
-//	@Autowired
-//	HttpServletRequest request;
+	
+	@Value("${authentication.method.external:false}")
+	boolean isAuthenticationExternal;
 
 	public static HttpServletRequest getHttpServletRequest() {
 		try {
@@ -137,14 +141,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public boolean isAuthenticationSetExternal() {
-		String authenticationIsExternalString = messageService.getMetadataValue("wasp.isAuthenticationExternal.data");
-		if (authenticationIsExternalString != null && 
-				!authenticationIsExternalString.isEmpty() && 
-				(authenticationIsExternalString.toUpperCase().equals("TRUE") ||
-				authenticationIsExternalString.equals("1") ) ){
-			return true;
-		}
-		return false;
+		return isAuthenticationExternal;
 	}
 
 	@Override
@@ -471,5 +468,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			FilterInvocation f = new FilterInvocation(request.getServletPath(), request.getMethod());
 			return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
 
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isThisExistingUserPIPending(){
+			User me = this.getAuthenticatedUser();
+			Map<String, Object> m = new HashMap<String, Object>();
+			m.put("primaryUserId", me.getUserId());
+			m.put("status", "PENDING");
+			List<LabPending> lpList = labPendingDao.findByMap(m);
+			if(lpList.isEmpty()){return false;}
+			return true;
 		}
 }

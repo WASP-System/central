@@ -1,11 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script src="/wasp/scripts/jquery/jquerytools/jquery.tools-1.2.7.all.min.js" type="text/javascript" ></script>
-<script>
-$(document).ready(function() {
-  	$(".wasptooltip a[title]").tooltip({ position: "top right"});
-});
-</script>
-<div class="wasptooltip">
+
+<div >
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD"><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">J<c:out value="${job.jobId}" /></a></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobName.label" />:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
@@ -26,7 +21,8 @@ $(document).ready(function() {
 		<td class="CaptionTD"><fmt:message key="status.${jobApproveCode}.label" />:</td>
 		<td class="DataTD"><fmt:message key="status.${jobApprovalsMap.get(jobApproveCode)}.label" />		
 		  <c:if test="${not empty jobApprovalsCommentsMap.get(jobApproveCode)}"> 
-			<a href="javascript:void(0)" title="<c:out value="${jobApprovalsCommentsMap.get(jobApproveCode).getValue()}" /> (<fmt:formatDate value="${jobApprovalsCommentsMap.get(jobApproveCode).getDate()}" pattern="MM-dd-yyyy" />)">[comment]</a>
+		    <fmt:formatDate value="${jobApprovalsCommentsMap.get(jobApproveCode).getDate()}" pattern="MM-dd-yyyy" var="date" />
+		  	<wasp:comment value="${jobApprovalsCommentsMap.get(jobApproveCode).getValue()} (${date})" />
 		  </c:if>
 		</td>
 	</tr>

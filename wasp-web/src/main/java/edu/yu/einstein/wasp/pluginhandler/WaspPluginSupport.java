@@ -21,6 +21,7 @@ import java.util.jar.JarFile;
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -30,8 +31,8 @@ import org.springframework.web.context.ServletContextAware;
 // based from http://stackoverflow.com/questions/5013917/can-i-serve-jsps-from-inside-a-jar-in-lib-or-is-there-a-workaround
 
 /**
- * Allows extraction of contents of a JAR file. All files matching a given Ant path pattern will be extracted into a
- * specified path.
+ * Allows extraction of contents of a JAR file under the specified resource path and placed within the webapp in the equivalent location. All files matching 
+ * a given Ant path pattern under the source path will be copied to the destination path using the same structure.
  */
 public class WaspPluginSupport implements ServletContextAware {
 
@@ -45,13 +46,9 @@ public class WaspPluginSupport implements ServletContextAware {
 
 	/**
 	 * Creates a new instance of the JarFileResourcesExtractor
-	 * 
-	 * @param resourcePathPattern
-	 *			The Ant style path pattern (supports wildcards) of the resources files to extract
-	 * @param jarFile
-	 *			The jar file (located inside WEB-INF/lib) to search for resources
-	 * @param destination
-	 *			Target folder of the extracted resources. Relative to the context.
+	 * @param resourceDirectory - folder inside jar from which to copy subfolders and files as specified by resourceFilePattern
+	 * @param resourceUrlFilter - text that must be present in the jar location (to filter from which jars to extract resources)
+	 * @param resourceFilePattern - The Ant style path pattern (supports wildcards) of the resources files to extract
 	 */
 	private WaspPluginSupport(String resourceDirectory, String resourceUrlFilter, String resourceFilePattern) {
 		this.resourceDirectoryList = new ArrayList<String>();
@@ -60,8 +57,14 @@ public class WaspPluginSupport implements ServletContextAware {
 		this.resourceFilePattern = resourceFilePattern;
 	}
 	
-	private WaspPluginSupport(List<String> resourceDirectory, String resourceUrlFilter, String resourceFilePattern) {
-		this.resourceDirectoryList = resourceDirectory;
+	/**
+	 * Creates a new instance of the JarFileResourcesExtractor
+	 * @param resourceDirectoryList - list of folders inside jar from which to copy subfolders and files as specified by resourceFilePattern
+	 * @param resourceUrlFilter - text that must be present in the jar location (to filter from which jars to extract resources)
+	 * @param resourceFilePattern - The Ant style path pattern (supports wildcards) of the resources files to extract
+	 */
+	private WaspPluginSupport(List<String> resourceDirectoryList, String resourceUrlFilter, String resourceFilePattern) {
+		this.resourceDirectoryList = resourceDirectoryList;
 		this.resourceUrlFilter = resourceUrlFilter;
 		this.resourceFilePattern = resourceFilePattern;
 	}
@@ -77,14 +80,15 @@ public class WaspPluginSupport implements ServletContextAware {
 	@PostConstruct
 	public void extractFiles() throws IOException {
 		String fs = System.getProperty("file.separator");
-		if (fs.equals("\\")) {
-			resourceUrlFilter = resourceUrlFilter.replace("\\", "/");
-		}
+		if (fs.equals("\\"))
+			resourceUrlFilter = resourceUrlFilter.replaceAll("/", fs);
 		
 		// get list of applicable jars
 		Map<String,List<URL>> filteredResourceUrls = new HashMap<String,List<URL>>();
 		logger.debug("WaspPluginSupport: Resource URL filter: "+resourceUrlFilter);
 		for (String resourceDirectory: this.resourceDirectoryList){
+			if (fs.equals("\\"))
+				resourceDirectory = resourceDirectory.replaceAll("/", fs);
 			Enumeration<URL> resources = this.getClass().getClassLoader().getResources(resourceDirectory);
 			while (resources.hasMoreElements()) {
 				URL url = resources.nextElement(); 
@@ -110,11 +114,17 @@ public class WaspPluginSupport implements ServletContextAware {
 					Enumeration<JarEntry> entries = jarFile.entries();
 					while (entries.hasMoreElements()) {
 						JarEntry entry = entries.nextElement();
-						if (pathMatcher.match( resourceDirectory + "/" + resourceFilePattern, entry.getName())) {
-							String fileName = entry.getName().replaceFirst(".*\\/", "");
-							File destinationFolder = new File(servletContext.getRealPath(resourceDirectory));
+						if (pathMatcher.match(resourceDirectory + fs + resourceFilePattern, entry.getName())) {
+							String pathMatch = pathMatcher.extractPathWithinPattern(resourceFilePattern, entry.getName());
 							InputStream inputStream = jarFile.getInputStream(entry);
-							File materializedJsp = new File(destinationFolder, fileName);
+							File destinationFolder = new File(servletContext.getRealPath(resourceDirectory));
+							File materializedJsp = new File(StringUtils.chomp(destinationFolder.getAbsolutePath(), resourceDirectory) + pathMatch);
+							File path = materializedJsp.getParentFile();
+							if (!path.exists()){
+								logger.debug("creating incomplete path: " + path.getAbsolutePath());
+								path.mkdirs();
+							}
+							logger.debug("copying: " + entry.getName() + " to  " + materializedJsp.getAbsolutePath());
 							FileOutputStream outputStream = new FileOutputStream(materializedJsp);
 							copyAndClose(inputStream, outputStream);
 						}
@@ -126,35 +136,6 @@ public class WaspPluginSupport implements ServletContextAware {
 				}
 			}
 		}
-
-
-
-/*
-		try {
-			String path = servletContext.getRealPath("/WEB-INF/lib/" + jarFile);
-			JarFile jarFile = new JarFile(path);
-
-			Enumeration<JarEntry> entries = jarFile.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
-				if (pathMatcher.match(resourcePathPattern, entry.getName())) {
-					String fileName = entry.getName().replaceFirst(".*\\/", "");
-					File destinationFolder = new File(servletContext.getRealPath(destination));
-					InputStream inputStream = jarFile.getInputStream(entry);
-					File materializedJsp = new File(destinationFolder, fileName);
-					FileOutputStream outputStream = new FileOutputStream(materializedJsp);
-					copyAndClose(inputStream, outputStream);
-				}
-			}
-
-		}
-		catch (MalformedURLException e) {
-			throw new FileNotFoundException("Cannot find jar file in libs: " + jarFile);
-		}
-		catch (IOException e) {
-			throw new IOException("IOException while moving resources.", e);
-		}
-*/
 	}
 
 	@Override

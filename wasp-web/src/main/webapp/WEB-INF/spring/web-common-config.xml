@@ -39,14 +39,14 @@
 	</bean>
     
 	<!-- spring plugin definitions -->
-	<import resource="classpath*:META-INF/spring/plugin-context-web.xml" />
+	<import resource="classpath*:META-INF/spring/*-plugin-context-web.xml" />
 
 
 	<!-- extracts plugin's precompiled jsp files --> 
 	<bean id="jspSupport" class="edu.yu.einstein.wasp.pluginhandler.WaspPluginSupport">
-		<constructor-arg index="0" value="WEB-INF/jsp"/>
-		<constructor-arg index="1" value="${catalina.home}/waspPlugins"/>
-		<constructor-arg index="2" value="**/*.*"/>
+		<constructor-arg name="resourceDirectory" value="WEB-INF/jsp"/>
+		<constructor-arg name="resourceUrlFilter" value="${catalina.home}/waspPlugins"/>
+		<constructor-arg name="resourceFilePattern" value="**/*.*"/>
 	</bean>
 	
 	<bean id="taskMappingRegistry" class="edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry" />
@@ -83,7 +83,7 @@
 	
 	<bean class="edu.yu.einstein.wasp.taskMapping.QuoteJobTaskMapping">
 		<constructor-arg name="localizedLabelKey"  value="task.jobQuote.label" />
-		<constructor-arg name="targetLink" value="job2quote/list.do" />
+		<constructor-arg name="targetLink" value="/job2quote/list.do" />
 		<constructor-arg name="permission" value="hasRole('su') or hasRole('da-*') or hasRole('ga-*')" />
 	</bean>
 	
@@ -97,6 +97,12 @@
 		<constructor-arg name="localizedLabelKey"  value="task.libraryqc_title.label" />
 		<constructor-arg name="targetLink" value="/task/libraryqc/list.do" />
 		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+	</bean>
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.InitiateAggregationAnalysisTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.initiateAnalysis_title.label" />
+		<constructor-arg name="targetLink" value="/task/initiateAnalysis/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm')" />
 	</bean>
   
   

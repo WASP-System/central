@@ -24,10 +24,16 @@ import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
  */
 public class MessageTag extends BodyTagSupport {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6253424834645973809L;
+
 	Logger log=LoggerFactory.getLogger(MessageTag.class);
 	
 	public static final String FEEDBACK_SESSION_ATTRIBUTE_NAME="_feedback";
 	
+	@SuppressWarnings("unchecked")
 	public static final void addMessage(HttpSession session,String key) {
 		
 		List<String> messageKeys=(List<String>)session.getAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME);		
@@ -40,6 +46,7 @@ public class MessageTag extends BodyTagSupport {
 		 session.setAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME,messageKeys);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
 	

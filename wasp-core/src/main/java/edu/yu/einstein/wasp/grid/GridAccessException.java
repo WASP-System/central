@@ -17,6 +17,11 @@ public class GridAccessException extends GridException {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 6681018520125868594L;
+
+	/**
+	 * 
+	 */
 	public GridAccessException() {
 		super();
 	}

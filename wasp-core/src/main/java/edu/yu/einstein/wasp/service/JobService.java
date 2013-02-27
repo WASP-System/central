@@ -125,6 +125,14 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public List<Job> getJobsAwaitingSampleQC();
+	
+	
+	/**
+	 * returns true if any samples in the job are awaiting QC
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingSampleQC(Job job);
 
 	/**
 	 * returns true if any jobs exist which are awaiting QC of a Sample
@@ -143,6 +151,13 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public boolean isJobsAwaitingLibraryQC();
+	
+	/**
+	 *  returns true if jobs is awaiting QC of a library
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingLibraryQC(Job job);
 
 	
 	/**
@@ -183,6 +198,13 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<Job> getJobsAwaitingLibraryCreation();
 	
 	/**
+	 * Returns true if any libraries need creating for the current job
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingLibraryCreation(Job job);
+	
+	/**
 	 * getJobsWithLibrariesToGoOnPlatformUnit() returns list of unique jobs with libraries created (and passed QC) for which the actual coverage on
 	 * currently running or successfully completed flowcells is less than the requested coverage. Only returns those jobs for which the resource category matches that specified.
 	 * @param ResourceCategory
@@ -199,6 +221,14 @@ public interface JobService extends WaspMessageHandlingService {
 	 * 
 	 */
 	public List<Job> getJobsWithLibrariesToGoOnPlatformUnit();
+	
+	/**
+	 * Returns true if job has libraries created (and passed QC) for which the actual coverage on
+	 * currently running or successfully completed flowcells is less than the requested coverage.
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobWithLibrariesToGoOnPlatformUnit(Job job);
 	
 	/**
 	 * getJobsSubmittedOrViewableByUser() returns list of jobs that was submitted by, as well as viewable by, a specific user. 
@@ -239,6 +269,13 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public boolean isJobAwaitingQuote(Job job);
+	
+	/**
+	 * Returns true if job is awaiting approval or Quote
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobPendingApprovalOrQuote(Job job);
 	
 	/**
 	 * Returns true if provided sample has no library has been made yet, otherwise returns false
@@ -321,10 +358,17 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws WaspMessageBuildingException
 	 */
 	public void initiateBatchJobForJobSubmission(Job job) throws WaspMessageBuildingException;
+	
+	/**
+	 * Returns true if job is awaiting receiving of sample
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingReceivingOfSamples(Job job);
 
 
 	/**
-	 * Returns true if there a re jobs awaiting receiving of sample
+	 * Returns true if there are jobs awaiting receiving of sample
 	 * @return
 	 */
 	public boolean isJobsAwaitingReceivingOfSamples();
@@ -438,14 +482,48 @@ public interface JobService extends WaspMessageHandlingService {
 	
 	public HashMap<String, MetaMessage> getLatestJobApprovalsComments(Set<String> jobApproveCodeSet, Integer jobId);
 	
-	public String getJobStatus(Job job, boolean comment);
+	public String getJobStatus(Job job);
 
 	public List<Software> getSoftwareForJob(Job job);
+
+
+	/**
+	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param int jobId
+	 * @return Map<String, Object>
+	 * @throws Exception 
+	 */
+	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+
+	/**
+	 * getJobDetailWithMeta() returns all detail information with meta for a job
+	 * @param jobId
+	 * @return
+	 * @throws Exception
+	 */
+	public LinkedHashMap<String, Object> getJobDetailWithMeta(int jobId) throws Exception;
 
 	public  Map<Sample, List<String>> decodeSamplePairs(String samplePairs, List<Sample> submittedSamplesList);
 
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
 
 	public boolean isJobActive(Job job);
+
+	/**
+	 * return true if any sample associated with the job is in any stage of processing.
+	 * @param job
+	 * @return
+	 */
+	boolean isAnySampleCurrentlyBeingProcessed(Job job);
+
+	/**
+	 * Send message to wasp-daemon to trigger aggregation analysis for a job
+	 * @param job
+	 */
+	public void triggerAggregationAnalysisBatchJob(Job job);
+
+	public String getJobStatusComment(Job job);
+
+	
 	
 }

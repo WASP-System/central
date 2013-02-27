@@ -49,7 +49,10 @@
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${not empty _meta.property.constraint}">
-			<span class="requiredField">*</span>
+				<span class="requiredField">*</span>
+			</c:if>
+			<c:if test="${not empty _meta.property.tooltip}">
+				<wasp:tooltip value="${_meta.property.tooltip}" />
 			</c:if>
 			</td>		
 		

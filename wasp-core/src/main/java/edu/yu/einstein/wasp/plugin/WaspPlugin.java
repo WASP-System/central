@@ -211,20 +211,6 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		this.messageChannel = messageChannel;
 	}
 	
-	/**
-	 * get batch job name given a batchJobType
-	 * @param area
-	 * @param BatchJobType
-	 * @return
-	 */
-	public abstract String getBatchJobName(String BatchJobType);
 	
-	/**
-	 * get batch job name given a resource category and batchJobType
-	 * @param area
-	 * @param BatchJobType
-	 * @return
-	 */
-	public abstract String getBatchJobNameByArea(String BatchJobType, String area);
 
 }

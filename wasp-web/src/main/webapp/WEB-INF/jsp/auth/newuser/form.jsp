@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
   
-  <h1><fmt:message key="pageTitle.auth/newuser/form.label" /></h1>
+  <h1><fmt:message key="userPending.form_header.label" /></h1>
 
-  <div class="instructions"> <fmt:message key="piPending.form_instructions.label" /><br /><br /><div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div></div>
+  <div class="instructions"> <fmt:message key="userPending.form_instructions.label" /><br /><br /><div id="passwordInstructions"><fmt:message key="piPending.password_instructions.label" /></div></div>
 
     <form:form  cssClass="FormGrid" commandName="userPending">
       <table class="EditTable ui-widget ui-widget-content">
@@ -11,14 +11,19 @@
           <td class="DataTD"><form:input cssClass="FormElement ui-widget-content ui-corner-all" path="login"  /><span class="requiredField">*</span></td>
           <td class="CaptionTD error"><form:errors path="login"/></td>
         </tr> 
+        <tr >
+          <td >&nbsp;</td>
+          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="userPending.login_instructions_above.label" /></div></td>
+          <td >&nbsp;</td>
+        </tr>
         <tr class="FormData">
           <td class="CaptionTD"><fmt:message key="wasp.authentication.label" /> <fmt:message key="userPending.password.label"/>:</td>
-          <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" onFocus="var x = document.getElementById('passwordInstructions'); x.style.color='red';x.style.fontWeight='bold'" /><span class="requiredField">*</span></td>
+          <td class="DataTD"><form:password path="password" cssClass="FormElement ui-widget-content ui-corner-all" onFocus="var x = document.getElementById('passwordInstructions'); x.style.color='red';x.style.fontWeight='bold'; var y = document.getElementById('passwordInstructions2'); y.style.color='red';" /><span class="requiredField">*</span></td>
           <td class="CaptionTD error"><form:errors path="password" /></td>
         </tr>
         <tr >
           <td >&nbsp;</td>
-          <td ><div style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="piPending.password_instructions_above.label" /></div></td>
+          <td ><div id="passwordInstructions2" style="color:black;font-size:11px;font-weight:bold;"><fmt:message key="piPending.password_instructions_above.label" /></div></td>
           <td >&nbsp;</td>
         </tr>
 	    <c:if test="${isAuthenticationExternal == (1==1)}">

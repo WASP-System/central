@@ -9,7 +9,6 @@
 
 package edu.yu.einstein.wasp.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +16,6 @@ import java.util.Set;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.stereotype.Service;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -42,11 +40,9 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
 
@@ -876,14 +872,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
 			
-		/**
-		 * Sets whether cellLibrary is pre-processed or not
-		 * @param cellLibrary
-		 * @param isPreprocessed
-		 * @throws SampleTypeException
-		 * @throws MetadataException
-		 */
-	  public void setIsCellLibraryPreprocessed(SampleSource cellLibrary, boolean isPreprocessed) throws SampleTypeException, MetadataException;
 			
 	  /**
 		 * has cellLibrary passed QC?
@@ -904,6 +892,24 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 
 	  public SampleSourceDao getSampleSourceDao();
+
+	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
+
+	Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
+
+	Job getJobBySamplePair(SampleSource samplePair);
+
+	Set<SampleSource> getSamplePairsByJob(Job job);
+
+	SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
+
+	Sample getTestSample(SampleSource samplePair);
+
+	Sample getControlSample(SampleSource samplePair);
+
+	Sample getControlSampleByTestSample(Sample testSample);
+
+	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
 	
 	  

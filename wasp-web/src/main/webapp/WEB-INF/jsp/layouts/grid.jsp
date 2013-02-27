@@ -11,18 +11,42 @@
 	</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/jquery-ui.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/jquery/ui.jqgrid.css" />
 	
-	<script src="/wasp/scripts/jquery/jquery-1.7.1.js" type="text/javascript"></script>
-	<script src="/wasp/scripts/jquery/ajaxfileupload.js" type="text/javascript"></script>
-	<script src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script> 
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
+	<script type="text/javascript" src="/wasp/scripts/jquery/ajaxfileupload.js"></script>
 
 	<%--  include locale-specific jqgrid file.  jqLang is set in UserLocaleInterceptor class --%> 
 	<script src="/wasp/scripts/jqgrid/grid.locale-<%= ((HttpServletRequest)pageContext.getRequest()).getSession().getAttribute("jqLang") %>.js" type="text/javascript"></script>
 	<script src="/wasp/scripts/jqgrid/jquery.jqGrid.min.js" type="text/javascript"></script>
 	
 	<script type="text/javascript">
+	
+		function waspTooltip(){
+			$( ".tooltip" ).tooltip({
+		  	      position: {
+		  	        my: "center bottom-20",
+		  	        at: "center top",
+		  	        using: function( position, feedback ) {
+		  	          $( this ).css( position );
+		  	          $( "<div>" )
+		  	            .addClass( "arrow" )
+		  	            .addClass( feedback.vertical )
+		  	            .addClass( feedback.horizontal )
+		  	            .appendTo( this );
+		  	        }
+		  	      }
+		  	    });
+		}
+	
+		$( document ).ready( function(){
+			waspTooltip();
+	  		waspFade("waspErrorMessage");
+	  		waspFade("waspMessage");
+	  	});
 	
 		/* define custom formatter to format/unformat hyperlinks */
 		jQuery.extend($.fn.fmatter , {
@@ -224,7 +248,7 @@
 		 	
 		   <%-- populate "select" inputs --%>	 
 		   <c:if test="${not empty _meta.property.control}">
-		       editoptions={size:20,value:{}};
+		       editoptions={value:{}};
 		       edittype='select';
 		  	              
 		       <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
@@ -629,12 +653,17 @@
 </head>
 
 
-<body onload='waspFade("waspErrorMessage");waspFade("waspMessage");'>
+<body>
 
 <div id="container">
   		<div id="header">
 			<tiles:insertAttribute name="banner-content" />
 		</div>
+		<sec:authorize access="isAuthenticated()">
+			<div id="menu">
+				<tiles:insertAttribute name="menu-content" />
+			</div>
+		</sec:authorize>
   		<div id="content">
   			<wasp:breadcrumbs />
   			<wasp:errorMessage />
