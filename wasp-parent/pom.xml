@@ -93,7 +93,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<powermock.version>1.4.12</powermock.version>
-		<excluded.groups>integration-tests,db-tests,a,ssh</excluded.groups>
+		<excluded.groups>integration-tests,db-tests,a,ssh,schema</excluded.groups>
 		<json.version>20080701</json.version>
 		<bouncycastle.version>1.47</bouncycastle.version>
 	</properties>
