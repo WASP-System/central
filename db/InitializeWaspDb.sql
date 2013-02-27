@@ -104,7 +104,7 @@ create table role (
   constraint unique index u_role_name (name)
 ) ENGINE=InnoDB charset=utf8;
 
-insert into role values
+insert into role (roleId, rolename, name, domain) values
 (1, 'fm', 'Facilities Manager', 'system'),
 (2, 'sa', 'System Administrator', 'system'),
 (3, 'ga', 'General Administrator', 'system'),
@@ -787,7 +787,7 @@ create table filetypemeta (
   constraint unique index u_filemeta_k_jid (k, filetypeid)
 ) ENGINE=InnoDB charset=utf8;
 
-create table filegroup {
+create table filegroup ( 
 	filegroupid int(10) primary key auto_increment,
 	filetypeid int(10),
 	softwaregeneratedbyid int(10),
@@ -795,7 +795,7 @@ create table filegroup {
 	isarchived int(1)  default 0,
 	isactive int(1)  default 1,
 	lastupdts timestamp  default current_timestamp,
-	lastupduser int(10)  default 0 
+	lastupduser int(10)  default 0, 
 	foreign key fk_filegroupfiletypeid_rid (filetypeid) references filetype(filetypeid),
 	foreign key fk_filegroupsoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
 
@@ -811,7 +811,7 @@ create table filegroupmeta (
 	rolevisibility VARCHAR(250), 
 	lastupdts timestamp  default current_timestamp,
 	lastupduser int(10)  default 0,
-	foreign key fk_filegroupmeta_filegroupid (filegroupid) references file(filegroupid),
+	foreign key fk_filegroupmeta_filegroupid (filegroupid) references filegroup(filegroupid),
 	constraint unique index u_filegroupmeta_k_jid (k, filegroupid)
 
 ) ENGINE=InnoDB charset=utf8;
