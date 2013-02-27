@@ -44,7 +44,7 @@
 	<bean id="waspMetadataEnvironmentAspect" class="edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice">
 		<constructor-arg name="key" value="metadata.root"/>
 		<constructor-arg name="name" value="METADATA_ROOT"/>
-		<constructor-arg name="type" value="#{waspEnvironmentType.FILE_TYPE}"/>
+		<constructor-arg name="type" value="#{T(edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice$WORKUNIT_ENV_VAR_TYPE).FILE}" />
 	</bean>
 
 </beans>
