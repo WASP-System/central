@@ -34,22 +34,16 @@ public class DepartmentUser extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1273356683061562536L;
-	/** 
-	 * departmentUserId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer departmentUserId;
-
+	
 	/**
 	 * setDepartmentUserId(Integer departmentUserId)
 	 *
 	 * @param departmentUserId
 	 *
 	 */
-	
+	@Deprecated
 	public void setDepartmentUserId (Integer departmentUserId) {
-		this.departmentUserId = departmentUserId;
+		setId(departmentUserId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class DepartmentUser extends WaspModel {
 	 * @return departmentUserId
 	 *
 	 */
+	@Deprecated
 	public Integer getDepartmentUserId () {
-		return this.departmentUserId;
+		return getId();
 	}
 
 
@@ -101,7 +96,7 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -111,7 +106,7 @@ public class DepartmentUser extends WaspModel {
 	 */
 	
 	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+		this.userId = userId;
 	}
 
 	/**
@@ -121,7 +116,7 @@ public class DepartmentUser extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 	/**
@@ -141,7 +136,7 @@ public class DepartmentUser extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -173,7 +168,7 @@ public class DepartmentUser extends WaspModel {
 	 */
 	public void setDepartment (Department department) {
 		this.department = department;
-		this.departmentId = department.departmentId;
+		this.departmentId = department.getId();
 	}
 
 	/**

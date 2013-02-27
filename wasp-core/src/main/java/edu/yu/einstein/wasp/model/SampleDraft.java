@@ -41,18 +41,11 @@ public class SampleDraft extends WaspModel {
 	 */
 	private static final long serialVersionUID = -7802756907357416771L;
 
-public static enum Status {
-pending,
-inprocess,
-processed
-}
-
-	/** 
-	 * sampleDraftId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleDraftId;
+	public static enum Status {
+		pending,
+		inprocess,
+		processed
+	}
 
 	/**
 	 * setSampleDraftId(Integer sampleDraftId)
@@ -60,9 +53,9 @@ processed
 	 * @param sampleDraftId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleDraftId (Integer sampleDraftId) {
-		this.sampleDraftId = sampleDraftId;
+		setId(sampleDraftId);
 	}
 
 	/**
@@ -71,8 +64,9 @@ processed
 	 * @return sampleDraftId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleDraftId () {
-		return this.sampleDraftId;
+		return getId();
 	}
 
 
@@ -185,7 +179,7 @@ processed
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -194,8 +188,8 @@ processed
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -205,7 +199,7 @@ processed
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -351,7 +345,7 @@ processed
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -383,7 +377,7 @@ processed
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -415,7 +409,7 @@ processed
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**
@@ -447,7 +441,7 @@ processed
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**
@@ -479,7 +473,7 @@ processed
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -511,7 +505,7 @@ processed
 	 */
 	public void setFile (FileGroup fileGroup) {
 		this.fileGroup = fileGroup;
-		this.fileGroupId = fileGroup.fileGroupId;
+		this.fileGroupId = fileGroup.getId();
 	}
 
 	/**

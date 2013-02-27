@@ -36,12 +36,6 @@ public class Workflow extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -600658140048389849L;
-	/** 
-	 * workflowId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowId;
 
 	/**
 	 * setWorkflowId(Integer workflowId)
@@ -49,9 +43,9 @@ public class Workflow extends WaspModel {
 	 * @param workflowId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowId (Integer workflowId) {
-		this.workflowId = workflowId;
+		setId(workflowId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class Workflow extends WaspModel {
 	 * @return workflowId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowId () {
-		return this.workflowId;
+		return getId();
 	}
 
 

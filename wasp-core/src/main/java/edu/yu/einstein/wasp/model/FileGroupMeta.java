@@ -32,12 +32,7 @@ public class FileGroupMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 8558940671046911453L;
-	/** 
-	 * fileMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer id;
+	
 
 	/**
 	 * setFileMetaId(Integer fileMetaId)
@@ -45,9 +40,9 @@ public class FileGroupMeta extends MetaBase {
 	 * @param fileMetaId
 	 *
 	 */
-	
-	public void setId (Integer id) {
-		this.id = id;
+	@Deprecated
+	public void setFileMetaId (Integer id) {
+		setId(id);
 	}
 
 	/**
@@ -56,11 +51,10 @@ public class FileGroupMeta extends MetaBase {
 	 * @return fileMetaId
 	 *
 	 */
-	public Integer getId () {
-		return this.id;
+	@Deprecated
+	public Integer getFileMetaId () {
+		return getId();
 	}
-
-
 
 
 	/** 
@@ -111,7 +105,7 @@ public class FileGroupMeta extends MetaBase {
 	 */
 	public void setFileGroup (FileGroup fileGroup) {
 		this.filegroup = fileGroup;
-		this.fileGroupId = fileGroup.fileGroupId;
+		this.fileGroupId = fileGroup.getId();
 	}
 
 	/**

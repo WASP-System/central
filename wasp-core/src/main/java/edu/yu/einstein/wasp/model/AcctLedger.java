@@ -41,12 +41,7 @@ public class AcctLedger extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2976336579608094205L;
-	/** 
-	 * ledgerId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer ledgerId;
+	
 
 	/**
 	 * setLedgerId(Integer ledgerId)
@@ -54,9 +49,9 @@ public class AcctLedger extends WaspModel {
 	 * @param ledgerId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLedgerId (Integer ledgerId) {
-		this.ledgerId = ledgerId;
+		setId(ledgerId);
 	}
 
 	/**
@@ -65,8 +60,9 @@ public class AcctLedger extends WaspModel {
 	 * @return ledgerId
 	 *
 	 */
+	@Deprecated
 	public Integer getLedgerId () {
-		return this.ledgerId;
+		return getId();
 	}
 
 
@@ -211,7 +207,7 @@ public class AcctLedger extends WaspModel {
 	 */
 	public void setAcctInvoice (AcctInvoice acctInvoice) {
 		this.acctInvoice = acctInvoice;
-		this.invoiceId = acctInvoice.invoiceId;
+		this.invoiceId = acctInvoice.getId();
 	}
 
 	/**
@@ -243,7 +239,7 @@ public class AcctLedger extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

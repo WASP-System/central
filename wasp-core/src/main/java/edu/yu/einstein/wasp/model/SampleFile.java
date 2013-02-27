@@ -34,12 +34,6 @@ public class SampleFile extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 3568113560161274589L;
-	/** 
-	 * sampleFileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleFileId;
 
 	/**
 	 * setSampleFileId(Integer sampleFileId)
@@ -47,9 +41,9 @@ public class SampleFile extends WaspModel {
 	 * @param sampleFileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleFileId (Integer sampleFileId) {
-		this.sampleFileId = sampleFileId;
+		setId(sampleFileId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class SampleFile extends WaspModel {
 	 * @return sampleFileId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleFileId () {
-		return this.sampleFileId;
+		return this.getId();
 	}
 
 
@@ -201,7 +196,7 @@ public class SampleFile extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**

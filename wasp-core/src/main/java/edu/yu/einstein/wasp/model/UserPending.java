@@ -39,12 +39,6 @@ public class UserPending extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -4648418306915988328L;
-	/** 
-	 * userPendingId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer userPendingId;
 
 	/**
 	 * setUserPendingId(Integer userPendingId)
@@ -52,9 +46,9 @@ public class UserPending extends WaspModel {
 	 * @param userPendingId
 	 *
 	 */
-	
+	@Deprecated
 	public void setUserPendingId (Integer userPendingId) {
-		this.userPendingId = userPendingId;
+		setId(userPendingId);
 	}
 
 	/**
@@ -63,8 +57,9 @@ public class UserPending extends WaspModel {
 	 * @return userPendingId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserPendingId () {
-		return this.userPendingId;
+		return getId();
 	}
 
 
@@ -339,7 +334,7 @@ public class UserPending extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**

@@ -34,12 +34,6 @@ public class JobFile extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -743310016092763973L;
-	/** 
-	 * jobFileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobFileId;
 
 	/**
 	 * setJobFileId(Integer jobFileId)
@@ -47,9 +41,9 @@ public class JobFile extends WaspModel {
 	 * @param jobFileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobFileId (Integer jobFileId) {
-		this.jobFileId = jobFileId;
+		setId(jobFileId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class JobFile extends WaspModel {
 	 * @return jobFileId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobFileId () {
-		return this.jobFileId;
+		return getId();
 	}
 
 
@@ -231,7 +226,7 @@ public class JobFile extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

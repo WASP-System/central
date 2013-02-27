@@ -36,22 +36,16 @@ public class FileType extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2057479265391988507L;
-	/** 
-	 * fileTypeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileTypeId;
-
+	
 	/**
 	 * setFileTypeId(Integer fileTypeId)
 	 *
 	 * @param fileTypeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileTypeId (Integer fileTypeId) {
-		this.fileTypeId = fileTypeId;
+		setId(fileTypeId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class FileType extends WaspModel {
 	 * @return fileTypeId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileTypeId () {
-		return this.fileTypeId;
+		return getId();
 	}
 
 	/** 

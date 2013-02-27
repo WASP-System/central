@@ -23,16 +23,12 @@ public class Meta extends MetaBase {
 	 */
 	private static final long serialVersionUID = -8135307692214003015L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Integer metaId;
-
 	public void setMetaId(Integer metaId) {
-		this.metaId = metaId;
+		setId(metaId);
 	}
 
 	public Integer getMetaId() {
-		return this.metaId;
+		return getId();
 	}
 
 }

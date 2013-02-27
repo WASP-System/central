@@ -38,12 +38,6 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1955514379181334967L;
-	/** 
-	 * currentId
-	 *
-	 */
-	@Id  @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer currentId;
 
 	/**
 	 * setCurrentId(Integer currentId)
@@ -51,9 +45,9 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @param currentId
 	 *
 	 */
-	
+	@Deprecated
 	public void setCurrentId (Integer currentId) {
-		this.currentId = currentId;
+		setId(currentId);
 	}
 
 	/**
@@ -62,8 +56,9 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @return currentId
 	 *
 	 */
+	@Deprecated
 	public Integer getCurrentId () {
-		return this.currentId;
+		return getId();
 	}
 
 
@@ -143,7 +138,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -175,7 +170,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 */
 	public void setAcctQuote (AcctQuote acctQuote) {
 		this.acctQuote = acctQuote;
-		this.quoteId = acctQuote.quoteId;
+		this.quoteId = acctQuote.getId();
 	}
 
 	/**

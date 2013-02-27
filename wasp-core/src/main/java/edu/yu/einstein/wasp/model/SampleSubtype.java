@@ -37,12 +37,7 @@ public class SampleSubtype extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 4381006193862184833L;
-	/** 
-	 * sampleSubtypeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSubtypeId;
+	
 
 	/**
 	 * setSampleSubtypeId(Integer sampleSubtypeId)
@@ -50,9 +45,9 @@ public class SampleSubtype extends WaspModel {
 	 * @param sampleSubtypeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSubtypeId (Integer sampleSubtypeId) {
-		this.sampleSubtypeId = sampleSubtypeId;
+		setId(sampleSubtypeId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class SampleSubtype extends WaspModel {
 	 * @return sampleSubtypeId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSubtypeId () {
-		return this.sampleSubtypeId;
+		return getId();
 	}
 
 
@@ -246,7 +242,7 @@ public class SampleSubtype extends WaspModel {
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -424,11 +420,12 @@ public class SampleSubtype extends WaspModel {
 		this.sampleSubtypeMeta = sampleSubtypeMeta;
 	}
 
+	// TODO: rethink
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + sampleSubtypeId;
+		result = prime * result + getId();
 		return result;
 	}
 
@@ -441,14 +438,14 @@ public class SampleSubtype extends WaspModel {
 		if (getClass() != obj.getClass())
 			return false;
 		SampleSubtype other = (SampleSubtype) obj;
-		if (sampleSubtypeId.intValue() != other.sampleSubtypeId.intValue())
+		if (getId().intValue() != other.getId().intValue())
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "SampleSubtype [sampleSubtypeId=" + sampleSubtypeId
+		return "SampleSubtype [sampleSubtypeId=" + getId()
 				+ ", sampleTypeId=" + sampleTypeId + ", iName=" + iName
 				+ ", name=" + name + ", arealist=" + arealist + "]";
 	}

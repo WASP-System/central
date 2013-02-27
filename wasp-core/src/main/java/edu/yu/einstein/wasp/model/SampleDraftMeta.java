@@ -32,12 +32,7 @@ public class SampleDraftMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -7160637820492874262L;
-	/** 
-	 * sampleDraftMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleDraftMetaId;
+	
 
 	/**
 	 * setSampleDraftMetaId(Integer sampleDraftMetaId)
@@ -45,9 +40,9 @@ public class SampleDraftMeta extends MetaBase {
 	 * @param sampleDraftMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleDraftMetaId (Integer sampleDraftMetaId) {
-		this.sampleDraftMetaId = sampleDraftMetaId;
+		setId(sampleDraftMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class SampleDraftMeta extends MetaBase {
 	 * @return sampleDraftMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleDraftMetaId () {
-		return this.sampleDraftMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class SampleDraftMeta extends MetaBase {
 	 */
 	public void setSampleDraft (SampleDraft sampleDraft) {
 		this.sampleDraft = sampleDraft;
-		this.sampleDraftId = sampleDraft.sampleDraftId;
+		this.sampleDraftId = sampleDraft.getId();
 	}
 
 	/**

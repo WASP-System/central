@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -37,6 +40,17 @@ import edu.yu.einstein.wasp.exception.ModelCopyException;
 
 @MappedSuperclass
 public abstract class WaspModel implements Serializable {
+	
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	protected Integer id;
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public Integer getId() {
+		return this.id;
+	}
 	
 	/** 
 	 * lastUpdTs

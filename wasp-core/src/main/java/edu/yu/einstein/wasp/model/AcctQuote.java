@@ -41,12 +41,6 @@ public class AcctQuote extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1878774856095048045L;
-	/** 
-	 * quoteId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer quoteId;
 
 	/**
 	 * setQuoteId(Integer quoteId)
@@ -54,9 +48,9 @@ public class AcctQuote extends WaspModel {
 	 * @param quoteId
 	 *
 	 */
-	
+	@Deprecated
 	public void setQuoteId (Integer quoteId) {
-		this.quoteId = quoteId;
+		setId(quoteId);
 	}
 
 	/**
@@ -65,8 +59,9 @@ public class AcctQuote extends WaspModel {
 	 * @return quoteId
 	 *
 	 */
+	@Deprecated
 	public Integer getQuoteId () {
-		return this.quoteId;
+		return getId();
 	}
 
 
@@ -139,7 +134,7 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -148,8 +143,8 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -159,7 +154,7 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -241,7 +236,7 @@ public class AcctQuote extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -273,7 +268,7 @@ public class AcctQuote extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**

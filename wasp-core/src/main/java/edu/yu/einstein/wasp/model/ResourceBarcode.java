@@ -32,12 +32,7 @@ public class ResourceBarcode extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 487166448262644474L;
-	/** 
-	 * resourceBarcodeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceBarcodeId;
+	
 
 	/**
 	 * setResourceBarcodeId(Integer resourceBarcodeId)
@@ -45,9 +40,9 @@ public class ResourceBarcode extends WaspModel {
 	 * @param resourceBarcodeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceBarcodeId (Integer resourceBarcodeId) {
-		this.resourceBarcodeId = resourceBarcodeId;
+		setId(resourceBarcodeId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class ResourceBarcode extends WaspModel {
 	 * @return resourceBarcodeId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceBarcodeId () {
-		return this.resourceBarcodeId;
+		return getId();
 	}
 
 
@@ -142,7 +138,7 @@ public class ResourceBarcode extends WaspModel {
 	 */
 	public void setResource (Resource resource) {
 		this.resource = resource;
-		this.resourceId = resource.resourceId;
+		this.resourceId = resource.getId();
 	}
 
 	/**
@@ -174,7 +170,7 @@ public class ResourceBarcode extends WaspModel {
 	 */
 	public void setBarcode (Barcode barcode) {
 		this.barcode = barcode;
-		this.barcodeId = barcode.barcodeId;
+		this.barcodeId = barcode.getId();
 	}
 
 	/**

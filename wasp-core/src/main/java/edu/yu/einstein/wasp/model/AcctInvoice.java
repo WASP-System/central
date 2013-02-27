@@ -41,12 +41,6 @@ public class AcctInvoice extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 6225389694897517159L;
-	/** 
-	 * invoiceId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer invoiceId;
 
 	/**
 	 * setInvoiceId(Integer invoiceId)
@@ -54,9 +48,9 @@ public class AcctInvoice extends WaspModel {
 	 * @param invoiceId
 	 *
 	 */
-	
+	@Deprecated
 	public void setInvoiceId (Integer invoiceId) {
-		this.invoiceId = invoiceId;
+		setId(invoiceId);
 	}
 
 	/**
@@ -65,8 +59,9 @@ public class AcctInvoice extends WaspModel {
 	 * @return invoiceId
 	 *
 	 */
+	@Deprecated
 	public Integer getInvoiceId () {
-		return this.invoiceId;
+		return getId();
 	}
 
 
@@ -210,7 +205,7 @@ public class AcctInvoice extends WaspModel {
 	 */
 	public void setAcctQuote (AcctQuote acctQuote) {
 		this.acctQuote = acctQuote;
-		this.quoteId = acctQuote.quoteId;
+		this.quoteId = acctQuote.getId();
 	}
 
 	/**
@@ -242,7 +237,7 @@ public class AcctInvoice extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

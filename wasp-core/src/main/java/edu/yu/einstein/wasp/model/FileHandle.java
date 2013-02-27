@@ -44,14 +44,6 @@ public class FileHandle extends WaspModel {
 	public FileHandle() {
 		
 	}
-	
-	
-	/** 
-	 * fileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileId;
 
 	/**
 	 * setFileId(Integer fileId)
@@ -59,9 +51,9 @@ public class FileHandle extends WaspModel {
 	 * @param fileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+		setId(fileId);
 	}
 
 	/**
@@ -70,8 +62,9 @@ public class FileHandle extends WaspModel {
 	 * @return fileId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileId () {
-		return this.fileId;
+		return getId();
 	}
 	
 	/** 

@@ -34,13 +34,7 @@ public class JobResourcecategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 2450749157410938105L;
-	/** 
-	 * jobResourcecategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobResourcecategoryId;
-
+	
 	/**
 	 * setJobResourcecategoryId(Integer jobResourcecategoryId)
 	 *
@@ -49,7 +43,7 @@ public class JobResourcecategory extends WaspModel {
 	 */
 	
 	public void setJobResourcecategoryId (Integer jobResourcecategoryId) {
-		this.jobResourcecategoryId = jobResourcecategoryId;
+		setId(jobResourcecategoryId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class JobResourcecategory extends WaspModel {
 	 * @return jobResourcecategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobResourcecategoryId () {
-		return this.jobResourcecategoryId;
+		return getId();
 	}
 
 
@@ -141,7 +136,7 @@ public class JobResourcecategory extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

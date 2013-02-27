@@ -34,12 +34,6 @@ public class JobDraftresourcecategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 5178604899408106578L;
-	/** 
-	 * jobDraftresourcecategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftresourcecategoryId;
 
 	/**
 	 * setJobDraftresourcecategoryId(Integer jobDraftresourcecategoryId)
@@ -47,9 +41,9 @@ public class JobDraftresourcecategory extends WaspModel {
 	 * @param jobDraftresourcecategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftresourcecategoryId (Integer jobDraftresourcecategoryId) {
-		this.jobDraftresourcecategoryId = jobDraftresourcecategoryId;
+		setId(jobDraftresourcecategoryId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class JobDraftresourcecategory extends WaspModel {
 	 * @return jobDraftresourcecategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftresourcecategoryId () {
-		return this.jobDraftresourcecategoryId;
+		return getId();
 	}
 
 
@@ -142,7 +137,7 @@ public class JobDraftresourcecategory extends WaspModel {
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**
@@ -174,7 +169,7 @@ public class JobDraftresourcecategory extends WaspModel {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+		this.resourcecategoryId = resourceCategory.getId();
 	}
 
 	/**

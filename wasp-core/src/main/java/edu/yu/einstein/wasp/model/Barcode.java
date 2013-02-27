@@ -36,12 +36,6 @@ public class Barcode extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -4750981400438838305L;
-	/** 
-	 * barcodeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer barcodeId;
 
 	/**
 	 * setBarcodeId(Integer barcodeId)
@@ -49,9 +43,9 @@ public class Barcode extends WaspModel {
 	 * @param barcodeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setBarcodeId (Integer barcodeId) {
-		this.barcodeId = barcodeId;
+		setId(barcodeId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class Barcode extends WaspModel {
 	 * @return barcodeId
 	 *
 	 */
+	@Deprecated
 	public Integer getBarcodeId () {
-		return this.barcodeId;
+		return getId();
 	}
 
 

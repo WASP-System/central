@@ -37,12 +37,7 @@ public class JobSample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -5192603804847507907L;
-	/** 
-	 * jobSampleId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobSampleId;
+	
 
 	/**
 	 * setJobSampleId(Integer jobSampleId)
@@ -50,9 +45,9 @@ public class JobSample extends WaspModel {
 	 * @param jobSampleId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobSampleId (Integer jobSampleId) {
-		this.jobSampleId = jobSampleId;
+		setId(jobSampleId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class JobSample extends WaspModel {
 	 * @return jobSampleId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobSampleId () {
-		return this.jobSampleId;
+		return getId();
 	}
 
 
@@ -145,7 +141,7 @@ public class JobSample extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -177,7 +173,7 @@ public class JobSample extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**

@@ -36,12 +36,7 @@ public class ResourceCell extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -4741444565704639915L;
-	/** 
-	 * resourceCellId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceCellId;
+	
 
 	/**
 	 * setResourceCellId(Integer resourceCellId)
@@ -49,9 +44,9 @@ public class ResourceCell extends WaspModel {
 	 * @param resourceCellId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceCellId (Integer resourceCellId) {
-		this.resourceCellId = resourceCellId;
+		setId(resourceCellId);
 	}
 
 	/**
@@ -60,8 +55,9 @@ public class ResourceCell extends WaspModel {
 	 * @return resourceCellId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceCellId () {
-		return this.resourceCellId;
+		return getId();
 	}
 
 
@@ -208,7 +204,7 @@ public class ResourceCell extends WaspModel {
 	 */
 	public void setResource (Resource resource) {
 		this.resource = resource;
-		this.resourceId = resource.resourceId;
+		this.resourceId = resource.getId();
 	}
 
 	/**

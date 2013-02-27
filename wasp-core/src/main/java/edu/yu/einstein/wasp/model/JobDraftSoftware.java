@@ -34,12 +34,7 @@ public class JobDraftSoftware extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 6728114013935600776L;
-	/** 
-	 * jobDraftSoftwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftSoftwareId;
+	
 
 	/**
 	 * setJobDraftSoftwareId(Integer jobDraftSoftwareId)
@@ -47,9 +42,9 @@ public class JobDraftSoftware extends WaspModel {
 	 * @param jobDraftSoftwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftSoftwareId (Integer jobDraftSoftwareId) {
-		this.jobDraftSoftwareId = jobDraftSoftwareId;
+		setId(jobDraftSoftwareId);
 	}
 
 	/**
@@ -58,8 +53,9 @@ public class JobDraftSoftware extends WaspModel {
 	 * @return jobDraftSoftwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftSoftwareId () {
-		return this.jobDraftSoftwareId;
+		return getId();
 	}
 
 
@@ -141,7 +137,7 @@ public class JobDraftSoftware extends WaspModel {
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**
@@ -173,7 +169,7 @@ public class JobDraftSoftware extends WaspModel {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**

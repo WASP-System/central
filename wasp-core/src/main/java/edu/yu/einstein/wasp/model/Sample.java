@@ -38,12 +38,6 @@ public class Sample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -324610621097231467L;
-	/** 
-	 * sampleId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleId;
 
 	/**
 	 * setSampleId(Integer sampleId)
@@ -51,9 +45,9 @@ public class Sample extends WaspModel {
 	 * @param sampleId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleId (Integer sampleId) {
-		this.sampleId = sampleId;
+		setId(sampleId);
 	}
 
 	/**
@@ -62,8 +56,9 @@ public class Sample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleId () {
-		return this.sampleId;
+		return getId();
 	}
 
 	/** 
@@ -453,7 +448,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -485,7 +480,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -517,7 +512,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setParent (Sample parent) {
 		this.parent = parent;
-		this.parentId = parent.sampleId;
+		this.parentId = parent.getId();
 	}
 	
 	/** 
@@ -581,7 +576,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.submitterJobId = job.jobId;
+		this.submitterJobId = job.getId();
 	}
 
 	/**
@@ -613,7 +608,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.submitterLabId = lab.labId;
+		this.submitterLabId = lab.getId();
 	}
 
 	/**
@@ -645,7 +640,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.submitterUserId = user.UserId;
+		this.submitterUserId = user.getId();
 	}
 
 	/**

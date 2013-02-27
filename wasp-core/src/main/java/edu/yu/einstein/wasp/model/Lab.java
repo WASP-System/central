@@ -39,12 +39,6 @@ public class Lab extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 7721869798227853055L;
-	/** 
-	 * labId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labId;
 
 	/**
 	 * setLabId(Integer labId)
@@ -52,9 +46,9 @@ public class Lab extends WaspModel {
 	 * @param labId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabId (Integer labId) {
-		this.labId = labId;
+		setId(labId);
 	}
 
 	/**
@@ -63,8 +57,9 @@ public class Lab extends WaspModel {
 	 * @return labId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabId () {
-		return this.labId;
+		return getId();
 	}
 
 
@@ -211,7 +206,7 @@ public class Lab extends WaspModel {
 	 */
 	public void setDepartment (Department department) {
 		this.department = department;
-		this.departmentId = department.departmentId;
+		this.departmentId = department.getId();
 	}
 
 	/**
@@ -244,7 +239,7 @@ public class Lab extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.primaryUserId = user.UserId;
+		this.primaryUserId = user.getId();
 	}
 
 	/**

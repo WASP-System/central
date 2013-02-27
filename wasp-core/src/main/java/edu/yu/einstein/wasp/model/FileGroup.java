@@ -52,13 +52,6 @@ public class FileGroup extends WaspModel {
 		begat = new HashSet<FileGroup>();
 		derivedFrom = new HashSet<FileGroup>();
 	}
-	
-	/** 
-	 * filegroupid
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileGroupId;
 
 	/**
 	 * setFileGroupId(Integer filegroupid)
@@ -66,9 +59,9 @@ public class FileGroup extends WaspModel {
 	 * @param fileGroupId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileGroupId (Integer fileGroupId) {
-		this.fileGroupId = fileGroupId;
+		setId(fileGroupId);
 	}
 
 	/**
@@ -77,8 +70,9 @@ public class FileGroup extends WaspModel {
 	 * @return filegroupid
 	 *
 	 */
+	@Deprecated
 	public Integer getFileGroupId () {
-		return this.fileGroupId;
+		return getId();
 	}
 	
 	/** 
@@ -470,7 +464,7 @@ public class FileGroup extends WaspModel {
 	 */
 	public void setSoftwareGeneratedBy (Software software) {
 		this.softwareGeneratedBy = software;
-		this.softwareGeneratedById = software.softwareId;
+		this.softwareGeneratedById = software.getId();
 	}
 
 	/**
@@ -501,7 +495,7 @@ public class FileGroup extends WaspModel {
 	 */
 	public void setFileType (FileType fileType){
 		this.fileType = fileType;
-		this.fileTypeId = fileType.fileTypeId;
+		this.fileTypeId = fileType.getId();
 	}
 
 	/**

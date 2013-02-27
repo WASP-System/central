@@ -39,12 +39,7 @@ public class LabPending extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 7924789000322141025L;
-	/** 
-	 * labPendingId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labPendingId;
+	
 
 	/**
 	 * setLabPendingId(Integer labPendingId)
@@ -52,9 +47,9 @@ public class LabPending extends WaspModel {
 	 * @param labPendingId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabPendingId (Integer labPendingId) {
-		this.labPendingId = labPendingId;
+		setId(labPendingId);
 	}
 
 	/**
@@ -63,8 +58,9 @@ public class LabPending extends WaspModel {
 	 * @return labPendingId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabPendingId () {
-		return this.labPendingId;
+		return getId();
 	}
 
 
@@ -242,7 +238,7 @@ public class LabPending extends WaspModel {
 	 */
 	public void setDepartment (Department department) {
 		this.department = department;
-		this.departmentId = department.departmentId;
+		this.departmentId = department.getId();
 	}
 
 	/**
@@ -274,7 +270,7 @@ public class LabPending extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.primaryUserId = user.UserId;
+		this.primaryUserId = user.getId();
 	}
 
 	/**
@@ -306,7 +302,7 @@ public class LabPending extends WaspModel {
 	 */
 	public void setUserPending (UserPending userPending) {
 		this.userPending = userPending;
-		this.userPendingId = userPending.userPendingId;
+		this.userPendingId = userPending.getId();
 	}
 
 	/**

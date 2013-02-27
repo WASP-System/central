@@ -42,22 +42,15 @@ public class AcctGrant extends WaspModel {
 	 */
 	private static final long serialVersionUID = 1564045006597566511L;
 
-	/** 
-	 * grantId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer grantId;
-
 	/**
 	 * setGrantId(Integer grantId)
 	 *
 	 * @param grantId
 	 *
 	 */
-	
+	@Deprecated
 	public void setGrantId (Integer grantId) {
-		this.grantId = grantId;
+		setId(grantId);
 	}
 
 	/**
@@ -66,8 +59,9 @@ public class AcctGrant extends WaspModel {
 	 * @return grantId
 	 *
 	 */
+	@Deprecated
 	public Integer getGrantId () {
-		return this.grantId;
+		return getId();
 	}
 
 
@@ -243,7 +237,7 @@ public class AcctGrant extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**

@@ -32,22 +32,16 @@ public class FileHandleMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 8558940671046911453L;
-	/** 
-	 * fileMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileMetaId;
-
+	
 	/**
 	 * setFileMetaId(Integer fileMetaId)
 	 *
 	 * @param fileMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileMetaId (Integer fileMetaId) {
-		this.fileMetaId = fileMetaId;
+		setId(fileMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class FileHandleMeta extends MetaBase {
 	 * @return fileMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileMetaId () {
-		return this.fileMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class FileHandleMeta extends MetaBase {
 	 */
 	public void setFile (FileHandle file) {
 		this.file = file;
-		this.fileId = file.fileId;
+		this.fileId = file.getId();
 	}
 
 	/**

@@ -34,22 +34,16 @@ import org.hibernate.envers.NotAudited;
 		 * 
 		 */
 		private static final long serialVersionUID = 8037977046022874756L;
-		/** 
-        * confirmEmailAuthId
-        *
-        */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer confirmEmailAuthId;
-        
+	
         /**
         * setConfirmEmailAuthId(Integer confirmEmailAuthId)
         *
         * @param confirmEmailAuthId
         *
         */
-        
+		@Deprecated
         public void setConfirmEmailAuthId (Integer confirmEmailAuthId) {
-            this.confirmEmailAuthId = confirmEmailAuthId;
+            setId(confirmEmailAuthId);
         }
         
         /**
@@ -58,8 +52,9 @@ import org.hibernate.envers.NotAudited;
         * @return confirmEmailAuthId
         *
         */
+		@Deprecated
         public Integer getConfirmEmailAuthId () {
-            return this.confirmEmailAuthId;
+            return getId();
         }
         
         
@@ -101,7 +96,7 @@ import org.hibernate.envers.NotAudited;
         *
         */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
         
         /**
         * setUserId(Integer UserId)
@@ -110,8 +105,8 @@ import org.hibernate.envers.NotAudited;
         *
         */
         
-        public void setUserId (Integer UserId) {
-            this.UserId = UserId;
+        public void setUserId (Integer userId) {
+            this.userId = userId;
         }
         
         /**
@@ -121,7 +116,7 @@ import org.hibernate.envers.NotAudited;
         *
         */
         public Integer getUserId () {
-            return this.UserId;
+            return this.userId;
         }
         
         
@@ -173,7 +168,7 @@ import org.hibernate.envers.NotAudited;
         */
         public void setUser (User user) {
             this.user = user;
-            this.UserId = user.UserId;
+            this.userId = user.getId();
         }
         
         /**
@@ -205,7 +200,7 @@ import org.hibernate.envers.NotAudited;
         */
         public void setUserPending (UserPending userPending) {
             this.userPending = userPending;
-            this.userPendingId = userPending.userPendingId;
+            this.userPendingId = userPending.getId();
         }
         
         /**

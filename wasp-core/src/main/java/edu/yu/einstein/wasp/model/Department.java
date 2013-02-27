@@ -36,12 +36,6 @@ public class Department extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -268564748121397442L;
-	/** 
-	 * departmentId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer departmentId;
 
 	/**
 	 * setDepartmentId(Integer departmentId)
@@ -49,9 +43,9 @@ public class Department extends WaspModel {
 	 * @param departmentId
 	 *
 	 */
-	
+	@Deprecated
 	public void setDepartmentId (Integer departmentId) {
-		this.departmentId = departmentId;
+		setId(departmentId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class Department extends WaspModel {
 	 * @return departmentId
 	 *
 	 */
+	@Deprecated
 	public Integer getDepartmentId () {
-		return this.departmentId;
+		return getId();
 	}
 
 

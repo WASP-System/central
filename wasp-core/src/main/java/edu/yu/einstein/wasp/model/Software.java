@@ -37,12 +37,6 @@ public class Software extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -5520002461442259763L;
-	/** 
-	 * softwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer softwareId;
 
 	/**
 	 * setSoftwareId(Integer softwareId)
@@ -50,9 +44,9 @@ public class Software extends WaspModel {
 	 * @param softwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSoftwareId (Integer softwareId) {
-		this.softwareId = softwareId;
+		setId(softwareId);
 	}
 
 	/**
@@ -61,8 +55,9 @@ public class Software extends WaspModel {
 	 * @return softwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getSoftwareId () {
-		return this.softwareId;
+		return getId();
 	}
 
 
@@ -203,7 +198,7 @@ public class Software extends WaspModel {
 	 */
 	public void setResourceType (ResourceType resourceType) {
 		this.resourceType = resourceType;
-		this.resourceTypeId = resourceType.resourceTypeId;
+		this.resourceTypeId = resourceType.getId();
 	}
 
 	/**

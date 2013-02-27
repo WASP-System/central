@@ -26,10 +26,6 @@ public final class UiField extends WaspModel implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 3854600504514244535L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Integer uiFieldId;
 	
 	@Column(name = "domain")
 	protected String domain;
@@ -56,11 +52,11 @@ public final class UiField extends WaspModel implements Serializable {
 	
 
 	public Integer getUiFieldId() {
-		return uiFieldId;
+		return getId();
 	}
 
 	public void setUiFieldId(Integer uiFieldId) {
-		this.uiFieldId = uiFieldId;
+		setId(uiFieldId);
 	}
 
 	public String getArea() {
@@ -161,8 +157,8 @@ public final class UiField extends WaspModel implements Serializable {
 		int result = 1;
 
 // uiFieldId now Integer instead of in, so avoid npe
-if (uiFieldId == null) { return prime * result + 0; }
-		result = prime * result + uiFieldId.intValue();
+	if (getId() == null) { return prime * result + 0; }
+		result = prime * result + getId().intValue();
 		return result;
 	}
 
@@ -175,14 +171,14 @@ if (uiFieldId == null) { return prime * result + 0; }
 		if (getClass() != obj.getClass())
 			return false;
 		UiField other = (UiField) obj;
-		if (uiFieldId.intValue() != other.uiFieldId.intValue())
+		if (getId().intValue() != other.getId().intValue())
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "UiField [uiFieldId=" + uiFieldId + ", domain=" + domain + ", area=" + area + ", name="
+		return "UiField [uiFieldId=" + getId() + ", domain=" + domain + ", area=" + area + ", name="
 				+ name + ", attrName=" + attrName + ", attrValue=" + attrValue
 				+ ", locale=" + locale + ", lastUpdTs=" + lastUpdTs
 				+ ", lastUpdUser=" + lastUpdUser + "]";

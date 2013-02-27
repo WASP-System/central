@@ -38,22 +38,16 @@ public class AcctGrantjob extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 8452582861645453970L;
-	/** 
-	 * jobId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobId;
-
+	
 	/**
 	 * setJobId(Integer jobId)
 	 *
 	 * @param jobId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobId (Integer jobId) {
-		this.jobId = jobId;
+		setId(jobId);
 	}
 
 	/**
@@ -62,8 +56,9 @@ public class AcctGrantjob extends WaspModel {
 	 * @return jobId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobId () {
-		return this.jobId;
+		return getId();
 	}
 
 
@@ -145,7 +140,6 @@ public class AcctGrantjob extends WaspModel {
 	 */
 	public void setAcctLedger (AcctLedger acctLedger) {
 		this.acctLedger = acctLedger;
-		this.jobId = acctLedger.jobId;
 	}
 
 	/**
@@ -177,7 +171,6 @@ public class AcctGrantjob extends WaspModel {
 	 */
 	public void setAcctGrant (AcctGrant acctGrant) {
 		this.acctGrant = acctGrant;
-		this.grantId = acctGrant.grantId;
 	}
 
 	/**

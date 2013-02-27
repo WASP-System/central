@@ -30,22 +30,15 @@ import org.hibernate.envers.NotAudited;
 @Table(name="samplesourcefile")
 public class SampleSourceFile extends WaspModel {
 
-	/** 
-	 * sampleSourceFileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSourceFileId;
-
 	/**
 	 * setSampleSourceFileId(Integer sampleSourceFileId)
 	 *
 	 * @param sampleSourceFileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSourceFileId (Integer sampleSourceFileId) {
-		this.sampleSourceFileId = sampleSourceFileId;
+		setId(sampleSourceFileId);
 	}
 
 	/**
@@ -54,8 +47,9 @@ public class SampleSourceFile extends WaspModel {
 	 * @return sampleSourceFileId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSourceFileId () {
-		return this.sampleSourceFileId;
+		return getId();
 	}
 
 
@@ -88,40 +82,6 @@ public class SampleSourceFile extends WaspModel {
 	public Integer getSampleSourceId () {
 		return this.sampleSourceId;
 	}
-
-
-
-
-	/** 
-	 * fileId
-	 *
-	 */
-	@Column(name="fileid")
-	protected Integer fileId;
-
-	/**
-	 * setFileId(Integer fileId)
-	 *
-	 * @param fileId
-	 *
-	 */
-	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
-	}
-
-	/**
-	 * getFileId()
-	 *
-	 * @return fileId
-	 *
-	 */
-	public Integer getFileId () {
-		return this.fileId;
-	}
-
-
-
 
 	/** 
 	 * iName
@@ -326,7 +286,7 @@ public class SampleSourceFile extends WaspModel {
 	 */
 	public void setSampleSource (SampleSource sampleSource) {
 		this.sampleSource = sampleSource;
-		this.sampleSourceId = sampleSource.sampleSourceId;
+		this.sampleSourceId = sampleSource.getId();
 	}
 
 	/**
@@ -347,8 +307,8 @@ public class SampleSourceFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
+	protected FileGroup filegroup;
 
 	/**
 	 * setFile (File file)
@@ -356,9 +316,8 @@ public class SampleSourceFile extends WaspModel {
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFile (FileGroup filegroup) {
+		this.filegroup = filegroup;
 	}
 
 	/**
@@ -368,8 +327,8 @@ public class SampleSourceFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFile () {
+		return this.filegroup;
 	}
 
 

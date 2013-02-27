@@ -39,12 +39,6 @@ public class JobDraft extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2823765071375908605L;
-	/** 
-	 * jobDraftId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftId;
 
 	/**
 	 * setJobDraftId(Integer jobDraftId)
@@ -52,9 +46,9 @@ public class JobDraft extends WaspModel {
 	 * @param jobDraftId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftId (Integer jobDraftId) {
-		this.jobDraftId = jobDraftId;
+		setId(jobDraftId);
 	}
 
 	/**
@@ -63,8 +57,9 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftId () {
-		return this.jobDraftId;
+		return getId();
 	}
 
 
@@ -107,7 +102,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -117,7 +112,7 @@ public class JobDraft extends WaspModel {
 	 */
 	
 	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+		this.userId = userId;
 	}
 
 	/**
@@ -127,7 +122,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -306,7 +301,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**
@@ -338,7 +333,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -370,7 +365,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**
@@ -402,7 +397,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.submittedjobId = job.jobId;
+		this.submittedjobId = job.getId();
 	}
 
 	/**

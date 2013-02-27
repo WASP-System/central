@@ -34,22 +34,16 @@ public class SampleLab extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 628107382787556246L;
-	/** 
-	 * sampleLabId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleLabId;
-
+	
 	/**
 	 * setSampleLabId(Integer sampleLabId)
 	 *
 	 * @param sampleLabId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleLabId (Integer sampleLabId) {
-		this.sampleLabId = sampleLabId;
+		setId(sampleLabId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class SampleLab extends WaspModel {
 	 * @return sampleLabId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleLabId () {
-		return this.sampleLabId;
+		return getId();
 	}
 
 
@@ -173,7 +168,7 @@ public class SampleLab extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -205,7 +200,7 @@ public class SampleLab extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**

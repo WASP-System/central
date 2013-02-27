@@ -37,7 +37,7 @@ public class Userpasswordauth extends WaspModel {
 	 *
 	 */
 	@Id 
-	protected Integer UserId;
+	protected Integer id;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -45,9 +45,9 @@ public class Userpasswordauth extends WaspModel {
 	 * @param UserId
 	 *
 	 */
-	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	@Deprecated
+	public void setUserId (Integer id) {
+		this.id = id;
 	}
 
 	/**
@@ -56,8 +56,9 @@ public class Userpasswordauth extends WaspModel {
 	 * @return UserId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserId () {
-		return this.UserId;
+		return this.id;
 	}
 
 
@@ -109,7 +110,7 @@ public class Userpasswordauth extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.id = user.getId();
 	}
 
 	/**

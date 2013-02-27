@@ -34,12 +34,7 @@ public class RunCellFile extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -1362264666795323811L;
-	/** 
-	 * runCellfileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer runCellfileId;
+	
 
 	/**
 	 * setRunCellfileId(Integer runCellfileId)
@@ -47,9 +42,9 @@ public class RunCellFile extends WaspModel {
 	 * @param runCellfileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setRunCellfileId (Integer runCellfileId) {
-		this.runCellfileId = runCellfileId;
+		setId(runCellfileId);
 	}
 
 	/**
@@ -58,8 +53,9 @@ public class RunCellFile extends WaspModel {
 	 * @return runCellfileId
 	 *
 	 */
+	@Deprecated
 	public Integer getRunCellfileId () {
-		return this.runCellfileId;
+		return getId();
 	}
 
 
@@ -169,7 +165,7 @@ public class RunCellFile extends WaspModel {
 	 */
 	public void setRunCell (RunCell runCell) {
 		this.runCell = runCell;
-		this.runcellId = runCell.runCellId;
+		this.runcellId = runCell.getId();
 	}
 
 	/**

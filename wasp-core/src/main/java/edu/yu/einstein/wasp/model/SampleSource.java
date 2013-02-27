@@ -37,12 +37,7 @@ public class SampleSource extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 5159692371397079658L;
-	/** 
-	 * sampleSourceId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSourceId;
+	
 
 	/**
 	 * setSampleSourceId(Integer sampleSourceId)
@@ -50,9 +45,9 @@ public class SampleSource extends WaspModel {
 	 * @param sampleSourceId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSourceId (Integer sampleSourceId) {
-		this.sampleSourceId = sampleSourceId;
+		setId(sampleSourceId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class SampleSource extends WaspModel {
 	 * @return sampleSourceId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSourceId () {
-		return this.sampleSourceId;
+		return getId();
 	}
 
 
@@ -173,7 +169,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -205,7 +201,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSourceSample (Sample sourceSample) {
 		this.sourceSample = sourceSample;
-		this.sourceSampleId = sourceSample.sampleId;
+		this.sourceSampleId = sourceSample.getId();
 	}
 
 	/**

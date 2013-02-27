@@ -32,12 +32,6 @@ public class WorkflowMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 7886471727843314897L;
-	/** 
-	 * workflowMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowMetaId;
 
 	/**
 	 * setWorkflowMetaId(Integer workflowMetaId)
@@ -45,9 +39,9 @@ public class WorkflowMeta extends MetaBase {
 	 * @param workflowMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowMetaId (Integer workflowMetaId) {
-		this.workflowMetaId = workflowMetaId;
+		setId(workflowMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class WorkflowMeta extends MetaBase {
 	 * @return workflowMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowMetaId () {
-		return this.workflowMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class WorkflowMeta extends MetaBase {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**
