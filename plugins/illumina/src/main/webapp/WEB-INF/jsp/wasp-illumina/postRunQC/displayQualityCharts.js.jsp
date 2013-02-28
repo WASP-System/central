@@ -16,7 +16,7 @@
 	{
 		margin-left:auto;
 		margin-right:auto;
-		display: block;
+		width:1180px;
 	}
 	
 	.selection_dialog
@@ -68,7 +68,12 @@
 		margin-left: 20px;
 	}
 	
-	#amount{
+	#amountV {
+		border:0;
+		font-weight:bold;
+	}
+	
+	#amountH {
 		border:0;
 		font-weight:bold;
 	}
@@ -87,7 +92,7 @@
 	}
 	
 
-	#slider_frame {
+	#sliderH_frame {
 		font-family: Arial, Verdana, "Times New Roman", Times, serif;
 		font-size: 12px;
 		color: #525252;
@@ -96,15 +101,35 @@
 		margin-top: 15px;
 		
 	}
-	#slider .ui-slider-range { background: #CCCCCC; }
-	#slider .ui-slider-handle { border-color: #525252; }
 	
-	#slider {
+	#sliderV_frame {
+		font-family: Arial, Verdana, "Times New Roman", Times, serif;
+		font-size: 12px;
+		color: #525252;
+		margin-left: 15px;
+		margin-right: 15px;
+		margin-top: 7px;
+		float:left;
+	}
+	
+	#sliderH .ui-slider-range { background: #CCCCCC; }
+	#sliderH .ui-slider-handle { border-color: #525252; }
+	#sliderV .ui-slider-range { background: #CCCCCC; }
+	#sliderV .ui-slider-handle { border-color: #525252; }
+	
+	#sliderH {
 		width: 800px;
 		float:left;
 		margin-top:10px;
 		margin-right:10px;
-		
+	}
+	
+	#sliderV {
+		clear:left;
+		height: 685px;
+		float:left;
+		margin-top:15px;
+		margin-right:10px;
 	}
 	
 	#cycle_number{
@@ -121,27 +146,38 @@
 		margin: 15px;
 	}
 	
+	#int{
+		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1.png" />);
+		background-size: 260px;
+		background-repeat: no-repeat;
+		width: 260px;
+		height: 695px;
+		float:left;
+		margin-left: 15px;
+		margin-top: 15px;
+	}
+	
 	#intA{
 		clear: left;
-		background-image:url(<c:out value="${runReportBaseImagePath}/Chart_1_a.png" />);
+		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_a.png" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intC{
-		background-image:url(<c:out value="${runReportBaseImagePath}/Chart_1_c.png" />);
+		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_c.png" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intT{
-		background-image:url(<c:out value="${runReportBaseImagePath}/Chart_1_t.png" />);
+		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_t.png" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intG{
-		background-image:url(<c:out value="${runReportBaseImagePath}/Chart_1_g.png" />);
+		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_g.png" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
@@ -156,6 +192,28 @@
 		padding:15px;
 		font-size: 14px;
 		z-index:100;
+	}
+	
+	#qscoreFrame{
+		float:left;
+		margin-left: 20px;
+		margin-top: 15px;
+		padding: 15px;
+		width:815px;
+		height:450px;
+	}
+	
+	#qscoreSelector{
+		margin-bottom:15px;
+	}
+	
+	#mainImage{
+		position: relative; 
+		width: 660px;
+		height: 460px;
+		margin-left:auto;
+		margin-right:auto;
+		padding: 15px;
 	}
 
 	
@@ -196,12 +254,17 @@
 		}
 	}
 
-	function updateOnSlide( value_update ){
-		$( "#amount" ).val( value_update );
-		$( "#intA" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}"/>/Chart_" + value_update + "_a.png)");
-		$( "#intC" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}"/>/Chart_" + value_update + "_c.png)");
-		$( "#intT" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}"/>/Chart_" + value_update + "_t.png)");
-		$( "#intG" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}"/>/Chart_" + value_update + "_g.png)");
+	function updateOnSlideH( value_update ){
+		$( "#amountH" ).val( value_update );
+		$( "#intA" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_a.png)");
+		$( "#intC" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_c.png)");
+		$( "#intT" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_t.png)");
+		$( "#intG" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_g.png)");
+	}	
+	
+	function updateOnSlideV( value_update ){
+		$( "#amountV" ).val( value_update );
+		$( "#int" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + ".png)");
 	}	
 
 	$( window ).load( function(){
@@ -221,6 +284,12 @@
 		$( "#radioL6" ).buttonset();
 		$( "#radioL7" ).buttonset();
 		$( "#radioL8" ).buttonset();
+		
+		$( "#qscoreSelector" ).buttonset();
+		$( "#qscoreSelector" ).change(function(){
+				newLane = $("input[name=qscoreRadio]:checked").val();
+				$( "#qscoreChart" ).attr("src", "<c:out value="${runReportBaseImagePath}/${qscoreSubFolder}"/>/QScore_L" + newLane + ".png");
+			});
 
 		$( "#submitForm" ).button()
 					.click(function(){
@@ -239,17 +308,31 @@
 
 		$( "#selectionWindow" ).draggable({ handle: ".ui-widget-header" });
 		
-		$( "#slider" ).slider({
+		$( "#sliderH" ).slider({
 			range: "min",
 			min: 1,
 			max: <c:out value="${numCycles}" />,
 			value: 1,
 			slide: function( event, ui ) {
-				updateOnSlide( ui.value );
+				updateOnSlideH( ui.value );
 			}
 		});
 		
-		$( "#amount" ).val( $( "#slider" ).slider( "value" ) );
+		$( "#sliderV" ).slider({
+			orientation: "vertical",
+			range: "min",
+			min: 1,
+			max: <c:out value="${numCycles}" />,
+			value: 1,
+			slide: function( event, ui ) {
+				updateOnSlideV( ui.value );
+			}
+		});
+		
+		$( "#sliderVValue" ).val( $( "#sliderV" ).slider( "value" ) );
+		
+		$( "#sliderHValue" ).val( $( "#sliderH" ).slider( "value" ) );
+		
 		$( "#loading_dialog-modal" ).dialog({
 			height: 170,
 			modal: true

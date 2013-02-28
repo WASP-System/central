@@ -6,27 +6,47 @@
 	<table border="0" cellpadding="5">
 	<tr>
 	<td><img src="/wasp/images/wasp-illumina/postRunQC/spinner.gif" align="left" border="0" ></td>
-	<td>Please be patient while this page loads. All Focus Quality Charts are being pre-loaded so this may take a few seconds.</td>
+	<td>Please be patient while this page loads. All Base Quality Charts are being pre-loaded so this may take a few seconds.</td>
 	</tr>
 	</table>
 </div>
 
 <div id="main" class="center">
 	<p class="ui-state-default ui-corner-all ui-helper-clearfix qc_title" >
-		Illumina OLB Stats: Focus Quality For <c:out value="${runName}" />
+		Illumina OLB Stats: Pass Filter Base Quality Charts For <c:out value="${runName}" />
 	</p>
-	<div id="slider_frameH">
+	<div id="displayWindow" style="float:right;"><button id="showForm">Continue</button></div>
+	<div id="slider_frameV">
 		<div id="cycle_number">
-			<label for="amountH">Cycle Number: </label>
-			<input type="text" id="amountH" size="4" readonly="readonly" value="1"/>
+			<label for="amountV">Cycle Number: </label>
+			<input type="text" id="amountV" style="border:0;font-weight:bold;" size="4" readonly="readonly" value="1"/>
 		</div>
-		<div id="sliderH" ></div>
-		<div id="displayWindow" ><button id="showForm">Continue</button></div>
+		<div id="sliderV" ></div>
+		<div id="int" class="ui-widget-content ui-corner-all"></div>
 	</div>
-	<div id="intA" class="ui-widget-content ui-corner-all"></div>
-	<div id="intC" class="ui-widget-content ui-corner-all"></div>
-	<div id="intT" class="ui-widget-content ui-corner-all"></div>
-	<div id="intG" class="ui-widget-content ui-corner-all"></div>
+	<div id="qscoreFrame"  class="ui-widget-content ui-corner-all">
+		<div id="qscoreSelector">
+			<table align="center">
+				<tr>
+					<td>Lane Selector</td>
+					<td>
+						<span id="qscoreRadio">
+<c:forEach items="${cellIndexList}" var="index" >
+	<input type='radio' id='qscoreRadioL<c:out value="${index}" />' name='qscoreRadio' size='10' value='<c:out value="${index}" />'<c:if test="${index == 1}"> checked='checked'</c:if> />
+	<label for='qscoreRadioL<c:out value="${index}" />'><c:out value="${index}" /></label> 
+</c:forEach>
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="qscoreIframe">
+			<iframe id="qscoreChart" src='<c:out value="${runReportBaseImagePath}/${qscoreSubFolder}"/>/QScore_L1.png' width="800" height="400" frameborder="0" scrolling="auto">
+				<p>Your browser does not support iframes.</p>
+			</iframe>
+		</div>
+	</div>
+
 	
 </div>	
 
@@ -40,9 +60,9 @@
 		<div class="ui-widget-shadow ui-corner-all selection_dialog_shadow" ></div>
 	</div>
 	<div class="selection_dialog ui-widget-content ui-corner-all">
-		<div class="ui-widget-header ui-corner-all dialog_header" >Assessment of Lane Focus Quality</div>
+		<div class="ui-widget-header ui-corner-all dialog_header" >Assessment of Base Quality Score</div>
 		<div  class="verifyQualityForm" class="center">		
-			<p>Please click either 'Pass' or 'Fail' for each lane based on your interpretation of the LANE FOCUS QUALITY charts only, then click the 'Continue' button.</p>
+			<p>Please click either 'Pass' or 'Fail' for each lane based on your interpretation of the BASE QUALITY charts only, then click the 'Continue' button.</p>
 			<form id="qualityForm"  method="post">
 			<table >
 <c:forEach items="${cellIndexList}" var="index" >
@@ -70,5 +90,5 @@
 	</div>
 </div>
 <c:forEach items="${imageFileUrlList}" var="fileUrl" varStatus="status" >
-	<img src='<c:out value="${fileUrl}" />' alt='Cycle <c:out value="${status.count}" /> FWHM Plot <c:out value="${fileUrl}" />' class='preloadHidden' />
+	<img src='<c:out value="${fileUrl}" />' alt='Cycle <c:out value="${status.count}" /> Quality Plot <c:out value="${fileUrl}" />' class='preloadHidden' />
 </c:forEach>
