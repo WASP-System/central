@@ -351,7 +351,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){
+			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){ 
 				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
 				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
 				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
