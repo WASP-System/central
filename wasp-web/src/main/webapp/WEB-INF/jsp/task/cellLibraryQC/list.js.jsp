@@ -115,7 +115,7 @@
 	
 	function changeTextColor(object, color){
 		object.style.color="black";
-		if(object.value = "Provide reason for exclusion"){
+		if(object.value == "Provide reason for exclusion"){
 			object.value = "";
 		}
 	}

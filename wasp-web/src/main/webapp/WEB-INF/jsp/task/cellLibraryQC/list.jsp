@@ -61,11 +61,19 @@
 			<td style='text-align:center;vertical-align:middle;'>
 			
 				<c:if test="${status.first}"><br /></c:if>
+				<c:set value="${cellLibraryInAnalysisMap.get(cellLibrary)}" var="cellLibraryInAnalysis" />
+				<c:if test="${cellLibraryInAnalysis != null && cellLibraryInAnalysis == true }">
+					<c:set value="CHECKED" var="includeChecked" />
+				</c:if>
+				<c:if test="${cellLibraryInAnalysis != null && cellLibraryInAnalysis == false }">
+					<c:set value="CHECKED" var="excludeChecked" />
+				</c:if>
  				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSourceId" value="${cellLibrary.getSampleSourceId()}"> 
- 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}A" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "INCLUDE"><fmt:message key="task.cellLibraryqc_include.label" /> &nbsp;
- 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" id = "qcStatus${cellLibrary.getSampleSourceId()}B" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "EXCLUDE"><fmt:message key="task.cellLibraryqc_exclude.label" /> 
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${includeChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}A" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "INCLUDE"><fmt:message key="task.cellLibraryqc_include.label" /> &nbsp;
+ 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${excludeChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}B" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "EXCLUDE"><fmt:message key="task.cellLibraryqc_exclude.label" /> 
 				<br />
- 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'></textarea><br /><c:if test="${!status.last}"><br /></c:if>
+				<c:set value="${cellLibraryInAnalysisCommentMap.get(cellLibrary)}" var="cellLibraryInAnalysisComment" />
+ 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'>${cellLibraryInAnalysisComment}</textarea><br /><c:if test="${!status.last}"><br /></c:if>
 			</td>
 		</tr>	
 			

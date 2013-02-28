@@ -2257,9 +2257,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
-		try{
+		
+		List<MetaMessage> existingMessages = metaMessageService.read(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		if (existingMessages.isEmpty()){
 			metaMessageService.saveToGroup(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
-		}catch(Exception e){ throw new Exception(e.getMessage());}
+		} else {
+			metaMessageService.edit(existingMessages.get(0), comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		}
 	}
 	
 	/**
@@ -2664,7 +2668,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
-			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			SampleSourceMeta sampleSourceMeta = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null || metaList.isEmpty()){
+				sampleSourceMeta = new SampleSourceMeta();
+			}
+			else{
+				sampleSourceMeta = MetaHelper.getMetaObjectFromList(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, metaList);
+			}
 			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
