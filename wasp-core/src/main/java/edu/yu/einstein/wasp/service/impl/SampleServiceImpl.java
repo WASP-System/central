@@ -108,11 +108,11 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 @Transactional("entityManager")
 public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements SampleService {
 	
-	private static final String LOCK_META_AREA = "lock";
+	protected static final String LOCK_META_AREA = "lock";
 	
-	private static final String LOCK_META_KEY = "status";
+	protected static final String LOCK_META_KEY = "status";
 
-	private SampleDao	sampleDao;
+	protected SampleDao	sampleDao;
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -141,7 +141,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return this.sampleDao;
 	}
 	
-	private AuthenticationService authenticationService;
+	protected AuthenticationService authenticationService;
 	
 	
 	@Override
@@ -151,48 +151,48 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	@Autowired
-	private MetaMessageService metaMessageService;
+	protected MetaMessageService metaMessageService;
 
 	@Autowired
-	private WorkflowDao workflowDao;
+	protected WorkflowDao workflowDao;
 	
 	@Autowired
-	private SampleBarcodeDao sampleBarcodeDao;
+	protected SampleBarcodeDao sampleBarcodeDao;
 
 	@Autowired
-	private SampleMetaDao sampleMetaDao;
+	protected SampleMetaDao sampleMetaDao;
 	
-	private SampleSourceDao sampleSourceDao;
+	protected SampleSourceDao sampleSourceDao;
 	
 	@Autowired
-	private SampleSourceMetaDao sampleSourceMetaDao;
+	protected SampleSourceMetaDao sampleSourceMetaDao;
 	
 
 	@Autowired
-	private SampleSubtypeDao sampleSubtypeDao;
+	protected SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	private AdaptorDao adaptorDao;
+	protected AdaptorDao adaptorDao;
 	
 	@Autowired
-	private BarcodeDao barcodeDao;
+	protected BarcodeDao barcodeDao;
 	
 	@Autowired
-	private RunDao runDao;
+	protected RunDao runDao;
 	
 	@Autowired
-	private JobDao jobDao;
+	protected JobDao jobDao;
 	
 	@Autowired
-	private JobSampleDao jobSampleDao;
+	protected JobSampleDao jobSampleDao;
 	
 	@Autowired
-	private JobCellSelectionDao jobCellSelectionDao;
+	protected JobCellSelectionDao jobCellSelectionDao;
 	
 	@Autowired
-	private SampleJobCellSelectionDao sampleJobCellSelectionDao;
+	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
 
-	private JobExplorerWasp batchJobExplorer;
+	protected JobExplorerWasp batchJobExplorer;
 	
 	@Autowired
 	void setJobExplorer(JobExplorer jobExplorer){
@@ -200,16 +200,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	@Autowired
-	private RunService runService;
+	protected RunService runService;
 		
 	@Autowired
-	private SampleTypeDao sampleTypeDao;
+	protected SampleTypeDao sampleTypeDao;
 	
 	@Autowired
-	private RunMetaDao runMetaDao;
+	protected RunMetaDao runMetaDao;
 	
 	@Autowired
-	 private ResourceDao resourceDao;
+	 protected ResourceDao resourceDao;
 	
 	/**
 	 * Setter for the sampleMetaDao
@@ -983,8 +983,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * @author asmclellan
 	   *
 	   */
-	  private class Index{
-		  private int index;
+	  protected class Index{
+		  protected int index;
 		  
 		  public Index(){
 			  index = 0;
@@ -1011,7 +1011,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * @return
 	   * @throws SampleTypeException
 	   */
-	  private List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
+	  protected List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
 		  if (!isCell(cell)){
@@ -2015,7 +2015,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		removeLibraryFromCellOfPlatformUnit(getCellLibrary(cell, library));
 	}
 	
-	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
+	protected void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
 		Sample cell = puCellLink.getSourceSample();//cell is the lane
@@ -2029,7 +2029,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 	}
 	
-	private void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
+	protected void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
 		if (!platformUnit.getSampleType().getIName().equals("platformunit")){
@@ -2038,7 +2038,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleBarcode(platformUnit);
 		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
 	}
-	private void deleteSampleBarcode(Sample sample){
+	protected void deleteSampleBarcode(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid platformUnit provided");
 		List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
 		for(SampleBarcode sampleBarcode : sampleBarcodeList){
@@ -2049,7 +2049,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			barcodeDao.flush(barcode);
 		}
 	}
-	private void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
+	protected void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
 		Assert.assertParameterNotNull(sampleSource, "Invalid sampleSource provided");
 		Assert.assertParameterNotNullNotZero(sampleSource.getSampleSourceId(), "Invalid sampleSource provided");
 		for(SampleSourceMeta meta : sampleSource.getSampleSourceMeta()){
@@ -2059,7 +2059,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		getSampleSourceDao().remove(sampleSource);
 		getSampleSourceDao().flush(sampleSource);
 	}
-	private void deleteSampleAndItsMeta(Sample sample){
+	protected void deleteSampleAndItsMeta(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid sample provided");
 		for(SampleMeta meta : sample.getSampleMeta()){
@@ -2467,12 +2467,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	// statics 
-		private static final String CELL_SUCCESS_META_AREA = "cell";
-		private static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
-		
+		protected static final String CELL_SUCCESS_META_AREA = "cell";
+		protected static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
 		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
 		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
 		private static final String CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
+
 		
 		/**
 		 *  {@inheritDoc}

@@ -43,8 +43,13 @@
 
 
 	<!-- extracts plugin's precompiled jsp files --> 
-	<bean id="jspSupport" class="edu.yu.einstein.wasp.pluginhandler.WaspPluginSupport">
-		<constructor-arg name="resourceDirectory" value="WEB-INF/jsp"/>
+	<bean id="pluginFileSupport" class="edu.yu.einstein.wasp.pluginhandler.WaspPluginSupport">
+		<constructor-arg name="resourceDirectoryList">
+			<list>
+				<value>WEB-INF/jsp</value>
+				<value>images</value>
+			</list>
+		</constructor-arg> 
 		<constructor-arg name="resourceUrlFilter" value="${catalina.home}/waspPlugins"/>
 		<constructor-arg name="resourceFilePattern" value="**/*.*"/>
 	</bean>
