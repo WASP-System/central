@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -38,6 +39,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -772,158 +774,101 @@ public class TaskController extends WaspController {
 		    }
 		}
 	  
-	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete
-	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndPreprocessedCellLibrariesNotYetRecordedForAggregateAnalysis = new ArrayList<Job>();
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete  
+	  //**************will currently be none, so add two jobs.
+	  boolean fakeIt = false;
+	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
+		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(40));
+		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(46));
+		  fakeIt = true;
+	  }
+	  //**************will currently be none, so add two jobs.
+	  
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun = new ArrayList<Job>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
 	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+	  Map<SampleSource, Boolean> cellLibraryInAnalysisMap = new HashMap<SampleSource, Boolean>();
+	  Map<SampleSource, String> cellLibraryInAnalysisCommentMap = new HashMap<SampleSource,String>();
 	  
 	  for(Job job : activeJobsWithNoSamplesCurrentlyBeingProcessed){
 		  List<SampleSource> preprocessedCellLibraries = sampleService.getPreprocessedCellLibraries(job);//a preprocessed library is one that is sequenced and aligned
-		  for(SampleSource preprocessedCellLibrary : preprocessedCellLibraries){
-			  
-			  List<SampleSource> preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
-			  List<SampleSource> preprocessedCellLibrariesInAggregateAnalysis = new ArrayList<SampleSource>();
-			  try{
-				  if(sampleService.isCellLibraryInAggregateAnalysis(preprocessedCellLibrary)){//if in_aggregate_analysis metadata does Not exist for this cellLibrary, then exception is thrown
-					  preprocessedCellLibrariesInAggregateAnalysis.add(preprocessedCellLibrary);
-				  }
-			  }
-			  catch(SampleTypeException e){
-				  logger.warn("Expected a sampletype of cellLibrary for SampleSource with Id of " + preprocessedCellLibrary.getSampleSourceId()); 
-			  }	
-			  catch(MetaAttributeNotFoundException e){
-				  preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis.add(preprocessedCellLibrary);
-			  }
-			  if(preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis.size()>0){
-				  activeJobsWithNoSamplesCurrentlyBeingProcessedAndPreprocessedCellLibrariesNotYetRecordedForAggregateAnalysis.add(job);
-				  Collections.sort(preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis, new SampleSourceComparator());//sort the SampleSourceList
-				  jobCellLibraryMap.put(job, preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis); 
-				  for(SampleSource cellLibrary : preprocessedCellLibrariesNotYetRecordedForAggregateAnalysis){//TODO this can be a service
-					  
-					  Sample library = sampleService.getLibrary(cellLibrary);
-					  cellLibraryLibraryMap.put(cellLibrary, library);
-					  Sample macromolecule = library.getParent();
-					  if(macromolecule == null || macromolecule.getSampleId() == null){
-						  macromolecule = new Sample();
-						  macromolecule.setName("User-Supplied Library");
-					  }
-					  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
-					  
-					  Sample cell = sampleService.getCell(cellLibrary);
-					  Sample platformUnit = null;
-					  try{
-						  platformUnit = sampleService.getPlatformUnitForCell(cell);
-					  }
-					  catch(Exception e){//should not occur
-						  platformUnit = new Sample();
-						  platformUnit.setName("Not Found");
-						  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getSampleId()); 
-					  }
-					  cellLibraryPUMap.put(cellLibrary, platformUnit);
-					  
-					  List<Run> runs = platformUnit.getRun();
-					  Run run = null;
-					  if(!runs.isEmpty()){
-						  run = platformUnit.getRun().get(0);
-					  }
-					  else{
-						  run = new Run();
-						  run.setName("Not run");					  
-					  }
-					  cellLibraryRunMap.put(cellLibrary, run);					  
-				  }
+		  //*******************will currently be none, so fake for some data
+		  if(fakeIt){
+			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
+				  preprocessedCellLibraries.add(ss);
 			  }
 		  }
+		  //*******************will currently be none, so fake for some data		  
+		  if(preprocessedCellLibraries.size()>0 /* ********** && !xService.analysisBegun(job)********** */){
+			  activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun.add(job);
+			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
+			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
+			  //fill up the maps
+			  for(SampleSource cellLibrary : preprocessedCellLibraries){//TODO this can be a service
+				  
+				  Sample library = sampleService.getLibrary(cellLibrary);
+				  cellLibraryLibraryMap.put(cellLibrary, library);
+				  Sample macromolecule = library.getParent();
+				  if(macromolecule == null || macromolecule.getSampleId() == null){
+					  macromolecule = new Sample();
+					  macromolecule.setName("User-Supplied Library");
+				  }
+				  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
+				  
+				  Sample cell = sampleService.getCell(cellLibrary);
+				  Sample platformUnit = null;
+				  try{
+					  platformUnit = sampleService.getPlatformUnitForCell(cell);
+				  }
+				  catch(Exception e){//should not occur
+					  platformUnit = new Sample();
+					  platformUnit.setName("Not Found");
+					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getSampleId()); 
+				  }
+				  cellLibraryPUMap.put(cellLibrary, platformUnit);
+				  
+				  List<Run> runs = platformUnit.getRun();
+				  Run run = null;
+				  if(!runs.isEmpty()){
+					  run = platformUnit.getRun().get(0);
+				  }
+				  else{
+					  run = new Run();
+					  run.setName("Not run");					  
+				  }
+				  cellLibraryRunMap.put(cellLibrary, run);	
+				  
+				  Boolean b = null;
+				  try{
+					  b = new Boolean(sampleService.isCellLibraryInAggregateAnalysis(cellLibrary));
+				  }catch(Exception e){ }
+				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
+				  
+				  List<MetaMessage> inAnalysisCommentList = sampleService.getInAggregateAnalysisComments(cellLibrary.getSampleSourceId());
+				  if(inAnalysisCommentList.size()<=0){
+					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
+				  }
+				  else{
+					  cellLibraryInAnalysisCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
+				  }
+			  }  
+		  }
 	  }
-	  //sort by job ID
-	  Collections.sort(activeJobsWithNoSamplesCurrentlyBeingProcessedAndPreprocessedCellLibrariesNotYetRecordedForAggregateAnalysis, new JobIdComparator()); 
-/*
-	  m.addAttribute("jobs", activeJobsWithNoSamplesCurrentlyBeingProcessedAndPreprocessedCellLibrariesNotYetRecordedForAggregateAnalysis);
+	  //sort by job ID desc
+	  Collections.sort(activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun, new JobIdComparator()); 
+
+	  m.addAttribute("jobs", activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun);
 	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
 	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
 	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
 	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
 	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
-*/	 
-	  // I needed this next section (below) in order to make sure that the jsp page functioned properly
-	  //   This can be removed once Andy has got this working.	   
-	  //testing only
-	  List<Job> testJobs = new ArrayList<Job>();
-	  Map<Job, List<SampleSource>> testJobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
-	  Map<SampleSource, Sample> testCellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> testCellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> testCellLibraryPUMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Run> testCellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+	  m.addAttribute("cellLibraryInAnalysisMap", cellLibraryInAnalysisMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
+	  m.addAttribute("cellLibraryInAnalysisCommentMap", cellLibraryInAnalysisCommentMap);
 
-	  for(Job job : jobService.getActiveJobs()){
-		  Set<SampleSource> sampleSourcesSet = sampleService.getCellLibrariesForJob(job);
-		  Set<SampleSource> sampleSourcesSetForRemoval = new HashSet<SampleSource>();
-		  for(SampleSource ss : sampleSourcesSet){
-			  try{
-				  sampleService.isCellLibraryInAggregateAnalysis(ss);//remove whether true or false
-				  sampleSourcesSetForRemoval.add(ss);
-			  }catch(Exception e){}//not yet set, so do not target for removal
-		  }
-		  sampleSourcesSet.removeAll(sampleSourcesSetForRemoval); 
-		  List<SampleSource> sampleSources = new ArrayList<SampleSource>(sampleSourcesSet);
-		  Collections.sort(sampleSources, new SampleSourceComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
-		  if(sampleSources.size()>0){
-			  testJobs.add(job);
-			  System.out.println("jobname: " + job.getName());
-			  testJobCellLibraryMap.put(job, sampleSources);
-			  try{
-				  for(SampleSource cellLibrary : sampleSources){
-					  
-					  System.out.println("cellLibrary Index " + cellLibrary.getIndex() );
-					  
-					  Sample library = sampleService.getLibrary(cellLibrary);
-					  testCellLibraryLibraryMap.put(cellLibrary, library);
-					  System.out.println("Library Name: " + library.getName());
-					  Sample macromolecule = library.getParent();
-					  if(macromolecule == null || macromolecule.getSampleId() == null){
-						  macromolecule = new Sample();
-						  macromolecule.setName("User-supplied Library");
-					  }
-					  testCellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
-					  System.out.println("Macromolecule Name: " + macromolecule.getName());
-					  
-					  Sample cell = sampleService.getCell(cellLibrary);
-					  
-					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
-					  testCellLibraryPUMap.put(cellLibrary, platformUnit);
-					  System.out.println("PU Name: " + platformUnit.getName());
-					  
-					  List<Run> runs = platformUnit.getRun();
-					  Run run = null;
-					  if(!runs.isEmpty()){
-						  run = platformUnit.getRun().get(0);
-					  }
-					  else{
-						  run = new Run();
-						  run.setName("Not run");					  
-					  }
-					  testCellLibraryRunMap.put(cellLibrary, run);
-					  System.out.println("Run: " + run.getName());
-				  }
-			  }catch(Exception e){
-				  waspErrorMessage("wasp.unexpected_error.error");///WHAT SHOULD OCCUR HERE? 
-				  return "task/cellLibraryQC/list";
-			  }
-		  }
-	  }
-	  Collections.sort(testJobs, new JobIdComparator());//sort by job ID 
-
-	  m.addAttribute("jobs", testJobs);
-	  m.addAttribute("jobCellLibraryMap", testJobCellLibraryMap);
-	  m.addAttribute("cellLibraryLibraryMap", testCellLibraryLibraryMap);
-	  m.addAttribute("cellLibraryMacromoleculeMap", testCellLibraryMacromoleculeMap);
-	  m.addAttribute("cellLibraryPUMap", testCellLibraryPUMap);
-	  m.addAttribute("cellLibraryRunMap", testCellLibraryRunMap);
-	  
-	  
 	  return "task/cellLibraryQC/list";
 	}
   
@@ -934,11 +879,9 @@ public class TaskController extends WaspController {
 	public String updateCellLibraryQC(
 			@RequestParam("jobId") Integer jobId,
 			@RequestParam("sampleSourceId") List<Integer> sampleSourceIdList,
-		    ///@RequestParam("qcStatus") String qcStatus,
-		    ///@RequestParam("comment") String comment,
 		    ModelMap m) {
 	  
-	  //check the most basic parameters
+	  //1. check the most basic parameters
 	  if(jobId==null){
 		  waspErrorMessage("task.cellLibraryqc_invalid_jobId.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
@@ -948,7 +891,7 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.cellLibraryqc_jobNotFound.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
-	  if(sampleSourceIdList==null || sampleSourceIdList.isEmpty()){//an empty list should never be sent byt the webpage
+	  if(sampleSourceIdList==null || sampleSourceIdList.isEmpty()){//an empty list should never be sent by the webpage
 		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
@@ -957,15 +900,15 @@ public class TaskController extends WaspController {
 	  List<SampleSource> sampleSourceList = new ArrayList<SampleSource>();
 	  List<String> qcStatusList = new ArrayList<String>();
 	  List<String> commentList = new ArrayList<String>(); 
-	  Set<String> errorMessages = new HashSet<String>();
+	  Set<String> errorMessages = new HashSet<String>();//use a set so as not to repeat a message
 	  
 	  for(Integer sampleSourceId : sampleSourceIdList){
 			
 		  String qcStatus = request.getParameter("qcStatus" + sampleSourceId.toString());//qcStatus is radio button, so may or may not be sent
-		  if(qcStatus==null){//not sent for this record, so we do NOT have to deal with it
+		  if(qcStatus==null){//this particular item not sent by web so we do NOT have to deal with it
 			  continue;
 		  }
-		  else if(!qcStatus.trim().equalsIgnoreCase("INCLUDE") && !qcStatus.trim().equalsIgnoreCase("EXCLUDE")){
+		  else if(!qcStatus.trim().equalsIgnoreCase("INCLUDE") && !qcStatus.trim().equalsIgnoreCase("EXCLUDE")){//should not occur
 			  waspErrorMessage("task.cellLibraryqc_invalid_qcStatus_value.error");
 			  return "redirect:/task/cellLibraryQC/list.do";
 		  }
@@ -984,9 +927,9 @@ public class TaskController extends WaspController {
 		  sampleSourceList.add(sampleSource);
 	  }
 	  
-	  //record in db
+	  //update database
 	  int totalRecordsToRecord = sampleSourceList.size();
-	  if(totalRecordsToRecord<=0){//are there any to deal with??
+	  if(totalRecordsToRecord<=0){//are there any to deal with?? It's very unlikely to be zero, but......
 		  waspErrorMessage("task.cellLibraryqc_noRecordsSelected.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
@@ -995,10 +938,10 @@ public class TaskController extends WaspController {
 		  String qcStatus = qcStatusList.get(i);
 		  String trimmedComment = commentList.get(i);
 		  ////System.out.println("---" + sampleSourceList.get(i).getSampleSourceId().toString() + " : " + qcStatus + " : " + trimmedComment);
-		  if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){
+		  if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){//unlikely, since javascript prevents, but....
 			  
-			  //record error: Excluding a library-run requires a valid comment
-			  //add to the Set errorMessages
+			  //record error, since excluding a library-run from analysis requires a valid comment
+			  //add error to the Set of errorMessages
 			  errorMessages.add("task.cellLibraryqc_excludeRequiresComment.error");
 			  continue;
 		  }
