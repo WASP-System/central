@@ -735,7 +735,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 */
 	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
 
-	  public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId);
+	  public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId);
 	  
 	  /**
 		 * save an InAggregateAnalysis comment
@@ -744,7 +744,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 * @throws Exception
 		 */
-	  public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
+	  public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
 
 		/**
 		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
@@ -914,9 +914,9 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @throws SampleTypeException
 		 * @throws MetaAttributeNotFoundException
 		 */
-	  public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
+	  public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
 
-	  public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+	  public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 		
 
 	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
@@ -938,5 +938,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
 	public List<SampleSource> getPreprocessedCellLibraries(Job job);
+	
+	/**
+	 * has save both the in_aggregate_analysis meta and a comment meta
+	 * @param SampleSource cell library
+	 * @param String qcStatus (values of INCLUDE OR EXCLUDE only)
+	 * @param String comment
+	 * @throws Runtime exception
+	 */
+	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
 	  
 }

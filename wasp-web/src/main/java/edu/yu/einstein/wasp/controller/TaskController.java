@@ -843,11 +843,11 @@ public class TaskController extends WaspController {
 				  
 				  Boolean b = null;
 				  try{
-					  b = new Boolean(sampleService.isCellLibraryInAggregateAnalysis(cellLibrary));
+					  b = new Boolean(sampleService.isMetaCellLibraryInAggregateAnalysis(cellLibrary));
 				  }catch(Exception e){ }
 				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
 				  
-				  List<MetaMessage> inAnalysisCommentList = sampleService.getInAggregateAnalysisComments(cellLibrary.getSampleSourceId());
+				  List<MetaMessage> inAnalysisCommentList = sampleService.getMetaInAggregateAnalysisComments(cellLibrary.getSampleSourceId());
 				  if(inAnalysisCommentList.size()<=0){
 					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
 				  }
@@ -937,37 +937,16 @@ public class TaskController extends WaspController {
 	  for(int i = 0; i < totalRecordsToRecord; i++){
 		  String qcStatus = qcStatusList.get(i);
 		  String trimmedComment = commentList.get(i);
-		  ////System.out.println("---" + sampleSourceList.get(i).getSampleSourceId().toString() + " : " + qcStatus + " : " + trimmedComment);
 		  if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){//unlikely, since javascript prevents, but....
-			  
-			  //record error, since excluding a library-run from analysis requires a valid comment
-			  //add error to the Set of errorMessages
+			  //record a flash error in the Set errorMessages (to avoid display more than once), since excluding a library-run from analysis requires a valid comment
 			  errorMessages.add("task.cellLibraryqc_excludeRequiresComment.error");
 			  continue;
 		  }
 		  try{
-			  if(qcStatus.equalsIgnoreCase("INCLUDE")){
-				  sampleService.setCellLibraryInAggregateAnalysis(sampleSourceList.get(i), true);
-			  }
-			  else if(qcStatus.equalsIgnoreCase("EXCLUDE")){
-				  sampleService.setCellLibraryInAggregateAnalysis(sampleSourceList.get(i), false);
-			  }
-		  } catch (Exception e){
-			  logger.warn(e.getLocalizedMessage());
+			  sampleService.saveMetaCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);
+		  }catch(Exception e){
 			  errorMessages.add("task.cellLibraryqc_message.error");
-		  }
-		  
-		  //12-11-12 as per Andy, perform the two updates separately
-		  //unfortunately, they are not easily linked within a single transaction.
-		  try{
-			  if(!trimmedComment.trim().isEmpty()){
-				  sampleService.setInAggregateAnalysisComment(sampleSourceList.get(i).getSampleSourceId(), trimmedComment.trim());
-			  }
-		  }
-		  catch(Exception e){
-			  logger.warn(e.getMessage());
-		  }
-
+		  }		  
 	  }
 	  //NEED TO DEAL WITH THE --start analysis******************************************************
 	  //((((((((((((((((()))))))))))))))*****************************
@@ -982,93 +961,6 @@ public class TaskController extends WaspController {
 		  waspMessage("task.cellLibraryqc_update_success.label");	
 	  }
 	  return "redirect:/task/cellLibraryQC/list.do";
-	  
-/*	 code from 2/26/13 
-	  for(Integer sampleSourceId : sampleSourceIdList){
-		  
-			String qcStatus = request.getParameter("qcStatus" + sampleSourceId.toString());//qcStatus is radio button, so may or may not be sent
-			if(qcStatus == null){//not sent
-				continue;
-			}
-			else if("INCLUDE".equals(qcStatus) || "EXCLUDE".equals(qcStatus)){
-				SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);
-				System.out.println("sampleSourceIdComing from the web: " + sampleSourceId);
-				if(sampleSource==null || sampleSource.getSampleId()==null){
-					waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
-					return "redirect:/task/cellLibraryQC/list.do";
-				}
-				String comment = request.getParameter("comment" + sampleSourceId.toString());//textarea, so it should always be sent
-				if(comment==null){
-				 //error: there should always be a textarea sent
-				}
-				else{
-					String trimmedComment = comment.trim();
-					if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){
-						//error: all excludes must have some comment information
-					}
-					else{
-						sampleSourceList.add(sampleSource);
-						qcStatusList.add(qcStatus);
-						commentList.add(trimmedComment);
-					}
-				}
-			}
-			else{
-				//problem; the value sent by the radiobox must be either INCLUDE OR EXCLUDE
-			}			
-	  }	
-	  for(int i = 0; i < sampleSourceList.size(); i++){
-		  System.out.println("sampleSourceId: " + sampleSourceList.get(i).getSampleSourceId());
-		  System.out.println("qcStatus: " + qcStatusList.get(i).toString());
-		  System.out.println("comment: " + commentList.get(i).toString());
-		  System.out.println("------------------");
-	  }
-*/	  
-	  
-/* code from last week	  
-	  SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);
-	  if(sampleSource==null || sampleSource.getSampleId()==null){
-		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
-		  return "redirect:/task/cellLibraryQC/list.do";
-	  }
-	  if(qcStatus == null ||  qcStatus.equals("")){
-		  waspErrorMessage("task.cellLibraryqc_qcStatus_invalid.error");
-		  return "redirect:/task/cellLibraryQC/list.do";
-	  }
-	  if( ! "INCLUDE".equals(qcStatus) && ! "EXCLUDE".equals(qcStatus) ){
-		  waspErrorMessage("task.cellLibraryqc_qcStatus_invalid.error");	
-		  return "redirect:/task/cellLibraryQC/list.do";
-	  }
-	  if("EXCLUDE".equals(qcStatus) && comment.trim().isEmpty() ){
-		  waspErrorMessage("task.cellLibraryqc_comment_empty.error");	
-		  return "redirect:/task/cellLibraryQC/list.do";
-	  }
-	 	 
-	  try{
-		  if(qcStatus.equals("INCLUDE")){
-			  sampleService.setCellLibraryInAggregateAnalysis(sampleSource, true);
-		  }
-		  else if(qcStatus.equals("EXCLUDE")){
-			  sampleService.setCellLibraryInAggregateAnalysis(sampleSource, false);
-		  }
-	  } catch (Exception e){
-		  logger.warn(e.getLocalizedMessage());
-		  waspErrorMessage("task.cellLibraryqc_message.error");
-		  return "redirect:/task/cellLibraryQC/list.do";
-		  }
-	  
-	  //12-11-12 as per Andy, perform the two updates separately
-	  //unfortunately, they are not easily linked within a single transaction.
-	  try{
-		  if(!comment.trim().isEmpty()){
-			  sampleService.setInAggregateAnalysisComment(sampleSourceId, comment.trim());
-		  }
-	  }
-	  catch(Exception e){
-		  logger.warn(e.getMessage());
-	  }
-	*/
-
   }
 }
 
