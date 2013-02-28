@@ -4,7 +4,7 @@
  * RoleDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the Role Dao Impl
+ * the WRole Dao Impl
  *
  *
  **/
@@ -17,12 +17,12 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.WRole;
 
 
 @Transactional
 @Repository
-public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wasp.dao.RoleDao {
+public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.wasp.dao.RoleDao {
 
 	/**
 	 * RoleDaoImpl() Constructor
@@ -31,7 +31,7 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	 */
 	public RoleDaoImpl() {
 		super();
-		this.entityClass = Role.class;
+		this.entityClass = WRole.class;
 	}
 
 
@@ -45,14 +45,14 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 
 	@Override
 	@Transactional
-	public Role getRoleByRoleId (final int roleId) {
+	public WRole getRoleByRoleId (final int roleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("roleId", roleId);
+		m.put("id", roleId);
 
-		List<Role> results = this.findByMap(m);
+		List<WRole> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			Role rt = new Role();
+			WRole rt = new WRole();
 			return rt;
 		}
 		return results.get(0);
@@ -70,14 +70,14 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 
 	@Override
 	@Transactional
-	public Role getRoleByRoleName (final String roleName) {
+	public WRole getRoleByRoleName (final String roleName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("roleName", roleName);
 
-		List<Role> results = this.findByMap(m);
+		List<WRole> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			Role rt = new Role();
+			WRole rt = new WRole();
 			return rt;
 		}
 		return results.get(0);
@@ -95,14 +95,14 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 
 	@Override
 	@Transactional
-	public Role getRoleByName (final String name) {
+	public WRole getRoleByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
-		List<Role> results = this.findByMap(m);
+		List<WRole> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			Role rt = new Role();
+			WRole rt = new WRole();
 			return rt;
 		}
 		return results.get(0);

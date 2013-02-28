@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.UserService;
@@ -60,7 +60,7 @@ public UserDao getUserDao() {
 
   
   @Override
-public String getUniqueLoginName(final User user){
+public String getUniqueLoginName(final WUser user){
 	    if (user == null || user.getUserId() == null){
 	    	return null;
 	    }
@@ -92,7 +92,7 @@ public String getUniqueLoginName(final User user){
   }
   
 	@Override
-	public String getNewAuthcodeForUser(User user) {
+	public String getNewAuthcodeForUser(WUser user) {
 		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
 		confirmEmailAuth.setAuthcode(authcode);
@@ -115,10 +115,10 @@ public String getUniqueLoginName(final User user){
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public void reverseSortUsersByUserId(List<User> users){
-		  class UserIdComparator implements Comparator<User> {
+	  public void reverseSortUsersByUserId(List<WUser> users){
+		  class UserIdComparator implements Comparator<WUser> {
 			    @Override
-			    public int compare(User arg0, User arg1) {
+			    public int compare(WUser arg0, WUser arg1) {
 			        return arg1.getUserId().compareTo(arg0.getUserId());
 			    }
 		  }
@@ -129,18 +129,18 @@ public String getUniqueLoginName(final User user){
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public List<User> getFacilityTechnicians(){
+	  public List<WUser> getFacilityTechnicians(){
 		  
-		  Set<User> theSet = new HashSet<User>();
-		  List<User> facilityTechnicians = new ArrayList<User>();
+		  Set<WUser> theSet = new HashSet<WUser>();
+		  List<WUser> facilityTechnicians = new ArrayList<WUser>();
 		  for(Userrole userRole : userroleDao.findAll()){			  
 			  if(userRole.getRole().getRoleName().equals("fm")||userRole.getRole().getRoleName().equals("ft")){
 				  theSet.add(userRole.getUser());//for distinct
 			  }
 		  }
-		  class LastNameFirstNameComparator implements Comparator<User> {
+		  class LastNameFirstNameComparator implements Comparator<WUser> {
 				@Override
-				public int compare(User arg0, User arg1) {
+				public int compare(WUser arg0, WUser arg1) {
 					return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
 				}
 		  }
@@ -153,9 +153,9 @@ public String getUniqueLoginName(final User user){
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public User getUserByLogin(String login){
+	  public WUser getUserByLogin(String login){
 		  if(login==null || login.isEmpty() || login.trim().isEmpty()){
-			  return new User();
+			  return new WUser();
 		  }
 		  else{ return userDao.getUserByLogin(login.trim());}
 	  }
@@ -164,9 +164,9 @@ public String getUniqueLoginName(final User user){
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public User getUserByEmail(String emailAddress){
+	  public WUser getUserByEmail(String emailAddress){
 		  if(emailAddress==null || emailAddress.isEmpty() || emailAddress.trim().isEmpty()){
-			  return new User();
+			  return new WUser();
 		  }
 		  else{ return userDao.getUserByEmail(emailAddress);}
 	  }

@@ -47,7 +47,7 @@ public class SampleSubtypeResourceCategoryDaoImpl extends WaspDaoImpl<SampleSubt
 	@Transactional
 	public SampleSubtypeResourceCategory getSampleSubtypeResourceCategoryBySampleSubtypeResourceCategoryId (final Integer sampleSubtypeResourceCategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSubtypeResourceCategoryId", sampleSubtypeResourceCategoryId);
+		m.put("id", sampleSubtypeResourceCategoryId);
 
 		List<SampleSubtypeResourceCategory> results = this.findByMap(m);
 

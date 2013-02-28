@@ -47,7 +47,7 @@ public class WorkflowSoftwareDaoImpl extends WaspDaoImpl<WorkflowSoftware> imple
 	@Transactional
 	public WorkflowSoftware getWorkflowSoftwareByWorkflowSoftwareId (final Integer workflowSoftwareId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowSoftwareId", workflowSoftwareId);
+		m.put("id", workflowSoftwareId);
 
 		List<WorkflowSoftware> results = this.findByMap(m);
 

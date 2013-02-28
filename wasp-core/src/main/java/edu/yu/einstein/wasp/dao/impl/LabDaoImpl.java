@@ -48,7 +48,7 @@ public class LabDaoImpl extends WaspDaoImpl<Lab> implements edu.yu.einstein.wasp
 	@Transactional
 	public Lab getLabByLabId (final int labId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labId", labId);
+		m.put("id", labId);
 
 		List<Lab> results = this.findByMap(m);
 

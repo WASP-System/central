@@ -65,7 +65,7 @@ public class FileController implements InitializingBean {
 			} catch (NumberFormatException e) {
 				throw new WaspException("unable to search for record " + id);
 			}
-			FileHandle wf = fileService.getFileByFileId(i);
+			FileHandle wf = fileService.getFileHandleById(i);
 			
 			if (wf == null || !(wf instanceof FileHandle)) {
 				logger.debug("not in db");
@@ -73,14 +73,14 @@ public class FileController implements InitializingBean {
 			} else {
 				logger.debug(wf.toString());
 			}
-			if (wf.getFileId() == null) {
+			if (wf.getId() == null) {
 				logger.debug("empty object");
 				throw new WaspException("FileHandle is not known");
 			}
 
 			if (!wf.getFileURI().toString().startsWith("file://")) {
 				logger.warn("This implementation only handles file URIs. URI: " + wf.getFileURI());
-				throw new WaspException("unable to resolve URI: " + wf.getFileId());
+				throw new WaspException("unable to resolve URI: " + wf.getId());
 			}
 
 			Matcher filem = Pattern.compile("^file://(.*?)/(.*)$").matcher(wf.getFileURI().normalize().toString());

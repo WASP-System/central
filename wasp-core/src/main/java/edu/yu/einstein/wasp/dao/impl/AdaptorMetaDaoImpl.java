@@ -47,7 +47,7 @@ public class AdaptorMetaDaoImpl extends WaspMetaDaoImpl<AdaptorMeta> implements 
 	@Transactional
 	public AdaptorMeta getAdaptorMetaByAdaptorMetaId (final Integer adaptorMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("adaptorMetaId", adaptorMetaId);
+		m.put("id", adaptorMetaId);
 
 		List<AdaptorMeta> results = this.findByMap(m);
 

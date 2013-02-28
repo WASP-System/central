@@ -47,7 +47,7 @@ public class LabPendingMetaDaoImpl extends WaspMetaDaoImpl<LabPendingMeta> imple
 	@Transactional
 	public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labPendingMetaId", labPendingMetaId);
+		m.put("id", labPendingMetaId);
 
 		List<LabPendingMeta> results = this.findByMap(m);
 

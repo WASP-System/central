@@ -47,7 +47,7 @@ public class JobSampleMetaDaoImpl extends WaspMetaDaoImpl<JobSampleMeta> impleme
 	@Transactional
 	public JobSampleMeta getJobSampleMetaByJobSampleMetaId (final int jobSampleMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobSampleMetaId", jobSampleMetaId);
+		m.put("id", jobSampleMetaId);
 
 		List<JobSampleMeta> results = this.findByMap(m);
 

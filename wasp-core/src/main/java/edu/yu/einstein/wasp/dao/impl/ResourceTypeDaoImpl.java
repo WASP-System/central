@@ -47,7 +47,7 @@ public class ResourceTypeDaoImpl extends WaspDaoImpl<ResourceType> implements ed
 	@Transactional
 	public ResourceType getResourceTypeByResourceTypeId (final Integer resourceTypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceTypeId", resourceTypeId);
+		m.put("id", resourceTypeId);
 
 		List<ResourceType> results = this.findByMap(m);
 

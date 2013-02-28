@@ -47,7 +47,7 @@ public class JobDraftFileDaoImpl extends WaspDaoImpl<JobDraftFile> implements ed
 	@Transactional
 	public JobDraftFile getJobDraftFileByJobDraftFileId (final int jobFileId) {
     		HashMap<String, Integer>m = new HashMap<String, Integer>();
-		m.put("jobFileId", jobFileId);
+		m.put("id", jobFileId);
 
 		List<JobDraftFile> results = this.findByMap(m);
 

@@ -91,7 +91,7 @@ import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
-import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.WRole;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
@@ -100,7 +100,7 @@ import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -806,7 +806,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 
 	  mockJobServiceImpl.setLogger(LoggerFactory.getLogger(WaspServiceImpl.class));
 	  
-	  User user = new User();
+	  WUser user = new WUser();
 	  user.setUserId(123);
 	  JobDraft jobDraft = new JobDraft();
 	  jobDraft.setJobDraftId(1);
@@ -874,7 +874,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  replay(mockJobResourcecategoryDao);
 	  
 	// Creates the JobUser Permission
-	  Role role = new Role();
+	  WRole role = new WRole();
 	  role.setRoleId(new Integer(1));
 	  
 	  expect(mockRoleDao.getRoleByRoleName("js")).andReturn(role);
@@ -1382,22 +1382,22 @@ public class TestJobServiceImpl extends EasyMockSupport{
 		   jobServiceImpl.getJobsSubmittedOrViewableByUser(null);
 	  }
 	  catch (InvalidParameterException e){
-		  Assert.assertEquals(e.getMessage(), "No User provided");		  
+		  Assert.assertEquals(e.getMessage(), "No WUser provided");		  
 	  }
 	  
 	  try {
-	   User user = new User();
+	   WUser user = new WUser();
 
 	   jobServiceImpl.getJobsSubmittedOrViewableByUser(user);
 	  }
 	  catch (InvalidParameterException e){
-		  Assert.assertEquals(e.getMessage(), "Invalid User Provided");  
+		  Assert.assertEquals(e.getMessage(), "Invalid WUser Provided");  
 	  }
   }
   
   @Test
   public void getJobsSubmittedOrViewableByUser2() {
-	  User user = new User();
+	  WUser user = new WUser();
 	  user.setId(1);
 	   
 	  Map m = new HashMap();

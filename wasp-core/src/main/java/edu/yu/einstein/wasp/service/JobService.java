@@ -44,7 +44,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
 @Service
@@ -187,7 +187,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return entity-managed Job object
 	 * @throws FileMoveException
 	 */
-	public Job createJobFromJobDraft(JobDraft jobdraft, User user) throws FileMoveException;
+	public Job createJobFromJobDraft(JobDraft jobdraft, WUser user) throws FileMoveException;
 	
 	/**
 	 * getJobsAwaitingLibraryCreation() returns list of unique jobs for which at least one library must be created from a sample.
@@ -235,11 +235,11 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Note that some jobs viewable to the user may have been submitted by someone else.
 	 * Note that a PI can see there own jobs AND jobs submitted by members of their lab
 	 * Note that returned job list is ordered by jobId/descending
-	 * @param User user
+	 * @param WUser user
 	 * @return List<Job>
 	 * 
 	 */
-	public List<Job> getJobsSubmittedOrViewableByUser(User user);
+	public List<Job> getJobsSubmittedOrViewableByUser(WUser user);
 	
 	/**
 	 * Returns true if provided job is awaiting PI approval, otherwise returns false

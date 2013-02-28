@@ -56,7 +56,7 @@ import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
@@ -282,22 +282,22 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("job", job);
 	  
 	  List<JobUser> jobUserList = job.getJobUser();
-	  List<User> additionalJobViewers = new ArrayList<User>();
+	  List<WUser> additionalJobViewers = new ArrayList<WUser>();
 	  for(JobUser jobUser : jobUserList){
 		  if(jobUser.getUser().getUserId().intValue() != job.getUserId().intValue() && jobUser.getUser().getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){
 			  additionalJobViewers.add(jobUser.getUser());
 		  }
 	  }
-	  class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+	  class SubmitterLastNameFirstNameComparator implements Comparator<WUser> {
 			@Override
-			public int compare(User arg0, User arg1) {
+			public int compare(WUser arg0, WUser arg1) {
 				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
 			}
 		}
 	  Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
 	  m.addAttribute("additionalJobViewers", additionalJobViewers);
 	  
-	  User currentWebViewer = authenticationService.getAuthenticatedUser();
+	  WUser currentWebViewer = authenticationService.getAuthenticatedUser();
 	  Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
 	  if(authenticationService.isSuperUser() || currentWebViewer.getUserId().intValue() == job.getUserId().intValue() || currentWebViewer.getUserId().intValue() == job.getLab().getPrimaryUserId().intValue()){
 		  currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
@@ -471,7 +471,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	  }	
 	  // if i am the user, reauth
-	  User me = authenticationService.getAuthenticatedUser();
+	  WUser me = authenticationService.getAuthenticatedUser();
 	  if (me.getUserId().intValue() == userId.intValue()) {
 		doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
 	  }

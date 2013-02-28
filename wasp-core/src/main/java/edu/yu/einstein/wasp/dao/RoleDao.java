@@ -4,23 +4,23 @@
  * RoleDao.java 
  * @author echeng (table2type.pl)
  *  
- * the Role Dao 
+ * the WRole Dao 
  *
  *
  **/
 
 package edu.yu.einstein.wasp.dao;
 
-import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.WRole;
 
 
-public interface RoleDao extends WaspDao<Role> {
+public interface RoleDao extends WaspDao<WRole> {
 
-  public Role getRoleByRoleId (final int roleId);
+  public WRole getRoleByRoleId (final int roleId);
 
-  public Role getRoleByRoleName (final String roleName);
+  public WRole getRoleByRoleName (final String roleName);
 
-  public Role getRoleByName (final String name);
+  public WRole getRoleByName (final String name);
 
 
 }

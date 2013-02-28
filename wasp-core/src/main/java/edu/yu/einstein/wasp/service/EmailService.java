@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.model.UserPending;
 
 /**
@@ -24,7 +24,7 @@ public interface EmailService  {
 	 * @param user
 	 * @param authcode
 	 */
-	public void sendUserEmailConfirm(final User user, final String authcode);
+	public void sendUserEmailConfirm(final WUser user, final String authcode);
 
 	/**
 	 * Sends an email message to a pending user requesting that they confirm their email address
@@ -50,7 +50,7 @@ public interface EmailService  {
 	 * @param userPending the pending user
 	 * @param lab the lab applied for
 	 */
-	public void sendPendingUserNotifyAccepted(final User user, final Lab lab);
+	public void sendPendingUserNotifyAccepted(final WUser user, final Lab lab);
 	
 	/**
 	 * Sends an email message to a pending lab user notifying an accepted application to
@@ -59,7 +59,7 @@ public interface EmailService  {
 	 * @param userPending the pending user
 	 * @param lab the lab applied for
 	 */
-	public void sendPendingLabUserNotifyAccepted(final User user, final Lab lab);
+	public void sendPendingLabUserNotifyAccepted(final WUser user, final Lab lab);
 	
 	/**
 	 * Sends an email message to a pending lab user notifying a rejected application to
@@ -68,7 +68,7 @@ public interface EmailService  {
 	 * @param userPending the pending user
 	 * @param lab the lab applied for
 	 */
-	public void sendPendingLabUserNotifyRejected(final User user, final Lab lab);
+	public void sendPendingLabUserNotifyRejected(final WUser user, final Lab lab);
 	
 	/**
 	 * Sends an email message to a pending user notifying a rejected application to
@@ -126,20 +126,20 @@ public interface EmailService  {
 	 * @param user
 	 * @param authcode
 	 */
-	public void sendRequestNewPassword(User user, String authcode);
+	public void sendRequestNewPassword(WUser user, String authcode);
 
 	/**
-	 * Inform User that login name has been changed. Necessary if Admin changes user profile and login is updated.
+	 * Inform WUser that login name has been changed. Necessary if Admin changes user profile and login is updated.
 	 * @param user
 	 */
-	public void informUserLoginChanged(User user);
+	public void informUserLoginChanged(WUser user);
 
 	/**
 	 * Inform user than admin has created an account for them
 	 * @param user
 	 * @param authcode
 	 */
-	void informUserAccountCreatedByAdmin(User user, String authcode);
+	void informUserAccountCreatedByAdmin(WUser user, String authcode);
 	
     /**
     * setConfirmEmailAuthDao(ConfirmEmailAuthDao confirmEmailAuthDao)
@@ -149,7 +149,7 @@ public interface EmailService  {
     */
 
 	
-	public String getNewAuthcodeForUser(final User user);
+	public String getNewAuthcodeForUser(final WUser user);
 
 	public String getNewAuthcodeForUserPending(UserPending userpending);
 

@@ -47,7 +47,7 @@ public class DepartmentUserDaoImpl extends WaspDaoImpl<DepartmentUser> implement
 	@Transactional
 	public DepartmentUser getDepartmentUserByDepartmentUserId (final int departmentUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("departmentUserId", departmentUserId);
+		m.put("id", departmentUserId);
 
 		List<DepartmentUser> results = this.findByMap(m);
 

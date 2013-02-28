@@ -90,7 +90,7 @@ public class TestWaspModel {
 		Lab lab = new Lab();
 		lab.setLabId(10);
 		lab.setName("LabName");
-		User user = new User();
+		WUser user = new WUser();
 		user.setUserId(15);
 		user.setFirstName("Andy");
 		lab.setUser(user);

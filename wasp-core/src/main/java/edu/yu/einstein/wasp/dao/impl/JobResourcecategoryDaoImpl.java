@@ -47,7 +47,7 @@ public class JobResourcecategoryDaoImpl extends WaspDaoImpl<JobResourcecategory>
 	@Transactional
 	public JobResourcecategory getJobResourcecategoryByJobResourcecategoryId (final Integer jobResourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobResourcecategoryId", jobResourcecategoryId);
+		m.put("id", jobResourcecategoryId);
 
 		List<JobResourcecategory> results = this.findByMap(m);
 

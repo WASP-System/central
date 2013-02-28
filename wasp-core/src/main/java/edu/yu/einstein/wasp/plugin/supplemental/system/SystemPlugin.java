@@ -43,22 +43,4 @@ public class SystemPlugin extends WaspPlugin {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.plugin.WaspPlugin#getBatchJobName(java.lang.String)
-	 */
-	@Override
-	public String getBatchJobName(String BatchJobType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.plugin.WaspPlugin#getBatchJobNameByArea(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public String getBatchJobNameByArea(String BatchJobType, String area) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

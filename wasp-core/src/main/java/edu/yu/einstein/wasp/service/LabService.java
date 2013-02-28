@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WRole;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Lab;
 
@@ -28,35 +28,35 @@ public interface LabService extends WaspService {
   
   /**
 	 * Get Lab by PI. If pi is null or pi.getUserId==null, then return new Lab();
-	 * @param User pi
+	 * @param WUser pi
 	 * @return Lab
 	 */
-	public Lab getLabByPI(User pi);
+	public Lab getLabByPI(WUser pi);
   
  /**
-	 * is a User a Member of a lab (true if entry is in the labuser table for this lab, having ANY role: PI, Lab Manager, Lab Member, Lab Member Pending, Lab Member Inactive)
+	 * is a WUser a Member of a lab (true if entry is in the labuser table for this lab, having ANY role: PI, Lab Manager, Lab Member, Lab Member Pending, Lab Member Inactive)
 	 * @param Lab lab
-	 * @param User user
+	 * @param WUser user
 	 * @return boolean
 	 */
-	public boolean isUserLabMember(Lab lab, User user);
+	public boolean isUserLabMember(Lab lab, WUser user);
 	
  /**
-	 * get a User's role in a particular lab (PI, Lab Manager, Lab Member, Lab Member Pending, Lab Member Inactive)
-	 * if the user is not in the specified lab at all, return new Role();
+	 * get a WUser's role in a particular lab (PI, Lab Manager, Lab Member, Lab Member Pending, Lab Member Inactive)
+	 * if the user is not in the specified lab at all, return new WRole();
 	 * @param Lab lab
-	 * @param User user
-	 * @return Role
+	 * @param WUser user
+	 * @return WRole
 	 */
-	public Role getUserRoleInLab(Lab lab, User user);
+	public WRole getUserRoleInLab(Lab lab, WUser user);
 	
  /**
 	 * add an existing user to a new lab, with role of Lab Member Pending
 	 * 	 
 	 * @param Lab lab
-	 * @param User user
+	 * @param WUser user
 	 * @return LabUser
 	 */
-	public LabUser addExistingUserToLabAsLabMemberPending(Lab lab, User user);
+	public LabUser addExistingUserToLabAsLabMemberPending(Lab lab, WUser user);
 }
 

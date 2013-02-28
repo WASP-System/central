@@ -47,7 +47,7 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
 	@Transactional
 	public JobUser getJobUserByJobUserId (final int jobUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobUserId", jobUserId);
+		m.put("id", jobUserId);
 
 		List<JobUser> results = this.findByMap(m);
 

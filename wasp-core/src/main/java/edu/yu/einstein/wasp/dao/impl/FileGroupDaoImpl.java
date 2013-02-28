@@ -48,7 +48,7 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 	@Transactional
 	public FileGroup getFileGroupById (final Integer id) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileGroupId", id);
+		m.put("id", id);
 
 		List<FileGroup> results = this.findByMap(m);
 

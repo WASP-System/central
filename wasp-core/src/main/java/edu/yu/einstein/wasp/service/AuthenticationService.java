@@ -5,18 +5,18 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 
 public interface AuthenticationService {
 	
 	/**
-	 * Gets current authenticated User from security context
-	 * @return {@link User}
+	 * Gets current authenticated WUser from security context
+	 * @return {@link WUser}
 	 */
-	public User getAuthenticatedUser();
+	public WUser getAuthenticatedUser();
 
 	/**
-	 * Gets list of Roles assigned to User from security context
+	 * Gets list of Roles assigned to WUser from security context
 	 * @return roles
 	 */
 	public String[] getRoles();
@@ -34,7 +34,7 @@ public interface AuthenticationService {
 	public boolean isAuthenticationSetExternal();
 	
 	/**
-	 * Returns true if User is an authenticated guest (i.e. has no WASP account but authenticates successfully
+	 * Returns true if WUser is an authenticated guest (i.e. has no WASP account but authenticates successfully
 	 * against LDAP / AD
 	 * @return
 	 */
@@ -42,25 +42,25 @@ public interface AuthenticationService {
 	
 	
 	/**
-	 * Returns true if User has the role of theRole. theRole can be "su", "da", etc.
+	 * Returns true if WUser has the role of theRole. theRole can be "su", "da", etc.
 	 * @return
 	 */
 	public boolean hasRole(String theRole);
 	
 	/**
-	 * Returns true if User has role of su, else returns false
+	 * Returns true if WUser has role of su, else returns false
 	 * @return
 	 */
 	public boolean isSuperUser();
 	
 	/**
-	 * Returns true if User has role of su, fm, ft, sa, ga, or da, else returns false
+	 * Returns true if WUser has role of su, fm, ft, sa, ga, or da, else returns false
 	 * @return
 	 */
 	public boolean isFacilityMember();
 
 	/**
-	 * Returns true if User has role of da AND IS NOT also a su, fm, ft, sa, or ga; else returns false
+	 * Returns true if WUser has role of da AND IS NOT also a su, fm, ft, sa, or ga; else returns false
 	 * @return
 	 */
 	public boolean isOnlyDepartmentAdministrator();
@@ -109,7 +109,7 @@ public interface AuthenticationService {
 	public boolean authenticates(String name, String password);
 
 	/**
-	 * Returns true if logged in User has ANY of the roles in RoleArray. theRole can be "su", "da", etc.
+	 * Returns true if logged in WUser has ANY of the roles in RoleArray. theRole can be "su", "da", etc.
 	 * @param roleArray
 	 * @return
 	 */

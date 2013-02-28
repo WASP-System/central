@@ -108,15 +108,15 @@ public class Userpasswordauth extends WaspCoreModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="userid", insertable=false, updatable=false)
-	protected User user;
+	protected WUser user;
 
 	/**
-	 * setUser (User user)
+	 * setUser (WUser user)
 	 *
 	 * @param user
 	 *
 	 */
-	public void setUser (User user) {
+	public void setUser (WUser user) {
 		this.user = user;
 		this.id = user.getId();
 	}
@@ -128,7 +128,7 @@ public class Userpasswordauth extends WaspCoreModel {
 	 *
 	 */
 	
-	public User getUser () {
+	public WUser getUser () {
 		return this.user;
 	}
 

@@ -18,37 +18,37 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 	public WaspJdbcDaoImpl(){
 		super();
 		this.setAuthoritiesByUsernameQuery(
-				"SELECT u.login username, case ab.roleid " +
+				"SELECT u.login username, case ab.id " +
 				"when 1 then " +
 				"case r.domain " +
 					"when 'system' then provr.rolename " +
 					"when 'department' then concat(provr.rolename, '-', du.departmentid) " +
 					"when 'lab' then concat(provr.rolename, '-', lu.labid) " +
 					"when 'job' then concat(provr.rolename, '-', ju.jobid) " +
-					"when 'jobdraft' then concat(provr.rolename, '-', jd.jobdraftid) " +
-					"when 'user' then concat(provr.rolename, '-', us.userid) " +
+					"when 'jobdraft' then concat(provr.rolename, '-', jd.id) " +
+					"when 'user' then concat(provr.rolename, '-', us.id) " +
 				"end " +
 				"when 2 then " +
 					"concat(provr.rolename, '-*') " +
 				"end authority " +
 				"FROM " +
-					"user u " +
-					"inner join role ab on (roleid in (1,2)) " +
-					"inner join role r on (1 = 1) " +
-					"inner join roleset rs on (r.roleid = rs.parentroleid) " +
-					"inner join role provr on (rs.childroleid = provr.roleid) " +
+					"wuser u " +
+					"inner join wrole ab on (ab.id in (1,2)) " +
+					"inner join wrole r on (1 = 1) " +
+					"inner join roleset rs on (r.id = rs.parentroleid) " +
+					"inner join wrole provr on (rs.childroleid = provr.id) " +
 					"left outer join userrole ur " +
-					"on (u.userid = ur.userid and r.roleid = ur.roleid) " +
+					"on (u.id = ur.userid and r.id = ur.roleid) " +
 					"left outer join departmentuser du " +
-					"on (u.userid = du.userid) " +
+					"on (u.id = du.userid) " +
 					"left outer join labuser lu " +
-					"on (u.userid = lu.userid and r.roleid = lu.roleid) " +
+					"on (u.id = lu.userid and r.id = lu.roleid) " +
 					"left outer join jobuser ju " +
-					"on (u.userid = ju.userid and r.roleid = ju.roleid) " +
+					"on (u.id = ju.userid and r.id = ju.roleid) " +
 					"left outer join jobdraft jd " +
-					"on (u.userid = jd.userid and status = 'PENDING') " +
-					"left outer join user us " +
-					"on (u.userid = us.userid) " +
+					"on (u.id = jd.userid and status = 'PENDING') " +
+					"left outer join wuser us " +
+					"on (u.id = us.id) " +
 				"where " +
 					"u.login = ? and " +
 					"case r.domain " +
@@ -57,11 +57,11 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 						"when 'lab' then ifnull(lu.userid, 0) " +
 						"when 'job' then ifnull(ju.userid, 0) " +
 						"when 'jobdraft' then ifnull(jd.userid, 0) " +
-						"when 'user' then ifnull(us.userid, 0) " +
+						"when 'user' then ifnull(us.id, 0) " +
 					"end " +
 					"group by 1, 2");
 		
-		this.setUsersByUsernameQuery("SELECT login username, password, isactive enabled FROM user WHERE login = ?");
+		this.setUsersByUsernameQuery("SELECT login username, password, isactive enabled FROM wuser WHERE login = ?");
 
 	}
 	

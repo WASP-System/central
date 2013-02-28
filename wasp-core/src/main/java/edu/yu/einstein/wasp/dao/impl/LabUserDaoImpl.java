@@ -47,7 +47,7 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	@Transactional
 	public LabUser getLabUserByLabUserId (final int labUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labUserId", labUserId);
+		m.put("id", labUserId);
 
 		List<LabUser> results = this.findByMap(m);
 

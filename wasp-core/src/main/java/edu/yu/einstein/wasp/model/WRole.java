@@ -1,10 +1,10 @@
 
 /**
  *
- * Role.java 
+ * WRole.java 
  * @author echeng (table2type.pl)
  *  
- * the Role
+ * the WRole
  *
  *
  */
@@ -28,8 +28,8 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="role")
-public class Role extends WaspModel {
+@Table(name="wrole")
+public class WRole extends WaspModel {
 
 	/**
 	 * 

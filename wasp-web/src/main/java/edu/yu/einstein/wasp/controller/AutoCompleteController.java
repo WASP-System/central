@@ -57,7 +57,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -134,7 +134,7 @@ public class AutoCompleteController extends WaspController{
 	  public @ResponseBody String getPiForAutocomplete() {
 	      
 		  List<Lab> labList = labDao.findAll(); 
-	      List<User> userList = new ArrayList<User>();
+	      List<WUser> userList = new ArrayList<WUser>();
 	      for(Lab lab : labList){
 	    	  userList.add(lab.getUser());
 	      }
@@ -142,7 +142,7 @@ public class AutoCompleteController extends WaspController{
 	      StringBuilder sb = new StringBuilder();
 	      sb.append("{\"source\": [");
 	      int counter = 0;
-	      for (User u : userList){
+	      for (WUser u : userList){
 	    	  if(counter++ > 0){
 	    		  sb.append(",");
 	    	  }
@@ -183,7 +183,7 @@ public class AutoCompleteController extends WaspController{
 	      }
 	      else{//regular user (labmember, viewer, pi)
 	    	  Set<Lab> selectLabsList = new LinkedHashSet<Lab>();
-	    	  User viewer = authenticationService.getAuthenticatedUser();
+	    	  WUser viewer = authenticationService.getAuthenticatedUser();
 	    	  selectLabsList.addAll(viewer.getLab());//current web viewer's labs
 	    	  //now get labs whose jobs this viewer can view
 	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
@@ -196,13 +196,13 @@ public class AutoCompleteController extends WaspController{
 	    	  labList.addAll(selectLabsList);	    	  
 	      }
 	      
-	      List<User> userList = new ArrayList<User>();
+	      List<WUser> userList = new ArrayList<WUser>();
 	      for(Lab lab : labList){
 	    	  userList.add(lab.getUser());//PI of lab
 	      }
-	      class LastNameFirstNameComparator implements Comparator<User> {
+	      class LastNameFirstNameComparator implements Comparator<WUser> {
 	    	@Override
-	    	public int compare(User arg0, User arg1) {
+	    	public int compare(WUser arg0, WUser arg1) {
 	    		return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
 	    	}
 	      }
@@ -210,7 +210,7 @@ public class AutoCompleteController extends WaspController{
 	      
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (User u : userList){
+	      for (WUser u : userList){
 	    	  if(u.getFirstName().indexOf(piNameFragment) > -1 || u.getLastName().indexOf(piNameFragment) > -1 || u.getLogin().indexOf(piNameFragment) > -1){
 	    		  jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
 	    	  }
@@ -229,10 +229,10 @@ public class AutoCompleteController extends WaspController{
 	   */
 	  @RequestMapping(value="/getUserNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getNames(@RequestParam String adminNameFragment) {
-	         List<User> userList = userDao.getActiveUsers();
+	         List<WUser> userList = userDao.getActiveUsers();
 	         String jsonString = new String();
 	         jsonString = jsonString + "{\"source\": [";
-	         for (User u : userList){
+	         for (WUser u : userList){
 	        	 if(u.getFirstName().indexOf(adminNameFragment) > -1 || u.getLastName().indexOf(adminNameFragment) > -1 || u.getLogin().indexOf(adminNameFragment) > -1){
 	        		 jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
 	        	 }
@@ -293,7 +293,7 @@ public class AutoCompleteController extends WaspController{
 		  	 }
 		  	else{//regular user (labmember, viewer, pi)
 		    	  Set<Job> selectJobsList = new LinkedHashSet<Job>();
-		    	  User viewer = authenticationService.getAuthenticatedUser();
+		    	  WUser viewer = authenticationService.getAuthenticatedUser();
 		    	  selectJobsList.addAll(viewer.getJob());//list of viewer's jobs
 		    	  //now get other jobs this viewer can view
 		    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
@@ -335,7 +335,7 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getAllUserNamesAndLoginForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllUserNames(@RequestParam String adminNameFragment) {
 		  
-	      List<User> userList = new ArrayList<User>();
+	      List<WUser> userList = new ArrayList<WUser>();
 	      
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
@@ -347,13 +347,13 @@ public class AutoCompleteController extends WaspController{
 		      userList = userDao.findByMapDistinctOrderBy(new HashMap<Object, Object>(), null, orderbyList, "asc");
 	    	  
 	    	  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-	    		  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+	    		  List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
 	    		  userList.retainAll(usersToKeep);
 	    	  }
 		  }
 	      else{//regular user (labmember, viewer, pi)
-	    	  Set<User> selectUserList = new LinkedHashSet<User>();
-	    	  User viewer = authenticationService.getAuthenticatedUser();
+	    	  Set<WUser> selectUserList = new LinkedHashSet<WUser>();
+	    	  WUser viewer = authenticationService.getAuthenticatedUser();
 	    	  selectUserList.add(viewer);//current web viewer
 	    	  //now get other submitters whose jobs this viewer can view
 	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
@@ -364,9 +364,9 @@ public class AutoCompleteController extends WaspController{
 	    		  selectUserList.add(job.getUser());
 	    	  }
 	    	  userList.addAll(selectUserList);
-	    	  class LastNameFirstNameComparator implements Comparator<User> {
+	    	  class LastNameFirstNameComparator implements Comparator<WUser> {
 	  	    	@Override
-	  	    	public int compare(User arg0, User arg1) {
+	  	    	public int compare(WUser arg0, WUser arg1) {
 	  	    		return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
 	  	    	}
 	  	      }
@@ -375,7 +375,7 @@ public class AutoCompleteController extends WaspController{
 	      
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (User u : userList){
+	      for (WUser u : userList){
 	      	 if(u.getFirstName().indexOf(adminNameFragment) > -1 || u.getLastName().indexOf(adminNameFragment) > -1 || u.getLogin().indexOf(adminNameFragment) > -1){
 	       		 jsonString = jsonString + "\""+ u.getFirstName() + " " + u.getLastName() + " (" + u.getLogin() + ")\",";
 	       	 }
@@ -395,16 +395,16 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getAllUserLoginsForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllUserLogins(@RequestParam String str) {
 		  
-		  List<User> userList = userDao.findAllOrderBy("login", "asc");
+		  List<WUser> userList = userDao.findAllOrderBy("login", "asc");
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users logins that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
 		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
 			  userList.retainAll(usersToKeep);
 		  }
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (User u : userList){
+	      for (WUser u : userList){
 	      	 if(u.getLogin().indexOf(str) > -1){
 	       		 jsonString = jsonString + "\""+ u.getLogin()+"\",";
 	       	 }
@@ -416,7 +416,7 @@ public class AutoCompleteController extends WaspController{
 		/**
 	   * Obtains a json message containing DISTINCT list of ALL users first names"
 	   * Order ascending
-	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict User first names to those covered by the DA's department(s)
+	   * 9/4/12 added filter so that if the viewer is just a DA, then restrict WUser first names to those covered by the DA's department(s)
 	   * Used to populate a JQuery autocomplete managed input box
 	   * @param str
 	   * @return json message
@@ -424,15 +424,15 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getDistinctUserFirstNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getDistinctUserFirstNames(@RequestParam String str) {
 		  
-		  List<User> userList = userDao.findAllOrderBy("firstName", "asc");
+		  List<WUser> userList = userDao.findAllOrderBy("firstName", "asc");
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
 		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
 			  userList.retainAll(usersToKeep);
 		  }
 		  Set<String> distinctSetUserFirstName = new LinkedHashSet<String>();
-		  for(User user : userList){
+		  for(WUser user : userList){
 			  distinctSetUserFirstName.add(user.getFirstName());//use Set to collect Distinct list of names
 		  }
 		  
@@ -458,15 +458,15 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getDistinctUserLastNamesForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getDistinctUserLastNames(@RequestParam String str) {
 		  
-		  List<User> userList = userDao.findAllOrderBy("lastName", "asc");
+		  List<WUser> userList = userDao.findAllOrderBy("lastName", "asc");
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
 		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
 			  userList.retainAll(usersToKeep);
 		  }
 		  Set<String> distinctSetUserLastName = new LinkedHashSet<String>();
-		  for(User user : userList){
+		  for(WUser user : userList){
 			  distinctSetUserLastName.add(user.getLastName());//use Set to collect Distinct list of names
 		  }
 		  
@@ -492,16 +492,16 @@ public class AutoCompleteController extends WaspController{
 	  @RequestMapping(value="/getAllUserEmailsForDisplay", method=RequestMethod.GET)
 	  public @ResponseBody String getAllUserEmails(@RequestParam String str) {
 		  
-		  List<User> userList = userDao.findAllOrderBy("email", "asc");
+		  List<WUser> userList = userDao.findAllOrderBy("email", "asc");
 		  //perform next if block ONLY if the viewer is A DA but is NOT any other type of facility member; this will restrict the Users email addresses that are 
 		  //visible and available via this autocomplete widget to those that are in departments that this DA controls  
 		  if(authenticationService.isOnlyDepartmentAdministrator()){//if viewer is just a DA, then retain only users in the DA's department(s)
-			  List<User> usersToKeep = filterService.filterUserListForDA(userList);
+			  List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
 			  userList.retainAll(usersToKeep);
 		  }		  
 	      String jsonString = new String();
 	      jsonString = jsonString + "{\"source\": [";
-	      for (User u : userList){
+	      for (WUser u : userList){
 	      	 if(u.getEmail().indexOf(str) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
 	       		 jsonString = jsonString + "\""+ u.getEmail()+"\",";
 	       	 }

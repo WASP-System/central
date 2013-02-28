@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 
 /**
  * @author calder
@@ -78,7 +78,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 * @throws SampleTypeException, WaspMessageBuildingException
 	 */
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException;
+	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, WUser technician, String readLength, String readType, Date dateStart ) throws SampleTypeException;
 
 	/**
 	 * Update details of existing sequencing run
@@ -92,7 +92,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @param dateStart
 	 * @return
 	 */
-	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart);
+	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, WUser technician, String readLength, String readType, Date dateStart);
 
 	/**
 	 * Returns a list of runs which match the provided platform unit

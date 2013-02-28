@@ -47,7 +47,7 @@ public class ResourceDaoImpl extends WaspDaoImpl<Resource> implements edu.yu.ein
 	@Transactional
 	public Resource getResourceByResourceId (final Integer resourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceId", resourceId);
+		m.put("id", resourceId);
 
 		List<Resource> results = this.findByMap(m);
 

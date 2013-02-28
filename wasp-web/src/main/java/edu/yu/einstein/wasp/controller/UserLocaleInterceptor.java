@@ -38,7 +38,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.dao.UiFieldDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.UiField;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 
 public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
    
@@ -84,7 +84,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     	
     	String login=principal.getName();
     	
-    	User user=userDao.getUserByLogin(login);
+    	WUser user=userDao.getUserByLogin(login);
     	
     	if (user==null) {
     		log.error("Logged in user not found in db??? "+login);
@@ -92,7 +92,7 @@ public class UserLocaleInterceptor extends HandlerInterceptorAdapter {
     	}
     	
     	if (user.getLocale()==null) {
-    		log.error("User without locale!!!"+login);
+    		log.error("WUser without locale!!!"+login);
     		request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.US);
     		request.getSession().setAttribute("jqLang", Locale.US.getLanguage());
     		if (Config.get(request.getSession(),Config.FMT_LOCALIZATION_CONTEXT)==null) initJSTLResourceBundle(Locale.US,request.getSession());

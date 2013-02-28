@@ -11,8 +11,8 @@
     <!--
         <class>edu.yu.einstein.wasp.model.Userrole</class>
         
-        <class>edu.yu.einstein.wasp.model.Role</class>
-        <class>edu.yu.einstein.wasp.model.User</class>
+        <class>edu.yu.einstein.wasp.model.WRole</class>
+        <class>edu.yu.einstein.wasp.model.WUser</class>
         <class>edu.yu.einstein.wasp.model.UserMeta</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
        -->

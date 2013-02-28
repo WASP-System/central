@@ -77,8 +77,8 @@ public class SelWaspAddNewUser extends SelBaseTest {
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
    		
   		driver.get("http://localhost:8080/wasp/auth/login.do");
-  	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
-		driver.findElement(By.linkText("New User")).click();
+  	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New WUser", driver), true);
+		driver.findElement(By.linkText("New WUser")).click();
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(fName);
 		driver.findElement(By.id("lastName")).sendKeys(lName);

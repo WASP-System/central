@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.WRole;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -64,7 +64,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 	@Override
 	public boolean isLabManagerPendingTasks() {
 		List<Job> allJobsAwaitingLmApproval = new ArrayList<Job>();
-		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
+		WRole pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
 		for (Job job: jobService.getActiveJobs()){
 			if (jobService.isJobAwaitingPiApproval(job)){
 				if (authenticationService.isSuperUser())
@@ -122,7 +122,7 @@ public class TaskServiceImpl extends WaspServiceImpl implements TaskService {
 		// 2. approve or reject existing users that have applied to join a lab
 		// 3. approve or reject a new job submission
 		// however if the user is superuser, ft, fm, and ga, then don't filter by lab_id
-		Role pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
+		WRole pendingLabmemberRole = roleDao.getRoleByName("Lab Member Pending");
 		
 		List<Job> allJobsAwaitingLmApproval = jobService.getJobsAwaitingPiLmApproval();
 		

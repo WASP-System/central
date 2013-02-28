@@ -49,7 +49,7 @@ public class ConfirmEmailAuthDaoImpl extends WaspDaoImpl<ConfirmEmailAuth> imple
 	@Transactional
 	public ConfirmEmailAuth getConfirmEmailAuthByConfirmEmailAuthId (final int confirmEmailAuthId) {
 	    HashMap<String, Integer> m = new HashMap<String, Integer>();
-	    		m.put("confirmEmailAuthId", confirmEmailAuthId);
+	    		m.put("id", confirmEmailAuthId);
 	
 	    List<ConfirmEmailAuth> results = this.findByMap(m);
 	    

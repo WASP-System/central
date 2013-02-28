@@ -47,7 +47,7 @@ public class SampleDraftJobDraftCellSelectionDaoImpl extends WaspDaoImpl<SampleD
 	@Transactional
 	public SampleDraftJobDraftCellSelection getSampleDraftJobDraftCellSelectionBySampleDraftJobDraftCellSelectionId (final int sampleDraftJobDraftCellSelectionId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleDraftJobDraftCellSelectionId", sampleDraftJobDraftCellSelectionId);
+		m.put("id", sampleDraftJobDraftCellSelectionId);
 
 		List<SampleDraftJobDraftCellSelection> results = this.findByMap(m);
 

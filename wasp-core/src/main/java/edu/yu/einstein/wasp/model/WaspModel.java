@@ -43,7 +43,7 @@ public abstract class WaspModel extends WaspCoreModel implements Serializable {
 	
 	@Id 
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id_pk")
+	@Column(name="id")
 	protected Integer id;
 	
 	public void setId(Integer id) {
@@ -115,19 +115,19 @@ public abstract class WaspModel extends WaspCoreModel implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name="lastupdatebyuser", insertable=false, updatable=false)
-	private User lastUpdatedByUser;
+	private WUser lastUpdatedByUser;
 
 	/**
 	 * @return the lastUpdatedByUser
 	 */
-	public User getLastUpdatedByUser() {
+	public WUser getLastUpdatedByUser() {
 		return lastUpdatedByUser;
 	}
 
 	/**
 	 * @param lastUpdatedByUser the lastUpdatedByUser to set
 	 */
-	public void setLastUpdatedByUser(User lastUpdatedByUser) {
+	public void setLastUpdatedByUser(WUser lastUpdatedByUser) {
 		this.lastUpdatedByUser = lastUpdatedByUser;
 	}
 	

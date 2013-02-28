@@ -47,7 +47,7 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	@Transactional
 	public Userrole getUserroleByUserroleId (final int userroleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("userroleId", userroleId);
+		m.put("id", userroleId);
 
 		List<Userrole> results = this.findByMap(m);
 

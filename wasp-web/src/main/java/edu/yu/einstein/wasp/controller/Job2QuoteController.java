@@ -38,7 +38,7 @@ import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -132,12 +132,12 @@ public class Job2QuoteController extends WaspController {
 		}		
 				
 		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
-		User submitter = null;
+		WUser submitter = null;
 		//from grid
 		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
 			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
 			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
-				submitter = new User();
+				submitter = new WUser();
 				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
@@ -149,7 +149,7 @@ public class Job2QuoteController extends WaspController {
 		}
 				
 		//deal with PI (lab)
-		User pi = null;
+		WUser pi = null;
 		Lab piLab = null;//this is what's tested below
 		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
@@ -158,7 +158,7 @@ public class Job2QuoteController extends WaspController {
 				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
 			}
 			else{
-				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
+				pi = userDao.getUserByLogin(piLogin);//if WUser not found, pi object is NOT null and pi.getUnserId()=null
 				if(pi.getUserId()==null){
 					piLab = new Lab();
 					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
@@ -190,7 +190,7 @@ public class Job2QuoteController extends WaspController {
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		if(jobId != null){
-			m.put("jobId", jobId.intValue());
+			m.put("id", jobId.intValue());
 		}
 		if(submitter != null){
 			m.put("userId", submitter.getId().intValue());
@@ -207,7 +207,7 @@ public class Job2QuoteController extends WaspController {
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("jobId")){
-				orderByColumnAndDirection.add("jobId " + sord);
+				orderByColumnAndDirection.add("id " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);
@@ -294,7 +294,7 @@ public class Job2QuoteController extends WaspController {
 			Map<String, Object> cell = new HashMap<String, Object>();
 			cell.put("id", item.getJobId());
 
-			User user = userDao.getById(item.getUserId());
+			WUser user = userDao.getById(item.getUserId());
 			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
 			////float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());

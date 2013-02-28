@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.impl.ConfirmEmailAuthDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.UserDaoImpl;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WUser;
 import edu.yu.einstein.wasp.model.UserPending;
 
 public class TestUserServiceImpl {
@@ -32,38 +32,38 @@ public class TestUserServiceImpl {
   @Test
   public void getUniqueLoginName() {
 	  
-	  User userNew = new User();
+	  WUser userNew = new WUser();
 	  userNew.setUserId(123);
 	  userNew.setFirstName("John");
 	  userNew.setLastName("Greally");
 	  
 	  
-	  User userExists = new User();
+	  WUser userExists = new WUser();
 	  userExists.setUserId(123);
 	  userExists.setFirstName("Jane");
 	  userExists.setLastName("Doe");
 	  
-	  User user_apostrophe = new User();
+	  WUser user_apostrophe = new WUser();
 	  user_apostrophe.setUserId(123);
 	  user_apostrophe.setFirstName("Jane");
 	  user_apostrophe.setLastName("O'Brien");
 	  
-	  User user_hyphen = new User();
+	  WUser user_hyphen = new WUser();
 	  user_hyphen.setUserId(123);
 	  user_hyphen.setFirstName("Jane");
 	  user_hyphen.setLastName("Some-Lastname");
 	  
-	  User user_apostrophe_middle = new User();
+	  WUser user_apostrophe_middle = new WUser();
 	  user_apostrophe_middle.setUserId(123);
 	  user_apostrophe_middle.setFirstName("Jane");
 	  user_apostrophe_middle.setLastName("Some'Lastname");
 	  
-	  User user_apostrophe_beg = new User();
+	  WUser user_apostrophe_beg = new WUser();
 	  user_apostrophe_beg.setUserId(123);
 	  user_apostrophe_beg.setFirstName("Jane");
 	  user_apostrophe_beg.setLastName("'SomeLastname");
 	  
-	  User userBlank = new User();//use this to break out of the while loop
+	  WUser userBlank = new WUser();//use this to break out of the while loop
 	  
 	  userServiceImpl.setUserDao(mockUserDao);
 	  
@@ -90,7 +90,7 @@ public class TestUserServiceImpl {
   
   @Test
   public void getNewAuthcodeForUser() {
-	  User user = new User();
+	  WUser user = new WUser();
 	  user.setUserId(123);
 	  
 	  userServiceImpl.setconfirmEmailAuthDao(mockConfirmEmailAuthDao);

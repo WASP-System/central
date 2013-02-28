@@ -190,15 +190,15 @@ public class LabUser extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="userid", insertable=false, updatable=false)
-	protected User user;
+	protected WUser user;
 
 	/**
-	 * setUser (User user)
+	 * setUser (WUser user)
 	 *
 	 * @param user
 	 *
 	 */
-	public void setUser (User user) {
+	public void setUser (WUser user) {
 		this.user = user;
 		this.userId = user.getId();
 	}
@@ -210,7 +210,7 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	
-	public User getUser () {
+	public WUser getUser () {
 		return this.user;
 	}
 
@@ -222,15 +222,15 @@ public class LabUser extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="roleid", insertable=false, updatable=false)
-	protected Role role;
+	protected WRole role;
 
 	/**
-	 * setRole (Role role)
+	 * setRole (WRole role)
 	 *
 	 * @param role
 	 *
 	 */
-	public void setRole (Role role) {
+	public void setRole (WRole role) {
 		this.role = role;
 		this.roleId = role.getId();
 	}
@@ -242,7 +242,7 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	
-	public Role getRole () {
+	public WRole getRole () {
 		return this.role;
 	}
 

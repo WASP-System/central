@@ -47,7 +47,7 @@ public class SoftwareMetaDaoImpl extends WaspMetaDaoImpl<SoftwareMeta> implement
 	@Transactional
 	public SoftwareMeta getSoftwareMetaBySoftwareMetaId (final Integer softwareMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("softwareMetaId", softwareMetaId);
+		m.put("id", softwareMetaId);
 
 		List<SoftwareMeta> results = this.findByMap(m);
 

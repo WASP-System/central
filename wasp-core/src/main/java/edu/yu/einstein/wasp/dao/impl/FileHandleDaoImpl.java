@@ -47,7 +47,7 @@ public class FileHandleDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu
 	@Transactional
 	public FileHandle getFileHandleById (final Integer id) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileId", id);
+		m.put("id", id);
 
 		List<FileHandle> results = this.findByMap(m);
 

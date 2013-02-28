@@ -60,7 +60,7 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
 		
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleDraftMetaId", sampleDraftMetaId);
+		m.put("id", sampleDraftMetaId);
 
 		List<SampleDraftMeta> results = this.findByMap(m);
 

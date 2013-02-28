@@ -47,7 +47,7 @@ public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu
 	@Transactional
 	public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("ledgerId", ledgerId);
+		m.put("id", ledgerId);
 
 		List<AcctLedger> results = this.findByMap(m);
 
