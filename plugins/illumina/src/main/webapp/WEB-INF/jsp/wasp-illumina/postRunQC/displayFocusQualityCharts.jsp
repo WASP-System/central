@@ -11,30 +11,6 @@
 	</table>
 </div>
 
-<div id="main" class="center">
-	<p class="ui-state-default ui-corner-all ui-helper-clearfix qc_title" >
-		Illumina OLB Stats: Focus Quality For <c:out value="${runName}" />
-	</p>
-	<div id="slider_frameH">
-		<div id="cycle_number">
-			<label for="amountH">Cycle Number: </label>
-			<input type="text" id="amountH" size="4" readonly="readonly" value="1"/>
-		</div>
-		<div id="sliderH" ></div>
-		<div id="displayWindow" ><button id="showForm">Continue</button></div>
-	</div>
-	<div id="intA" class="ui-widget-content ui-corner-all"></div>
-	<div id="intC" class="ui-widget-content ui-corner-all"></div>
-	<div id="intT" class="ui-widget-content ui-corner-all"></div>
-	<div id="intG" class="ui-widget-content ui-corner-all"></div>
-	
-</div>	
-
-<div id="error_dialog-modal" title="Warning" >
-	<p><span class="ui-icon ui-icon-alert alert_icon" ></span><span id="warningText"></span></p>
-</div>
-
-
 <div id="selectionWindow">
 	<div class="ui-overlay" >
 		<div class="ui-widget-shadow ui-corner-all selection_dialog_shadow" ></div>
@@ -69,6 +45,32 @@
 		</div>
 	</div>
 </div>
+
+<div id="main" class="center">
+	<p class="ui-state-default ui-corner-all ui-helper-clearfix qc_title" >
+		Illumina OLB Stats: Focus Quality For <c:out value="${runName}" />
+	</p>
+	<div id="slider_frameH">
+		<div id="cycle_number">
+			<label for="amountH">Cycle Number: </label>
+			<input type="text" id="amountH" size="4" readonly="readonly" value="1"/>
+		</div>
+		<div id="sliderH" ></div>
+		<div id="displayWindow" ><button id="showForm">Continue</button></div>
+	</div>
+	<div id="intA" class="ui-widget-content ui-corner-all"></div>
+	<div id="intC" class="ui-widget-content ui-corner-all"></div>
+	<div id="intT" class="ui-widget-content ui-corner-all"></div>
+	<div id="intG" class="ui-widget-content ui-corner-all"></div>
+	
+</div>	
+
+<div id="error_dialog-modal" title="Warning" >
+	<p><span class="ui-icon ui-icon-alert alert_icon" ></span><span id="warningText"></span></p>
+</div>
+
+
+
 <c:forEach items="${imageFileUrlList}" var="fileUrl" varStatus="status" >
 	<img src='<c:out value="${fileUrl}" />' alt='Cycle <c:out value="${status.count}" /> FWHM Plot <c:out value="${fileUrl}" />' class='preloadHidden' />
 </c:forEach>
