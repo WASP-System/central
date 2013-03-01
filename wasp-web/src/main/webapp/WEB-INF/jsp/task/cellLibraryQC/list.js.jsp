@@ -15,8 +15,8 @@
 	        str += "<BR>";
 	        str += "<BR>";
 	    }
-		alert(str);
-		*/
+		alert(str); 
+		*/ 
 		
 		for(var i = 0; i < elements.length; i++){
 			if(elements[i].type == "radio"){
@@ -56,19 +56,21 @@
 		var elements = theform.elements;
 		var commentRequired = false;
 		var atLeastOneSetHasBeenProperlySelected = false; //useful only when the startAnalysis button is Not checked (which is could be), since at least one record must be checked to post the form 
-		var startAnalysis = false; //is the startAnalysis checkbox checked on this form 
-		var totalNumberOfRadioButtons = 0;
+		var startAnalysis = ""; 
+		var totalNumberOfRadioButtons = 0;//remember there are two for each pair 
 		var totalNumberOfCheckedRadioButtons = 0;//if job is ready to start analysis, assert: 2 * totalNumberOfCheckedRadioButtons == totalNumberOfRadioButtons 
 		var numberOfRadioButtonsCheckedAsInclude = 0;  //if job is ready to start analysis, assert: numberOfRadioButtonsCheckedAsInclude must be > 0 
+		var numberOfRadioButtonsCheckedAsExclude = 0;
 		
 		for(var i = 0; i < elements.length; i++){
-			if(elements[i].type == "checkbox" && elements[i].name == "startAnalysis" && elements[i].checked){
-				startAnalysis = true;  
-			}
+			if(elements[i].type == "select-one" && elements[i].name == "startAnalysis"){
+				startAnalysis = elements[i].value; 
+			} 
 			else if(elements[i].type == "radio" ){
 				totalNumberOfRadioButtons++;
 				if(elements[i].checked && elements[i].value=="EXCLUDE" ){
 					totalNumberOfCheckedRadioButtons++;
+					numberOfRadioButtonsCheckedAsExclude++;
 					var commentObj = elements[i+1];
 					var commentValue = commentObj.value; 
 					var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
@@ -107,9 +109,9 @@
 			alert("<fmt:message key="task.cellLibraryqc_noLibRunSelectedAlert.label" />");
 			return false;
 		} 
-		if(startAnalysis){//the startAnalysis checkbox is checked 
+		else if(startAnalysis == "Now"){
 			if( totalNumberOfRadioButtons != 2 * totalNumberOfCheckedRadioButtons){//not every entry has been recorded as either include or exclude 
-				alert("<fmt:message key="task.cellLibraryqc_startAnalysisRequestedWithoutRecordingEachRecord.label" />To start this job's analysis, you must select Include or Exclude for each entry.");
+				alert("<fmt:message key="task.cellLibraryqc_startAnalysisRequestedWithoutRecordingEachRecord.label" />");
 				return false;
 			}
 			if(numberOfRadioButtonsCheckedAsInclude <= 0){//since no entries were selected as include, you may not start analysis 
@@ -117,12 +119,22 @@
 				return false; 
 			}
 		}
+		else if(startAnalysis == "Never"){//terminate the job 
+			if( totalNumberOfRadioButtons != 2 * totalNumberOfCheckedRadioButtons){//not every entry has been recorded  
+				alert("<fmt:message key="task.cellLibraryqc_terminateJobRequestedWithoutRecordingExcludeForEachRecord.label" />");
+				return false;
+			}
+			if(totalNumberOfCheckedRadioButtons != numberOfRadioButtonsCheckedAsExclude ){//not every entry has been recorded as exclude 
+				alert("<fmt:message key="task.cellLibraryqc_terminateJobRequestedWithoutRecordingExcludeForEachRecord.label" />");
+				return false;
+			}
+		}
+		else if(startAnalysis == ""){
+			alert("<fmt:message key="task.cellLibraryqc_startAnalysisNotSelectedAlert.label" />");
+			return false;
+		}
 		
-		if(startAnalysis){
-			alert("start the analysis");
-		}else{alert("start analysis is NOT checked");}
-		
-		return false;
+		return true; 
 	}
 	
 	function selected(num){

@@ -878,7 +878,9 @@ public class TaskController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String updateCellLibraryQC(
 			@RequestParam("jobId") Integer jobId,
+			@RequestParam("maxNumCellLibrariesThatCanBeRecorded") Integer maxNumCellLibrariesThatCanBeRecorded,
 			@RequestParam("sampleSourceId") List<Integer> sampleSourceIdList,
+			@RequestParam("startAnalysis") String startAnalysis,
 		    ModelMap m) {
 	  
 	  //1. check the most basic parameters
@@ -895,7 +897,14 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
-	  
+	  if(startAnalysis == null || "".equals(startAnalysis)){
+		  waspErrorMessage("task.cellLibraryqc_invalid_startAnalysis.error");//shouldn't occur as jovascript should prevent, but....
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if( !"Now".equalsIgnoreCase(startAnalysis) && !"Later".equalsIgnoreCase(startAnalysis) && !"Never".equalsIgnoreCase(startAnalysis) ){
+		  waspErrorMessage("task.cellLibraryqc_invalidValues_startAnalysis.error");//shouldn't occur as jovascript should prevent, but....
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
 	  //gather info from web
 	  List<SampleSource> sampleSourceList = new ArrayList<SampleSource>();
 	  List<String> qcStatusList = new ArrayList<String>();
@@ -934,6 +943,9 @@ public class TaskController extends WaspController {
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
 	  
+	  //perform as many database saves as possible
+	  int numCellLibrariesRecordedAsInclude = 0;
+	  int numCellLibrariesRecordedAsExclude = 0;
 	  for(int i = 0; i < totalRecordsToRecord; i++){
 		  String qcStatus = qcStatusList.get(i);
 		  String trimmedComment = commentList.get(i);
@@ -943,23 +955,52 @@ public class TaskController extends WaspController {
 			  continue;
 		  }
 		  try{
-			  sampleService.saveMetaCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);
+			  sampleService.saveMetaCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);//will deal with insert and update
+			  if("EXCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
+			  else if("INCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
 		  }catch(Exception e){
 			  errorMessages.add("task.cellLibraryqc_message.error");
 		  }		  
 	  }
-	  //NEED TO DEAL WITH THE --start analysis******************************************************
-	  //((((((((((((((((()))))))))))))))*****************************
 	  
-	  if(!errorMessages.isEmpty()){
+	  if(!errorMessages.isEmpty()){//some error occurred during the database save(s). Note that if any errors, do not start any analysis or terminate job.
 		  //add all to waspErrorMessage
 		  for(String s : errorMessages){
 			  waspErrorMessage(s);
 		  }
+		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
-	  else{
-		  waspMessage("task.cellLibraryqc_update_success.label");	
+	  
+	  //finally, deal with kicking off the analysis or terminating the job (don't want to do analysis) (or else postpone decision for analysis for later on)
+	  if("Now".equalsIgnoreCase(startAnalysis)){
+		  //this can proceed if, for all the cellLibrary records that have been aligned, 
+		  //they also have been recorded for in_aggreagte_analysis and at least one is true for in_aggreagate_analysis
+		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsInclude + numCellLibrariesRecordedAsExclude 
+				  && numCellLibrariesRecordedAsInclude > 0){
+			  //TODO: kick off analysis
+			  //System.out.println("**********all ok and I should be kicking off the analysis");
+		  }
+		  else{
+			  waspErrorMessage("task.cellLibraryqc_startAnalysisNotPossibleNow.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
 	  }
+	  else if("Never".equalsIgnoreCase(startAnalysis)){//do not want analysis, so don't care
+		  //To terminate the job without analysis, you must mark each record as Exclude and provide a reason for exclusion
+		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsExclude){
+			  //TODO: terminate the job
+			  //System.out.println("**********all ok and I should be terminating the job");
+		  }
+		  else{
+			  waspErrorMessage("task.cellLibraryqc_terminateJobNotPossibleNow.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  }
+	  else if("Later".equalsIgnoreCase(startAnalysis)){
+		  ;//do nothing
+		  //System.out.println("**********all ok and I want to start the analysis LATER");
+	  }
+	  waspMessage("task.cellLibraryqc_update_success.label");	
 	  return "redirect:/task/cellLibraryQC/list.do";
   }
 }
