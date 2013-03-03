@@ -2448,11 +2448,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	// statics 
-		protected static final String CELL_SUCCESS_META_AREA = "cell";
-		protected static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
+	public static class CellSuccessMeta {
+		public static final String AREA = "cell";
+		public static final String RUN_SUCCESS = "run_success";
+	}
 		
-		protected static final String CELL_LIBRARY_META_AREA = "cellLibrary";
-		protected static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
+	public static class CellLibraryMeta {
+		public static final String AREA = "cellLibrary";
+		public static final String PREPROCESS_PASS_QC = "preprocess_qc_pass";
+	}
 		
 		
 		/**
@@ -2467,7 +2471,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (sampleMetaList == null)
 				sampleMetaList = new ArrayList<SampleMeta>();
 			try{
-				success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY_RUN, sampleMetaList);
+				success = (String) MetaHelper.getMetaValue(CellSuccessMeta.AREA, CellSuccessMeta.RUN_SUCCESS, sampleMetaList);
 			} catch(MetadataException e) {
 				return false; // no value exists already
 			}
@@ -2486,7 +2490,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Boolean b = new Boolean(success);
 			String successString = b.toString();
 			SampleMeta sampleMeta = new SampleMeta();
-			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY_RUN);
+			sampleMeta.setK(CellSuccessMeta.AREA + "." + CellSuccessMeta.RUN_SUCCESS);
 			sampleMeta.setV(successString);
 			sampleMeta.setSampleId(cell.getSampleId());
 			sampleMetaDao.setMeta(sampleMeta);
@@ -2527,7 +2531,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (metaList == null)
 				metaList = new ArrayList<SampleSourceMeta>();
 			try{
-				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PASS_QC, metaList);
+				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.PREPROCESS_PASS_QC, metaList);
 			} catch(MetadataException e) {
 				return false; // no value exists already
 			}
@@ -2546,7 +2550,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
-			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PASS_QC);
+			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.PREPROCESS_PASS_QC);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
