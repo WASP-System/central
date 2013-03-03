@@ -4,13 +4,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +22,10 @@ import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.exception.FormParameterException;
 import edu.yu.einstein.wasp.exception.ModelIdException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.illumina.WaspIlluminaQcService;
@@ -43,6 +46,10 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@Autowired
 	WaspIlluminaQcService illuminaQcService;
+	
+	@Autowired
+	@Qualifier("messageServiceWebappImpl")
+	MessageService messageService;
 	
 	// *** TODO: remove this section in production code ***
 	private static final String TEST_BASE_URL = "http://wasp.einstein.yu.edu/results/IlluminaOLBStatsLinks/110720_SN844_0092_B81M6DABXX"; 
@@ -66,13 +73,21 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	}
 	// *** end of remove in production code section ***
 	
-	private void setModelParametersForGetRequest(Integer runId, String metaKey, String chartSubFolder, ModelMap m) throws ModelIdException{
-		Run run = runService.getRunById(runId);
-		if (run.getRunId() == null)
-			throw new ModelIdException("No run found with id of " + runId + " in model");
+	private void setImageDataModelParametersForGetRequest(String metaKey, String chartSubFolder, ModelMap m) {
 		// TODO: replace imageFileUrlList with proper list from database (filegroups)
 		List<URL> imageFileUrlList = getTestImageFileUrlList(chartSubFolder, metaKey);
 		
+		String runReportBaseImagePath = TEST_BASE_URL; // TODO: replace in production code with method call
+		m.addAttribute("runReportBaseImagePath", runReportBaseImagePath);
+		m.addAttribute("chartSubFolder", chartSubFolder);
+		m.addAttribute("imageFileUrlList", imageFileUrlList);
+		m.addAttribute("numCycles", imageFileUrlList.size() / 4);
+	}
+	
+	private void setCoreDataModelParametersForGetRequest(Integer runId, String metaKey, ModelMap m) throws ModelIdException{
+		Run run = runService.getRunById(runId);
+		if (run.getRunId() == null)
+			throw new ModelIdException("No run found with id of " + runId + " in model");
 		List<Integer> cellIndexList = new ArrayList<Integer>();
 		Map<Integer, IlluminaQcContext> indexedQcData = new HashMap<Integer, IlluminaQcContext>();
 		
@@ -80,26 +95,19 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit());
 			cellIndexList.addAll(cells.keySet());
 			for (Integer index: cellIndexList){
-				IlluminaQcContext qcContext = new IlluminaQcContext();
 				Sample cell = cells.get(index);
-				qcContext.setCell(cell);
+				IlluminaQcContext qcContext = null;
 				try{
-					qcContext.setPassedQc(illuminaQcService.isCellPassedQc(cell, metaKey));
+					qcContext = illuminaQcService.getQc(cell, metaKey);
 				} catch(Exception e){ } // do nothing, leave set to null
-				try{
-					qcContext.setComment(illuminaQcService.getCellQcComment(cell, metaKey));
-				} catch(Exception e){ }	// do nothing, leave set to null
+				if (qcContext == null)
+					qcContext = new IlluminaQcContext(cell, null, null);
 				indexedQcData.put(index, qcContext);
 			}
 		} catch (SampleTypeException e) {
 			logger.warn(e.getLocalizedMessage());
 		}
 		
-		String runReportBaseImagePath = TEST_BASE_URL; // TODO: replace in production code with method call
-		m.addAttribute("runReportBaseImagePath", runReportBaseImagePath);
-		m.addAttribute("chartSubFolder", chartSubFolder);
-		m.addAttribute("imageFileUrlList", imageFileUrlList);
-		m.addAttribute("numCycles", imageFileUrlList.size() / 4);
 		m.addAttribute("cellIndexList", cellIndexList);
 		m.addAttribute("runName", run.getName());
 		m.addAttribute("existingQcValuesIndexed",indexedQcData);
@@ -134,8 +142,9 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.GET)
 	public String displayFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
+		setImageDataModelParametersForGetRequest(CellSuccessQcMetaKey.FOCUS, "FWHM", m);
 		try{
-			setModelParametersForGetRequest(runId, CellSuccessQcMetaKey.FOCUS, "FWHM", m);
+			setCoreDataModelParametersForGetRequest(runId, CellSuccessQcMetaKey.FOCUS, m);
 		} catch(ModelIdException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("run.invalid_id.error");
@@ -169,8 +178,9 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@RequestMapping(value="/displayIntensityCharts/{runId}", method=RequestMethod.GET)
 	public String displayIntensityCharts(@PathVariable("runId") Integer runId, ModelMap m){
+		setImageDataModelParametersForGetRequest(CellSuccessQcMetaKey.INTENSITY, "Intensity", m);
 		try{
-			setModelParametersForGetRequest(runId, CellSuccessQcMetaKey.INTENSITY, "Intensity", m);
+			setCoreDataModelParametersForGetRequest(runId, CellSuccessQcMetaKey.INTENSITY, m);
 		} catch(ModelIdException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("run.invalid_id.error");
@@ -205,8 +215,9 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/displayNumGT30Charts/{runId}", method=RequestMethod.GET)
 	public String displayNumGT30Charts(@PathVariable("runId") Integer runId, ModelMap m){
+		setImageDataModelParametersForGetRequest(CellSuccessQcMetaKey.NUMGT30, "NumGT30", m);
 		try{
-			setModelParametersForGetRequest(runId, CellSuccessQcMetaKey.NUMGT30, "NumGT30", m);
+			setCoreDataModelParametersForGetRequest(runId, CellSuccessQcMetaKey.NUMGT30, m);
 		} catch(ModelIdException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("run.invalid_id.error");
@@ -249,8 +260,9 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	@RequestMapping(value="/displayClusterDensityChart/{runId}", method=RequestMethod.GET)
 	public String displayClusterDensityChart(@PathVariable("runId") Integer runId, ModelMap m){
+		setImageDataModelParametersForGetRequest(CellSuccessQcMetaKey.CLUSTER_DENSITY, "", m);
 		try{
-			setModelParametersForGetRequest(runId, CellSuccessQcMetaKey.CLUSTER_DENSITY, "", m);
+			setCoreDataModelParametersForGetRequest(runId, CellSuccessQcMetaKey.CLUSTER_DENSITY, m);
 		} catch(ModelIdException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("run.invalid_id.error");
@@ -279,31 +291,78 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 				waspErrorMessage("waspIlluminaPlugin.update.error");
 				return "redirect:/dashboard.do";
 			}
-		return "redirect:/wasp-illumina/postRunQC/updateQualityReport.do";
+		return "redirect:/wasp-illumina/postRunQC/updateQualityReport/1.do";
 	}
 	
-	@RequestMapping(value="/updateQualityReport", method=RequestMethod.GET)
-	public String updateQualityReport(ModelMap m){
-		// TODO: add functionality here
+	@RequestMapping(value="/updateQualityReport/{runId}", method=RequestMethod.GET)
+	public String updateQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
+		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new HashMap<String, Map<Integer,IlluminaQcContext>>();
+		Run run = runService.getRunById(runId);
+		if (run.getRunId() == null){
+			logger.warn("No run found with id of " + runId + " in model");
+			waspErrorMessage("run.invalid_id.error");
+			return "redirect:/dashboard.do";
+		}
+		try{
+			setCoreDataModelParametersForGetRequest(runId, CellSuccessQcMetaKey.RUN_SUCCESS, m);
+		} catch(ModelIdException e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("run.invalid_id.error");
+			return "redirect:/dashboard.do";
+		}
+		Sample pu = run.getPlatformUnit();
+		Map<String, String> qcHeadingsByMetaKey = new LinkedHashMap<String, String>();
+		qcHeadingsByMetaKey.put(CellSuccessQcMetaKey.FOCUS, messageService.getMessage("waspIlluminaPlugin.updateQualityReport_focus.label"));
+		qcHeadingsByMetaKey.put(CellSuccessQcMetaKey.INTENSITY, messageService.getMessage("waspIlluminaPlugin.updateQualityReport_intensity.label"));
+		qcHeadingsByMetaKey.put(CellSuccessQcMetaKey.NUMGT30, messageService.getMessage("waspIlluminaPlugin.updateQualityReport_baseQc.label"));
+		qcHeadingsByMetaKey.put(CellSuccessQcMetaKey.CLUSTER_DENSITY, messageService.getMessage("waspIlluminaPlugin.updateQualityReport_clusterDensity.label"));
+		
+		try{
+			Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(pu);
+			for(String metaKey: qcHeadingsByMetaKey.keySet()){
+				Map<Integer, IlluminaQcContext> cellQcResults = new HashMap<Integer, IlluminaQcContext>();
+				for(Integer cellIndex : cells.keySet()){
+					IlluminaQcContext qcContext = illuminaQcService.getQc(cells.get(cellIndex), metaKey);
+					if (qcContext == null)
+						throw new WaspException("Data missing for cell index " + cellIndex);
+					cellQcResults.put(cellIndex, qcContext);
+				}
+				qcDataMap.put(metaKey, cellQcResults);
+			}
+		} catch (Exception e) {
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("waspIlluminaPlugin.qcRetrieval.error");
+		}
+		m.addAttribute("qcHeadingsByMetaKey", qcHeadingsByMetaKey);
+		m.addAttribute("qcDataMap", qcDataMap);
 		return "wasp-illumina/postrunqc/updatequalityreport";
 	}
 	
-	@RequestMapping(value="/updateQualityReport", method=RequestMethod.POST)
-	public String processQualityReport(ModelMap m){
-		// TODO: add functionality here 
-		return "redirect:/wasp-illumina/postRunQC/commitQC.do";
+	@RequestMapping(value="/updateQualityReport/{runId}", method=RequestMethod.POST)
+	public String processQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
+		try {
+			processPostRequest(runId, CellSuccessQcMetaKey.RUN_SUCCESS);
+		} catch (SampleTypeException e1) {
+			logger.warn(e1.getLocalizedMessage());
+			waspErrorMessage("waspIlluminaPlugin.puCells.error");
+			return "redirect:/dashboard.do";
+		} catch (ModelIdException e1) {
+			logger.warn(e1.getLocalizedMessage());
+			waspErrorMessage("run.invalid_id.error");
+			return "redirect:/dashboard.do";
+		} catch (FormParameterException e1) {
+			logger.warn(e1.getLocalizedMessage());
+			waspErrorMessage("waspIlluminaPlugin.formParameter.error");
+			return "redirect:/dashboard.do";
+		} catch (Exception e){
+			logger.warn(e.getLocalizedMessage());
+			waspErrorMessage("waspIlluminaPlugin.update.error");
+			return "redirect:/dashboard.do";
+		}
+		waspMessage("waspIlluminaPlugin.updateQcsuccess.label");
+		return "redirect:/dashboard.do";
 	}
 	
-	@RequestMapping(value="/commitQC", method=RequestMethod.GET)
-	public String commitQC(ModelMap m){
-		// TODO: add functionality here
-		return "wasp-illumina/postrunqc/commitqc";
-	}
-	
-	@RequestMapping(value="/commitQC", method=RequestMethod.POST)
-	public String processQC(ModelMap m){
-		// TODO: add functionality here 
-		return "wasp-illumina/postrunqc/done";
-	}
+
 
 }

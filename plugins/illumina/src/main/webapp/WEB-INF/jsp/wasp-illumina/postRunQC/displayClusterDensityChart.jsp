@@ -44,7 +44,7 @@
 	<p>Note that the <span style="color:blue;">blue box plots represent total cluster density</span> and the <span style="color:green;">green box plots represent clusters pass filter</span>. Ideally the median of both plots for each lane should be about the same. Illumina currently recommends ~400 clusters/mm<sup>2</sup> (or 500-630 clusters/mm<sup>2</sup> on GAIIx using the TruSeq SBS V5 kit or 610-680 clusters/mm<sup>2</sup> on HiSeq2000 with TruSeq v3 Cluster and SBS kits).</p>
 	<p><span style="color:red;">WARNING:</span> High cluster density combined with low cluster pass filter values indicates overloading of the lane and risks poor quality sequence data.</p>
 	<div id="displayWindow" style="float:right;"><button id="showForm">Continue</button></div>
-	<div id="mainImage" class="ui-widget-content ui-corner-all"><img src='<c:out value="${runReportBaseImagePath}/NumClusters%20By%20Lane.png" />' height='400' width='600'></div>
+	<div id="mainImage" class="ui-widget-content ui-corner-all"><img src='<c:out value="${runReportBaseImagePath}/NumClusters%20By%20Lane.png" />' height='400' width='800'></div>
 </div>	
 
 <div id="error_dialog-modal" title="Warning" >

@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.illumina.WaspIlluminaQcService;
+import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.CellSuccessMeta;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
@@ -26,8 +27,7 @@ import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 @Transactional
 public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIlluminaQcService{
 	
-	public static class CellSuccessQcMetaKey{
-		private static final String META_AREA = "cell";
+	public static class CellSuccessQcMetaKey extends CellSuccessMeta{
 		public static final String FOCUS = "focusQC";
 		public static final String INTENSITY = "intensityQC";
 		public static final String NUMGT30 = "NumGt30QC";
@@ -39,15 +39,20 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 			if (key.equals(INTENSITY)) return true;
 			if (key.equals(NUMGT30)) return true;
 			if (key.equals(CLUSTER_DENSITY)) return true;
+			if (key.equals(RUN_SUCCESS)) return true;
 			return false;
 		}
+		
 	}
 	
-	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP = "RunQcComments";
-	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS = "Focus QC Comment";
-	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY = "Intensity QC Comment";
-	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30 = "Num Bases QS > 30 Comment";
-	private static final String CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER = "Cluster Density QC Comment";
+	private static class CellSuccessQcCommentMeta {
+		public static final String GROUP = "RunQcComments";
+		public static final String FOCUS = "Focus QC Comment";
+		public static final String INTENSITY = "Intensity QC Comment";
+		public static final String NUMGT30 = "Num Bases QS > 30 Comment";
+		public static final String CLUSTER_DENSITY = "Cluster Density QC Comment";
+		public static final String LANE = "Overal Lane QC Comment";
+	}
 	
 	@Autowired
 	SampleService sampleService;
@@ -72,7 +77,7 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 		List<SampleMeta> sampleMetaList = cell.getSampleMeta();
 		if (sampleMetaList == null)
 			sampleMetaList = new ArrayList<SampleMeta>();
-		success = (String) MetaHelper.getMetaValue(CellSuccessQcMetaKey.META_AREA, metaKey, sampleMetaList);
+		success = (String) MetaHelper.getMetaValue(CellSuccessQcMetaKey.AREA, metaKey, sampleMetaList);
 		Boolean b = new Boolean(success);
 		return b.booleanValue();
 	}
@@ -91,7 +96,7 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 		Boolean b = new Boolean(success);
 		String successString = b.toString();
 		SampleMeta sampleMeta = new SampleMeta();
-		sampleMeta.setK(CellSuccessQcMetaKey.META_AREA + "." + metaKey);
+		sampleMeta.setK(CellSuccessQcMetaKey.AREA + "." + metaKey);
 		sampleMeta.setV(successString);
 		sampleMeta.setSampleId(cell.getSampleId());
 		sampleMetaDao.setMeta(sampleMeta);
@@ -109,9 +114,9 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 		if (!sampleService.isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		Integer cellId = cell.getSampleId();
-		List<MetaMessage> existingMessages = metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, cellId, SampleMeta.class, sampleMetaDao);
+		List<MetaMessage> existingMessages = metaMessageService.read(CellSuccessQcCommentMeta.GROUP, metaKey, cellId, SampleMeta.class, sampleMetaDao);
 		if (existingMessages.isEmpty()){
-			metaMessageService.saveToGroup(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, comment, cellId, SampleMeta.class, sampleMetaDao);
+			metaMessageService.saveToGroup(CellSuccessQcCommentMeta.GROUP, metaKey, comment, cellId, SampleMeta.class, sampleMetaDao);
 		} else {
 			metaMessageService.edit(existingMessages.get(0), comment, cellId, SampleMeta.class, sampleMetaDao);
 		}
@@ -127,7 +132,7 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 			throw new StatusMetaMessagingException("invalid meta key provided");
 		if (!sampleService.isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
-		List<MetaMessage> messages =  metaMessageService.read(CELL_SUCCESS_META_KEY_QC_COMMENT_GROUP, metaKey, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
+		List<MetaMessage> messages =  metaMessageService.read(CellSuccessQcCommentMeta.GROUP, metaKey, cell.getSampleId(), SampleMeta.class, sampleMetaDao);
 		if (messages.isEmpty())
 			throw new StatusMetaMessagingException("No message found for given key: " + metaKey);
 		return messages.get(0).getValue(); // should only be one message
@@ -152,6 +157,27 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 		}
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IlluminaQcContext getQc(Sample cell, String metaKey) throws SampleTypeException, StatusMetaMessagingException{
+		Assert.assertParameterNotNull(cell, "a cell must be provided");
+		IlluminaQcContext qcContext = new IlluminaQcContext();
+		qcContext.setCell(cell);
+		try {
+			qcContext.setPassedQc(isCellPassedQc(cell, metaKey));
+		} catch (MetadataException e) {
+			return null;
+		}
+		String comment = getCellQcComment(cell, metaKey);
+		if (comment == null)
+			comment = "";
+		qcContext.setComment(comment);
+		return qcContext;
+	}
+	
 	/**
 	 * get name for QC comments based on metaKey
 	 * @param metaKey
@@ -160,13 +186,15 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 	 */
 	private String getQcCommentName(String metaKey) throws StatusMetaMessagingException{
 		if (metaKey.equals(CellSuccessQcMetaKey.FOCUS))
-			return CELL_SUCCESS_META_KEY_QC_COMMENT_FOCUS;
+			return CellSuccessQcCommentMeta.FOCUS;
 		if (metaKey.equals(CellSuccessQcMetaKey.INTENSITY))
-			return CELL_SUCCESS_META_KEY_QC_COMMENT_INTENSITY;
+			return CellSuccessQcCommentMeta.INTENSITY;
 		if (metaKey.equals(CellSuccessQcMetaKey.NUMGT30))
-			return CELL_SUCCESS_META_KEY_QC_COMMENT_NUMGT30;
+			return CellSuccessQcCommentMeta.NUMGT30;
 		if (metaKey.equals(CellSuccessQcMetaKey.CLUSTER_DENSITY))
-			return CELL_SUCCESS_META_KEY_QC_COMMENT_CLUSTER;
+			return CellSuccessQcCommentMeta.CLUSTER_DENSITY;
+		if (metaKey.equals(CellSuccessQcMetaKey.RUN_SUCCESS))
+			return CellSuccessQcCommentMeta.LANE;
 		throw new StatusMetaMessagingException("Unable to determine key for setting status message");
 	}
 

@@ -50,4 +50,14 @@ public interface WaspIlluminaQcService extends WaspService {
 	 */
 	public void updateQc(List<IlluminaQcContext> qcContextList, String metaKey);
 
+	/**
+	 * Get the QC data for a given cell and meta-key. Returns null if QC status boolean not set.
+	 * @param cell
+	 * @param metaKey
+	 * @return
+	 * @throws SampleTypeException
+	 * @throws StatusMetaMessagingException
+	 */
+	public IlluminaQcContext getQc(Sample cell, String metaKey)	throws SampleTypeException, StatusMetaMessagingException;
+
 }

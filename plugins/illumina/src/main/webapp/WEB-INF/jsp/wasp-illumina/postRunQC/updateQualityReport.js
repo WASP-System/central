@@ -1,0 +1,73 @@
+<script>
+
+	function validate(){
+		TOTAL_LANES = 8;
+		reviewsIncomplete = false;
+		commentsIncomplete = false;
+		acceptMessage = "<p>You must choose either 'Accept' or 'Reject' for ALL lanes. You have not yet scored lanes ";
+		commentMessage = "<p>You must write comments for rejected lanes ";
+		for (i=1; i <= TOTAL_LANES; i++){
+			laneResult = $("input[name=radioL" + i + "]:checked").val();
+			comments = $("#commentsL" + i).val();
+			if (laneResult == null){
+				acceptMessage += i + ", ";
+				reviewsIncomplete = true;
+			}
+			else if (laneResult == 0 && comments == ""){
+				commentMessage += i + ", ";
+				commentsIncomplete = true;
+			} 
+		}
+		if (reviewsIncomplete || commentsIncomplete){
+			message = "";
+			if (reviewsIncomplete){
+				message = acceptMessage.substring(0, acceptMessage.length-2); // trim trailing comma and space 
+				message += ".</p>";
+			}
+			if (commentsIncomplete){
+				message += commentMessage.substring(0, commentMessage.length-2); // trim trailing comma and space 
+				message += ".</p>";
+			}
+			$( "#warningText" ).html(message);
+			$( "#error_dialog-modal" ).dialog("open");
+		}
+		else{
+			$( "#qualityForm").submit();
+		}
+	}
+		
+	$(function() {
+
+		$( "#radioL1" ).buttonset();
+		$( "#radioL2" ).buttonset();
+		$( "#radioL3" ).buttonset();
+		$( "#radioL4" ).buttonset();
+		$( "#radioL5" ).buttonset();
+		$( "#radioL6" ).buttonset();
+		$( "#radioL7" ).buttonset();
+		$( "#radioL8" ).buttonset();
+
+		$( "#submitForm" ).button()
+					.click(function(){
+						validate();
+					});
+		
+		$( "#error_dialog-modal" ).dialog({
+			modal: true,
+			height: 250,
+			width: 350,
+			autoOpen: false,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" ); // close modal when 'Ok' button pressed 
+				}
+			},
+			open: function(){
+				$(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").addClass("errorHeader"); // change header bar background color 
+			}
+		});
+				
+	});
+
+	
+</script>

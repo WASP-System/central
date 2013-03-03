@@ -27,7 +27,7 @@ public class IlluminaQcContext {
 		return passedQc;
 	}
 
-	public void setPassedQc(boolean passedQc) {
+	public void setPassedQc(Boolean passedQc) {
 		this.passedQc = passedQc;
 	}
 
@@ -41,7 +41,7 @@ public class IlluminaQcContext {
 	
 	public IlluminaQcContext(){}
 
-	public IlluminaQcContext(Sample cell, boolean passedQc, String comment) {
+	public IlluminaQcContext(Sample cell, Boolean passedQc, String comment) {
 		super();
 		this.cell = cell;
 		this.passedQc = passedQc;
