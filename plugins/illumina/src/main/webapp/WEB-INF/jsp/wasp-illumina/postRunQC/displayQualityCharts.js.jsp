@@ -5,9 +5,9 @@
 	
 	function validate(){
 		TOTAL_LANES = 8;
-		messagePassFailRoot = "You must choose either 'Pass' or 'Fail' for ALL lanes. You have not yet scored lanes ";
+		messagePassFailRoot = '<fmt:message key="waspIlluminaPlugin.displayQc_noChoose.error" />';
 		messagePassFailLanes = "";
-		messageCommentsRoot = "You must write a comment for all failed lanes: ";
+		messageCommentsRoot = '<fmt:message key="waspIlluminaPlugin.displayQc_noComment.error" />';
 		messageCommentsLanes = "";
 		for (i=1; i <= TOTAL_LANES; i++){
 			laneResult = $("input[name='radioL" + i + "']:checked").val();

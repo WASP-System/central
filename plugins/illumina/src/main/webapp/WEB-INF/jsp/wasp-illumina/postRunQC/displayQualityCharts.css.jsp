@@ -2,6 +2,10 @@
 
 <style>
 	
+	.infoIcon {
+		float:left; 
+		margin:-2px 5px 0 0;
+	}
 	
 	.preloadHidden {
 		display:none;

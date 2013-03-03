@@ -4,8 +4,8 @@
 		TOTAL_LANES = 8;
 		reviewsIncomplete = false;
 		commentsIncomplete = false;
-		acceptMessage = "<p>You must choose either 'Accept' or 'Reject' for ALL lanes. You have not yet scored lanes ";
-		commentMessage = "<p>You must write comments for rejected lanes ";
+		acceptMessage = '<fmt:message key="waspIlluminaPlugin.updateQc_noChoose.error" />';
+		commentMessage = '<fmt:message key="waspIlluminaPlugin.updateQc_noComment.error" />';
 		for (i=1; i <= TOTAL_LANES; i++){
 			laneResult = $("input[name=radioL" + i + "]:checked").val();
 			comments = $("#commentsL" + i).val();
