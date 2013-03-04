@@ -2258,9 +2258,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
 		
-		List<MetaMessage> existingMessages = metaMessageService.read(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		List<MetaMessage> existingMessages = metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		if (existingMessages.isEmpty()){
-			metaMessageService.saveToGroup(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+			metaMessageService.saveToGroup(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		} else {
 			metaMessageService.edit(existingMessages.get(0), comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		}
@@ -2271,7 +2271,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId){
-		return metaMessageService.read(CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		return metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 	}
 	
 	/**
@@ -2471,13 +2471,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	// statics 
-		protected static final String CELL_SUCCESS_META_AREA = "cell";
-		protected static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
-		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
-		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
-		private static final String CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
 
+	public static class CellSuccessMeta {
+		public static final String AREA = "cell";
+		public static final String RUN_SUCCESS = "run_success";
+	}
 		
+	public static class CellLibraryMeta {
+		public static final String AREA = "cellLibrary";
+		public static final String PREPROCESS_PASS_QC = "preprocess_qc_pass";
+		public static final String IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
+	}
+				
 		/**
 		 *  {@inheritDoc}
 		 */
@@ -2490,7 +2495,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (sampleMetaList == null)
 				sampleMetaList = new ArrayList<SampleMeta>();
 			try{
-				success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY_RUN, sampleMetaList);
+				success = (String) MetaHelper.getMetaValue(CellSuccessMeta.AREA, CellSuccessMeta.RUN_SUCCESS, sampleMetaList);
 			} catch(MetadataException e) {
 				return false; // no value exists already
 			}
@@ -2509,7 +2514,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Boolean b = new Boolean(success);
 			String successString = b.toString();
 			SampleMeta sampleMeta = new SampleMeta();
-			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY_RUN);
+			sampleMeta.setK(CellSuccessMeta.AREA + "." + CellSuccessMeta.RUN_SUCCESS);
 			sampleMeta.setV(successString);
 			sampleMeta.setSampleId(cell.getSampleId());
 			sampleMetaDao.setMeta(sampleMeta);
@@ -2550,7 +2555,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (metaList == null)
 				metaList = new ArrayList<SampleSourceMeta>();
 			try{
-				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PASS_QC, metaList);
+				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.PREPROCESS_PASS_QC, metaList);
 			} catch(MetadataException e) {
 				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_PASS_QC"); // no value exists already
 			}
@@ -2569,7 +2574,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
-			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PASS_QC);
+			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.PREPROCESS_PASS_QC);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
@@ -2650,7 +2655,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (metaList == null)
 				metaList = new ArrayList<SampleSourceMeta>();
 			try{
-				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, metaList);
+				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
 			} catch(MetadataException e) {
 				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS"); // no value exists already
 			}
@@ -2674,9 +2679,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				sampleSourceMeta = new SampleSourceMeta();
 			}
 			else{
-				sampleSourceMeta = MetaHelper.getMetaObjectFromList(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS, metaList);
+				sampleSourceMeta = MetaHelper.getMetaObjectFromList(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
 			}
-			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS);
+			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.IN_AGGREGATE_ANALYSIS);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
