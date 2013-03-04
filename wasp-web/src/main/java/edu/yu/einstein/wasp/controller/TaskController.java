@@ -703,15 +703,7 @@ public class TaskController extends WaspController {
 		return "task/myTaskList";
 	}
 
-  @RequestMapping(value = "/initiateAnalysis/list", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
-	public String initiateAnalysis(ModelMap m) {
-
-	
-
-		return "task/initiateanalysis/list";
-	}
-  
+ 
   @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String listCellLibraryQC(ModelMap m) {
@@ -794,6 +786,10 @@ public class TaskController extends WaspController {
 	  Map<SampleSource, String> cellLibraryInAnalysisCommentMap = new HashMap<SampleSource,String>();
 	  
 	  for(Job job : activeJobsWithNoSamplesCurrentlyBeingProcessed){
+		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
+		  if(jobService.isAggregationAnalysisBatchJob(job)){
+			  continue;
+		  }
 		  List<SampleSource> preprocessedCellLibraries = sampleService.getPreprocessedCellLibraries(job);//a preprocessed library is one that is sequenced and aligned
 		  //*******************will currently be none, so fake for some data
 		  if(fakeIt){
@@ -802,7 +798,7 @@ public class TaskController extends WaspController {
 			  }
 		  }
 		  //*******************will currently be none, so fake for some data		  
-		  if(preprocessedCellLibraries.size()>0 /* ********** && !xService.analysisBegun(job)********** */){
+		  if(preprocessedCellLibraries.size()>0){
 			  activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun.add(job);
 			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
 			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
@@ -893,6 +889,17 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.cellLibraryqc_jobNotFound.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
+	 
+	  //check whether this job has already been terminated -- unlikely, but not impossible in a multi-user system
+	  if(jobService.isTerminated(job)){
+	  	waspErrorMessage("task.cellLibraryqc_jobPreviouslyTerminated.error");
+  		return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  //check whether aggregate analysis has already been started -- unlikely, but not impossible in a multi-user system
+	  if(jobService.isAggregationAnalysisBatchJob(job)){
+		  waspErrorMessage("task.cellLibraryqc_aggregateAnalysisAlreadyUnderway.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
 	  if(sampleSourceIdList==null || sampleSourceIdList.isEmpty()){//an empty list should never be sent by the webpage
 		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
@@ -977,16 +984,9 @@ public class TaskController extends WaspController {
 		  //they also have been recorded for in_aggreagte_analysis and at least one is true for in_aggreagate_analysis
 		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsInclude + numCellLibrariesRecordedAsExclude 
 				  && numCellLibrariesRecordedAsInclude > 0){
-			
-			  /*TODO:
-			  ////if the analysis has already been started -- this is unlikely but not impossible in a multi-user system
-			  if(xService.analysisBegun(job)){
-				  waspErrorMessage("task.cellLibraryqc_???????.error");
-				  return "redirect:/task/cellLibraryQC/list.do";
-			  }
-			  */
-			  //TODO: kick off analysis
-			  //System.out.println("**********all ok and I should be kicking off the analysis");
+			  //kick off analysis
+			  jobService.initiateAggregationAnalysisBatchJob(job);
+			  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisBegun.label");
 		  }
 		  else{
 			  waspErrorMessage("task.cellLibraryqc_startAnalysisNotPossibleNow.error");
@@ -996,17 +996,15 @@ public class TaskController extends WaspController {
 	  else if("Never".equalsIgnoreCase(startAnalysis)){//do not want analysis, so don't care
 		  //To terminate the job without analysis, you must mark each record as Exclude and provide a reason for exclusion
 		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsExclude){
-			  
-			  /* 
-			  //if the job has already been terminated -- this is unlikely but not impossible in a multi-user system
-		  	  TODO:
-			  if(jobService.isTerminated(job)){
-			  	waspErrorMessage("task.cellLibraryqc_???????.error");
-		  		return "redirect:/task/cellLibraryQC/list.do";
-	  		  }
-			   */
-			  //TODO: terminate the job
-			  //System.out.println("**********all ok and I should be terminating the job");
+			  //terminate job
+			  try{
+				  jobService.terminate(job);// throws WaspMessageBuildingException;
+				  waspMessage("task.cellLibraryqc_updateSuccessfulAndJobTerminated.label");
+			  }
+			  catch(WaspMessageBuildingException e){
+				  waspErrorMessage("task.cellLibraryqc_terminateJobUnexpectedlyFailed.error");
+				  return "redirect:/task/cellLibraryQC/list.do";
+			  }
 		  }
 		  else{
 			  waspErrorMessage("task.cellLibraryqc_terminateJobNotPossibleNow.error");
@@ -1015,9 +1013,9 @@ public class TaskController extends WaspController {
 	  }
 	  else if("Later".equalsIgnoreCase(startAnalysis)){
 		  ;//do nothing
-		  //System.out.println("**********all ok and I want to start the analysis LATER");
+		  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisNotBegun.label");
 	  }
-	  waspMessage("task.cellLibraryqc_update_success.label");	
+	  //waspMessage("task.cellLibraryqc_update_success.label");	
 	  return "redirect:/task/cellLibraryQC/list.do";
   }
 }
