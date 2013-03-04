@@ -71,6 +71,7 @@
     }
   </script>
   <tiles:insertAttribute name="head-js" />
+  <tiles:insertAttribute name="head-style" />
 </head>
 
 <body >
