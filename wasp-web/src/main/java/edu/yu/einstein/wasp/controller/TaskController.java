@@ -977,6 +977,14 @@ public class TaskController extends WaspController {
 		  //they also have been recorded for in_aggreagte_analysis and at least one is true for in_aggreagate_analysis
 		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsInclude + numCellLibrariesRecordedAsExclude 
 				  && numCellLibrariesRecordedAsInclude > 0){
+			
+			  /*TODO:
+			  ////if the analysis has already been started -- this is unlikely but not impossible in a multi-user system
+			  if(xService.analysisBegun(job)){
+				  waspErrorMessage("task.cellLibraryqc_???????.error");
+				  return "redirect:/task/cellLibraryQC/list.do";
+			  }
+			  */
 			  //TODO: kick off analysis
 			  //System.out.println("**********all ok and I should be kicking off the analysis");
 		  }
@@ -988,6 +996,15 @@ public class TaskController extends WaspController {
 	  else if("Never".equalsIgnoreCase(startAnalysis)){//do not want analysis, so don't care
 		  //To terminate the job without analysis, you must mark each record as Exclude and provide a reason for exclusion
 		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsExclude){
+			  
+			  /* 
+			  //if the job has already been terminated -- this is unlikely but not impossible in a multi-user system
+		  	  TODO:
+			  if(jobService.isTerminated(job)){
+			  	waspErrorMessage("task.cellLibraryqc_???????.error");
+		  		return "redirect:/task/cellLibraryQC/list.do";
+	  		  }
+			   */
 			  //TODO: terminate the job
 			  //System.out.println("**********all ok and I should be terminating the job");
 		  }
