@@ -488,8 +488,11 @@ public class UserController extends WaspController {
 		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 
 		userForm.setUserMeta(userMetaList);
+		
+		logger.debug("userMeta: " + StringUtils.join(userMetaList, ","));
+		
 		metaHelper.validate(result);
-		userForm.setUserId(userId);
+		userForm.setId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspErrorMessage("user.updated.error");
