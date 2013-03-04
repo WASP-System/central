@@ -15,8 +15,8 @@
 	</c:if>
 </ul>
 
-
+<%-- 
 <br /><br />
 <a href='<c:url value="/task/cellLibraryQC/list.do"/>'>FOR TESTING - cellLibraryQC</a>		
-		
+--%>		
 	

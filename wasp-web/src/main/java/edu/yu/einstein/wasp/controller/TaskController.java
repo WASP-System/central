@@ -767,14 +767,15 @@ public class TaskController extends WaspController {
 		}
 	  
 	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete  
-	  //**************will currently be none, so add two jobs.
+	 
+	  /* *************will currently be none, so add two jobs.
 	  boolean fakeIt = false;
 	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
 		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(40));
 		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(46));
 		  fakeIt = true;
 	  }
-	  //**************will currently be none, so add two jobs.
+	  */  //**************will currently be none, so add two jobs.
 	  
 	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun = new ArrayList<Job>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
@@ -791,13 +792,15 @@ public class TaskController extends WaspController {
 			  continue;
 		  }
 		  List<SampleSource> preprocessedCellLibraries = sampleService.getPreprocessedCellLibraries(job);//a preprocessed library is one that is sequenced and aligned
-		  //*******************will currently be none, so fake for some data
+		  
+		  /*  //*******************will currently be none, so fake for some data
 		  if(fakeIt){
 			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
 				  preprocessedCellLibraries.add(ss);
 			  }
 		  }
-		  //*******************will currently be none, so fake for some data		  
+		  */  //*******************will currently be none, so fake for some data	
+		  
 		  if(preprocessedCellLibraries.size()>0){
 			  activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun.add(job);
 			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
