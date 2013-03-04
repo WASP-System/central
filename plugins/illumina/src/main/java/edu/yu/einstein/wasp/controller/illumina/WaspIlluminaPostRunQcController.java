@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.exception.FormParameterException;
 import edu.yu.einstein.wasp.exception.ModelIdException;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.illumina.WaspIlluminaQcService;
 import edu.yu.einstein.wasp.service.impl.illumina.WaspIlluminaQcServiceImpl.CellSuccessQcMetaKey;
 import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
+import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
 @RequestMapping("/wasp-illumina/postRunQC")
@@ -363,6 +365,15 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "redirect:/dashboard.do";
 	}
 	
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
+	public String listRunsRequiringQc(ModelMap m){
+		List<Hyperlink> hyperlinks = new ArrayList<Hyperlink>();
+		for (Run run: runService.getRunsAwaitingQc())
+			hyperlinks.add(new Hyperlink(run.getName(), "/wasp-illumina/postRunQC/displayFocusQualityCharts/" + run.getRunId() + ".do"));
+		m.addAttribute("taskHyperlinks", hyperlinks);
+		m.addAttribute("isTasks", (hyperlinks.isEmpty()) ? false : true);
+		return "wasp-illumina/postrunqc/list";
+	}
 
 
 }

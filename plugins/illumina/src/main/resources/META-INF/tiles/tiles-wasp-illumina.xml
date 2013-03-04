@@ -45,8 +45,8 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.jsp" />
 	</definition>
 	
-	<definition name="wasp-illumina/postrunqc/done" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/done.jsp" />
+	<definition name="wasp-illumina/postrunqc/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/list.jsp" />
 	</definition>
 
 

@@ -1,9 +1,15 @@
 package edu.yu.einstein.wasp.taskMapping.illumina;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
 
 public class IlluminaRunQCTaskMapping extends WaspTaskMapping {
+	
+	@Autowired
+	private RunService runService;
 	
 	public IlluminaRunQCTaskMapping(String localizedLabelKey, String targetLink, String permission) {
 		super(localizedLabelKey, targetLink, permission);
@@ -14,7 +20,7 @@ public class IlluminaRunQCTaskMapping extends WaspTaskMapping {
 	 */
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
-		return false;
+		return runService.isRunsAwaitingQc();
 	}
 
 }
