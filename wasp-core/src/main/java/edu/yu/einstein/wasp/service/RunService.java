@@ -170,7 +170,7 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @param run
 	   * @return
 	   */
-	  public boolean isRunSucessfullyCompleted(Run run);
+	  public boolean isRunSuccessfullyCompleted(Run run);
 
 	  /**
 	   * Returns true if the run is registered to be in a STARTED state
@@ -178,6 +178,18 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public boolean isRunActive(Run run);
+
+	  /**
+	   * Get a list of runs not currently abandoned and not being set as having been QCd
+	   * @return
+	   */
+	  public Set<Run> getRunsAwaitingQc();
+
+	  /**
+	   * Returns true if ANY run that has not ben abandoned is awaiting QC
+	   * @return
+	   */
+	  public boolean isRunsAwaitingQc();
 	  
 	  
 

@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -336,7 +335,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		  ExitStatus sampleReceivedStatus = ExitStatus.UNKNOWN;
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		  Set<String> sampleIdStringSet = new HashSet<String>();
+		  Set<String> sampleIdStringSet = new LinkedHashSet<String>();
 		  sampleIdStringSet.add(sample.getSampleId().toString());
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false);
@@ -355,7 +354,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
 		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		  Set<String> sampleIdStringSet = new HashSet<String>();
+		  Set<String> sampleIdStringSet = new LinkedHashSet<String>();
 		  sampleIdStringSet.add(sample.getSampleId().toString());
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false);
@@ -374,7 +373,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNull(library, "No library provided");
 		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> sampleIdStringSet = new HashSet<String>();
+		Set<String> sampleIdStringSet = new LinkedHashSet<String>();
 		sampleIdStringSet.add(library.getSampleId().toString());
 		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false);
@@ -437,7 +436,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isSamplePassQC(sample))
 			return false;
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		Set<String> sampleIdStringSet = new HashSet<String>();
+		Set<String> sampleIdStringSet = new LinkedHashSet<String>();
 		sampleIdStringSet.add(sample.getSampleId().toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
@@ -452,7 +451,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		// (no existing libraries have a flow that is running or completed successfully)
 		parameterMap = new HashMap<String, Set<String>>();
 		for (Sample library: librariesExisting){
-			Set<String> libraryIdStringSet = new HashSet<String>();
+			Set<String> libraryIdStringSet = new LinkedHashSet<String>();
 			libraryIdStringSet.add(library.getSampleId().toString());
 			parameterMap.put(WaspJobParameters.LIBRARY_ID, libraryIdStringSet);
 			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false);
@@ -792,10 +791,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // 'run' batch jobs are provided with one parameter, runId
 		  // we can obtain all run job executions by selecting jobs which have these parameters (regardless of the values as specified by "*")
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
-		  Set<String> runIdStringSet = new HashSet<String>();
+		  Set<String> runIdStringSet = new LinkedHashSet<String>();
 		  runIdStringSet.add("*");
 		  parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		  Set<Integer> IdsForPlatformUnitsNotAvailable = new HashSet<Integer>();
+		  Set<Integer> IdsForPlatformUnitsNotAvailable = new LinkedHashSet<Integer>();
 		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
 		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING) );
 		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED) );
@@ -2083,7 +2082,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isLibraryPassQC(library))
 			return false;
 		int sampleActualCoverage = 0;
-		Set<Sample> platformUnitsToConsider = new HashSet<Sample>();
+		Set<Sample> platformUnitsToConsider = new LinkedHashSet<Sample>();
 		platformUnitsToConsider.addAll(getPlatformUnitsNotYetRun());
 		platformUnitsToConsider.addAll(getRunningOrSuccessfullyRunPlatformUnits());
 		try{
@@ -2387,7 +2386,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Set<SampleSource> getCellLibrariesForJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
-		Set<SampleSource> cellLibraries = new HashSet<SampleSource>();
+		Set<SampleSource> cellLibraries = new LinkedHashSet<SampleSource>();
 		Map<String, String> m = new HashMap<String, String>();
 		m.put("k", LIBRARY_ON_CELL_AREA + "." + JOB_ID);
 		m.put("v", job.getJobId().toString());
@@ -2487,7 +2486,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException{
+		public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException, MetaAttributeNotFoundException{
 			if (!isCell(cell))
 				throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 			String success = null;
@@ -2497,7 +2496,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			try{
 				success = (String) MetaHelper.getMetaValue(CellSuccessMeta.AREA, CellSuccessMeta.RUN_SUCCESS, sampleMetaList);
 			} catch(MetadataException e) {
-				return false; // no value exists already
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: " + CellSuccessMeta.AREA + "." + CellSuccessMeta.RUN_SUCCESS); // no value exists already
 			}
 			Boolean b = new Boolean(success);
 			return b.booleanValue();
@@ -2508,7 +2507,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 * @throws MetadataException 
 		 */
 		@Override
-		public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
+		public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException {
 			if (!isCell(cell))
 				throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 			Boolean b = new Boolean(success);
@@ -2528,10 +2527,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
-			Set<String> ssIdStringSet = new HashSet<String>();
+			Set<String> ssIdStringSet = new LinkedHashSet<String>();
 			ssIdStringSet.add(cellLibrary.getSampleSourceId().toString());
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
-			Set<String> jobTaskSet = new HashSet<String>();
+			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			if (!batchJobExplorer.getJobExecutions(jobParameters, true, BatchStatus.COMPLETED).isEmpty())
@@ -2557,7 +2556,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			try{
 				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.PREPROCESS_PASS_QC, metaList);
 			} catch(MetadataException e) {
-				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_PASS_QC"); // no value exists already
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: " + CellLibraryMeta.AREA + "." + CellLibraryMeta.PREPROCESS_PASS_QC); // no value exists already
 			}
 			Boolean b = new Boolean(isPassedQC);
 			return b.booleanValue();
@@ -2717,7 +2716,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(job, "job cannot be null");
 			Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
 			
-			Set<SampleSource> samplePairs = new HashSet<SampleSource>();
+			Set<SampleSource> samplePairs = new LinkedHashSet<SampleSource>();
 			Map<String, String> m = new HashMap<String, String>();
 			m.put("k", SAMPLE_PAIR_AREA + "." + JOB_ID);
 			m.put("v", job.getJobId().toString());

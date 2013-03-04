@@ -859,12 +859,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
 
 	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * Returns true if cell marked as being sequenced successfully otherwise false is returned. 
+	   * Throws a MetaAttributeNotFoundException if the value is not set
 	   * @param cell
 	   * @return
 	   * @throws SampleTypeException
+	 * @throws MetaAttributeNotFoundException 
 	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException, MetaAttributeNotFoundException;
 
 	  /**
 	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
@@ -874,7 +876,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleTypeException
 	   * @throws MetadataException 
 	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * is cellLibrary pre-processed?

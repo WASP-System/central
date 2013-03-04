@@ -1948,12 +1948,16 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						return true; // the library is on an active run
 					}
 				}
-
-				if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
-					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
-						logger.debug("job " + job.getJobId() + "the library has been run and it's cell has passed QC but has not been pre-processed (aligned) yet - returning true");
-						return true; // the library has been run and passed QC but has not been pre-processed yet
+				try{
+					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
+						if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
+							logger.debug("job " + job.getJobId() + "the library has been run and it's cell has passed QC but has not been pre-processed (aligned) yet - returning true");
+							return true; // the library has been run and passed QC but has not been pre-processed yet
+						}
 					}
+				} catch (MetaAttributeNotFoundException e) {
+					logger.debug("job " + job.getJobId() + "the library has been run but has not been QCd yet - returning true");
+					return true; 
 				}
 			} catch(SampleTypeException e){
 				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());

@@ -446,17 +446,9 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public StepExecution getMostRecentlyStartedStepExecutionInList(List<StepExecution> stepExecutions){
-		StepExecution stepExecution = null;
-		if (stepExecutions == null)
+		if (stepExecutions == null || stepExecutions.isEmpty())
 			return null;
-		for(StepExecution se: stepExecutions){
-			if (stepExecution == null || se.getStartTime().after(stepExecution.getStartTime())){
-				stepExecution = se;
-			} else if (se.getStartTime().equals(stepExecution.getStartTime()) && se.getId() > stepExecution.getId()){
-				stepExecution = se;
-			}
-		}
-		return stepExecution;
+		return stepExecutions.get(0); // first in list should be most recent
 	}
 	
 	/**
@@ -464,17 +456,9 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public JobExecution getMostRecentlyStartedJobExecutionInList(List<JobExecution> jobExecutions){
-		JobExecution jobExecution = null;
-		if (jobExecutions == null)
+		if (jobExecutions == null || jobExecutions.isEmpty())
 			return null;
-		for(JobExecution je: jobExecutions){
-			if (jobExecution == null || je.getStartTime().after(jobExecution.getStartTime())){
-				jobExecution = je;
-			} else if (je.getStartTime().equals(jobExecution.getStartTime()) && je.getId() > jobExecution.getId()){
-				jobExecution = je;
-			}
-		}
-		return jobExecution;
+		return jobExecutions.get(0);  // first in list should be most recent
 	}
 
 	/**
