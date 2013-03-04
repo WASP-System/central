@@ -483,7 +483,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
@@ -519,6 +519,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			return true;
 		return false;
 	}
+	
+	
 	
 	 /**
 	   * {@inheritDoc}
@@ -1418,7 +1420,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		Assert.assertParameterNotNull(task, "No Task provided");
-		  
+		if (!this.isJobActive(job))
+			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
@@ -1926,6 +1929,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.debug("job " + job.getJobId() + " not active - returning false");
 			return false;
 		}
+		if (this.isAggregationAnalysisBatchJob(job)){
+			logger.debug("job " + job.getJobId() + " aggregation analysis has been initiated - returning false;");
+			return false;
+		}
+			
 		// if cellLibraries exist check these first (for efficiency)
 		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
 			try{
@@ -1982,8 +1990,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void triggerAggregationAnalysisBatchJob(Job job){
+	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
 		Map<String, String> jobParameters = new HashMap<String, String>();
@@ -2019,5 +2030,60 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 		}
 		return activeJobsWithNoSamplesCurrentlyBeingProcessed;
+	}
+
+	public boolean isAggregationAnalysisBatchJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		Set<String> taskSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		taskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		parameterMap.put(WaspJobParameters.BATCH_JOB_TASK, taskSet);
+		if (batchJobExplorer.getJobExecutions(parameterMap, true).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isTerminated(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STOPPED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isFinishedSuccessfully(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.COMPLETED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void terminate(Job job) throws WaspMessageBuildingException{
+		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS);
 	}
 }
