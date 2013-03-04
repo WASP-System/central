@@ -473,7 +473,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobExecutions.add(jobExecution);
 	  jobExecutions.add(jobExecution2);
 	  	  
-	  expect(mockJobExplorerWasp.getJobExecutions(parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
+	  expect(mockJobExplorerWasp.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
 	    
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID)).andReturn("123");

@@ -23,7 +23,7 @@ public class InitiateAggregationAnalysisTaskMapping extends WaspTaskMapping {
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
 		for(Job job: jobService.getActiveJobs()){
-			if (!jobService.isAnySampleCurrentlyBeingProcessed(job))
+			if (jobService.isJobActive(job) && !jobService.isAggregationAnalysisBatchJob(job) && !jobService.isAnySampleCurrentlyBeingProcessed(job))
 				return true;
 		}
 		return false;

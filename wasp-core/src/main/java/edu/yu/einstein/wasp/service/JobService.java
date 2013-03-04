@@ -520,9 +520,37 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Send message to wasp-daemon to trigger aggregation analysis for a job
 	 * @param job
 	 */
-	public void triggerAggregationAnalysisBatchJob(Job job);
+	public void initiateAggregationAnalysisBatchJob(Job job);
 
 	public String getJobStatusComment(Job job);
+
+	/**
+	 * returns true if an aggregation analysis batch job exists (in any state) for the given wasp job
+	 * @param job
+	 * @return
+	 */
+	public boolean isAggregationAnalysisBatchJob(Job job);
+
+	/**
+	 * returns true if job was stopped (terminated).
+	 * @param job
+	 * @return
+	 */
+	public boolean isTerminated(Job job);
+	
+	/**
+	 * returns true if job finished with a successful status 
+	 * @param job
+	 * @return
+	 */
+	public boolean isFinishedSuccessfully(Job job);
+
+	/**
+	 * Terminate a currently running job
+	 * @param job
+	 * @throws WaspMessageBuildingException
+	 */
+	public void terminate(Job job) throws WaspMessageBuildingException;
 
 	
 	
