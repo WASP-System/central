@@ -41,7 +41,7 @@
 	
 	<definition name="wasp-illumina/postrunqc/updatequalityreport" extends="template-base">
 		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.js" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.jsp" />
 	</definition>
 	

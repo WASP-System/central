@@ -60,16 +60,8 @@
 		$( "#main" ).hide();
 		$( "#selectionWindow" ).hide();
 		
-		$( "#radioL1" ).buttonset();
-		$( "#radioL2" ).buttonset();
-		$( "#radioL3" ).buttonset();
-		$( "#radioL4" ).buttonset();
-		$( "#radioL5" ).buttonset();
-		$( "#radioL6" ).buttonset();
-		$( "#radioL7" ).buttonset();
-		$( "#radioL8" ).buttonset();
+		$( ".radio-jquery-ui" ).buttonset();
 		
-		$( "#qscoreSelector" ).buttonset();
 		$( "#qscoreSelector" ).change(function(){
 				newLane = $("input[name=qscoreRadio]:checked").val();
 				$( "#qscoreChart" ).attr("src", "<c:out value="${runReportBaseImagePath}/${qscoreSubFolder}"/>/QScore_L" + newLane + ".png");

@@ -205,6 +205,10 @@
 		font-size: 14px;
 	}
 	
+	#loading_dialog-modal td{
+		vertical-align: middle;
+	}
+	
 	#error_dialog-modal
 	{
 		padding:15px;
@@ -236,6 +240,8 @@
 	
 	#validationTable {
 		border-collapse: collapse;
+		margin-left:auto;
+		margin-right:auto;
 	}
 	
 	#validationTable th{
@@ -257,6 +263,7 @@
 		text-align:center;
 		font-size:12px;
 		vertical-align: middle;
+		white-space:nowrap;
 	}
 	
 	td.fixedWidth{

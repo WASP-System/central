@@ -1,3 +1,5 @@
+<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+
 <script>
 
 	function validate(){
@@ -38,14 +40,7 @@
 		
 	$(function() {
 
-		$( "#radioL1" ).buttonset();
-		$( "#radioL2" ).buttonset();
-		$( "#radioL3" ).buttonset();
-		$( "#radioL4" ).buttonset();
-		$( "#radioL5" ).buttonset();
-		$( "#radioL6" ).buttonset();
-		$( "#radioL7" ).buttonset();
-		$( "#radioL8" ).buttonset();
+		$( ".radio-jquery-ui" ).buttonset();
 
 		$( "#submitForm" ).button()
 					.click(function(){
