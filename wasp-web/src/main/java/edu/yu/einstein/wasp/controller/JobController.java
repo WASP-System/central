@@ -428,7 +428,7 @@ public class JobController extends WaspController {
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
-			orderByColumnAndDirection.add("jobId desc");
+			orderByColumnAndDirection.add("id desc");
 		}
 			
 		tempJobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);

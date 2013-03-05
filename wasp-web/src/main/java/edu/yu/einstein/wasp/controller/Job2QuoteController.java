@@ -223,7 +223,7 @@ public class Job2QuoteController extends WaspController {
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
-			orderByColumnAndDirection.add("jobId desc");
+			orderByColumnAndDirection.add("id desc");
 		}
 		
 		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
@@ -371,10 +371,15 @@ public class Job2QuoteController extends WaspController {
 
 		List<AcctQuoteMeta> metaList = getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class);
 		quoteForm.setJobId(jobId);
-		quoteForm.setAcctQuoteMeta(metaList);
-		
 		AcctQuote acctQuoteDb = this.acctQuoteDao.save(quoteForm);
-		Integer quoteId = acctQuoteDb.getQuoteId();
+		quoteForm.setAcctQuoteMeta(metaList);
+		try {
+			acctQuoteMetaDao.setMeta(metaList, acctQuoteDb.getId());
+		} catch (MetadataException e) {
+			throw new IllegalStateException(e.getLocalizedMessage(), e);
+		}
+		
+		Integer quoteId = acctQuoteDb.getId();
 		try{
 			try{
 				this.acctQuoteMetaDao.setMeta(metaList, quoteId);

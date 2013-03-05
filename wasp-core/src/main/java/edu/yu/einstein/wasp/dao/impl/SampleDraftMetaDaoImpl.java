@@ -113,7 +113,7 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 		   "range.attrValue as `range`,\n"+
 		   "master.samplesubtypeid, master.sampletypeid, master.subtypeName, master.arealist\n"+
 		   "from \n"+
-		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.samplesubtypeid, st.sampletypeid, st.name as subtypeName, st.arealist as arealist\n"+
+		   "(select distinct f.area,f.name,convert(f.attrValue, signed) pos, st.id, st.sampletypeid, st.name as subtypeName, st.arealist as arealist\n"+
 		   "from samplesubtype st\n"+					   
 		   "join uifield f on  (\n"+
 		   "st.arealist regexp concat('^\\s*' , f.area , '\\s*$') or\n"+
@@ -122,10 +122,10 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 		   "st.arealist regexp concat(',\\s*' , f.area , '\\s*$') )\n"+
 		   "and f.attrName='metaposition'\n"+
 		   "and f.locale='en_US'\n"+
-		   "where st.samplesubtypeid in (\n"+
-		   "select st.samplesubtypeid\n"+
+		   "where st.id in (\n"+
+		   "select st.id samplesubtypeid\n"+
 		   "from workflowSampleSubtype wst\n"+
-		   "join samplesubtype st on st.samplesubtypeid = wst.samplesubtypeid\n"+
+		   "join samplesubtype st on st.id = wst.samplesubtypeid\n"+
 		   "where wst.workflowid=:workflowid\n"+
 		   ")\n"+
 		   ") as master\n"+
