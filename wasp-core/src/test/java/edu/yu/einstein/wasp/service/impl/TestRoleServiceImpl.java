@@ -22,8 +22,8 @@ import edu.yu.einstein.wasp.dao.impl.DepartmentUserDaoImpl;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.WRole;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 
 
@@ -37,19 +37,19 @@ public class TestRoleServiceImpl {
   @Test  (groups = "unit-tests-service-objects")
   public void getUniqueSortedRoleList() {
 	  
-	  WUser user = new WUser();
+	  User user = new User();
 	  Userrole userrole = new Userrole();
 	  List<Userrole> userroles = new ArrayList<Userrole>();
 	  List<LabUser> labUsers = new ArrayList<LabUser>();
 	  LabUser labUser = new LabUser();
 	  
-	  WRole role1 = new WRole();
+	  Role role1 = new Role();
 	  role1.setId(1);
 	  role1.setName("Facility Manager");
 	  userrole.setRole(role1);
 	  userroles.add(userrole);
 	  
-	  WRole role2 = new WRole();
+	  Role role2 = new Role();
 	  role2.setId(2);
 	  role2.setName("PI");
 	  labUser.setRole(role2);
@@ -86,23 +86,23 @@ public class TestRoleServiceImpl {
 	  Userrole userrole = new Userrole();
 	  List<Userrole> userroles = new ArrayList<Userrole>();
 	  
-	  WUser user = new WUser();
+	  User user = new User();
 	  user.setLastName("Jones");
 	  
 	  Lab lab = new Lab();
 	  lab.setUser(user);
 	  
-	  WRole role1 = new WRole();
+	  Role role1 = new Role();
 	  role1.setId(1);
 	  role1.setName("Facility Manager");
 	  userrole.setRole(role1);
 	  userroles.add(userrole);
 	  
 	  //Test scenario 1:  where roleName is not "lm" or "lu"
-	  WUser testUser1 = new WUser();
+	  User testUser1 = new User();
 	  LabUser labUser = new LabUser();
 	  List<LabUser> labUsers = new ArrayList<LabUser>();
-	  WRole role2 = new WRole();
+	  Role role2 = new Role();
 	  role2.setId(2);
 	  role2.setRoleName("pi");
 	  role2.setName("Primary Investigator");
@@ -114,8 +114,8 @@ public class TestRoleServiceImpl {
 	  LabUser labUser2 = new LabUser();
 	  List<LabUser> labUsers2 = new ArrayList<LabUser>();
 	  
-	  WUser testUser2 = new WUser();
-	  WRole role3 = new WRole();
+	  User testUser2 = new User();
+	  Role role3 = new Role();
 	  role3.setId(3);
 	  role3.setRoleName("lm");
 	  role3.setName("Lab Manager");

@@ -46,7 +46,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -222,12 +222,12 @@ public class SampleController extends WaspController {
 		}		
 	
 		//deal with submitter from grid 
-		WUser submitter = null;
+		User submitter = null;
 		//from grid
 		if(submitterNameAndLoginFromGrid != null){//something was passed; expecting firstname lastname (login)
 			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLoginFromGrid.trim());//if fails, returns empty string
 			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
-				submitter = new WUser();
+				submitter = new User();
 				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
@@ -239,7 +239,7 @@ public class SampleController extends WaspController {
 		}
 		
 		//deal with PI (lab)
-		WUser pi = null;
+		User pi = null;
 		Lab piLab = null;//this is what's tested below
 		if(piNameAndLoginFromGrid != null){//something was passed; expecting firstname lastname (login)
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLoginFromGrid.trim());//if fails, returns empty string
@@ -248,7 +248,7 @@ public class SampleController extends WaspController {
 				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
 			}
 			else{
-				pi = userDao.getUserByLogin(piLogin);//if WUser not found, pi object is NOT null and pi.getUnserId()=null
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
 				if(pi.getUserId()==null){
 					piLab = new Lab();
 					piLab.setLabId(new Integer(0));//fake it; result set will come up empty

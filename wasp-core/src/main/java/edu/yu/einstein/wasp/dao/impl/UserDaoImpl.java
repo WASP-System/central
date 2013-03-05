@@ -4,7 +4,7 @@
  * UserImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the WUser object
+ * the User object
  *
  *
  **/
@@ -18,25 +18,25 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 
 @Transactional
 @Repository
-public class UserDaoImpl extends WaspDaoImpl<WUser> implements edu.yu.einstein.wasp.dao.UserDao {
+public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wasp.dao.UserDao {
 
   public UserDaoImpl() {
     super();
-    this.entityClass = WUser.class;
+    this.entityClass = User.class;
   }
 
   @Override
   @Transactional
-  public WUser getUserByUserId (final int userId) {
+  public User getUserByUserId (final int userId) {
     HashMap<String, Integer> m = new HashMap<String, Integer>();
     m.put("id", userId);
-    List<WUser> results = this.findByMap(m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
-      WUser rt = new WUser();
+      User rt = new User();
       return rt;
     }
     return results.get(0);
@@ -45,12 +45,12 @@ public class UserDaoImpl extends WaspDaoImpl<WUser> implements edu.yu.einstein.w
 
   @Override
   @Transactional
-  public WUser getUserByLogin (final String login) {
+  public User getUserByLogin (final String login) {
     HashMap<String, String> m = new HashMap<String, String>();
     m.put("login", login);
-    List<WUser> results = this.findByMap(m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
-      WUser rt = new WUser();
+      User rt = new User();
       return rt;
     }
     return results.get(0);
@@ -59,12 +59,12 @@ public class UserDaoImpl extends WaspDaoImpl<WUser> implements edu.yu.einstein.w
 
   @Override
   @Transactional
-  public WUser getUserByEmail (final String email) {
+  public User getUserByEmail (final String email) {
     HashMap<String, String> m = new HashMap<String, String>();
     m.put("email", email);
-    List<WUser> results = this.findByMap(m);
+    List<User> results = this.findByMap(m);
     if (results.size() == 0) {
-      WUser rt = new WUser();
+      User rt = new User();
       return rt;
     }
     return results.get(0);
@@ -72,7 +72,7 @@ public class UserDaoImpl extends WaspDaoImpl<WUser> implements edu.yu.einstein.w
   
  
   @Override
-  public List<WUser> getActiveUsers(){
+  public List<User> getActiveUsers(){
 	  Map<String, Integer> queryMap = new HashMap<String, Integer>();
 	  queryMap.put("isActive", 1);
 	  return this.findByMap(queryMap);

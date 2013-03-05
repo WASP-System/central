@@ -16,7 +16,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.dao.UserDao;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 @Service
@@ -25,36 +25,36 @@ public interface UserService extends WaspService {
   public void setUserDao(UserDao userDao);
   public UserDao getUserDao();
 
-  public String getUniqueLoginName(final WUser user);
+  public String getUniqueLoginName(final User user);
   public String getNewAuthcodeForUserPending(UserPending userpending);
-  public String getNewAuthcodeForUser(WUser user);
+  public String getNewAuthcodeForUser(User user);
   
   /**
-	 * reverse sort a List<WUser> by UserId so that the user with highest Id is first.
-	 * @param List<WUser>
+	 * reverse sort a List<User> by UserId so that the user with highest Id is first.
+	 * @param List<User>
 	 * @return void
 	 */
-  public void reverseSortUsersByUserId(List<WUser> users);
+  public void reverseSortUsersByUserId(List<User> users);
   
   /**
 	 * get list of facility technicians (distinct list of users with role of fm or ft).
-	 * @return List<WUser>
+	 * @return List<User>
 	 */
-  public List<WUser> getFacilityTechnicians();
+  public List<User> getFacilityTechnicians();
   
   /**
- 	 * get user by unique login. If login is null, empty, or login.trim is empty, return new WUser();
+ 	 * get user by unique login. If login is null, empty, or login.trim is empty, return new User();
  	 * @param String login
- 	 * @return WUser 
+ 	 * @return User 
  	 */
-  public WUser getUserByLogin(String login);
+  public User getUserByLogin(String login);
 
   /**
- 	 * get user by unique email address. If email is null, empty, or login.trim is empty, return new WUser();
+ 	 * get user by unique email address. If email is null, empty, or login.trim is empty, return new User();
  	 * @param String emailAddress
- 	 * @return WUser 
+ 	 * @return User 
  	 */
-  public WUser getUserByEmail(String emailAddress);
+  public User getUserByEmail(String emailAddress);
 
 }
 

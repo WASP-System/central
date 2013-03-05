@@ -42,7 +42,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 import edu.yu.einstein.wasp.model.MetaAttribute;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -186,7 +186,7 @@ public class UserPendingController extends WaspController {
 			passwordValidator.validate(result, userPendingForm.getPassword(), request.getParameter("password2"), userPendingMetaHelperWebapp.getParentArea(), "password");
 		}
 		if (! result.hasFieldErrors("email")){
-			WUser user = userDao.getUserByEmail(userPendingForm.getEmail());
+			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 			//NV 12132011
 			//if (user.getUserId() != null ){
 			if (user.getUserId() != null ){
@@ -417,7 +417,7 @@ public class UserPendingController extends WaspController {
 		}
 		
 		if (! result.hasFieldErrors("email")){
-			WUser user = userDao.getUserByEmail(userPendingForm.getEmail());
+			User user = userDao.getUserByEmail(userPendingForm.getEmail());
 
 			//NV 12132011
 			if (user.getUserId() != null){

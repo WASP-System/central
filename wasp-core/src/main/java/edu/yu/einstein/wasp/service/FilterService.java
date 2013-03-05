@@ -5,7 +5,7 @@ import java.util.List;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 
 public interface FilterService {
 
@@ -32,8 +32,8 @@ public interface FilterService {
 
 	/**
 	 * Identifies Users covered by a viewer that is a DA (dept admin)
-	 * @param List<WUser> complete list (or subset) of Users
-	 * @return List<WUser> list of users from the incoming list that are covered by this DA (departments to retain)
+	 * @param List<User> complete list (or subset) of Users
+	 * @return List<User> list of users from the incoming list that are covered by this DA (departments to retain)
 	 */
-	public List<WUser> filterUserListForDA(List<WUser> userList);
+	public List<User> filterUserListForDA(List<User> userList);
 }

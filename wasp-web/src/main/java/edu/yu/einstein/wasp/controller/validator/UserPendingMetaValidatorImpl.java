@@ -11,7 +11,7 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 
 public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 
@@ -44,8 +44,8 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 		        } else {
 		        	errorMessageKey = meta.getK() + "_notvalid.error";
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
-					//WUser primaryInvestigator = userDao.getUserByLogin(meta.getV()); //02-04-2013, replaced by next line, as the web page is now accessing the PI via his/her email address rather than login name
-					WUser primaryInvestigator = userDao.getUserByEmail(meta.getV());
+					//User primaryInvestigator = userDao.getUserByLogin(meta.getV()); //02-04-2013, replaced by next line, as the web page is now accessing the PI via his/her email address rather than login name
+					User primaryInvestigator = userDao.getUserByEmail(meta.getV());
 					if (primaryInvestigator.getUserId() == null || primaryInvestigator.getIsActive() == null){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {

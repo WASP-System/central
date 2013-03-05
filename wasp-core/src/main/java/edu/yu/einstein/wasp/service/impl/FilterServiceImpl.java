@@ -16,7 +16,7 @@ import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -56,7 +56,7 @@ public class FilterServiceImpl implements FilterService {
 		
 		List<Job> jobsToRetain = new ArrayList<Job>();
 		if(authenticationService.isOnlyDepartmentAdministrator()){
-			WUser da = authenticationService.getAuthenticatedUser();
+			User da = authenticationService.getAuthenticatedUser();
 			List<DepartmentUser> departmentUserList = da.getDepartmentUser();
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for(DepartmentUser du : departmentUserList){
@@ -82,7 +82,7 @@ public class FilterServiceImpl implements FilterService {
 		
 		List<Lab> labsToRetain = new ArrayList<Lab>();
 		if(authenticationService.isOnlyDepartmentAdministrator()){
-			WUser da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
+			User da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
 			List<DepartmentUser> departmentUserList = da.getDepartmentUser();
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for(DepartmentUser du : departmentUserList){
@@ -109,7 +109,7 @@ public class FilterServiceImpl implements FilterService {
 		
 		List<Department> departmentsToRetain = new ArrayList<Department>();
 		if(authenticationService.isOnlyDepartmentAdministrator()){
-			WUser da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
+			User da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
 			List<DepartmentUser> departmentUserList = da.getDepartmentUser();
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for(DepartmentUser du : departmentUserList){
@@ -133,18 +133,18 @@ public class FilterServiceImpl implements FilterService {
 	}
 	
 	@Override
-	public List<WUser> filterUserListForDA(List<WUser> userList){
+	public List<User> filterUserListForDA(List<User> userList){
 		
-		List<WUser> usersToRetain = new ArrayList<WUser>();
+		List<User> usersToRetain = new ArrayList<User>();
 		if(authenticationService.isOnlyDepartmentAdministrator()){
-			WUser da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
+			User da = authenticationService.getAuthenticatedUser();//get the web viewer who is a DA
 			List<DepartmentUser> departmentUserList = da.getDepartmentUser();
 			List<Integer> departmentIdList = new ArrayList<Integer>();
 			for(DepartmentUser du : departmentUserList){
 				departmentIdList.add(du.getDepartmentId());
 			}
 			
-			for(WUser user : userList){
+			for(User user : userList){
 				List<LabUser> labUserList = user.getLabUser();//a user can be in multiple labs; note: do NOT use method user.getLab()
 				boolean foundUser = false;
 				for(LabUser labUser : labUserList){

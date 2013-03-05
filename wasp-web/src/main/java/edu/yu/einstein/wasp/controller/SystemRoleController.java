@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
-import edu.yu.einstein.wasp.model.WRole;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.util.StringHelper;
@@ -67,7 +67,7 @@ public class SystemRoleController extends WaspController {
 
 		Map<String, String> roleQueryMap = new HashMap<String, String>();
 		roleQueryMap.put("domain", "system");
-		List<WRole> systemRoleList = roleDao.findByMap(roleQueryMap);
+		List<Role> systemRoleList = roleDao.findByMap(roleQueryMap);
 
 		SortedMap<String, ArrayList<Userrole>> userRoleMap = new TreeMap<String, ArrayList<Userrole>>();
 		for (Userrole ur : userroleDao.findAll()){
@@ -106,7 +106,7 @@ public class SystemRoleController extends WaspController {
 		}
 		String userLogin = StringHelper.getLoginFromFormattedNameAndLogin(userHook.trim());
 
-		WUser user = userDao.getUserByLogin(userLogin);
+		User user = userDao.getUserByLogin(userLogin);
 		if (user.getId() == null){
 			waspErrorMessage("sysrole.userNonexistant.error");
 			return "redirect:/sysrole/list.do";
@@ -115,7 +115,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		WRole role= roleDao.getRoleByRoleName(roleName);
+		Role role= roleDao.getRoleByRoleName(roleName);
 		if (role.getId() == null || !role.getDomain().equals("system")){
 			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
@@ -134,7 +134,7 @@ public class SystemRoleController extends WaspController {
 
 
 		// if i am the user,  reauth
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getId().intValue() == user.getId().intValue()) {
 			doReauth();
 		}
@@ -170,7 +170,7 @@ public class SystemRoleController extends WaspController {
 			waspErrorMessage("sysrole.noRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
 		}
-		WRole role= roleDao.getRoleByRoleName(roleName);
+		Role role= roleDao.getRoleByRoleName(roleName);
 		if (role.getRoleId() == null || !role.getDomain().equals("system")){
 			waspErrorMessage("sysrole.invalidRoleSpecified.error");
 			return "redirect:/sysrole/list.do";
@@ -192,7 +192,7 @@ public class SystemRoleController extends WaspController {
 		userroleDao.remove(userrole);
 		waspMessage("sysrole.success.label");
 		// if i am the user,  reauth
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId().intValue() == userId.intValue()) {
 			doReauth();
 			if (roleName.equals("su")){

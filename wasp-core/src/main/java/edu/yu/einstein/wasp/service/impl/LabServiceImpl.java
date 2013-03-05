@@ -31,8 +31,8 @@ import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.WRole;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.LabService;
@@ -64,7 +64,7 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Lab getLabByPI(WUser pi){
+	  public Lab getLabByPI(User pi){
 		  if(pi==null || pi.getUserId()==null){
 			  return new Lab();
 		  }
@@ -75,7 +75,7 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public boolean isUserLabMember(Lab lab, WUser user){
+	  public boolean isUserLabMember(Lab lab, User user){
 		  LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), user.getUserId());
 		  if(labUser == null || labUser.getLabUserId() == null){
 			  return false;
@@ -87,10 +87,10 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public WRole getUserRoleInLab(Lab lab, WUser user){
+	  public Role getUserRoleInLab(Lab lab, User user){
 		  LabUser labUser = labUserDao.getLabUserByLabIdUserId(lab.getLabId(), user.getUserId());
 		  if(labUser == null || labUser.getLabUserId() == null){
-			  return new WRole();
+			  return new Role();
 		  }
 		  return labUser.getRole();
 	  }
@@ -99,10 +99,10 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public LabUser addExistingUserToLabAsLabMemberPending(Lab lab, WUser user){
+	  public LabUser addExistingUserToLabAsLabMemberPending(Lab lab, User user){
 			
 		  LabUser labUser = new LabUser();
-		  WRole role = roleDao.getRoleByRoleName("lp");
+		  Role role = roleDao.getRoleByRoleName("lp");
 		  labUser.setLabId(lab.getLabId());
 		  labUser.setUserId(user.getUserId());
 		  labUser.setRoleId(role.getRoleId());

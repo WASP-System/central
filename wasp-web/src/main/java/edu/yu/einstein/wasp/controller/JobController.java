@@ -49,11 +49,11 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.WRole;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -306,12 +306,12 @@ public class JobController extends WaspController {
 		//nothing to do to deal with jobname
 		
 		//deal with submitter from grid and UserId from URL (note that submitterNameAndLogin and userIdFromURL can both be null, but if either is not null, only one should be not null)
-		WUser submitter = null;
+		User submitter = null;
 		//from grid
 		if(submitterNameAndLogin != null){//something was passed; expecting firstname lastname (login)
 			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
 			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
-				submitter = new WUser();
+				submitter = new User();
 				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
@@ -324,7 +324,7 @@ public class JobController extends WaspController {
 		else if(userIdFromURL != null && !userIdFromURL.isEmpty()){//something was passed; should be a number 
 			Integer submitterIdAsInteger = StringHelper.convertStringToInteger(userIdFromURL);//returns null is unable to convert
 			if(submitterIdAsInteger == null){
-				submitter = new WUser();
+				submitter = new User();
 				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
@@ -336,7 +336,7 @@ public class JobController extends WaspController {
 		}
 		
 		//deal with PI (lab)
-		WUser pi = null;
+		User pi = null;
 		Lab piLab = null;//this is what's tested below
 		if(piNameAndLogin != null){//something was passed; expecting firstname lastname (login)
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
@@ -345,7 +345,7 @@ public class JobController extends WaspController {
 				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
 			}
 			else{
-				pi = userDao.getUserByLogin(piLogin);//if WUser not found, pi object is NOT null and pi.getUnserId()=null
+				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
 				if(pi.getUserId()==null){
 					piLab = new Lab();
 					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
@@ -447,7 +447,7 @@ public class JobController extends WaspController {
 			//instead, simply show all jobs that the person may view (note, if PI, (s)he see's all jobs in that lab)
 			//this should be changed in future
 
-			WUser viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+			User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
 			List<Job> jobsToKeep = jobService.getJobsSubmittedOrViewableByUser(viewer);//default order is by jobId/desc
 			tempJobList.retainAll(jobsToKeep);
 		}
@@ -498,7 +498,7 @@ public class JobController extends WaspController {
 				 
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
-				WUser user = userDao.getById(job.getUserId());
+				User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
 				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
 				String quoteAsString;
@@ -663,7 +663,7 @@ public class JobController extends WaspController {
 	}
 	else{   
 		String extractedLogin = StringHelper.getLoginFromFormattedNameAndLogin(login);
-		WUser user = userDao.getUserByLogin(extractedLogin);
+		User user = userDao.getUserByLogin(extractedLogin);
 		if(user.getUserId() == null){
 			waspErrorMessage("job.jobViewerUserRoleAdd.error2");//user login name does not exist
 		}
@@ -679,7 +679,7 @@ public class JobController extends WaspController {
 				}
 			}
 			else{
-				WRole role = roleDao.getRoleByRoleName("jv");
+				Role role = roleDao.getRoleByRoleName("jv");
 			    JobUser jobUser2 = new JobUser();
 			    jobUser2.setJobId(jobId);
 			    jobUser2.setUserId(user.getUserId());

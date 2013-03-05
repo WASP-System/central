@@ -1,9 +1,9 @@
 /**
  *
- * WUser.java 
+ * User.java 
  * @author echeng (table2type.pl)
  *  
- * the WUser object
+ * the User object
  *
  *
  */
@@ -31,7 +31,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Entity
 @Audited
 @Table(name="wuser")
-public class WUser extends WaspModel {
+public class User extends WaspModel {
 
 	/**
 	 * 
@@ -294,7 +294,7 @@ public class WUser extends WaspModel {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		WUser other = (WUser) obj;
+		User other = (User) obj;
 		// NV
 		// UserId = UserId == null ? 0 : UserId;
 		if (getId().intValue() != other.getId().intValue())
@@ -304,7 +304,7 @@ public class WUser extends WaspModel {
 
 	@Override
 	public String toString() {
-		return "WUser [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
+		return "User [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
 				+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser + ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
 				+ sample + ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser + ", locale=" + locale + "]";
 	}

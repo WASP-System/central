@@ -4,7 +4,7 @@
  * RoleDaoImpl.java 
  * @author echeng (table2type.pl)
  *  
- * the WRole Dao Impl
+ * the Role Dao Impl
  *
  *
  **/
@@ -17,12 +17,12 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.WRole;
+import edu.yu.einstein.wasp.model.Role;
 
 
 @Transactional
 @Repository
-public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.wasp.dao.RoleDao {
+public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wasp.dao.RoleDao {
 
 	/**
 	 * RoleDaoImpl() Constructor
@@ -31,7 +31,7 @@ public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.w
 	 */
 	public RoleDaoImpl() {
 		super();
-		this.entityClass = WRole.class;
+		this.entityClass = Role.class;
 	}
 
 
@@ -45,14 +45,14 @@ public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.w
 
 	@Override
 	@Transactional
-	public WRole getRoleByRoleId (final int roleId) {
+	public Role getRoleByRoleId (final int roleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", roleId);
 
-		List<WRole> results = this.findByMap(m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			WRole rt = new WRole();
+			Role rt = new Role();
 			return rt;
 		}
 		return results.get(0);
@@ -70,14 +70,14 @@ public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.w
 
 	@Override
 	@Transactional
-	public WRole getRoleByRoleName (final String roleName) {
+	public Role getRoleByRoleName (final String roleName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("roleName", roleName);
 
-		List<WRole> results = this.findByMap(m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			WRole rt = new WRole();
+			Role rt = new Role();
 			return rt;
 		}
 		return results.get(0);
@@ -95,14 +95,14 @@ public class RoleDaoImpl extends WaspDaoImpl<WRole> implements edu.yu.einstein.w
 
 	@Override
 	@Transactional
-	public WRole getRoleByName (final String name) {
+	public Role getRoleByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);
 
-		List<WRole> results = this.findByMap(m);
+		List<Role> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			WRole rt = new WRole();
+			Role rt = new Role();
 			return rt;
 		}
 		return results.get(0);

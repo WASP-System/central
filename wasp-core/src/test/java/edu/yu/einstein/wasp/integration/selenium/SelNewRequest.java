@@ -50,7 +50,7 @@ public class SelNewRequest extends SelBaseTest {
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/newrequest.do')]")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(),sUrl);
 		  
-		  Assert.assertTrue(driver.findElements(By.name("primaryUserLogin")).size() != 0, "Cannot locate 'Primary WUser Login' input text box");
+		  Assert.assertTrue(driver.findElements(By.name("primaryUserLogin")).size() != 0, "Cannot locate 'Primary User Login' input text box");
 		  driver.findElement(By.name("primaryUserLogin")).sendKeys(sPIName);
 	  
 		  Assert.assertTrue(driver.findElements(By.xpath("//input[@value='Request Access']")).size() != 0, "Cannot locate 'Request Access' submit button.");

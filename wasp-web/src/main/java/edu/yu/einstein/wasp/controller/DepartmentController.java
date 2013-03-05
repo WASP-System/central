@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabMeta;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
@@ -323,7 +323,7 @@ public class DepartmentController extends WaspController {
 		boolean adminNameIsOK = false;
 		String modifiedDepartmentName = "";
 		Department department = new Department();
-		WUser user = new WUser();
+		User user = new User();
 
 		// check that the department name is ok and has not yet been created
 		if ("".equals(departmentName.trim())) {
@@ -377,7 +377,7 @@ public class DepartmentController extends WaspController {
 			// //waspMessage("department.detail_ok.label");
 
 			// if i am the user, reauth
-			WUser me = authenticationService.getAuthenticatedUser();
+			User me = authenticationService.getAuthenticatedUser();
 			if (me.getUserId().intValue() == user.getUserId().intValue()) {
 				doReauth();
 			}
@@ -397,7 +397,7 @@ public class DepartmentController extends WaspController {
 		departmentUserDao.remove(departmentUser);
 
 		// if i am the user, reauth
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getId().intValue() == userId.intValue()) {
 			doReauth();
 			// if a user is NOT su and the user is a da and removes him/herself
@@ -428,7 +428,7 @@ public class DepartmentController extends WaspController {
 			if ("".equals(login)) {
 				waspErrorMessage("department.detail_missinglogin.error");
 			} else {
-				WUser user = userDao.getUserByLogin(login);
+				User user = userDao.getUserByLogin(login);
 				if (user.getUserId() == null) {// user not found in database
 					waspErrorMessage("department.detail_usernotfound.error");
 				} else {
@@ -444,7 +444,7 @@ public class DepartmentController extends WaspController {
 						departmentUserDao.save(departmentUser);
 						waspMessage("department.detail_ok.label");
 						// if i am the user, reauth
-						WUser me = authenticationService.getAuthenticatedUser();
+						User me = authenticationService.getAuthenticatedUser();
 						if (me.getUserId().intValue() == user.getUserId().intValue()) {
 							doReauth();
 						}

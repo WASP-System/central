@@ -23,7 +23,7 @@ import org.unitils.spring.annotation.SpringApplicationContext;
 import org.unitils.spring.annotation.SpringBean;
 
 import edu.yu.einstein.wasp.dao.UserroleDao;
-import edu.yu.einstein.wasp.model.WRole;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Userrole;
 
 
@@ -66,7 +66,7 @@ public class TestUserroleDaoImpl {
 		m.put("id", 1);
 		List<Userrole> results = userroleDao.findByMap(m);
 		Userrole actual = results.get(0);
-		WRole role = actual.getRole();
+		Role role = actual.getRole();
 			
 		//ReflectionAssert.assertLenientEquals(expected,actual); //  ReflectionComparatorMode.LENIENT_ORDER - ignoring the order of elements
 		

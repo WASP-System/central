@@ -229,15 +229,15 @@ public class Lab extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="primaryuserid", insertable=false, updatable=false)
-	protected WUser user;
+	protected User user;
 
 	/**
-	 * setUser (WUser user)
+	 * setUser (User user)
 	 *
 	 * @param user
 	 *
 	 */
-	public void setUser (WUser user) {
+	public void setUser (User user) {
 		this.user = user;
 		this.primaryUserId = user.getId();
 	}
@@ -250,7 +250,7 @@ public class Lab extends WaspModel {
 	 */
 	
 	@JsonIgnore
-	public WUser getUser () {
+	public User getUser () {
 		return this.user;
 	}
 

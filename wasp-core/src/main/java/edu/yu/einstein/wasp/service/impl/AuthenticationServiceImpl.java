@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.model.LabPending;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
@@ -96,9 +96,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public WUser getAuthenticatedUser() {
+	public User getAuthenticatedUser() {
 		 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		 WUser user = this.userDao.getUserByLogin(authentication.getName());
+		 User user = this.userDao.getUserByLogin(authentication.getName());
 		 return user;
 	}
 	@Override
@@ -475,7 +475,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		 */
 		@Override
 		public boolean isThisExistingUserPIPending(){
-			WUser me = this.getAuthenticatedUser();
+			User me = this.getAuthenticatedUser();
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("primaryUserId", me.getUserId());
 			m.put("status", "PENDING");

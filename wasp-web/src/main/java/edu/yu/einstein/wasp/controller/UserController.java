@@ -31,7 +31,7 @@ import edu.yu.einstein.wasp.exception.LoginNameException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -109,12 +109,12 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or WUser.login == principal.name")
+	@PreAuthorize("hasRole('su') or User.login == principal.name")
 	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
-		WUser userDb = this.userDao.getById(userId);
+		User userDb = this.userDao.getById(userId);
 		
 		List<LabUser> uLabs=userDb.getLabUser();
 		
@@ -128,7 +128,7 @@ public class UserController extends WaspController {
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", uLab.getLabId());
 				
-				WUser pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
+				User pi = userDao.getUserByUserId(uLab.getLab().getPrimaryUserId().intValue());
 				
 				List<String> cellList = new ArrayList<String>(
 						Arrays.asList(
@@ -184,7 +184,7 @@ public class UserController extends WaspController {
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 
-		List<WUser> userList = new ArrayList<WUser>();
+		List<User> userList = new ArrayList<User>();
 		
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(userIdFromURL != null && !userIdFromURL.isEmpty()){
@@ -220,7 +220,7 @@ public class UserController extends WaspController {
 
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove users not in the DA's department
-			List<WUser> usersToKeep = filterService.filterUserListForDA(userList);
+			List<User> usersToKeep = filterService.filterUserListForDA(userList);
 			userList.retainAll(usersToKeep);
 		}		
 		
@@ -258,8 +258,8 @@ public class UserController extends WaspController {
 //				jqgrid.put("page", "1");
 //			}				
 
-			List<WUser> userPage = userList.subList(frId, toId);
-			for (WUser user:userPage) {
+			List<User> userPage = userList.subList(frId, toId);
+			for (User user:userPage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", user.getUserId());
 				 
@@ -276,7 +276,7 @@ public class UserController extends WaspController {
 				}
 				String rolesAsString;				
 				if(stringBuffer.length()==0){
-					rolesAsString = new String("<a href=/wasp/sysrole/list.do>Add WRole</a><br><a href=/wasp/department/list.do>Confer Dept Admin</a>");
+					rolesAsString = new String("<a href=/wasp/sysrole/list.do>Add Role</a><br><a href=/wasp/department/list.do>Confer Dept Admin</a>");
 				}
 				else{
 					rolesAsString = new String(stringBuffer);
@@ -316,8 +316,8 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('fm') or WUser.login == principal.name")
-	public String updateDetailJSON(@RequestParam("id") Integer userId,WUser userForm, ModelMap m, HttpServletResponse response) {
+	@PreAuthorize("hasRole('su') or hasRole('fm') or User.login == principal.name")
+	public String updateDetailJSON(@RequestParam("id") Integer userId,User userForm, ModelMap m, HttpServletResponse response) {
 		userId = (userId == null)? 0:userId;
 		boolean adding = (userId == 0);
 		if (adding || !userDao.getById(userId).getLogin().equals(userForm.getLogin())){
@@ -364,7 +364,7 @@ public class UserController extends WaspController {
 			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10))); 
 			userForm.setLastUpdTs(new Date());
 			userForm.setIsActive(1);
-			WUser userDb = this.userDao.save(userForm);
+			User userDb = this.userDao.save(userForm);
 			userId=userDb.getUserId();
 			try {
 				userMetaDao.setMeta(userMetaList, userId);
@@ -379,7 +379,7 @@ public class UserController extends WaspController {
 				return null;
 			}
 		} else {
-			WUser userDb = this.userDao.getById(userId);
+			User userDb = this.userDao.getById(userId);
 			
 			if (!userDb.getEmail().equals(userForm.getEmail())){
 				//myemailChanged = true;
@@ -446,20 +446,20 @@ public class UserController extends WaspController {
 	
 	@RequestMapping(value = "/me_ro", method = RequestMethod.GET)
 	public String myDetail_RO(ModelMap m) {
-		WUser user = authenticationService.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRO(user.getUserId(), m);
 	}
 	
 	@RequestMapping(value = "/me_rw", method = RequestMethod.GET)
 	public String myDetail(ModelMap m) {
-		WUser user = authenticationService.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 		return this.detailRW(user.getUserId(), m);
 	}
 	
 	@RequestMapping(value = "/me_rw", method = RequestMethod.POST)
-	public String updateDetail(@Valid WUser userForm, BindingResult result,
+	public String updateDetail(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
-		WUser user = authenticationService.getAuthenticatedUser();		
+		User user = authenticationService.getAuthenticatedUser();		
 
 		return updateDetail(user.getUserId(), userForm, result, status, m);
 	}
@@ -472,7 +472,7 @@ public class UserController extends WaspController {
 	@RequestMapping(value = "/detail_rw/{UserId}.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su')")
 	public String updateDetail(@PathVariable("UserId") Integer userId,
-			@Valid WUser userForm, BindingResult result, SessionStatus status,
+			@Valid User userForm, BindingResult result, SessionStatus status,
 			ModelMap m) {
 		
 		userId = (userId == null)? 0:userId;
@@ -499,7 +499,7 @@ public class UserController extends WaspController {
 			return "user/detail_rw";
 		}
 		boolean isMyEmailChanged = false;
-		WUser userDb = this.userDao.getById(userId);
+		User userDb = this.userDao.getById(userId);
 		if (!userDb.getEmail().equals(userForm.getEmail().trim())){
 			// email changed
 			emailService.sendUserEmailConfirm(userForm, userService.getNewAuthcodeForUser(userForm));
@@ -562,7 +562,7 @@ public class UserController extends WaspController {
 				return "user/mypassword";
 		}
 		
-		WUser user = authenticationService.getAuthenticatedUser();
+		User user = authenticationService.getAuthenticatedUser();
 		String currentPasswordAsHash = user.getPassword();//this is from database and is hashed
 		String oldPasswordAsHash = authenticationService.encodePassword(oldpassword);//oldpassword is from the form, so must hash it for comparison
 		  
@@ -593,7 +593,7 @@ public class UserController extends WaspController {
 	@PreAuthorize("hasRole('su')")
 	public String showEmptyForm(ModelMap m) {
 	
-		WUser user = new WUser();
+		User user = new User();
 
 		user.setUserMeta(getMetaHelperWebapp().getMasterList(UserMeta.class));
 		
@@ -609,7 +609,7 @@ public class UserController extends WaspController {
  * 
 	@RequestMapping(value = "/create/form.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su')")
-	public String create(@Valid WUser userForm, BindingResult result,
+	public String create(@Valid User userForm, BindingResult result,
 			SessionStatus status, ModelMap m) {
 
 		List<UserMeta> userMetaList = getMetaHelper().getFromRequest(request, UserMeta.class);
@@ -621,7 +621,7 @@ public class UserController extends WaspController {
 		if (userForm.getLogin() == null || userForm.getLogin().isEmpty()) {
 			errors.rejectValue("login", "user.login.error");
 		} else {
-			WUser user = userDao.getUserByLogin(userForm.getLogin());
+			User user = userDao.getUserByLogin(userForm.getLogin());
 			if (user != null && user.getLogin() != null) {
 				errors.rejectValue("login", "user.login.exists_error");
 			}
@@ -664,7 +664,7 @@ public class UserController extends WaspController {
 		
 		userForm.setIsActive(1);
 		
-		WUser userDb = this.userDao.save(userForm);
+		User userDb = this.userDao.save(userForm);
 		
 		userMetaDao.updateByUserId(userDb.getUserId(), userMetaList);
 
@@ -691,7 +691,7 @@ public class UserController extends WaspController {
 	
 	private String detail(Integer userId, ModelMap m,boolean isRW) {
 
-		WUser user = this.userDao.getById(userId);
+		User user = this.userDao.getById(userId);
 
 		user.setUserMeta(getMetaHelperWebapp().syncWithMaster(user.getUserMeta()));
 		

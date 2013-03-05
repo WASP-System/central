@@ -198,7 +198,7 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 	  public void validateApplicableRoles(String applicableRolesString){
 		  for (String applicableRole : applicableRolesString.split(",")){
 			  if (roleDao.getRoleByRoleName(applicableRole).getRoleId() == null)
-				  throw new InvalidRoleException("WRole '"+applicableRole+"' is not in the list of valid roles");
+				  throw new InvalidRoleException("Role '"+applicableRole+"' is not in the list of valid roles");
 		  }
 	  }
 

@@ -50,7 +50,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	final private int DEFAULT_MAX_COLUMNS = 25;
 	
 	final private String META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT = "userSubmittedJobComment";
-	final private String META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT = "WUser-submitted Job Comment";
+	final private String META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT = "User-submitted Job Comment";
 	
 	@Autowired
 	protected AdaptorDao adaptorDao;

@@ -318,15 +318,15 @@ public class Job extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="userid", insertable=false, updatable=false)
-	protected WUser user;
+	protected User user;
 
 	/**
-	 * setUser (WUser user)
+	 * setUser (User user)
 	 *
 	 * @param user
 	 *
 	 */
-	public void setUser (WUser user) {
+	public void setUser (User user) {
 		this.user = user;
 		this.userId = user.getId();
 	}
@@ -338,7 +338,7 @@ public class Job extends WaspModel {
 	 *
 	 */
 	
-	public WUser getUser () {
+	public User getUser () {
 		return this.user;
 	}
 

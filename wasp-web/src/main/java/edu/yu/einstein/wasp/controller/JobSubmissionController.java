@@ -96,7 +96,7 @@ import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 import edu.yu.einstein.wasp.model.WorkflowResourceType;
@@ -323,7 +323,7 @@ public class JobSubmissionController extends WaspController {
 		
 		List<JobDraft> jobDraftList = new ArrayList<JobDraft>();//empty list
 		
-		WUser viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
+		User viewer = authenticationService.getAuthenticatedUser();//the web viewer that is logged on that wants to see his/her submitted or viewable jobs
 		
 		if (userId.isEmpty()) {//all drafts are being requested; must be facility personnel to view them
 			if(authenticationService.isFacilityMember()){
@@ -402,7 +402,7 @@ public class JobSubmissionController extends WaspController {
 				 
 				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
 				
-				WUser user = userDao.getById(item.getUserId());
+				User user = userDao.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							"<a href='/wasp/jobsubmit/modify/"+item.getJobDraftId()+".do'>"+item.getName()+"</a>",
@@ -434,7 +434,7 @@ public class JobSubmissionController extends WaspController {
 
 	@Transactional
 	protected String generateCreateForm(ModelMap m) {
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 
 		List <LabUser> labUserAllRoleList = me.getLabUser();
 
@@ -490,7 +490,7 @@ public class JobSubmissionController extends WaspController {
 			return modify((Integer) request.getSession().getAttribute("jobDraftId"), jobDraftForm, result, status, m);
 		}
 		
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		
 		Errors errors = new BindException(result.getTarget(), "jobDraft");
 		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
@@ -542,7 +542,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		// check if i am the drafter
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		if (me.getUserId().intValue() != jobDraft.getUserId().intValue()) {
 			waspErrorMessage("jobDraft.user_incorrect.error");
 			return false;
@@ -1768,7 +1768,7 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/submit/{jobDraftId}.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String submitJob(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		WUser me = authenticationService.getAuthenticatedUser();
+		User me = authenticationService.getAuthenticatedUser();
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		boolean error = false;
 		if (! isJobDraftEditable(jobDraft))

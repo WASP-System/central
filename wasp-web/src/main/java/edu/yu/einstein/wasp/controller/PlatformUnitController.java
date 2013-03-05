@@ -70,7 +70,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -855,8 +855,8 @@ public class PlatformUnitController extends WaspController {
 		m.put("platformUnitLockStatus", platformUnitLockStatus.toString());
 		
 		Map<Integer, String> technicians = new HashMap<Integer, String>();
-		List<WUser> allUsers = userDao.findAll();
-		for(WUser user : allUsers){
+		List<User> allUsers = userDao.findAll();
+		for(User user : allUsers){
 			for(Userrole userrole : user.getUserrole()){
 				if(userrole.getRole().getRoleName().equals("fm") || userrole.getRole().getRoleName().equals("ft")){
 					technicians.put(userrole.getUser().getUserId(), user.getNameFstLst());
@@ -1519,7 +1519,7 @@ public class PlatformUnitController extends WaspController {
 		}
 
 		//check technician
-		WUser tech = userDao.getUserByUserId(technicianId);
+		User tech = userDao.getUserByUserId(technicianId);
 		List<Userrole> userRoleList = tech.getUserrole();
 		boolean userIsTechnician = false;
 		for(Userrole ur : userRoleList){
@@ -1548,7 +1548,7 @@ public class PlatformUnitController extends WaspController {
 			try {
 				runService.initiateRun(runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
 				//With the creation of this new sequence run record, we want to make it that the flow cell on this
-				//sequence run is no longer able to accept additional WUser libraries:
+				//sequence run is no longer able to accept additional User libraries:
 				sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
 				waspMessage("runInstance.created_success.label");
 			} catch (MetadataException e){

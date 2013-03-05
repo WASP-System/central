@@ -128,15 +128,15 @@ public class Roleset extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="parentroleid", insertable=false, updatable=false)
-	protected WRole role;
+	protected Role role;
 
 	/**
-	 * setRole (WRole role)
+	 * setRole (Role role)
 	 *
 	 * @param role
 	 *
 	 */
-	public void setRole (WRole role) {
+	public void setRole (Role role) {
 		this.role = role;
 		this.parentroleId = role.getId();
 	}
@@ -148,7 +148,7 @@ public class Roleset extends WaspModel {
 	 *
 	 */
 	
-	public WRole getRole () {
+	public Role getRole () {
 		return this.role;
 	}
 
@@ -160,15 +160,15 @@ public class Roleset extends WaspModel {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="childroleid", insertable=false, updatable=false)
-	protected WRole roleVia;
+	protected Role roleVia;
 
 	/**
-	 * setRoleVia (WRole role)
+	 * setRoleVia (Role role)
 	 *
 	 * @param role
 	 *
 	 */
-	public void setRoleVia (WRole role) {
+	public void setRoleVia (Role role) {
 		this.role = role;
 		this.childroleId = role.getId();
 	}
@@ -180,7 +180,7 @@ public class Roleset extends WaspModel {
 	 *
 	 */
 	
-	public WRole getRoleVia () {
+	public Role getRoleVia () {
 		return this.role;
 	}
 

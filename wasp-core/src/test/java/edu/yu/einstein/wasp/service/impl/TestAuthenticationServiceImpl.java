@@ -35,7 +35,7 @@ import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.dao.impl.UserDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.UserPendingDaoImpl;
 import edu.yu.einstein.wasp.exception.LoginNameException;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
 public class TestAuthenticationServiceImpl {
@@ -48,7 +48,7 @@ public class TestAuthenticationServiceImpl {
 	
   @Test
   public void getAuthenticatedUser() {
-	  WUser user = new WUser();
+	  User user = new User();
 	  user.setLogin("jdoe");
 	  user.setFirstName("Jane");
 	  user.setLastName("Doe");
@@ -65,7 +65,7 @@ public class TestAuthenticationServiceImpl {
   
   @Test
   public void getRoles() {
-	  WUser user = new WUser();
+	  User user = new User();
 	  user.setLogin("userlogin");
 	  
 	  List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -94,7 +94,7 @@ public class TestAuthenticationServiceImpl {
   @Test 
   public void isLoginAlreadyInUse1() {
 	  
-	  WUser user = new WUser();
+	  User user = new User();
 	  Map loginQueryMap = new HashMap();
 	  loginQueryMap.put("login", "jgreally");
 	  
@@ -241,7 +241,7 @@ public class TestAuthenticationServiceImpl {
   @Test 
   public void isLoginAlreadyInUse2() {
 	  
-	  WUser user = new WUser();
+	  User user = new User();
 	  user.setUserId(1);
 	  
 	  Map loginQueryMap = new HashMap();

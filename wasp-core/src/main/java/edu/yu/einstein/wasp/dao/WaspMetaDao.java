@@ -7,7 +7,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 public interface WaspMetaDao<E> extends WaspDao<E>{
 	
 	/**
-	 * set modelParentId (e.g. UserId for WUser model or jobDraftId for jobDraft model) for all provided meta then persist to the database
+	 * set modelParentId (e.g. UserId for User model or jobDraftId for jobDraft model) for all provided meta then persist to the database
 	 * @param metaList
 	 * @param modelParentId
 	 * @return

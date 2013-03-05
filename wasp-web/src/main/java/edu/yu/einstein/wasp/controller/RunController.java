@@ -52,7 +52,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
@@ -167,9 +167,9 @@ public class RunController extends WaspController {
 		
 		m.addAttribute("flowcells", this.sampleDao.findAllPlatformUnits());
 		
-		List <WUser> allUsers = this.userDao.getActiveUsers();
+		List <User> allUsers = this.userDao.getActiveUsers();
 		Map <Integer, String> facUsers = new HashMap<Integer, String> ();
-		for (WUser u : allUsers) {
+		for (User u : allUsers) {
 			List<Userrole> urs = u.getUserrole();
 			for (Userrole ur : urs) {
 				String rn = ur.getRole().getRoleName();

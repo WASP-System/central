@@ -28,7 +28,7 @@ public class DummyFileUrlResolver implements FileUrlResolver {
 	}
 
 	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle, edu.yu.einstein.wasp.model.WUser)
+	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle, edu.yu.einstein.wasp.model.User)
 	 */
 	@Override
 	public URL getURL(FileHandle file) throws GridUnresolvableHostException {

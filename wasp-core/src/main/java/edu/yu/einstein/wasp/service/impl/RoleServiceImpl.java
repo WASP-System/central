@@ -27,8 +27,8 @@ import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.WRole;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.RoleService;
 
@@ -54,13 +54,13 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   */
 	@Override
 	//SuperUser, Facility Manager, Facility Tech, System Admin, Facility Admin, PI, Lab Manager, Lab Member, Department Admin.
-	public List<String> getUniqueSortedRoleList(WUser user){
+	public List<String> getUniqueSortedRoleList(User user){
 		
 		Set<String> rolesAsSet = new HashSet<String>();
 		
 		List<Userrole> userroles = user.getUserrole();
 		
-		for(Userrole userrole : userroles){//picks up Super WUser, Facility Manager, Facility Tech, Facility Admin, System Admin
+		for(Userrole userrole : userroles){//picks up Super User, Facility Manager, Facility Tech, Facility Admin, System Admin
 			rolesAsSet.add(userrole.getRole().getName());
 		}
 		List<LabUser> labUsers = user.getLabUser();//picks up PI, LabManager, LabMember 
@@ -86,13 +86,13 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   */
 	@Override
 	//SuperUser, Facility Manager, Facility Tech, System Admin, Facility Admin, PI (with lab name as PI's last name), Lab Manager (with PI's last name), Lab Member (with PI's last name), Department Admin (departments NOT listed as could be long list).
-	public List<String> getCompleteSortedRoleList(WUser user){
+	public List<String> getCompleteSortedRoleList(User user){
 		
 		Set<String> rolesAsSet = new HashSet<String>();
 		
 		List<Userrole> userroles = user.getUserrole();
 		
-		for(Userrole userrole : userroles){//picks up Super WUser, Facility Manager, Facility Tech, Facility Admin, System Admin
+		for(Userrole userrole : userroles){//picks up Super User, Facility Manager, Facility Tech, Facility Admin, System Admin
 			rolesAsSet.add(userrole.getRole().getName());
 		}
 		List<LabUser> labUsers = user.getLabUser();//picks up PI, LabManager, LabMember 
@@ -122,12 +122,12 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public List<WRole> convertMetaRoleVisibilityDelimitedStringToRoleList(String roleVisibility){
-		List<WRole> roleList = new ArrayList<WRole>();
+	public List<Role> convertMetaRoleVisibilityDelimitedStringToRoleList(String roleVisibility){
+		List<Role> roleList = new ArrayList<Role>();
 		if(roleVisibility != null){
 			String[] rolenamesAsStringArray = StringUtils.delimitedListToStringArray(roleVisibility, DELIMITER);
 			for(String rolename : rolenamesAsStringArray){
-				WRole role = this.getRoleByRolename(rolename);
+				Role role = this.getRoleByRolename(rolename);
 				if(role!=null && role.getId() !=null && role.getId().intValue()>0){
 					roleList.add(role);
 				}
@@ -140,7 +140,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public WRole getRoleByRolename(String roleName){
+	public Role getRoleByRolename(String roleName){
 		return roleDao.getRoleByRoleName(roleName);
 	}
 	
@@ -148,10 +148,10 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public String convertRoleListToMetaRoleVisibilityDelimitedString(List<WRole> roleList){
+	public String convertRoleListToMetaRoleVisibilityDelimitedString(List<Role> roleList){
 		
 		StringBuilder roleVisibilitySB = new StringBuilder("");		
-		for(WRole role : roleList){
+		for(Role role : roleList){
 			if(role.getRoleName() != null){
 				roleVisibilitySB.append(role.getRoleName() + DELIMITER);
 			}
@@ -163,11 +163,11 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public boolean metaRoleVisibilityDelimitedStringContainsRole(String roleVisibility, WRole role){
+	public boolean metaRoleVisibilityDelimitedStringContainsRole(String roleVisibility, Role role){
 		
 		if(roleVisibility == null || role == null || role.getRoleName() == null){ return false; }
 		
-		List<WRole> roleList = this.convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
+		List<Role> roleList = this.convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
 		return roleInRoleList(role, roleList);
 	}
 	
@@ -175,7 +175,7 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public String addRoleToMetaRoleVisibility(String roleVisibility, WRole role){
+	public String addRoleToMetaRoleVisibility(String roleVisibility, Role role){
 
 		if(roleVisibility == null || role == null || role.getRoleName() == null || metaRoleVisibilityDelimitedStringContainsRole(roleVisibility, role)){
 			return roleVisibility;
@@ -188,15 +188,15 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 	   * {@inheritDoc}
 	   */
 	@Override
-	public String removeRoleFromMetaRoleVisibility(String roleVisibility, WRole role){
+	public String removeRoleFromMetaRoleVisibility(String roleVisibility, Role role){
 
 		if(roleVisibility == null || role == null || role.getRoleName() == null || ! metaRoleVisibilityDelimitedStringContainsRole(roleVisibility, role)){
 			return roleVisibility;
 		}
 		
-		List<WRole> roleList = convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
+		List<Role> roleList = convertMetaRoleVisibilityDelimitedStringToRoleList(roleVisibility);
 		StringBuilder modifiedRoleVisibilitySB = new StringBuilder("");
-		for(WRole roleInList : roleList){
+		for(Role roleInList : roleList){
 			if(!role.getRoleName().equals(roleInList.getRoleName())){
 				modifiedRoleVisibilitySB.append(roleInList.getRoleName() + DELIMITER);
 			}
@@ -204,8 +204,8 @@ public class RoleServiceImpl extends WaspServiceImpl implements RoleService {
 		return new String(modifiedRoleVisibilitySB);		
 	}
 	
-	private boolean roleInRoleList(WRole role, List<WRole> roleList){
-		for(WRole roleFromList : roleList){
+	private boolean roleInRoleList(Role role, List<Role> roleList){
+		for(Role roleFromList : roleList){
 			if(role.getRoleName().equals(roleFromList.getRoleName())){
 				return true;
 			}

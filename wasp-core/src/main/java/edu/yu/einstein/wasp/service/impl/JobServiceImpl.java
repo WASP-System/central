@@ -101,7 +101,7 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.WRole;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -112,7 +112,7 @@ import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -974,11 +974,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws WaspMessageBuildingException 
 	   */
 	  @Override
-	  public Job createJobFromJobDraft(JobDraft jobDraft, WUser user) throws FileMoveException{
+	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
 		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
 			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
-			Assert.assertParameterNotNull(user, "No WUser provided");
-			Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid WUser Provided");
+			Assert.assertParameterNotNull(user, "No User provided");
+			Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
 		  	
 			// Copies JobDraft to a new Job
 			Job job = new Job();
@@ -1033,7 +1033,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			JobUser jobUser = new JobUser(); 
 			jobUser.setUserId(user.getUserId());
 			jobUser.setJobId(jobDb.getJobId());
-			WRole role = roleDao.getRoleByRoleName("js");
+			Role role = roleDao.getRoleByRoleName("js");
 			jobUser.setRoleId(role.getRoleId());
 			jobUserDao.save(jobUser);
 			
@@ -1045,7 +1045,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				JobUser jobUser2 = new JobUser();		
 				jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
 				jobUser2.setJobId(jobDb.getJobId());
-				WRole role2 = roleDao.getRoleByRoleName("jv");
+				Role role2 = roleDao.getRoleByRoleName("jv");
 				jobUser2.setRoleId(role2.getRoleId());
 				jobUserDao.save(jobUser2);
 			}
@@ -1310,9 +1310,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Job> getJobsSubmittedOrViewableByUser(WUser user){
-		Assert.assertParameterNotNull(user, "No WUser provided");
-		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid WUser Provided");
+	public List<Job> getJobsSubmittedOrViewableByUser(User user){
+		Assert.assertParameterNotNull(user, "No User provided");
+		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
@@ -1445,7 +1445,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			throw new Exception("listJobSamples.jobNotFound.label");			  
 		  }
 		  
-		  WUser userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
 		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
 			  throw new Exception("listJobSamples.illegalOperation.label");
 		  }
@@ -1466,7 +1466,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
 			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
 		  }
-		  WUser newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
+		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
 		  if(newViewerToBeAddedToJob.getUserId()==null || newViewerToBeAddedToJob.getUserId().intValue()<= 0){
 			  throw new Exception("listJobSamples.userNotFoundByEmailAddress.label");	
 		  }
@@ -1474,7 +1474,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  if(jobUser.getJobUserId()!=null && jobUser.getJobUserId().intValue() > 0){//viewer to be added is already a viewer for this job.
 			  throw new Exception("listJobSamples.alreadyIsViewerOfThisJob.label");
 		  }
-		  WRole role = roleDao.getRoleByRoleName("jv");
+		  Role role = roleDao.getRoleByRoleName("jv");
 		  if(role.getRoleId()==null || role.getRoleId().intValue()<=0){
 			  throw new Exception("listJobSamples.roleNotFound.label");
 		  }
@@ -1500,13 +1500,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  if(job.getJobId()==null || job.getJobId().intValue() <= 0 ){
 			  throw new Exception("listJobSamples.jobNotFound.label");			  
 		  }
-		  WUser userToBeRemoved = userDao.getUserByUserId(userId.intValue());
+		  User userToBeRemoved = userDao.getUserByUserId(userId.intValue());
 		  if(userToBeRemoved.getUserId()==null || userToBeRemoved.getUserId().intValue() <= 0 ){//userToBeRemoved not found in the user table; odd.
 			  throw new Exception("listJobSamples.userNotFound.label");			  
 		  }
 
 		  
-		  WUser userPerformingThisAction = authenticationService.getAuthenticatedUser();
+		  User userPerformingThisAction = authenticationService.getAuthenticatedUser();
 		  if(userPerformingThisAction.getUserId()==null || userPerformingThisAction.getUserId().intValue()<=0){
 			  throw new Exception("listJobSamples.illegalOperation.label");
 		  }

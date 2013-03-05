@@ -35,7 +35,7 @@ import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.EmailService;
@@ -88,7 +88,7 @@ public class EmailServiceImpl implements EmailService{
 	 * {@inheritDoc} 
 	 */
 	@Override
-	public void sendUserEmailConfirm(final WUser user, final String authcode) {
+	public void sendUserEmailConfirm(final User user, final String authcode) {
 		sendEmailConfirm(user, authcode, "emails/user_request_email_confirm");
 	}
 	
@@ -110,13 +110,13 @@ public class EmailServiceImpl implements EmailService{
 	}
 	
 	/**
-	 * Send confirmation email to user ({@link WUser}) providing an authorization code and using the velocity template specified
+	 * Send confirmation email to user ({@link User}) providing an authorization code and using the velocity template specified
 	 * @param user
 	 * @param authcode
 	 * @param emailTemplate
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void sendEmailConfirm(final WUser user, final String authcode, final String template){
+	protected void sendEmailConfirm(final User user, final String authcode, final String template){
 		String urlEncodedEmail = "";
 		try{
 			urlEncodedEmail = URLEncoder.encode(user.getEmail(), "UTF-8");
@@ -137,7 +137,7 @@ public class EmailServiceImpl implements EmailService{
 	 * @param emailTemplate
 	 */
 	protected void sendEmailConfirm(final UserPending userPending, String authcode, String template){
-		WUser user = new WUser();
+		User user = new User();
 		user.setFirstName(userPending.getFirstName());
 		user.setLastName(userPending.getLastName());
 		user.setEmail(userPending.getEmail());
@@ -150,7 +150,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendPendingUserNotifyAccepted(final WUser user, final Lab lab){
+	public void sendPendingUserNotifyAccepted(final User user, final Lab lab){
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("lab", lab);
@@ -163,7 +163,7 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingUserNotifyRejected(final UserPending userPending, final Lab lab){
-		WUser pendinguser = new WUser();
+		User pendinguser = new User();
 		pendinguser.setFirstName(userPending.getFirstName());
 		pendinguser.setLastName(userPending.getLastName());
 		pendinguser.setEmail(userPending.getEmail());
@@ -175,13 +175,13 @@ public class EmailServiceImpl implements EmailService{
 	}
 	
 	@Override
-	public void sendPendingLabUserNotifyAccepted(WUser user, Lab lab) {
+	public void sendPendingLabUserNotifyAccepted(User user, Lab lab) {
 		sendPendingUserNotifyAccepted(user, lab);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendPendingLabUserNotifyRejected(WUser user, Lab lab) {
+	public void sendPendingLabUserNotifyRejected(User user, Lab lab) {
 		Map model = new HashMap();
 		model.put("pendinguser", user);
 		model.put("lab", lab);
@@ -194,7 +194,7 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabNotifyAccepted(final Lab lab){
-		WUser primaryUser = userDao.getUserByUserId(lab.getPrimaryUserId());
+		User primaryUser = userDao.getUserByUserId(lab.getPrimaryUserId());
 		Map model = new HashMap();
 		model.put("primaryuser", primaryUser);
 		model.put("lab", lab);
@@ -208,7 +208,7 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
-		WUser user = new WUser();
+		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
 			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
@@ -239,7 +239,7 @@ public class EmailServiceImpl implements EmailService{
 	public void sendPendingUserConfirmRequest(final UserPending userPending) throws MailPreparationException {
 		MetaHelper userPendingMetaHelper = new MetaHelper("userPending", UserPendingMeta.class, Locale.US);
 		userPendingMetaHelper.syncWithMaster(userPending.getUserPendingMeta());
-		WUser primaryUser;
+		User primaryUser;
 		try{
 			primaryUser = userDao.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(MetadataException e){
@@ -267,7 +267,7 @@ public class EmailServiceImpl implements EmailService{
 		// send email to lab managers
 		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
-			WUser labManager = labUserLM.getUser();
+			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
 			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
 		}
@@ -280,8 +280,8 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public void sendPendingLabUserConfirmRequest(final LabUser labUser) {
 		Lab lab = labUser.getLab(); 
-		WUser pendingUser = labUser.getUser(); 
-		WUser primaryUser= userDao.getUserByUserId(labUser.getLab().getPrimaryUserId());	
+		User pendingUser = labUser.getUser(); 
+		User primaryUser= userDao.getUserByUserId(labUser.getLab().getPrimaryUserId());	
 				
 		Map model = new HashMap();
 		model.put("lab", lab);
@@ -296,7 +296,7 @@ public class EmailServiceImpl implements EmailService{
 		labManagerQueryMap.put("labId", labUser.getLabId());
 		labManagerQueryMap.put("roleId", roleDao.getRoleByRoleName("lm").getRoleId());
 		for (LabUser labUserLM : labUserDao.findByMap(labManagerQueryMap)){
-			WUser labManager = labUserLM.getUser();
+			User labManager = labUserLM.getUser();
 			model.put("primaryuser", labManager);
 			prepareAndSend(labManager, "emails/pending_labuser_request_confirm", model); 
 		}
@@ -308,10 +308,10 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendPendingPrincipalConfirmRequest(final LabPending labPending) {
-		WUser user;
+		User user;
 		if (labPending.getUserpendingId() != null){
 			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
-			user = new WUser();
+			user = new User();
 			user.setFirstName(userPending.getFirstName());
 			user.setLastName(userPending.getLastName());
 		} else if (labPending.getPrimaryUserId() != null){
@@ -327,7 +327,7 @@ public class EmailServiceImpl implements EmailService{
 		model.put("user", user);
 		model.put("department", department);
 		for (DepartmentUser du: department.getDepartmentUser()){
-			WUser administrator = userDao.getUserByUserId(du.getUserId());
+			User administrator = userDao.getUserByUserId(du.getUserId());
 			model.put("administrator", administrator);
 			prepareAndSend(administrator, "emails/pending_pi_request_confirm", model); 
 		}
@@ -338,7 +338,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendRequestNewPassword(final WUser user, final String authcode) {
+	public void sendRequestNewPassword(final User user, final String authcode) {
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("authcode", authcode);
@@ -350,7 +350,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void informUserLoginChanged(WUser user) {
+	public void informUserLoginChanged(User user) {
 		Map model = new HashMap();
 		model.put("user", user);
 		prepareAndSend(user, "emails/inform_login_changed", model);
@@ -360,12 +360,12 @@ public class EmailServiceImpl implements EmailService{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void informUserAccountCreatedByAdmin(final WUser user, final String authcode) {
+	public void informUserAccountCreatedByAdmin(final User user, final String authcode) {
 		sendEmailConfirm(user, authcode, "emails/user_created_by_admin");
 	}
 	
 	/**
-	 * Prepares a {@link MimeMessage} for the recipient {@link WUser} based on referenced Velocity template and associated model data then sends
+	 * Prepares a {@link MimeMessage} for the recipient {@link User} based on referenced Velocity template and associated model data then sends
 	 * the message using {@link JavaMailSender}
 	 * 
 	 * @param user recipient user
@@ -373,7 +373,7 @@ public class EmailServiceImpl implements EmailService{
 	 * @param model a Map object containing model data referenced within velocityEngine template
 	 */
 	@SuppressWarnings("rawtypes")
-	protected void prepareAndSend(final WUser user, final String template, final Map model){
+	protected void prepareAndSend(final User user, final String template, final Map model){
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws MailPreparationException {
@@ -387,14 +387,14 @@ public class EmailServiceImpl implements EmailService{
 	 * Prepares a {@link MimeMessage} message to send to user based on velocity engine template and model map supplied.
 	 * Selects template language based on user locale.
 	 * 
-	 * @param user recipient {@link WUser}
+	 * @param user recipient {@link User}
 	 * @param template velocityEngine .vm template file prefix (localisation and extension added within this method)
 	 * @param model a {@link Map} object containing model data referenced within velocityEngine template
 	 * @param mimeMessage MIME style email message
 	 * @throws MailPreparationException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void generateMessage(final WUser user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
+	protected void generateMessage(final User user, final String template, final Map model, MimeMessage mimeMessage) throws MailPreparationException {
 		model.put("baseUrl", baseUrl);
 		String lang=user.getLocale().substring(0, 2);
 		
@@ -461,7 +461,7 @@ public class EmailServiceImpl implements EmailService{
 
 
 	@Override
-	public String getNewAuthcodeForUser(WUser user) {
+	public String getNewAuthcodeForUser(User user) {
 		String authcode = AuthCode.create(20);
 		ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(user.getUserId());
 		confirmEmailAuth.setAuthcode(authcode);
@@ -486,10 +486,10 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending) {
-		WUser user;
+		User user;
 		if (labPending.getUserpendingId() != null){
 			UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
-			user = new WUser();
+			user = new User();
 			user.setFirstName(userPending.getFirstName());
 			user.setLastName(userPending.getLastName());
 		} else if (labPending.getPrimaryUserId() != null){
@@ -505,7 +505,7 @@ public class EmailServiceImpl implements EmailService{
 		model.put("user", user);
 		model.put("department", department);
 		for (DepartmentUser du: department.getDepartmentUser()){
-			WUser administrator = userDao.getUserByUserId(du.getUserId());
+			User administrator = userDao.getUserByUserId(du.getUserId());
 			model.put("administrator", administrator);
 			prepareAndSend(administrator, "emails/existing_user_pending_pi_request_confirm", model); 
 		}

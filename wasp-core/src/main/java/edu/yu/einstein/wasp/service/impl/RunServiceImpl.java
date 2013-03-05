@@ -41,7 +41,7 @@ import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
@@ -155,7 +155,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, WUser technician, String readLength, String readType, Date dateStart ) throws SampleTypeException{
+	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException{
 		Assert.assertParameterNotNull(runName, "runName cannot be null");
 		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");
 		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
@@ -229,7 +229,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
-	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, WUser technician, String readLength, String readType, Date dateStart){
+	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart){
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNullNotZero(run.getRunId(), "runId is zero");
 		Assert.assertParameterNotNull(runName, "runName cannot be null");

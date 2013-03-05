@@ -95,7 +95,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.model.WUser;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -1659,7 +1659,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		try{	
 			pu.setName(barcodeName);//sample.name will be set to the barcode name; as per Andy 9-28-12
 	
-			WUser me = authenticationService.getAuthenticatedUser();
+			User me = authenticationService.getAuthenticatedUser();
 			pu.setSubmitterUserId(me.getUserId());
 					
 			pu.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());//sampleSubtype is a parameter

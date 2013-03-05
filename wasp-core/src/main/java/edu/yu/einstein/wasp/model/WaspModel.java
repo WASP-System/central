@@ -115,19 +115,19 @@ public abstract class WaspModel extends WaspCoreModel implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name="lastupdatebyuser", insertable=false, updatable=false)
-	private WUser lastUpdatedByUser;
+	private User lastUpdatedByUser;
 
 	/**
 	 * @return the lastUpdatedByUser
 	 */
-	public WUser getLastUpdatedByUser() {
+	public User getLastUpdatedByUser() {
 		return lastUpdatedByUser;
 	}
 
 	/**
 	 * @param lastUpdatedByUser the lastUpdatedByUser to set
 	 */
-	public void setLastUpdatedByUser(WUser lastUpdatedByUser) {
+	public void setLastUpdatedByUser(User lastUpdatedByUser) {
 		this.lastUpdatedByUser = lastUpdatedByUser;
 	}
 	
