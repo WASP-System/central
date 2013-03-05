@@ -206,15 +206,18 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
 		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
 		String rcIname = newRun.getResourceCategory().getIName();
+		logger.debug("launching Batch job for runId=" + newRun.getRunId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
 		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
+			logger.debug("Getting generic flow for plugin: '" + plugin.getPluginName() + "'");
 			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
 			if (flowName == null){
 				logger.warn("No generic flow found for plugin handling " + rcIname);
 				continue;
 			}
 			try {
+				logger.debug("Going to launch Batch job '" + flowName + "'");
 				launchBatchJob(flowName, jobParameters);
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage(), e);
