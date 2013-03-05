@@ -1186,7 +1186,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getSampleId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  cells.add(ss.getSample());
+			  if (isCell(ss.getSample()))
+				  cells.add(ss.getSample());
 		  }
 		  return cells;
 	  }
