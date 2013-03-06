@@ -522,12 +522,12 @@ public class UserController extends WaspController {
 		//this.userDao.merge(userDb);
 
 		try {
-			userMetaDao.setMeta(userMetaList, userId);
+			userService.getUserMetaDao().setMeta(userMetaList, userId);
 			status.setComplete();
 
 			waspMessage("user.updated_success.label");
 			
-		} catch (MetadataException e){
+		} catch (Exception e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("user.updated.error");
 		}

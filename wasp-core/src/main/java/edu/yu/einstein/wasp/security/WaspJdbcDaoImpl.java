@@ -32,11 +32,11 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 					"concat(provr.rolename, '-*') " +
 				"end authority " +
 				"FROM " +
-					"user u " +
-					"inner join role ab on (ab.id in (1,2)) " +
-					"inner join role r on (1 = 1) " +
+					"wuser u " +
+					"inner join wrole ab on (ab.id in (1,2)) " +
+					"inner join wrole r on (1 = 1) " +
 					"inner join roleset rs on (r.id = rs.parentroleid) " +
-					"inner join role provr on (rs.childroleid = provr.id) " +
+					"inner join wrole provr on (rs.childroleid = provr.id) " +
 					"left outer join userrole ur " +
 					"on (u.id = ur.userid and r.id = ur.roleid) " +
 					"left outer join departmentuser du " +
@@ -47,7 +47,7 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 					"on (u.id = ju.userid and r.id = ju.roleid) " +
 					"left outer join jobdraft jd " +
 					"on (u.id = jd.userid and status = 'PENDING') " +
-					"left outer join user us " +
+					"left outer join wuser us " +
 					"on (u.id = us.id) " +
 				"where " +
 					"u.login = ? and " +
@@ -61,7 +61,7 @@ public class WaspJdbcDaoImpl extends JdbcDaoImpl {
 					"end " +
 					"group by 1, 2");
 		
-		this.setUsersByUsernameQuery("SELECT login username, password, isactive enabled FROM user WHERE login = ?");
+		this.setUsersByUsernameQuery("SELECT login username, password, isactive enabled FROM wuser WHERE login = ?");
 
 	}
 	

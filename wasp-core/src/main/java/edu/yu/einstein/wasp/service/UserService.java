@@ -14,8 +14,10 @@ package edu.yu.einstein.wasp.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -55,6 +57,11 @@ public interface UserService extends WaspService {
  	 * @return User 
  	 */
   public User getUserByEmail(String emailAddress);
+  
+  /**
+   * @return
+   */
+  public UserMetaDao getUserMetaDao();
 
 }
 
