@@ -20,8 +20,6 @@
 
 	<mockito:mock id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor" />
 	
-	<mockito:mock id="hostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />
-	
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.RunService" />
 	
 </beans>
