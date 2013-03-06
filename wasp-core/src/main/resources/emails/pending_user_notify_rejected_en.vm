@@ -1,4 +1,6 @@
 WASP: Lab Registration Denied
 <p>Dear ${pendinguser.firstName} ${pendinguser.lastName},</p>
 
-<p>We regret that your application to lab '${lab.name}' has been rejected.</p>
+<p>We regret to inform you that your WASP application to join the laboratory headed by ${lab.user.firstName} ${lab.user.lastName} has been rejected.</p>
+
+<p>Regards,<br />The WASP Team</p>
