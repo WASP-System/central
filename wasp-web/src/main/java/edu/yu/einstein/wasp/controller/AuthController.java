@@ -407,5 +407,10 @@ public class AuthController extends WaspController {
 
     return "redirect:/dashboard.do";
   }
+  
+  @RequestMapping("/wasp403")
+  public String wasp403(){
+	  return "auth/accessdenied";
+  }
 
 }
