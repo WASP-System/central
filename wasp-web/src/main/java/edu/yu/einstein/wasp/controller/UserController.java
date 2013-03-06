@@ -90,7 +90,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm') or hasRole('ft')")
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -109,7 +109,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm') or hasRole('ft') or User.login == principal.name")
 	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();

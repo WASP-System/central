@@ -52,6 +52,7 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.ResourceException;
@@ -76,7 +77,6 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
-import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -108,11 +108,11 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 @Transactional("entityManager")
 public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements SampleService {
 	
-	private static final String LOCK_META_AREA = "lock";
+	protected static final String LOCK_META_AREA = "lock";
 	
-	private static final String LOCK_META_KEY = "status";
+	protected static final String LOCK_META_KEY = "status";
 
-	private SampleDao	sampleDao;
+	protected SampleDao	sampleDao;
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -141,7 +141,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return this.sampleDao;
 	}
 	
-	private AuthenticationService authenticationService;
+	protected AuthenticationService authenticationService;
 	
 	
 	@Override
@@ -151,48 +151,48 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	@Autowired
-	private MetaMessageService metaMessageService;
+	protected MetaMessageService metaMessageService;
 
 	@Autowired
-	private WorkflowDao workflowDao;
+	protected WorkflowDao workflowDao;
 	
 	@Autowired
-	private SampleBarcodeDao sampleBarcodeDao;
+	protected SampleBarcodeDao sampleBarcodeDao;
 
 	@Autowired
-	private SampleMetaDao sampleMetaDao;
+	protected SampleMetaDao sampleMetaDao;
 	
-	private SampleSourceDao sampleSourceDao;
+	protected SampleSourceDao sampleSourceDao;
 	
 	@Autowired
-	private SampleSourceMetaDao sampleSourceMetaDao;
+	protected SampleSourceMetaDao sampleSourceMetaDao;
 	
 
 	@Autowired
-	private SampleSubtypeDao sampleSubtypeDao;
+	protected SampleSubtypeDao sampleSubtypeDao;
 
 	@Autowired
-	private AdaptorDao adaptorDao;
+	protected AdaptorDao adaptorDao;
 	
 	@Autowired
-	private BarcodeDao barcodeDao;
+	protected BarcodeDao barcodeDao;
 	
 	@Autowired
-	private RunDao runDao;
+	protected RunDao runDao;
 	
 	@Autowired
-	private JobDao jobDao;
+	protected JobDao jobDao;
 	
 	@Autowired
-	private JobSampleDao jobSampleDao;
+	protected JobSampleDao jobSampleDao;
 	
 	@Autowired
-	private JobCellSelectionDao jobCellSelectionDao;
+	protected JobCellSelectionDao jobCellSelectionDao;
 	
 	@Autowired
-	private SampleJobCellSelectionDao sampleJobCellSelectionDao;
+	protected SampleJobCellSelectionDao sampleJobCellSelectionDao;
 
-	private JobExplorerWasp batchJobExplorer;
+	protected JobExplorerWasp batchJobExplorer;
 	
 	@Autowired
 	void setJobExplorer(JobExplorer jobExplorer){
@@ -200,16 +200,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	@Autowired
-	private RunService runService;
+	protected RunService runService;
 		
 	@Autowired
-	private SampleTypeDao sampleTypeDao;
+	protected SampleTypeDao sampleTypeDao;
 	
 	@Autowired
-	private RunMetaDao runMetaDao;
+	protected RunMetaDao runMetaDao;
 	
 	@Autowired
-	 private ResourceDao resourceDao;
+	 protected ResourceDao resourceDao;
 	
 	/**
 	 * Setter for the sampleMetaDao
@@ -983,8 +983,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * @author asmclellan
 	   *
 	   */
-	  private class Index{
-		  private int index;
+	  protected class Index{
+		  protected int index;
 		  
 		  public Index(){
 			  index = 0;
@@ -1011,7 +1011,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * @return
 	   * @throws SampleTypeException
 	   */
-	  private List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
+	  protected List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
 		  if (!isCell(cell)){
@@ -1186,7 +1186,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getSampleId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  cells.add(ss.getSample());
+			  if (isCell(ss.getSample()))
+				  cells.add(ss.getSample());
 		  }
 		  return cells;
 	  }
@@ -2015,7 +2016,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		removeLibraryFromCellOfPlatformUnit(getCellLibrary(cell, library));
 	}
 	
-	private void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
+	protected void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
 		Sample cell = puCellLink.getSourceSample();//cell is the lane
@@ -2029,7 +2030,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleAndItsMeta(cell);//second, remove the cell itself (currently this is no meta here, but if in the future there is, it will be taken care of automatically)
 	}
 	
-	private void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
+	protected void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
 		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
 		if (!platformUnit.getSampleType().getIName().equals("platformunit")){
@@ -2038,7 +2039,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.deleteSampleBarcode(platformUnit);
 		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
 	}
-	private void deleteSampleBarcode(Sample sample){
+	protected void deleteSampleBarcode(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid platformUnit provided");
 		List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
 		for(SampleBarcode sampleBarcode : sampleBarcodeList){
@@ -2049,7 +2050,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			barcodeDao.flush(barcode);
 		}
 	}
-	private void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
+	protected void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
 		Assert.assertParameterNotNull(sampleSource, "Invalid sampleSource provided");
 		Assert.assertParameterNotNullNotZero(sampleSource.getSampleSourceId(), "Invalid sampleSource provided");
 		for(SampleSourceMeta meta : sampleSource.getSampleSourceMeta()){
@@ -2059,7 +2060,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		getSampleSourceDao().remove(sampleSource);
 		getSampleSourceDao().flush(sampleSource);
 	}
-	private void deleteSampleAndItsMeta(Sample sample){
+	protected void deleteSampleAndItsMeta(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid sample provided");
 		for(SampleMeta meta : sample.getSampleMeta()){
@@ -2250,6 +2251,28 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public List<MetaMessage> getSampleQCComments(Integer sampleId){
 		return metaMessageService.read("sampleQCComment", sampleId, SampleMeta.class, sampleMetaDao);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
+		
+		List<MetaMessage> existingMessages = metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		if (existingMessages.isEmpty()){
+			metaMessageService.saveToGroup(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		} else {
+			metaMessageService.edit(existingMessages.get(0), comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId){
+		return metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 	}
 	
 	/**
@@ -2449,13 +2472,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	
 	// statics 
-		private static final String CELL_SUCCESS_META_AREA = "cell";
-		private static final String CELL_SUCCESS_META_KEY_RUN = "run_success";
+
+	public static class CellSuccessMeta {
+		public static final String AREA = "cell";
+		public static final String RUN_SUCCESS = "run_success";
+	}
 		
-		private static final String CELL_LIBRARY_META_AREA = "cellLibrary";
-		private static final String CELL_LIBRARY_META_KEY_PASS_QC = "preprocess_qc_pass";
-		
-		
+	public static class CellLibraryMeta {
+		public static final String AREA = "cellLibrary";
+		public static final String PREPROCESS_PASS_QC = "preprocess_qc_pass";
+		public static final String IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
+	}
+				
 		/**
 		 *  {@inheritDoc}
 		 */
@@ -2468,7 +2496,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (sampleMetaList == null)
 				sampleMetaList = new ArrayList<SampleMeta>();
 			try{
-				success = (String) MetaHelper.getMetaValue(CELL_SUCCESS_META_AREA, CELL_SUCCESS_META_KEY_RUN, sampleMetaList);
+				success = (String) MetaHelper.getMetaValue(CellSuccessMeta.AREA, CellSuccessMeta.RUN_SUCCESS, sampleMetaList);
 			} catch(MetadataException e) {
 				return false; // no value exists already
 			}
@@ -2487,7 +2515,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Boolean b = new Boolean(success);
 			String successString = b.toString();
 			SampleMeta sampleMeta = new SampleMeta();
-			sampleMeta.setK(CELL_SUCCESS_META_AREA + "." + CELL_SUCCESS_META_KEY_RUN);
+			sampleMeta.setK(CellSuccessMeta.AREA + "." + CellSuccessMeta.RUN_SUCCESS);
 			sampleMeta.setV(successString);
 			sampleMeta.setSampleId(cell.getSampleId());
 			sampleMetaDao.setMeta(sampleMeta);
@@ -2518,7 +2546,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException{
+		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			if (!this.isCellSequencedSuccessfully(this.getCell(cellLibrary)))
@@ -2528,9 +2556,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			if (metaList == null)
 				metaList = new ArrayList<SampleSourceMeta>();
 			try{
-				isPassedQC = (String) MetaHelper.getMetaValue(CELL_LIBRARY_META_AREA, CELL_LIBRARY_META_KEY_PASS_QC, metaList);
+				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.PREPROCESS_PASS_QC, metaList);
 			} catch(MetadataException e) {
-				return false; // no value exists already
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_PASS_QC"); // no value exists already
 			}
 			Boolean b = new Boolean(isPassedQC);
 			return b.booleanValue();
@@ -2541,16 +2569,50 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 * @throws MetadataException 
 		 */
 		@Override
-		public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+		public void setCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
-			sampleSourceMeta.setK(CELL_LIBRARY_META_AREA + "." + CELL_LIBRARY_META_KEY_PASS_QC);
+			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.PREPROCESS_PASS_QC);
 			sampleSourceMeta.setV(isPreprocessedString);
 			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
+
+
+
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException{
+			Set<SampleSource> cellLibrariesForJob = this.getCellLibrariesForJob(job);
+			List<SampleSource> cellLibrariesThatPassedQC = new ArrayList<SampleSource>();
+			for(SampleSource cellLibrary : cellLibrariesForJob){
+				try{
+					if(this.isCellLibraryPassedQC(cellLibrary)){
+						cellLibrariesThatPassedQC.add(cellLibrary);
+					}
+				}catch(MetaAttributeNotFoundException e){
+					logger.warn("recieved possibly anticipated MetaAttributeNotFoundException: " + e.getLocalizedMessage()); 				
+				}
+			}
+			return cellLibrariesThatPassedQC;
+		}
+		
+		public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException{
+			List<SampleSource> cellLibrariesThatPassedQC = getCellLibrariesThatPassedQCForJob(job);
+			List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
+			for(SampleSource cellLibrary : cellLibrariesThatPassedQC){
+				try{
+					if(this.isMetaCellLibraryInAggregateAnalysis(cellLibrary)){//throws exception if this meta has not been created/set
+						continue;
+					}
+				}catch(MetaAttributeNotFoundException e){cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.add(cellLibrary);}
+			}
+			return cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis;			
 		}
 
 
@@ -2584,6 +2646,49 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 		/**
 		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			String isPassedQC = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null)
+				metaList = new ArrayList<SampleSourceMeta>();
+			try{
+				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
+			} catch(MetadataException e) {
+				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS"); // no value exists already
+			}
+			Boolean b = new Boolean(isPassedQC);
+			return b.booleanValue();
+		}
+
+		/**
+		 *  {@inheritDoc}
+		 * @throws MetadataException 
+		 */
+		@Override
+		public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Boolean b = new Boolean(isPassedQC);
+			String isPreprocessedString = b.toString();
+			SampleSourceMeta sampleSourceMeta = null;
+			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
+			if (metaList == null || metaList.isEmpty()){
+				sampleSourceMeta = new SampleSourceMeta();
+			}
+			else{
+				sampleSourceMeta = MetaHelper.getMetaObjectFromList(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
+			}
+			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.IN_AGGREGATE_ANALYSIS);
+			sampleSourceMeta.setV(isPreprocessedString);
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+		}
+		
+		/**
 		 * @throws SampleException 
 		 */
 		@Override
@@ -2673,17 +2778,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public Sample getControlSampleByTestSample(Sample testSample){
+		public List<Sample> getControlSamplesByTestSample(Sample testSample){
 			Assert.assertParameterNotNull(testSample, "Test sample cannot be empty");
 			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample must have a valid id");
-			
+			List<Sample> controlSamples = new ArrayList<Sample>();
 			Map<String, Integer> m = new HashMap<String, Integer>();
 			m.put("sampleId", testSample.getSampleId());
-			List<SampleSource> ss = sampleSourceDao.findByMap(m);
-			if (ss.isEmpty())
-				return null;
-			
-			return sampleDao.getSampleBySampleId(ss.get(0).getSourceSampleId()); // get from Dao in case sample pair not entity managed
+			Sample controlSample = null;
+			for (SampleSource ss : sampleSourceDao.findByMap(m)){
+				controlSample = ss.getSourceSample();
+				if (isDnaOrRna(controlSample) || isLibrary(controlSample))
+					controlSamples.add(controlSample); 
+			}
+			return controlSamples;
 		}
 
 		  /**
@@ -2703,11 +2810,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
 			  }
 
-			  //check if the test sample already has been paired with a control sample 
-			  if( getControlSampleByTestSample(testSample) != null ){ //case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
-				  throw new SampleException("Sample "+testSample.getName()+" is already paired with another control sample.");
-			  }
-
 			  SampleSource newSampleSource = new SampleSource(); 
 			  newSampleSource.setSample(testSample);
 			  newSampleSource.setSourceSample(controlSample);
@@ -2720,6 +2822,40 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  logger.warn("Unable to set 'jobId' SampleSourceMeta for sample "+testSample.getName()+" and sample "+controlSample.getName());
 			  }
 			  
+		  }
+		  
+		  public List<SampleSource> getPreprocessedCellLibraries(Job job){
+			  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();//preprocessed means sequenced and aligned
+			  for (SampleSource cellLibrary: this.getCellLibrariesForJob(job)){
+				  try{
+					  if (this.isCellLibraryPreprocessed(cellLibrary)){
+						  preprocessedCellLibraries.add(cellLibrary);
+					  }
+				  }
+				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getSampleSourceId()); 
+				  }						  
+			  }
+			  return preprocessedCellLibraries;
+		  }
+		  
+		  /**
+		   * {@inheritDoc}
+		   */
+		  @Override
+		  public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment){
+			  try{
+				  if(qcStatus.trim().equalsIgnoreCase("INCLUDE")){
+					  this.setMetaCellLibraryInAggregateAnalysis(cellLibrary, true);
+				  }
+				  else if(qcStatus.trim().equalsIgnoreCase("EXCLUDE")){
+					  this.setMetaCellLibraryInAggregateAnalysis(cellLibrary, false);
+				  }
+				  
+				  if( !comment.trim().isEmpty() ){
+					  this.setMetaInAggregateAnalysisComment(cellLibrary.getSampleSourceId(), comment.trim());
+				  }
+			  }
+			  catch(Exception e){throw new RuntimeException(e.getMessage());}
 		  }
 }
 

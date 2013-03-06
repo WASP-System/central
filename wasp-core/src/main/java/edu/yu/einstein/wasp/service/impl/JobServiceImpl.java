@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -359,7 +360,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){
+			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){ 
 				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
 				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
 				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
@@ -491,7 +492,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
@@ -527,6 +528,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			return true;
 		return false;
 	}
+	
+	
 	
 	 /**
 	   * {@inheritDoc}
@@ -1419,7 +1422,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		Assert.assertParameterNotNull(task, "No Task provided");
-		  
+		if (!this.isJobActive(job))
+			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
@@ -1927,6 +1931,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.debug("job " + job.getJobId() + " not active - returning false");
 			return false;
 		}
+		if (this.isAggregationAnalysisBatchJob(job)){
+			logger.debug("job " + job.getJobId() + " aggregation analysis has been initiated - returning false;");
+			return false;
+		}
+			
 		// if cellLibraries exist check these first (for efficiency)
 		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
 			try{
@@ -1941,9 +1950,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						return true; // the library is on an active run
 					}
 				}
+
 				if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
-						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
+						logger.debug("job " + job.getJobId() + "the library has been run and it's cell has passed QC but has not been pre-processed (aligned) yet - returning true");
 						return true; // the library has been run and passed QC but has not been pre-processed yet
 					}
 				}
@@ -1951,7 +1961,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());
 			} catch (SampleParentChildException e1){
 				logger.warn("recieved unexpected SampleParentChildException: " + e1.getLocalizedMessage());
-			}
+			} 
 		}
 		// no in-process samples on platform units so ...
 		if (this.isJobPendingApprovalOrQuote(job)){
@@ -1982,8 +1992,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void triggerAggregationAnalysisBatchJob(Job job){
+	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
 		Map<String, String> jobParameters = new HashMap<String, String>();
@@ -2006,5 +2019,73 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getActiveJobsWithNoSamplesCurrentlyBeingProcessed(){
+		List<Job> activeJobList = this.getActiveJobs();
+		List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = new ArrayList<Job>();		
+		for(Job job : activeJobList){
+			if(!this.isAnySampleCurrentlyBeingProcessed(job)){
+				activeJobsWithNoSamplesCurrentlyBeingProcessed.add(job);
+			}
+		}
+		return activeJobsWithNoSamplesCurrentlyBeingProcessed;
+	}
+
+	public boolean isAggregationAnalysisBatchJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		Set<String> taskSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		taskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		parameterMap.put(WaspJobParameters.BATCH_JOB_TASK, taskSet);
+		if (batchJobExplorer.getJobExecutions(parameterMap, true).size() > 0)
+			return true;
+		return false;
+	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isTerminated(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STOPPED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isFinishedSuccessfully(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.COMPLETED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void terminate(Job job) throws WaspMessageBuildingException{
+		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS);
+	}
 }

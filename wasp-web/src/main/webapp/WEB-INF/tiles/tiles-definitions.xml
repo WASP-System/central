@@ -5,6 +5,7 @@
 <!-- Tiles definitions. Attention! Locale-specific page titles are stored under pageTitle.definition.label key in uifield database table. Sasha. -->
 <tiles-definitions>
 	<definition name="template-base" template="/WEB-INF/jsp/layouts/base.jsp">
+		<put-attribute name="head-style" value="" />
 		<put-attribute name="head-js" value="" />
 		<put-attribute name="banner-content" value="/WEB-INF/jsp/sections/banner.jsp" />
 		<put-attribute name="menu-content" value="/WEB-INF/jsp/sections/menu.jsp" />
@@ -15,6 +16,7 @@
 	<definition name="template-grid" template="/WEB-INF/jsp/layouts/grid.jsp">
 		<put-attribute name="area" value="" />
 		<put-attribute name="grid-columns" value="" />
+		<put-attribute name="head-style" value="" />
 		<put-attribute name="head-js" value="" />
 		<put-attribute name="subgrid-columns" value="" />
 		<put-attribute name="grid-customAttributes" value="" />
@@ -227,6 +229,10 @@
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>
+	<definition name="task/cellLibraryQC/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/cellLibraryQC/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/cellLibraryQC/list.jsp" />
+	</definition>
 	<definition name="task/daapprove/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/task/daapprove/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/daapprove/list.jsp" />
@@ -257,10 +263,6 @@
 	<definition name="task/libraryqc/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/libraryQC/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/libraryQC/list.jsp" />
-	</definition>
-	<definition name="task/initiateanalysis/list" extends="template-base">
-	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/initiateAnalysis/list.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/task/initiateAnalysis/list.jsp" />
 	</definition>
 	 <!--<definition name="department/detail" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/department/detail.js.jsp" />

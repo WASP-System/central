@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
@@ -61,6 +62,7 @@ public class ResultViewController extends WaspController {
 
 	@Autowired
 	private FileService fileService;
+
 
 	//get locale-specific message
 	protected String getMessage(String key, String defaultMessage) {
@@ -116,7 +118,7 @@ public class ResultViewController extends WaspController {
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
 	public @ResponseBody String getDetailsJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
-		//Map <String, Object> jsTree = new HashMap<String, Object>();
+
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
@@ -130,55 +132,41 @@ public class ResultViewController extends WaspController {
 				
 				jsDetails.put(getMessage("job.name.label"), job.getName());
 				
+				// add job extra detail info
 				HashMap<String, String> extraJobDetails = jobService.getExtraJobDetails(job);
 				for (String lblEJD : extraJobDetails.keySet()) {
 					try {
 						String msg = getMessage(lblEJD);
-						jsDetails.put(msg, extraJobDetails.get(lblEJD));
+						if (!msg.equals(lblEJD))
+							jsDetails.put(msg, extraJobDetails.get(lblEJD));
 					}
 					catch (NoSuchMessageException e) {
 						;
 					}
 				}
 			
+				// add job meta info
 				List<JobMeta> metaList = job.getJobMeta();
-/*				Map <String, Map<String, String>> metaListMap = new HashMap();
-				for (JobMeta mt : metaList) {
-					String key = mt.getK();
-					//logger.debug(Arrays.deepToString(metaNameSplit));
-					
-					try {
-						String msg = getMessage("job."+key+".label");
-						jsDetails.put(msg, mt.getV());
-					} 
-					catch (NoSuchMessageException e) {
-						String[] metaKeySplit = key.split("\\.");
-						//logger.debug(Arrays.deepToString(metaNameSplit));
-						if(metaKeySplit.length == 1) {
-							jsDetails.put(key, mt.getV());
-						} else if (metaKeySplit.length == 2) {
-							Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
-							if(subKeyMap == null) {
-								subKeyMap = new HashMap();
-								metaListMap.put(metaKeySplit[0], subKeyMap);
-							}
-							subKeyMap.put(metaKeySplit[1], mt.getV());
-						}
-					}
-				}
-				jsDetails.putAll(metaListMap);
-*/
-				//jsDetails = jobService.getJobDetailWithMeta(id);
-
 				for (JobMeta mt : metaList) {
 					String mKey = mt.getK();
 					try {
 						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
+						if (!msg.equals(mKey+".label"))
+							jsDetails.put(msg, mt.getV());
 					}
 					catch (NoSuchMessageException e) {
 						;
 					}
+				}
+				
+				// add job status message info
+				List<MetaMessage> msgList = jobService.getUserSubmittedJobComment(jobId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
+				}
+				msgList = jobService.getAllFacilityJobComments(jobId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
 			} else if(type.equalsIgnoreCase("sample")) {
@@ -190,45 +178,27 @@ public class ResultViewController extends WaspController {
 				}
 				
 				jsDetails.put(getMessage("sample.name.label"), sample.getName());
-			
-				List<SampleMeta> metaList = sample.getSampleMeta();
 				
-/*				Map <String, Map<String, String>> metaListMap = new HashMap();
-				for (SampleMeta mt : metaList) {
-					String key = mt.getK();
-					//logger.debug(Arrays.deepToString(metaNameSplit));
-	
-					try {
-						String msg = getMessage("sample."+key+".label");
-						jsDetails.put(msg, mt.getV());
-					} 
-					catch (NoSuchMessageException e) {
-						String[] metaKeySplit = key.split("\\.");
-						//logger.debug(Arrays.deepToString(metaNameSplit));
-						if(metaKeySplit.length == 1) {
-							jsDetails.put(key, mt.getV());
-						} else if (metaKeySplit.length == 2) {
-							Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
-							if(subKeyMap == null) {
-								subKeyMap = new HashMap();
-								metaListMap.put(metaKeySplit[0], subKeyMap);
-							}
-							subKeyMap.put(metaKeySplit[1], mt.getV());
-						}
-					}
-				}
-				jsDetails.putAll(metaListMap);
-*/				
+				// add sample meta info
+				List<SampleMeta> metaList = sample.getSampleMeta();
 				for (SampleMeta mt : metaList) {
 					String mKey = mt.getK();
 					try {
 						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
+						if (!msg.equals(mKey+".label"))
+							jsDetails.put(msg, mt.getV());
 					}
 					catch (NoSuchMessageException e) {
 						;
 					}
 				}
+				
+				// add sample status message info
+				List<MetaMessage> msgList = sampleService.getSampleQCComments(sampleId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
+				}
+
 			} else if(type.equalsIgnoreCase("file")) {
 				Integer fileId = id;
 				FileHandle file = this.fileService.getFileHandleById(fileId);
@@ -239,6 +209,7 @@ public class ResultViewController extends WaspController {
 				
 				jsDetails.put(getMessage("file.name.label"), file.getFileName());
 				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
+
 			
 				List<FileHandleMeta> metaList = file.getFileMeta();
 				
@@ -246,7 +217,8 @@ public class ResultViewController extends WaspController {
 					String mKey = mt.getK();
 					try {
 						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
+						if (!msg.equals(mKey+".label"))
+							jsDetails.put(msg, mt.getV());
 					}
 					catch (NoSuchMessageException e) {
 						;
@@ -254,7 +226,6 @@ public class ResultViewController extends WaspController {
 				}
 			}
 			
-			//return outputJSON(jsTree, response);
 			return outputJSON(jsDetails, response);
 		} 
 		catch (Throwable e) {

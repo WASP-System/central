@@ -7,8 +7,8 @@
 <div class="instructions"><fmt:message key="jobDraft.verify_instructions.label"/></div>
 <form method="POST">
   <div class="submit">
-    <input class="fm-button" type="submit" value="<fmt:message key="jobDraft.submit_button.label"/>" />
-    &nbsp;&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" /> 
+    <input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" /> 
+    &nbsp;&nbsp;<input class="fm-button" type="submit" value="<fmt:message key="jobDraft.submit_button.label"/>" />
     
   </div>
 </form>
