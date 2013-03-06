@@ -921,23 +921,23 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 		
 
-	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
+	  public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
 
-	Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
+	public Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
 
-	Job getJobBySamplePair(SampleSource samplePair);
+	public Job getJobBySamplePair(SampleSource samplePair);
 
-	Set<SampleSource> getSamplePairsByJob(Job job);
+	public Set<SampleSource> getSamplePairsByJob(Job job);
 
-	SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
+	public SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
 
-	Sample getTestSample(SampleSource samplePair);
+	public Sample getTestSample(SampleSource samplePair);
 
-	Sample getControlSample(SampleSource samplePair);
+	public Sample getControlSample(SampleSource samplePair);
 
-	Sample getControlSampleByTestSample(Sample testSample);
+	public List<Sample> getControlSamplesByTestSample(Sample testSample);
 
-	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
 	public List<SampleSource> getPreprocessedCellLibraries(Job job);
 	

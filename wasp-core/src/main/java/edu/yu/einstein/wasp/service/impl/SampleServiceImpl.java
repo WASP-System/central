@@ -1185,7 +1185,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Map<String,Integer> q = new HashMap<String,Integer>();
 		  q.put("sourceSampleId", library.getSampleId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
-			  cells.add(ss.getSample());
+			  if (isCell(ss.getSample()))
+				  cells.add(ss.getSample());
 		  }
 		  return cells;
 	  }
@@ -2776,17 +2777,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public Sample getControlSampleByTestSample(Sample testSample){
+		public List<Sample> getControlSamplesByTestSample(Sample testSample){
 			Assert.assertParameterNotNull(testSample, "Test sample cannot be empty");
 			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample must have a valid id");
-			
+			List<Sample> controlSamples = new ArrayList<Sample>();
 			Map<String, Integer> m = new HashMap<String, Integer>();
 			m.put("sampleId", testSample.getSampleId());
-			List<SampleSource> ss = sampleSourceDao.findByMap(m);
-			if (ss.isEmpty())
-				return null;
-			
-			return sampleDao.getSampleBySampleId(ss.get(0).getSourceSampleId()); // get from Dao in case sample pair not entity managed
+			Sample controlSample = null;
+			for (SampleSource ss : sampleSourceDao.findByMap(m)){
+				controlSample = ss.getSourceSample();
+				if (isDnaOrRna(controlSample) || isLibrary(controlSample))
+					controlSamples.add(controlSample); 
+			}
+			return controlSamples;
 		}
 
 		  /**
@@ -2804,11 +2807,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 
 			  if (!this.isLibrary(controlSample)){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
-			  }
-
-			  //check if the test sample already has been paired with a control sample 
-			  if( getControlSampleByTestSample(testSample) != null ){ //case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
-				  throw new SampleException("Sample "+testSample.getName()+" is already paired with another control sample.");
 			  }
 
 			  SampleSource newSampleSource = new SampleSource(); 
