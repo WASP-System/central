@@ -47,7 +47,7 @@ public class JobMetaDaoImpl extends WaspMetaDaoImpl<JobMeta> implements edu.yu.e
 	@Transactional
 	public JobMeta getJobMetaByJobMetaId (final int jobMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobMetaId", jobMetaId);
+		m.put("id", jobMetaId);
 
 		List<JobMeta> results = this.findByMap(m);
 

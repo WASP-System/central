@@ -10,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * @author calder
@@ -27,10 +28,10 @@ public class DummyFileUrlResolver implements FileUrlResolver {
 	}
 
 	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.File, edu.yu.einstein.wasp.model.User)
+	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle, edu.yu.einstein.wasp.model.User)
 	 */
 	@Override
-	public URL getURL(File file) throws GridUnresolvableHostException {
+	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
 		try {
 			return new URL(getUrl());
 		} catch (MalformedURLException e) {
@@ -51,6 +52,16 @@ public class DummyFileUrlResolver implements FileUrlResolver {
 	 */
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	@Override
+	public URL getURL(FileGroup group) throws GridUnresolvableHostException {
+		try {
+			return new URL(getUrl());
+		} catch (MalformedURLException e) {
+			logger.warn("bad URL: " + url);
+			throw new GridUnresolvableHostException();
+		}
 	}
 
 }

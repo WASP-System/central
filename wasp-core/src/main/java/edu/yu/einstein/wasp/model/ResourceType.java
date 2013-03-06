@@ -35,12 +35,7 @@ public class ResourceType extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2559677620369160301L;
-	/** 
-	 * resourceTypeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceTypeId;
+	
 
 	/**
 	 * setResourceTypeId(Integer resourceTypeId)
@@ -48,9 +43,9 @@ public class ResourceType extends WaspModel {
 	 * @param resourceTypeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceTypeId (Integer resourceTypeId) {
-		this.resourceTypeId = resourceTypeId;
+		setId(resourceTypeId);
 	}
 
 	/**
@@ -59,8 +54,9 @@ public class ResourceType extends WaspModel {
 	 * @return resourceTypeId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceTypeId () {
-		return this.resourceTypeId;
+		return getId();
 	}
 
 

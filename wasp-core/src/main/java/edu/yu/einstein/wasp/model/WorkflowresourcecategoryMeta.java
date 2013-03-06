@@ -32,12 +32,6 @@ public class WorkflowresourcecategoryMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -8413076598054141252L;
-	/** 
-	 * workflowresourcecategoryMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowresourcecategoryMetaId;
 
 	/**
 	 * setWorkflowresourcecategoryMetaId(Integer workflowresourcecategoryMetaId)
@@ -45,9 +39,9 @@ public class WorkflowresourcecategoryMeta extends MetaBase {
 	 * @param workflowresourcecategoryMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowresourcecategoryMetaId (Integer workflowresourcecategoryMetaId) {
-		this.workflowresourcecategoryMetaId = workflowresourcecategoryMetaId;
+		setId(workflowresourcecategoryMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class WorkflowresourcecategoryMeta extends MetaBase {
 	 * @return workflowresourcecategoryMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowresourcecategoryMetaId () {
-		return this.workflowresourcecategoryMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class WorkflowresourcecategoryMeta extends MetaBase {
 	 */
 	public void setWorkflowresourcecategory (Workflowresourcecategory workflowresourcecategory) {
 		this.workflowresourcecategory = workflowresourcecategory;
-		this.workflowresourcecategoryId = workflowresourcecategory.workflowresourcecategoryId;
+		this.workflowresourcecategoryId = workflowresourcecategory.getId();
 	}
 
 	/**

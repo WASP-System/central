@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.model.User;
 
 public interface UserDao extends WaspDao<User> {
 
-  public User getUserByUserId (final int UserId);
+  public User getUserByUserId (final int userId);
 
   public User getUserByLogin (final String login);
 

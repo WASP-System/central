@@ -32,12 +32,6 @@ public class ResourceMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -1045801990506239255L;
-	/** 
-	 * resourceMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceMetaId;
 
 	/**
 	 * setResourceMetaId(Integer resourceMetaId)
@@ -45,9 +39,9 @@ public class ResourceMeta extends MetaBase {
 	 * @param resourceMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceMetaId (Integer resourceMetaId) {
-		this.resourceMetaId = resourceMetaId;
+		setId(resourceMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class ResourceMeta extends MetaBase {
 	 * @return resourceMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceMetaId () {
-		return this.resourceMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class ResourceMeta extends MetaBase {
 	 */
 	public void setResource (Resource resource) {
 		this.resource = resource;
-		this.resourceId = resource.resourceId;
+		this.resourceId = resource.getId();
 	}
 
 	/**

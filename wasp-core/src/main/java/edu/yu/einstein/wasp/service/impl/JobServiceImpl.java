@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -76,6 +77,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
@@ -83,13 +85,16 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -112,6 +117,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -303,7 +309,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	protected SampleSubtypeDao subSampleTypeDao;
 
 	@Autowired
-	protected FileDao fileDao;
+	protected FileHandleDao fileDao;
 
 	@Autowired
 	protected JobCellSelectionDao jobCellSelectionDao;
@@ -322,6 +328,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+	
+	@Autowired
+	protected FileService fileService;
 
 	
 	protected JobExplorerWasp batchJobExplorer;
@@ -1076,17 +1085,18 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				sampleDraftIDKeyToSampleIDValueMap.put(sd.getSampleDraftId(), sampleDb.getSampleId());
 		
 				// sample file
-				if (sd.getFileId() != null) {
-					SampleFile sampleFile = new SampleFile();
-					sampleFile.setSampleId(sampleDb.getSampleId());
-					sampleFile.setFileId(sd.getFileId());
-		
-					sampleFile.setIsActive(1);
-		
-					// TODO ADD NAME AND INAME
-		
-					sampleFileDao.save(sampleFile);
-				}
+				// TODO: BOYLE: This seems to never have worked properly
+//				if (sd.getFileId() != null) {
+//					SampleFile sampleFile = new SampleFile();
+//					sampleFile.setSampleId(sampleDb.getSampleId());
+//					sampleFile.setFileId(sd.getFileId());
+//		
+//					sampleFile.setIsActive(1);
+//		
+//					// TODO ADD NAME AND INAME
+//		
+//					sampleFileDao.save(sampleFile);
+//				}
 		
 				// Sample Draft Meta Data
 				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
@@ -1155,30 +1165,22 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			
-//			TODO: CLEAN UP THIS HORRIBLE SHITE
-//			// jobDraftFile -> jobFile
-//			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-//				File file = jdf.getFile();
-//				String folderPath = file.getAbsolutePathToFileFolder();
-//				String absPath = file.getAbsolutePath();
-//				java.io.File folder = new java.io.File(folderPath);
-//				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
-//				if (destPath.equals(folderPath)){
-//					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
-//				}
-//				try{
-//					folder.renameTo(new java.io.File(destPath));
-//				} catch (Exception e){
-//					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
-//				}
-//				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
-//				file.setFileURI(newAbsolutePath);
-//				JobFile jobFile = new JobFile();
-//				jobFile.setJob(jobDb);
-//				jobFile.setFile(file);
-//				jobFileDao.save(jobFile);
-//			}
-//						
+			// jobDraftFile -> jobFile
+		if (jobDraft.getJobDraftFile() != null) {
+			for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
+				FileGroup group = jdf.getFileGroup();
+
+				JobFile jobFile = new JobFile();
+				jobFile.setJob(jobDb);
+				try {
+					jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+				} catch (Exception e) {
+					logger.warn(e.getLocalizedMessage());
+					throw new RuntimeException(e);
+				}
+				jobFileDao.save(jobFile);
+			}
+		}			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
@@ -1313,13 +1315,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
 		Assert.assertParameterNotNull(user, "No User provided");
-		Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
+		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("UserId", user.getUserId().intValue());
+		m.put("userId", user.getId().intValue());
 		List<String> orderByColumnNames = new ArrayList<String>();
 		orderByColumnNames.add("jobId");
 		
@@ -1675,7 +1677,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			for (SampleFile sf : sampleFileList) {
 				Map fileNode = new HashMap();
 				fileNode.put("name", sf.getName());
-				fileNode.put("myid", sf.getFileId());
+				fileNode.put("myid", sf.getFileGroup().getFileGroupId());
 				fileNode.put("type", "file");
 				
 				fileNodes.add(fileNode);

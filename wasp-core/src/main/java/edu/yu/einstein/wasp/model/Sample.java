@@ -38,12 +38,6 @@ public class Sample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -324610621097231467L;
-	/** 
-	 * sampleId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleId;
 
 	/**
 	 * setSampleId(Integer sampleId)
@@ -51,9 +45,9 @@ public class Sample extends WaspModel {
 	 * @param sampleId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleId (Integer sampleId) {
-		this.sampleId = sampleId;
+		setId(sampleId);
 	}
 
 	/**
@@ -62,8 +56,9 @@ public class Sample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleId () {
-		return this.sampleId;
+		return getId();
 	}
 
 	/** 
@@ -256,7 +251,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isreceived")
-	protected Integer isReceived;
+	protected Integer isReceived = 0;
 
 	/**
 	 * setIsReceived(Integer isReceived)
@@ -412,7 +407,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -436,70 +431,6 @@ public class Sample extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sampleType
 	 *
@@ -517,7 +448,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -549,7 +480,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -581,7 +512,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setParent (Sample parent) {
 		this.parent = parent;
-		this.parentId = parent.sampleId;
+		this.parentId = parent.getId();
 	}
 	
 	/** 
@@ -645,7 +576,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.submitterJobId = job.jobId;
+		this.submitterJobId = job.getId();
 	}
 
 	/**
@@ -677,7 +608,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.submitterLabId = lab.labId;
+		this.submitterLabId = lab.getId();
 	}
 
 	/**
@@ -709,7 +640,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.submitterUserId = user.UserId;
+		this.submitterUserId = user.getId();
 	}
 
 	/**

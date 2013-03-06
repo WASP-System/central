@@ -391,16 +391,16 @@ public class JobController extends WaspController {
 		//if(authenticationService.isFacilityMember()){//true if viewer has role of su, fm, ft, sa, ga, da	
 		Map<String, Object> m = new HashMap<String, Object>();
 		if(jobId != null){
-			m.put("jobId", jobId.intValue());
+			m.put("id", jobId.intValue());
 		}
 		if(jobname != null){
 			m.put("name", jobname.trim());
 		}
 		if(submitter != null){
-			m.put("UserId", submitter.getUserId().intValue());
+			m.put("userId", submitter.getId().intValue());
 		}
 		if(piLab != null){
-			m.put("labId", piLab.getLabId().intValue());
+			m.put("labId", piLab.getId().intValue());
 		}
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(createts != null){
@@ -428,7 +428,7 @@ public class JobController extends WaspController {
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
-			orderByColumnAndDirection.add("jobId desc");
+			orderByColumnAndDirection.add("id desc");
 		}
 			
 		tempJobList = this.jobDao.findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);

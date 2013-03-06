@@ -32,12 +32,6 @@ public class SoftwareMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -8934740513727037919L;
-	/** 
-	 * softwareMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer softwareMetaId;
 
 	/**
 	 * setSoftwareMetaId(Integer softwareMetaId)
@@ -45,9 +39,9 @@ public class SoftwareMeta extends MetaBase {
 	 * @param softwareMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSoftwareMetaId (Integer softwareMetaId) {
-		this.softwareMetaId = softwareMetaId;
+		setId(softwareMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SoftwareMeta extends MetaBase {
 	 * @return softwareMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getSoftwareMetaId () {
-		return this.softwareMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class SoftwareMeta extends MetaBase {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**

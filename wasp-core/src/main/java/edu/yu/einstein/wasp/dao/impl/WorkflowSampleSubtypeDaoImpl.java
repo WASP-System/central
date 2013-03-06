@@ -47,7 +47,7 @@ public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubt
 	@Transactional
 	public WorkflowSampleSubtype getWorkflowSampleSubtypeByWorkflowsamplesubtypeId (final Integer workflowsamplesubtypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowsamplesubtypeId", workflowsamplesubtypeId);
+		m.put("id", workflowsamplesubtypeId);
 
 		List<WorkflowSampleSubtype> results = this.findByMap(m);
 

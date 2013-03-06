@@ -47,7 +47,7 @@ public class UserPendingMetaDaoImpl extends WaspMetaDaoImpl<UserPendingMeta> imp
 	@Transactional
 	public UserPendingMeta getUserPendingMetaByUserPendingMetaId (final int userPendingMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("userPendingMetaId", userPendingMetaId);
+		m.put("id", userPendingMetaId);
 
 		List<UserPendingMeta> results = this.findByMap(m);
 

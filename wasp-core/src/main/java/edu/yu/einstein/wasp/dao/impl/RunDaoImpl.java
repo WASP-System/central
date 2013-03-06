@@ -48,7 +48,7 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 	@Transactional
 	public Run getRunByRunId (final int runId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("runId", runId);
+		m.put("id", runId);
 
 		List<Run> results = this.findByMap(m);
 

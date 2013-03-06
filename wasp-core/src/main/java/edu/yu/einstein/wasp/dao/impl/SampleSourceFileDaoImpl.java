@@ -48,7 +48,7 @@ public class SampleSourceFileDaoImpl extends WaspDaoImpl<SampleSourceFile> imple
 	@Transactional
 	public SampleSourceFile getSampleSourceFileBySampleSourceFileId (final int sampleSourceFileId) {
     		HashMap m = new HashMap();
-		m.put("sampleSourceFileId", sampleSourceFileId);
+		m.put("id", sampleSourceFileId);
 
 		List<SampleSourceFile> results = this.findByMap(m);
 

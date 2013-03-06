@@ -41,18 +41,11 @@ public class SampleDraft extends WaspModel {
 	 */
 	private static final long serialVersionUID = -7802756907357416771L;
 
-public static enum Status {
-pending,
-inprocess,
-processed
-}
-
-	/** 
-	 * sampleDraftId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleDraftId;
+	public static enum Status {
+		pending,
+		inprocess,
+		processed
+	}
 
 	/**
 	 * setSampleDraftId(Integer sampleDraftId)
@@ -60,9 +53,9 @@ processed
 	 * @param sampleDraftId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleDraftId (Integer sampleDraftId) {
-		this.sampleDraftId = sampleDraftId;
+		setId(sampleDraftId);
 	}
 
 	/**
@@ -71,8 +64,9 @@ processed
 	 * @return sampleDraftId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleDraftId () {
-		return this.sampleDraftId;
+		return getId();
 	}
 
 
@@ -185,7 +179,7 @@ processed
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -194,8 +188,8 @@ processed
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -205,7 +199,7 @@ processed
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -246,8 +240,8 @@ processed
 	 * fileId
 	 *
 	 */
-	@Column(name="fileid")
-	protected Integer fileId;
+	@Column(name="filegroupid")
+	protected Integer fileGroupId;
 
 	/**
 	 * setFileId(Integer fileId)
@@ -256,8 +250,8 @@ processed
 	 *
 	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	public void setFileGroupId (Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
 	}
 
 	/**
@@ -266,8 +260,8 @@ processed
 	 * @return fileId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	public Integer getFileGroupId () {
+		return this.fileGroupId;
 	}
 
 
@@ -334,70 +328,6 @@ processed
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sampleType
 	 *
@@ -415,7 +345,7 @@ processed
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -447,7 +377,7 @@ processed
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -479,7 +409,7 @@ processed
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**
@@ -511,7 +441,7 @@ processed
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**
@@ -543,7 +473,7 @@ processed
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -564,18 +494,18 @@ processed
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileHandle file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFile (FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
+		this.fileGroupId = fileGroup.getId();
 	}
 
 	/**
@@ -585,8 +515,8 @@ processed
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFileGroup () {
+		return this.fileGroup;
 	}
 
 

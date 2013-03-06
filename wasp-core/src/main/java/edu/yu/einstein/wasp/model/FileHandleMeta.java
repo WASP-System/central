@@ -1,10 +1,10 @@
 
 /**
  *
- * FileMeta.java 
+ * FileHandleMeta.java 
  * @author asmclellan
  *  
- * the FileMeta
+ * the FileHandleMeta
  *
  *
  */
@@ -26,28 +26,22 @@ import org.hibernate.envers.NotAudited;
 @Entity
 @Audited
 @Table(name="filemeta")
-public class FileMeta extends MetaBase {
+public class FileHandleMeta extends MetaBase {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8558940671046911453L;
-	/** 
-	 * fileMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileMetaId;
-
+	
 	/**
 	 * setFileMetaId(Integer fileMetaId)
 	 *
 	 * @param fileMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileMetaId (Integer fileMetaId) {
-		this.fileMetaId = fileMetaId;
+		setId(fileMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class FileMeta extends MetaBase {
 	 * @return fileMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileMetaId () {
-		return this.fileMetaId;
+		return getId();
 	}
 
 
@@ -101,17 +96,17 @@ public class FileMeta extends MetaBase {
 	@NotAudited
 	@ManyToOne
 	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	protected FileHandle file;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileHandle file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
+	public void setFile (FileHandle file) {
 		this.file = file;
-		this.fileId = file.fileId;
+		this.fileId = file.getId();
 	}
 
 	/**
@@ -121,7 +116,7 @@ public class FileMeta extends MetaBase {
 	 *
 	 */
 	
-	public File getFile () {
+	public FileHandle getFile () {
 		return this.file;
 	}
 

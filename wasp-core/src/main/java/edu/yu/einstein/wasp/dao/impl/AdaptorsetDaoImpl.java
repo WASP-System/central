@@ -48,7 +48,7 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	@Transactional
 	public Adaptorset getAdaptorsetByAdaptorsetId (final Integer adaptorsetId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("adaptorsetId", adaptorsetId);
+		m.put("id", adaptorsetId);
 
 		List<Adaptorset> results = this.findByMap(m);
 

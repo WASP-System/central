@@ -47,7 +47,7 @@ public class RunCellFileDaoImpl extends WaspDaoImpl<RunCellFile> implements edu.
 	@Transactional
 	public RunCellFile getRunCellFileByRunCellfileId (final int runCellfileId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("runCellfileId", runCellfileId);
+		m.put("id", runCellfileId);
 
 		List<RunCellFile> results = this.findByMap(m);
 

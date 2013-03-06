@@ -47,7 +47,7 @@ public class AcctJobquotecurrentDaoImpl extends WaspDaoImpl<AcctJobquotecurrent>
 	@Transactional
 	public AcctJobquotecurrent getAcctJobquotecurrentByJobId (final int jobId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobId", jobId);
+		m.put("id", jobId);
 
 		List<AcctJobquotecurrent> results = this.findByMap(m);
 

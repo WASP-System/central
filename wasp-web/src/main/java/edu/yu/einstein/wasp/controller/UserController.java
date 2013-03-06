@@ -192,7 +192,7 @@ public class UserController extends WaspController {
 			if(userIdAsInteger == null){
 				userIdAsInteger = new Integer(0);//fake it; perform search below and no user will appear in the result set
 			}
-			m.put("UserId", userIdAsInteger.intValue());
+			m.put("id", userIdAsInteger.intValue());
 		}
 		else{
 			if(login != null){
@@ -213,7 +213,7 @@ public class UserController extends WaspController {
 			orderByList.add(sidx);
 		}
 		else{//default orderBy will be UserId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
-			orderByList.add("UserId");
+			orderByList.add("id");
 			sord = new String("desc");
 		}
 		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
@@ -488,8 +488,11 @@ public class UserController extends WaspController {
 		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 
 		userForm.setUserMeta(userMetaList);
+		
+		logger.debug("userMeta: " + StringUtils.join(userMetaList, ","));
+		
 		metaHelper.validate(result);
-		userForm.setUserId(userId);
+		userForm.setId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspErrorMessage("user.updated.error");
@@ -519,12 +522,12 @@ public class UserController extends WaspController {
 		//this.userDao.merge(userDb);
 
 		try {
-			userMetaDao.setMeta(userMetaList, userId);
+			userService.getUserMetaDao().setMeta(userMetaList, userId);
 			status.setComplete();
 
 			waspMessage("user.updated_success.label");
 			
-		} catch (MetadataException e){
+		} catch (Exception e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("user.updated.error");
 		}

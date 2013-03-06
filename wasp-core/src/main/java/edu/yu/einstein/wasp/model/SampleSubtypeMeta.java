@@ -32,22 +32,16 @@ public class SampleSubtypeMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 6911764609747570472L;
-	/** 
-	 * sampleMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSubtypeMetaId;
-
+	
 	/**
 	 * setSampleSubtypeMetaId(Integer sampleSubtypeMetaId)
 	 *
 	 * @param sampleSubtypeMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSubtypeMetaId (Integer sampleSubtypeMetaId) {
-		this.sampleSubtypeMetaId = sampleSubtypeMetaId;
+		setId(sampleSubtypeMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SampleSubtypeMeta extends MetaBase {
 	 * @return sampleSubtypeMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSubtypeMetaId () {
-		return this.sampleSubtypeMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class SampleSubtypeMeta extends MetaBase {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**

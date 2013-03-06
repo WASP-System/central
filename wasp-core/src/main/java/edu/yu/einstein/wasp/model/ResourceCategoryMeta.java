@@ -32,12 +32,7 @@ public class ResourceCategoryMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 499820160323772514L;
-	/** 
-	 * resourceCategoryMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceCategoryMetaId;
+	
 
 	/**
 	 * setResourceCategoryMetaId(Integer resourceCategoryMetaId)
@@ -45,9 +40,9 @@ public class ResourceCategoryMeta extends MetaBase {
 	 * @param resourceCategoryMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceCategoryMetaId (Integer resourceCategoryMetaId) {
-		this.resourceCategoryMetaId = resourceCategoryMetaId;
+		setId(resourceCategoryMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class ResourceCategoryMeta extends MetaBase {
 	 * @return resourceCategoryMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceCategoryMetaId () {
-		return this.resourceCategoryMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class ResourceCategoryMeta extends MetaBase {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+		this.resourcecategoryId = resourceCategory.getId();
 	}
 
 	/**

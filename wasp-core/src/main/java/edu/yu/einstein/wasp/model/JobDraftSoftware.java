@@ -34,12 +34,7 @@ public class JobDraftSoftware extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 6728114013935600776L;
-	/** 
-	 * jobDraftSoftwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftSoftwareId;
+	
 
 	/**
 	 * setJobDraftSoftwareId(Integer jobDraftSoftwareId)
@@ -47,9 +42,9 @@ public class JobDraftSoftware extends WaspModel {
 	 * @param jobDraftSoftwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftSoftwareId (Integer jobDraftSoftwareId) {
-		this.jobDraftSoftwareId = jobDraftSoftwareId;
+		setId(jobDraftSoftwareId);
 	}
 
 	/**
@@ -58,8 +53,9 @@ public class JobDraftSoftware extends WaspModel {
 	 * @return jobDraftSoftwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftSoftwareId () {
-		return this.jobDraftSoftwareId;
+		return getId();
 	}
 
 
@@ -124,71 +120,6 @@ public class JobDraftSoftware extends WaspModel {
 		return this.softwareId;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * jobDraft
 	 *
@@ -206,7 +137,7 @@ public class JobDraftSoftware extends WaspModel {
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**
@@ -238,7 +169,7 @@ public class JobDraftSoftware extends WaspModel {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**

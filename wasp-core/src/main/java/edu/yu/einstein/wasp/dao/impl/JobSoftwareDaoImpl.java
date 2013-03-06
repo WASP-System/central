@@ -47,7 +47,7 @@ public class JobSoftwareDaoImpl extends WaspDaoImpl<JobSoftware> implements edu.
 	@Transactional
 	public JobSoftware getJobSoftwareByJobSoftwareId (final Integer jobSoftwareId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobSoftwareId", jobSoftwareId);
+		m.put("id", jobSoftwareId);
 
 		List<JobSoftware> results = this.findByMap(m);
 

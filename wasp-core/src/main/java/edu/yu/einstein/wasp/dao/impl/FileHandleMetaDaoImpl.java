@@ -1,10 +1,10 @@
 
 /**
  *
- * FileMetaDaoImpl.java 
+ * FileHandleMetaDaoImpl.java 
  * @author asmclellan
  *  
- * the FileMeta Dao Impl
+ * the FileHandleMeta Dao Impl
  *
  *
  **/
@@ -17,21 +17,21 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.model.FileMeta;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 
 
 @Transactional
 @Repository
-public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu.einstein.wasp.dao.FileMetaDao {
+public class FileHandleMetaDaoImpl extends WaspMetaDaoImpl<FileHandleMeta> implements edu.yu.einstein.wasp.dao.FileHandleMetaDao {
 
 	/**
-	 * FileMetaDaoImpl() Constructor
+	 * FileHandleMetaDaoImpl() Constructor
 	 *
 	 *
 	 */
-	public FileMetaDaoImpl() {
+	public FileHandleMetaDaoImpl() {
 		super();
-		this.entityClass = FileMeta.class;
+		this.entityClass = FileHandleMeta.class;
 	}
 
 
@@ -45,14 +45,14 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 
 	@Override
 	@Transactional
-	public FileMeta getFileMetaByFileMetaId (final int fileMetaId) {
+	public FileHandleMeta getFileMetaByFileMetaId (final int fileMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileMetaId", fileMetaId);
+		m.put("id", fileMetaId);
 
-		List<FileMeta> results = this.findByMap(m);
+		List<FileHandleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			FileMeta rt = new FileMeta();
+			FileHandleMeta rt = new FileHandleMeta();
 			return rt;
 		}
 		return results.get(0);
@@ -70,15 +70,15 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 
 	@Override
 	@Transactional
-	public FileMeta getFileMetaByKFileId (final String k, final int fileId) {
+	public FileHandleMeta getFileMetaByKFileId (final String k, final int fileId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileId", fileId);
 
-		List<FileMeta> results = this.findByMap(m);
+		List<FileHandleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			FileMeta rt = new FileMeta();
+			FileHandleMeta rt = new FileHandleMeta();
 			return rt;
 		}
 		return results.get(0);
@@ -94,15 +94,15 @@ public class FileMetaDaoImpl extends WaspMetaDaoImpl<FileMeta> implements edu.yu
 
 	@Override
 	@Transactional
-	public FileMeta getFileMetaByKWorkflowId (final String k, final Integer fileId) {
+	public FileHandleMeta getFileMetaByKWorkflowId (final String k, final Integer fileId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
 		m.put("fileId", fileId);
 
-		List<FileMeta> results = this.findByMap(m);
+		List<FileHandleMeta> results = this.findByMap(m);
 
 		if (results.size() == 0) {
-			FileMeta rt = new FileMeta();
+			FileHandleMeta rt = new FileHandleMeta();
 			return rt;
 		}
 		return results.get(0);

@@ -1,10 +1,10 @@
 
 /**
  *
- * File.java 
+ * FileHandle.java 
  * @author echeng (table2type.pl)
  *  
- * the File
+ * the FileHandle
  *
  *
  */
@@ -13,14 +13,20 @@ package edu.yu.einstein.wasp.model;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -32,129 +38,75 @@ import org.hibernate.envers.NotAudited;
 
 @Entity
 @Audited
-@Table(name="file")
-public class File extends WaspModel {
+@Table(name="filegroup")
+public class FileGroup extends WaspModel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1239304568632087021L;
-	/** 
-	 * fileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileId;
-
-	/**
-	 * setFileId(Integer fileId)
-	 *
-	 * @param fileId
-	 *
-	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	
+	public FileGroup() {
+		filehandles = new HashSet<FileHandle>();
+		begat = new HashSet<FileGroup>();
+		derivedFrom = new HashSet<FileGroup>();
 	}
 
 	/**
-	 * getFileId()
+	 * setFileGroupId(Integer filegroupid)
 	 *
-	 * @return fileId
+	 * @param fileGroupId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	@Deprecated
+	public void setFileGroupId (Integer fileGroupId) {
+		setId(fileGroupId);
+	}
+
+	/**
+	 * getFileGroupId()
+	 *
+	 * @return filegroupid
+	 *
+	 */
+	@Deprecated
+	public Integer getFileGroupId () {
+		return getId();
 	}
 	
 	/** 
-	 * FileMeta
+	 * FileGroupMeta
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected List<FileMeta> fileMeta;
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
+	protected List<FileGroupMeta> fileGroupMeta;
 
 
 	/** 
-	 * getFileMeta()
+	 * getFileGroupMeta()
 	 *
-	 * @return FileMeta
+	 * @return FileGroupMeta
 	 *
 	 */
 	@JsonIgnore
-	public List<FileMeta> getFileMeta() {
-		return this.fileMeta;
+	public List<FileGroupMeta> getFileGroupMeta() {
+		return this.fileGroupMeta;
 	}
 
 
 	/** 
-	 * setFileMeta
+	 * setFileGroupMeta
 	 *
-	 * @param fileMeta
-	 *
-	 */
-	public void setFileMeta (List<FileMeta> fileMeta) {
-		this.fileMeta = fileMeta;
-	}
-
-
-	@Transient
-	private transient String transientName;
-	
-	public String getTransientName() {
-		return this.transientName;
-	}
-	
-	public void setTransientName(String transientName) {
-		this.transientName = transientName;
-	}
-	
-	/** 
-	 * fileURI
+	 * @param fileGroupMeta
 	 *
 	 */
-	@Column(name="file_uri")
-	protected String fileURI;
-
-	/**
-	 * setFileURI(String fileURI) 
-	 * 
-	 * When the file is known to the current system (i.e. represents an actual file on a configured work host,
-	 * this is set to a file URL (e.g. file://remote.host.fqdn.net/path/to/file) where the path to file is configured
-	 * as the remote host would expect.  The path may either be absolute from the root or absolute from the wasp user's home 
-	 * directory. When the file represents a resource located on a remote host, the value is a URN defining an authority and a mechanism
-	 * for resolving the file.  When URN-based files are used, the file should be resolved, then tested for a local
-	 * temporary copy, then downloaded if necessary.
-	 *
-	 * @param fileURI
-	 *
-	 */
+	public void setFileGroupMeta (List<FileGroupMeta> fileGroupMeta) {
+		this.fileGroupMeta = fileGroupMeta;
+	}
 	
-	public void setFileURI(URI fileURI) {
-		this.fileURI = fileURI.toString();
-	}
-
-	/**
-	 * getFileURI() 
-	 * 
-	 * When the file is known to the current system (i.e. represents an actual file on a configured work host,
-	 * this is set to a file URL (e.g. file://remote.host.fqdn.net/path/to/file) where the path to file is configured
-	 * as the remote host would expect.  The path may either be absolute from the root or absolute from the wasp user's home 
-	 * directory. When the file represents a resource located on a remote host, the value is a URN defining an authority and a mechanism
-	 * for resolving the file.  When URN-based files are used, the file should be resolved, then tested for a local
-	 * temporary copy, then downloaded if necessary.
-	 *
-	 * @return fileURI
-	 *
-	 */
-	public URI getFileURI () {
-		if (this.fileURI == null)
-			return null;
-		return URI.create(this.fileURI);
-	}
-
 	/** 
 	 * fileTypeid
 	 *
@@ -211,76 +163,11 @@ public class File extends WaspModel {
 		return this.softwareGeneratedById;
 	}
 
-
-
-
-	/** 
-	 * sizek
-	 *
-	 */
-	@Column(name="sizek")
-	protected Integer sizek;
-
-	/**
-	 * setSizek(Integer sizek)
-	 *
-	 * @param sizek
-	 *
-	 */
-	
-	public void setSizek (Integer sizek) {
-		this.sizek = sizek;
-	}
-
-	/**
-	 * getSizek()
-	 *
-	 * @return sizek
-	 *
-	 */
-	public Integer getSizek () {
-		return this.sizek;
-	}
-
-
-
-
-	/** 
-	 * md5hash
-	 *
-	 */
-	@Column(name="md5hash")
-	protected String md5hash;
-
-	/**
-	 * setMd5hash(String md5hash)
-	 *
-	 * @param md5hash
-	 *
-	 */
-	
-	public void setMd5hash (String md5hash) {
-		this.md5hash = md5hash;
-	}
-
-	/**
-	 * getMd5hash()
-	 *
-	 * @return md5hash
-	 *
-	 */
-	public String getMd5hash () {
-		return this.md5hash;
-	}
-
-
-
-
 	/** 
 	 * description
 	 *
 	 */
-	@Column(name="description")
+	@Column(name="description", length=2048)
 	protected String description;
 
 	/**
@@ -304,15 +191,12 @@ public class File extends WaspModel {
 		return this.description;
 	}
 
-
-
-
 	/** 
-	 * isArchived
+	 * isArchived default 0
 	 *
 	 */
 	@Column(name="isarchived")
-	protected Integer isArchived;
+	protected Integer isArchived = 0;
 
 	/**
 	 * setIsArchived(Integer isArchived)
@@ -336,14 +220,12 @@ public class File extends WaspModel {
 	}
 
 
-
-
 	/** 
-	 * isActive
+	 * isActive default 0
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 0;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -366,78 +248,14 @@ public class File extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
 	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/** 
 	 * sampleDraft
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<SampleDraft> sampleDraft;
 
 
@@ -463,15 +281,13 @@ public class File extends WaspModel {
 		this.sampleDraft = sampleDraft;
 	}
 
-
-
 	/** 
 	 * jobFile
 	 *
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<JobFile> jobFile;
 
 
@@ -503,7 +319,7 @@ public class File extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<JobDraftFile> jobDraftFile;
 
 
@@ -537,7 +353,7 @@ public class File extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<SampleFile> sampleFile;
 
 
@@ -571,7 +387,7 @@ public class File extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<RunFile> runFile;
 
 
@@ -605,7 +421,7 @@ public class File extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
+	@JoinColumn(name="filegroupid", insertable=false, updatable=false)
 	protected List<RunCellFile> runCellFile;
 
 
@@ -648,7 +464,7 @@ public class File extends WaspModel {
 	 */
 	public void setSoftwareGeneratedBy (Software software) {
 		this.softwareGeneratedBy = software;
-		this.softwareGeneratedById = software.softwareId;
+		this.softwareGeneratedById = software.getId();
 	}
 
 	/**
@@ -679,7 +495,7 @@ public class File extends WaspModel {
 	 */
 	public void setFileType (FileType fileType){
 		this.fileType = fileType;
-		this.fileTypeId = fileType.fileTypeId;
+		this.fileTypeId = fileType.getId();
 	}
 
 	/**
@@ -693,6 +509,84 @@ public class File extends WaspModel {
 		return this.fileType;
 	}
 
+	
+	@OneToMany
+	@JoinColumn(name="filegroupid")
+	protected Set<FileHandle> filehandles;
+	
+	@JsonIgnore
+	public Set<FileHandle> getFileHandles() {
+		return this.filehandles;
+	}
+	
+	public void setFileHandles(Set<FileHandle> filehandles) {
+		this.filehandles = filehandles;
+	}
+	
+	public void addFileHandle(FileHandle fileHandle) {
+        if (!getFileHandles().contains(fileHandle)) {
+            getFileHandles().add(fileHandle);
+        }
+        fileHandle.setFileGroup(this);
+    }
+	
+	
 
+	@ManyToMany
+	@JoinTable(name="filegroup_rel",
+	 joinColumns=@JoinColumn(name="filegroupid"),
+	 inverseJoinColumns=@JoinColumn(name="childfilegroupid"))
+	private Set<FileGroup> begat;
+	
+	/**
+	 * @return the begat
+	 */
+	public Set<FileGroup> getBegat() {
+		return begat;
+	}
+
+	/**
+	 * @param begat the begat to set
+	 */
+	public void setBegat(Set<FileGroup> begat) {
+		this.begat = begat;
+	}
+	
+	public void addBegat(FileGroup begat) {
+		if (!getBegat().contains(begat)) {
+            getBegat().add(begat);
+        }
+        if (!begat.getDerivedFrom().contains(this)) {
+        	begat.getDerivedFrom().add(this);
+        }
+	}
+	
+
+	@ManyToMany
+	@JoinTable(name="filegroup_rel",
+	 joinColumns=@JoinColumn(name="childfilegroupid"),
+	 inverseJoinColumns=@JoinColumn(name="filegroupid"))
+	private Set<FileGroup> derivedFrom;
+	
+	/**
+	 * @return the derivedFrom
+	 */
+	public Set<FileGroup> getDerivedFrom() {
+		return derivedFrom;
+	}
+
+	/**
+	 * @param derivedFrom the derivedFrom to set
+	 */
+	public void setDerivedFrom(Set<FileGroup> derivedFrom) {
+		this.derivedFrom = derivedFrom;
+	}
+	
+	public void addDerivedFrom(FileGroup fileGroup) {
+        if (!getDerivedFrom().contains(fileGroup)) {
+            getDerivedFrom().add(fileGroup);
+        }
+    }
+	
 
 }

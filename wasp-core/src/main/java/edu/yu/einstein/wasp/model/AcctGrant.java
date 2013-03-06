@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,7 +23,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -37,22 +42,15 @@ public class AcctGrant extends WaspModel {
 	 */
 	private static final long serialVersionUID = 1564045006597566511L;
 
-	/** 
-	 * grantId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer grantId;
-
 	/**
 	 * setGrantId(Integer grantId)
 	 *
 	 * @param grantId
 	 *
 	 */
-	
+	@Deprecated
 	public void setGrantId (Integer grantId) {
-		this.grantId = grantId;
+		setId(grantId);
 	}
 
 	/**
@@ -61,8 +59,9 @@ public class AcctGrant extends WaspModel {
 	 * @return grantId
 	 *
 	 */
+	@Deprecated
 	public Integer getGrantId () {
-		return this.grantId;
+		return getId();
 	}
 
 
@@ -197,7 +196,7 @@ public class AcctGrant extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -221,70 +220,6 @@ public class AcctGrant extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * lab
 	 *
@@ -302,7 +237,7 @@ public class AcctGrant extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**

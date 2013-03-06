@@ -47,7 +47,7 @@ public class UserMetaDaoImpl extends WaspMetaDaoImpl<UserMeta> implements edu.yu
 	@Transactional
 	public UserMeta getUserMetaByUserMetaId (final int userMetaId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("userMetaId", userMetaId);
+		m.put("id", userMetaId);
 
 		List<UserMeta> results = this.findByMap(m);
 
@@ -70,10 +70,10 @@ public class UserMetaDaoImpl extends WaspMetaDaoImpl<UserMeta> implements edu.yu
 
 	@Override
 	@Transactional
-	public UserMeta getUserMetaByKUserId (final String k, final int UserId) {
+	public UserMeta getUserMetaByKUserId (final String k, final int userId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
-		m.put("UserId", UserId);
+		m.put("userId", userId);
 
 		List<UserMeta> results = this.findByMap(m);
 

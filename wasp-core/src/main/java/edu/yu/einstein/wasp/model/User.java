@@ -30,23 +30,22 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
-@Table(name = "user")
+@Table(name="wuser")
 public class User extends WaspModel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2757029352222424543L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Integer	UserId;
 
+	@Deprecated
 	public void setUserId(Integer userId) {
-		this.UserId = userId;
+		setId(userId);
 	}
 
+	@Deprecated
 	public Integer getUserId() {
-		return this.UserId;
+		return getId();
 	}
 
 	@Column(name = "login")
@@ -114,7 +113,7 @@ public class User extends WaspModel {
 	}
 
 	@Column(name = "isactive")
-	protected Integer	isActive;
+	protected Integer isActive = 1;
 
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
@@ -122,28 +121,6 @@ public class User extends WaspModel {
 
 	public Integer getIsActive() {
 		return this.isActive;
-	}
-
-	@Column(name = "lastupdts")
-	protected Date	lastUpdTs;
-
-	public void setLastUpdTs(Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	public Date getLastUpdTs() {
-		return this.lastUpdTs;
-	}
-
-	@Column(name = "lastupduser")
-	protected Integer	lastUpdUser;
-
-	public void setLastUpdUser(Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	public Integer getLastUpdUser() {
-		return this.lastUpdUser;
 	}
 
 	@NotAudited
@@ -286,9 +263,9 @@ public class User extends WaspModel {
 		this.run = run;
 	}
 
-	@Column(name = "locale")
+	@Column(name = "locale", length=5)
 	@NotEmpty
-	protected String	locale;
+	protected String	locale = "en_US";
 
 	public void setLocale(String locale) {
 		this.locale = locale;
@@ -303,8 +280,9 @@ public class User extends WaspModel {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		UserId = UserId == null ? 0 : UserId;
-		result = prime * result + UserId;
+		if (getId() == null)
+			setId(0);
+		result = prime * result + getId();
 		return result;
 	}
 
@@ -319,14 +297,14 @@ public class User extends WaspModel {
 		User other = (User) obj;
 		// NV
 		// UserId = UserId == null ? 0 : UserId;
-		if (UserId.intValue() != other.UserId.intValue())
+		if (getId().intValue() != other.getId().intValue())
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "User [UserId=" + UserId + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
+		return "User [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
 				+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser + ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
 				+ sample + ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser + ", locale=" + locale + "]";
 	}

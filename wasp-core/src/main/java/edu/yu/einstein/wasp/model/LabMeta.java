@@ -32,12 +32,7 @@ public class LabMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -9101263444374881281L;
-	/** 
-	 * labMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labMetaId;
+	
 
 	/**
 	 * setLabMetaId(Integer labMetaId)
@@ -45,9 +40,9 @@ public class LabMeta extends MetaBase {
 	 * @param labMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabMetaId (Integer labMetaId) {
-		this.labMetaId = labMetaId;
+		setId(labMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class LabMeta extends MetaBase {
 	 * @return labMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabMetaId () {
-		return this.labMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class LabMeta extends MetaBase {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**

@@ -26,7 +26,7 @@ import org.hibernate.envers.NotAudited;
 @Entity
 @Audited
 @Table(name="userpasswordauth")
-public class Userpasswordauth extends WaspModel {
+public class Userpasswordauth extends WaspCoreModel {
 
 	/**
 	 * 
@@ -36,8 +36,16 @@ public class Userpasswordauth extends WaspModel {
 	 * UserId
 	 *
 	 */
-	@Id 
-	protected Integer UserId;
+	@Id
+	protected Integer id;
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public Integer getId() {
+		return this.id;
+	}
 
 	/**
 	 * setUserId(Integer UserId)
@@ -45,9 +53,9 @@ public class Userpasswordauth extends WaspModel {
 	 * @param UserId
 	 *
 	 */
-	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	@Deprecated
+	public void setUserId (Integer id) {
+		this.id = id;
 	}
 
 	/**
@@ -56,8 +64,9 @@ public class Userpasswordauth extends WaspModel {
 	 * @return UserId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserId () {
-		return this.UserId;
+		return this.id;
 	}
 
 
@@ -92,70 +101,6 @@ public class Userpasswordauth extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * user
 	 *
@@ -173,7 +118,7 @@ public class Userpasswordauth extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.id = user.getId();
 	}
 
 	/**

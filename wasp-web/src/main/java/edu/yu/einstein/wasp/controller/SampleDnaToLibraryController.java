@@ -47,7 +47,8 @@ import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -428,15 +429,15 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
 
 		// get files associated with this job
-		List<File> files = new ArrayList<File>();
-		Map<File, URL> fileUrlMap = new HashMap<File, URL>();
+		List<FileGroup> files = new ArrayList<FileGroup>();
+		Map<FileGroup, URL> fileUrlMap = new HashMap<FileGroup, URL>();
 		for (JobFile jf: job.getJobFile()){
 			files.add(jf.getFile());
 			try{
 				URL url = fileUrlResolver.getURL(jf.getFile());			
 				fileUrlMap.put(jf.getFile(), url);
 			}catch(Exception e){
-				logger.warn("Unable to resolve URL for fileId " + jf.getFileId().intValue());}
+				logger.warn("Unable to resolve URL for fileId " + jf.getFile().getFileGroupId().intValue());}
 		}
 		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);

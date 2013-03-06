@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.UserDao;
+import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.User;
@@ -56,6 +57,9 @@ public UserDao getUserDao() {
   
   @Autowired
   private UserroleDao userroleDao;
+  
+  @Autowired
+  private UserMetaDao userMetaDao;
 
 
   
@@ -170,5 +174,9 @@ public String getUniqueLoginName(final User user){
 		  }
 		  else{ return userDao.getUserByEmail(emailAddress);}
 	  }
+	@Override
+	public UserMetaDao getUserMetaDao() {
+		return this.userMetaDao;
+	}
 }
 

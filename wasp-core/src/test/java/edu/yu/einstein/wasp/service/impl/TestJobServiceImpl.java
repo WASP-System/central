@@ -933,7 +933,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  sd.setSampleSubtypeId(1);
 	  sd.setSampleDraftJobDraftCellSelection(sdjdcList);
 	  sd.setSampleDraftId(new Integer(1));
-	  sd.setFileId(1);
+	  // sd.setFileId(1);
 	  
 	  Sample sample = new Sample();
 	  sample.setSampleId(1);
@@ -950,12 +950,12 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  replay(mockSampleDao);
 
 	 // Sample file
-	  SampleFile sampleFile = new SampleFile();
-	  sampleFile.setSampleId(sample.getSampleId());
-	  sampleFile.setFileId(sd.getFileId());
-	  sampleFile.setIsActive(1);
+	  // SampleFile sampleFile = new SampleFile();
+	  // sampleFile.setSampleId(sample.getSampleId());
+	  // sampleFile.setFileId(sd.getFileId());
+	  // sampleFile.setIsActive(1);
 	  
-	  expect(mockSampleFileDao.save(EasyMock.isA(SampleFile.class))).andReturn(sampleFile);
+	  //expect(mockSampleFileDao.save(EasyMock.isA(SampleFile.class))).andReturn(sampleFile);
 	  replay(mockSampleFileDao);
 	  
 	//Sample Draft Meta
@@ -1398,10 +1398,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
   @Test
   public void getJobsSubmittedOrViewableByUser2() {
 	  User user = new User();
-	  user.setUserId(1);
+	  user.setId(1);
 	   
 	  Map m = new HashMap();
-	  m.put("UserId", user.getUserId().intValue()); 
+	  m.put("userId", user.getId().intValue()); 
 	  List<String> orderByColumnNames = new ArrayList<String>();
 	  orderByColumnNames.add("jobId");
 	  

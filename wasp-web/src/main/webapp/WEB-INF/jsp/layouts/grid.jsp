@@ -169,7 +169,7 @@
 		 
 		<%-- structure to define L&F of "add row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 		var _addAttr={
-			serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
+			serializeEditData: function(data){ return $.param($.extend({}, data, {id:null}));},//pass '0' on add instead of empty string
 			closeAfterAdd:true,
 			closeOnEscape:true,
 			errorTextFormat:_errorTextFormat,

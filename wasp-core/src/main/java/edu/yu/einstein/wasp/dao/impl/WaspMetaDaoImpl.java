@@ -18,15 +18,20 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.WaspMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 
 @Repository
 public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {
+	
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * {@inheritDoc}
@@ -36,6 +41,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 	public List<E> setMeta(final List<E> metaList, final int modelParentId) throws MetadataException{
 		List<E> returnMetaList = new ArrayList<E>();
 		String parentClassName = StringUtils.substringBefore(entityClass.getSimpleName(), "Meta");
+		logger.debug("setting meta on " + parentClassName + " for id: " + modelParentId);
 		String modelParentIdEntityIdSetterMethodName = null;
 		for (Method method : entityClass.getMethods()){
 			if (StringUtils.equalsIgnoreCase(method.getName(), "set" + parentClassName + "Id")){
@@ -43,6 +49,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 				break;
 			}
 		}
+		logger.debug("using method " + modelParentIdEntityIdSetterMethodName);
 		for (E meta : metaList) {
 			try {
 				entityClass.getMethod(modelParentIdEntityIdSetterMethodName, Integer.class).invoke(meta, modelParentId);

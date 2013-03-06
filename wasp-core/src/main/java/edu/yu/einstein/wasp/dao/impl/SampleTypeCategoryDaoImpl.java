@@ -47,7 +47,7 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	@Transactional
 	public SampleTypeCategory getSampleTypeCategoryBySampleTypecategoryId (final Integer sampleTypecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleTypecategoryId", sampleTypecategoryId);
+		m.put("id", sampleTypecategoryId);
 
 		List<SampleTypeCategory> results = this.findByMap(m);
 

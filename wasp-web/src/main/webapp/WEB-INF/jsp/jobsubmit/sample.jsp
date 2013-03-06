@@ -39,7 +39,7 @@
 							<c:otherwise>New</c:otherwise>
 						</c:choose>
 					</td>
-					<!-- TODO: re-implement lines below when functionality added
+					<%-- TODO: re-implement lines below when functionality added
 		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
 						<a href="/wasp/file/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
@@ -48,7 +48,7 @@
 						<fmt:message key="jobDraft.no_file.label"/>
 					</c:if>
 					&nbsp;</td>
-					-->
+					--%>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 						<a  href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
 						<a  href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_view.label"/></a>
@@ -96,7 +96,8 @@
 	</tr>
 	<c:forEach items="${files}" var="file">
 		<tr>
-			<td class="DataTD value-centered"><c:out value="${file.getFileName()}" /></td><td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td>
+			<td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td>
+			<%--<td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td>--%>
 		</tr>
 	</c:forEach>
 	<tr>

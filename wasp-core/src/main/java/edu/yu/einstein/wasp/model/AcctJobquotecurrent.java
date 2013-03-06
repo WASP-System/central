@@ -20,7 +20,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -34,12 +38,6 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1955514379181334967L;
-	/** 
-	 * currentId
-	 *
-	 */
-	@Id  @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer currentId;
 
 	/**
 	 * setCurrentId(Integer currentId)
@@ -47,9 +45,9 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @param currentId
 	 *
 	 */
-	
+	@Deprecated
 	public void setCurrentId (Integer currentId) {
-		this.currentId = currentId;
+		setId(currentId);
 	}
 
 	/**
@@ -58,8 +56,9 @@ public class AcctJobquotecurrent extends WaspModel {
 	 * @return currentId
 	 *
 	 */
+	@Deprecated
 	public Integer getCurrentId () {
-		return this.currentId;
+		return getId();
 	}
 
 
@@ -122,70 +121,6 @@ public class AcctJobquotecurrent extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * job
 	 *
@@ -203,7 +138,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -235,7 +170,7 @@ public class AcctJobquotecurrent extends WaspModel {
 	 */
 	public void setAcctQuote (AcctQuote acctQuote) {
 		this.acctQuote = acctQuote;
-		this.quoteId = acctQuote.quoteId;
+		this.quoteId = acctQuote.getId();
 	}
 
 	/**
