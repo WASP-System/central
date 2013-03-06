@@ -582,15 +582,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Run getSequenceRun(Integer runId) throws RunException;
 	   
-	  /**
-	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
-	   * @param Run runInstance
-	   * @param List<RunMeta> runMetaList
-	   * @param Integer platformUnitId (for a sample)
-	   * @param Integer resourceId (for a resource)
-	   * @return void
-	   */
-	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	 
 	  
 	  /**
 	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine

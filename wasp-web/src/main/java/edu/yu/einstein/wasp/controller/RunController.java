@@ -56,6 +56,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -64,6 +65,9 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 @Transactional
 @RequestMapping("/run")
 public class RunController extends WaspController {
+	
+	@Autowired
+	private RunService runService;
 
 	@Autowired
 	private SampleService sampleService;
@@ -930,13 +934,13 @@ public class RunController extends WaspController {
 				//logger.debug("in create1");
 				//if create, then set startts to the date in the parameter (currently that parameter does not exit)
 				runInstance.setStartts(dateRunStartedAsDateObject);
-				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
+				runService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//logger.debug("in update1");
 				runInstance.setStartts(dateRunStartedAsDateObject);
-				sampleService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
+				runService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.updated_success.label");
 			}
 			else{//action == null
