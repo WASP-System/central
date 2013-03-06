@@ -11,7 +11,7 @@
 					<sec:authorize access="not hasRole('ldap')">
 						<li><a href='<c:url value="/user/mypassword.do"/>'><fmt:message key="menu.changePassword.label" /></a></li>
 					</sec:authorize>
-					<sec:authorize access="not hasRole('su')">						
+					<sec:authorize access="not hasRole('su') and not hasRole('da-*') and not hasRole('ga') ">						
 						<li><a href='<c:url value="/lab/joinAnotherLab.do"/>'><fmt:message key="menu.joinAnotherLab.label" /></a></li>
 						<sec:authorize access="not hasRole('pi-*')">
 							<li><a href='<c:url value="/lab/upgradeStatusToPI.do"/>'><fmt:message key="menu.upgradeToPI.label" /></a></li>
@@ -57,7 +57,7 @@
 						</sec:authorize>
 						<li><a href='<c:url value="/lab/list.do"/>'><fmt:message key="menu.labs.label" /></a></li>
 						<li><a href='<c:url value="/job2quote/list_all.do"/>'><fmt:message key="menu.jobQuotes.label" /></a></li>
-						<sec:authorize access="hasRole('fm')">
+						<sec:authorize access="hasRole('su') or hasRole('fm')">
 							<li class="has-children">
 								<a href="#"><fmt:message key="menu.tasksForOthers.label" /></a>
 								<ul>
@@ -66,24 +66,27 @@
 								</ul>
 							</li>
 						</sec:authorize>
-						<sec:authorize access="not hasRole('da-*')">
-							<li class="has-children">
-								<a href="#"><fmt:message key="menu.users.label" /></a>
-								<ul>
-									<li><a href='<c:url value="/user/list.do"/>'><fmt:message key="menu.regularUsers.label" /></a></li>
+						
+						<li class="has-children">
+							<a href="#"><fmt:message key="menu.users.label" /></a>
+							<ul>
+								<li><a href='<c:url value="/user/list.do"/>'><fmt:message key="menu.regularUsers.label" /></a></li>
+								<sec:authorize access="hasRole('su') or hasRole('fm')">
 									<li><a href='<c:url value="/sysrole/list.do"/>'><fmt:message key="menu.systemUsers.label" /></a></li>
-								</ul>
-							</li>
-							<sec:authorize access="hasRole('su-*') or hasRole('ga') or hasRole('fm')">
-								<li><a href='<c:url value="/plugin/listAll.do"/>'><fmt:message key="menu.webPlugins.label" /></a></li>
-							</sec:authorize>
+								</sec:authorize>
+							</ul>
+						</li>
+						<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm')">
+							<li><a href='<c:url value="/plugin/listAll.do"/>'><fmt:message key="menu.webPlugins.label" /></a></li>
+						</sec:authorize>
+						<sec:authorize access="hasRole('su') or hasRole('fm')">
 							<li><a href='<c:url value="/workflow/list.do"/>'><fmt:message key="menu.workflows.label" /></a></li>
 						</sec:authorize>
 					</ul>
 				</li>
 			</sec:authorize>
 			
-			<sec:authorize access="hasRole('su') or hasRole('ga') or hasRole('fm') or hasRole('ft')">
+			<sec:authorize access="hasRole('su') or hasRole('fm') or hasRole('ft')">
 				<li class="main_menu-root">
 					<a href="#"><fmt:message key="menu.facility.label" /></a>
 					<ul>
@@ -109,7 +112,7 @@
 				</li>
 			</sec:authorize>
 			
-			<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('lu-*')">
+			<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('lu-*') and not hasRole('lx-*')">
 				<li class="main_menu-root">
 					<a href='<c:url value="/job/list.do"/>'><fmt:message key="menu.jobs.label" /></a>
 				</li>
