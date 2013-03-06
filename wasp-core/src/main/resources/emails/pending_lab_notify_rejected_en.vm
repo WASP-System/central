@@ -2,5 +2,5 @@ WASP: Lab Registration Denied
 <p>Dear ${user.firstName} ${user.lastName},</p>
 
 <p>We regret to inform you that your application to register as new WASP Principal Investigator has been rejected.</p>
-
+<p>Reason for rejecting your request: ${reasonForRejection}</p>
 <p>Regards,<br />The WASP Team</p>
