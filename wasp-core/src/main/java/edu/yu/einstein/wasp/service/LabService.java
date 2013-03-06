@@ -58,5 +58,13 @@ public interface LabService extends WaspService {
 	 * @return LabUser
 	 */
 	public LabUser addExistingUserToLabAsLabMemberPending(Lab lab, User user);
+	
+	/**
+	 * has an existing user applied to become a PI and is that request pending approval
+	 *
+	 * @param User user
+	 * @return boolean
+	 */
+	public boolean isExistingUserPIPending(User user);
 }
 

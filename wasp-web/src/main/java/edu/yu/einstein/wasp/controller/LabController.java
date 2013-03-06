@@ -1422,6 +1422,12 @@ public class LabController extends WaspController {
 		}
 		Collections.sort(labUserList, new LabPIComparator());
 		
+		
+		if(labService.isExistingUserPIPending(user)){//has this existing user applied to become a PI and is still awaiting a response from the department admin?
+			m.addAttribute("user", user);
+			m.addAttribute("isExistingUserPIPending", true);
+		}
+		
 		m.addAttribute("labUserList", labUserList);
 		return "lab/viewerLabList";
 	}
