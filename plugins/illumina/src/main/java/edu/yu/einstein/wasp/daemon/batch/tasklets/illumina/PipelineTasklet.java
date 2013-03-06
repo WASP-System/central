@@ -54,7 +54,7 @@ public class PipelineTasklet extends WaspTasklet {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public PipelineTasklet() {
-		// required for AOP/CGLIB/Batch/Annotations
+		// required for AOP/CGLIB/Batch/Annotations/BeanIdentity
 	}
 
 	/**
@@ -71,18 +71,15 @@ public class PipelineTasklet extends WaspTasklet {
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		
-		
 		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
-		if (isGridWorkUnitStarted(context)) {
-			GridResult result = getStartedResult(context);
-			GridWorkService gws = hostResolver.getGridWorkService(result);
-			if (gws.isFinished(result))
-				return RepeatStatus.FINISHED;
-			throw new TaskletRetryException(result.getUuid() + " not complete.");
-		}
+		RepeatStatus repeatStatus = super.execute(contrib, context);
+		if (repeatStatus.equals(RepeatStatus.FINISHED))
+			return RepeatStatus.FINISHED;
 		
 		// this is our first try
+		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
+		
 		run = runService.getRunById(runId);
 		
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();

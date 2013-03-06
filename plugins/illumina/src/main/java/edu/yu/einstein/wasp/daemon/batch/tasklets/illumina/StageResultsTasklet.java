@@ -9,6 +9,7 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
@@ -32,6 +33,7 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * @author calder
  * 
  */
+@Component
 public class StageResultsTasklet extends WaspTasklet {
 
 	private RunService runService;
@@ -59,17 +61,12 @@ public class StageResultsTasklet extends WaspTasklet {
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 
-		// if the work has already been started, then check to see if it is
-		// finished
+		// if the work has already been started, then check to see if it is finished
 		// if not, throw an exception that is caught by the repeat policy.
-		if (isGridWorkUnitStarted(context)) {
-			GridResult result = getStartedResult(context);
-			GridWorkService gws = hostResolver.getGridWorkService(result);
-			if (gws.isFinished(result))
-				return RepeatStatus.FINISHED;
-			throw new TaskletRetryException(result.getUuid() + " not complete.");
-		}
-
+		RepeatStatus repeatStatus = super.execute(contrib, context);
+		if (repeatStatus.equals(RepeatStatus.FINISHED))
+			return RepeatStatus.FINISHED;
+		
 		run = runService.getRunById(runId);
 
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
@@ -92,14 +89,21 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.setResultsDirectory(stageDir + "/" + run.getName());
 		
 		w.setCommand("mkdir -p ${WASP_RESULT_DIR}");
-		w.addCommand("cp *.xml ${WASP_RESULT_DIR}");
-		w.addCommand("cp *.txt ${WASP_RESULT_DIR}");
-		w.addCommand("cp -R Project_* ${WASP_RESULT_DIR}");
-		w.addCommand("cp -R Undetermined_indices ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f *.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f *.txt ${WASP_RESULT_DIR}");
+		w.addCommand("cp -fR Project_* ${WASP_RESULT_DIR}");
+		w.addCommand("cp -fR Undetermined_indices ${WASP_RESULT_DIR}");
+		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("cp -f Data/reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
+		w.addCommand("cp -f Data/reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
+		w.addCommand("cp -f Data/reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
+		w.addCommand("cp -f Data/reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
 
 		GridResult result = gws.execute(w);
 		
-		logger.debug("started illumina pipeline: " + result.getUuid());
+		logger.debug("started staging of illumina output: " + result.getUuid());
 		
 		//place the grid result in the step context
 		WaspTasklet.storeStartedResult(context, result);

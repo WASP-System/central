@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.illumina;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +31,8 @@ import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -77,6 +79,9 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	
 	@Autowired
 	private FileType fastqFileType;
+	
+	@Autowired 
+	private FileType waspIlluminaHiseqQcMetricsFileType; 
 
 	private int runId;
 	private Run run;
@@ -91,6 +96,8 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	public RegisterFilesTasklet(int runId) {
 		this.runId = runId;
 	}
+	
+	private GridWorkService workService;
 
 	@Override
 	@Transactional("entityManager")
@@ -107,9 +114,9 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		// correct host
 		w.setSoftwareDependencies(sd);
 		// save the GridWorkService so we can send many jobs there
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		workService = hostResolver.getGridWorkService(w);
 		
-		transportConnection = gws.getTransportConnection();
+		transportConnection = workService.getTransportConnection();
 
 		String stageDir = transportConnection.getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
@@ -119,16 +126,13 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 		w.setWorkingDirectory(workingDirectory);
 		
-		w.setCommand("mkdir -p wasp && cd wasp");
+		w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../report . && mkdir -p sequence");
 		
 		Set<Sample> allLibraries = new HashSet<Sample>();
-		
 		Sample platformUnit = run.getPlatformUnit();
-		
 		logger.debug("Registering files for " + platformUnit.getName());
 
 		int ncells = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
-
 		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 		
 		// for each cell, get the libraries and link them.
@@ -148,87 +152,138 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				logger.debug("setting up for sample " + s.getSampleId());
 				int sid = s.getSampleId();
 				w.addCommand("if [ -e ../Project_WASP/Sample_" + sid + "/" + sid + "_*_001.fastq.gz ]; then \n" +
-						"  ln -s ../Project_WASP/Sample_" + sid + "/" + sid + "_*fastq.gz .\nfi");
+						"  ln -s ../Project_WASP/Sample_" + sid + "/" + sid + "_*fastq.gz sequence\nfi");
 			}
 
 		}
 		
-		// list available files for registration
-		w.addCommand("ls -1");
-
-		// method to send commands without wrapping them in a submission
-		// script.
-		// will return when complete (also gives access to stdout), only do
-		// this
-		// when the work is expected to be very short running.
+		// list available sequence files for registration
+		w.addCommand("cd sequence && ls -1");
 		
+		// method to send commands without wrapping them in a submission script.
+		// will return when complete (also gives access to stdout), only do this
+		// when the work is expected to be very short running.
 		GridResult r = transportConnection.sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
-
-		String line = br.readLine();
-
-		while (line != null) {
-			File file = this.createFile(gws, allLibraries, line);
-			line = br.readLine();
-		}
+		this.createSequenceFiles(allLibraries, br);
 		
-
+		w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		w.setSoftwareDependencies(sd);
+		w.setWorkingDirectory(workingDirectory + "wasp/reports");
+		w.setCommand("find . -type f -print | sed \'s/^\\.\\///\'");
+		
+		logger.debug("registering Illumina report files");
+		
+		r = transportConnection.sendExecToRemote(w);
+		br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
+		this.createQCFiles(run, br);
+	
 		return RepeatStatus.FINISHED;
 
 	}
 
-	private File createFile(GridWorkService gws, Set<Sample> samples, String line) throws SampleException, InvalidFileTypeException, MetadataException {
-
+	@Transactional
+	private void createSequenceFiles(Set<Sample> samples, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
+		String line;
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
+		try {
+			line = br.readLine();
+			FileGroup fg = null;
+			Sample library = null;
+			
+			while (line != null) {
+				Matcher l = Pattern.compile("^(.*?)_(.*?)_L(.*?)_R(.*?)_(.*?).fastq.gz$").matcher(line);
+				
+				if (!l.find()) {
+					logger.error("unable to parse file name: " + line);
+					throw new SampleException("Unexpected sample file name format");
+				}
 
-		Matcher l = Pattern.compile("^(.*?)_(.*?)_L(.*?)_R(.*?)_(.*?).fastq.gz$").matcher(line);
+				Integer sampleId = new Integer(l.group(1));
+				String barcode = l.group(2);
+				Integer lane = new Integer(l.group(3));
+				Integer read = new Integer(l.group(4));
+				Integer fileNum = new Integer(l.group(5));
+				
+				if (library == null || !library.getSampleId().equals(sampleId)) {
+					library = sampleService.getSampleById(sampleId);
+					if (fg == null) 
+						fg = new FileGroup();
+					fg.setFileType(fastqFileType);
+					fg.setSoftwareGeneratedBy(casava);
+					fileService.addFileGroup(fg);
+					fileService.setSampleFile(fg, library);
+				}
+				
+				if (!samples.contains(library))
+					continue;
 
-		if (!l.find()) {
-			logger.error("unable to parse file name: " + line);
-			throw new SampleException("Unexpected sample file name format");
+				
+				FileHandle file = new FileHandle();
+				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
+				String actualBarcode = sampleService.getLibraryAdaptor(library).getBarcodesequence();
+				if (!actualBarcode.equals(barcode)) {
+					logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
+					throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
+				}
+				
+				file.setFileGroup(fg);
+				fileService.addFile(file);
+				fqs.setSingleFile(file, false);
+				fqs.setFileNumber(file, fileNum);
+				fqs.setFastqReadSegmentNumber(file, read);
+				
+				SoftwareManager sm = transportConnection.getSoftwareManager();
+				String failed = sm.getConfiguredSetting("casava.with-failed-reads");
+				
+				boolean f = false;
+				if (PropertyHelper.isSet(failed) && failed == "true")
+					f = true;
+				fqs.setReadsMarkedFailed(file, f);
+				
+				
+				logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getFileId());
+				
+				
+				line = br.readLine();
+			}
+			fileService.addFileGroup(fg);
+			fileService.registerFileGroup(fg);
+			
+		} catch (Exception e) {
+			logger.warn("unable to register files: " + e.getLocalizedMessage());
+			throw new RuntimeException(e);
 		}
 
-		Integer sampleId = new Integer(l.group(1));
-		String barcode = l.group(2);
-		Integer lane = new Integer(l.group(3));
-		Integer read = new Integer(l.group(4));
-		Integer fileNum = new Integer(l.group(5));
-
-		Sample library = sampleService.getSampleById(sampleId);
-
-		if (!samples.contains(library))
-			return null;
-
-		File file = new File();
-		file.setFileURI(gws.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + line));
-		String actualBarcode = sampleService.getLibraryAdaptor(library).getBarcodesequence();
-		if (!actualBarcode.equals(barcode)) {
-			logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
-			throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
-		}
-		file.setFileType(fastqFileType);
-		file.setSoftwareGeneratedBy(casava);
-
-		fileService.addFile(file);
-		fileService.setSampleFile(file, library);
-
-		fqs.setSingleFile(file, false);
-		fqs.setFileNumber(file, fileNum);
-		fqs.setFastqReadSegmentNumber(file, read);
-		
-		SoftwareManager sm = transportConnection.getSoftwareManager();
-		String failed = sm.getConfiguredSetting("casava.with-failed-reads");
-		
-		boolean f = false;
-		if (PropertyHelper.isSet(failed) && failed == "true")
-			f = true;
-		fqs.setReadsMarkedFailed(file, f);
-		
-		
-		logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getFileId());
-
-		return file;
 	}
-
+	
+	private void createQCFiles(Run run, BufferedReader br) {
+		String line;
+		FileGroup fg = new FileGroup();
+		fg.setFileType(waspIlluminaHiseqQcMetricsFileType);
+		fg.setSoftwareGeneratedBy(casava);
+		fg.setIsActive(1);
+		fg.setIsArchived(0);
+		fileService.addFileGroup(fg);
+		try {
+			line = br.readLine();
+			
+			while (line != null) {
+				FileHandle file = new FileHandle();
+				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/reports/" + line));
+				file.setFileName(line);
+				line = br.readLine();
+				file.setFileGroup(fg);
+				fileService.addFile(file);
+			}
+			fileService.addFileGroup(fg);
+			fileService.registerFileGroup(fg);
+		} catch (Exception e) {
+			logger.warn("unable to register files: " + e.getLocalizedMessage());
+			throw new RuntimeException(e);
+		}
+		
+	}
 }
