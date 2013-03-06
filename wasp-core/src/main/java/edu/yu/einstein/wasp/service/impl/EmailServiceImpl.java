@@ -207,7 +207,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
+	public void sendPendingLabNotifyRejected(final LabPending labPending, final String comment) throws MailPreparationException{
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
@@ -227,6 +227,7 @@ public class EmailServiceImpl implements EmailService{
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("labpending", labPending);
+		model.put("reasonForRejection", comment.trim());
 		prepareAndSend(user, "emails/pending_lab_notify_rejected", model);
 	}
 	

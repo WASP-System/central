@@ -1,6 +1,10 @@
-Please Login to WASP and accept or reject a pending principal investigator application
+Please Login to WASP and accept or reject an existing user principal investigator application
 <p>Dear ${administrator.firstName} ${administrator.lastName},</p>
 
-<p>${user.firstName} ${user.lastName}, an existing WASP user, has requested to register a new lab named '${labpending.name}'.</p>
+<p>${user.firstName} ${user.lastName}, an existing WASP user, has requested to become a WASP Principal Investigator (lab name: '${labpending.name}').</p>
 
-<p>Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to all WASP administrators registered for the department of ${department.name}, any of whom may process this request.</p> 
+<p>To approve or reject this request to become a WASP PI, please <a href="${baseUrl}/auth/login.do">log in to WASP</a>, select Tasks from the menu bar, 
+and click on the Department Administration Tasks link. Note that his email has been sent to all WASP administrators registered 
+for the department of ${department.name}, any of whom may process this request.</p> 
+
+<p>Regards,<br />The WASP Team</p>
