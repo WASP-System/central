@@ -201,7 +201,7 @@ public class Job extends WaspModel {
 	 * @param createts
 	 *
 	 */
-	
+	@Deprecated
 	public void setCreatets (Date createts) {
 		this.createts = createts;
 	}
@@ -212,6 +212,7 @@ public class Job extends WaspModel {
 	 * @return createts
 	 *
 	 */
+	@Deprecated
 	public Date getCreatets () {
 		return this.createts;
 	}

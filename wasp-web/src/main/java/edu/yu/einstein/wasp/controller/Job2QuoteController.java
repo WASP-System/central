@@ -138,12 +138,12 @@ public class Job2QuoteController extends WaspController {
 			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
 			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
 				submitter = new User();
-				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				submitter.setId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
 				submitter = userDao.getUserByLogin(submitterLogin);
-				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
-					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				if(submitter.getId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
 		}
@@ -155,18 +155,18 @@ public class Job2QuoteController extends WaspController {
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
 			if(piLogin.isEmpty()){//likely incorrect format
 				piLab = new Lab();
-				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				piLab.setId(new Integer(0));//fake it; result set will come up empty
 			}
 			else{
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
-				if(pi.getUserId()==null){
+				if(pi.getId()==null){
 					piLab = new Lab();
-					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					piLab.setId(new Integer(0));//fake it; result set will come up empty
 				}
 				else{
-					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
-					if(piLab.getLabId()==null){
-						piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					piLab = labDao.getLabByPrimaryUserId(pi.getId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+					if(piLab.getId()==null){
+						piLab.setId(new Integer(0));//fake it; result set will come up empty
 					}
 				}
 			}
@@ -206,7 +206,7 @@ public class Job2QuoteController extends WaspController {
 		
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
-			if(sidx.equals("jobId")){
+			if(sidx.equals("id")){
 				orderByColumnAndDirection.add("id " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
@@ -292,16 +292,18 @@ public class Job2QuoteController extends WaspController {
 		List<Job> page = job2quoteList.subList(frId, toId);
 		for (Job item : page) {
 			Map<String, Object> cell = new HashMap<String, Object>();
-			cell.put("id", item.getJobId());
+			cell.put("id", item.getId()); //job id
 
 			User user = userDao.getById(item.getUserId());
 			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
 			////float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
+			String quoteId = null;
 			if(ajqcList.isEmpty()){
 				quoteAsString = "?.??";
 			}
 			else{
+				quoteId = ajqcList.get(0).getAcctQuote().getId().toString();
 				try{
 					  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
 					  quoteAsString = String.format("%.2f", price);
@@ -315,21 +317,23 @@ public class Job2QuoteController extends WaspController {
 			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList<AcctQuoteMeta>() : 
 				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
 			
-			Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");
+			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
-					"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
+					"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
 					item.getName(),
 					//String.format("%.2f", amount),
 					quoteAsString,
 					user.getNameFstLst(), 
 					item.getLab().getUser().getNameFstLst(),
-					formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 
+					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 
+					quoteId
 				}));
 
 			for (AcctQuoteMeta meta : itemMetaList) {
 				cellList.add(meta.getV());
+				logger.debug("acctquotemeta: " + meta.getK() + ":" + meta.getV());
 			}
 
 			cell.put("cell", cellList);
@@ -370,16 +374,12 @@ public class Job2QuoteController extends WaspController {
 	public String updateDetailJSON(@RequestParam("id") Integer jobId, AcctQuote quoteForm, ModelMap m, HttpServletResponse response) {
 
 		List<AcctQuoteMeta> metaList = getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class);
+		quoteForm.setId( (Integer) m.get("quoteId"));
 		quoteForm.setJobId(jobId);
-		AcctQuote acctQuoteDb = this.acctQuoteDao.save(quoteForm);
-		quoteForm.setAcctQuoteMeta(metaList);
-		try {
-			acctQuoteMetaDao.setMeta(metaList, acctQuoteDb.getId());
-		} catch (MetadataException e) {
-			throw new IllegalStateException(e.getLocalizedMessage(), e);
-		}
+		logger.debug("IDIDIDID: " + quoteForm.getId());
+		this.acctQuoteDao.save(quoteForm);
 		
-		Integer quoteId = acctQuoteDb.getId();
+		Integer quoteId = quoteForm.getId();
 		try{
 			try{
 				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
@@ -416,7 +416,7 @@ public class Job2QuoteController extends WaspController {
 	class JobIdComparator implements Comparator<Job> {
 		@Override
 		public int compare(Job arg0, Job arg1) {
-			return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+			return arg0.getId().intValue() >= arg1.getId().intValue()?1:0;
 		}
 	}
 	class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
