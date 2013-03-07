@@ -15,6 +15,7 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
@@ -33,6 +34,7 @@ import edu.yu.einstein.wasp.exception.ModelCopyException;
  * @author calder
  * 
  */
+@MappedSuperclass
 public abstract class WaspCoreModel implements Serializable {
 
 	/**
@@ -321,7 +323,7 @@ public abstract class WaspCoreModel implements Serializable {
 		return this.lastUpdUser;
 	}
 
-	@Column(name="uuid", length=36)
+	@Column(name="uuid")
 	private UUID uuid = UUID.randomUUID();
 	
 	/**
