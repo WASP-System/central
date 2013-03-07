@@ -46,7 +46,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	@Override
 	public void persist(final E entity) {
-		setUpdateTs(entity);
 		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "persisting");
 		entityManager.persist(entity);
@@ -395,17 +394,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 			}
 		} catch (Throwable e) {
 			// no such method setLastUpdUser in class E
-		}
-	}
-
-	private void setUpdateTs(E entity) {
-		try {
-			Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] { Date.class });
-			if (method != null) {
-				method.invoke(entity, new Object[] { new Date() });
-			}
-		} catch (Throwable e) {
-			// no such method setLastUpdTs in class E
 		}
 	}
 	

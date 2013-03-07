@@ -74,7 +74,6 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -96,7 +95,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -637,11 +635,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  AcctQuote acctQuote = new AcctQuote();
 	  acctQuote.setAmount(new Float(123.45));
 	  
-	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  job.getAcctQuote().add(acctQuote);
+	  job.setCurrentQuote(acctQuote);
 
 	  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();	 
@@ -657,14 +652,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
   public void getExtraJobDetails2() {
 	  
 	  Job job = new Job();
-	  job.setJobId(1);  
+	  job.setId(1);  
 	  
 	  //Machine (resource category)
 	  JobResourcecategory jrc = new JobResourcecategory();
 	  jrc.setJobResourcecategoryId(1);
 	  ResourceCategory resourceCategory = new ResourceCategory();
 	  ResourceType resourceType = new ResourceType();
-	  resourceType.setResourceTypeId(1);
+	  resourceType.setId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
 	  resourceCategory.setResourceType(resourceType);
@@ -683,8 +678,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  job.setJobMeta(jobMetaList);
 	  	  
 	  AcctQuote acctQuote = new AcctQuote();
-	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
-	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
 
 	  //Test case 1  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
@@ -694,9 +687,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -708,9 +698,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -722,9 +709,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -736,9 +720,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -750,9 +731,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 

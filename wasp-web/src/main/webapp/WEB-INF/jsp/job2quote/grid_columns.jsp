@@ -12,6 +12,8 @@
 
 <wasp:field name="submitted_on"  type="text" sortable="true" searchable="false" editable="false"/>
 
+<wasp:field name="quoteId" type="hidden" />
+
   
 _navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,beforeRefresh: 
 		function () { 

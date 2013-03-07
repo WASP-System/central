@@ -16,18 +16,22 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -282,41 +286,6 @@ public class AcctQuote extends WaspModel {
 		return this.user;
 	}
 
-
-	/** 
-	 * acctJobquotecurrent
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="quoteid", insertable=false, updatable=false)
-	protected List<AcctJobquotecurrent> acctJobquotecurrent;
-
-
-	/** 
-	 * getAcctJobquotecurrent()
-	 *
-	 * @return acctJobquotecurrent
-	 *
-	 */
-	@JsonIgnore
-	public List<AcctJobquotecurrent> getAcctJobquotecurrent() {
-		return this.acctJobquotecurrent;
-	}
-
-
-	/** 
-	 * setAcctJobquotecurrent
-	 *
-	 * @param acctJobquotecurrent
-	 *
-	 */
-	public void setAcctJobquotecurrent (List<AcctJobquotecurrent> acctJobquotecurrent) {
-		this.acctJobquotecurrent = acctJobquotecurrent;
-	}
-
-
-
 	/** 
 	 * acctQuoteUser
 	 *
@@ -415,6 +384,5 @@ public class AcctQuote extends WaspModel {
 	public void setAcctQuoteMeta (List<AcctQuoteMeta> acctQuoteMeta) {
 		this.acctQuoteMeta = acctQuoteMeta;
 	}
-
 
 }

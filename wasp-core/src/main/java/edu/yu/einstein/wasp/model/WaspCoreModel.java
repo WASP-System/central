@@ -10,8 +10,20 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -217,6 +229,134 @@ public abstract class WaspCoreModel implements Serializable {
 			}
 		}
 		return (T) clonedObj;
+	}
+	
+	/** 
+	 * lastUpdTs
+	 *
+	 */
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="lastupdts")
+	protected Date lastUpdTs;
+
+	/**
+	 * setLastUpdTs(Date lastUpdTs)
+	 *
+	 * @param lastUpdTs
+	 *
+	 */
+	
+	public void setLastUpdTs(Date lastUpdTs) {
+		this.lastUpdTs = lastUpdTs;
+	}
+	
+	/**
+	 * getLastUpdTs()
+	 *
+	 * @return lastUpdTs
+	 *
+	 */
+	public Date getLastUpdTs() {
+		return this.lastUpdTs;
+	}
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="created")
+	protected Date created = new Date();
+
+	/**
+	 * setCreated(Date created)
+	 *
+	 * @param created
+	 *
+	 */
+	private void setCreated (Date created) {
+		this.created = created;
+	}
+
+	/**
+	 * @return created date
+	 */
+	public Date getCreated() {
+		return created;
+	}
+	
+	@PreUpdate
+	@PrePersist
+	public void doUpdateTime() {
+		lastUpdTs = new Date();
+		if (created == null) {
+			created = new Date();
+		}
+	}
+	
+	@ManyToOne
+	@JoinColumn(name="lastupdatebyuser", insertable=false, updatable=false)
+	private User lastUpdatedByUser;
+
+	/**
+	 * @return the lastUpdatedByUser
+	 */
+	public User getLastUpdatedByUser() {
+		return lastUpdatedByUser;
+	}
+
+	/**
+	 * @param lastUpdatedByUser the lastUpdatedByUser to set
+	 */
+	public void setLastUpdatedByUser(User lastUpdatedByUser) {
+		this.lastUpdatedByUser = lastUpdatedByUser;
+	}
+	
+	// TODO: Remove, incorrect usage
+	@Column(name = "lastupduser")
+	protected Integer lastUpdUser;
+
+	public void setLastUpdUser(Integer lastUpdUser) {
+		this.lastUpdUser = lastUpdUser;
+	}
+
+	@JsonIgnore
+	public Integer getLastUpdUser() {
+		return this.lastUpdUser;
+	}
+
+	@Column(name="uuid", length=36)
+	private UUID uuid = UUID.randomUUID();
+	
+	/**
+	 * private value for identity
+	 * @return the resultID
+	 */
+	private UUID getResultID() {
+		return uuid;
+	}
+
+	/**
+	 * @param resultID the resultID to set
+	 */
+	private void setResultID(UUID uuid) {
+		this.uuid = uuid;
+	}
+	
+	@Override
+	public int hashCode(){
+	    return new HashCodeBuilder()
+	        .append(uuid)
+	        .toHashCode();
+	}
+
+
+	@Override
+	public boolean equals(final Object obj){
+	    if(obj instanceof WaspCoreModel){
+	        final WaspCoreModel other = (WaspCoreModel) obj;
+	        return new EqualsBuilder()
+	            .append(uuid, other.uuid)
+	            .isEquals();
+	    } else{
+	        return false;
+	    }
 	}
 
 }
