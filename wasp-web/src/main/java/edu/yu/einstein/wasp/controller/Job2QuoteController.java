@@ -25,14 +25,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
@@ -55,8 +53,6 @@ public class Job2QuoteController extends WaspController {
 	private AcctQuoteDao	acctQuoteDao;
 	@Autowired
 	private AcctQuoteMetaDao	acctQuoteMetaDao;
-	@Autowired
-	private AcctJobquotecurrentDao acctJobquotecurrentDao;
 	@Autowired
 	private JobService jobService;
 	
@@ -295,17 +291,17 @@ public class Job2QuoteController extends WaspController {
 			cell.put("id", item.getId()); //job id
 
 			User user = userDao.getById(item.getUserId());
-			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
+			AcctQuote currentQuote = item.getCurrentQuote();
 			////float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
 			String quoteId = null;
-			if(ajqcList.isEmpty()){
+			if(currentQuote == null || currentQuote.getId() == null){
 				quoteAsString = "?.??";
 			}
 			else{
-				quoteId = ajqcList.get(0).getAcctQuote().getId().toString();
+				quoteId = currentQuote.getId().toString();
 				try{
-					  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+					  Float price = new Float(currentQuote.getAmount());
 					  quoteAsString = String.format("%.2f", price);
 				}
 				catch(Exception e){
@@ -314,8 +310,8 @@ public class Job2QuoteController extends WaspController {
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList<AcctQuoteMeta>() : 
-				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
+			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : 
+				getMetaHelperWebapp().syncWithMaster(currentQuote.getAcctQuoteMeta());
 			
 			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
@@ -376,7 +372,6 @@ public class Job2QuoteController extends WaspController {
 		List<AcctQuoteMeta> metaList = getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class);
 		quoteForm.setId( (Integer) m.get("quoteId"));
 		quoteForm.setJobId(jobId);
-		logger.debug("IDIDIDID: " + quoteForm.getId());
 		this.acctQuoteDao.save(quoteForm);
 		
 		Integer quoteId = quoteForm.getId();
@@ -389,12 +384,14 @@ public class Job2QuoteController extends WaspController {
 				return null;
 			}
 			
-			AcctJobquotecurrent acctJobquotecurrent = this.acctJobquotecurrentDao.getAcctJobquotecurrentByJobId(jobId);
-			acctJobquotecurrent.setQuoteId(quoteId);
-			// if jobid is null, create a new record in database table 
-			if(acctJobquotecurrent.getJobId() == null) {
-				acctJobquotecurrent.setJobId(jobId);
-				acctJobquotecurrentDao.persist(acctJobquotecurrent);
+			Job currentJob = this.jobService.getJobByJobId(jobId);
+			AcctQuote currentQuote = currentJob.getCurrentQuote();
+			currentQuote.setId(quoteId);
+			// if jobid is null, create a new record in database table
+			
+			if(currentQuote.getId() == null) {
+				currentQuote.setJob(currentJob);
+				acctQuoteDao.persist(currentQuote);
 			}
 			try{
 				jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
@@ -403,6 +400,11 @@ public class Job2QuoteController extends WaspController {
 				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
 				return null;
 			}
+			
+			if (!currentJob.getAcctQuote().contains(currentQuote))
+				currentJob.getAcctQuote().add(currentQuote);
+			currentJob.setCurrentQuote(currentQuote);
+			jobService.getJobDao().save(currentJob);
 			
 			
 			response.getWriter().println(this.messageService.getMessage("acctQuote.created_success.label"));
@@ -435,10 +437,10 @@ public class Job2QuoteController extends WaspController {
 		@Override
 		public int compare(Job arg0, Job arg1) {
 			
-			List<AcctJobquotecurrent> ajqcList0 = arg0.getAcctJobquotecurrent();
-			float amount0 = ajqcList0.isEmpty() ? 0 : ajqcList0.get(0).getAcctQuote().getAmount();
-			List<AcctJobquotecurrent> ajqcList1 = arg1.getAcctJobquotecurrent();
-			float amount1 = ajqcList1.isEmpty() ? 0 : ajqcList1.get(0).getAcctQuote().getAmount();
+			AcctQuote quote0 = arg0.getCurrentQuote();
+			float amount0 = (quote0 == null || quote0.getId()==null) ? 0 : quote0.getAmount();
+			AcctQuote quote1 = arg1.getCurrentQuote();
+			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0 : quote1.getAmount();
 			return amount0 >= amount1 ? 1:0;
 		}
 	}

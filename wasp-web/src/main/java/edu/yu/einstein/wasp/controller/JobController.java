@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -500,14 +500,14 @@ public class JobController extends WaspController {
 				
 				User user = userDao.getById(job.getUserId());
 				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
-				List<AcctJobquotecurrent> ajqcList = job.getAcctJobquotecurrent();
+				AcctQuote currentQuote = job.getCurrentQuote();
 				String quoteAsString;
-				if(ajqcList.isEmpty()){
+				if(currentQuote == null || currentQuote.getId() == null){
 					quoteAsString = "?.??";
 				}
 				else{
 					try{
-						  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+						  Float price = new Float(currentQuote.getAmount());
 						  quoteAsString = String.format("%.2f", price);
 					}
 					catch(Exception e){
@@ -522,18 +522,18 @@ public class JobController extends WaspController {
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							//"J" + job.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>details</a>)",
-							"<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getJobId()+".do>J"+job.getJobId().intValue()+"</a>",
+							"<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+job.getId()+".do>J"+job.getId().intValue()+"</a>",
 							job.getName(),
 							user.getNameFstLst(),
 							//job.getLab().getName() + " (" + pi.getNameLstCmFst() + ")",
 							job.getLab().getUser().getNameFstLst(),
-							formatter.format(job.getCreatets()),
+							formatter.format(job.getCreated()),
 							//String.format("%.2f", amount),
 							quoteAsString,
 							currentStatus,
 							//"<a href=/wasp/"+job.getWorkflow().getIName()+"/viewfiles/"+job.getJobId()+".do>View files</a>"
 							//"<a href=/wasp/jobresults/treeview.do?id="+job.getJobId()+"&type=job>View Results</a>"
-							"<a href=/wasp/jobresults/treeview/job/"+job.getJobId()+".do>View Results</a>"
+							"<a href=/wasp/jobresults/treeview/job/"+job.getId()+".do>View Results</a>"
 				}));
 				 
 				for (JobMeta meta:jobMeta) {

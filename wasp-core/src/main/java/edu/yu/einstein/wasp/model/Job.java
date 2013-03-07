@@ -14,15 +14,18 @@ package edu.yu.einstein.wasp.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -626,7 +629,7 @@ public class Job extends WaspModel {
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="jobid", insertable=false, updatable=false)
-	protected List<AcctQuote> acctQuote;
+	protected Set<AcctQuote> acctQuote ;
 
 
 	/** 
@@ -636,7 +639,7 @@ public class Job extends WaspModel {
 	 *
 	 */
 	@JsonIgnore
-	public List<AcctQuote> getAcctQuote() {
+	public Set<AcctQuote> getAcctQuote() {
 		return this.acctQuote;
 	}
 
@@ -647,44 +650,30 @@ public class Job extends WaspModel {
 	 * @param acctQuote
 	 *
 	 */
-	public void setAcctQuote (List<AcctQuote> acctQuote) {
+	public void setAcctQuote (Set<AcctQuote> acctQuote) {
 		this.acctQuote = acctQuote;
 	}
 
+	
+	@OneToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="current_quote")
+	private AcctQuote currentQuote;
 
-
-	/** 
-	 * acctJobquotecurrent
-	 *
+	/**
+	 * @return the current
 	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="jobid", insertable=false, updatable=false)
-	protected List<AcctJobquotecurrent> acctJobquotecurrent;
-
-
-	/** 
-	 * getAcctJobquotecurrent()
-	 *
-	 * @return acctJobquotecurrent
-	 *
-	 */
-	@JsonIgnore
-	public List<AcctJobquotecurrent> getAcctJobquotecurrent() {
-		return this.acctJobquotecurrent;
+	public AcctQuote getCurrentQuote() {
+		return currentQuote;
 	}
 
-
-	/** 
-	 * setAcctJobquotecurrent
-	 *
-	 * @param acctJobquotecurrent
-	 *
+	/**
+	 * @param current the current to set
 	 */
-	public void setAcctJobquotecurrent (List<AcctJobquotecurrent> acctJobquotecurrent) {
-		this.acctJobquotecurrent = acctJobquotecurrent;
+	public void setCurrentQuote(AcctQuote currentQuote) {
+		this.currentQuote = currentQuote;
 	}
-
+	
+	
 
 
 	/** 

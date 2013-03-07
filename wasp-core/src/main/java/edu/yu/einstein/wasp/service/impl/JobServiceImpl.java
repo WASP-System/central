@@ -10,7 +10,6 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,20 +70,18 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
-import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -813,7 +810,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  @Override
 	  public LinkedHashMap<String, String> getExtraJobDetails(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
@@ -842,12 +839,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
 		  */
-		  List<AcctJobquotecurrent> acctJobquotecurrentList = job.getAcctJobquotecurrent();
-		  if(acctJobquotecurrentList == null || acctJobquotecurrentList.isEmpty()){
+		  AcctQuote currentQuote = job.getCurrentQuote();
+		  if(currentQuote == null || currentQuote.getId()==null){
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
 		  }
 		  else{
-			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+			  Float price = new Float(job.getCurrentQuote().getAmount());
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  return extraJobDetailsMap;	  
@@ -859,7 +856,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  @Override
 	  public LinkedHashMap<String, String> getJobApprovals(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
