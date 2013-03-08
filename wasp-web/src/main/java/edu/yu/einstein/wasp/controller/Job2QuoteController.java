@@ -223,11 +223,11 @@ public class Job2QuoteController extends WaspController {
 		}
 		
 		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
-		for (Job job : workingJobList)
+		/*for (Job job : workingJobList)
 			logger.debug("working job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
 		for (Job job : restrictedJobList)
 			logger.debug("restricted job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
-		
+		*/
 		if (restrictedJobList != null)
 			workingJobList.retainAll(restrictedJobList);
 		
