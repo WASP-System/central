@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -55,12 +57,14 @@ import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.CellWrapper;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
@@ -131,7 +135,7 @@ public class SampleDnaToLibraryController extends WaspController {
     int found = -1;
     for (int i=0; i < pageFlowArray.length -1; i++) {
       String page = pageFlowArray[i];
-      page = page.replaceAll("\\{n\\}", ""+sample.getSampleId());
+      page = page.replaceAll("\\{n\\}", ""+sample.getId());
 
       if (currentMapping.equals(page)) {
         found = i;
@@ -141,7 +145,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
     String targetPage = pageFlowArray[found+1] + ".do";
 
-    targetPage = targetPage.replaceAll("\\{n\\}", ""+sample.getSampleId());
+    targetPage = targetPage.replaceAll("\\{n\\}", ""+sample.getId());
 
     return "redirect:" + targetPage;
   }
@@ -275,7 +279,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  return "redirect:/dashboard.do";		  
 	  }
 	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job==null || job.getJobId()==null){
+	  if(job==null || job.getId()==null){
 		  waspErrorMessage("sampleDetail.jobNotFound.error");
 		  return "redirect:/dashboard.do";
 	  }
@@ -359,13 +363,13 @@ public class SampleDnaToLibraryController extends WaspController {
 				List<Sample> facilityGeneratedLibrariesList = sampleService.getFacilityGeneratedLibraries(sample);//get list of facility-generated libraries from a user-submitted macromolecule
 				facilityLibraryMap.put(sample, facilityGeneratedLibrariesList);
 				boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(sample);
-				logger.debug("setting sample " + sample.getSampleId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
+				logger.debug("setting sample " + sample.getId() + " (" + sample.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
 				createLibraryStatusMap.put(sample, isSampleWaitingForLibraryCreation);
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(sample)));
-				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 				for (Sample facilityLibrary: facilityGeneratedLibrariesList){
 					qcStatusMap.put(facilityLibrary, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(facilityLibrary)));
-					qcStatusCommentsMap.put(facilityLibrary, sampleService.getSampleQCComments(facilityLibrary.getSampleId()));
+					qcStatusCommentsMap.put(facilityLibrary, sampleService.getSampleQCComments(facilityLibrary.getId()));
 					assignLibraryToPlatformUnitStatusMap.put(facilityLibrary, sampleService.isLibraryAwaitingPlatformUnitPlacement(facilityLibrary));
 				}
 			}
@@ -373,14 +377,14 @@ public class SampleDnaToLibraryController extends WaspController {
 				librarySubmittedSamplesList.add(sample);
 				assignLibraryToPlatformUnitStatusMap.put(sample, sampleService.isLibraryAwaitingPlatformUnitPlacement(sample));
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
-				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getSampleId()));
+				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 			}
 			try{		
 				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
 			}
 			catch(MetadataException me){
 				speciesMap.put(sample, "Species Not Found");
-				logger.warn("Unable to identify species for sampleId " + sample.getSampleId());
+				logger.warn("Unable to identify species for sampleId " + sample.getId());
 			}
 			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
@@ -391,13 +395,29 @@ public class SampleDnaToLibraryController extends WaspController {
 		//sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
-		for(Sample library : librarySubmittedSamplesList){
+		
+	  	Map<Sample, List<CellWrapper>> cellsByLibrary = new HashMap<Sample, List<CellWrapper>>();
+	  	for(Sample library : librarySubmittedSamplesList){
 			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			if(adaptor==null){
 				//message and get out of here
 			}
 			libraryAdaptorMap.put(library, adaptor);	
+			List<Sample> cells = sampleService.getCellsForLibrary(library);
+			for (Sample cell : cells){
+				if (cellsByLibrary.get(library) == null){
+					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
+					try {
+						cellsByLibrary.get(library).add(new CellWrapper(cell, sampleService));
+					} catch (SampleParentChildException e) {
+						logger.warn(e.getLocalizedMessage());
+					}
+				}
+			}
+			
 		}
+	  	
+	  	
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
 				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
@@ -415,7 +435,7 @@ public class SampleDnaToLibraryController extends WaspController {
 					for (Sample library: sampleService.getLibrariesOnCell(cell)){
 						Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 						if(adaptor==null){
-							logger.warn("Expected an adaptor but found none in library id="+library.getSampleId().toString());
+							logger.warn("Expected an adaptor but found none in library id="+library.getId().toString());
 						}
 						libraryAdaptorMap.put(library, adaptor);
 					}
@@ -440,6 +460,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn("Unable to resolve URL for fileId " + jf.getFile().getFileGroupId().intValue());}
 		}
 		
+		
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
@@ -452,6 +473,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
+		m.addAttribute("cellsByLibrary", cellsByLibrary);
 		m.addAttribute("files", files);
 		m.addAttribute("fileUrlMap", fileUrlMap);
 		
@@ -731,7 +753,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one
 		if (libraryIn.getParentId() != null)
 			modelLibrary.setParent(libraryIn.getParent());
-		modelLibrary.setSampleId(libraryIn.getSampleId());
+		modelLibrary.setSampleId(libraryIn.getId());
 		modelLibrary.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryIn.getSampleTypeId()));
 		modelLibrary.setName(libraryIn.getName());
 		modelLibrary.setSampleMeta(libraryIn.getSampleMeta());
@@ -763,7 +785,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 
 		SampleWrapperWebapp persistentLibraryManaged;
-		if (libraryIn.getSampleId() == null){
+		if (libraryIn.getId() == null){
 			persistentLibraryManaged = new SampleWrapperWebapp(sampleDao.getSampleBySampleId(libraryInId));
 		} else {
 			persistentLibraryManaged = libraryInManaged;
@@ -773,7 +795,7 @@ public class SampleDnaToLibraryController extends WaspController {
 			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
 		prepareAdaptorsetsAndAdaptors(job, libraryIn.getSampleMeta(), m);
-		if (libraryIn.getSampleId() == null)
+		if (libraryIn.getId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
 		m.addAttribute("extraJobDetailsMap", jobService.getExtraJobDetails(job));
@@ -927,7 +949,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //Note that table jobsample is not appropriate as it will contain libraries made by the facility (from submitted macromolecules)
 	  Set<Sample> samplesSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
 	  Map filterJobCell = new HashMap();
-	  filterJobCell.put("jobId", job.getJobId());
+	  filterJobCell.put("jobId", job.getId());
 	  List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filterJobCell);
 	  for(JobCellSelection jobCellSelection : jobCellSelections){
 		  List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
@@ -960,7 +982,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //Then, filter out all those samples that are libraries created by the facility (any sampleid that appears in samplesource.sampleid)
 	  List<Sample> submittedSamples = new ArrayList<Sample>();
 	  Map filterJobCell = new HashMap();
-	  filterJobCell.put("jobId", job.getJobId());
+	  filterJobCell.put("jobId", job.getId());
 	  List<JobSample> jobSamples = jobSampleDao.findByMap(filterJobCell);
 	  for(JobSample jobSample : jobSamples){
 		  Sample sample  = jobSample.getSample();
@@ -991,7 +1013,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
 	  List<Sample> samplesInThisJob = job.getSample();
 	  for(Sample eachSampleInThisJob : samplesInThisJob){
-		  if(eachSampleInThisJob.getSampleId().intValue() != sampleId.intValue()){
+		  if(eachSampleInThisJob.getId().intValue() != sampleId.intValue()){
 			  if( sampleName.equals(eachSampleInThisJob.getName()) ){
 				  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
 				  Errors errors=new BindException(result.getTarget(), "sample");
@@ -1022,12 +1044,12 @@ public class SampleDnaToLibraryController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 		
-		if(jobDao.getJobByJobId(jobId).getJobId()==null){//not found in database
+		if(jobDao.getJobByJobId(jobId).getId()==null){//not found in database
 			waspErrorMessage("sampleDetail.jobNotFound.error");
 			return "redirect:/dashboard.do";
 		}
 		
-		if(sampleDao.getSampleBySampleId(sampleId).getSampleId()==null){
+		if(sampleDao.getSampleBySampleId(sampleId).getId()==null){
 			waspErrorMessage("sampleDetail.sampleNotFound.error");
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}

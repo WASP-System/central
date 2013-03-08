@@ -941,5 +941,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @throws Runtime exception
 	 */
 	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
+
+	/** 
+	 * Get the index of the cell (the position on it's associated platform unit)
+	 * @param cell
+	 * @return
+	 * @throws SampleTypeException
+	 * @throws SampleParentChildException
+	 */
+	public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException;
 	  
 }

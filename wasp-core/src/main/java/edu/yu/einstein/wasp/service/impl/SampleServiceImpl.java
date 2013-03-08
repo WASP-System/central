@@ -267,7 +267,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  List<SampleMeta> sampleMetaList = sample.getSampleMeta();		  
 		  Sample sampleInDB=sampleDao.save(sample);
 		  try {
-			  sampleMetaDao.setMeta(sampleMetaList, sampleInDB.getSampleId());
+			  sampleMetaDao.setMeta(sampleMetaList, sampleInDB.getId());
 		  } catch (MetadataException e) {
 			  logger.warn(e.getLocalizedMessage());
 		  }
@@ -316,7 +316,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  Assert.assertParameterNotNull(job, "Invalid sampleIn Provided");
 		  List<Sample> samplesInThisJob = job.getSample();
 		  for(Sample sample : samplesInThisJob){
-			  if (sampleIn.getSampleId() != null && sample.getSampleId().intValue() == sampleIn.getSampleId().intValue())
+			  if (sampleIn.getId() != null && sample.getId().intValue() == sampleIn.getId().intValue())
 				  continue;
 			  if( sample.getSampleType().getIName().equals(sampleType.getIName()) && sampleIn.getName().equals(sample.getName()) ){
 				  return false;
@@ -332,11 +332,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public ExitStatus getReceiveSampleStatus(final Sample sample){
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  ExitStatus sampleReceivedStatus = ExitStatus.UNKNOWN;
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> sampleIdStringSet = new LinkedHashSet<String>();
-		  sampleIdStringSet.add(sample.getSampleId().toString());
+		  sampleIdStringSet.add(sample.getId().toString());
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.listenForSampleReceived", parameterMap, false);
 		  stepExecutions.addAll(batchJobExplorer.getStepExecutions("wasp.library.step.listenForLibraryReceived", parameterMap, false));
@@ -352,10 +352,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public ExitStatus getSampleQCStatus(final Sample sample){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> sampleIdStringSet = new LinkedHashSet<String>();
-		  sampleIdStringSet.add(sample.getSampleId().toString());
+		  sampleIdStringSet.add(sample.getId().toString());
 		  parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		  List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.sample.step.sampleQC", parameterMap, false);
 		  ExitStatus sampleQCStatus = ExitStatus.UNKNOWN;
@@ -371,10 +371,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public ExitStatus getLibraryQCStatus(final Sample library){
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(library, "No library provided");
-		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> sampleIdStringSet = new LinkedHashSet<String>();
-		sampleIdStringSet.add(library.getSampleId().toString());
+		sampleIdStringSet.add(library.getId().toString());
 		parameterMap.put(WaspJobParameters.LIBRARY_ID, sampleIdStringSet);
 		List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions("wasp.library.step.libraryQC", parameterMap, false);
 		ExitStatus libraryQCStatus = ExitStatus.UNKNOWN;
@@ -390,7 +390,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public boolean isSamplePassQC(final Sample sample){
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(sample, "No Sample provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		if (getSampleQCStatus(sample).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
 			return true;
 		return false;
@@ -403,7 +403,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public boolean isLibraryPassQC(final Sample library){
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(library, "No library provided");
-		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
 		  if (getLibraryQCStatus(library).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
 				return true;
 			return false;
@@ -415,7 +415,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Boolean isSampleReceived(Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		if (getReceiveSampleStatus(sample).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()) || 
 				getReceiveSampleStatus(sample).getExitCode().equals(ExitStatus.FAILED.getExitCode()))
 			return true;
@@ -430,19 +430,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Boolean isSampleAwaitingLibraryCreation(Sample sample){
 		// this requires the existence of a sample and no library recorded as currently being processed or successfully made 
 		Assert.assertParameterNotNull(sample, "No Sample provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		if (isLibrary(sample))
 			return false;
 		if (!isSamplePassQC(sample))
 			return false;
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> sampleIdStringSet = new LinkedHashSet<String>();
-		sampleIdStringSet.add(sample.getSampleId().toString());
+		sampleIdStringSet.add(sample.getId().toString());
 		parameterMap.put(WaspJobParameters.SAMPLE_ID, sampleIdStringSet);
 		
 		List<Sample> librariesExisting = sample.getChildren();
 		if (librariesExisting == null || librariesExisting.isEmpty()){
-			logger.debug("No libraries currently associated with sample id=" + sample.getSampleId() + " (" + sample.getName() + ")");
+			logger.debug("No libraries currently associated with sample id=" + sample.getId() + " (" + sample.getName() + ")");
 			return true; // no libraries made yet for this sample
 		}
 		
@@ -452,7 +452,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		parameterMap = new HashMap<String, Set<String>>();
 		for (Sample library: librariesExisting){
 			Set<String> libraryIdStringSet = new LinkedHashSet<String>();
-			libraryIdStringSet.add(library.getSampleId().toString());
+			libraryIdStringSet.add(library.getId().toString());
 			parameterMap.put(WaspJobParameters.LIBRARY_ID, libraryIdStringSet);
 			List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("wasp.facilityLibrary.jobflow", parameterMap, false);
 			
@@ -498,7 +498,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  class SampleIdComparator implements Comparator<Sample> {
 			    @Override
 			    public int compare(Sample arg0, Sample arg1) {
-			        return arg0.getSampleId().compareTo(arg1.getSampleId());
+			        return arg0.getId().compareTo(arg1.getId());
 			    }
 		  }
 		  Collections.sort(samples, new SampleIdComparator());//sort by sample's id 
@@ -607,14 +607,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public void initiateBatchJobForSample(Job job, Sample sample, String batchJobName){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  Assert.assertParameterNotNull(batchJobName, "No batchJobName provided");
 		  // send message to initiate job processing
 		  Map<String, String> jobParameters = new HashMap<String, String>();
-		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
-		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getSampleId().toString());
+		  jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
+		  jobParameters.put(WaspJobParameters.SAMPLE_ID, sample.getId().toString());
 		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		  try {
 			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
@@ -629,14 +629,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public void initiateBatchJobForLibrary(Job job, Sample library, String batchJobName){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  Assert.assertParameterNotNull(library, "No Library provided");
-		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid Library Provided");
 		  Assert.assertParameterNotNull(batchJobName, "No batchJobName provided");
 		  // send message to initiate job processing
 		  Map<String, String> jobParameters = new HashMap<String, String>();
-		  jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
-		  jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getSampleId().toString());
+		  jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
+		  jobParameters.put(WaspJobParameters.LIBRARY_ID, library.getId().toString());
 		  BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(batchJobName, jobParameters) );
 		  try {
 			sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
@@ -652,16 +652,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public void updateSampleReceiveStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  Assert.assertParameterNotNull(status, "No Status provided");
 		  if (status != WaspStatus.CREATED && status != WaspStatus.ABANDONED)
 			  throw new InvalidParameterException("WaspStatus is null, or not CREATED or ABANDONED");
 		  
 		  WaspStatusMessageTemplate messageTemplate;
 		  if (isLibrary(sample)){
-			  messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate = new LibraryStatusMessageTemplate(sample.getId());
 		  } else {
-			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate = new SampleStatusMessageTemplate(sample.getId());
 		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		  try{
@@ -678,17 +678,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public void updateQCStatus(final Sample sample, final WaspStatus status) throws WaspMessageBuildingException{
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  Assert.assertParameterNotNull(status, "No Status provided");
 		  if (status != WaspStatus.COMPLETED && status != WaspStatus.FAILED)
 			  throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or FAILED");
 		  
 		  WaspStatusMessageTemplate messageTemplate;
 		  if (isLibrary(sample)){
-			  messageTemplate = new LibraryStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate = new LibraryStatusMessageTemplate(sample.getId());
 			  messageTemplate.setTask(WaspLibraryTask.QC);
 		  } else {
-			  messageTemplate = new SampleStatusMessageTemplate(sample.getSampleId());
+			  messageTemplate = new SampleStatusMessageTemplate(sample.getId());
 			  messageTemplate.setTask(WaspSampleTask.QC);
 		  }
 		  messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (FAILED)
@@ -708,7 +708,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public boolean isSubmittedSampleProcessedByFacility(final Sample sample){//should but doesn't really check that this is a user-submitted sample
 		// TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  boolean sampleHasBeenProcessed = false;
 		  if( sample.getSourceSample().size() > 0){/* submitted sample is a user-submitted library that has been placed onto a flow cell or a user-submitted macromolecule that has been used to generate a library */
 			  sampleHasBeenProcessed = true;
@@ -723,7 +723,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public List<Sample> getFacilityGeneratedLibraries(Sample sample){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(sample, "No Sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		  List<Sample> libraryList = new ArrayList<Sample>();
 		  if (sample.getChildren() != null){
 			  for (Sample childSample : sample.getChildren()){
@@ -762,7 +762,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  adaptorId = MetaHelper.getMetaValue(area, "adaptor", library.getSampleMeta());
 		  }
 		  catch(MetadataException me){
-			  logger.warn("Unable to identify adaptor for libraryId " + library.getSampleId());
+			  logger.warn("Unable to identify adaptor for libraryId " + library.getId());
 		  }
 		  if( ! adaptorId.equals("") ){
 			  adaptor = adaptorDao.findById(new Integer(adaptorId));
@@ -821,7 +821,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // collect platform unit objects whose id's are not in the IdsForPlatformUnitsNotAvailable list
 		  for (Sample pu: allPlatformUnits){
 			  try {
-				if (! IdsForPlatformUnitsNotAvailable.contains( pu.getSampleId() ) && ! getPlatformUnitLockStatus(pu).equals(LockStatus.LOCKED))
+				if (! IdsForPlatformUnitsNotAvailable.contains( pu.getId() ) && ! getPlatformUnitLockStatus(pu).equals(LockStatus.LOCKED))
 					  availablePlatformUnits.add(pu);
 				} catch (SampleTypeException e) {
 					logger.warn("received unexpected exception: " + e.getLocalizedMessage()); // shouldn't get here
@@ -876,22 +876,46 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public Sample getPlatformUnitForCell(Sample cell) throws SampleTypeException, SampleParentChildException{
+	  public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException{
 		  Assert.assertParameterNotNull(cell, "No Cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid Cell Provided");
 		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
 		  Map<String,Integer> q = new HashMap<String,Integer>();
-		  q.put("sourceSampleId", cell.getSampleId());
+		  q.put("sourceSampleId", cell.getId());
 		  List<SampleSource> sampleSourceList = getSampleSourceDao().findByMap(q);
 			  
 		  if (sampleSourceList==null || sampleSourceList.isEmpty())
-			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with no flowcells");
+			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with no flowcells");
 		  if (sampleSourceList.size() > 1)
-			  throw new SampleParentChildException("Cell '"+cell.getSampleId().toString()+"' is associated with more than one flowcell");
+			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with more than one flowcell");
 		  SampleSource ss = sampleSourceList.get(0);
-		  logger.debug("Returning platform unit id=" + ss.getSample().getSampleId() + " for cell id=" + cell.getSampleId() + " (SampleSource id=" + ss.getSampleSourceId() + ")");
+		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
+		  return ss.getIndex();
+		  
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public Sample getPlatformUnitForCell(Sample cell) throws SampleTypeException, SampleParentChildException{
+		  Assert.assertParameterNotNull(cell, "No Cell provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid Cell Provided");
+		  if (!isCell(cell)){
+			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		  }
+		  Map<String,Integer> q = new HashMap<String,Integer>();
+		  q.put("sourceSampleId", cell.getId());
+		  List<SampleSource> sampleSourceList = getSampleSourceDao().findByMap(q);
+			  
+		  if (sampleSourceList==null || sampleSourceList.isEmpty())
+			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with no flowcells");
+		  if (sampleSourceList.size() > 1)
+			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with more than one flowcell");
+		  SampleSource ss = sampleSourceList.get(0);
+		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
 		  return ss.getSample();
 	  }
 	  
@@ -901,7 +925,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException{
 		  Assert.assertParameterNotNull(platformUnit, "No Platform unit provided");
-		  Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid Platform unit provided");
+		  Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid Platform unit provided");
 		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
 			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		  }
@@ -911,7 +935,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  return indexedCells;
 		  
 		  Map<String,Integer> q = new HashMap<String,Integer>();
-		  q.put("sampleId", platformUnit.getSampleId());
+		  q.put("sampleId", platformUnit.getId());
 		  
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample cell = ss.getSourceSample();
@@ -930,7 +954,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public Integer getNumberOfIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException{
 		  Assert.assertParameterNotNull(platformUnit, "No platform unit provided");
-		  Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platform unit Provided");
+		  Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platform unit Provided");
 		  Map<Integer, Sample> indexedCells = getIndexedCellsOnPlatformUnit(platformUnit);
 		  return new Integer(indexedCells.size());
 	  }
@@ -941,9 +965,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public void addCellToPlatformUnit(Sample platformUnit, Sample cell, Integer index) throws SampleTypeException, SampleIndexException{
 		  Assert.assertParameterNotNull(platformUnit, "No platform unit provided");
-		  Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platform unit Provided");
+		  Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platform unit Provided");
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  Assert.assertParameterNotNull(index, "No index provided");
 		  if (!platformUnit.getSampleType().getIName().equals("platformunit")){
 			  throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
@@ -954,7 +978,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (index < 1)
 			  throw new SampleIndexException("index must be an integer >= 1");
 		  Map<String, Integer> sampleSourceQuery = new HashMap<String, Integer>();
-		  sampleSourceQuery.put("sampleId", platformUnit.getSampleId());
+		  sampleSourceQuery.put("sampleId", platformUnit.getId());
 		  sampleSourceQuery.put("index", index);
 		  if (getSampleSourceDao().findByMap(sampleSourceQuery) != null)
 			  throw new SampleIndexException("index '"+index+"' already assigned to a cell associated with this platform unit");
@@ -971,7 +995,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<Sample> getLibrariesOnCell(Sample cell) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  return getLibrariesOnCell(cell, null);
 	  }
 	  
@@ -1012,7 +1036,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   */
 	  protected List<Sample> getLibrariesOnCell(Sample cell, Index maxIndex) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
@@ -1021,12 +1045,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  return libraries;
 		  
 		  Map<String,Integer> q = new HashMap<String,Integer>();
-		  q.put("sampleId", cell.getSampleId());
+		  q.put("sampleId", cell.getId());
 		  		  
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  Sample library = ss.getSourceSample();
 			  if (!this.isLibrary(library) && !library.getSampleType().getIName().equals("controlLibrarySample")){
-				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.: cellId: " + cell.getSampleId().intValue() + " cellName = " + cell.getName() + " problem libraryId = " + library.getSampleId().intValue() + " problem library name = " + library.getName() );
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.: cellId: " + cell.getId().intValue() + " cellName = " + cell.getName() + " problem libraryId = " + library.getId().intValue() + " problem library name = " + library.getName() );
 			  }
 			  if (maxIndex != null && ss.getIndex() != null && ss.getIndex() > maxIndex.getValue())
 				  maxIndex.setValue(ss.getIndex());
@@ -1055,7 +1079,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<Sample> getControlLibrariesOnCell(Sample cell) throws SampleTypeException{
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		   List<Sample> filteredLibraryList = new ArrayList<Sample>();
 		  for (Sample library : getLibrariesOnCell(cell)){
 			  if (library.getSampleSubtype().getIName().equals("controlLibrarySample"))
@@ -1071,9 +1095,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public void addLibraryToCell(Sample cell, Sample library, Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(cell, "No cell provided");
-		  Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid cell Provided");
+		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  Assert.assertParameterNotNull(library, "No library provided");
-		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
 		  Assert.assertParameterNotNull(libConcInLanePicoM, "No lib conc provided");
 		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
@@ -1160,11 +1184,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public int getRequestedSampleCoverage(Sample sample){
 		  Assert.assertParameterNotNull(sample, "No sample provided");
-		  Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid sample Provided");
+		  Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid sample Provided");
 		  Map<String, Integer> jobCellFilter = new HashMap<String, Integer>();
-		  jobCellFilter.put("jobId", sample.getJob().getJobId());
+		  jobCellFilter.put("jobId", sample.getJob().getId());
 		  Map<String, Integer> sampleCellFilter = new HashMap<String, Integer>();
-		  sampleCellFilter.put("sampleId", sample.getSampleId());
+		  sampleCellFilter.put("sampleId", sample.getId());
 		  int coverage = 0;
 		  for (JobCellSelection jobCellSelection: jobCellSelectionDao.findByMap(jobCellFilter)){
 			  sampleCellFilter.put("jobCellSelectionId", jobCellSelection.getJobCellSelectionId());
@@ -1177,13 +1201,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public List<Sample> getCellsForLibrary(Sample library) throws SampleTypeException{
 		  Assert.assertParameterNotNull(library, "No library provided");
-		  Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid library Provided");
+		  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
 		  if (!isLibrary(library)){
 			  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		  }
 		  List<Sample> cells = new ArrayList<Sample>();
 		  Map<String,Integer> q = new HashMap<String,Integer>();
-		  q.put("sourceSampleId", library.getSampleId());
+		  q.put("sourceSampleId", library.getId());
 		  for (SampleSource ss : getSampleSourceDao().findByMap(q)){
 			  if (isCell(ss.getSample()))
 				  cells.add(ss.getSample());
@@ -1232,7 +1256,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Run getCurrentRunForPlatformUnit(Sample platformUnit) throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "No platform unit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platform unit Provided");
+		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platform unit Provided");
 		if (!isPlatformUnit(platformUnit))
 			throw new SampleTypeException("sample is not a platfrom unit");
 		for (Run run : platformUnit.getRun()){
@@ -1412,7 +1436,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isSampleInDatabase(Sample sample){
 		Assert.assertParameterNotNull(sample, "No sample provided");
-		if (sample.getSampleId() != null && sample.getSampleId().intValue() > 0)
+		if (sample.getId() != null && sample.getId().intValue() > 0)
 			return true;
 		return false;
 	}
@@ -1433,7 +1457,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isSampleIdValid(Sample sample){
 		
-		if(sample == null || sample.getSampleId()==null || sample.getSampleId().intValue() <= 0){return false;}
+		if(sample == null || sample.getId()==null || sample.getId().intValue() <= 0){return false;}
 		return true;
 	}
 	
@@ -1537,7 +1561,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException{
 		Assert.assertParameterNotNull(platformUnitInDatabase, "No platform unit provided");
-		Assert.assertParameterNotNullNotZero(platformUnitInDatabase.getSampleId(), "Invalid platform unit Provided");
+		Assert.assertParameterNotNullNotZero(platformUnitInDatabase.getId(), "Invalid platform unit Provided");
 		Assert.assertParameterNotNullNotZero(numberOfLanesRequested, "Invalid numberOflanesRequested value provided");
 		Map<Integer,Sample> indexedCellMap = this.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception	
 		Integer numberOfLanesInDatabase = indexedCellMap.size();
@@ -1552,7 +1576,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Sample cell = indexedCellMap.get(index);
 			if(cell == null){
 				//unexpected problem; indexes not ordered
-				throw new SampleException("No cell found for platformUnitId " + platformUnitInDatabase.getSampleId().intValue() + " and cell index " + i);
+				throw new SampleException("No cell found for platformUnitId " + platformUnitInDatabase.getId().intValue() + " and cell index " + i);
 			}
 			List<Sample> libraryList = null;
 			libraryList = this.getLibrariesOnCell(cell);//throws exception
@@ -1584,13 +1608,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if(isSampleInDatabase(platformUnit)){//this is an update of an existing record
 			pu = platformUnit;
 			if(!isPlatformUnit(platformUnit)){
-				throw new SampleException("Sample with Id of " + pu.getSampleId().toString() + " unexpectedly NOT a platformUnit either in sampletype or samplesubtype");
+				throw new SampleException("Sample with Id of " + pu.getId().toString() + " unexpectedly NOT a platformUnit either in sampletype or samplesubtype");
 			}
 			
 			//check this first, since it could throw an exception, so no need to proceed with the update unless this is OK
 			numberOfLanesInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
 			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
-				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getSampleId().intValue());
+				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getId().intValue());
 			}	
 			
 			//if update, determine whether platformunit name has been changed
@@ -1674,10 +1698,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				pu.setIsGood(1);//Ed
 			}
 			Sample platformUnitDb = sampleDao.save(pu);
-			if(platformUnitDb==null || platformUnitDb.getSampleId()==null || platformUnitDb.getSampleId().intValue()<=0){
+			if(platformUnitDb==null || platformUnitDb.getId()==null || platformUnitDb.getId().intValue()<=0){
 				throw new SampleException("new platform unit unexpectedly not saved");
 			}
-			sampleMetaDao.setMeta(sampleMetaList, platformUnitDb.getSampleId()); // persist the metadata; no way to check as this returns void
+			sampleMetaDao.setMeta(sampleMetaList, platformUnitDb.getId()); // persist the metadata; no way to check as this returns void
 		
 			//barcode
 			List<SampleBarcode> sampleBarcodeList = platformUnitDb.getSampleBarcode();//any barcodes exist for this platform unit?
@@ -1701,7 +1725,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				}
 				SampleBarcode sampleBarcode = new SampleBarcode();	
 				sampleBarcode.setBarcodeId(barcodeDb.getBarcodeId()); // set new barcodeId in samplebarcode
-				sampleBarcode.setSampleId(platformUnitDb.getSampleId());
+				sampleBarcode.setSampleId(platformUnitDb.getId());
 				SampleBarcode sampleBarcodeDb = this.sampleBarcodeDao.save(sampleBarcode);
 				if(sampleBarcodeDb==null || sampleBarcodeDb.getSampleBarcode()==null || sampleBarcodeDb.getSampleBarcode().intValue()<=0){
 					throw new SampleException("new samplebarcode in update area unexpectedly not saved");
@@ -1722,7 +1746,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 						Integer index = ss.getIndex();
 						cell.setName(barcodeName +"/"+(index.intValue()));
 						Sample cellDb = this.sampleDao.save(cell);
-						if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
+						if(cellDb==null || cellDb.getId()==null || cell.getId().intValue() <= 0){
 							throw new SampleException("updated cell unexpectedly not saved during update of cell name");
 						}
 					}
@@ -1746,16 +1770,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					cell.setReceiverUserId(platformUnitDb.getSubmitterUserId());
 					cell.setReceiveDts(new Date());
 					Sample cellDb = this.sampleDao.save(cell);
-					if(cellDb==null || cellDb.getSampleId()==null || cell.getSampleId().intValue() <= 0){
+					if(cellDb==null || cellDb.getId()==null || cell.getId().intValue() <= 0){
 						throw new SampleException("new cell unexpectedly not saved during create or update of platformunit");
 					}
 	
 					SampleSource sampleSource = new SampleSource();
-					sampleSource.setSampleId(platformUnitDb.getSampleId());
-					sampleSource.setSourceSampleId(cellDb.getSampleId());
+					sampleSource.setSampleId(platformUnitDb.getId());
+					sampleSource.setSourceSampleId(cellDb.getId());
 					sampleSource.setIndex(i);
 					SampleSource sampleSourceDb = this.getSampleSourceDao().save(sampleSource);
-					if(sampleSourceDb==null || sampleSourceDb.getSampleId()==null || sampleSourceDb.getSampleId().intValue() <= 0){
+					if(sampleSourceDb==null || sampleSourceDb.getId()==null || sampleSourceDb.getId().intValue() <= 0){
 						throw new SampleException("new samplesource unexpectedly not saved during create or update of platformunit");
 					}
 				}
@@ -1775,7 +1799,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 						List<Sample> libraryList = null;
 						libraryList = this.getLibrariesOnCell(cell);//throws exception
 						if(libraryList!=null && libraryList.size()>0){//found at least one library
-							throw new SampleException("Cell " + cell.getSampleId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
+							throw new SampleException("Cell " + cell.getId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
 						}
 						//first deletes each pu-cell link and its meta (if any) AND THEN ALSO deletes the cell and the cell's meta (if any)
 						this.deleteCellFromPlatformUnit(ss);
@@ -1841,9 +1865,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Resource> getSequencingMachinesCompatibleWithPU(Sample platformUnit) throws SampleException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
+		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platformUnit provided");
 		if(!this.isPlatformUnit(platformUnit)){
-			throw new SampleException("Expected platformUnit for SampleId " + platformUnit.getSampleId().intValue() + " but sample failed in sampletype and/or samplesubtype");
+			throw new SampleException("Expected platformUnit for SampleId " + platformUnit.getId().intValue() + " but sample failed in sampletype and/or samplesubtype");
 		}
 		
 		List<Resource> resources = this.getAllMassivelyParallelSequencingMachines();
@@ -1935,7 +1959,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public void removeLibraryFromCellOfPlatformUnit(SampleSource cellLibraryLink) throws SampleTypeException{
 		Assert.assertParameterNotNull(cellLibraryLink, "Invalid cellLibraryLink provided");
-		Assert.assertParameterNotNullNotZero(cellLibraryLink.getSampleSourceId(), "Invalid cellLibraryLink provided");
+		Assert.assertParameterNotNullNotZero(cellLibraryLink.getId(), "Invalid cellLibraryLink provided");
 		if (!isLibrary(cellLibraryLink.getSourceSample())){
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + cellLibraryLink.getSourceSample().getSampleType().getIName() + "' instead.");
 		}
@@ -1951,9 +1975,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public void removeLibraryFromCellOfPlatformUnit(Sample cell, Sample library) throws SampleTypeException, SampleParentChildException {
 		Assert.assertParameterNotNull(cell, "No Cell provided");
-		Assert.assertParameterNotNullNotZero(cell.getSampleId(), "Invalid Cell Provided");
+		Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid Cell Provided");
 		Assert.assertParameterNotNull(library, "No Library provided");
-		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Library Provided");
+		Assert.assertParameterNotNullNotZero(library.getId(), "Invalid Library Provided");
 		if (!isCell(cell))
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		if (!isLibrary(library))
@@ -1963,7 +1987,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	protected void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
-		Assert.assertParameterNotNullNotZero(puCellLink.getSampleSourceId(), "Invalid puCellLink provided");
+		Assert.assertParameterNotNullNotZero(puCellLink.getId(), "Invalid puCellLink provided");
 		Sample cell = puCellLink.getSourceSample();//cell is the lane
 		if (!isCell(cell)){
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
@@ -1977,7 +2001,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	protected void deletePlatformUnit(Sample platformUnit)throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "Invalid platformUnit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit provided");
+		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platformUnit provided");
 		if (!platformUnit.getSampleType().getIName().equals("platformunit")){
 			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		}
@@ -1997,7 +2021,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	protected void deleteSampleSourceAndItsMeta(SampleSource sampleSource){
 		Assert.assertParameterNotNull(sampleSource, "Invalid sampleSource provided");
-		Assert.assertParameterNotNullNotZero(sampleSource.getSampleSourceId(), "Invalid sampleSource provided");
+		Assert.assertParameterNotNullNotZero(sampleSource.getId(), "Invalid sampleSource provided");
 		for(SampleSourceMeta meta : sampleSource.getSampleSourceMeta()){
 			sampleSourceMetaDao.remove(meta);
 			sampleSourceMetaDao.flush(meta);
@@ -2007,7 +2031,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	}
 	protected void deleteSampleAndItsMeta(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid sample provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid sample provided");
+		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid sample provided");
 		for(SampleMeta meta : sample.getSampleMeta()){
 			sampleMetaDao.remove(meta);
 			sampleMetaDao.flush(meta);
@@ -2022,7 +2046,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isLibraryAwaitingPlatformUnitPlacement(Sample library) throws SampleTypeException{
 		Assert.assertParameterNotNull(library, "No Sample provided");
-		Assert.assertParameterNotNullNotZero(library.getSampleId(), "Invalid Sample Provided");
+		Assert.assertParameterNotNullNotZero(library.getId(), "Invalid Sample Provided");
 		if (!isLibrary(library)){
 			throw new SampleTypeException("Expected a library but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		}
@@ -2045,7 +2069,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			requestedCoverage = getRequestedSampleCoverage(library.getParent());
 		else
 			requestedCoverage = getRequestedSampleCoverage(library);
-		logger.debug("Library id=" + library.getSampleId() + ", name=" + library.getName() + " has requested coverage=" + requestedCoverage + " and actual coverage=" + sampleActualCoverage);
+		logger.debug("Library id=" + library.getId() + ", name=" + library.getName() + " has requested coverage=" + requestedCoverage + " and actual coverage=" + sampleActualCoverage);
 		if (sampleActualCoverage < requestedCoverage)
 			return true;
 		return false;
@@ -2074,7 +2098,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public boolean isPlatformUnitAwaitingSequenceRunPlacement(Sample platformUnit) throws SampleTypeException{
 		Assert.assertParameterNotNull(platformUnit, "No platformUnit provided");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "Invalid platformUnit Provided");
+		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "Invalid platformUnit Provided");
 		if (!isPlatformUnit(platformUnit)){
 			throw new SampleTypeException("Expected a platform unit but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		}
@@ -2123,7 +2147,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		SampleMeta currentLockStatusMeta = new SampleMeta();
 		currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_AREA);
 		currentLockStatusMeta.setV(lockStatus.toString());
-		currentLockStatusMeta.setSampleId(platformunit.getSampleId());
+		currentLockStatusMeta.setSampleId(platformunit.getId());
 		sampleMetaDao.setMeta(currentLockStatusMeta);
 	}
 	
@@ -2255,7 +2279,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + LIB_CONC);
 		sampleSourceMeta.setV(valueInPicoM.toString());
-		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+		sampleSourceMeta.setSampleSourceId(sampleSource.getId());
 		sampleSourceMetaDao.setMeta(sampleSourceMeta);
 	}
 	
@@ -2289,8 +2313,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + JOB_ID);
-		sampleSourceMeta.setV(library.getJob().getJobId().toString());
-		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+		sampleSourceMeta.setV(library.getJob().getId().toString());
+		sampleSourceMeta.setSampleSourceId(sampleSource.getId());
 		sampleSourceMetaDao.setMeta(sampleSourceMeta);
 	}
 	
@@ -2311,14 +2335,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Job getJobOfLibraryOnCell(SampleSource libraryCell){
 		Assert.assertParameterNotNull(libraryCell, "libraryCell cannot be null");
-		Assert.assertParameterNotNull(libraryCell.getSampleSourceId(), "libraryCell must have a valid id");
+		Assert.assertParameterNotNull(libraryCell.getId(), "libraryCell must have a valid id");
 		Job job = null;
 		List<SampleSourceMeta> ssMetaList = libraryCell.getSampleSourceMeta();
 		if (ssMetaList == null)
 			return job;
 		try{
 			job = jobDao.getJobByJobId(Integer.valueOf(MetaHelper.getMetaValue(LIBRARY_ON_CELL_AREA, JOB_ID, ssMetaList)));
-			if (job.getJobId() == null)
+			if (job.getId() == null)
 				job = null;
 		} catch(Exception e) {
 			// value not found or not a sensible value
@@ -2332,11 +2356,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Set<SampleSource> getCellLibrariesForJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		Set<SampleSource> cellLibraries = new LinkedHashSet<SampleSource>();
 		Map<String, String> m = new HashMap<String, String>();
 		m.put("k", LIBRARY_ON_CELL_AREA + "." + JOB_ID);
-		m.put("v", job.getJobId().toString());
+		m.put("v", job.getId().toString());
 		for (SampleSourceMeta ssm: sampleSourceMetaDao.findByMap(m)){
 			cellLibraries.add(ssm.getSampleSource());
 		}
@@ -2353,8 +2377,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isLibrary(library))
 			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sourceSampleId", library.getSampleId());
-		m.put("sampleId", cell.getSampleId());
+		m.put("sourceSampleId", library.getId());
+		m.put("sampleId", cell.getId());
 		List<SampleSource> ss = sampleSourceDao.findByMap(m);
 		if (ss.isEmpty())
 			return null;
@@ -2367,8 +2391,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
-		Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "cellLibrary must have a valid id");
-		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
+		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
+		return sampleDao.getSampleBySampleId(cellLibrary.getId()); // get from Dao in case cellLibrary not entity managed
 	}
 	
 	/**
@@ -2377,7 +2401,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Override
 	public Sample getLibrary(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
-		Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "cellLibrary must have a valid id");
+		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
 		return sampleDao.getSampleBySampleId(cellLibrary.getSourceSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	
@@ -2386,8 +2410,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample){
-		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
-		Assert.assertParameterNotNullNotZero(sample.getSampleId(), "Invalid Sample Provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
+		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		List<Sample> sampleList = new ArrayList<Sample>();
 		String samplePairs = null;
 		for(JobMeta jm : job.getJobMeta()){
@@ -2399,10 +2423,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if(samplePairs != null && !samplePairs.isEmpty()){
 			for(String realPair : samplePairs.split(";")){
 				String [] stringArray = realPair.split(":");
-				if(!stringArray[0].isEmpty() && sample.getSampleId().toString().equals(stringArray[0])){
+				if(!stringArray[0].isEmpty() && sample.getId().toString().equals(stringArray[0])){
 					try{
 						Sample sc = this.getSampleById(Integer.valueOf(stringArray[1]));
-						if(sc.getSampleId() != null){
+						if(sc.getId() != null){
 							sampleList.add(sc);
 						}
 					}catch(Exception e){continue;}
@@ -2462,7 +2486,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			SampleMeta sampleMeta = new SampleMeta();
 			sampleMeta.setK(CellSuccessMeta.AREA + "." + CellSuccessMeta.RUN_SUCCESS);
 			sampleMeta.setV(successString);
-			sampleMeta.setSampleId(cell.getSampleId());
+			sampleMeta.setSampleId(cell.getId());
 			sampleMetaDao.setMeta(sampleMeta);
 		}
 		
@@ -2472,10 +2496,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
-			ssIdStringSet.add(cellLibrary.getSampleSourceId().toString());
+			ssIdStringSet.add(cellLibrary.getId().toString());
 			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
 			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
@@ -2493,7 +2517,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			if (!this.isCellSequencedSuccessfully(this.getCell(cellLibrary)))
 				return false;
 			String isPassedQC = null;
@@ -2516,13 +2540,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public void setCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.PREPROCESS_PASS_QC);
 			sampleSourceMeta.setV(isPreprocessedString);
-			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
 		}
 
@@ -2574,8 +2598,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				throw new SampleException("no relationship between provided sample pair exists in the samplesource table");
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 			sampleSourceMeta.setK(SAMPLE_PAIR_AREA + "." + JOB_ID);
-			sampleSourceMeta.setV(testSample.getJob().getJobId().toString());
-			sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
+			sampleSourceMeta.setV(testSample.getJob().getId().toString());
+			sampleSourceMeta.setSampleSourceId(sampleSource.getId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
 		}
 		
@@ -2595,7 +2619,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			String isPassedQC = null;
 			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
 			if (metaList == null)
@@ -2616,7 +2640,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getSampleSourceId(), "sourceSampleId cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
 			SampleSourceMeta sampleSourceMeta = null;
@@ -2629,7 +2653,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.IN_AGGREGATE_ANALYSIS);
 			sampleSourceMeta.setV(isPreprocessedString);
-			sampleSourceMeta.setSampleSourceId(cellLibrary.getSampleSourceId());
+			sampleSourceMeta.setSampleSourceId(cellLibrary.getId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
 		}
 		
@@ -2639,7 +2663,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public Job getJobBySamplePair(SampleSource samplePair){
 			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be null");
-			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			Assert.assertParameterNotNull(samplePair.getId(), "Sample pair must have a valid id");
 			
 			Job job = null;
 			List<SampleSourceMeta> ssMetaList = samplePair.getSampleSourceMeta();
@@ -2647,7 +2671,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				return job;
 			try{
 				job = jobDao.getJobByJobId(Integer.valueOf(MetaHelper.getMetaValue(SAMPLE_PAIR_AREA, JOB_ID, ssMetaList)));
-				if (job.getJobId() == null)
+				if (job.getId() == null)
 					job = null;
 			} catch(Exception e) {
 				// value not found or not a sensible value
@@ -2661,12 +2685,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public Set<SampleSource> getSamplePairsByJob(Job job){
 			Assert.assertParameterNotNull(job, "job cannot be null");
-			Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+			Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 			
 			Set<SampleSource> samplePairs = new LinkedHashSet<SampleSource>();
 			Map<String, String> m = new HashMap<String, String>();
 			m.put("k", SAMPLE_PAIR_AREA + "." + JOB_ID);
-			m.put("v", job.getJobId().toString());
+			m.put("v", job.getId().toString());
 			for (SampleSourceMeta ssm: sampleSourceMetaDao.findByMap(m)){
 				samplePairs.add(ssm.getSampleSource());
 			}
@@ -2684,13 +2708,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
 
 			Assert.assertParameterNotNull(testSample, "Test sample cannot be null");
-			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample id cannot be null");
+			Assert.assertParameterNotNull(testSample.getId(), "Test sample id cannot be null");
 			Assert.assertParameterNotNull(controlSample, "Control sample cannot be null");
-			Assert.assertParameterNotNull(controlSample.getSampleId(), "Control sample id cannot be null");
+			Assert.assertParameterNotNull(controlSample.getId(), "Control sample id cannot be null");
 			
 			Map<String, Integer> m = new HashMap<String, Integer>();
-			m.put("sourceSampleId", controlSample.getSampleId());
-			m.put("sampleId", testSample.getSampleId());
+			m.put("sourceSampleId", controlSample.getId());
+			m.put("sampleId", testSample.getId());
 			List<SampleSource> ss = sampleSourceDao.findByMap(m);
 			if (ss.isEmpty())
 				return null;
@@ -2703,9 +2727,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public Sample getTestSample(SampleSource samplePair){
 			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be empty");
-			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			Assert.assertParameterNotNull(samplePair.getId(), "Sample pair must have a valid id");
 			
-			return sampleDao.getSampleBySampleId(samplePair.getSampleId()); // get from Dao in case sample pair not entity managed
+			return sampleDao.getSampleBySampleId(samplePair.getId()); // get from Dao in case sample pair not entity managed
 		}
 		
 		/**
@@ -2714,7 +2738,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public Sample getControlSample(SampleSource samplePair){
 			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be empty");
-			Assert.assertParameterNotNull(samplePair.getSampleSourceId(), "Sample pair must have a valid id");
+			Assert.assertParameterNotNull(samplePair.getId(), "Sample pair must have a valid id");
 			
 			return sampleDao.getSampleBySampleId(samplePair.getSourceSampleId()); // get from Dao in case sample pair not entity managed
 		}
@@ -2725,10 +2749,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		@Override
 		public List<Sample> getControlSamplesByTestSample(Sample testSample){
 			Assert.assertParameterNotNull(testSample, "Test sample cannot be empty");
-			Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample must have a valid id");
+			Assert.assertParameterNotNull(testSample.getId(), "Test sample must have a valid id");
 			List<Sample> controlSamples = new ArrayList<Sample>();
 			Map<String, Integer> m = new HashMap<String, Integer>();
-			m.put("sampleId", testSample.getSampleId());
+			m.put("sampleId", testSample.getId());
 			Sample controlSample = null;
 			for (SampleSource ss : sampleSourceDao.findByMap(m)){
 				controlSample = ss.getSourceSample();
@@ -2747,9 +2771,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  Assert.assertParameterNotNull(controlSampleId, "No control sample id provided");
 			  
 			  Sample testSample = this.getSampleById(testSampleId);
-			  Assert.assertParameterNotNull(testSample.getSampleId(), "Test sample does not exist!");
+			  Assert.assertParameterNotNull(testSample.getId(), "Test sample does not exist!");
 			  Sample controlSample = this.getSampleById(controlSampleId);
-			  Assert.assertParameterNotNull(controlSample.getSampleId(), "Control sample does not exist!");
+			  Assert.assertParameterNotNull(controlSample.getId(), "Control sample does not exist!");
 
 			  if (!this.isLibrary(controlSample)){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
@@ -2777,7 +2801,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 						  preprocessedCellLibraries.add(cellLibrary);
 					  }
 				  }
-				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getSampleSourceId()); 
+				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
 				  }						  
 			  }
 			  return preprocessedCellLibraries;
@@ -2797,7 +2821,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 				  
 				  if( !comment.trim().isEmpty() ){
-					  this.setMetaInAggregateAnalysisComment(cellLibrary.getSampleSourceId(), comment.trim());
+					  this.setMetaInAggregateAnalysisComment(cellLibrary.getId(), comment.trim());
 				  }
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
