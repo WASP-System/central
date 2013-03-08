@@ -235,17 +235,23 @@ public abstract class WaspCoreModel implements Serializable {
 	}
 	
 	/** 
-	 * lastUpdTs
+	 * updated
 	 *
 	 */
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="updated")
 	protected Date updated;
 	
+	/**
+	 * @param updated
+	 */
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
 	
+	/**
+	 * @return
+	 */
 	public Date getUpdated() {
 		return this.updated;
 	}
