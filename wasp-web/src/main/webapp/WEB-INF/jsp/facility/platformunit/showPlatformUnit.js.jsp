@@ -12,7 +12,7 @@
 //is no longer used; rob 11/30/12; replaced by a new page for creating platform unit )  
 //however the code below document ready IS STILL NEEDED 
 $(document).ready(function(){
-	$( "#runStartDate" ).datepicker();
+	$( "#runStartDate" ).datepicker({ dateFormat: "yy/mm/dd" });
 	$("#resourceId").change(function(){
 		var id = $(this).val();
 		//alert('jquery test; resourceId = ' + resourceId);		

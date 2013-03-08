@@ -60,7 +60,7 @@ function isDate(dtStr){
 	day=parseInt(strDay)
 	year=parseInt(strYr)
 	if (pos1==-1 || pos2==-1){
-		// commented out on 11-12-08 by V.N.   alert("The date format should be : mm/dd/yyyy")
+		// commented out on 11-12-08 by V.N.   alert("The date format should be : yyyy/mm/dd")
 		return false
 	}
 	if (strMonth.length<1 || month<1 || month>12){

@@ -173,7 +173,7 @@ public class Job2QuoteController extends WaspController {
 		if(submittedOnDateAsString != null){
 			DateFormat formatter;
 		
-			formatter = new SimpleDateFormat("MM/dd/yyyy");//this is the format that the date is coming in from the Grid
+			formatter = new SimpleDateFormat("yyyy/MM/dd");//this is the format that the date is coming in from the Grid
 			try{				
 				submittedOnAsDate = (Date)formatter.parse(submittedOnDateAsString); 
 			}

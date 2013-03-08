@@ -376,7 +376,7 @@ public class JobController extends WaspController {
 		Date createts = null;
 		if(createDateAsString != null){
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				createts = (Date)formatter.parse(createDateAsString); 
 			}
@@ -499,7 +499,7 @@ public class JobController extends WaspController {
 				List<JobMeta> jobMeta = getMetaHelperWebapp().syncWithMaster(job.getJobMeta());
 				
 				User user = userDao.getById(job.getUserId());
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
+				Format formatter = new SimpleDateFormat("yyyy/MM/dd");	
 				AcctQuote currentQuote = job.getCurrentQuote();
 				String quoteAsString;
 				if(currentQuote == null || currentQuote.getId() == null){

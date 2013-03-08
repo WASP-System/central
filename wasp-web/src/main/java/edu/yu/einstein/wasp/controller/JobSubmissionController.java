@@ -398,18 +398,18 @@ public class JobSubmissionController extends WaspController {
 			List<JobDraft> itemPage = jobDraftList.subList(frId, toId);
 			for (JobDraft item : itemPage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", item.getJobDraftId());
+				cell.put("id", item.getId());
 				 
 				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
 				
 				User user = userDao.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							"<a href='/wasp/jobsubmit/modify/"+item.getJobDraftId()+".do'>"+item.getName()+"</a>",
+							"<a href='/wasp/jobsubmit/modify/"+item.getId()+".do'>"+item.getName()+"</a>",
 							user.getNameFstLst(),
 							item.getLab().getName(),
-							this.userDao.getUserByUserId(item.getLastUpdUser()).getNameFstLst(),
-							item.getLastUpdTs().toString()
+							item.getLastUpdatedByUser().getNameFstLst(),
+							item.getUpdated().toString()
 				}));
 				 
 				for (JobDraftMeta meta:itemMeta) {

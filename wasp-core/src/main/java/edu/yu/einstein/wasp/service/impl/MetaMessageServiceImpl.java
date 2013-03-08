@@ -94,7 +94,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 			message =  new MetaMessage(metaKey, group, "", value);
 		}
 		meta = dao.save(meta);
-		message.setDate(meta.getLastUpdTs());
+		message.setDate(meta.getUpdated());
 		return message;
 	}
 	
@@ -164,7 +164,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
 				} 
 			}
-			message.setDate(meta.getLastUpdTs());
+			message.setDate(meta.getUpdated());
 		} 
 		return message;
 	}

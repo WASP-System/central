@@ -1483,7 +1483,6 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  JobUser newJobUser = new JobUser();
 		  newJobUser.setJob(job);
 		  newJobUser.setUser(newViewerToBeAddedToJob);
-		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
 		  newJobUser.setRole(role);
 		  jobUserDao.save(newJobUser);
 	}
@@ -1751,7 +1750,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
 			if(jobApprovalCommentsList.size()>0){
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
 				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
 				if(currentStatusComment != null && !currentStatusComment.isEmpty())
