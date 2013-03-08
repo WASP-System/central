@@ -97,10 +97,15 @@ public class MetaBase extends WaspModel {
 
 	@Override
 	public String toString() {
-		return "MetaBase ["
+		String message = "MetaBase ["
 				+ "k=" + k + ", v=" + v + ", position=" + position
-				+ ", lastUpdTs=" + updated + ", lastUpdUser=" + lastUpdatedByUser.getId()
-				+ ", property=" + property + "]";
+				+ ", lastUpdTs=" + updated + ", lastUpdUser=";
+		if (lastUpdatedByUser == null || lastUpdatedByUser.getId()==null ) 
+			message += "{not set}";
+		else 
+			message += lastUpdatedByUser.getId();
+		message += ", property=" + property + "]";
+		return message;
 	}
 
 	@Override
