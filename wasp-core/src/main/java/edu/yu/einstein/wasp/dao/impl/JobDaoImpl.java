@@ -96,7 +96,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 			   "FROM job j\n"+
 			   "JOIN workflowsamplesubtype ws ON ws.workflowId = j.workflowId\n"+
 			   "WHERE j.workflowId = :workflowId\n"+
-			   "ORDER BY j.lastupdts DESC , j.name ASC\n";
+			   "ORDER BY j.updated DESC , j.name ASC\n";
 		   
 		   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
 		   
