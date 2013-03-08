@@ -308,9 +308,9 @@ public class RunController extends WaspController {
 
 		//convert dates (as string) to datatype Date
 		Date dateRunStartedFromGridAsDate = null;
-		if(dateRunStartedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+		if(dateRunStartedFromGridAsString != null){//this is yyyy/MM/dd coming from grid
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				dateRunStartedFromGridAsDate = (Date)formatter.parse(dateRunStartedFromGridAsString); 
 			}
@@ -319,9 +319,9 @@ public class RunController extends WaspController {
 			}
 		}		
 		Date dateRunEndedFromGridAsDate = null;
-		if(dateRunEndedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+		if(dateRunEndedFromGridAsString != null){//this is yyyy/MM/dd coming from grid
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				dateRunEndedFromGridAsDate = (Date)formatter.parse(dateRunEndedFromGridAsString); 
 			}
@@ -489,7 +489,7 @@ public class RunController extends WaspController {
 			  //10-17-12
 				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappRunInstance();
 				String area2 = metaHelperWebapp.getArea();
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			
 				String readlength = new String("unknown");
 				try{
@@ -504,14 +504,14 @@ public class RunController extends WaspController {
 				String dateRunStarted = new String("not set");
 				if(run.getStartts()!=null){
 					try{				
-						dateRunStarted = new String(formatter.format(run.getStartts()));//MM/dd/yyyy
+						dateRunStarted = new String(formatter.format(run.getStartts()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
 				String dateRunEnded = new String("not set");
 				if(run.getEnDts()!=null){					
 					try{				
-						dateRunEnded = new String(formatter.format(run.getEnDts()));//MM/dd/yyyy
+						dateRunEnded = new String(formatter.format(run.getEnDts()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
@@ -713,7 +713,7 @@ public class RunController extends WaspController {
 		
 		
 		try{
-			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			String dateRunStarted = new String("");
 			String dateRunEnded = new String("COMPLETED_BY_SYSTEM");
 			Sample platformUnit = null; 
@@ -754,11 +754,11 @@ public class RunController extends WaspController {
 					metaHelperWebapp.syncWithMaster(runInstance.getRunMeta());
 					runInstance.setRunMeta((List<RunMeta>)metaHelperWebapp.getMetaList());
 					
-					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//MM/dd/yyyy
+					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//yyyy/MM/dd
 					
 					if(runInstance.getEnDts()!=null){
 						try{
-							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//MM/dd/yyyy
+							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//yyyy/MM/dd
 						}catch(Exception e){dateRunEnded=new String("UNEXPECTED PROBLEM WITH DATE");}
 					}
 					
@@ -869,7 +869,7 @@ public class RunController extends WaspController {
 			else{
 				try{
 		
-					Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+					Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 					dateRunStartedAsDateObject = (Date) formatter.parseObject(dateRunStarted.trim()); 				
 				}catch(Exception e){
 					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStartedFormat.error");//area here is runInstance

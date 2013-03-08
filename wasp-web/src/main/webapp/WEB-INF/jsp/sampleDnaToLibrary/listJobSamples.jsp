@@ -138,7 +138,7 @@
 					<c:set value="${qcStatusCommentsMap.get(userSubmittedMacromolecule)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
 						<%-- <c:forEach items="${metaMessageList}" var="metaMessage">--%>
-							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
 		  					<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 						<%--</c:forEach>--%>
 					</c:if>
@@ -175,7 +175,7 @@
 								<c:set value="${qcStatusCommentsMap.get(facilityLibraryForThisMacromolecule)}" var="metaMessageList" />
 								<c:if test="${metaMessageList.size()>0}">
 									<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
-										<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+										<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
 		  								<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 									<%--</c:forEach>--%>
 								</c:if>
@@ -293,7 +293,7 @@
 				<c:set value="${qcStatusCommentsMap.get(userSubmittedLibrary)}" var="metaMessageList" />
 					<c:if test="${metaMessageList.size()>0}">
 						<%-- <c:forEach items="${metaMessageList}" var="metaMessage"> --%>
-							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="MM-dd-yyyy" var="date" />
+							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
 		  					<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 						<%--</c:forEach>--%>
 					</c:if>

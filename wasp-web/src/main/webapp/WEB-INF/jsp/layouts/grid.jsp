@@ -288,7 +288,7 @@
 						dataInit: function(elm){
 							setTimeout(
 								function(){ 
-									jQuery(elm).datepicker({dateFormat:'yy-mm-dd'});
+									jQuery(elm).datepicker({ dateFormat: "yy/mm/dd" });
 									jQuery('.ui-datepicker').css({'font-size':'80%'}); 
 			                	}, 200);
 						}
