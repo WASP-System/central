@@ -223,9 +223,16 @@ public class Job2QuoteController extends WaspController {
 		}
 		
 		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+		for (Job job : workingJobList)
+			logger.debug("working job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
+		for (Job job : restrictedJobList)
+			logger.debug("restricted job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
+		
 		if (restrictedJobList != null)
 			workingJobList.retainAll(restrictedJobList);
 		
+		for (Job job : workingJobList)
+			logger.debug("working job list jobId=" + job.getId());
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
 			List<Job> jobsToKeep = filterService.filterJobListForDA(workingJobList);

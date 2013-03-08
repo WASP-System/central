@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,13 +61,26 @@ public class SchemaExportTest extends  AbstractTestNGSpringContextTests {
 		for (WaspDao dao : daoBeans.values()){
 			for (WaspModel model : (List<WaspModel>) dao.findAll()){
 				try {
-					UUID uuid = (UUID) model.getClass().getDeclaredMethod("getResultID", UUID.class).invoke(model);
+					Method getter = null;
+					Method setter = null;
+					if (model.getClass().getName().endsWith("Meta")){
+						getter = model.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredMethod("getUUID");
+						setter = model.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredMethod("setUUID", UUID.class);
+					} else {
+						getter = model.getClass().getSuperclass().getSuperclass().getDeclaredMethod("getUUID");
+						setter = model.getClass().getSuperclass().getSuperclass().getDeclaredMethod("setUUID", UUID.class);
+					}
+					setter.setAccessible(true);
+					getter.setAccessible(true);
+					UUID uuid = (UUID) getter.invoke(model);
 					if (uuid == null){
 						logger.debug("setting UUID for instance of class " + model.getClass().getName());
-						model.getClass().getDeclaredMethod("setResultID", UUID.class).invoke(model, UUID.randomUUID());
+						setter.invoke(model, UUID.randomUUID());
+						dao.merge(model);
 					}
 				} catch (Exception e) {
-					logger.warn("failed to invoke method setResultID() on instance of class " + model.getClass().getName()); 
+					e.printStackTrace();
+					throw new RuntimeException(); 
 				}
 			}
 		}

@@ -319,7 +319,7 @@ public abstract class WaspCoreModel implements Serializable {
 	 * private value for identity
 	 * @return the resultID
 	 */
-	private UUID getUUID() {
+	public UUID getUUID() {
 		return uuid;
 	}
 

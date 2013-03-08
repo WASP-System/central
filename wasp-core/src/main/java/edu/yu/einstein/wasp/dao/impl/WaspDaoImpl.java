@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,9 @@ import java.util.Map;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
@@ -439,9 +438,21 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		if (!logger.isDebugEnabled())
 			return;
 		logger.debug(WordUtils.capitalize(actionName)+" entity of type: "+entity.getClass().getName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
+		Map<String,Field> fields = new HashMap<String, Field>();
+		if (entity.getClass().getName().endsWith("Meta"))
+			for (Field field : entity.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredFields())
+				fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getSuperclass().getSuperclass().getDeclaredFields())
+			fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getSuperclass().getDeclaredFields())
+			fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getDeclaredFields())
+			fields.put(field.getName(), field);
+
+		for (Field field : fields.values()){
+			field.setAccessible(true);
 			try {
-				logger.debug("    -> "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
+				logger.debug("    -> "+field.getName()+"="+field.get(entity).toString());
 			} catch (Exception e) {
 			}
 			
