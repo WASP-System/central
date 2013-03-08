@@ -184,8 +184,8 @@ public final class UiField extends WaspModel implements Serializable {
 	public String toString() {
 		return "UiField [uiFieldId=" + getId() + ", domain=" + domain + ", area=" + area + ", name="
 				+ name + ", attrName=" + attrName + ", attrValue=" + attrValue
-				+ ", locale=" + locale + ", lastUpdTs=" + lastUpdTs
-				+ ", lastUpdUser=" + lastUpdUser + "]";
+				+ ", locale=" + locale + ", lastUpdTs=" + updated
+				+ ", lastUpdUser=" + getLastUpdatedByUser().getId() + "]";
 	}
 	  
 	  

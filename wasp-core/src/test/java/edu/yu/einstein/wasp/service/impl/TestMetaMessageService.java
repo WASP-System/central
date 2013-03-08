@@ -63,7 +63,7 @@ public class TestMetaMessageService {
 		sampleMeta1.setSampleId(SAMPLE_ID1);
 		sampleMeta1.setK(STATUS_GROUP_PREFIX + GROUP_1 + "::067e6162-3b6f-4ae2-a171-2470b63dff00");
 		sampleMeta1.setV(VALUE_1A);
-		sampleMeta1.setLastUpdTs(new Date());
+		sampleMeta1.setUpdated(new Date());
 		sampleMetaList.add(sampleMeta1);
 		
 		// return the argument from mocked method

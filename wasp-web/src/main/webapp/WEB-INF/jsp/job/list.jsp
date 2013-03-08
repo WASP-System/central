@@ -91,7 +91,7 @@ jQuery("#grid_id").jqGrid('setColProp', 'createts',
 	sopt:['eq'],
 	searchoptions: {
 		dataInit: function(elem) {	
-			jQuery(elem).datepicker();
+			jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 		}
 	}
 });
@@ -295,7 +295,7 @@ jQuery("#list").jqGrid('setColProp', 'createts',
 			searchoptions: {
 				sopt:['eq'],
 				dataInit: function(elem) {	
-					jQuery(elem).datepicker();
+					jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 				}
 			}
 });
@@ -336,7 +336,7 @@ jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true,
 		if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(createts)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("Required date format: yyyy/MM/dd. It is best to use calendar to select date.");
 				return true;//do not perform search 
 			}
 		}

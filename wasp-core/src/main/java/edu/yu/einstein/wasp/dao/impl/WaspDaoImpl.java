@@ -26,10 +26,13 @@ import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.UserService;
 
 @SuppressWarnings("unchecked")
 @Repository
@@ -38,6 +41,9 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	// generic logger included with every class.
 	private Logger logger = LoggerFactory.getLogger(WaspDaoImpl.class.getName());
+	
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public boolean isAttached(final E entity){
@@ -370,30 +376,28 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	private void setEditorId(E entity) {
 		try {
-			Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] { Integer.class });
+			Method method = entity.getClass().getMethod("getLastUpdatedByUser", new Class[] { User.class });
 
 			if (method != null) {
 
 				// org.springframework.security.core.userdetails.User u=
 				// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-				Integer userId = new Integer(0);
+				User user = null;
+				final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 				try {
-					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-					if (!login.equals("anonymousUser")) {
-						Integer newUserId = (Integer) entityManager.createNativeQuery("select id from wuser where login=:login").setParameter("login", login).getSingleResult();
-						if (newUserId != null) {
-							userId = newUserId;
-						}
-					}
+					user = userService.getUserByLogin(login);
 				} catch (Exception e) {
+					logger.debug("user \"" + login + "\" not found");
 					// empty catch in case login or UserId can't be found.
 				}
 
-				method.invoke(entity, new Object[] { userId });
+				method.invoke(entity, new Object[] { user });
 			}
 		} catch (Throwable e) {
 			// no such method setLastUpdUser in class E
+			// should not happen
+			logger.warn("attempted setting last updating user of " + entity.getClass().getName() + " resulted in failure because method for setting user was not found");
 		}
 	}
 	

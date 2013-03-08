@@ -120,7 +120,7 @@ $(document).ready(function() {
 				//searchrules:{date:true}, //won't work in filterToolbar, just a search dialog box 
 				searchoptions: {
 					dataInit: function(elem) {	
-						jQuery(elem).datepicker();
+						jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 					}
 				}
 			});
@@ -132,7 +132,7 @@ $(document).ready(function() {
 				//searchrules:{date:true}, //won't work in filterToolbar, just a search dialog box 
 				searchoptions: {
 					dataInit: function(elem) {	
-						jQuery(elem).datepicker();
+						jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 					}
 				}
 			});

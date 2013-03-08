@@ -178,7 +178,7 @@ public class RunController extends WaspController {
 			for (Userrole ur : urs) {
 				String rn = ur.getRole().getRoleName();
 				if ("fm".equals(rn) || "ft".equals(rn)) {
-					facUsers.put(u.getUserId(), u.getNameFstLst());
+					facUsers.put(u.getId(), u.getNameFstLst());
 					break;
 				}
 			}
@@ -200,7 +200,7 @@ public class RunController extends WaspController {
 		if (resourceId.intValue() == -1) {
 			
 			for (Sample sample:sampleDao.findAllPlatformUnits()) {
-				resultsMap.put(sample.getSampleId(), sample.getName());
+				resultsMap.put(sample.getId(), sample.getName());
 			}
 			
 		} else {
@@ -219,7 +219,7 @@ public class RunController extends WaspController {
 			//last filter all platform units by the list of sampleSubtypeId
 			for(Sample sample:sampleDao.findAllPlatformUnits()) {
 				if (idList.contains(sample.getSampleSubtypeId()))
-					resultsMap.put(sample.getSampleId(), sample.getName());
+					resultsMap.put(sample.getId(), sample.getName());
 			}
 		}
 
@@ -243,7 +243,7 @@ public class RunController extends WaspController {
 		if (sampleId.intValue() == -1) {
 			
 			for (Resource resource:resourceService.getResourceDao().findAll()) {
-				resultsMap.put(resource.getResourceId(), resource.getName());
+				resultsMap.put(resource.getId(), resource.getName());
 			}
 			
 		} else {
@@ -262,7 +262,7 @@ public class RunController extends WaspController {
 			//last filter all platform units by the list of sampleSubtypeId
 			for(Resource resource:resourceService.getResourceDao().findAll()) {
 				if (idList.contains(resource.getResourcecategoryId()))
-					resultsMap.put(resource.getResourceId(), resource.getName());
+					resultsMap.put(resource.getId(), resource.getName());
 			}
 		}
 
@@ -312,9 +312,9 @@ public class RunController extends WaspController {
 
 		//convert dates (as string) to datatype Date
 		Date dateRunStartedFromGridAsDate = null;
-		if(dateRunStartedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+		if(dateRunStartedFromGridAsString != null){//this is yyyy/MM/dd coming from grid
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				dateRunStartedFromGridAsDate = (Date)formatter.parse(dateRunStartedFromGridAsString); 
 			}
@@ -323,9 +323,9 @@ public class RunController extends WaspController {
 			}
 		}		
 		Date dateRunEndedFromGridAsDate = null;
-		if(dateRunEndedFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+		if(dateRunEndedFromGridAsString != null){//this is yyyy/MM/dd coming from grid
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				dateRunEndedFromGridAsDate = (Date)formatter.parse(dateRunEndedFromGridAsString); 
 			}
@@ -493,7 +493,7 @@ public class RunController extends WaspController {
 			  //10-17-12
 				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappRunInstance();
 				String area2 = metaHelperWebapp.getArea();
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			
 				String readlength = new String("unknown");
 				try{
@@ -508,14 +508,14 @@ public class RunController extends WaspController {
 				String dateRunStarted = new String("not set");
 				if(run.getStartts()!=null){
 					try{				
-						dateRunStarted = new String(formatter.format(run.getStartts()));//MM/dd/yyyy
+						dateRunStarted = new String(formatter.format(run.getStartts()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
 				String dateRunEnded = new String("not set");
 				if(run.getEnDts()!=null){					
 					try{				
-						dateRunEnded = new String(formatter.format(run.getEnDts()));//MM/dd/yyyy
+						dateRunEnded = new String(formatter.format(run.getEnDts()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
@@ -533,10 +533,10 @@ public class RunController extends WaspController {
 				
 								
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", run.getRunId());	//used??			 
+				cell.put("id", run.getId());	//used??			 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+run.getName()+"</a>",
-						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+platformUnitBarcode+"</a>",
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+run.getName()+"</a>",
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readlength,
 						readType,
@@ -587,11 +587,10 @@ public class RunController extends WaspController {
 			}
 			
 			runForm.setUserId(Integer.parseInt(request.getParameter("start_esf_staff")));
-			runForm.setLastUpdTs(new Date());
 			runForm.setIsActive(1);
 			
 			Run runDb = this.runDao.save(runForm);
-			runId = runDb.getRunId();
+			runId = runDb.getId();
 		} else {
 			
 			// editing run is not allowed
@@ -717,7 +716,7 @@ public class RunController extends WaspController {
 		
 		
 		try{
-			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			String dateRunStarted = new String("");
 			String dateRunEnded = new String("COMPLETED_BY_SYSTEM");
 			Sample platformUnit = null; 
@@ -758,11 +757,11 @@ public class RunController extends WaspController {
 					metaHelperWebapp.syncWithMaster(runInstance.getRunMeta());
 					runInstance.setRunMeta((List<RunMeta>)metaHelperWebapp.getMetaList());
 					
-					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//MM/dd/yyyy
+					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//yyyy/MM/dd
 					
 					if(runInstance.getEnDts()!=null){
 						try{
-							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//MM/dd/yyyy
+							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//yyyy/MM/dd
 						}catch(Exception e){dateRunEnded=new String("UNEXPECTED PROBLEM WITH DATE");}
 					}
 					
@@ -784,7 +783,7 @@ public class RunController extends WaspController {
 			
 			m.addAttribute("runId", runId);
 			m.addAttribute("resourceId", resourceId);
-			m.addAttribute("platformUnitId", platformUnit.getSampleId().toString());			
+			m.addAttribute("platformUnitId", platformUnit.getId().toString());			
 			
 		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
 
@@ -817,11 +816,11 @@ public class RunController extends WaspController {
 			if(resourceId==null || resourceId.intValue()<0 || runId == null || runId.intValue()<0 || platformUnitId==null || platformUnitId.intValue()<=0){
 				throw new Exception("Unexpected parameter problems 1: createUpdateRun - POST");
 			}
-			else if(runId.intValue()==0 && (runInstance.getRunId()==null || runInstance.getRunId().intValue()==0)){
+			else if(runId.intValue()==0 && (runInstance.getId()==null || runInstance.getId().intValue()==0)){
 				action = new String("create");
 				logger.debug("create new run");
 			}
-			else if(runId.intValue()>0 && runInstance.getRunId()!=null && runInstance.getRunId().intValue()>0 && runId.intValue()==runInstance.getRunId().intValue()){
+			else if(runId.intValue()>0 && runInstance.getId()!=null && runInstance.getId().intValue()>0 && runId.intValue()==runInstance.getRunId().intValue()){
 				action = new String("update");
 				logger.debug("update existing run");
 			}			
@@ -873,7 +872,7 @@ public class RunController extends WaspController {
 			else{
 				try{
 		
-					Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+					Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 					dateRunStartedAsDateObject = (Date) formatter.parseObject(dateRunStarted.trim()); 				
 				}catch(Exception e){
 					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStartedFormat.error");//area here is runInstance
@@ -923,7 +922,7 @@ public class RunController extends WaspController {
 								
 				m.addAttribute("runId", runId);
 				m.addAttribute("resourceId", resourceId);
-				m.addAttribute("platformUnitId", platformUnit.getSampleId().toString());
+				m.addAttribute("platformUnitId", platformUnit.getId().toString());
 				
 				return "run/createUpdateRun";				
 				
