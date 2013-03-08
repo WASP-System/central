@@ -361,11 +361,10 @@ public class UserController extends WaspController {
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
-			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10))); 
-			userForm.setLastUpdTs(new Date());
+			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10)));
 			userForm.setIsActive(1);
 			User userDb = this.userDao.save(userForm);
-			userId=userDb.getUserId();
+			userId=userDb.getId();
 			try {
 				userMetaDao.setMeta(userMetaList, userId);
 				emailService.informUserAccountCreatedByAdmin(userDb, userService.getNewAuthcodeForUser(userDb));
@@ -411,7 +410,6 @@ public class UserController extends WaspController {
 			userDb.setEmail(userForm.getEmail());
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
-			userDb.setLastUpdTs(new Date());
 			this.userDao.merge(userDb);
 			try {
 				userMetaDao.setMeta(userMetaList, userId);
@@ -516,8 +514,6 @@ public class UserController extends WaspController {
 		
 		userDb.setEmail(userForm.getEmail().trim());
 		userDb.setLocale(userForm.getLocale());
-
-		userDb.setLastUpdTs(new Date());
 		
 		//this.userDao.merge(userDb);
 

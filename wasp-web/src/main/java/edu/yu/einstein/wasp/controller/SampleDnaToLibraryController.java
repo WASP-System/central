@@ -635,7 +635,6 @@ public class SampleDnaToLibraryController extends WaspController {
 	  libraryForm.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
 	  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
 	  libraryForm.setIsActive(new Integer(1));
-	  libraryForm.setLastUpdTs(new Date());
 	  SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
 	   try {
 		  managedLibraryFromForm.setParent(parentMacromolecule);
@@ -731,7 +730,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		modelLibrary.setSampleSubtype(librarySampleSubtypes.get(0)); // should be one
 		if (libraryIn.getParentId() != null)
 			modelLibrary.setParent(libraryIn.getParent());
-		modelLibrary.setSampleId(libraryIn.getSampleId());
+		modelLibrary.setId(libraryIn.getId());
 		modelLibrary.setSampleType(sampleTypeDao.getSampleTypeBySampleTypeId(libraryIn.getSampleTypeId()));
 		modelLibrary.setName(libraryIn.getName());
 		modelLibrary.setSampleMeta(libraryIn.getSampleMeta());

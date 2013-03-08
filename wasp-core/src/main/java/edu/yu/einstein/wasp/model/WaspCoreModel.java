@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -238,30 +239,17 @@ public abstract class WaspCoreModel implements Serializable {
 	 *
 	 */
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
+	@Column(name="updated")
+	protected Date updated;
 	
-	public void setLastUpdTs(Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 	
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs() {
-		return this.lastUpdTs;
+	public Date getUpdated() {
+		return this.updated;
 	}
-	
+		
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created")
 	protected Date created = new Date();
@@ -272,7 +260,7 @@ public abstract class WaspCoreModel implements Serializable {
 	 * @param created
 	 *
 	 */
-	private void setCreated (Date created) {
+	private void setCreated(Date created) {
 		this.created = created;
 	}
 
@@ -285,16 +273,17 @@ public abstract class WaspCoreModel implements Serializable {
 	
 	@PreUpdate
 	@PrePersist
-	public void doUpdateTime() {
-		lastUpdTs = new Date();
-		if (created == null) {
-			created = new Date();
-		}
+	public void doUpdate() {
+		this.updated = new Date();
+		if (this.created == null)
+			setCreated(new Date());
+		if (this.uuid == null)
+			setUUID(UUID.randomUUID());
 	}
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="lastupdatebyuser", insertable=false, updatable=false)
-	private User lastUpdatedByUser;
+	protected User lastUpdatedByUser;
 
 	/**
 	 * @return the lastUpdatedByUser
@@ -310,18 +299,18 @@ public abstract class WaspCoreModel implements Serializable {
 		this.lastUpdatedByUser = lastUpdatedByUser;
 	}
 	
-	// TODO: Remove, incorrect usage
-	@Column(name = "lastupduser")
-	protected Integer lastUpdUser;
-
-	public void setLastUpdUser(Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	@JsonIgnore
-	public Integer getLastUpdUser() {
-		return this.lastUpdUser;
-	}
+//	// TODO: Remove, incorrect usage
+//	@Column(name = "lastupduser")
+//	protected Integer lastUpdUser;
+//
+//	public void setLastUpdUser(Integer lastUpdUser) {
+//		this.lastUpdUser = lastUpdUser;
+//	}
+//
+//	@JsonIgnore
+//	public Integer getLastUpdUser() {
+//		return this.lastUpdUser;
+//	}
 
 	@Column(name="uuid", length=16)
 	private UUID uuid = UUID.randomUUID();
@@ -330,14 +319,14 @@ public abstract class WaspCoreModel implements Serializable {
 	 * private value for identity
 	 * @return the resultID
 	 */
-	private UUID getResultID() {
+	private UUID getUUID() {
 		return uuid;
 	}
 
 	/**
 	 * @param resultID the resultID to set
 	 */
-	private void setResultID(UUID uuid) {
+	private void setUUID(UUID uuid) {
 		this.uuid = uuid;
 	}
 	

@@ -305,7 +305,7 @@ public class User extends WaspModel {
 	@Override
 	public String toString() {
 		return "User [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
-				+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser + ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
+				+ ", lastUpdTs=" + updated + ", lastUpdUser=" + getLastUpdatedByUser().getId() + ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
 				+ sample + ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser + ", locale=" + locale + "]";
 	}
 

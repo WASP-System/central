@@ -174,7 +174,7 @@ public class RunController extends WaspController {
 			for (Userrole ur : urs) {
 				String rn = ur.getRole().getRoleName();
 				if ("fm".equals(rn) || "ft".equals(rn)) {
-					facUsers.put(u.getUserId(), u.getNameFstLst());
+					facUsers.put(u.getId(), u.getNameFstLst());
 					break;
 				}
 			}
@@ -196,7 +196,7 @@ public class RunController extends WaspController {
 		if (resourceId.intValue() == -1) {
 			
 			for (Sample sample:sampleDao.findAllPlatformUnits()) {
-				resultsMap.put(sample.getSampleId(), sample.getName());
+				resultsMap.put(sample.getId(), sample.getName());
 			}
 			
 		} else {
@@ -215,7 +215,7 @@ public class RunController extends WaspController {
 			//last filter all platform units by the list of sampleSubtypeId
 			for(Sample sample:sampleDao.findAllPlatformUnits()) {
 				if (idList.contains(sample.getSampleSubtypeId()))
-					resultsMap.put(sample.getSampleId(), sample.getName());
+					resultsMap.put(sample.getId(), sample.getName());
 			}
 		}
 
@@ -239,7 +239,7 @@ public class RunController extends WaspController {
 		if (sampleId.intValue() == -1) {
 			
 			for (Resource resource:resourceService.getResourceDao().findAll()) {
-				resultsMap.put(resource.getResourceId(), resource.getName());
+				resultsMap.put(resource.getId(), resource.getName());
 			}
 			
 		} else {
@@ -258,7 +258,7 @@ public class RunController extends WaspController {
 			//last filter all platform units by the list of sampleSubtypeId
 			for(Resource resource:resourceService.getResourceDao().findAll()) {
 				if (idList.contains(resource.getResourcecategoryId()))
-					resultsMap.put(resource.getResourceId(), resource.getName());
+					resultsMap.put(resource.getId(), resource.getName());
 			}
 		}
 
@@ -529,10 +529,10 @@ public class RunController extends WaspController {
 				
 								
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", run.getRunId());	//used??			 
+				cell.put("id", run.getId());	//used??			 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+run.getName()+"</a>",
-						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getSampleId()+".do>"+platformUnitBarcode+"</a>",
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+run.getName()+"</a>",
+						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readlength,
 						readType,
@@ -583,11 +583,10 @@ public class RunController extends WaspController {
 			}
 			
 			runForm.setUserId(Integer.parseInt(request.getParameter("start_esf_staff")));
-			runForm.setLastUpdTs(new Date());
 			runForm.setIsActive(1);
 			
 			Run runDb = this.runDao.save(runForm);
-			runId = runDb.getRunId();
+			runId = runDb.getId();
 		} else {
 			
 			// editing run is not allowed
@@ -780,7 +779,7 @@ public class RunController extends WaspController {
 			
 			m.addAttribute("runId", runId);
 			m.addAttribute("resourceId", resourceId);
-			m.addAttribute("platformUnitId", platformUnit.getSampleId().toString());			
+			m.addAttribute("platformUnitId", platformUnit.getId().toString());			
 			
 		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); return "redirect:/facility/platformunit/showPlatformUnit/"+platformUnitId.intValue()+".do";  /*return "redirect:/dashboard.do";*/}
 
@@ -813,11 +812,11 @@ public class RunController extends WaspController {
 			if(resourceId==null || resourceId.intValue()<0 || runId == null || runId.intValue()<0 || platformUnitId==null || platformUnitId.intValue()<=0){
 				throw new Exception("Unexpected parameter problems 1: createUpdateRun - POST");
 			}
-			else if(runId.intValue()==0 && (runInstance.getRunId()==null || runInstance.getRunId().intValue()==0)){
+			else if(runId.intValue()==0 && (runInstance.getId()==null || runInstance.getId().intValue()==0)){
 				action = new String("create");
 				logger.debug("create new run");
 			}
-			else if(runId.intValue()>0 && runInstance.getRunId()!=null && runInstance.getRunId().intValue()>0 && runId.intValue()==runInstance.getRunId().intValue()){
+			else if(runId.intValue()>0 && runInstance.getId()!=null && runInstance.getId().intValue()>0 && runId.intValue()==runInstance.getRunId().intValue()){
 				action = new String("update");
 				logger.debug("update existing run");
 			}			
@@ -919,7 +918,7 @@ public class RunController extends WaspController {
 								
 				m.addAttribute("runId", runId);
 				m.addAttribute("resourceId", resourceId);
-				m.addAttribute("platformUnitId", platformUnit.getSampleId().toString());
+				m.addAttribute("platformUnitId", platformUnit.getId().toString());
 				
 				return "run/createUpdateRun";				
 				
