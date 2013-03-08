@@ -385,13 +385,14 @@ public class Job2QuoteController extends WaspController {
 			}
 			
 			Job currentJob = this.jobService.getJobByJobId(jobId);
-			AcctQuote currentQuote = currentJob.getCurrentQuote();
-			currentQuote.setId(quoteId);
+			quoteForm.setId(quoteId);
 			// if jobid is null, create a new record in database table
 			
-			if(currentQuote.getId() == null) {
-				currentQuote.setJob(currentJob);
-				acctQuoteDao.persist(currentQuote);
+			if(quoteForm.getId() == null) {
+				quoteForm.setJob(currentJob);
+				acctQuoteDao.persist(quoteForm);
+			} else {
+				acctQuoteDao.save(quoteForm);
 			}
 			try{
 				jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
@@ -401,9 +402,9 @@ public class Job2QuoteController extends WaspController {
 				return null;
 			}
 			
-			if (!currentJob.getAcctQuote().contains(currentQuote))
-				currentJob.getAcctQuote().add(currentQuote);
-			currentJob.setCurrentQuote(currentQuote);
+			if (!currentJob.getAcctQuote().contains(quoteForm))
+				currentJob.getAcctQuote().add(quoteForm);
+			currentJob.setCurrentQuote(quoteForm);
 			jobService.getJobDao().save(currentJob);
 			
 			

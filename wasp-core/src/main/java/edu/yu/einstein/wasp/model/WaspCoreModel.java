@@ -323,7 +323,7 @@ public abstract class WaspCoreModel implements Serializable {
 		return this.lastUpdUser;
 	}
 
-	@Column(name="uuid")
+	@Column(name="uuid", length=16)
 	private UUID uuid = UUID.randomUUID();
 	
 	/**
