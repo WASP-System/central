@@ -633,9 +633,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  //Quote
 	  AcctQuote acctQuote = new AcctQuote();
+	  acctQuote.setId(1);
 	  acctQuote.setAmount(new Float(123.45));
-	  
-	  job.getAcctQuote().add(acctQuote);
+	  Set<AcctQuote> quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
 	  job.setCurrentQuote(acctQuote);
 
 	  
@@ -678,6 +680,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  job.setJobMeta(jobMetaList);
 	  	  
 	  AcctQuote acctQuote = new AcctQuote();
+	  acctQuote.setId(1);
+	  Set<AcctQuote> quotes = null;
 
 	  //Test case 1  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
@@ -687,6 +691,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -697,7 +705,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
+	  acctQuote.setAmount(price);	 
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -708,7 +720,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
+	  acctQuote.setAmount(price);	
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -719,7 +735,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
+	  acctQuote.setAmount(price);	
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -730,7 +750,11 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
+	  acctQuote.setAmount(price);	 
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 
