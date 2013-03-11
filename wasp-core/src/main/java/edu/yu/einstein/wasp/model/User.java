@@ -304,9 +304,15 @@ public class User extends WaspModel {
 
 	@Override
 	public String toString() {
-		return "User [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
-				+ ", lastUpdTs=" + updated + ", lastUpdUser=" + getLastUpdatedByUser().getId() + ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
+		String message =  "User [UserId=" + getId() + ", login=" + login + ", email=" + email + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName + ", isActive=" + isActive
+				+ ", lastUpdTs=" + updated + ", lastUpdUser=";
+		if (lastUpdatedByUser == null || lastUpdatedByUser.getId()==null ) 
+			message += "{not set}";
+		else 
+			message += lastUpdatedByUser.getId();
+		message += ", userMeta=" + userMeta + ", departmentUser=" + departmentUser + ", lab=" + lab + ", job=" + job + ", sample="
 				+ sample + ", acctQuote=" + acctQuote + ", acctQuoteUser=" + acctQuoteUser + ", locale=" + locale + "]";
+		return message;
 	}
 
 	public String getNameFstLst() {
