@@ -2,7 +2,7 @@
 package edu.yu.einstein.wasp.service;
 
 import org.springframework.stereotype.Service;
-
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -161,6 +161,32 @@ public interface EmailService  {
 	 */
 	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending);
 
-
+	/**
+	 * Sends an email to a job submitter stating that their newly submitted job has been recorded
+	 * and is awaiting approval from PI/Lab Manager.
+	 * @param Job job
+	 */
+	public void sendSubmitterJobStarted(final Job job);
+	
+	/**
+	 * Sends an email to a lab's PI, stating that a member of their lab has just submitted a new job
+	 * that is awaiting approval from either the PI or a Lab Manager.
+	 * @param Job job
+	 */
+	public void sendPIJobStartedConfirmRequest(final Job job);
+	
+	/**
+	 * Sends an email to a lab's Lab Manager(s), stating that a member of the lab has just submitted a new job
+	 * that is awaiting approval from either the PI or a Lab Manager.
+	 * @param Job job
+	 */
+	public void sendLabManagerJobStartedConfirmRequest(final Job job);
+	
+	/**
+	 * Sends an email to the Department Administrator(s) that cover this lab, stating that a member of a specific lab has just submitted a new job
+	 * that the administrator must generate a quote and either approve or reject the job submission, based on funds availability. 
+	 * @param Job job
+	 */
+	public void sendDAJobStartedConfirmRequest(final Job job);
 }
 

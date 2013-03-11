@@ -9,6 +9,19 @@
 	
 	<!-- Define main job approval flow -->
 	<batch:flow id="default.waspJob.flow.approvals.v1" >
+	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
+							<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
 		<batch:split id="default.waspJob.postSubmitApprovalTasks" task-executor="taskExecutor" >
 			<batch:flow>
 				<batch:step id="default.waspJob.step.quote">

@@ -126,4 +126,7 @@
 		<int:mapping value="#{waspMessageType.GENERIC}" channel="wasp.channel.priority.default"/>
 	</int:header-value-router>
 		
+	<int:service-activator input-channel="wasp.channel.notification.job" ref="jobEmailServiceActivator" />
+	<bean id="jobEmailServiceActivator" class="edu.yu.einstein.wasp.integration.serviceactivators.JobEmailServiceActivator" />
+	
 </beans>
