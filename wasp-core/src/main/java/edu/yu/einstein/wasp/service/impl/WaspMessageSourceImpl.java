@@ -116,9 +116,7 @@ public class WaspMessageSourceImpl extends AbstractMessageSource implements Mess
 		Assert.notNull(locale, "Locale must not be null");
 		Assert.notNull(msg, "Message must not be null");
 		this.messages.put(code + "_" + locale.toString(), msg);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Added message [" + msg + "] for code [" + code + "] and Locale [" + locale + "]");
-		}
+		logger.trace("Added message [" + msg + "] for code [" + code + "] and Locale [" + locale + "]");
 	}
 
 	/**
