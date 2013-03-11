@@ -24,7 +24,6 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
-import edu.yu.einstein.wasp.service.impl.UpdateDataService;
 import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.StringHelper;
 
@@ -53,18 +52,14 @@ public class AuthController extends WaspController {
   @Autowired
   private ConfirmEmailAuthDao confirmEmailAuthDao;
   
-  @Autowired
-  private UpdateDataService updateDataService; 
-  
   @Override
-@InitBinder
+  @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
   
   @RequestMapping(value="/loginHandler", method=RequestMethod.GET)
   public String loginHandler(ModelMap m){
-	  updateDataService.updateTestData();
 	  if (authenticationService.isAuthenticated()){
 		  User authUser = authenticationService.getAuthenticatedUser();
 		  ConfirmEmailAuth confirmEmailAuth = confirmEmailAuthDao.getConfirmEmailAuthByUserId(authUser.getUserId());

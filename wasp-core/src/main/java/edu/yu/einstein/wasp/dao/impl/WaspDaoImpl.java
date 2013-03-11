@@ -375,27 +375,26 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	private void setEditorId(E entity) {
 		try {
-			Method method = entity.getClass().getMethod("getLastUpdatedByUser", new Class[] { User.class });
-
-			if (method != null) {
-
-				// org.springframework.security.core.userdetails.User u=
-				// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-				User user = null;
+			Method setLastUpdatedUserMethod = entity.getClass().getMethod("setLastUpdatedByUser", User.class);
+			// org.springframework.security.core.userdetails.User u=
+			// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = null;
+			try{
 				final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-				try {
-					user = userService.getUserByLogin(login);
-				} catch (Exception e) {
-					logger.debug("user \"" + login + "\" not found");
-					// empty catch in case login or UserId can't be found.
+				user = userService.getUserByLogin(login);
+				if (user.getId() == null){
+					logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as no logged in user '" + login + "' not found");
+					return;
 				}
-
-				method.invoke(entity, new Object[] { user });
+				setLastUpdatedUserMethod.invoke(entity, user);
+			} catch (Exception e){
+				logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as login is null");
+				return;
 			}
-		} catch (Throwable e) {
-			// no such method setLastUpdUser in class E
-			// should not happen
+			
+
+		} catch (Exception e) {
+			// likely no such method setLastUpdUser in class E
 			logger.warn("attempted setting last updating user of " + entity.getClass().getName() + " resulted in failure because method for setting user was not found");
 		}
 	}
