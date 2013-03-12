@@ -106,7 +106,7 @@ public class JobEmailServiceActivator {
 						grantedAuthoritySet.add(ga.getAuthority());
 					}
 					
-					
+					/*
 					if(rolesForJobStart.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
 						logger.debug("ROB ----in su");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");//TODO maybe change this email
@@ -135,7 +135,7 @@ public class JobEmailServiceActivator {
 						logger.debug("ROB ----in js");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");
 					}
-					
+					*/
 				}
 			}
 			
