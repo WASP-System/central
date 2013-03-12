@@ -68,7 +68,7 @@ public class JobEmailServiceActivator {
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
 
-				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
+				emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
 				String jobIdAsString = job.getJobId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
