@@ -2,8 +2,10 @@ package edu.yu.einstein.wasp.integration.serviceactivators;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +49,8 @@ public class JobEmailServiceActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobEmailServiceActivator.class);
 	
-	private ArrayList<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
-		ArrayList<String> list = new ArrayList<String>();
+	private List<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
+		List<String> list = new ArrayList<String>();
 		String[] tokens = delimitedList.split(delimiter);
 		for(String token : tokens){
 			list.add(token);							
@@ -66,8 +68,7 @@ public class JobEmailServiceActivator {
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
 
-				//emailService.sendSubmitterJobStarted(job);
-				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
+				emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
 				String jobIdAsString = job.getJobId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
@@ -76,7 +77,7 @@ public class JobEmailServiceActivator {
 				logger.debug("ROB departmentIdAsString: " + departmentIdAsString);
 				
 				
-				ArrayList<String> rolesForJobStart = convertDelimitedListToArrayList(this.jobStartRolenames, ";");
+				List<String> rolesForJobStart = convertDelimitedListToArrayList(this.jobStartRolenames, ";");
 				
 				logger.debug("rolesForJobStart as list items");
 				for(String s : rolesForJobStart){
@@ -100,31 +101,37 @@ public class JobEmailServiceActivator {
 						logger.debug("ROB ------"+ga.getAuthority());
 					}
 					
-					if(rolesForJobStart.contains("su") && (grantedAuthorityList.contains("su") || grantedAuthorityList.contains("su-*"))){
+					Set<String> grantedAuthoritySet = new HashSet<String>();
+					for(GrantedAuthority ga : grantedAuthorityList){
+						grantedAuthoritySet.add(ga.getAuthority());
+					}
+					
+					
+					if(rolesForJobStart.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
 						logger.debug("ROB ----in su");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");//TODO maybe change this email
 					}
-					else if(rolesForJobStart.contains("fm") && (grantedAuthorityList.contains("fm") || grantedAuthorityList.contains("fm-*"))){//facility manager
+					else if(rolesForJobStart.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
 						logger.debug("ROB ----in fm");
 						emailService.sendJobStarted(job, user, "emails/inform_facility_manager_job_started");
 					}
-					else if(rolesForJobStart.contains("da") && grantedAuthorityList.contains("da-" + departmentIdAsString)){//dept admin
+					else if(rolesForJobStart.contains("da") && grantedAuthoritySet.contains("da-" + departmentIdAsString)){//dept admin
 						logger.debug("ROB ----in da");
 						emailService.sendJobStarted(job, user, "emails/inform_da_job_started");
 					}					
-					else if(rolesForJobStart.contains("pi") && grantedAuthorityList.contains("pi-" + jobIdAsString) && grantedAuthorityList.contains("js-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && grantedAuthoritySet.contains("js-" + jobIdAsString)){
 						logger.debug("ROB ----in pi with submitter who is pi");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_who_is_pi_job_started");
 					}
-					else if(rolesForJobStart.contains("pi") && grantedAuthorityList.contains("pi-" + jobIdAsString) && !grantedAuthorityList.contains("js-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && !grantedAuthoritySet.contains("js-" + jobIdAsString)){
 						logger.debug("ROB ----in pi with submitter NOT pi");
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
-					else if(rolesForJobStart.contains("lm") && grantedAuthorityList.contains("lm-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("lm") && grantedAuthoritySet.contains("lm-" + jobIdAsString)){
 						logger.debug("ROB ----in lm");
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
-					else if(rolesForJobStart.contains("js") && grantedAuthorityList.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
+					else if(rolesForJobStart.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
 						logger.debug("ROB ----in js");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");
 					}
