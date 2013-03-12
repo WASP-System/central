@@ -70,7 +70,7 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 	@Override
 	public void addMessagesToMessageSourceAndUiFields(String messageFilePattern){
 		
-		updateTestData(); // TODO: remove from production code
+		
 		
 		List<Resource> messageFiles = new ArrayList<Resource>();
 		try{
@@ -164,8 +164,11 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			} catch (IOException e) {
 				throw new WaspMessageInitializationException("IO problem encountered reading resource '"+messageFile.getFilename()+"': "+e.getMessage());
 			}		
+			
+			updateTestData(); // TODO: remove from production code
+			
 			logger.info("Property table was initialized succesfully for file '"+messageFile.getFilename()+"'");
-
+			
 		}
 	}
 	
@@ -214,15 +217,19 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 						Date updated = (Date) getterUpdated.invoke(model);
 						Date created = (Date) getterCreated.invoke(model);
 						if (updated == null){
+							logger.debug("setting Update for instance of class " + model.getClass().getName());
 							updated = new Date();
 							setterUpdated.invoke(model, updated);
 						}
-						if (created == null)
+						if (created == null){
 							setterCreated.invoke(model, updated);
+						}
 						User lastUpdatedUser = (User) getterUpdatedUser.invoke(model);
-						if (lastUpdatedUser == null)
-							setterUpdatedUser.invoke(model, userDao.findById(1));
-
+						if (lastUpdatedUser == null || lastUpdatedUser.getId() == null){
+							logger.debug("setting Updated User for instance of class " + model.getClass().getName());
+							setterUpdatedUser.invoke(model, userDao.getById(0));
+						}
+						
 					} catch (Exception e) {
 						throw new RuntimeException(e); 
 					}

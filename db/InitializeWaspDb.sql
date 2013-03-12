@@ -12,8 +12,6 @@ flush privileges;
 
 use wasp;
 
-
-
 # ************************************************************
 # Sequel Pro SQL dump
 # Version 4004
@@ -23,9 +21,8 @@ use wasp;
 #
 # Host: 127.0.0.1 (MySQL 5.1.66)
 # Database: wasp
-# Generation Time: 2013-03-06 23:09:27 +0000
+# Generation Time: 2013-03-11 23:58:29 +0000
 # ************************************************************
-
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -40,13 +37,11 @@ use wasp;
 # Dump of table acct_grant
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_grant`;
-
 CREATE TABLE `acct_grant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `code` varchar(255) DEFAULT NULL,
   `expirationdt` datetime DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -65,13 +60,11 @@ CREATE TABLE `acct_grant` (
 # Dump of table acct_grantjob
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_grantjob`;
-
 CREATE TABLE `acct_grantjob` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `grantid` int(11) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -90,13 +83,11 @@ CREATE TABLE `acct_grantjob` (
 # Dump of table acct_invoice
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_invoice`;
-
 CREATE TABLE `acct_invoice` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `amount` float DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
@@ -113,40 +104,14 @@ CREATE TABLE `acct_invoice` (
 
 
 
-# Dump of table acct_jobquotecurrent
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `acct_jobquotecurrent`;
-
-CREATE TABLE `acct_jobquotecurrent` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  `jobid` int(11) DEFAULT NULL,
-  `quoteid` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FKD1B3CB8E50566623` (`lastupdatebyuser`),
-  KEY `FKD1B3CB8E8FCE445E` (`jobid`),
-  KEY `FKD1B3CB8E9B63709` (`quoteid`),
-  CONSTRAINT `FKD1B3CB8E9B63709` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`id`),
-  CONSTRAINT `FKD1B3CB8E50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
-  CONSTRAINT `FKD1B3CB8E8FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
 # Dump of table acct_ledger
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `acct_ledger`;
 
 CREATE TABLE `acct_ledger` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `amount` float DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   `invoiceid` int(11) DEFAULT NULL,
@@ -166,13 +131,11 @@ CREATE TABLE `acct_ledger` (
 # Dump of table acct_quote
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_quote`;
-
 CREATE TABLE `acct_quote` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `amount` float DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -193,13 +156,11 @@ CREATE TABLE `acct_quote` (
 # Dump of table acct_quotemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_quotemeta`;
-
 CREATE TABLE `acct_quotemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -218,13 +179,11 @@ CREATE TABLE `acct_quotemeta` (
 # Dump of table acct_quoteuser
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_quoteuser`;
-
 CREATE TABLE `acct_quoteuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   `isapproved` int(11) DEFAULT NULL,
   `quoteid` int(11) DEFAULT NULL,
@@ -247,13 +206,11 @@ CREATE TABLE `acct_quoteuser` (
 # Dump of table acct_workflowcost
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `acct_workflowcost`;
-
 CREATE TABLE `acct_workflowcost` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `basecost` float DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
@@ -269,13 +226,11 @@ CREATE TABLE `acct_workflowcost` (
 # Dump of table adaptor
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `adaptor`;
-
 CREATE TABLE `adaptor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `adaptorsetid` int(11) DEFAULT NULL,
   `barcodenumber` int(11) DEFAULT NULL,
   `barcodesequence` varchar(255) DEFAULT NULL,
@@ -296,13 +251,11 @@ CREATE TABLE `adaptor` (
 # Dump of table adaptormeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `adaptormeta`;
-
 CREATE TABLE `adaptormeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -321,13 +274,11 @@ CREATE TABLE `adaptormeta` (
 # Dump of table adaptorset
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `adaptorset`;
-
 CREATE TABLE `adaptorset` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -345,13 +296,11 @@ CREATE TABLE `adaptorset` (
 # Dump of table adaptorsetmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `adaptorsetmeta`;
-
 CREATE TABLE `adaptorsetmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -370,13 +319,11 @@ CREATE TABLE `adaptorsetmeta` (
 # Dump of table adaptorsetresourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `adaptorsetresourcecategory`;
-
 CREATE TABLE `adaptorsetresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `adaptorsetid` int(11) DEFAULT NULL,
   `resourcecategoryid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -394,13 +341,11 @@ CREATE TABLE `adaptorsetresourcecategory` (
 # Dump of table barcode
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `barcode`;
-
 CREATE TABLE `barcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `barcode` varchar(255) DEFAULT NULL,
   `barcodefor` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -415,13 +360,11 @@ CREATE TABLE `barcode` (
 # Dump of table confirmemailauth
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `confirmemailauth`;
-
 CREATE TABLE `confirmemailauth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `authcode` varchar(255) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
   `userpendingid` int(11) DEFAULT NULL,
@@ -440,13 +383,11 @@ CREATE TABLE `confirmemailauth` (
 # Dump of table department
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `department`;
-
 CREATE TABLE `department` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `isinternal` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -461,13 +402,11 @@ CREATE TABLE `department` (
 # Dump of table departmentuser
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `departmentuser`;
-
 CREATE TABLE `departmentuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `departmentid` int(11) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -485,13 +424,11 @@ CREATE TABLE `departmentuser` (
 # Dump of table file
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `file`;
-
 CREATE TABLE `file` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `file_name` varchar(255) DEFAULT NULL,
   `file_uri` longtext,
   `md5hash` varchar(255) DEFAULT NULL,
@@ -513,13 +450,11 @@ CREATE TABLE `file` (
 # Dump of table filegroup
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filegroup`;
-
 CREATE TABLE `filegroup` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` longtext,
   `filetypeid` int(11) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -540,8 +475,6 @@ CREATE TABLE `filegroup` (
 # Dump of table filegroup_rel
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filegroup_rel`;
-
 CREATE TABLE `filegroup_rel` (
   `childfilegroupid` int(11) NOT NULL,
   `filegroupid` int(11) NOT NULL,
@@ -557,13 +490,11 @@ CREATE TABLE `filegroup_rel` (
 # Dump of table filegroupmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filegroupmeta`;
-
 CREATE TABLE `filegroupmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -582,13 +513,11 @@ CREATE TABLE `filegroupmeta` (
 # Dump of table filemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filemeta`;
-
 CREATE TABLE `filemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -607,13 +536,11 @@ CREATE TABLE `filemeta` (
 # Dump of table filetype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filetype`;
-
 CREATE TABLE `filetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -629,13 +556,11 @@ CREATE TABLE `filetype` (
 # Dump of table filetypemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `filetypemeta`;
-
 CREATE TABLE `filetypemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -654,13 +579,11 @@ CREATE TABLE `filetypemeta` (
 # Dump of table job
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `job`;
-
 CREATE TABLE `job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `createts` datetime DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
@@ -669,13 +592,16 @@ CREATE TABLE `job` (
   `viewablebylab` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
+  `current_quote` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK19BBD50566623` (`lastupdatebyuser`),
   KEY `FK19BBD8FE41BFE` (`labid`),
+  KEY `FK19BBD7C243AA8` (`current_quote`),
   KEY `FK19BBD7CFE8408` (`userid`),
   KEY `FK19BBD8BDE4B70` (`workflowid`),
   CONSTRAINT `FK19BBD8BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
   CONSTRAINT `FK19BBD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK19BBD7C243AA8` FOREIGN KEY (`current_quote`) REFERENCES `acct_quote` (`id`),
   CONSTRAINT `FK19BBD7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
   CONSTRAINT `FK19BBD8FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -685,13 +611,11 @@ CREATE TABLE `job` (
 # Dump of table jobcellselection
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobcellselection`;
-
 CREATE TABLE `jobcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `cellindex` int(11) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -707,13 +631,11 @@ CREATE TABLE `jobcellselection` (
 # Dump of table jobdraft
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraft`;
-
 CREATE TABLE `jobdraft` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `createts` datetime DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -740,13 +662,11 @@ CREATE TABLE `jobdraft` (
 # Dump of table jobdraftcellselection
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraftcellselection`;
-
 CREATE TABLE `jobdraftcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `cellindex` int(11) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -762,13 +682,11 @@ CREATE TABLE `jobdraftcellselection` (
 # Dump of table jobdraftfile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraftfile`;
-
 CREATE TABLE `jobdraftfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
@@ -789,13 +707,11 @@ CREATE TABLE `jobdraftfile` (
 # Dump of table jobdraftmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraftmeta`;
-
 CREATE TABLE `jobdraftmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -814,13 +730,11 @@ CREATE TABLE `jobdraftmeta` (
 # Dump of table jobdraftresourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraftresourcecategory`;
-
 CREATE TABLE `jobdraftresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
   `resourcecategoryid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -838,13 +752,11 @@ CREATE TABLE `jobdraftresourcecategory` (
 # Dump of table jobdraftsoftware
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobdraftsoftware`;
-
 CREATE TABLE `jobdraftsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
   `softwareid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -862,13 +774,11 @@ CREATE TABLE `jobdraftsoftware` (
 # Dump of table jobfile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobfile`;
-
 CREATE TABLE `jobfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -890,13 +800,11 @@ CREATE TABLE `jobfile` (
 # Dump of table jobmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobmeta`;
-
 CREATE TABLE `jobmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -915,13 +823,11 @@ CREATE TABLE `jobmeta` (
 # Dump of table jobresourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobresourcecategory`;
-
 CREATE TABLE `jobresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `resourcecategoryid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -939,13 +845,11 @@ CREATE TABLE `jobresourcecategory` (
 # Dump of table jobsample
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobsample`;
-
 CREATE TABLE `jobsample` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -963,13 +867,11 @@ CREATE TABLE `jobsample` (
 # Dump of table jobsamplemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobsamplemeta`;
-
 CREATE TABLE `jobsamplemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -988,13 +890,11 @@ CREATE TABLE `jobsamplemeta` (
 # Dump of table jobsoftware
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobsoftware`;
-
 CREATE TABLE `jobsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `softwareid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -1012,13 +912,11 @@ CREATE TABLE `jobsoftware` (
 # Dump of table jobuser
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `jobuser`;
-
 CREATE TABLE `jobuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `roleid` int(11) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
@@ -1039,13 +937,11 @@ CREATE TABLE `jobuser` (
 # Dump of table lab
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `lab`;
-
 CREATE TABLE `lab` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `departmentid` int(11) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1065,13 +961,11 @@ CREATE TABLE `lab` (
 # Dump of table labmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `labmeta`;
-
 CREATE TABLE `labmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1090,13 +984,11 @@ CREATE TABLE `labmeta` (
 # Dump of table labpending
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `labpending`;
-
 CREATE TABLE `labpending` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `departmentid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `primaryuserid` int(11) DEFAULT NULL,
@@ -1119,13 +1011,11 @@ CREATE TABLE `labpending` (
 # Dump of table labpendingmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `labpendingmeta`;
-
 CREATE TABLE `labpendingmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1144,13 +1034,11 @@ CREATE TABLE `labpendingmeta` (
 # Dump of table labuser
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `labuser`;
-
 CREATE TABLE `labuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
   `roleid` int(11) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
@@ -1171,13 +1059,11 @@ CREATE TABLE `labuser` (
 # Dump of table meta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `meta`;
-
 CREATE TABLE `meta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1193,13 +1079,11 @@ CREATE TABLE `meta` (
 # Dump of table project
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `project`;
-
 CREATE TABLE `project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1217,13 +1101,11 @@ CREATE TABLE `project` (
 # Dump of table resource
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resource`;
-
 CREATE TABLE `resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1244,13 +1126,11 @@ CREATE TABLE `resource` (
 # Dump of table resourcebarcode
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcebarcode`;
-
 CREATE TABLE `resourcebarcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `barcodeid` int(11) DEFAULT NULL,
   `resourceid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -1268,13 +1148,11 @@ CREATE TABLE `resourcebarcode` (
 # Dump of table resourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcecategory`;
-
 CREATE TABLE `resourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1292,13 +1170,11 @@ CREATE TABLE `resourcecategory` (
 # Dump of table resourcecategorymeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcecategorymeta`;
-
 CREATE TABLE `resourcecategorymeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1317,13 +1193,11 @@ CREATE TABLE `resourcecategorymeta` (
 # Dump of table resourcecell
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcecell`;
-
 CREATE TABLE `resourcecell` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1341,13 +1215,11 @@ CREATE TABLE `resourcecell` (
 # Dump of table resourcemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcemeta`;
-
 CREATE TABLE `resourcemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1366,13 +1238,11 @@ CREATE TABLE `resourcemeta` (
 # Dump of table resourcetype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `resourcetype`;
-
 CREATE TABLE `resourcetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1387,13 +1257,11 @@ CREATE TABLE `resourcetype` (
 # Dump of table roleset
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `roleset`;
-
 CREATE TABLE `roleset` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `childroleid` int(11) DEFAULT NULL,
   `parentroleid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -1411,13 +1279,11 @@ CREATE TABLE `roleset` (
 # Dump of table run
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `run`;
-
 CREATE TABLE `run` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `endts` datetime DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1449,13 +1315,11 @@ CREATE TABLE `run` (
 # Dump of table runcell
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `runcell`;
-
 CREATE TABLE `runcell` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `resourcecellid` int(11) DEFAULT NULL,
   `runid` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
@@ -1476,13 +1340,11 @@ CREATE TABLE `runcell` (
 # Dump of table runcellfile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `runcellfile`;
-
 CREATE TABLE `runcellfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `runcellid` int(11) DEFAULT NULL,
@@ -1502,13 +1364,11 @@ CREATE TABLE `runcellfile` (
 # Dump of table runfile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `runfile`;
-
 CREATE TABLE `runfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `runid` int(11) DEFAULT NULL,
@@ -1528,13 +1388,11 @@ CREATE TABLE `runfile` (
 # Dump of table runmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `runmeta`;
-
 CREATE TABLE `runmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1553,13 +1411,11 @@ CREATE TABLE `runmeta` (
 # Dump of table sample
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sample`;
-
 CREATE TABLE `sample` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `isgood` int(11) DEFAULT NULL,
   `isreceived` int(11) DEFAULT NULL,
@@ -1595,13 +1451,11 @@ CREATE TABLE `sample` (
 # Dump of table samplebarcode
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplebarcode`;
-
 CREATE TABLE `samplebarcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `barcodeid` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -1619,13 +1473,11 @@ CREATE TABLE `samplebarcode` (
 # Dump of table sampledraft
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sampledraft`;
-
 CREATE TABLE `sampledraft` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `filegroupid` int(11) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
@@ -1658,13 +1510,11 @@ CREATE TABLE `sampledraft` (
 # Dump of table sampledraftjobdraftcellselection
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sampledraftjobdraftcellselection`;
-
 CREATE TABLE `sampledraftjobdraftcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobdraftcellselectionid` int(11) DEFAULT NULL,
   `libraryindex` int(11) DEFAULT NULL,
   `sampledraftid` int(11) DEFAULT NULL,
@@ -1683,13 +1533,11 @@ CREATE TABLE `sampledraftjobdraftcellselection` (
 # Dump of table sampledraftmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sampledraftmeta`;
-
 CREATE TABLE `sampledraftmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1708,13 +1556,11 @@ CREATE TABLE `sampledraftmeta` (
 # Dump of table samplefile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplefile`;
-
 CREATE TABLE `samplefile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1735,13 +1581,11 @@ CREATE TABLE `samplefile` (
 # Dump of table samplejobcellselection
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplejobcellselection`;
-
 CREATE TABLE `samplejobcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `jobcellselectionid` int(11) DEFAULT NULL,
   `libraryindex` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
@@ -1760,13 +1604,11 @@ CREATE TABLE `samplejobcellselection` (
 # Dump of table samplelab
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplelab`;
-
 CREATE TABLE `samplelab` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `isprimary` int(11) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
@@ -1785,13 +1627,11 @@ CREATE TABLE `samplelab` (
 # Dump of table samplemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplemeta`;
-
 CREATE TABLE `samplemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1810,13 +1650,11 @@ CREATE TABLE `samplemeta` (
 # Dump of table samplesource
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesource`;
-
 CREATE TABLE `samplesource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `indexvalue` int(11) DEFAULT NULL,
   `sampleid` int(11) DEFAULT NULL,
   `source_sampleid` int(11) DEFAULT NULL,
@@ -1835,13 +1673,11 @@ CREATE TABLE `samplesource` (
 # Dump of table samplesourcefile
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesourcefile`;
-
 CREATE TABLE `samplesourcefile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -1863,13 +1699,11 @@ CREATE TABLE `samplesourcefile` (
 # Dump of table samplesourcemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesourcemeta`;
-
 CREATE TABLE `samplesourcemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1888,13 +1722,11 @@ CREATE TABLE `samplesourcemeta` (
 # Dump of table samplesubtype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesubtype`;
-
 CREATE TABLE `samplesubtype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `arealist` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -1913,13 +1745,11 @@ CREATE TABLE `samplesubtype` (
 # Dump of table samplesubtypemeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesubtypemeta`;
-
 CREATE TABLE `samplesubtypemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -1938,13 +1768,11 @@ CREATE TABLE `samplesubtypemeta` (
 # Dump of table samplesubtyperesourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `samplesubtyperesourcecategory`;
-
 CREATE TABLE `samplesubtyperesourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `resourcecategoryid` int(11) DEFAULT NULL,
   `samplesubtypeid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -1962,13 +1790,11 @@ CREATE TABLE `samplesubtyperesourcecategory` (
 # Dump of table sampletype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sampletype`;
-
 CREATE TABLE `sampletype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -1986,13 +1812,11 @@ CREATE TABLE `sampletype` (
 # Dump of table sampletypecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `sampletypecategory`;
-
 CREATE TABLE `sampletypecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -2007,13 +1831,11 @@ CREATE TABLE `sampletypecategory` (
 # Dump of table software
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `software`;
-
 CREATE TABLE `software` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -2031,13 +1853,11 @@ CREATE TABLE `software` (
 # Dump of table softwaremeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `softwaremeta`;
-
 CREATE TABLE `softwaremeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2056,13 +1876,11 @@ CREATE TABLE `softwaremeta` (
 # Dump of table uifield
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `uifield`;
-
 CREATE TABLE `uifield` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `area` varchar(255) DEFAULT NULL,
   `attrname` varchar(255) DEFAULT NULL,
   `attrvalue` longtext,
@@ -2080,13 +1898,11 @@ CREATE TABLE `uifield` (
 # Dump of table usermeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `usermeta`;
-
 CREATE TABLE `usermeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2105,15 +1921,19 @@ CREATE TABLE `usermeta` (
 # Dump of table userpasswordauth
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `userpasswordauth`;
-
 CREATE TABLE `userpasswordauth` (
   `id` int(11) NOT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `authcode` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `FKE9E7660E50566623` (`lastupdatebyuser`),
   KEY `FKE9E7660E7CFE8408` (`userid`),
-  CONSTRAINT `FKE9E7660E7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`)
+  CONSTRAINT `FKE9E7660E7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKE9E7660E50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2121,13 +1941,11 @@ CREATE TABLE `userpasswordauth` (
 # Dump of table userpending
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `userpending`;
-
 CREATE TABLE `userpending` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `firstname` varchar(255) DEFAULT NULL,
   `labid` int(11) DEFAULT NULL,
@@ -2149,13 +1967,11 @@ CREATE TABLE `userpending` (
 # Dump of table userpendingmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `userpendingmeta`;
-
 CREATE TABLE `userpendingmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2174,13 +1990,11 @@ CREATE TABLE `userpendingmeta` (
 # Dump of table userrole
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `userrole`;
-
 CREATE TABLE `userrole` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `roleid` int(11) DEFAULT NULL,
   `userid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -2198,13 +2012,11 @@ CREATE TABLE `userrole` (
 # Dump of table workflow
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflow`;
-
 CREATE TABLE `workflow` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `createts` datetime DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -2220,13 +2032,11 @@ CREATE TABLE `workflow` (
 # Dump of table workflowmeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowmeta`;
-
 CREATE TABLE `workflowmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2245,13 +2055,11 @@ CREATE TABLE `workflowmeta` (
 # Dump of table workflowresourcecategory
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowresourcecategory`;
-
 CREATE TABLE `workflowresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `resourcecategoryid` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -2269,13 +2077,11 @@ CREATE TABLE `workflowresourcecategory` (
 # Dump of table workflowresourcecategorymeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowresourcecategorymeta`;
-
 CREATE TABLE `workflowresourcecategorymeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2294,13 +2100,11 @@ CREATE TABLE `workflowresourcecategorymeta` (
 # Dump of table workflowresourcetype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowresourcetype`;
-
 CREATE TABLE `workflowresourcetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `resourcetypeid` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -2318,13 +2122,11 @@ CREATE TABLE `workflowresourcetype` (
 # Dump of table workflowsamplesubtype
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowsamplesubtype`;
-
 CREATE TABLE `workflowsamplesubtype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `samplesubtypeid` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -2342,13 +2144,11 @@ CREATE TABLE `workflowsamplesubtype` (
 # Dump of table workflowsoftware
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowsoftware`;
-
 CREATE TABLE `workflowsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `softwareid` int(11) DEFAULT NULL,
   `workflowid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
@@ -2366,13 +2166,11 @@ CREATE TABLE `workflowsoftware` (
 # Dump of table workflowsoftwaremeta
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `workflowsoftwaremeta`;
-
 CREATE TABLE `workflowsoftwaremeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `k` varchar(255) DEFAULT NULL,
   `position` int(11) DEFAULT NULL,
   `rolevisibility` varchar(255) DEFAULT NULL,
@@ -2391,13 +2189,11 @@ CREATE TABLE `workflowsoftwaremeta` (
 # Dump of table wrole
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `wrole`;
-
 CREATE TABLE `wrole` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `domain` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `rolename` varchar(255) DEFAULT NULL,
@@ -2412,13 +2208,11 @@ CREATE TABLE `wrole` (
 # Dump of table wuser
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `wuser`;
-
 CREATE TABLE `wuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `firstname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
@@ -2441,4 +2235,3 @@ CREATE TABLE `wuser` (
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-

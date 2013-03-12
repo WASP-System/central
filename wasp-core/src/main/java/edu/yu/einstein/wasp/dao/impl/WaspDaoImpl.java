@@ -380,16 +380,18 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 			// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			User user = null;
 			try{
-				final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-				user = userService.getUserByLogin(login);
-				if (user.getId() == null){
-					logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as no logged in user '" + login + "' not found");
-					return;
+				
+				try{
+					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
+					user = userService.getUserByLogin(login);
+					if (user.getId() == null)
+						user = userService.getUserDao().getById(0); // wasp user (reserved)
+				} catch (Exception e){
+					user = userService.getUserDao().getById(0); // wasp user (reserved)
 				}
 				setLastUpdatedUserMethod.invoke(entity, user);
 			} catch (Exception e){
-				logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as login is null");
-				return;
+				logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as not able to resolve a user to assign");
 			}
 			
 
