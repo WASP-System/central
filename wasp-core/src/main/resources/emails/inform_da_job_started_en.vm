@@ -20,7 +20,7 @@ and hit the submit button. (If you need to re-quote a job, select Admin from the
 Once a job quote is generated, determine whether ${pi.firstName} ${pi.lastName} has sufficient funds to cover the job costs. 
 To approve or reject the job based on available funds, select Tasks from the main menu, click on the Department Administration Tasks link, 
 choose Job J${job.getJobId()}, indicate either Approved or Rejected, and submit. If you reject this job, please indicate that reason 
-in the space provided. (That reason will be displayed to the PI and to the job submitter!)</p>
+in the space provided. Note: That reason will be displayed to the PI and to the job submitter!</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>
 

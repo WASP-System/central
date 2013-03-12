@@ -170,5 +170,29 @@ public String getUniqueLoginName(final User user){
 		  }
 		  else{ return userDao.getUserByEmail(emailAddress);}
 	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public List<User> getFacilityManagers(){
+		  
+		  Set<User> theSet = new HashSet<User>();
+		  List<User> facilityManagers = new ArrayList<User>();
+		  for(Userrole userRole : userroleDao.findAll()){			  
+			  if(userRole.getRole().getRoleName().equals("fm")){
+				  theSet.add(userRole.getUser());//for distinct
+			  }
+		  }
+		  class LastNameFirstNameComparator implements Comparator<User> {
+				@Override
+				public int compare(User arg0, User arg1) {
+					return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+				}
+		  }
+		  facilityManagers.addAll(theSet);
+		  Collections.sort(facilityManagers, new LastNameFirstNameComparator());//asc
+		  return facilityManagers;
+	  }
 }
 

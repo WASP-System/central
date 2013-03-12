@@ -122,6 +122,9 @@ public class DashboardController extends WaspController {
 		emailService.sendPIJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
 		emailService.sendLabManagerJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
 		emailService.sendDAJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendFacilityManagerJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		
 		return "dashboard";
 	}
 }

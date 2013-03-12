@@ -34,10 +34,16 @@ public class JobEmailServiceActivator {
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
-				emailService.sendSubmitterJobStarted(job);
-				emailService.sendPIJobStartedConfirmRequest(job);
-				emailService.sendLabManagerJobStartedConfirmRequest(job);
-				//emailService.sendDAJobStartedConfirmRequest(job);
+				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
+					emailService.sendSubmitterJobStarted(job);
+					emailService.sendPIJobStartedConfirmRequest(job);
+				}
+				else{
+					emailService.sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(job);
+				}				
+				emailService.sendLabManagerJobStartedConfirmRequest(job);//the designated lab manager in the submitter's lab
+				emailService.sendDAJobStartedConfirmRequest(job);
+				emailService.sendFacilityManagerJobStartedConfirmRequest(job);//the shared facility
 			}
 		}		
 	}

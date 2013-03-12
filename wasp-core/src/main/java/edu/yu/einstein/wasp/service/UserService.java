@@ -56,5 +56,11 @@ public interface UserService extends WaspService {
  	 */
   public User getUserByEmail(String emailAddress);
 
+  	/**
+	 * get list of facility managers (distinct list of users with role of fm ).
+	 * @return List<User>
+	 */
+  public List<User> getFacilityManagers();
+
 }
 

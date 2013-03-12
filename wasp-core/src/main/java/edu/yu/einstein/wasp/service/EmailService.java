@@ -6,6 +6,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -167,7 +168,15 @@ public interface EmailService  {
 	 * @param Job job
 	 */
 	public void sendSubmitterJobStarted(final Job job);
-	
+
+	/**
+	 * Sends an email to a job submitter (who is also the lab's PI) stating that their newly submitted job has been recorded
+	 * and is awaiting approval from the PI or the  lab's Lab Manager.
+	 * This exists so that if the PI is the job submitter, he/she only receives one email about this.
+	 * @param Job job
+	 */
+	public void sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(final Job job);
+
 	/**
 	 * Sends an email to a lab's PI, stating that a member of their lab has just submitted a new job
 	 * that is awaiting approval from either the PI or a Lab Manager.
@@ -188,5 +197,14 @@ public interface EmailService  {
 	 * @param Job job
 	 */
 	public void sendDAJobStartedConfirmRequest(final Job job);
+	
+	/**
+	 * Sends a Facitiy Manager an email stating that a new job has been submitted and that  
+	 * the submission must be reviewed and approved or rejected. 
+	 * @param Job job
+	 */
+	public void sendFacilityManagerJobStartedConfirmRequest(final Job job);
+
+	public void sendJobStarted(final Job job, User recipient, Role role);
 }
 

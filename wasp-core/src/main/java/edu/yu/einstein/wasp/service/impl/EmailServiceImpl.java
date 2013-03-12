@@ -40,12 +40,14 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -72,6 +74,9 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Autowired
 	private JobService jobService;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private LabUserDao labUserDao;
@@ -524,7 +529,22 @@ public class EmailServiceImpl implements EmailService{
 			prepareAndSend(administrator, "emails/existing_user_pending_pi_request_confirm", model); 
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobStarted(final Job job, User recipient, Role role){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		if("su".equals(role.getRoleName())){
+			prepareAndSend(recipient, "emails/inform_submitter_job_started", model);
+		}
+		else if("su".equals(role.getRoleName())){
+			prepareAndSend(recipient, "emails/inform_submitter_job_started", model);
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -540,6 +560,17 @@ public class EmailServiceImpl implements EmailService{
 		prepareAndSend(addressedTo, "emails/inform_submitter_job_started", model);	
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(final Job job){
+		Map model = getJobSummaryMapForEmailDisplay(job);		
+		User addressedTo = job.getUser();
+		model.put("addressedTo", addressedTo);
+		prepareAndSend(addressedTo, "emails/inform_submitter_who_is_pi_job_started", model);	
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -589,6 +620,18 @@ public class EmailServiceImpl implements EmailService{
 			User addressedTo = departmentUser.getUser();
 			model.put("addressedTo", addressedTo);		
 			prepareAndSend(addressedTo, "emails/inform_da_job_started", model);				
+		}
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendFacilityManagerJobStartedConfirmRequest(final Job job){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		for(User user : userService.getFacilityManagers()){
+			model.put("addressedTo", user);	//for the email script itself	
+			prepareAndSend(user, "emails/inform_facility_manager_job_started", model);//to send the email				
 		}
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
