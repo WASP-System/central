@@ -535,15 +535,10 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendJobStarted(final Job job, User recipient, Role role){
+	public void sendJobStarted(final Job job, User recipient, String emailTemplate){
 		Map model = getJobSummaryMapForEmailDisplay(job);
 		model.put("addressedTo", recipient);
-		if("su".equals(role.getRoleName())){
-			prepareAndSend(recipient, "emails/inform_submitter_job_started", model);
-		}
-		else if("su".equals(role.getRoleName())){
-			prepareAndSend(recipient, "emails/inform_submitter_job_started", model);
-		}
+		prepareAndSend(recipient, emailTemplate, model);
 	}
 	/**
 	 * {@inheritDoc}

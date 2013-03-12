@@ -205,6 +205,6 @@ public interface EmailService  {
 	 */
 	public void sendFacilityManagerJobStartedConfirmRequest(final Job job);
 
-	public void sendJobStarted(final Job job, User recipient, Role role);
+	public void sendJobStarted(final Job job, User recipient, String emailTemplate);
 }
 
