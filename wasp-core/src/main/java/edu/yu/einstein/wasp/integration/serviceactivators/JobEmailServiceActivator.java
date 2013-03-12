@@ -67,7 +67,17 @@ public class JobEmailServiceActivator {
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
-
+				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
+					emailService.sendSubmitterJobStarted(job);
+					emailService.sendPIJobStartedConfirmRequest(job);
+				}
+				else{
+					emailService.sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(job);
+				}				
+				emailService.sendLabManagerJobStartedConfirmRequest(job);//the designated lab manager in the submitter's lab
+				emailService.sendDAJobStartedConfirmRequest(job);
+				emailService.sendFacilityManagerJobStartedConfirmRequest(job);//the shared facility
+				/*
 				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
 				String jobIdAsString = job.getJobId().toString();
@@ -106,7 +116,7 @@ public class JobEmailServiceActivator {
 						grantedAuthoritySet.add(ga.getAuthority());
 					}
 					
-					/*
+					
 					if(rolesForJobStart.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
 						logger.debug("ROB ----in su");
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");//TODO maybe change this email
