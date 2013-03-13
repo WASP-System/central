@@ -32,12 +32,6 @@ public class AcctQuoteMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 3927428785556020796L;
-	/** 
-	 * quoteMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer quoteMetaId;
 
 	/**
 	 * setQuoteMetaId(Integer quoteMetaId)
@@ -45,9 +39,9 @@ public class AcctQuoteMeta extends MetaBase {
 	 * @param quoteMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setQuoteMetaId (Integer quoteMetaId) {
-		this.quoteMetaId = quoteMetaId;
+		setId(quoteMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class AcctQuoteMeta extends MetaBase {
 	 * @return quoteMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getQuoteMetaId () {
-		return this.quoteMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class AcctQuoteMeta extends MetaBase {
 	 */
 	public void setAcctQuote (AcctQuote acctQuote) {
 		this.acctQuote = acctQuote;
-		this.acctQuoteId = acctQuote.quoteId;
+		this.acctQuoteId = acctQuote.getId();
 	}
 
 	/**

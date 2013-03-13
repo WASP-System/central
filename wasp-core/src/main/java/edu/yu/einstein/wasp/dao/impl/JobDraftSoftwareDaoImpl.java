@@ -47,7 +47,7 @@ public class JobDraftSoftwareDaoImpl extends WaspDaoImpl<JobDraftSoftware> imple
 	@Transactional
 	public JobDraftSoftware getJobDraftSoftwareByJobDraftSoftwareId (final Integer jobDraftSoftwareId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobDraftSoftwareId", jobDraftSoftwareId);
+		m.put("id", jobDraftSoftwareId);
 
 		List<JobDraftSoftware> results = this.findByMap(m);
 

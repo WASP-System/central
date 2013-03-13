@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * Implements a FileUrlResolver where a map of lists can be supplied where the key is  
@@ -43,10 +45,10 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 
 
 	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.File)
+	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle)
 	 */
 	@Override
-	public URL getURL(File file) throws GridUnresolvableHostException {
+	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
 		if (! file.getFileURI().toString().startsWith("file://")) {
 			logger.warn("unable to obtain file URL for file " + file.getFileId());
 			throw new GridUnresolvableHostException();
@@ -99,6 +101,16 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	
 	public LocalMappedRoundRobinFileUrlResolver(Map<String,List<String>> hostMap) {
 		this.hostMap = new HashMap<String,List<String>>(hostMap);
+	}
+
+	@Override
+	public URL getURL(FileGroup group) throws GridUnresolvableHostException {
+		Set<FileHandle> fileHandles = group.getFileHandles();
+		if (fileHandles.size() == 1) {
+			return getURL(fileHandles.iterator().next());
+		}
+		// TODO: Implement concatenation and zipping up of multi-handle file groups
+		return null;
 	}
 
 }

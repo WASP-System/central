@@ -47,7 +47,7 @@ public class WorkflowresourcecategoryMetaDaoImpl extends WaspMetaDaoImpl<Workflo
 	@Transactional
 	public WorkflowresourcecategoryMeta getWorkflowresourcecategoryMetaByWorkflowresourcecategoryMetaId (final Integer workflowresourcecategoryMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowresourcecategoryMetaId", workflowresourcecategoryMetaId);
+		m.put("id", workflowresourcecategoryMetaId);
 
 		List<WorkflowresourcecategoryMeta> results = this.findByMap(m);
 

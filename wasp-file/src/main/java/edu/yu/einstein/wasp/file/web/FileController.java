@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.exception.WaspException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -65,22 +65,22 @@ public class FileController implements InitializingBean {
 			} catch (NumberFormatException e) {
 				throw new WaspException("unable to search for record " + id);
 			}
-			File wf = fileService.getFileByFileId(i);
+			FileHandle wf = fileService.getFileHandleById(i);
 			
-			if (wf == null || !(wf instanceof File)) {
+			if (wf == null || !(wf instanceof FileHandle)) {
 				logger.debug("not in db");
-				throw new WaspException("File not in database");
+				throw new WaspException("FileHandle not in database");
 			} else {
 				logger.debug(wf.toString());
 			}
-			if (wf.getFileId() == null) {
+			if (wf.getId() == null) {
 				logger.debug("empty object");
-				throw new WaspException("File is not known");
+				throw new WaspException("FileHandle is not known");
 			}
 
 			if (!wf.getFileURI().toString().startsWith("file://")) {
 				logger.warn("This implementation only handles file URIs. URI: " + wf.getFileURI());
-				throw new WaspException("unable to resolve URI: " + wf.getFileId());
+				throw new WaspException("unable to resolve URI: " + wf.getId());
 			}
 
 			Matcher filem = Pattern.compile("^file://(.*?)/(.*)$").matcher(wf.getFileURI().normalize().toString());

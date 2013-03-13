@@ -49,7 +49,7 @@ public class JobDraftDaoImpl extends WaspDaoImpl<JobDraft> implements edu.yu.ein
 	@Transactional
 	public JobDraft getJobDraftByJobDraftId (final Integer jobDraftId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobDraftId", jobDraftId);
+		m.put("id", jobDraftId);
 
 		List<JobDraft> results = this.findByMap(m);
 

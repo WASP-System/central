@@ -119,7 +119,7 @@ public interface WaspDao<E> extends WaspPersistenceDao {
    *	List<String> distinctConstraints = new ArrayList<String>();
    *	distinctConstraints.add("name");	  
    *	List<String> orderConstraints = new ArrayList<String>();
-   *	orderConstraints.add("name direction");	//ie: "jobId desc"  
+   *	orderConstraints.add("name direction");	//ie: "id desc"  
    *	List<Department> departmentList = this.getDepartmentService().findByMapDistinctOrderBy(whereConstraints, distinctConstraints, orderConstraints, direction);
    */
    public List<E> findByMapsIncludesDatesDistinctOrderBy(final Map<?, ?> m, final Map<?, ?> dateMap, List<String> distinctColumnNames, final List<String> orderByColumnAndDirectionList);

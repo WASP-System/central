@@ -34,12 +34,6 @@ public class LabUser extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 3166199902005427273L;
-	/** 
-	 * labUserId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labUserId;
 
 	/**
 	 * setLabUserId(Integer labUserId)
@@ -47,9 +41,9 @@ public class LabUser extends WaspModel {
 	 * @param labUserId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabUserId (Integer labUserId) {
-		this.labUserId = labUserId;
+		setId(labUserId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class LabUser extends WaspModel {
 	 * @return labUserId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabUserId () {
-		return this.labUserId;
+		return getId();
 	}
 
 
@@ -101,7 +96,7 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -110,8 +105,8 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -121,7 +116,7 @@ public class LabUser extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -156,70 +151,6 @@ public class LabUser extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * lab
 	 *
@@ -237,7 +168,7 @@ public class LabUser extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**
@@ -269,7 +200,7 @@ public class LabUser extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -301,7 +232,7 @@ public class LabUser extends WaspModel {
 	 */
 	public void setRole (Role role) {
 		this.role = role;
-		this.roleId = role.roleId;
+		this.roleId = role.getId();
 	}
 
 	/**

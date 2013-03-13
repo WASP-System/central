@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
-import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 
@@ -64,7 +63,7 @@ public class TestMetaMessageService {
 		sampleMeta1.setSampleId(SAMPLE_ID1);
 		sampleMeta1.setK(STATUS_GROUP_PREFIX + GROUP_1 + "::067e6162-3b6f-4ae2-a171-2470b63dff00");
 		sampleMeta1.setV(VALUE_1A);
-		sampleMeta1.setLastUpdTs(new Date());
+		sampleMeta1.setUpdated(new Date());
 		sampleMetaList.add(sampleMeta1);
 		
 		// return the argument from mocked method
@@ -169,7 +168,7 @@ public class TestMetaMessageService {
 		MetaMessage editedMessage = null;
 		try {
 			editedMessage = metaMessageService.edit(message, VALUE_1B, SAMPLE_ID1, SampleMeta.class, mockSampleMetaDao);
-		} catch (WaspException e) {
+		} catch (StatusMetaMessagingException e) {
 			Assert.fail("caught unexpected Exception", e);
 		}
 		Assert.assertEquals(editedMessage.getValue(), VALUE_1B);
@@ -183,11 +182,11 @@ public class TestMetaMessageService {
 		PowerMockito.when(mockSampleMetaDao.findByMap(Mockito.anyMap())).thenReturn(sampleMetaList);
 		try {
 			editedMessage = metaMessageService.edit(message, VALUE_1B, SAMPLE_ID1, SampleMeta.class, mockSampleMetaDao);
-		} catch (WaspException e) {
+		} catch (StatusMetaMessagingException e) {
 			logger.debug("Caught expected WaspException: " + e.getMessage());
 			exception = e.getMessage();
 		}
-		Assert.assertEquals(exception, "Unable to retrieve MetaMessage");
+		Assert.assertEquals(exception, "edu.yu.einstein.wasp.exception.WaspException: Unable to retrieve MetaMessage");
 	}
 	
 }

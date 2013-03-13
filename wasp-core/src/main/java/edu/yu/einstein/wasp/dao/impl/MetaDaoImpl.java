@@ -47,7 +47,7 @@ public class MetaDaoImpl extends WaspDaoImpl<Meta> implements edu.yu.einstein.wa
 	@Transactional
 	public Meta getMetaByMetaId (final int metaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("metaId", metaId);
+		m.put("id", metaId);
 
 		List<Meta> results = this.findByMap(m);
 

@@ -47,7 +47,7 @@ public class RunMetaDaoImpl extends WaspMetaDaoImpl<RunMeta> implements edu.yu.e
 	@Transactional
 	public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("runMetaId", runMetaId);
+		m.put("id", runMetaId);
 
 		List<RunMeta> results = this.findByMap(m);
 

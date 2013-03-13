@@ -32,12 +32,7 @@ public class LabPendingMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -7711196439883404327L;
-	/** 
-	 * labPendingMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labPendingMetaId;
+	
 
 	/**
 	 * setLabPendingMetaId(Integer labPendingMetaId)
@@ -45,9 +40,9 @@ public class LabPendingMeta extends MetaBase {
 	 * @param labPendingMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabPendingMetaId (Integer labPendingMetaId) {
-		this.labPendingMetaId = labPendingMetaId;
+		setId(labPendingMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class LabPendingMeta extends MetaBase {
 	 * @return labPendingMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabPendingMetaId () {
-		return this.labPendingMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class LabPendingMeta extends MetaBase {
 	 */
 	public void setLabPending (LabPending labPending) {
 		this.labPending = labPending;
-		this.labpendingId = labPending.labPendingId;
+		this.labpendingId = labPending.getId();
 	}
 
 	/**

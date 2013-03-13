@@ -32,12 +32,6 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -9219452726472951422L;
-	/** 
-	 * sampleDraftJobDraftCellSelectionId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleDraftJobDraftCellSelectionId;
 
 	/**
 	 * setSampleDraftJobDraftCellSelectionId(Integer sampleDraftJobDraftCellSelectionId)
@@ -45,9 +39,9 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	 * @param sampleDraftJobDraftCellSelectionId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleDraftJobDraftCellSelectionId (Integer sampleDraftJobDraftCellSelectionId) {
-		this.sampleDraftJobDraftCellSelectionId = sampleDraftJobDraftCellSelectionId;
+		setId(sampleDraftJobDraftCellSelectionId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	 * @return sampleDraftJobDraftCellSelectionId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleDraftJobDraftCellSelectionId () {
-		return this.sampleDraftJobDraftCellSelectionId;
+		return getId();
 	}
 
 
@@ -173,7 +168,7 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	 */
 	public void setSampleDraft (SampleDraft sampleDraft) {
 		this.sampleDraft = sampleDraft;
-		this.sampledraftId = sampleDraft.sampleDraftId;
+		this.sampledraftId = sampleDraft.getId();
 	}
 
 	/**
@@ -205,7 +200,7 @@ public class SampleDraftJobDraftCellSelection extends WaspModel {
 	 */
 	public void setJobDraftCellSelection (JobDraftCellSelection jobDraftCellSelection) {
 		this.jobDraftCellSelection = jobDraftCellSelection;
-		this.jobDraftCellSelectionId = jobDraftCellSelection.jobDraftCellSelectionId;
+		this.jobDraftCellSelectionId = jobDraftCellSelection.getId();
 	}
 
 	/**

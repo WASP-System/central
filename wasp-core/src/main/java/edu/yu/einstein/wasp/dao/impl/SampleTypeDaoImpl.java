@@ -47,7 +47,7 @@ public class SampleTypeDaoImpl extends WaspDaoImpl<SampleType> implements edu.yu
 	@Transactional
 	public SampleType getSampleTypeBySampleTypeId (final int sampleTypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleTypeId", sampleTypeId);
+		m.put("id", sampleTypeId);
 
 		List<SampleType> results = this.findByMap(m);
 

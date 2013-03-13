@@ -47,7 +47,7 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	@Transactional
 	public Roleset getRolesetByRolesetId (final int rolesetId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("rolesetId", rolesetId);
+		m.put("is", rolesetId);
 
 		List<Roleset> results = this.findByMap(m);
 

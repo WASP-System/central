@@ -47,7 +47,7 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
 	@Transactional
 	public JobUser getJobUserByJobUserId (final int jobUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobUserId", jobUserId);
+		m.put("id", jobUserId);
 
 		List<JobUser> results = this.findByMap(m);
 
@@ -70,10 +70,10 @@ public class JobUserDaoImpl extends WaspDaoImpl<JobUser> implements edu.yu.einst
 
 	@Override
 	@Transactional
-	public JobUser getJobUserByJobIdUserId (final int jobId, final int UserId) {
+	public JobUser getJobUserByJobIdUserId (final int jobId, final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobId", jobId);
-		m.put("UserId", UserId);
+		m.put("userId", userId);
 
 		List<JobUser> results = this.findByMap(m);
 

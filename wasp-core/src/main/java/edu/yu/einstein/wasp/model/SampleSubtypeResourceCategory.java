@@ -32,12 +32,6 @@ public class SampleSubtypeResourceCategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2885849853010621965L;
-	/** 
-	 * sampleSubtypeResourceCategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSubtypeResourceCategoryId;
 
 	/**
 	 * setSampleSubtypeResourceCategoryId(Integer sampleSubtypeResourceCategoryId)
@@ -45,9 +39,9 @@ public class SampleSubtypeResourceCategory extends WaspModel {
 	 * @param sampleSubtypeResourceCategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSubtypeResourceCategoryId (Integer sampleSubtypeResourceCategoryId) {
-		this.sampleSubtypeResourceCategoryId = sampleSubtypeResourceCategoryId;
+		setId(sampleSubtypeResourceCategoryId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SampleSubtypeResourceCategory extends WaspModel {
 	 * @return sampleSubtypeResourceCategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSubtypeResourceCategoryId () {
-		return this.sampleSubtypeResourceCategoryId;
+		return getId();
 	}
 
 
@@ -140,7 +135,7 @@ public class SampleSubtypeResourceCategory extends WaspModel {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -172,7 +167,7 @@ public class SampleSubtypeResourceCategory extends WaspModel {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+		this.resourcecategoryId = resourceCategory.getId();
 	}
 
 	/**

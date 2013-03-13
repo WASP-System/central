@@ -47,7 +47,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	@Transactional
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSourceId", sampleSourceId);
+		m.put("id", sampleSourceId);
 
 		List<SampleSource> results = this.findByMap(m);
 

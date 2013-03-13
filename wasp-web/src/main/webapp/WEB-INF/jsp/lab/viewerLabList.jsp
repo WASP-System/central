@@ -17,4 +17,11 @@
 			</li>							
 		</sec:authorize>
 	</c:forEach>
+	<c:if test="${isExistingUserPIPending==true}">
+		<br />
+		<div style="font-size:16px;"><b><fmt:message key="menu.labPI.label" />: <c:out value="${user.getNameLstCmFst()}" /> <span style="color:red">(<fmt:message key="menu.pendingApproval.label" />)</span></b></div>
+		<li>
+			<fmt:message key="menu.myRoleInLab.label" />: <fmt:message key="menu.labPI.label" /> 
+		</li>
+	</c:if>
 </ul>

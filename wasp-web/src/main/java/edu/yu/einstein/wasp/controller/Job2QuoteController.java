@@ -25,14 +25,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteDao;
 import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
@@ -55,8 +53,6 @@ public class Job2QuoteController extends WaspController {
 	private AcctQuoteDao	acctQuoteDao;
 	@Autowired
 	private AcctQuoteMetaDao	acctQuoteMetaDao;
-	@Autowired
-	private AcctJobquotecurrentDao acctJobquotecurrentDao;
 	@Autowired
 	private JobService jobService;
 	
@@ -138,12 +134,12 @@ public class Job2QuoteController extends WaspController {
 			String submitterLogin = StringHelper.getLoginFromFormattedNameAndLogin(submitterNameAndLogin.trim());//if fails, returns empty string
 			if(submitterLogin.isEmpty()){//most likely incorrect format !!!!for later, if some passed in amy can always do search for users with first or last name of amy, but would need to be done by searching every job
 				submitter = new User();
-				submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				submitter.setId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 			}
 			else{
 				submitter = userDao.getUserByLogin(submitterLogin);
-				if(submitter.getUserId()==null){//if not found in database, submitter is NOT null and getUserId()=null
-					submitter.setUserId(new Integer(0));//fake it; perform search below and no user will appear in the result set
+				if(submitter.getId()==null){//if not found in database, submitter is NOT null and getUserId()=null
+					submitter.setId(new Integer(0));//fake it; perform search below and no user will appear in the result set
 				}
 			}
 		}
@@ -155,18 +151,18 @@ public class Job2QuoteController extends WaspController {
 			String piLogin = StringHelper.getLoginFromFormattedNameAndLogin(piNameAndLogin.trim());//if fails, returns empty string
 			if(piLogin.isEmpty()){//likely incorrect format
 				piLab = new Lab();
-				piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+				piLab.setId(new Integer(0));//fake it; result set will come up empty
 			}
 			else{
 				pi = userDao.getUserByLogin(piLogin);//if User not found, pi object is NOT null and pi.getUnserId()=null
-				if(pi.getUserId()==null){
+				if(pi.getId()==null){
 					piLab = new Lab();
-					piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					piLab.setId(new Integer(0));//fake it; result set will come up empty
 				}
 				else{
-					piLab = labDao.getLabByPrimaryUserId(pi.getUserId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
-					if(piLab.getLabId()==null){
-						piLab.setLabId(new Integer(0));//fake it; result set will come up empty
+					piLab = labDao.getLabByPrimaryUserId(pi.getId().intValue());//if the Lab not found, piLab object is NOT null and piLab.getLabId()=null
+					if(piLab.getId()==null){
+						piLab.setId(new Integer(0));//fake it; result set will come up empty
 					}
 				}
 			}
@@ -177,7 +173,7 @@ public class Job2QuoteController extends WaspController {
 		if(submittedOnDateAsString != null){
 			DateFormat formatter;
 		
-			formatter = new SimpleDateFormat("MM/dd/yyyy");//this is the format that the date is coming in from the Grid
+			formatter = new SimpleDateFormat("yyyy/MM/dd");//this is the format that the date is coming in from the Grid
 			try{				
 				submittedOnAsDate = (Date)formatter.parse(submittedOnDateAsString); 
 			}
@@ -190,13 +186,13 @@ public class Job2QuoteController extends WaspController {
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		if(jobId != null){
-			m.put("jobId", jobId.intValue());
+			m.put("id", jobId.intValue());
 		}
 		if(submitter != null){
-			m.put("UserId", submitter.getUserId().intValue());
+			m.put("userId", submitter.getId().intValue());
 		}
 		if(piLab != null){
-			m.put("labId", piLab.getLabId().intValue());
+			m.put("labId", piLab.getId().intValue());
 		}
 		
 		Map<String, Date> dateMap = new HashMap<String, Date>();
@@ -206,8 +202,8 @@ public class Job2QuoteController extends WaspController {
 		
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
-			if(sidx.equals("jobId")){
-				orderByColumnAndDirection.add("jobId " + sord);
+			if(sidx.equals("id")){
+				orderByColumnAndDirection.add("id " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);
@@ -223,13 +219,20 @@ public class Job2QuoteController extends WaspController {
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
-			orderByColumnAndDirection.add("jobId desc");
+			orderByColumnAndDirection.add("id desc");
 		}
 		
 		List<Job> workingJobList = this.jobService.getJobDao().findByMapsIncludesDatesDistinctOrderBy(m, dateMap, null, orderByColumnAndDirection);
+		/*for (Job job : workingJobList)
+			logger.debug("working job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
+		for (Job job : restrictedJobList)
+			logger.debug("restricted job list jobId=" + job.getId() + " UUID =" + job.getUUID() + ", Hashcode=" + job.hashCode());
+		*/
 		if (restrictedJobList != null)
 			workingJobList.retainAll(restrictedJobList);
 		
+		for (Job job : workingJobList)
+			logger.debug("working job list jobId=" + job.getId());
 		//perform ONLY if the viewer is A DA but is NOT any other type of facility member
 		if(authenticationService.isOnlyDepartmentAdministrator()){//remove jobs not in the DA's department
 			List<Job> jobsToKeep = filterService.filterJobListForDA(workingJobList);
@@ -292,18 +295,20 @@ public class Job2QuoteController extends WaspController {
 		List<Job> page = job2quoteList.subList(frId, toId);
 		for (Job item : page) {
 			Map<String, Object> cell = new HashMap<String, Object>();
-			cell.put("id", item.getJobId());
+			cell.put("id", item.getId()); //job id
 
 			User user = userDao.getById(item.getUserId());
-			List<AcctJobquotecurrent> ajqcList = item.getAcctJobquotecurrent();
+			AcctQuote currentQuote = item.getCurrentQuote();
 			////float amount = ajqcList.isEmpty() ? 0 : ajqcList.get(0).getAcctQuote().getAmount();
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
-			if(ajqcList.isEmpty()){
+			String quoteId = null;
+			if(currentQuote == null || currentQuote.getId() == null){
 				quoteAsString = "?.??";
 			}
 			else{
+				quoteId = currentQuote.getId().toString();
 				try{
-					  Float price = new Float(ajqcList.get(0).getAcctQuote().getAmount());
+					  Float price = new Float(currentQuote.getAmount());
 					  quoteAsString = String.format("%.2f", price);
 				}
 				catch(Exception e){
@@ -312,24 +317,26 @@ public class Job2QuoteController extends WaspController {
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = ajqcList.isEmpty() ? new ArrayList<AcctQuoteMeta>() : 
-				getMetaHelperWebapp().syncWithMaster(ajqcList.get(0).getAcctQuote().getAcctQuoteMeta());
+			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : 
+				getMetaHelperWebapp().syncWithMaster(currentQuote.getAcctQuoteMeta());
 			
-			Format formatterForDisplay = new SimpleDateFormat("MM/dd/yyyy");
+			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
-					"J"+item.getJobId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getJobId()+".do>details</a>)",
+					"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
 					item.getName(),
 					//String.format("%.2f", amount),
 					quoteAsString,
 					user.getNameFstLst(), 
 					item.getLab().getUser().getNameFstLst(),
-					formatterForDisplay.format(item.getCreatets())//item.getLastUpdTs().toString() 
+					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 
+					quoteId
 				}));
 
 			for (AcctQuoteMeta meta : itemMetaList) {
 				cellList.add(meta.getV());
+				logger.debug("acctquotemeta: " + meta.getK() + ":" + meta.getV());
 			}
 
 			cell.put("cell", cellList);
@@ -370,11 +377,11 @@ public class Job2QuoteController extends WaspController {
 	public String updateDetailJSON(@RequestParam("id") Integer jobId, AcctQuote quoteForm, ModelMap m, HttpServletResponse response) {
 
 		List<AcctQuoteMeta> metaList = getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class);
+		quoteForm.setId( (Integer) m.get("quoteId"));
 		quoteForm.setJobId(jobId);
-		quoteForm.setAcctQuoteMeta(metaList);
+		this.acctQuoteDao.save(quoteForm);
 		
-		AcctQuote acctQuoteDb = this.acctQuoteDao.save(quoteForm);
-		Integer quoteId = acctQuoteDb.getQuoteId();
+		Integer quoteId = quoteForm.getId();
 		try{
 			try{
 				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
@@ -384,12 +391,15 @@ public class Job2QuoteController extends WaspController {
 				return null;
 			}
 			
-			AcctJobquotecurrent acctJobquotecurrent = this.acctJobquotecurrentDao.getAcctJobquotecurrentByJobId(jobId);
-			acctJobquotecurrent.setQuoteId(quoteId);
-			// if jobid is null, create a new record in database table 
-			if(acctJobquotecurrent.getJobId() == null) {
-				acctJobquotecurrent.setJobId(jobId);
-				acctJobquotecurrentDao.persist(acctJobquotecurrent);
+			Job currentJob = this.jobService.getJobByJobId(jobId);
+			quoteForm.setId(quoteId);
+			// if jobid is null, create a new record in database table
+			
+			if(quoteForm.getId() == null) {
+				quoteForm.setJob(currentJob);
+				acctQuoteDao.persist(quoteForm);
+			} else {
+				acctQuoteDao.save(quoteForm);
 			}
 			try{
 				jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
@@ -398,6 +408,11 @@ public class Job2QuoteController extends WaspController {
 				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
 				return null;
 			}
+			
+			if (!currentJob.getAcctQuote().contains(quoteForm))
+				currentJob.getAcctQuote().add(quoteForm);
+			currentJob.setCurrentQuote(quoteForm);
+			jobService.getJobDao().save(currentJob);
 			
 			
 			response.getWriter().println(this.messageService.getMessage("acctQuote.created_success.label"));
@@ -411,7 +426,7 @@ public class Job2QuoteController extends WaspController {
 	class JobIdComparator implements Comparator<Job> {
 		@Override
 		public int compare(Job arg0, Job arg1) {
-			return arg0.getJobId().intValue() >= arg1.getJobId().intValue()?1:0;
+			return arg0.getId().intValue() >= arg1.getId().intValue()?1:0;
 		}
 	}
 	class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
@@ -430,10 +445,10 @@ public class Job2QuoteController extends WaspController {
 		@Override
 		public int compare(Job arg0, Job arg1) {
 			
-			List<AcctJobquotecurrent> ajqcList0 = arg0.getAcctJobquotecurrent();
-			float amount0 = ajqcList0.isEmpty() ? 0 : ajqcList0.get(0).getAcctQuote().getAmount();
-			List<AcctJobquotecurrent> ajqcList1 = arg1.getAcctJobquotecurrent();
-			float amount1 = ajqcList1.isEmpty() ? 0 : ajqcList1.get(0).getAcctQuote().getAmount();
+			AcctQuote quote0 = arg0.getCurrentQuote();
+			float amount0 = (quote0 == null || quote0.getId()==null) ? 0 : quote0.getAmount();
+			AcctQuote quote1 = arg1.getCurrentQuote();
+			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0 : quote1.getAmount();
 			return amount0 >= amount1 ? 1:0;
 		}
 	}

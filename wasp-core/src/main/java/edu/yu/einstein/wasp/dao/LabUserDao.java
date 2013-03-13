@@ -18,7 +18,7 @@ public interface LabUserDao extends WaspDao<LabUser> {
 
   public LabUser getLabUserByLabUserId (final int labUserId);
 
-  public LabUser getLabUserByLabIdUserId (final int labId, final int UserId);
+  public LabUser getLabUserByLabIdUserId (final int labId, final int userId);
 
 
 }

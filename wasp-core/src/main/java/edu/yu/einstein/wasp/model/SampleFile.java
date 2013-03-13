@@ -34,12 +34,6 @@ public class SampleFile extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 3568113560161274589L;
-	/** 
-	 * sampleFileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleFileId;
 
 	/**
 	 * setSampleFileId(Integer sampleFileId)
@@ -47,9 +41,9 @@ public class SampleFile extends WaspModel {
 	 * @param sampleFileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleFileId (Integer sampleFileId) {
-		this.sampleFileId = sampleFileId;
+		setId(sampleFileId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class SampleFile extends WaspModel {
 	 * @return sampleFileId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleFileId () {
-		return this.sampleFileId;
+		return this.getId();
 	}
 
 
@@ -92,40 +87,6 @@ public class SampleFile extends WaspModel {
 	public Integer getSampleId () {
 		return this.sampleId;
 	}
-
-
-
-
-	/** 
-	 * fileId
-	 *
-	 */
-	@Column(name="fileid")
-	protected Integer fileId;
-
-	/**
-	 * setFileId(Integer fileId)
-	 *
-	 * @param fileId
-	 *
-	 */
-	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
-	}
-
-	/**
-	 * getFileId()
-	 *
-	 * @return fileId
-	 *
-	 */
-	public Integer getFileId () {
-		return this.fileId;
-	}
-
-
-
 
 	/** 
 	 * iName
@@ -217,102 +178,7 @@ public class SampleFile extends WaspModel {
 		return this.description;
 	}
 
-
-
-
-	/** 
-	 * isActive
-	 *
-	 */
-	@Column(name="isactive")
-	protected Integer isActive;
-
-	/**
-	 * setIsActive(Integer isActive)
-	 *
-	 * @param isActive
-	 *
-	 */
 	
-	public void setIsActive (Integer isActive) {
-		this.isActive = isActive;
-	}
-
-	/**
-	 * getIsActive()
-	 *
-	 * @return isActive
-	 *
-	 */
-	public Integer getIsActive () {
-		return this.isActive;
-	}
-
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sample
 	 *
@@ -330,7 +196,7 @@ public class SampleFile extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -351,18 +217,17 @@ public class SampleFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid")
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFileGroup (FileGroup fileGroup)
 	 *
-	 * @param file
+	 * @param fileGroup
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFileGroup (FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
 	}
 
 	/**
@@ -372,8 +237,8 @@ public class SampleFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFileGroup() {
+		return this.fileGroup;
 	}
 
 

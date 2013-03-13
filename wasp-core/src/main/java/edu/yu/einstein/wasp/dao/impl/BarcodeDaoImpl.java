@@ -47,7 +47,7 @@ public class BarcodeDaoImpl extends WaspDaoImpl<Barcode> implements edu.yu.einst
 	@Transactional
 	public Barcode getBarcodeByBarcodeId (final int barcodeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("barcodeId", barcodeId);
+		m.put("id", barcodeId);
 
 		List<Barcode> results = this.findByMap(m);
 

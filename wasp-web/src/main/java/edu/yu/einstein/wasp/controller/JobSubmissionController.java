@@ -80,7 +80,8 @@ import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -247,8 +248,11 @@ public class JobSubmissionController extends WaspController {
 	@Autowired
 	protected AuthenticationService authenticationService;
 	
-	@Value("${wasp.download.folder}")
+	@Value("${wasp.temporary.dir}")
 	protected String downloadFolder;
+	
+	@Value("${wasp.primaryfilehost}")
+	protected String fileHost;
 
 
 	protected final MetaHelperWebapp getMetaHelperWebapp() {
@@ -312,7 +316,7 @@ public class JobSubmissionController extends WaspController {
 		
 		String userId = request.getParameter("userId");
 		if(userId==null || "".equals(userId)){//added 2-13-13 by Dubin; this way, if no parameter, get drafts for the authenticated user
-			userId = authenticationService.getAuthenticatedUser().getUserId().toString();
+			userId = authenticationService.getAuthenticatedUser().getId().toString();
 		}
 		//result
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -336,7 +340,7 @@ public class JobSubmissionController extends WaspController {
 			
 			if(userIdAsInteger!=null){
 			  
-				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getUserId().intValue() ) ){
+				if(authenticationService.isFacilityMember() || ( !authenticationService.isFacilityMember() && userIdAsInteger.intValue()==viewer.getId().intValue() ) ){
 				
 					Map<String, Object> m = new HashMap<String, Object>();	
 				
@@ -347,7 +351,7 @@ public class JobSubmissionController extends WaspController {
 					//	  m.put("labId", Integer.parseInt(labId));//NOTE: currently we are NOT anywhere using labId in a url going to this page. This is a Boyle relic
 
 					m.put("status", "PENDING");
-					m.put("UserId", userIdAsInteger);				  	  
+					m.put("userId", userIdAsInteger);				  	  
 					jobDraftList = this.jobDraftDao.findByMap(m);
 				}
 			}
@@ -394,18 +398,18 @@ public class JobSubmissionController extends WaspController {
 			List<JobDraft> itemPage = jobDraftList.subList(frId, toId);
 			for (JobDraft item : itemPage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", item.getJobDraftId());
+				cell.put("id", item.getId());
 				 
 				List<JobDraftMeta> itemMeta = getMetaHelperWebapp().syncWithMaster(item.getJobDraftMeta());
 				
 				User user = userDao.getById(item.getUserId());
 				 					
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							"<a href='/wasp/jobsubmit/modify/"+item.getJobDraftId()+".do'>"+item.getName()+"</a>",
+							"<a href='/wasp/jobsubmit/modify/"+item.getId()+".do'>"+item.getName()+"</a>",
 							user.getNameFstLst(),
 							item.getLab().getName(),
-							this.userDao.getUserByUserId(item.getLastUpdUser()).getNameFstLst(),
-							item.getLastUpdTs().toString()
+							item.getLastUpdatedByUser().getNameFstLst(),
+							item.getUpdated().toString()
 				}));
 				 
 				for (JobDraftMeta meta:itemMeta) {
@@ -1192,9 +1196,9 @@ public class JobSubmissionController extends WaspController {
 		String[] roles = new String[1];
 		roles[0] = "lu";
 		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<File> files = new ArrayList<File>();
+		List<FileGroup> files = new ArrayList<FileGroup>();
 		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
-			files.add(jdf.getFile());
+			files.add(jdf.getFileGroup());
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
 		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
@@ -1222,8 +1226,8 @@ public class JobSubmissionController extends WaspController {
 					continue;
 				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					File file = fileService.processUploadedFile(mpFile, path, fileDescriptions.get(fileCount));
-					fileService.linkFileWithJobDraft(file, jobDraft);
+					FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount));
+					fileService.linkFileGroupWithJobDraft(group, jobDraft);
 				} catch(FileUploadException e){
 					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");

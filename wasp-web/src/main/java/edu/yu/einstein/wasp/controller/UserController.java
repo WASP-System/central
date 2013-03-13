@@ -90,7 +90,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('su')")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm') or hasRole('ft')")
 	public String list(ModelMap m) {
 		
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(MetaBase.class));
@@ -109,7 +109,7 @@ public class UserController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm') or hasRole('ft') or User.login == principal.name")
 	public String subgridJSON(@RequestParam("id") Integer userId,ModelMap m, HttpServletResponse response) {
 				
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
@@ -192,7 +192,7 @@ public class UserController extends WaspController {
 			if(userIdAsInteger == null){
 				userIdAsInteger = new Integer(0);//fake it; perform search below and no user will appear in the result set
 			}
-			m.put("UserId", userIdAsInteger.intValue());
+			m.put("id", userIdAsInteger.intValue());
 		}
 		else{
 			if(login != null){
@@ -213,7 +213,7 @@ public class UserController extends WaspController {
 			orderByList.add(sidx);
 		}
 		else{//default orderBy will be UserId/desc (rationale: so that when a new user is created using the grid, the viewer sees a link to prompt that they should assign a role)
-			orderByList.add("UserId");
+			orderByList.add("id");
 			sord = new String("desc");
 		}
 		userList = this.userDao.findByMapDistinctOrderBy(m, null, orderByList, sord);
@@ -361,11 +361,10 @@ public class UserController extends WaspController {
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
-			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10))); 
-			userForm.setLastUpdTs(new Date());
+			userForm.setPassword(authenticationService.encodePassword(authenticationService.getRandomPassword(10)));
 			userForm.setIsActive(1);
 			User userDb = this.userDao.save(userForm);
-			userId=userDb.getUserId();
+			userId=userDb.getId();
 			try {
 				userMetaDao.setMeta(userMetaList, userId);
 				emailService.informUserAccountCreatedByAdmin(userDb, userService.getNewAuthcodeForUser(userDb));
@@ -411,7 +410,6 @@ public class UserController extends WaspController {
 			userDb.setEmail(userForm.getEmail());
 			userDb.setLocale(userForm.getLocale());
 			userDb.setIsActive(userForm.getIsActive());
-			userDb.setLastUpdTs(new Date());
 			this.userDao.merge(userDb);
 			try {
 				userMetaDao.setMeta(userMetaList, userId);
@@ -488,8 +486,11 @@ public class UserController extends WaspController {
 		List<UserMeta> userMetaList = metaHelper.getFromRequest(request, UserMeta.class);
 
 		userForm.setUserMeta(userMetaList);
+		
+		logger.debug("userMeta: " + StringUtils.join(userMetaList, ","));
+		
 		metaHelper.validate(result);
-		userForm.setUserId(userId);
+		userForm.setId(userId);
 		if (result.hasErrors()) {
 			prepareSelectListData(m);
 			waspErrorMessage("user.updated.error");
@@ -513,18 +514,16 @@ public class UserController extends WaspController {
 		
 		userDb.setEmail(userForm.getEmail().trim());
 		userDb.setLocale(userForm.getLocale());
-
-		userDb.setLastUpdTs(new Date());
 		
 		//this.userDao.merge(userDb);
 
 		try {
-			userMetaDao.setMeta(userMetaList, userId);
+			userService.getUserMetaDao().setMeta(userMetaList, userId);
 			status.setComplete();
 
 			waspMessage("user.updated_success.label");
 			
-		} catch (MetadataException e){
+		} catch (Exception e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("user.updated.error");
 		}

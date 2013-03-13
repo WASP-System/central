@@ -37,12 +37,7 @@ public class ResourceCategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -378972557561200358L;
-	/** 
-	 * resourceCategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer resourceCategoryId;
+	
 
 	/**
 	 * setResourceCategoryId(Integer resourceCategoryId)
@@ -50,9 +45,9 @@ public class ResourceCategory extends WaspModel {
 	 * @param resourceCategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setResourceCategoryId (Integer resourceCategoryId) {
-		this.resourceCategoryId = resourceCategoryId;
+		setId(resourceCategoryId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class ResourceCategory extends WaspModel {
 	 * @return resourceCategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getResourceCategoryId () {
-		return this.resourceCategoryId;
+		return getId();
 	}
 
 
@@ -163,7 +159,7 @@ public class ResourceCategory extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -186,70 +182,6 @@ public class ResourceCategory extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * resourceType
 	 *
@@ -267,7 +199,7 @@ public class ResourceCategory extends WaspModel {
 	 */
 	public void setResourceType (ResourceType resourceType) {
 		this.resourceType = resourceType;
-		this.resourceTypeId = resourceType.resourceTypeId;
+		this.resourceTypeId = resourceType.getId();
 	}
 
 	/**

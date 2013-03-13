@@ -19,5 +19,32 @@
 			<ref bean="wasp.channel.plugin.file" />
 		</constructor-arg>
 	</bean>
+	
+	<int:channel id="wasp.channel.plugin.genome" />
+	
+	<int:service-activator input-channel="wasp.channel.plugin.genome" ref="wasp-genome.WaspPluginBean" method="process" />
+	
+	<bean id="wasp-genome.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.supplemental.organism.GenomePlugin">
+		<constructor-arg type="java.lang.String">
+			<value>genome</value>
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="waspSiteProperties" />
+		</constructor-arg>
+		<constructor-arg>
+			<ref bean="wasp.channel.plugin.genome" />
+		</constructor-arg>
+	</bean>
+	
+	
+	<!-- AOP advice -->
+	
+	<bean id="waspEnvironmentType" class="edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice"/>
+	
+	<bean id="waspMetadataEnvironmentAspect" class="edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice">
+		<constructor-arg name="key" value="metadata.root"/>
+		<constructor-arg name="name" value="METADATA_ROOT"/>
+		<constructor-arg name="type" value="#{T(edu.yu.einstein.wasp.grid.work.WorkUnitEnvironmentAdvice$WORKUNIT_ENV_VAR_TYPE).FILE}" />
+	</bean>
 
 </beans>

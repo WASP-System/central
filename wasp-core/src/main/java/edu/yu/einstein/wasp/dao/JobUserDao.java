@@ -18,7 +18,7 @@ public interface JobUserDao extends WaspDao<JobUser> {
 
   public JobUser getJobUserByJobUserId (final int jobUserId);
 
-  public JobUser getJobUserByJobIdUserId (final int jobId, final int UserId);
+  public JobUser getJobUserByJobIdUserId (final int jobId, final int userId);
 
 
 }

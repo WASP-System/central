@@ -48,7 +48,7 @@ public class SoftwareDaoImpl extends WaspDaoImpl<Software> implements edu.yu.ein
 	@Transactional
 	public Software getSoftwareBySoftwareId (final Integer softwareId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("softwareId", softwareId);
+		m.put("id", softwareId);
 
 		List<Software> results = this.findByMap(m);
 

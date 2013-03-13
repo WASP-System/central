@@ -47,7 +47,7 @@ public class JobFileDaoImpl extends WaspDaoImpl<JobFile> implements edu.yu.einst
 	@Transactional
 	public JobFile getJobFileByJobFileId (final int jobFileId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobFileId", jobFileId);
+		m.put("id", jobFileId);
 
 		List<JobFile> results = this.findByMap(m);
 

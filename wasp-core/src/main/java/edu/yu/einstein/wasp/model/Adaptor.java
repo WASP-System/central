@@ -36,12 +36,6 @@ public class Adaptor extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 3683497815076911656L;
-	/** 
-	 * adaptorId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer adaptorId;
 
 	/**
 	 * setAdaptorId(Integer adaptorId)
@@ -49,9 +43,9 @@ public class Adaptor extends WaspModel {
 	 * @param adaptorId
 	 *
 	 */
-	
+	@Deprecated
 	public void setAdaptorId (Integer adaptorId) {
-		this.adaptorId = adaptorId;
+		setId(adaptorId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class Adaptor extends WaspModel {
 	 * @return adaptorId
 	 *
 	 */
+	@Deprecated
 	public Integer getAdaptorId () {
-		return this.adaptorId;
+		return getId();
 	}
 
 
@@ -258,7 +253,7 @@ public class Adaptor extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -301,7 +296,7 @@ public class Adaptor extends WaspModel {
 	 */
 	public void setAdaptorset (Adaptorset adaptorset) {
 		this.adaptorset = adaptorset;
-		this.adaptorsetId = adaptorset.adaptorsetId;
+		this.adaptorsetId = adaptorset.getId();
 	}
 
 	/**

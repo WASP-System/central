@@ -31,9 +31,9 @@ public class UserDaoImpl extends WaspDaoImpl<User> implements edu.yu.einstein.wa
 
   @Override
   @Transactional
-  public User getUserByUserId (final int UserId) {
+  public User getUserByUserId (final int userId) {
     HashMap<String, Integer> m = new HashMap<String, Integer>();
-    m.put("UserId", UserId);
+    m.put("id", userId);
     List<User> results = this.findByMap(m);
     if (results.size() == 0) {
       User rt = new User();

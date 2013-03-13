@@ -47,7 +47,7 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	@Transactional
 	public LabUser getLabUserByLabUserId (final int labUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labUserId", labUserId);
+		m.put("id", labUserId);
 
 		List<LabUser> results = this.findByMap(m);
 
@@ -70,10 +70,10 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 
 	@Override
 	@Transactional
-	public LabUser getLabUserByLabIdUserId (final int labId, final int UserId) {
+	public LabUser getLabUserByLabIdUserId (final int labId, final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labId", labId);
-		m.put("UserId", UserId);
+		m.put("userId", userId);
 
 		List<LabUser> results = this.findByMap(m);
 

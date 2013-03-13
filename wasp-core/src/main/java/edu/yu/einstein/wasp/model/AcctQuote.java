@@ -16,14 +16,22 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -37,12 +45,6 @@ public class AcctQuote extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1878774856095048045L;
-	/** 
-	 * quoteId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer quoteId;
 
 	/**
 	 * setQuoteId(Integer quoteId)
@@ -50,9 +52,9 @@ public class AcctQuote extends WaspModel {
 	 * @param quoteId
 	 *
 	 */
-	
+	@Deprecated
 	public void setQuoteId (Integer quoteId) {
-		this.quoteId = quoteId;
+		setId(quoteId);
 	}
 
 	/**
@@ -61,8 +63,9 @@ public class AcctQuote extends WaspModel {
 	 * @return quoteId
 	 *
 	 */
+	@Deprecated
 	public Integer getQuoteId () {
-		return this.quoteId;
+		return getId();
 	}
 
 
@@ -135,7 +138,7 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -144,8 +147,8 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -155,7 +158,7 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -197,7 +200,7 @@ public class AcctQuote extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -220,71 +223,6 @@ public class AcctQuote extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * job
 	 *
@@ -302,7 +240,7 @@ public class AcctQuote extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -334,7 +272,7 @@ public class AcctQuote extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -347,41 +285,6 @@ public class AcctQuote extends WaspModel {
 	public User getUser () {
 		return this.user;
 	}
-
-
-	/** 
-	 * acctJobquotecurrent
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="quoteid", insertable=false, updatable=false)
-	protected List<AcctJobquotecurrent> acctJobquotecurrent;
-
-
-	/** 
-	 * getAcctJobquotecurrent()
-	 *
-	 * @return acctJobquotecurrent
-	 *
-	 */
-	@JsonIgnore
-	public List<AcctJobquotecurrent> getAcctJobquotecurrent() {
-		return this.acctJobquotecurrent;
-	}
-
-
-	/** 
-	 * setAcctJobquotecurrent
-	 *
-	 * @param acctJobquotecurrent
-	 *
-	 */
-	public void setAcctJobquotecurrent (List<AcctJobquotecurrent> acctJobquotecurrent) {
-		this.acctJobquotecurrent = acctJobquotecurrent;
-	}
-
-
 
 	/** 
 	 * acctQuoteUser
@@ -481,6 +384,5 @@ public class AcctQuote extends WaspModel {
 	public void setAcctQuoteMeta (List<AcctQuoteMeta> acctQuoteMeta) {
 		this.acctQuoteMeta = acctQuoteMeta;
 	}
-
 
 }

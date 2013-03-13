@@ -32,12 +32,7 @@ public class Roleset extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 6496614966405537598L;
-	/** 
-	 * rolesetId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer rolesetId;
+	
 
 	/**
 	 * setRolesetId(Integer rolesetId)
@@ -45,9 +40,9 @@ public class Roleset extends WaspModel {
 	 * @param rolesetId
 	 *
 	 */
-	
+	@Deprecated
 	public void setRolesetId (Integer rolesetId) {
-		this.rolesetId = rolesetId;
+		setId(rolesetId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class Roleset extends WaspModel {
 	 * @return rolesetId
 	 *
 	 */
+	@Deprecated
 	public Integer getRolesetId () {
-		return this.rolesetId;
+		return getId();
 	}
 
 
@@ -142,7 +138,7 @@ public class Roleset extends WaspModel {
 	 */
 	public void setRole (Role role) {
 		this.role = role;
-		this.parentroleId = role.roleId;
+		this.parentroleId = role.getId();
 	}
 
 	/**
@@ -174,7 +170,7 @@ public class Roleset extends WaspModel {
 	 */
 	public void setRoleVia (Role role) {
 		this.role = role;
-		this.childroleId = role.roleId;
+		this.childroleId = role.getId();
 	}
 
 	/**

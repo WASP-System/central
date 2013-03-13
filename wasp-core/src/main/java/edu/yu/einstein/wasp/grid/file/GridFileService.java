@@ -79,6 +79,10 @@ public interface GridFileService {
 	 * @throws IOException
 	 */
 	public void delete(String remoteFile) throws IOException;
+	
+	public void move(String origin, String destination) throws IOException;
+	
+	public void copy(String origin, String destination) throws IOException;
 
 	/**
 	 * Take a string representing a file's remote location in URI or string format and convert it into a file URL

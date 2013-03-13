@@ -1,8 +1,9 @@
-Please Login to WASP and accept or reject a pending lab user application  
+Please Login to WASP to accept or reject a pending lab user application  
 <p>Dear ${primaryuser.firstName} ${primaryuser.lastName},</p>
 
-<p>${pendinguser.firstName} ${pendinguser.lastName} has requested an account for your lab named '${lab.name}'.</p>
+<p>${pendinguser.firstName} ${pendinguser.lastName} has applied for a WASP account and has requested to join the laboratory headed by ${lab.user.firstName} ${lab.user.lastName}.</p>
 
-<p>Please login to your WASP account from where you will be able to accept or deny this request. Please note that this email is sent to the principal investigator and any assigned 
-lab managers, any of whom may process this request.</p> 
+<p>To approve or reject this request, please <a href="${baseUrl}/auth/login.do">log in to WASP</a>, select Tasks from the menu bar, and click on the Lab Management Tasks link. 
+Note that this email has been sent to the lab PI and to all designated lab managers, any of whom may process this request.</p> 
 
+<p>Regards,<br />The WASP Team</p>

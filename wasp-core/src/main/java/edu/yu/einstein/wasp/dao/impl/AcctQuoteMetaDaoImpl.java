@@ -47,7 +47,7 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	@Transactional
 	public AcctQuoteMeta getAcctQuoteMetaByQuoteMetaId (final Integer quoteMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("quoteMetaId", quoteMetaId);
+		m.put("id", quoteMetaId);
 
 		List<AcctQuoteMeta> results = this.findByMap(m);
 

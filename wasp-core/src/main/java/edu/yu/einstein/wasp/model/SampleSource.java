@@ -37,12 +37,7 @@ public class SampleSource extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 5159692371397079658L;
-	/** 
-	 * sampleSourceId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSourceId;
+	
 
 	/**
 	 * setSampleSourceId(Integer sampleSourceId)
@@ -50,9 +45,9 @@ public class SampleSource extends WaspModel {
 	 * @param sampleSourceId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSourceId (Integer sampleSourceId) {
-		this.sampleSourceId = sampleSourceId;
+		setId(sampleSourceId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class SampleSource extends WaspModel {
 	 * @return sampleSourceId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSourceId () {
-		return this.sampleSourceId;
+		return getId();
 	}
 
 
@@ -102,7 +98,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="indexvalue")
-	protected Integer index;
+	protected Integer index = 0;
 
 	/**
 	 * setIndex(Integer index)
@@ -156,71 +152,6 @@ public class SampleSource extends WaspModel {
 		return this.sourceSampleId;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sample
 	 *
@@ -238,7 +169,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -270,7 +201,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSourceSample (Sample sourceSample) {
 		this.sourceSample = sourceSample;
-		this.sourceSampleId = sourceSample.sampleId;
+		this.sourceSampleId = sourceSample.getId();
 	}
 
 	/**

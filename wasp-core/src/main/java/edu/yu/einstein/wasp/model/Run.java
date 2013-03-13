@@ -37,12 +37,7 @@ public class Run extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -9196704657950211850L;
-	/** 
-	 * runId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer runId;
+	
 
 	/**
 	 * setRunId(Integer runId)
@@ -50,9 +45,9 @@ public class Run extends WaspModel {
 	 * @param runId
 	 *
 	 */
-	
+	@Deprecated
 	public void setRunId (Integer runId) {
-		this.runId = runId;
+		setId(runId);
 	}
 
 	/**
@@ -61,8 +56,9 @@ public class Run extends WaspModel {
 	 * @return runId
 	 *
 	 */
+	@Deprecated
 	public Integer getRunId () {
-		return this.runId;
+		return getId();
 	}
 
 
@@ -166,7 +162,7 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -175,8 +171,8 @@ public class Run extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -186,7 +182,7 @@ public class Run extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -352,7 +348,7 @@ public class Run extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -375,71 +371,6 @@ public class Run extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * resource
 	 *
@@ -457,7 +388,7 @@ public class Run extends WaspModel {
 	 */
 	public void setResource (Resource resource) {
 		this.resource = resource;
-		this.resourceId = resource.resourceId;
+		this.resourceId = resource.getId();
 	}
 
 	/**
@@ -489,7 +420,7 @@ public class Run extends WaspModel {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourceCategoryId = resourceCategory.resourceCategoryId;
+		this.resourceCategoryId = resourceCategory.getId();
 	}
 
 	/**
@@ -521,7 +452,7 @@ public class Run extends WaspModel {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**
@@ -553,7 +484,7 @@ public class Run extends WaspModel {
 	 */
 	public void setPlatformUnit (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -585,7 +516,7 @@ public class Run extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**

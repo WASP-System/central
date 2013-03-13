@@ -53,7 +53,7 @@ public class AuthController extends WaspController {
   private ConfirmEmailAuthDao confirmEmailAuthDao;
   
   @Override
-@InitBinder
+  @InitBinder
   protected void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
@@ -406,6 +406,11 @@ public class AuthController extends WaspController {
     doReauth();
 
     return "redirect:/dashboard.do";
+  }
+  
+  @RequestMapping("/wasp403")
+  public String wasp403(){
+	  return "auth/accessdenied";
   }
 
 }

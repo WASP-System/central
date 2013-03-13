@@ -365,12 +365,11 @@ public class LabController extends WaspController {
 		
 		if (labId == null || labId == 0) {
 
-			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
 
 			Lab labDb = this.labDao.save(labForm);
 
-			labId = labDb.getLabId();
+			labId = labDb.getId();
 		} else {
 			Lab labDb = this.labDao.getById(labId);
 			labDb.setName(labForm.getName());
@@ -402,12 +401,11 @@ public class LabController extends WaspController {
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 		if (labPendingId == null || labPendingId == 0) {
 
-			labPendingForm.setLastUpdTs(new Date());
 			// labPendingForm.setIsActive(1);
 
 			LabPending labPendingDb = this.labPendingDao.save(labPendingForm);
 
-			labPendingId = labPendingDb.getLabPendingId();
+			labPendingId = labPendingDb.getId();
 		} else {
 			LabPending labPendingDb = this.labPendingDao.getById(labPendingId);
 			labPendingDb.setName(labPendingForm.getName());
@@ -570,8 +568,6 @@ public class LabController extends WaspController {
 			return "lab/detail_rw";
 		}
 
-		labForm.setLastUpdTs(new Date());
-
 		Lab labDb = this.labDao.save(labForm);
 		try {
 			labMetaDao.setMeta(labMetaList, labDb.getLabId());
@@ -612,8 +608,6 @@ public class LabController extends WaspController {
 		labDb.setName(labForm.getName());
 		labDb.setDepartmentId(labForm.getDepartmentId());
 		labDb.setPrimaryUserId(labForm.getPrimaryUserId());
-
-		labDb.setLastUpdTs(new Date());
 
 		this.labDao.merge(labDb);
 
@@ -663,8 +657,6 @@ public class LabController extends WaspController {
 		labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
 		labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
-		labPendingDb.setLastUpdTs(new Date());
-
 		this.labPendingDao.merge(labPendingDb);
 
 		try {
@@ -686,7 +678,7 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
-		if(lab==null || lab.getLabId()==null || lab.getLabId().intValue()<=0){
+		if(lab==null || lab.getId()==null || lab.getId().intValue()<=0){
 			waspErrorMessage("labuser.labNotFound.error");
 			String referer = request.getHeader("Referer");
 			return "redirect:"+ referer;
@@ -1214,7 +1206,7 @@ public class LabController extends WaspController {
 		return "redirect:"+ referer;
 	}
 
-	/**
+	/**NO LONGER USED
 	 * Request-mapped function that allows a department administrator to accept
 	 * or reject an application for a new lab (new PI) within their department.
 	 * 
@@ -1225,7 +1217,12 @@ public class LabController extends WaspController {
 	 * @return
 	 * @throws MetadataException
 	 */
-
+/*  the code below was replaced 3/6/13 with
+ * @RequestMapping(value = "/pending/{deptId}/{labPendingId}.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*') or hasRole('fm') or hasRole('ft') ")
+	public String labPendingUpdate(@PathVariable("deptId") Integer deptId,
+	
+	
 	@RequestMapping(value = "/pending/{action}/{deptId}/{labPendingId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*') or hasRole('fm') or hasRole('ft') ")
 	public String labPendingDetail(@PathVariable("deptId") Integer deptId,
@@ -1279,7 +1276,7 @@ public class LabController extends WaspController {
 		
 		return "redirect:"+ referer;
 	}
-
+*/
 	/**
 	 * Request to upgrade status of a regular existing user to PI by GET
 	 * (NOT AVAILABLE TO ANYONE THAT IS ALREADY A PI; Any person can only be the PI OF ONE LAB IN WASP - CONFIRMED WITH ANDY, 1/2013)
@@ -1421,6 +1418,12 @@ public class LabController extends WaspController {
 		    }
 		}
 		Collections.sort(labUserList, new LabPIComparator());
+		
+		
+		if(labService.isExistingUserPIPending(user)){//has this existing user applied to become a PI and is still awaiting a response from the department admin?
+			m.addAttribute("user", user);
+			m.addAttribute("isExistingUserPIPending", true);
+		}
 		
 		m.addAttribute("labUserList", labUserList);
 		return "lab/viewerLabList";
@@ -1719,5 +1722,75 @@ public class LabController extends WaspController {
 		//m.addAttribute("departments", deptDao.findAll());
 	}
 
-	
+	/**NO LONGER USED
+	 * Request-mapped function that allows a department administrator to accept
+	 * or reject an application for a new lab (new PI) within their department.
+	 * 
+	 * @param departmentId
+	 * @param labPendingId
+	 * @param action
+	 * @param m
+	 * @return
+	 * @throws MetadataException
+	 */
+
+	@RequestMapping(value = "/pending/{deptId}/{labPendingId}.do", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('da-' + #deptId) or hasRole('ga-*') or hasRole('fm') or hasRole('ft') ")
+	public String labPendingUpdate(@PathVariable("deptId") Integer deptId,
+			@PathVariable("labPendingId") Integer labPendingId,
+			@RequestParam("action") String action, 
+			@RequestParam("comment") String comment,
+			ModelMap m)
+			throws MetadataException {
+
+		String referer = request.getHeader("Referer");
+		
+		if (!(action.equals("approve") || action.equals("reject"))) {
+			waspErrorMessage("labPending.action.error");
+			return "redirect:"+ referer;
+		}
+		if ( action.equals("reject")  && "".equalsIgnoreCase(comment.trim()) ) {
+			waspErrorMessage("labPending.rejectedPIMustHaveComment.error");
+			return "redirect:"+ referer;
+		}
+		LabPending labPending = labPendingDao.getLabPendingByLabPendingId(labPendingId);
+		if (labPending.getLabPendingId()==null || labPending.getLabPendingId().intValue()==0 || ! labPending.getStatus().equals("PENDING") ) {
+			waspErrorMessage("labPending.status_not_pending.error");
+			return "redirect:"+ referer;
+		}
+		
+		if (labPending.getDepartmentId().intValue() != deptId.intValue()) {
+			waspErrorMessage("labPending.departmentid_mismatch.error");
+			return "redirect:"+ referer;
+		}
+
+		if ("approve".equals(action)) {
+			Lab lab = createLabFromLabPending(labPending);
+			if (lab.getLabId() == null || lab.getLabId().intValue() == 0){
+				waspErrorMessage("labPending.could_not_create_lab.error");
+				return "redirect:"+ referer;
+			}
+			emailService.sendPendingLabNotifyAccepted(lab);
+			waspMessage("labPending.approved.label");
+		} else {
+			if (labPending.getUserpendingId() != null) {
+				// this PI is currently a pending user. Reject their pending
+				// user application too
+				UserPending userPending = userPendingDao.getUserPendingByUserPendingId(labPending.getUserpendingId());
+				userPending.setStatus(action);
+				userPendingDao.save(userPending);
+				waspMessage("labPending.rejected.label");
+			} else if (labPending.getPrimaryUserId() == null){ //if labPending.userpendingid AND labPending.primaryuserid are both null - should never get here
+				waspErrorMessage("labPending.could_not_create_lab.error");
+				return "redirect:"+ referer;
+			}
+			emailService.sendPendingLabNotifyRejected(labPending, comment.trim());
+		}
+		labPending.setStatus(action);
+		labPendingDao.save(labPending);
+		//return "redirect:/department/detail/" + deptId + ".do";
+		//return "redirect:/department/dapendingtasklist.do";
+		
+		return "redirect:"+ referer;
+	}
 }

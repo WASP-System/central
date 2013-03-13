@@ -32,22 +32,16 @@ public class FileTypeMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 1315024234872716073L;
-	/** 
-	 * fileTypeMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileTypeMetaId;
-
+	
 	/**
 	 * setFileTypeMetaId(Integer fileTypeMetaId)
 	 *
 	 * @param fileTypeMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileTypeMetaId (Integer fileTypeMetaId) {
-		this.fileTypeMetaId = fileTypeMetaId;
+		setId(fileTypeMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class FileTypeMeta extends MetaBase {
 	 * @return fileTypeMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileTypeMetaId () {
-		return this.fileTypeMetaId;
+		return getId();
 	}
 
 
@@ -108,7 +103,7 @@ public class FileTypeMeta extends MetaBase {
 	 */
 	public void setFileType (FileType fileType) {
 		this.fileType = fileType;
-		this.fileTypeId = fileType.fileTypeId;
+		this.fileTypeId = fileType.getId();
 	}
 
 	/**

@@ -39,12 +39,6 @@ public class JobDraft extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2823765071375908605L;
-	/** 
-	 * jobDraftId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftId;
 
 	/**
 	 * setJobDraftId(Integer jobDraftId)
@@ -52,9 +46,9 @@ public class JobDraft extends WaspModel {
 	 * @param jobDraftId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftId (Integer jobDraftId) {
-		this.jobDraftId = jobDraftId;
+		setId(jobDraftId);
 	}
 
 	/**
@@ -63,8 +57,9 @@ public class JobDraft extends WaspModel {
 	 * @return jobDraftId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftId () {
-		return this.jobDraftId;
+		return getId();
 	}
 
 
@@ -107,7 +102,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -116,8 +111,8 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -127,7 +122,7 @@ public class JobDraft extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -260,11 +255,12 @@ public class JobDraft extends WaspModel {
 
 
 	/** 
+	 * Default value set to 1
 	 * status
 	 *
 	 */
-	@Column(name="status")
-	protected String status;
+	@Column(name="status", length=50)
+	protected String status = "1";
 
 	/**
 	 * setStatus(String status)
@@ -288,70 +284,6 @@ public class JobDraft extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * lab
 	 *
@@ -369,7 +301,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.labId = lab.labId;
+		this.labId = lab.getId();
 	}
 
 	/**
@@ -401,7 +333,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**
@@ -433,7 +365,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**
@@ -465,7 +397,7 @@ public class JobDraft extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.submittedjobId = job.jobId;
+		this.submittedjobId = job.getId();
 	}
 
 	/**

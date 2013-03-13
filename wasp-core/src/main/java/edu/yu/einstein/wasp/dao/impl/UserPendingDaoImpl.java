@@ -33,7 +33,7 @@ public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.
   @Transactional
   public UserPending getUserPendingByUserPendingId (final int userPendingId) {
     HashMap<String, Integer> m = new HashMap<String, Integer>();
-    m.put("userPendingId", userPendingId);
+    m.put("id", userPendingId);
     List<UserPending> results = this.findByMap(m);
     if (results.size() == 0) {
       UserPending rt = new UserPending();

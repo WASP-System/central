@@ -45,9 +45,9 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 
 	@Override
 	@Transactional
-	public Userpasswordauth getUserpasswordauthByUserId (final int UserId) {
+	public Userpasswordauth getUserpasswordauthByUserId (final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("UserId", UserId);
+		m.put("id", userId);
 
 		List<Userpasswordauth> results = this.findByMap(m);
 

@@ -35,12 +35,6 @@ public class SampleTypeCategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -8426810599236807394L;
-	/** 
-	 * sampleTypecategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleTypecategoryId;
 
 	/**
 	 * setSampleTypeCategoryId(Integer sampleTypecategoryId)
@@ -48,9 +42,9 @@ public class SampleTypeCategory extends WaspModel {
 	 * @param sampleTypecategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleTypeCategoryId (Integer sampleTypecategoryId) {
-		this.sampleTypecategoryId = sampleTypecategoryId;
+		setId(sampleTypecategoryId);
 	}
 
 	/**
@@ -59,8 +53,9 @@ public class SampleTypeCategory extends WaspModel {
 	 * @return sampleTypecategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleTypeCategoryId () {
-		return this.sampleTypecategoryId;
+		return getId();
 	}
 
 
@@ -130,7 +125,7 @@ public class SampleTypeCategory extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)

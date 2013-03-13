@@ -36,12 +36,7 @@ public class Workflowresourcecategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -4091500561560541120L;
-	/** 
-	 * workflowresourcecategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowresourcecategoryId;
+	
 
 	/**
 	 * setWorkflowresourcecategoryId(Integer workflowresourcecategoryId)
@@ -49,9 +44,9 @@ public class Workflowresourcecategory extends WaspModel {
 	 * @param workflowresourcecategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowresourcecategoryId (Integer workflowresourcecategoryId) {
-		this.workflowresourcecategoryId = workflowresourcecategoryId;
+		setId(workflowresourcecategoryId);
 	}
 
 	/**
@@ -60,8 +55,9 @@ public class Workflowresourcecategory extends WaspModel {
 	 * @return workflowresourcecategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowresourcecategoryId () {
-		return this.workflowresourcecategoryId;
+		return getId();
 	}
 
 
@@ -146,7 +142,7 @@ public class Workflowresourcecategory extends WaspModel {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+		this.resourcecategoryId = resourceCategory.getId();
 	}
 
 	/**
@@ -178,7 +174,7 @@ public class Workflowresourcecategory extends WaspModel {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**

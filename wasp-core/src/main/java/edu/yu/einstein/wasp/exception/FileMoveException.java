@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author andymac
  *
  */
-public class FileMoveException extends Exception{
+public class FileMoveException extends RuntimeException {
 	
 	/**
 	 * 

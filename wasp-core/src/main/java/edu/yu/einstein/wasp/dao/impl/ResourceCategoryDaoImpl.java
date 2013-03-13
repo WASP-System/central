@@ -48,7 +48,7 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	@Transactional
 	public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceCategoryId", resourceCategoryId);
+		m.put("id", resourceCategoryId);
 
 		List<ResourceCategory> results = this.findByMap(m);
 

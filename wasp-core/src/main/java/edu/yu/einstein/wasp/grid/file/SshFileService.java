@@ -59,7 +59,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("put called: " + localFile + " to " + transportConnection.getHostName() + " as " + remoteFile);
 
 		if (!localFile.exists())
-			throw new IOException("File " + localFile.getAbsolutePath()
+			throw new IOException("FileHandle " + localFile.getAbsolutePath()
 					+ " not found");
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
@@ -94,7 +94,7 @@ public class SshFileService implements GridFileService {
 
 		try {
 			if (!exists(remoteFile))
-				throw new IOException("File " + remoteFile + "@" + transportConnection.getHostName() + " not found");
+				throw new IOException("FileHandle " + remoteFile + "@" + transportConnection.getHostName() + " not found");
 			
 			manager.init();
 
@@ -264,6 +264,7 @@ public class SshFileService implements GridFileService {
 		logger.debug("remote file URI: " + result.toString());
 		return result;
 	}
+	
 	@Override
 	public void mkdir(String remoteDir) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
@@ -284,6 +285,60 @@ public class SshFileService implements GridFileService {
 
 		} catch (Exception e) {
 			logger.error("problem creating directory: " + e.getLocalizedMessage());
+			throw new IOException(e);
+		} finally {
+			manager.close();
+		}
+		
+	}
+	@Override
+	public void move(String origin, String destination) throws IOException {
+		StandardFileSystemManager manager = new StandardFileSystemManager();
+
+		logger.debug("move called: " + origin + " to " + destination + " at " + transportConnection.getHostName());
+
+		try {
+			manager.init();
+
+			// Create remote object
+			FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
+
+			if (!originFile.exists()) {
+				String mess = "Attempted to move non-existent file " + origin + "@" + transportConnection.getHostName();
+				logger.debug(mess);
+				throw new IOException(mess);
+			}
+			
+			FileObject destFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
+			
+			originFile.moveTo(destFile);
+			
+		} catch (Exception e) {
+			logger.error("problem deleting file: " + e.getLocalizedMessage());
+			throw new IOException(e);
+		} finally {
+			manager.close();
+		}
+		
+	}
+	
+	@Override
+	public void copy(String origin, String destination) throws IOException {
+		StandardFileSystemManager manager = new StandardFileSystemManager();
+
+		logger.debug("copy called: " + origin + " to " + destination + " at " + transportConnection.getHostName());
+
+		try {
+			manager.init();
+
+			// Create remote object
+			FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
+			FileObject destinationFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
+			
+			destinationFile.copyFrom(originFile, Selectors.SELECT_SELF);
+
+		} catch (Exception e) {
+			logger.error("problem deleting file: " + e.getLocalizedMessage());
 			throw new IOException(e);
 		} finally {
 			manager.close();

@@ -18,7 +18,7 @@ public interface UserroleDao extends WaspDao<Userrole> {
 
   public Userrole getUserroleByUserroleId (final int userroleId);
 
-  public Userrole getUserroleByUserIdRoleId (final int UserId, final int roleId);
+  public Userrole getUserroleByUserIdRoleId (final int userId, final int roleId);
 
 
 }

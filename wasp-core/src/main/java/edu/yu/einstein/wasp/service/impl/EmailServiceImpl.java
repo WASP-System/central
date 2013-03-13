@@ -207,7 +207,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
+	public void sendPendingLabNotifyRejected(final LabPending labPending, final String comment) throws MailPreparationException{
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
@@ -222,11 +222,12 @@ public class EmailServiceImpl implements EmailService{
 		}
 		else{
 			// shouldn't get here 
-			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getLabPendingId() + "'");
+			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getId() + "'");
 		}
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("labpending", labPending);
+		model.put("reasonForRejection", comment.trim());
 		prepareAndSend(user, "emails/pending_lab_notify_rejected", model);
 	}
 	
@@ -243,7 +244,7 @@ public class EmailServiceImpl implements EmailService{
 		try{
 			primaryUser = userDao.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(MetadataException e){
-			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
+			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getId()), e); 
 		}
 		Map model = new HashMap();
 		model.put("pendinguser", userPending);

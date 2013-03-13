@@ -94,7 +94,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 			message =  new MetaMessage(metaKey, group, "", value);
 		}
 		meta = dao.save(meta);
-		message.setDate(meta.getLastUpdTs());
+		message.setDate(meta.getUpdated());
 		return message;
 	}
 	
@@ -131,6 +131,19 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	 * {@inheritDoc}
 	 */
 	@Override
+	public <T extends MetaBase> List<MetaMessage> read(String group, String name, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
+		List<MetaMessage> results = new ArrayList<MetaMessage>();
+		for (MetaMessage message : readAll(modelParentId, clazz, dao)){
+			if (message.getGroup().equals(group) && message.getName().equals(name))
+				results.add(message);
+		}
+		return results;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public <T extends MetaBase> List<MetaMessage> read(Integer modelParentId, Class<T> clazz, WaspDao<T> dao) {
 		return read(DEFAULT_GROUP,  modelParentId, clazz, dao);
 	}
@@ -138,18 +151,21 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	private <T extends MetaBase> MetaMessage getMetaMessage(T meta){
 		MetaMessage message = null;
 		String metaKey = meta.getK();
+		String nameAndValue = meta.getV();
 		if (metaKey.startsWith(STATUS_KEY_PREFIX)){
-			String group = StringUtils.substringBetween(meta.getK(), STATUS_KEY_PREFIX, DELIMITER);
-			String[] valueComponents = StringUtils.split(meta.getV(), DELIMITER);
-			if (valueComponents.length == 1){
-				message = new MetaMessage(metaKey, group, "", valueComponents[0]);
-			} else if (valueComponents.length == 2){
-				message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
+			String group = StringUtils.substringBetween(metaKey, STATUS_KEY_PREFIX, DELIMITER);
+			if (!nameAndValue.contains(DELIMITER)){
+				message = new MetaMessage(metaKey, group, "", nameAndValue);
 			} else {
-				message = new MetaMessage(metaKey, group, "", "");
+				String[] valueComponents = StringUtils.split(nameAndValue, DELIMITER);
+				if (valueComponents.length == 1){
+					message = new MetaMessage(metaKey, group, valueComponents[0], "");
+				} else if (valueComponents.length == 2){
+					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
+				} 
 			}
-			message.setDate(meta.getLastUpdTs());
-		}
+			message.setDate(meta.getUpdated());
+		} 
 		return message;
 	}
 
@@ -171,7 +187,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 		Map<String, Object> searchMap = new HashMap<String, Object>();
 		searchMap.put(modelParentIdEntityName, modelParentId);
 		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("lastUpdTs");
+		orderByColumnNames.add("updated");
 		List<T> metaMatches = dao.findByMapOrderBy(searchMap, orderByColumnNames, "ASC");
 		if (metaMatches != null &&  !metaMatches.isEmpty()){
 			for (T meta: metaMatches){
@@ -188,10 +204,19 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T extends MetaBase> MetaMessage edit(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws WaspException{
-		T meta = getUniqueMeta(message, modelParentId, clazz, dao);
-		meta.setV(newValue); // implicit save
-		return getMetaMessage(meta);
+	public <T extends MetaBase> MetaMessage edit(MetaMessage message, String newValue, Integer modelParentId, Class<T> clazz, WaspDao<T> dao) throws StatusMetaMessagingException{
+		try{
+			T meta = getUniqueMeta(message, modelParentId, clazz, dao);
+			String name = message.getName(); 
+			if (name != null){
+				meta.setV(name + DELIMITER + newValue);
+			} else {
+				meta.setV(newValue);
+			}
+			return getMetaMessage(meta);
+		} catch(WaspException e){
+			throw new StatusMetaMessagingException(e);
+		}
 	}
 	
 	/**

@@ -9,10 +9,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.dao.FileMetaDao;
+import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.FileMeta;
+import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.service.filetype.FileTypeService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -23,45 +23,41 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  */
 public abstract class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
 	
-	private FileMetaDao fileMetaDao;
+	private FileHandleMetaDao fileMetaDao;
 	
 	@Autowired
-	public void setFileMetaDao(FileMetaDao fileMetaDao) {
+	public void setFileMetaDao(FileHandleMetaDao fileMetaDao) {
 		this.fileMetaDao = fileMetaDao;
 	}
-	
-	public static final String FILETYPE_IS_SINGLE_META_KEY = "isSingleton";
-	public static final String FILETYPE_FILE_NUMBER_META_KEY = "fileNumber";
-	public static final String FILETYPE_AREA = "filetype";
 
 	@Override
-	public boolean isSingleFile(File file) {
+	public boolean isSingleFile(FileHandle file) {
 		String single = getMeta(file, FILETYPE_AREA, FILETYPE_IS_SINGLE_META_KEY);
 		Boolean b = new Boolean(single);
 		return b.booleanValue();
 	}
 	
-	public void setSingleFile(File file, boolean single) throws MetadataException {
+	public void setSingleFile(FileHandle file, boolean single) throws MetadataException {
 		Boolean b = new Boolean(single);
 		setMeta(file, FILETYPE_AREA, FILETYPE_IS_SINGLE_META_KEY, b.toString());
 	}
 
 	@Override
-	public Integer getFileNumber(File file) {
+	public Integer getFileNumber(FileHandle file) {
 		String num = getMeta(file, FILETYPE_AREA, FILETYPE_FILE_NUMBER_META_KEY);
 		return new Integer(num);
 	}
 	
-	public void setFileNumber(File file, Integer number) throws MetadataException {
+	public void setFileNumber(FileHandle file, Integer number) throws MetadataException {
 		setMeta(file, FILETYPE_AREA, FILETYPE_FILE_NUMBER_META_KEY, number.toString());
 	}
 	
-	protected String getMeta(File f, String area, String k) {
+	protected String getMeta(FileHandle f, String area, String k) {
 		Assert.assertParameterNotNull(f, "file cannot be null");
 		String v = null;
-		List<FileMeta> fileMetaList = f.getFileMeta();
+		List<FileHandleMeta> fileMetaList = f.getFileMeta();
 		if (fileMetaList == null)
-			fileMetaList = new ArrayList<FileMeta>();
+			fileMetaList = new ArrayList<FileHandleMeta>();
 		try{
 			v = (String) MetaHelper.getMetaValue(area, k, fileMetaList);
 		} catch(MetadataException e) {
@@ -70,11 +66,11 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		return v;
 	}
 
-	protected void setMeta(File file, String area, String metaKey, String metaValue) throws MetadataException{
+	protected void setMeta(FileHandle file, String area, String metaKey, String metaValue) throws MetadataException{
 		Assert.assertParameterNotNull(file, "file cannot be null");
 		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
 		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
-		FileMeta fileMeta = new FileMeta();
+		FileHandleMeta fileMeta = new FileHandleMeta();
 		fileMeta.setFileId(file.getFileId());
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);

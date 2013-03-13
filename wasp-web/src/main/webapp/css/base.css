@@ -34,7 +34,7 @@
 #content {
   background-color: #FFFFE6;
   padding :10px 20px 10px 20px;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 93%;
   -moz-box-shadow: 5px 7px 5px black;
   -webkit-box-shadow: 5px 7px 5px black;
@@ -69,6 +69,12 @@
 	padding-right:5px;
 	font-size: 14px;
 }
+
+.center{
+	margin-left: auto;
+	margin-right: auto;
+}
+
 
 .fixed-width_scrollable {
 	overflow-x:auto;
@@ -366,9 +372,6 @@ div.waspErrorMessage {
 	display:none;
 }
 
-div#accordion h4, div#accordion2 h4{
-	padding-left: 15px;
-}
 
 span.requiredField{
 	color: #FF0000;

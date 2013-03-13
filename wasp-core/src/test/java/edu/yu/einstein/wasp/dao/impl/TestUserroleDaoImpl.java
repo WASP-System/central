@@ -63,7 +63,7 @@ public class TestUserroleDaoImpl {
     public void testGetUserroleByUserroleId() {
 		
 		HashMap m = new HashMap();
-		m.put("userroleId", 1);
+		m.put("id", 1);
 		List<Userrole> results = userroleDao.findByMap(m);
 		Userrole actual = results.get(0);
 		Role role = actual.getRole();

@@ -187,7 +187,7 @@ public class AutoCompleteController extends WaspController{
 	    	  selectLabsList.addAll(viewer.getLab());//current web viewer's labs
 	    	  //now get labs whose jobs this viewer can view
 	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
-	    	  filterMap.put("UserId", viewer.getUserId().intValue());
+	    	  filterMap.put("userId", viewer.getId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
 	    		  Job job = jobUser.getJob();
@@ -297,7 +297,7 @@ public class AutoCompleteController extends WaspController{
 		    	  selectJobsList.addAll(viewer.getJob());//list of viewer's jobs
 		    	  //now get other jobs this viewer can view
 		    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
-		    	  filterMap.put("UserId", viewer.getUserId().intValue());
+		    	  filterMap.put("userId", viewer.getId().intValue());
 		    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 		    	  for(JobUser jobUser : jobUserList){
 		    		  Job job = jobUser.getJob();
@@ -357,7 +357,7 @@ public class AutoCompleteController extends WaspController{
 	    	  selectUserList.add(viewer);//current web viewer
 	    	  //now get other submitters whose jobs this viewer can view
 	    	  Map<String, Integer> filterMap = new HashMap<String, Integer>();
-	    	  filterMap.put("UserId", viewer.getUserId().intValue());
+	    	  filterMap.put("userId", viewer.getId().intValue());
 	    	  List<JobUser> jobUserList = jobUserDao.findByMap(filterMap);
 	    	  for(JobUser jobUser : jobUserList){
 	    		  Job job = jobUser.getJob();

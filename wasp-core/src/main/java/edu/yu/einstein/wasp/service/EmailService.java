@@ -92,8 +92,9 @@ public interface EmailService  {
 	 * 
 	 * @param userPending the pending user
 	 * @param lab the lab applied for
+	 * @param comment reason for rejection
 	 */
-	public void sendPendingLabNotifyRejected(final LabPending labPending);
+	public void sendPendingLabNotifyRejected(final LabPending labPending, final String comment);
 	
 	/**
 	 * Sends an email message to the list of lab managers and principal investigator of the lab 

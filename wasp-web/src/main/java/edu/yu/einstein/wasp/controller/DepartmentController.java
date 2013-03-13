@@ -398,7 +398,7 @@ public class DepartmentController extends WaspController {
 
 		// if i am the user, reauth
 		User me = authenticationService.getAuthenticatedUser();
-		if (me.getUserId().intValue() == userId.intValue()) {
+		if (me.getId().intValue() == userId.intValue()) {
 			doReauth();
 			// if a user is NOT su and the user is a da and removes him/herself
 			// from being a da, then they are NOT permitted to navigate back to

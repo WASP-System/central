@@ -57,7 +57,24 @@
 			commentObj.focus();
 		}
 	}
-	
+	function validateLabPending(theform){
+		if(!theform.action[0].checked && !theform.action[1].checked){
+			alert("<fmt:message key="dapendingtask.approveRejectAlert.label" />");
+			return false;
+		}
+		var commentObj = theform.comment;
+		var commentValue = commentObj.value; 
+		var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
+		if(theform.action[1].checked && trimmedCommentValue.length==0){
+			alert("<fmt:message key="dapendingtask.validateCommentAlert.label" />");
+			if(commentValue.length>0){
+				commentObj.value = "";
+			}
+			commentObj.focus();
+			return false;
+		}
+		return true;  
+	}
 	
 	
 </script>

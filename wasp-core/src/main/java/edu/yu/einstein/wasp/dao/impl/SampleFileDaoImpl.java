@@ -47,7 +47,7 @@ public class SampleFileDaoImpl extends WaspDaoImpl<SampleFile> implements edu.yu
 	@Transactional
 	public SampleFile getSampleFileBySampleFileId (final int sampleFileId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleFileId", sampleFileId);
+		m.put("id", sampleFileId);
 
 		List<SampleFile> results = this.findByMap(m);
 

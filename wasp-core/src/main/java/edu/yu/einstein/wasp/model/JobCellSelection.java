@@ -36,12 +36,6 @@ public class JobCellSelection extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -7027295909006312786L;
-	/** 
-	 * jobCellSelectionId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobCellSelectionId;
 
 	/**
 	 * setjobCellSelectionId(Integer jobCellSelectionId)
@@ -49,9 +43,9 @@ public class JobCellSelection extends WaspModel {
 	 * @param jobCellSelectionId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobCellSelectionId (Integer jobCellSelectionId) {
-		this.jobCellSelectionId = jobCellSelectionId;
+		setId(jobCellSelectionId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class JobCellSelection extends WaspModel {
 	 * @return jobCellSelectionId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobCellSelectionId () {
-		return this.jobCellSelectionId;
+		return getId();
 	}
 
 
@@ -146,7 +141,7 @@ public class JobCellSelection extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

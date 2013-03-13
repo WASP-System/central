@@ -18,6 +18,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
@@ -65,6 +66,16 @@ public interface RunService extends WaspMessageHandlingService {
 	public RunMetaDao getRunMetaDao();
 	
 	public RunCellDao getRunCellDao();
+	
+	 /**
+	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
+	   * @param Run runInstance
+	   * @param List<RunMeta> runMetaList
+	   * @param Integer platformUnitId (for a sample)
+	   * @param Integer resourceId (for a resource)
+	   * @return void
+	   */
+	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
 	
 	/**
 	 * Sets up a sequencing run and sends a message via RMI to the wasp-daemon to initiate sequencing run flow
@@ -170,7 +181,7 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @param run
 	   * @return
 	   */
-	  public boolean isRunSucessfullyCompleted(Run run);
+	  public boolean isRunSuccessfullyCompleted(Run run);
 
 	  /**
 	   * Returns true if the run is registered to be in a STARTED state
@@ -178,6 +189,18 @@ public interface RunService extends WaspMessageHandlingService {
 	   * @return
 	   */
 	  public boolean isRunActive(Run run);
+
+	  /**
+	   * Get a list of runs not currently abandoned and not being set as having been QCd
+	   * @return
+	   */
+	  public Set<Run> getRunsAwaitingQc();
+
+	  /**
+	   * Returns true if ANY run that has not ben abandoned is awaiting QC
+	   * @return
+	   */
+	  public boolean isRunsAwaitingQc();
 	  
 	  
 
