@@ -88,6 +88,7 @@ public class JobEmailServiceActivator {
 				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
 				String jobIdAsString = job.getJobId().toString();
+				String labIdAsString = job.getLab().getId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
 				
 				logger.debug("ROB jobIdAsString: " + jobIdAsString);
@@ -136,11 +137,11 @@ public class JobEmailServiceActivator {
 						logger.debug("ROB ----in da " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_da_job_started");
 					}					
-					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && grantedAuthoritySet.contains("js-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString) && grantedAuthoritySet.contains("js-" + jobIdAsString)){//the pi of the lab is also the job submitter
 						logger.debug("ROB ----in pi with submitter who is pi " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_who_is_pi_job_started");
 					}
-					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && !grantedAuthoritySet.contains("js-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString) && !grantedAuthoritySet.contains("js-" + jobIdAsString)){
 						logger.debug("ROB ----in pi with submitter NOT pi " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
