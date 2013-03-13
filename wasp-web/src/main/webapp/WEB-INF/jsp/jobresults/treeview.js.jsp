@@ -405,15 +405,19 @@ function click(d) {
       }
   });
   
-  $.ajax({
-      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid,
-      type: 'GET',
-      dataType: 'json',
-      success: function (result) {
-      	d.children = result.children;
-      	update(d);
-      }
-  });
+  if (d.children == '') {
+	  $.ajax({
+	      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid,
+	      type: 'GET',
+	      dataType: 'json',
+	      success: function (result) {
+      		if (result.children != '') {
+	    	  d.children = result.children;
+      		  update(d);
+      		}
+      	}
+      });
+  }
 }
 
 function color(d) {
