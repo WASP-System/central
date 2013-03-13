@@ -551,13 +551,14 @@ public class EmailServiceImpl implements EmailService{
 	@Override
 	public void sendSubmitterJobStarted(final Job job){
 		logger.debug("in sendSubmitterJobStarted");
-		//logger.debug("in sendSubmitterJobStarted with jobid="+job.getJobId());
-		//Map model = getJobSummaryMapForEmailDisplay(job);
+		logger.debug("in sendSubmitterJobStarted again");
+		logger.debug("in sendSubmitterJobStarted with jobid="+job.getJobId());
+		Map model = getJobSummaryMapForEmailDisplay(job);
 		
-		//User addressedTo = job.getUser();
-		//model.put("addressedTo", addressedTo);
+		User addressedTo = job.getUser();
+		model.put("addressedTo", addressedTo);
 
-		//prepareAndSend(addressedTo, "emails/inform_submitter_job_started", model);	
+		prepareAndSend(addressedTo, "emails/inform_submitter_job_started", model);	
 	}
 	
 	/**
