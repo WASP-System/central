@@ -213,7 +213,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			remoteFile = remoteDir + "/" + noSpacesFileName;
 			
 			if (gfs.exists(remoteFile)) {
-				noSpacesFileName = retGroup.getFileGroupId() + "__" + noSpacesFileName;
+				noSpacesFileName = retGroup.getId() + "__" + noSpacesFileName;
 				remoteFile = remoteDir + "/" + noSpacesFileName;
 			}
 		} catch (IOException e) {
@@ -296,9 +296,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public List<FileGroup> getFilesByType(FileType fileType){
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
-		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileTypeId", fileType.getFileTypeId());
+		m.put("fileTypeId", fileType.getId());
 		return fileGroupDao.findByMap(m);
 	}
 	
@@ -312,7 +312,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", library.getSampleId());
+		m.put("sampleId", library.getId());
 		List<FileGroup> files = new ArrayList<FileGroup>();
 		for (SampleFile sf: sampleFileDao.findByMap(m))
 			files.add(sf.getFileGroup());
@@ -367,10 +367,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public void setSampleFile(FileGroup group, Sample sample) {
-		Sample s = sampleService.getSampleById(sample.getSampleId());
+		Sample s = sampleService.getSampleById(sample.getId());
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", sample.getSampleId());
-		m.put("fileGroupId", group.getFileGroupId());
+		m.put("sampleId", sample.getId());
+		m.put("fileGroupId", group.getId());
 		List<SampleFile> sf = sampleFileDao.findByMap(m);
 		if (sf.size() == 0) {
 			if (s.getSampleFile() == null) {
@@ -511,7 +511,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			
 			String basename = path.substring(path.lastIndexOf('/') + 1);
 			
-			String resultPath = resultsDir + "/" + job.getJobId() + "/submitted/";
+			String resultPath = resultsDir + "/" + job.getId() + "/submitted/";
 			
 			gfs.mkdir(resultPath);
 			String resultFile = resultPath + basename;
@@ -523,7 +523,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			fileHandleDao.save(fh);
 			
 		}
-		return fileGroupDao.findById(filegroup.getFileGroupId());
+		return fileGroupDao.findById(filegroup.getId());
 	}
 	
 }

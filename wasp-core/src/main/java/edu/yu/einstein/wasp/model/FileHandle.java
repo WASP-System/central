@@ -74,7 +74,7 @@ public class FileHandle extends WaspModel {
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected List<FileHandleMeta> fileMeta;
+	protected List<FileHandleMeta> fileHandleMeta;
 
 
 	/** 
@@ -84,8 +84,8 @@ public class FileHandle extends WaspModel {
 	 *
 	 */
 	@JsonIgnore
-	public List<FileHandleMeta> getFileMeta() {
-		return this.fileMeta;
+	public List<FileHandleMeta> getFileHandleMeta() {
+		return this.fileHandleMeta;
 	}
 
 
@@ -95,8 +95,8 @@ public class FileHandle extends WaspModel {
 	 * @param fileMeta
 	 *
 	 */
-	public void setFileMeta (List<FileHandleMeta> fileMeta) {
-		this.fileMeta = fileMeta;
+	public void setFileMeta (List<FileHandleMeta> fileHandleMeta) {
+		this.fileHandleMeta = fileHandleMeta;
 	}
 
 

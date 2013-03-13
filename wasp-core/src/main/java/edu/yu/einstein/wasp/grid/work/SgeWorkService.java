@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
@@ -316,12 +317,11 @@ public class SgeWorkService implements GridWorkService {
 		w.setWorkingDirectory(workingDirectory);
 		
 		String outputFile = jobNamePrefix + id + ".tar.gz ";
-		String command = " tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".*";
-		File wd = new File(workingDirectory);
-		File rd = new File(resultsDirectory);
-		if (!wd.getPath().equals(rd.getPath())) {
-			logger.debug(wd.getPath() + " != " + rd.getPath());
-			command += " && cp " + outputFile + " " + resultsDirectory;
+		String command = "tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".*";
+		w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
+		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
+		if (!w.getWorkingDirectory().equals(prd)) {
+			command += " && cp " + outputFile + " " + prd;
 		}
 		w.setCommand(command);
 		
@@ -350,11 +350,11 @@ public class SgeWorkService implements GridWorkService {
 		
 		WorkUnit w = new WorkUnit();
 		String outputFile = jobNamePrefix + id + "-FAILED.tar.gz ";
-		String command = "cd " + workingDirectory + " && tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".*";
-		File wd = new File(workingDirectory);
-		File rd = new File(resultsDirectory);
-		if (!wd.getPath().equals(rd.getPath())) {
-				command += " && cp " + outputFile + " " + resultsDirectory;
+		w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
+		String command = "tar --remove-files -czvf " + outputFile + " " + jobNamePrefix + id + ".*";
+		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
+		if (!w.getWorkingDirectory().equals(prd)) {
+				command += " && cp " + outputFile + " " + prd;
 		}
 		w.setCommand(command);
 		
@@ -516,6 +516,7 @@ public class SgeWorkService implements GridWorkService {
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {
 				
+				logger.debug("WorkUnit required file: " + f.getFileURI().toString());
 				try {
 					preamble += "WASPFILE[" + fi + "]=" + provisionRemoteFile(f) + "\n";
 				} catch (FileNotFoundException e) {
@@ -723,17 +724,19 @@ public class SgeWorkService implements GridWorkService {
 	 * This needs to be fleshed out.  Files which are not
 	 * 
 	 */
-	private String provisionRemoteFile(edu.yu.einstein.wasp.model.FileHandle file) throws FileNotFoundException, GridException {
+	private String provisionRemoteFile(FileHandle file) throws FileNotFoundException, GridException {
 		
 		String fileName;
 		try {
 			fileName = transportConnection.prefixRemoteFile(file.getFileURI());
+			logger.debug("proceeding with file: " + fileName);
 		} catch (GridUnresolvableHostException e) {
 			// file is not registered on remote host.
 			// provision to temporary directory.
 			String tempfile = transportConnection.prefixRemoteFile(file.getFileURI().getPath());
 			tempfile = transportConnection.getConfiguredSetting("remote.dir") + "/" + tempfile;
 			tempfile = tempfile.replaceAll("//", "").replaceAll("//", "/");
+			logger.debug("will attempt to provision file: " + tempfile);
 			try {
 				if (gridFileService.exists(tempfile)) {
 					return tempfile;

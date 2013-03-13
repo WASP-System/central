@@ -229,8 +229,8 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		JSONObject jo = new JSONObject();
 		if (group.getFileHandles().size() == 1) {
 			FileHandle f = group.getFileHandles().iterator().next();
-			f = fileService.getFileHandleById(f.getFileId());
-			jo.put("id", f.getFileId());
+			f = fileService.getFileHandleById(f.getId());
+			jo.put("id", f.getId());
 			jo.put("uri", f.getFileURI().toString());
 			jo.put("md5", f.getMd5hash() == null ? "" : f.getMd5hash());
 			jo.put("fileType", group.getFileType().getIName());
@@ -244,9 +244,9 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		data.put("isActive", group.getIsActive());
 		data.put("isArchived", group.getIsArchived());
 		for (FileHandle f : group.getFileHandles()) {
-			f = fileService.getFileHandleById(f.getFileId());
+			f = fileService.getFileHandleById(f.getId());
 			JSONObject j = new JSONObject();
-			j.put("id", f.getFileId());
+			j.put("id", f.getId());
 			j.put("uri", f.getFileURI().toString());
 			j.put("md5", f.getMd5hash() == null ? "" : f.getMd5hash());
 			jos.add(j);

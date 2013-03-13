@@ -75,7 +75,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 				break;
 			}
 		}
-		String modelParentIdEntityIdGetterMethodName = null;;
+		String modelParentIdEntityIdGetterMethodName = null;
 		for (Method method : entityClass.getMethods()){
 			if (StringUtils.equalsIgnoreCase(method.getName(), "get" + parentClassName + "Id")){
 				modelParentIdEntityIdGetterMethodName = method.getName();
@@ -93,6 +93,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 		Map<String, Object> m = new HashMap<String, Object>();
 		m.put(modelParentIdEntityName, modelParentId);
 		m.put("k", meta.getK());
+		logger.debug(modelParentIdEntityName + ":" + modelParentId + ":" + meta.getK());
 		List<E> existingMetaList = findByMap(m);
 		if (!existingMetaList.isEmpty()){
 			E existingMeta = existingMetaList.get(0);

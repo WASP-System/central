@@ -256,6 +256,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 						<source>1.6</source>
 						<target>1.6</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
+						<debug>true</debug>
 					</configuration>
 				</plugin>
 				<plugin>
