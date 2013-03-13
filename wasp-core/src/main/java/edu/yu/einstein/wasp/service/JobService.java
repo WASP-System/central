@@ -495,6 +495,8 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
 
+	public Map<String, Object> getD3Branch(int id, String type);
+
 	/**
 	 * getJobDetailWithMeta() returns all detail information with meta for a job
 	 * @param jobId
