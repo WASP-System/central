@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 //import org.springframework.security.core.GrantedAuthority;
 
@@ -30,6 +31,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.User;
 //import edu.yu.einstein.wasp.model.Role;
 
+@Transactional("entityManager")
 public class JobEmailServiceActivator {
 	
 	@Autowired

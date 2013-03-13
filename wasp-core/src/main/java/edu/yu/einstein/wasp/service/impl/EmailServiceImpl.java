@@ -14,6 +14,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
@@ -101,6 +103,8 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * {@inheritDoc} 
@@ -546,13 +550,14 @@ public class EmailServiceImpl implements EmailService{
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void sendSubmitterJobStarted(final Job job){
-
-		Map model = getJobSummaryMapForEmailDisplay(job);
+		logger.debug("in sendSubmitterJobStarted");
+		//logger.debug("in sendSubmitterJobStarted with jobid="+job.getJobId());
+		//Map model = getJobSummaryMapForEmailDisplay(job);
 		
-		User addressedTo = job.getUser();
-		model.put("addressedTo", addressedTo);
+		//User addressedTo = job.getUser();
+		//model.put("addressedTo", addressedTo);
 
-		prepareAndSend(addressedTo, "emails/inform_submitter_job_started", model);	
+		//prepareAndSend(addressedTo, "emails/inform_submitter_job_started", model);	
 	}
 	
 	/**
