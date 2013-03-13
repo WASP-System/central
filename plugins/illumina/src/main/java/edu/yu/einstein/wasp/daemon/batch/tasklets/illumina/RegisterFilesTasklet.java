@@ -126,7 +126,10 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 		w.setWorkingDirectory(workingDirectory);
 		
-		w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../report . && mkdir -p sequence");
+		w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../reports . && mkdir -p sequence && cd sequence");
+		// rename files with spaces in names
+		w.addCommand("shopt -s nullglob");
+		w.addCommand("for f in ../reports/*' '* ; do mv \"$f\" \"${f// /_}\"; done");
 		
 		Set<Sample> allLibraries = new HashSet<Sample>();
 		Sample platformUnit = run.getPlatformUnit();
@@ -149,16 +152,17 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			for (Sample s : libraries) {
 				if (sampleService.isControlLibrary(s))
 					continue;
-				logger.debug("setting up for sample " + s.getSampleId());
-				int sid = s.getSampleId();
-				w.addCommand("if [ -e ../Project_WASP/Sample_" + sid + "/" + sid + "_*_001.fastq.gz ]; then \n" +
-						"  ln -s ../Project_WASP/Sample_" + sid + "/" + sid + "_*fastq.gz sequence\nfi");
+				logger.debug("setting up for sample " + s.getId());
+				// generate symlinks for fastq
+				w.addCommand("for x in ../../Project_WASP/Sample_" + s.getId() + "/" + s.getId() + "*.fastq.gz ; do \n" +
+						"  ln -s `readlink -f ${x}` .\ndone");
 			}
 
 		}
 		
 		// list available sequence files for registration
-		w.addCommand("cd sequence && ls -1");
+		w.addCommand("shopt -u nullglob");
+		w.addCommand("ls -1");
 		
 		// method to send commands without wrapping them in a submission script.
 		// will return when complete (also gives access to stdout), only do this
@@ -207,7 +211,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				Integer read = new Integer(l.group(4));
 				Integer fileNum = new Integer(l.group(5));
 				
-				if (library == null || !library.getSampleId().equals(sampleId)) {
+				if (library == null || !library.getId().equals(sampleId)) {
 					library = sampleService.getSampleById(sampleId);
 					if (fg == null) 
 						fg = new FileGroup();
@@ -244,7 +248,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				fqs.setReadsMarkedFailed(file, f);
 				
 				
-				logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getFileId());
+				logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getId());
 				
 				
 				line = br.readLine();
@@ -254,6 +258,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			
 		} catch (Exception e) {
 			logger.warn("unable to register files: " + e.getLocalizedMessage());
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 

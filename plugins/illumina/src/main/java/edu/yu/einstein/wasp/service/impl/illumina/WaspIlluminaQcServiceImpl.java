@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.service.impl.illumina;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,9 +15,11 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.illumina.WaspIlluminaQcService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.CellSuccessMeta;
@@ -56,6 +60,9 @@ public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIl
 	
 	@Autowired
 	SampleService sampleService;
+	
+	@Autowired
+	RunService runService;
 	
 	@Autowired
 	MetaMessageService metaMessageService;

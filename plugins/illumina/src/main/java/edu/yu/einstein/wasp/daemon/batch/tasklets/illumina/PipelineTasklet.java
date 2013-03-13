@@ -127,16 +127,16 @@ public class PipelineTasklet extends WaspTasklet {
 		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
 		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
 		
-		String retval = "";
+		String retval = "if [ ! -e wasp_begin.txt ]; then\n";
 		
-		retval="loc=\"_pos.txt\"\n" + 
-				"if [ -e ../L001/s_1_1101.clocs ]; then\n" +
+		retval=" loc=\"_pos.txt\"\n" + 
+				" if [ -e ../L001/s_1_1101.clocs ]; then\n" +
 				"  loc=.clocs\n" +
-				"elif [ -e ../L001/s_1_1101.locs ]; then\n" +
+				" elif [ -e ../L001/s_1_1101.locs ]; then\n" +
 				"  loc=.locs\n" +
-				"fi\n\n";
+				" fi\n\n";
 		
-		retval += "configureBclToFastq.pl --force --positions-format ${loc} ";
+		retval += " configureBclToFastq.pl --force --positions-format ${loc} ";
 		
 		if (PropertyHelper.isSet(failed) && failed == "true")
 			retval += "--with-failed-reads ";
@@ -156,9 +156,9 @@ public class PipelineTasklet extends WaspTasklet {
 			retval += "--fastq-cluster-count " + fqc;
 		}
 		
-		retval += "\n\n";
+		retval += "\n\n touch wasp_begin.txt\n\n";
 		
-		retval += "cd ../../../Unaligned && make -j " + proc + "\n";
+		retval += " cd ../../../Unaligned && make -j ${threads} \n\nfi\n\n";
 
 		return retval;
 	}

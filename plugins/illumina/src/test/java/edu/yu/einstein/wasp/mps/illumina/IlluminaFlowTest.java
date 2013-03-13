@@ -55,7 +55,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 // PowerMockito
 // TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, StepScopeTestExecutionListener.class })
 // injection for step scope
-@ContextConfiguration(locations = { "/illumina-test-application-context.xml" })
+@ContextConfiguration(locations = { "/illumina-test-application-context.xml"}) //, "classpath*:/META-INF/spring/core-common-config.xml" 
 public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		implements MessageHandler {
 

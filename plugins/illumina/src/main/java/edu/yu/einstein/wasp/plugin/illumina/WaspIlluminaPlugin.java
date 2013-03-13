@@ -48,7 +48,6 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 	@Autowired
 	private RunService runService;
 
-	@Autowired
 	private IlluminaSequenceRunProcessor casava;
 	
 	@Autowired
@@ -82,10 +81,10 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 			if (run == null)
 				return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
 			
-			jobParameters.put(WaspJobParameters.RUN_ID, run.getRunId().toString());
+			jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
 			jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
 			
-			logger.debug("Sending launch message to run " + FLOW_NAME + " on jobId: " + run.getRunId());
+			logger.debug("Sending launch message to run " + FLOW_NAME + " on jobId: " + run.getId());
 			runService.launchBatchJob(FLOW_NAME, jobParameters);
 			
 			return (Message<String>) MessageBuilder.withPayload("Initiating Illumina pipeline on run " + run.getName()).build();
@@ -94,7 +93,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
 		}
 	}
-	
+		
 	public Message<String> getSampleSheet(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return getSampleSheetHelp();
@@ -103,7 +102,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 			return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
 		String ss;
 		try {
-			ss = casava.getSampleSheet(run);
+			ss = getCasava().getSampleSheet(run);
 		} catch (Exception e) {
 			e.printStackTrace();
 			String err = "unable to create sample sheet for run " + run.getName();
@@ -112,6 +111,14 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 		}
 		return MessageBuilder.withPayload(ss).build();
 	}
+	
+//	public Message<String> getAvailablePU(Message<String> m) {
+//		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+//			return getFlowcellHelp();
+//		Set<Run> runs = runService.getCurrentlyActiveRuns();
+//		runs.iterator().next().getPlatformUnit().getName()
+//		
+//	}
 	
 	/**
 	 * 
@@ -165,6 +172,12 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
+//	private Message<String> getFlowcellHelp() {
+//		String mstr = "\nIllumina Pipeline plugin: output sample sheet for a given run:\n" +
+//				"wasp -T wasp-illumina -t getAvailablePU";
+//		return MessageBuilder.withPayload(mstr).build();
+//	}
+	
 	@Override
 	public String getBatchJobNameByArea(String batchJobType, String area){
 		if (batchJobType.equals(BatchJobTask.GENERIC))
@@ -180,6 +193,20 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
 		return new Hyperlink("waspIlluminaPlugin.hyperlink.label", "/wasp-illumina/description.do");
+	}
+
+	/**
+	 * @return the casava
+	 */
+	public IlluminaSequenceRunProcessor getCasava() {
+		return casava;
+	}
+
+	/**
+	 * @param casava the casava to set
+	 */
+	public void setCasava(IlluminaSequenceRunProcessor casava) {
+		this.casava = casava;
 	}
 
 }
