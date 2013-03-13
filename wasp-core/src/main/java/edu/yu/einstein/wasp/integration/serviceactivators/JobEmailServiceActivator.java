@@ -10,19 +10,19 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
-//import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 
-//import edu.yu.einstein.wasp.security.WaspJdbcDaoImpl;
+import edu.yu.einstein.wasp.security.WaspJdbcDaoImpl;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -43,22 +43,22 @@ public class JobEmailServiceActivator {
 	@Autowired
 	private UserService userService;
 
-//	@Autowired
-//	private WaspJdbcDaoImpl waspJdbcDaoImpl;
+	@Autowired
+	private WaspJdbcDaoImpl waspJdbcDaoImpl;
 	
-//	@Value("${wasp.email.jobstart.rolenames:js;pi;lm;fm;da;su;}")
-//	private String jobStartRolenames;
+	@Value("${wasp.email.jobstart.rolenames:js;pi;lm;fm;da;su;}")
+	private String jobStartRolenames;
 
 	private static final Logger logger = LoggerFactory.getLogger(JobEmailServiceActivator.class);
 	
-//	private List<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
-//		List<String> list = new ArrayList<String>();
-//		String[] tokens = delimitedList.split(delimiter);
-//		for(String token : tokens){
-//			list.add(token);							
-//		}
-//		return list;
-//	}
+	private List<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
+		List<String> list = new ArrayList<String>();
+		String[] tokens = delimitedList.split(delimiter);
+		for(String token : tokens){
+			list.add(token);							
+		}
+		return list;
+	}
 	
 	@ServiceActivator
 	public void isSuccessfulRun(Message<WaspStatus> jobStatusMessage) {
@@ -69,8 +69,10 @@ public class JobEmailServiceActivator {
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
-				emailService.sendSubmitterJobStarted(job);
+				//emailService.sendSubmitterJobStarted(job);
 				//emailService.sendJobStarted(jobService.getJobByJobId(47), userService.getUserByLogin("smaslova"), "emails/rob_test");
+				
+				
 				/*
 				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
 					emailService.sendSubmitterJobStarted(job);
@@ -83,7 +85,6 @@ public class JobEmailServiceActivator {
 				emailService.sendDAJobStartedConfirmRequest(job);
 				emailService.sendFacilityManagerJobStartedConfirmRequest(job);//the shared facility
 				*/
-				/*
 				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
 				String jobIdAsString = job.getJobId().toString();
@@ -124,37 +125,37 @@ public class JobEmailServiceActivator {
 					
 					
 					if(rolesForJobStart.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
-						logger.debug("ROB ----in su");
+						logger.debug("ROB ----in su for " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");//TODO maybe change this email
 					}
 					else if(rolesForJobStart.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
-						logger.debug("ROB ----in fm");
+						logger.debug("ROB ----in fm " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_facility_manager_job_started");
 					}
 					else if(rolesForJobStart.contains("da") && grantedAuthoritySet.contains("da-" + departmentIdAsString)){//dept admin
-						logger.debug("ROB ----in da");
+						logger.debug("ROB ----in da " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_da_job_started");
 					}					
 					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && grantedAuthoritySet.contains("js-" + jobIdAsString)){
-						logger.debug("ROB ----in pi with submitter who is pi");
+						logger.debug("ROB ----in pi with submitter who is pi " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_who_is_pi_job_started");
 					}
 					else if(rolesForJobStart.contains("pi") && grantedAuthoritySet.contains("pi-" + jobIdAsString) && !grantedAuthoritySet.contains("js-" + jobIdAsString)){
-						logger.debug("ROB ----in pi with submitter NOT pi");
+						logger.debug("ROB ----in pi with submitter NOT pi " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
 					else if(rolesForJobStart.contains("lm") && grantedAuthoritySet.contains("lm-" + jobIdAsString)){
-						logger.debug("ROB ----in lm");
+						logger.debug("ROB ----in lm " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
 					else if(rolesForJobStart.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
-						logger.debug("ROB ----in js");
+						logger.debug("ROB ----in js " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");
 					}
 					
 				}//end for
 			
-			*/
+			
 			/*	old code, replaced by above		
 			if(job != null && job.getJobId() != null){
 				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
