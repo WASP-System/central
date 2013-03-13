@@ -1124,6 +1124,17 @@ UNLOCK TABLES;
 # Dump of table samplebarcode
 # ------------------------------------------------------------
 
+LOCK TABLES `samplebarcode` WRITE;
+/*!40000 ALTER TABLE `samplebarcode` DISABLE KEYS */;
+
+INSERT INTO `samplebarcode` (`id`, `created`, `updated`, `uuid`, `barcodeid`, `sampleid`, `lastupdatebyuser`)
+VALUES
+	(1,'2012-12-20 11:09:20','2013-03-13 11:19:59',X'C15F3E669FF34669A94E028C9F20BA01',4,1,1),
+	(2,'2012-12-20 11:09:48','2013-03-13 11:19:59',X'1DE365FE85764ECB9A9A50E5C154D7BF',5,10,1),
+	(3,'2012-12-20 11:10:27','2013-03-13 11:19:59',X'032FE194FEEF42668FB5B7D3366D9C66',6,19,1);
+
+/*!40000 ALTER TABLE `samplebarcode` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table sampledraft
