@@ -293,7 +293,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	public String prefixRemoteFile(String filespec) {
 		String prefix = "";
 		if (isUserDirIsRoot() && !filespec.startsWith("$HOME") && !filespec.startsWith("~")) prefix = "$HOME/";
-		String retval = prefix + filespec + "/";
+		String retval = prefix + filespec;
 		return retval.replaceAll("//", "/");
 	}
 

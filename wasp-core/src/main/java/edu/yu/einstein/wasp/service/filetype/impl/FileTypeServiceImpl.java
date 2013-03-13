@@ -55,7 +55,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 	protected String getMeta(FileHandle f, String area, String k) {
 		Assert.assertParameterNotNull(f, "file cannot be null");
 		String v = null;
-		List<FileHandleMeta> fileMetaList = f.getFileMeta();
+		List<FileHandleMeta> fileMetaList = f.getFileHandleMeta();
 		if (fileMetaList == null)
 			fileMetaList = new ArrayList<FileHandleMeta>();
 		try{
@@ -71,7 +71,7 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
 		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
 		FileHandleMeta fileMeta = new FileHandleMeta();
-		fileMeta.setFileId(file.getFileId());
+		fileMeta.setFileHandleId(file.getId());
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
 		fileMetaDao.setMeta(fileMeta);
