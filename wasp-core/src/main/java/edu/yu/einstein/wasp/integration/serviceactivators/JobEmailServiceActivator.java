@@ -68,6 +68,8 @@ public class JobEmailServiceActivator {
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
 
+				emailService.sendJobStarted(jobService.getJobByJobId(47), userService.getUserByLogin("smaslova"), "emails/rob_test");
+				/*
 				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
 					emailService.sendSubmitterJobStarted(job);
 					emailService.sendPIJobStartedConfirmRequest(job);
@@ -78,7 +80,7 @@ public class JobEmailServiceActivator {
 				emailService.sendLabManagerJobStartedConfirmRequest(job);//the designated lab manager in the submitter's lab
 				emailService.sendDAJobStartedConfirmRequest(job);
 				emailService.sendFacilityManagerJobStartedConfirmRequest(job);//the shared facility
-				
+				*/
 				/*
 				//emailService.sendFacilityManagerJobStartedConfirmRequest(job);
 
