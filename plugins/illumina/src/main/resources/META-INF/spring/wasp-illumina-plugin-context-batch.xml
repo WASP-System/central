@@ -10,5 +10,6 @@
 
 	
 	<!-- common definitions -->
+	<import resource="wasp-illumina-plugin-context-common.xml" />
 	
 </beans>
