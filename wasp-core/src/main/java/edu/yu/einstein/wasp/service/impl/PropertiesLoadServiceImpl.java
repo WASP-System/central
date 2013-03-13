@@ -161,12 +161,9 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			} catch (IOException e) {
 				throw new WaspMessageInitializationException("IO problem encountered reading resource '"+messageFile.getFilename()+"': "+e.getMessage());
 			}		
-			
-			updateTestData(); // TODO: remove from production code
-			
 			logger.info("Property table was initialized succesfully for file '"+messageFile.getFilename()+"'");
-			
 		}
+		updateTestData(); // TODO: remove from production code
 	}
 	
 		// TODO: remove from production code
