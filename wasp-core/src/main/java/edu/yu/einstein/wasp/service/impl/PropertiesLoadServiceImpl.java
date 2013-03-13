@@ -16,8 +16,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,6 @@ import edu.yu.einstein.wasp.dao.WaspDao;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.service.PropertiesLoadService;
 import edu.yu.einstein.wasp.service.WaspSqlService;
 
@@ -176,9 +173,9 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 		private void updateTestData(){
 			Map<String, WaspDao> daoBeans = applicationContext.getBeansOfType(WaspDao.class);
 			for (WaspDao dao : daoBeans.values()){
-				for (WaspModel model : (List<WaspModel>) dao.findAll()){
+				for (Object model : dao.findAll()){
 					try {
-						if (model.getClass().getSimpleName().startsWith("UiField"))
+						if (model.getClass().getSimpleName().startsWith("UiField") || model.getClass().getSimpleName().startsWith("Userpasswordauth"))
 							continue;
 						Method getterUUID = null;
 						Method getterUpdated = null;
