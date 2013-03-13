@@ -127,7 +127,7 @@ public class JobEmailServiceActivator {
 					
 					if(rolesForJobStart.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
 						logger.debug("ROB ----in su for " + user.getLastName() + " for jobId " + job.getId().toString());
-						emailService.sendJobStarted(job, user, "emails/inform_submitter_job_started");//TODO maybe change this email
+						emailService.sendJobStarted(job, job.getUser(), "emails/inform_submitter_job_started");//TODO maybe change this email
 					}
 					else if(rolesForJobStart.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
 						logger.debug("ROB ----in fm " + user.getLastName() + " for jobId " + job.getId().toString());
@@ -145,7 +145,7 @@ public class JobEmailServiceActivator {
 						logger.debug("ROB ----in pi with submitter NOT pi " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
-					else if(rolesForJobStart.contains("lm") && grantedAuthoritySet.contains("lm-" + jobIdAsString)){
+					else if(rolesForJobStart.contains("lm") && grantedAuthoritySet.contains("lm-" + labIdAsString)){
 						logger.debug("ROB ----in lm " + user.getLastName() + " for jobId " + job.getId().toString());
 						emailService.sendJobStarted(job, user, "emails/inform_pi_or_lab_manager_job_started");
 					}
