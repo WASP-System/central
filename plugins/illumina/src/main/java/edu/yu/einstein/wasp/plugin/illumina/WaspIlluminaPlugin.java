@@ -84,6 +84,10 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 			jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
 			jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
 			
+			String or = getOverride(m);
+			if (or != null)
+				jobParameters.put("override", or);
+			
 			logger.debug("Sending launch message to run " + FLOW_NAME + " on jobId: " + run.getId());
 			runService.launchBatchJob(FLOW_NAME, jobParameters);
 			
@@ -144,6 +148,21 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 		}
 		
 		return run;
+	}
+	
+	public String getOverride(Message<String> m) {
+		String retval = null;
+		JSONObject jo;
+		try {
+			jo = new JSONObject(m.getPayload().toString());
+			if (jo.has("override")) {
+				retval = (String) jo.get("override");
+			}
+		} catch (JSONException e) {
+			logger.warn("unable to parse JSON");
+		}
+		return retval;
+		
 	}
 
 	@Override
