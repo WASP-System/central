@@ -47,7 +47,7 @@ public class AcctGrantjobDaoImpl extends WaspDaoImpl<AcctGrantjob> implements ed
 	@Transactional
 	public AcctGrantjob getAcctGrantjobByJobId (final int jobId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobId", jobId);
+		m.put("id", jobId);
 
 		List<AcctGrantjob> results = this.findByMap(m);
 

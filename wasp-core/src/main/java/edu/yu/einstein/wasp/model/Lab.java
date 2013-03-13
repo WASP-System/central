@@ -39,12 +39,6 @@ public class Lab extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 7721869798227853055L;
-	/** 
-	 * labId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer labId;
 
 	/**
 	 * setLabId(Integer labId)
@@ -52,9 +46,9 @@ public class Lab extends WaspModel {
 	 * @param labId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLabId (Integer labId) {
-		this.labId = labId;
+		setId(labId);
 	}
 
 	/**
@@ -63,8 +57,9 @@ public class Lab extends WaspModel {
 	 * @return labId
 	 *
 	 */
+	@Deprecated
 	public Integer getLabId () {
-		return this.labId;
+		return getId();
 	}
 
 
@@ -171,7 +166,7 @@ public class Lab extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -194,73 +189,6 @@ public class Lab extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	@JsonIgnore
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	@JsonIgnore
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * department
 	 *
@@ -278,7 +206,7 @@ public class Lab extends WaspModel {
 	 */
 	public void setDepartment (Department department) {
 		this.department = department;
-		this.departmentId = department.departmentId;
+		this.departmentId = department.getId();
 	}
 
 	/**
@@ -311,7 +239,7 @@ public class Lab extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.primaryUserId = user.UserId;
+		this.primaryUserId = user.getId();
 	}
 
 	/**

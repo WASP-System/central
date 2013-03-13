@@ -257,9 +257,9 @@ public class PlatformUnitController extends WaspController {
 		List<Sample> platformUnitList = new ArrayList<Sample>();
 		
 		Date dateFromGridAsDate = null;
-		if(dateFromGridAsString != null){//this is MM/dd/yyyy coming from grid
+		if(dateFromGridAsString != null){//this is yyyy/MM/dd coming from grid
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			try{				
 				dateFromGridAsDate = (Date)formatter.parse(dateFromGridAsString); 
 			}
@@ -472,7 +472,7 @@ public class PlatformUnitController extends WaspController {
 					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
 				}
 				
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");	
+				Format formatter = new SimpleDateFormat("yyyy/MM/dd");	
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(sample.getReceiveDts()),//use in this case as record created date
@@ -781,7 +781,7 @@ public class PlatformUnitController extends WaspController {
 			
 			metaHelperWebapp = getMetaHelperWebappRunInstance();//********note this is now runInstance
 			String area2 = metaHelperWebapp.getArea();
-			Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+			Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			
 			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
 			for(Run sequenceRun : sequenceRuns){
@@ -805,7 +805,7 @@ public class PlatformUnitController extends WaspController {
 				String dateRunStarted = new String("not set");
 				if(sequenceRun.getStartts()!=null){
 					try{				
-						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//MM/dd/yyyy
+						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				////startDateForRuns.add(dateRunStarted);
@@ -814,7 +814,7 @@ public class PlatformUnitController extends WaspController {
 				String dateRunEnded = new String("not set");
 				if(sequenceRun.getEnDts()!=null){					
 					try{				
-						dateRunEnded = new String(formatter.format(sequenceRun.getEnDts()));//MM/dd/yyyy
+						dateRunEnded = new String(formatter.format(sequenceRun.getEnDts()));//yyyy/MM/dd
 					}catch(Exception e){}
 					
 				}
@@ -1535,11 +1535,11 @@ public class PlatformUnitController extends WaspController {
 		Date dateStart;
 		try{
 			DateFormat formatter;
-			formatter = new SimpleDateFormat("MM/dd/yyyy");
+			formatter = new SimpleDateFormat("yyyy/MM/dd");
 			dateStart = (Date)formatter.parse(runStartDate);  
 		}
 		catch(Exception e){
-			logger.warn("Start Date format must be MM/dd/yyyy.");
+			logger.warn("Start Date format must be yyyy/MM/dd.");
 			return return_string;	
 		}
 		

@@ -32,12 +32,6 @@ public class WorkflowSampleSubtype extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 719894564264715796L;
-	/** 
-	 * workflowsamplesubtypeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowsamplesubtypeId;
 
 	/**
 	 * setWorkflowsamplesubtypeId(Integer workflowsamplesubtypeId)
@@ -45,9 +39,9 @@ public class WorkflowSampleSubtype extends WaspModel {
 	 * @param workflowsamplesubtypeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowsamplesubtypeId (Integer workflowsamplesubtypeId) {
-		this.workflowsamplesubtypeId = workflowsamplesubtypeId;
+		setId(workflowsamplesubtypeId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class WorkflowSampleSubtype extends WaspModel {
 	 * @return workflowsamplesubtypeId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowsamplesubtypeId () {
-		return this.workflowsamplesubtypeId;
+		return getId();
 	}
 
 
@@ -142,7 +137,7 @@ public class WorkflowSampleSubtype extends WaspModel {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -174,7 +169,7 @@ public class WorkflowSampleSubtype extends WaspModel {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**

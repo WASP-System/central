@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author andymac
  *
  */
-public class FileUploadException extends Exception{
+public class FileUploadException extends RuntimeException {
 	
 	/**
 	 * 

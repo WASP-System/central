@@ -47,7 +47,7 @@ public class RoleDaoImpl extends WaspDaoImpl<Role> implements edu.yu.einstein.wa
 	@Transactional
 	public Role getRoleByRoleId (final int roleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("roleId", roleId);
+		m.put("id", roleId);
 
 		List<Role> results = this.findByMap(m);
 

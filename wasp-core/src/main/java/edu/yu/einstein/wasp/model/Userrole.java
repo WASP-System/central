@@ -34,22 +34,16 @@ public class Userrole extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -9165015615365746207L;
-	/** 
-	 * userroleId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer userroleId;
-
+	
 	/**
 	 * setUserroleId(Integer userroleId)
 	 *
 	 * @param userroleId
 	 *
 	 */
-	
+	@Deprecated
 	public void setUserroleId (Integer userroleId) {
-		this.userroleId = userroleId;
+		setId(userroleId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class Userrole extends WaspModel {
 	 * @return userroleId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserroleId () {
-		return this.userroleId;
+		return getId();
 	}
 
 
@@ -70,7 +65,7 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -79,8 +74,8 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -90,7 +85,7 @@ public class Userrole extends WaspModel {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -124,71 +119,6 @@ public class Userrole extends WaspModel {
 		return this.roleId;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * role
 	 *
@@ -206,7 +136,7 @@ public class Userrole extends WaspModel {
 	 */
 	public void setRole (Role role) {
 		this.role = role;
-		this.roleId = role.roleId;
+		this.roleId = role.getId();
 	}
 
 	/**
@@ -238,7 +168,7 @@ public class Userrole extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**

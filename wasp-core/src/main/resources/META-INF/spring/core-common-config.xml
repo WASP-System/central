@@ -74,7 +74,7 @@
   </bean> 
 
   <!-- load site specific genome configuration -->
-  <bean id="localGenomesProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  <bean id="localGenomesProperties" class="edu.yu.einstein.wasp.util.OrderedPropertiesFactoryBean">
     <property name="locations">
       <list>
         <value>classpath:/genomes.properties</value>

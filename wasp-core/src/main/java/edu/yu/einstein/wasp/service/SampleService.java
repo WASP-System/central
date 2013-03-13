@@ -582,15 +582,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Run getSequenceRun(Integer runId) throws RunException;
 	   
-	  /**
-	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
-	   * @param Run runInstance
-	   * @param List<RunMeta> runMetaList
-	   * @param Integer platformUnitId (for a sample)
-	   * @param Integer resourceId (for a resource)
-	   * @return void
-	   */
-	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	 
 	  
 	  /**
 	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine
@@ -859,12 +851,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
 
 	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * Returns true if cell marked as being sequenced successfully otherwise false is returned. 
+	   * Throws a MetaAttributeNotFoundException if the value is not set
 	   * @param cell
 	   * @return
 	   * @throws SampleTypeException
+	 * @throws MetaAttributeNotFoundException 
 	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException, MetaAttributeNotFoundException;
 
 	  /**
 	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
@@ -874,7 +868,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleTypeException
 	   * @throws MetadataException 
 	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * is cellLibrary pre-processed?
@@ -947,5 +941,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @throws Runtime exception
 	 */
 	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
+
+	/** 
+	 * Get the index of the cell (the position on it's associated platform unit)
+	 * @param cell
+	 * @return
+	 * @throws SampleTypeException
+	 * @throws SampleParentChildException
+	 */
+	public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException;
 	  
 }

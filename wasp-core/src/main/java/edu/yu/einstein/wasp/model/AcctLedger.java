@@ -22,7 +22,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
@@ -37,12 +41,7 @@ public class AcctLedger extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2976336579608094205L;
-	/** 
-	 * ledgerId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer ledgerId;
+	
 
 	/**
 	 * setLedgerId(Integer ledgerId)
@@ -50,9 +49,9 @@ public class AcctLedger extends WaspModel {
 	 * @param ledgerId
 	 *
 	 */
-	
+	@Deprecated
 	public void setLedgerId (Integer ledgerId) {
-		this.ledgerId = ledgerId;
+		setId(ledgerId);
 	}
 
 	/**
@@ -61,8 +60,9 @@ public class AcctLedger extends WaspModel {
 	 * @return ledgerId
 	 *
 	 */
+	@Deprecated
 	public Integer getLedgerId () {
-		return this.ledgerId;
+		return getId();
 	}
 
 
@@ -190,70 +190,6 @@ public class AcctLedger extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * acctInvoice
 	 *
@@ -271,7 +207,7 @@ public class AcctLedger extends WaspModel {
 	 */
 	public void setAcctInvoice (AcctInvoice acctInvoice) {
 		this.acctInvoice = acctInvoice;
-		this.invoiceId = acctInvoice.invoiceId;
+		this.invoiceId = acctInvoice.getId();
 	}
 
 	/**
@@ -303,7 +239,7 @@ public class AcctLedger extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

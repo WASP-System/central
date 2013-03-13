@@ -47,7 +47,7 @@ public class SampleSourceMetaDaoImpl extends WaspMetaDaoImpl<SampleSourceMeta> i
 	@Transactional
 	public SampleSourceMeta getSampleSourceMetaBySampleSourceMetaId (final int sampleSourceMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSourceMetaId", sampleSourceMetaId);
+		m.put("id", sampleSourceMetaId);
 
 		List<SampleSourceMeta> results = this.findByMap(m);
 

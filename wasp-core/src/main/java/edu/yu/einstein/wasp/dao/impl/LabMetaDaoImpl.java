@@ -47,7 +47,7 @@ public class LabMetaDaoImpl extends WaspMetaDaoImpl<LabMeta> implements edu.yu.e
 	@Transactional
 	public LabMeta getLabMetaByLabMetaId (final int labMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labMetaId", labMetaId);
+		m.put("id", labMetaId);
 
 		List<LabMeta> results = this.findByMap(m);
 

@@ -32,12 +32,7 @@ public class UserPendingMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 7947772869605124208L;
-	/** 
-	 * userPendingMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer userPendingMetaId;
+	
 
 	/**
 	 * setUserPendingMetaId(Integer userPendingMetaId)
@@ -45,9 +40,9 @@ public class UserPendingMeta extends MetaBase {
 	 * @param userPendingMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setUserPendingMetaId (Integer userPendingMetaId) {
-		this.userPendingMetaId = userPendingMetaId;
+		setId(userPendingMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class UserPendingMeta extends MetaBase {
 	 * @return userPendingMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserPendingMetaId () {
-		return this.userPendingMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class UserPendingMeta extends MetaBase {
 	 */
 	public void setUserPending (UserPending userPending) {
 		this.userPending = userPending;
-		this.userPendingId = userPending.userPendingId;
+		this.userPendingId = userPending.getId();
 	}
 
 	/**

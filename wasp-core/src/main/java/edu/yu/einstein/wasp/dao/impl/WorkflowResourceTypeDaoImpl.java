@@ -47,7 +47,7 @@ public class WorkflowResourceTypeDaoImpl extends WaspDaoImpl<WorkflowResourceTyp
 	@Transactional
 	public WorkflowResourceType getWorkflowResourceTypeByWorkflowresourcetypeId (final Integer workflowresourcetypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowresourcetypeId", workflowresourcetypeId);
+		m.put("id", workflowresourcetypeId);
 
 		List<WorkflowResourceType> results = this.findByMap(m);
 

@@ -34,12 +34,7 @@ public class JobSoftware extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -786768268152802788L;
-	/** 
-	 * jobSoftwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobSoftwareId;
+	
 
 	/**
 	 * setJobSoftwareId(Integer jobSoftwareId)
@@ -47,9 +42,9 @@ public class JobSoftware extends WaspModel {
 	 * @param jobSoftwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobSoftwareId (Integer jobSoftwareId) {
-		this.jobSoftwareId = jobSoftwareId;
+		setId(jobSoftwareId);
 	}
 
 	/**
@@ -58,8 +53,9 @@ public class JobSoftware extends WaspModel {
 	 * @return jobSoftwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobSoftwareId () {
-		return this.jobSoftwareId;
+		return getId();
 	}
 
 
@@ -124,71 +120,6 @@ public class JobSoftware extends WaspModel {
 		return this.softwareId;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * job
 	 *
@@ -206,7 +137,7 @@ public class JobSoftware extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -238,7 +169,7 @@ public class JobSoftware extends WaspModel {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**

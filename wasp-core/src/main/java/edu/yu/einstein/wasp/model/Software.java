@@ -37,12 +37,6 @@ public class Software extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -5520002461442259763L;
-	/** 
-	 * softwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer softwareId;
 
 	/**
 	 * setSoftwareId(Integer softwareId)
@@ -50,9 +44,9 @@ public class Software extends WaspModel {
 	 * @param softwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSoftwareId (Integer softwareId) {
-		this.softwareId = softwareId;
+		setId(softwareId);
 	}
 
 	/**
@@ -61,8 +55,9 @@ public class Software extends WaspModel {
 	 * @return softwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getSoftwareId () {
-		return this.softwareId;
+		return getId();
 	}
 
 
@@ -163,7 +158,7 @@ public class Software extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -186,70 +181,6 @@ public class Software extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * resourceType
 	 *
@@ -267,7 +198,7 @@ public class Software extends WaspModel {
 	 */
 	public void setResourceType (ResourceType resourceType) {
 		this.resourceType = resourceType;
-		this.resourceTypeId = resourceType.resourceTypeId;
+		this.resourceTypeId = resourceType.getId();
 	}
 
 	/**

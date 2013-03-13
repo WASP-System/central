@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 @Controller
 @Transactional
@@ -25,7 +25,7 @@ public class FileController extends WaspController{
 	protected String baseurl;
 
 	@Autowired
-	protected FileDao fileDao;
+	protected FileHandleDao fileDao;
 	
 	/**
 	 * Download file
@@ -43,7 +43,7 @@ public class FileController extends WaspController{
 		
 		logger.error("THIS METHOD IS DEPRECATED AND DOES NOT DO WHAT YOU THINK IT DOES.");
 		
-		File file=fileDao.findById(fileId);
+		FileHandle file=fileDao.findById(fileId);
 		
 		if (file==null) {
 				waspErrorMessage("file.not_found.error");

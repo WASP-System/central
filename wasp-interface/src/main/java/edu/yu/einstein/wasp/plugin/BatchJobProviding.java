@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.plugin;
 
-public interface BatchJobProviding {
+public interface BatchJobProviding extends WaspPluginI{
 	
 	/**
 	 * get batch job name given a batchJobType

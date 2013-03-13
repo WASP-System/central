@@ -47,7 +47,7 @@ public class SampleLabDaoImpl extends WaspDaoImpl<SampleLab> implements edu.yu.e
 	@Transactional
 	public SampleLab getSampleLabBySampleLabId (final int sampleLabId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleLabId", sampleLabId);
+		m.put("id", sampleLabId);
 
 		List<SampleLab> results = this.findByMap(m);
 

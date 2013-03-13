@@ -1,13 +1,10 @@
 package edu.yu.einstein.wasp.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -20,16 +17,12 @@ import edu.yu.einstein.wasp.exception.UiFieldParseException;
  */
 @Entity
 @Table(name = "uifield")
-public final class UiField implements Serializable {
+public final class UiField extends WaspModel implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3854600504514244535L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Integer uiFieldId;
 	
 	@Column(name = "domain")
 	protected String domain;
@@ -46,21 +39,24 @@ public final class UiField implements Serializable {
 	@Column(name = "attrname")
 	protected String attrName;
 
+	@Lob
 	@Column(name = "attrvalue")
 	protected String attrValue;
 
-	@Column(name = "locale")
+	@Column(name = "locale", length=5)
 	@NotEmpty
 	protected String locale;
 
 	
 
+	@Deprecated
 	public Integer getUiFieldId() {
-		return uiFieldId;
+		return getId();
 	}
 
+	@Deprecated
 	public void setUiFieldId(Integer uiFieldId) {
-		this.uiFieldId = uiFieldId;
+		setId(uiFieldId);
 	}
 
 	public String getArea() {
@@ -102,26 +98,6 @@ public final class UiField implements Serializable {
 	public void setLocale(String locale) {
 		this.locale = locale;
 	}
-
-	  @Column(name="lastupdts")
-	  protected Date lastUpdTs;
-	  public void setLastUpdTs (Date lastUpdTs) {
-	    this.lastUpdTs = lastUpdTs;
-	  }
-	  public Date getLastUpdTs () {
-	    return this.lastUpdTs;
-	  }
-
-
-	  @Column(name="lastupduser")
-	  protected Integer lastUpdUser;
-	  public void setLastUpdUser (Integer lastUpdUser) {
-	    this.lastUpdUser = lastUpdUser;
-	  }
-	  public Integer getLastUpdUser () {
-	    return this.lastUpdUser;
-	  }
-
 
 		public String getName() {
 			return name;
@@ -181,8 +157,8 @@ public final class UiField implements Serializable {
 		int result = 1;
 
 // uiFieldId now Integer instead of in, so avoid npe
-if (uiFieldId == null) { return prime * result + 0; }
-		result = prime * result + uiFieldId.intValue();
+	if (getId() == null) { return prime * result + 0; }
+		result = prime * result + getId().intValue();
 		return result;
 	}
 
@@ -195,17 +171,23 @@ if (uiFieldId == null) { return prime * result + 0; }
 		if (getClass() != obj.getClass())
 			return false;
 		UiField other = (UiField) obj;
-		if (uiFieldId.intValue() != other.uiFieldId.intValue())
+		if (getId().intValue() != other.getId().intValue())
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "UiField [uiFieldId=" + uiFieldId + ", domain=" + domain + ", area=" + area + ", name="
+		String message =  "UiField [uiFieldId=" + getId() + ", domain=" + domain + ", area=" + area + ", name="
 				+ name + ", attrName=" + attrName + ", attrValue=" + attrValue
-				+ ", locale=" + locale + ", lastUpdTs=" + lastUpdTs
-				+ ", lastUpdUser=" + lastUpdUser + "]";
+				+ ", locale=" + locale + ", lastUpdTs=" + updated
+				+ ", lastUpdUser=";
+		if (lastUpdatedByUser == null || lastUpdatedByUser.getId()==null ) 
+			message += "{not set}";
+		else 
+			message += lastUpdatedByUser.getId();
+		message += "]";
+		return message;
 	}
 	  
 	  

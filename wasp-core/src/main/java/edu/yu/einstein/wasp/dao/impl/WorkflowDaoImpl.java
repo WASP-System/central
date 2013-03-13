@@ -48,7 +48,7 @@ public class WorkflowDaoImpl extends WaspDaoImpl<Workflow> implements edu.yu.ein
 	@Transactional
 	public Workflow getWorkflowByWorkflowId (final Integer workflowId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowId", workflowId);
+		m.put("id", workflowId);
 
 		List<Workflow> results = this.findByMap(m);
 

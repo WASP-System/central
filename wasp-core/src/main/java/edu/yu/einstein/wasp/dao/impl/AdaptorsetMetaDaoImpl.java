@@ -47,7 +47,7 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	@Transactional
 	public AdaptorsetMeta getAdaptorsetMetaByAdaptorsetMetaId (final Integer adaptorsetMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("adaptorsetMetaId", adaptorsetMetaId);
+		m.put("id", adaptorsetMetaId);
 
 		List<AdaptorsetMeta> results = this.findByMap(m);
 
@@ -73,7 +73,7 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	public AdaptorsetMeta getAdaptorsetMetaByKAdaptorsetId (final String k, final Integer adaptorsetId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
-		m.put("adaptorsetId", adaptorsetId);
+		m.put("adaptorSetId", adaptorsetId);
 
 		List<AdaptorsetMeta> results = this.findByMap(m);
 

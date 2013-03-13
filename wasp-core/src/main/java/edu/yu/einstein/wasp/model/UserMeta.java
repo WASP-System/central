@@ -32,12 +32,6 @@ public class UserMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 8388877884886731036L;
-	/** 
-	 * userMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer userMetaId;
 
 	/**
 	 * setUserMetaId(Integer userMetaId)
@@ -45,9 +39,9 @@ public class UserMeta extends MetaBase {
 	 * @param userMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setUserMetaId (Integer userMetaId) {
-		this.userMetaId = userMetaId;
+		setId(userMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class UserMeta extends MetaBase {
 	 * @return userMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getUserMetaId () {
-		return this.userMetaId;
+		return getId();
 	}
 
 
@@ -68,7 +63,7 @@ public class UserMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="userid")
-	protected Integer UserId;
+	protected Integer userId;
 
 	/**
 	 * setUserId(Integer UserId)
@@ -77,8 +72,8 @@ public class UserMeta extends MetaBase {
 	 *
 	 */
 	
-	public void setUserId (Integer UserId) {
-		this.UserId = UserId;
+	public void setUserId (Integer userId) {
+		this.userId = userId;
 	}
 
 	/**
@@ -88,7 +83,7 @@ public class UserMeta extends MetaBase {
 	 *
 	 */
 	public Integer getUserId () {
-		return this.UserId;
+		return this.userId;
 	}
 
 
@@ -111,7 +106,7 @@ public class UserMeta extends MetaBase {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.UserId = user.UserId;
+		this.userId = user.getId();
 	}
 
 	/**

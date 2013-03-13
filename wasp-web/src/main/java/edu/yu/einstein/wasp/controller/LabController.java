@@ -365,12 +365,11 @@ public class LabController extends WaspController {
 		
 		if (labId == null || labId == 0) {
 
-			labForm.setLastUpdTs(new Date());
 			labForm.setIsActive(1);
 
 			Lab labDb = this.labDao.save(labForm);
 
-			labId = labDb.getLabId();
+			labId = labDb.getId();
 		} else {
 			Lab labDb = this.labDao.getById(labId);
 			labDb.setName(labForm.getName());
@@ -402,12 +401,11 @@ public class LabController extends WaspController {
 		labPendingForm.setLabPendingMeta(labPendingMetaList);
 		if (labPendingId == null || labPendingId == 0) {
 
-			labPendingForm.setLastUpdTs(new Date());
 			// labPendingForm.setIsActive(1);
 
 			LabPending labPendingDb = this.labPendingDao.save(labPendingForm);
 
-			labPendingId = labPendingDb.getLabPendingId();
+			labPendingId = labPendingDb.getId();
 		} else {
 			LabPending labPendingDb = this.labPendingDao.getById(labPendingId);
 			labPendingDb.setName(labPendingForm.getName());
@@ -570,8 +568,6 @@ public class LabController extends WaspController {
 			return "lab/detail_rw";
 		}
 
-		labForm.setLastUpdTs(new Date());
-
 		Lab labDb = this.labDao.save(labForm);
 		try {
 			labMetaDao.setMeta(labMetaList, labDb.getLabId());
@@ -612,8 +608,6 @@ public class LabController extends WaspController {
 		labDb.setName(labForm.getName());
 		labDb.setDepartmentId(labForm.getDepartmentId());
 		labDb.setPrimaryUserId(labForm.getPrimaryUserId());
-
-		labDb.setLastUpdTs(new Date());
 
 		this.labDao.merge(labDb);
 
@@ -663,8 +657,6 @@ public class LabController extends WaspController {
 		labPendingDb.setDepartmentId(labPendingForm.getDepartmentId());
 		labPendingDb.setPrimaryUserId(labPendingForm.getPrimaryUserId());
 
-		labPendingDb.setLastUpdTs(new Date());
-
 		this.labPendingDao.merge(labPendingDb);
 
 		try {
@@ -686,7 +678,7 @@ public class LabController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('lu-' + #labId)")
 	public String userManager(@PathVariable("labId") Integer labId, ModelMap m) {
 		Lab lab = this.labDao.getById(labId);
-		if(lab==null || lab.getLabId()==null || lab.getLabId().intValue()<=0){
+		if(lab==null || lab.getId()==null || lab.getId().intValue()<=0){
 			waspErrorMessage("labuser.labNotFound.error");
 			String referer = request.getHeader("Referer");
 			return "redirect:"+ referer;

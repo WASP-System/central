@@ -36,22 +36,16 @@ public class FileType extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2057479265391988507L;
-	/** 
-	 * fileTypeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer fileTypeId;
-
+	
 	/**
 	 * setFileTypeId(Integer fileTypeId)
 	 *
 	 * @param fileTypeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setFileTypeId (Integer fileTypeId) {
-		this.fileTypeId = fileTypeId;
+		setId(fileTypeId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class FileType extends WaspModel {
 	 * @return fileTypeId
 	 *
 	 */
+	@Deprecated
 	public Integer getFileTypeId () {
-		return this.fileTypeId;
+		return getId();
 	}
 
 	/** 
@@ -160,7 +155,7 @@ public class FileType extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -183,68 +178,6 @@ public class FileType extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
 	/** 
 	 * file
 	 *
@@ -252,7 +185,7 @@ public class FileType extends WaspModel {
 	@NotAudited
 	@OneToMany
 	@JoinColumn(name="filetypeid", insertable=false, updatable=false)
-	protected List<File> file;
+	protected List<FileHandle> file;
 
 
 	/** 
@@ -262,7 +195,7 @@ public class FileType extends WaspModel {
 	 *
 	 */
 	@JsonIgnore
-	public List<File> getFile() {
+	public List<FileHandle> getFile() {
 		return this.file;
 	}
 
@@ -273,7 +206,7 @@ public class FileType extends WaspModel {
 	 * @param file
 	 *
 	 */
-	public void setFile (List<File> file) {
+	public void setFile (List<FileHandle> file) {
 		this.file = file;
 	}
 	

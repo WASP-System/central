@@ -1,31 +1,26 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.plugin.standard;
+package edu.yu.einstein.wasp.plugin.supplemental.system;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 
 /**
- * Plugin to perform file operations on registered files (file objects), including
- * registration and de-registration (and deletion) through messaging.
- * 
  * @author calder
  *
  */
-public class FilePlugin extends WaspPlugin {
+public class SystemPlugin extends WaspPlugin {
 
 	/**
 	 * @param pluginName
 	 * @param waspSiteProperties
 	 * @param channel
 	 */
-	public FilePlugin(String pluginName, Properties waspSiteProperties,
-			MessageChannel channel) {
+	public SystemPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
 		// TODO Auto-generated constructor stub
 	}
@@ -47,6 +42,5 @@ public class FilePlugin extends WaspPlugin {
 		// TODO Auto-generated method stub
 
 	}
-
 
 }

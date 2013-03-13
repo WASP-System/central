@@ -46,7 +46,7 @@ public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.e
 	@Transactional
 	public AcctGrant getAcctGrantByGrantId (final int grantId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("grantId", grantId);
+		m.put("id", grantId);
 
 		List<AcctGrant> results = this.findByMap(m);
 

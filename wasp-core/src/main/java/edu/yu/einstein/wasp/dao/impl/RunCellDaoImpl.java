@@ -47,7 +47,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	@Transactional
 	public RunCell getRunCellByRunCellId (final int runCellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("runCellId", runCellId);
+		m.put("id", runCellId);
 
 		List<RunCell> results = this.findByMap(m);
 

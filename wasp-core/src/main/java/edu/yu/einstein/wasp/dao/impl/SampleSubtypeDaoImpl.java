@@ -48,7 +48,7 @@ public class SampleSubtypeDaoImpl extends WaspDaoImpl<SampleSubtype> implements 
 	@Transactional
 	public SampleSubtype getSampleSubtypeBySampleSubtypeId (final int sampleSubtypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSubtypeId", sampleSubtypeId);
+		m.put("id", sampleSubtypeId);
 
 		List<SampleSubtype> results = this.findByMap(m);
 

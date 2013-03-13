@@ -32,22 +32,16 @@ public class JobMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -5212501925724259984L;
-	/** 
-	 * jobMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobMetaId;
-
+	
 	/**
 	 * setJobMetaId(Integer jobMetaId)
 	 *
 	 * @param jobMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobMetaId (Integer jobMetaId) {
-		this.jobMetaId = jobMetaId;
+		setId(jobMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class JobMeta extends MetaBase {
 	 * @return jobMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobMetaId () {
-		return this.jobMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class JobMeta extends MetaBase {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**

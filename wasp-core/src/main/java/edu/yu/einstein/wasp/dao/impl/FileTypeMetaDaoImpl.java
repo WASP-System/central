@@ -48,7 +48,7 @@ public class FileTypeMetaDaoImpl extends WaspMetaDaoImpl<FileTypeMeta> implement
 	@Transactional
 	public FileTypeMeta getFileTypeMetaByFileTypeMetaId (final int fileTypeMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileTypeMetaId", fileTypeMetaId);
+		m.put("id", fileTypeMetaId);
 
 		List<FileTypeMeta> results = this.findByMap(m);
 

@@ -94,7 +94,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 			message =  new MetaMessage(metaKey, group, "", value);
 		}
 		meta = dao.save(meta);
-		message.setDate(meta.getLastUpdTs());
+		message.setDate(meta.getUpdated());
 		return message;
 	}
 	
@@ -164,7 +164,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
 				} 
 			}
-			message.setDate(meta.getLastUpdTs());
+			message.setDate(meta.getUpdated());
 		} 
 		return message;
 	}
@@ -187,7 +187,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 		Map<String, Object> searchMap = new HashMap<String, Object>();
 		searchMap.put(modelParentIdEntityName, modelParentId);
 		List<String> orderByColumnNames = new ArrayList<String>();
-		orderByColumnNames.add("lastUpdTs");
+		orderByColumnNames.add("updated");
 		List<T> metaMatches = dao.findByMapOrderBy(searchMap, orderByColumnNames, "ASC");
 		if (metaMatches != null &&  !metaMatches.isEmpty()){
 			for (T meta: metaMatches){

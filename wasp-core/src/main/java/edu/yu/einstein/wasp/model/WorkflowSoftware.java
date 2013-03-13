@@ -36,12 +36,7 @@ public class WorkflowSoftware extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 8796895488617847611L;
-	/** 
-	 * workflowSoftwareId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer workflowSoftwareId;
+	
 
 	/**
 	 * setWorkflowSoftwareId(Integer workflowSoftwareId)
@@ -49,9 +44,9 @@ public class WorkflowSoftware extends WaspModel {
 	 * @param workflowSoftwareId
 	 *
 	 */
-	
+	@Deprecated
 	public void setWorkflowSoftwareId (Integer workflowSoftwareId) {
-		this.workflowSoftwareId = workflowSoftwareId;
+		setId(workflowSoftwareId);
 	}
 
 	/**
@@ -60,8 +55,9 @@ public class WorkflowSoftware extends WaspModel {
 	 * @return workflowSoftwareId
 	 *
 	 */
+	@Deprecated
 	public Integer getWorkflowSoftwareId () {
-		return this.workflowSoftwareId;
+		return getId();
 	}
 
 
@@ -146,7 +142,7 @@ public class WorkflowSoftware extends WaspModel {
 	 */
 	public void setSoftware (Software software) {
 		this.software = software;
-		this.softwareId = software.softwareId;
+		this.softwareId = software.getId();
 	}
 
 	/**
@@ -178,7 +174,7 @@ public class WorkflowSoftware extends WaspModel {
 	 */
 	public void setWorkflow (Workflow workflow) {
 		this.workflow = workflow;
-		this.workflowId = workflow.workflowId;
+		this.workflowId = workflow.getId();
 	}
 
 	/**

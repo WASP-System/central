@@ -189,7 +189,7 @@ $(document).ready(function() {
 		if(typeof(dateRunEnded) !== 'undefined' && dateRunEnded != null && dateRunEnded.length>0){
 			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
 			if(!dateFormat.test(dateRunEnded)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
 				return true;//do not perform search 
 			}
 		}

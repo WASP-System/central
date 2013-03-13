@@ -32,12 +32,6 @@ public class SampleMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 7928191991410235394L;
-	/** 
-	 * sampleMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleMetaId;
 
 	/**
 	 * setSampleMetaId(Integer sampleMetaId)
@@ -45,9 +39,9 @@ public class SampleMeta extends MetaBase {
 	 * @param sampleMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleMetaId (Integer sampleMetaId) {
-		this.sampleMetaId = sampleMetaId;
+		setId(sampleMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SampleMeta extends MetaBase {
 	 * @return sampleMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleMetaId () {
-		return this.sampleMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class SampleMeta extends MetaBase {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**

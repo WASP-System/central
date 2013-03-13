@@ -244,7 +244,7 @@ public class EmailServiceImpl implements EmailService{
 		}
 		else{
 			// shouldn't get here 
-			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getLabPendingId() + "'");
+			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getId() + "'");
 		}
 		Map model = new HashMap();
 		model.put("user", user);
@@ -266,7 +266,7 @@ public class EmailServiceImpl implements EmailService{
 		try{
 			primaryUser = userDao.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(MetadataException e){
-			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
+			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getId()), e); 
 		}
 		Map model = new HashMap();
 		model.put("pendinguser", userPending);

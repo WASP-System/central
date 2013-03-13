@@ -32,12 +32,6 @@ public class AdaptorsetMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 3888544492799240044L;
-	/** 
-	 * adaptorsetMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer adaptorsetMetaId;
 
 	/**
 	 * setAdaptorsetMetaId(Integer adaptorsetMetaId)
@@ -45,9 +39,9 @@ public class AdaptorsetMeta extends MetaBase {
 	 * @param adaptorsetMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setAdaptorsetMetaId (Integer adaptorsetMetaId) {
-		this.adaptorsetMetaId = adaptorsetMetaId;
+		setId(adaptorsetMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class AdaptorsetMeta extends MetaBase {
 	 * @return adaptorsetMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getAdaptorsetMetaId () {
-		return this.adaptorsetMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class AdaptorsetMeta extends MetaBase {
 	 */
 	public void setAdaptorset (Adaptorset adaptorset) {
 		this.adaptorset = adaptorset;
-		this.adaptorsetId = adaptorset.adaptorsetId;
+		this.adaptorsetId = adaptorset.getId();
 	}
 
 	/**

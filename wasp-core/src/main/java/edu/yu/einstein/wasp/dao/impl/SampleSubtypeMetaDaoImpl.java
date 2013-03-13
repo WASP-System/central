@@ -47,7 +47,7 @@ public class SampleSubtypeMetaDaoImpl extends WaspMetaDaoImpl<SampleSubtypeMeta>
 	@Transactional
 	public SampleSubtypeMeta getSampleSubtypeMetaBySampleSubtypeMetaId (final int sampleSubtypeMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSubtypeMetaId", sampleSubtypeMetaId);
+		m.put("id", sampleSubtypeMetaId);
 
 		List<SampleSubtypeMeta> results = this.findByMap(m);
 

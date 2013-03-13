@@ -47,7 +47,7 @@ public class ResourceMetaDaoImpl extends WaspMetaDaoImpl<ResourceMeta> implement
 	@Transactional
 	public ResourceMeta getResourceMetaByResourceMetaId (final Integer resourceMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceMetaId", resourceMetaId);
+		m.put("id", resourceMetaId);
 
 		List<ResourceMeta> results = this.findByMap(m);
 

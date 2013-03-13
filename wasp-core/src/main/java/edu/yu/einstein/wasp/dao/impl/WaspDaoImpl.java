@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +22,16 @@ import java.util.Map;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.WordUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import edu.yu.einstein.wasp.exception.ModelDetachException;
+import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.service.UserService;
 
 @SuppressWarnings("unchecked")
 @Repository
@@ -39,6 +41,9 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	// generic logger included with every class.
 	private Logger logger = LoggerFactory.getLogger(WaspDaoImpl.class.getName());
 	
+	@Autowired
+	private UserService userService;
+	
 	@Override
 	public boolean isAttached(final E entity){
 		return entityManager.contains(entity);
@@ -46,7 +51,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	@Override
 	public void persist(final E entity) {
-		setUpdateTs(entity);
 		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "persisting");
 		entityManager.persist(entity);
@@ -56,7 +60,6 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	public E save(E entity) {
 
 		setEditorId(entity);
-		setUpdateTs(entity);
 		logEntityFieldDetailsOnCRUD(entity, "saving");
 		if (entityManager.contains(entity)) {
 			entityManager.merge(entity);
@@ -372,41 +375,29 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 
 	private void setEditorId(E entity) {
 		try {
-			Method method = entity.getClass().getMethod("setLastUpdUser", new Class[] { Integer.class });
-
-			if (method != null) {
-
-				// org.springframework.security.core.userdetails.User u=
-				// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-				Integer userId = new Integer(0);
-				try {
+			Method setLastUpdatedUserMethod = entity.getClass().getMethod("setLastUpdatedByUser", User.class);
+			// org.springframework.security.core.userdetails.User u=
+			// (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = null;
+			try{
+				
+				try{
 					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-					if (!login.equals("anonymousUser")) {
-						Integer newUserId = (Integer) entityManager.createNativeQuery("select UserId from user where login=:login").setParameter("login", login).getSingleResult();
-						if (newUserId != null) {
-							userId = newUserId;
-						}
-					}
-				} catch (Exception e) {
-					// empty catch in case login or UserId can't be found.
+					user = userService.getUserByLogin(login);
+					if (user.getId() == null)
+						user = userService.getUserDao().getById(0); // wasp user (reserved)
+				} catch (Exception e){
+					user = userService.getUserDao().getById(0); // wasp user (reserved)
 				}
-
-				method.invoke(entity, new Object[] { userId });
+				setLastUpdatedUserMethod.invoke(entity, user);
+			} catch (Exception e){
+				logger.debug("not attempting setting last updating user of " + entity.getClass().getName() + " as not able to resolve a user to assign");
 			}
-		} catch (Throwable e) {
-			// no such method setLastUpdUser in class E
-		}
-	}
+			
 
-	private void setUpdateTs(E entity) {
-		try {
-			Method method = entity.getClass().getMethod("setLastUpdTs", new Class[] { Date.class });
-			if (method != null) {
-				method.invoke(entity, new Object[] { new Date() });
-			}
-		} catch (Throwable e) {
-			// no such method setLastUpdTs in class E
+		} catch (Exception e) {
+			// likely no such method setLastUpdUser in class E
+			logger.warn("attempted setting last updating user of " + entity.getClass().getName() + " resulted in failure because method for setting user was not found");
 		}
 	}
 	
@@ -448,9 +439,21 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		if (!logger.isDebugEnabled())
 			return;
 		logger.debug(WordUtils.capitalize(actionName)+" entity of type: "+entity.getClass().getName()+"...");
-		for (Field field : entity.getClass().getDeclaredFields()){
+		Map<String,Field> fields = new HashMap<String, Field>();
+		if (entity.getClass().getName().endsWith("Meta"))
+			for (Field field : entity.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredFields())
+				fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getSuperclass().getSuperclass().getDeclaredFields())
+			fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getSuperclass().getDeclaredFields())
+			fields.put(field.getName(), field);
+		for (Field field : entity.getClass().getDeclaredFields())
+			fields.put(field.getName(), field);
+
+		for (Field field : fields.values()){
+			field.setAccessible(true);
 			try {
-				logger.debug("    -> "+field.getName()+"="+entity.getClass().getMethod("get"+WordUtils.capitalize(field.getName())).invoke(entity).toString());
+				logger.debug("    -> "+field.getName()+"="+field.get(entity).toString());
 			} catch (Exception e) {
 			}
 			
