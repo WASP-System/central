@@ -37,13 +37,14 @@
     text-indent:8px;
 }
 
+
 .node circle {
   cursor: pointer;
-  fill: #fff;
   stroke: steelblue;
-  stroke-width: 2.5px;
+  stroke-width: 1.5px;
 }
 
+/*
 .node text {
   font: 14px sans-serif;
 }
@@ -53,4 +54,23 @@ path.link {
   stroke: #ccc;
   stroke-width: 2px;
 }
+*/
 
+.node rect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: .5;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+path.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
