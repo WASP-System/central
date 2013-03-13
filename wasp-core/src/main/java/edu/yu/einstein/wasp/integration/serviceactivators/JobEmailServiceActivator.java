@@ -10,18 +10,18 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
 //import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
-import org.springframework.security.core.GrantedAuthority;
+//import org.springframework.security.core.GrantedAuthority;
 
 //import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 
-import edu.yu.einstein.wasp.security.WaspJdbcDaoImpl;
+//import edu.yu.einstein.wasp.security.WaspJdbcDaoImpl;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -41,22 +41,22 @@ public class JobEmailServiceActivator {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private WaspJdbcDaoImpl waspJdbcDaoImpl;
+//	@Autowired
+//	private WaspJdbcDaoImpl waspJdbcDaoImpl;
 	
-	@Value("${wasp.email.jobstart.rolenames:js;pi;lm;fm;da;su;}")
-	private String jobStartRolenames;
+//	@Value("${wasp.email.jobstart.rolenames:js;pi;lm;fm;da;su;}")
+//	private String jobStartRolenames;
 
 	private static final Logger logger = LoggerFactory.getLogger(JobEmailServiceActivator.class);
 	
-	private List<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
-		List<String> list = new ArrayList<String>();
-		String[] tokens = delimitedList.split(delimiter);
-		for(String token : tokens){
-			list.add(token);							
-		}
-		return list;
-	}
+//	private List<String> convertDelimitedListToArrayList(String delimitedList, String delimiter){
+//		List<String> list = new ArrayList<String>();
+//		String[] tokens = delimitedList.split(delimiter);
+//		for(String token : tokens){
+//			list.add(token);							
+//		}
+//		return list;
+//	}
 	
 	@ServiceActivator
 	public void isSuccessfulRun(Message<WaspStatus> jobStatusMessage) {
@@ -67,8 +67,8 @@ public class JobEmailServiceActivator {
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
-
-				emailService.sendJobStarted(jobService.getJobByJobId(47), userService.getUserByLogin("smaslova"), "emails/rob_test");
+				emailService.sendSubmitterJobStarted(job);
+				//emailService.sendJobStarted(jobService.getJobByJobId(47), userService.getUserByLogin("smaslova"), "emails/rob_test");
 				/*
 				if(job.getUserId().intValue() != job.getLab().getPrimaryUserId().intValue()){//submitter is not the lab PI
 					emailService.sendSubmitterJobStarted(job);
