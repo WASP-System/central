@@ -40,7 +40,7 @@ public class FileHandleMeta extends MetaBase {
 	 *
 	 */
 	@Deprecated
-	public void setFileMetaId (Integer fileMetaId) {
+	public void setFileHandleMetaId (Integer fileMetaId) {
 		setId(fileMetaId);
 	}
 
@@ -51,7 +51,7 @@ public class FileHandleMeta extends MetaBase {
 	 *
 	 */
 	@Deprecated
-	public Integer getFileMetaId () {
+	public Integer getFileHandleMetaId () {
 		return getId();
 	}
 
@@ -63,7 +63,7 @@ public class FileHandleMeta extends MetaBase {
 	 *
 	 */
 	@Column(name="fileid")
-	protected Integer fileId;
+	protected Integer fileHandleId;
 
 	/**
 	 * setFileId(Integer fileId)
@@ -72,8 +72,8 @@ public class FileHandleMeta extends MetaBase {
 	 *
 	 */
 	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
+	public void setFileHandleId (Integer fileId) {
+		this.fileHandleId = fileId;
 	}
 
 	/**
@@ -82,8 +82,8 @@ public class FileHandleMeta extends MetaBase {
 	 * @return fileId
 	 *
 	 */
-	public Integer getFileId () {
-		return this.fileId;
+	public Integer getFileHandleId () {
+		return this.fileHandleId;
 	}
 
 
@@ -106,7 +106,7 @@ public class FileHandleMeta extends MetaBase {
 	 */
 	public void setFile (FileHandle file) {
 		this.file = file;
-		this.fileId = file.getId();
+		this.fileHandleId = file.getId();
 	}
 
 	/**

@@ -211,7 +211,7 @@ public class ResultViewController extends WaspController {
 				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
 
 			
-				List<FileHandleMeta> metaList = file.getFileMeta();
+				List<FileHandleMeta> metaList = file.getFileHandleMeta();
 				
 				for (FileHandleMeta mt : metaList) {
 					String mKey = mt.getK();

@@ -63,11 +63,11 @@ public class WorkUnit {
 	/**
 	 * Amount of memory required in GB.
 	 */
-	private Integer memoryRequirements;
+	private Integer memoryRequirements = 1;
 	/**
 	 * number of processors required.
 	 */
-	private Integer processors;
+	private Integer processors = 1;
 	/**
 	 * Execution mode, currently only as a process.
 	 */

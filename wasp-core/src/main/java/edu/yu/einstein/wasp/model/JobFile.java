@@ -270,6 +270,25 @@ public class JobFile extends WaspModel {
 	public FileGroup getFile () {
 		return this.fileGroup;
 	}
+	
+	@Column(name="filegroupid", insertable=false, updatable=false)
+	private Integer fileGroupId;
+	
+	/**
+	 * @return the fileGroupId
+	 */
+	@Deprecated
+	public Integer getFileGroupId() {
+		return fileGroupId;
+	}
+
+	/**
+	 * @param fileGroupId the fileGroupId to set
+	 */
+	@Deprecated
+	public void setFileGroupId(Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
+	}
 
 
 }
