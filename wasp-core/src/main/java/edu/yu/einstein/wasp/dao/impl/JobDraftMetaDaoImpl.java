@@ -100,7 +100,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 
 		for (JobDraftMeta m:metaList) {
 			m.setJobDraftId(jobDraftId);
-			entityManager.persist(m);
+			persist(m);
 		}
 	}
 
