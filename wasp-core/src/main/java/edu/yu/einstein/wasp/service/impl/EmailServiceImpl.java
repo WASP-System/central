@@ -545,6 +545,19 @@ public class EmailServiceImpl implements EmailService{
 		prepareAndSend(recipient, emailTemplate, model);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobAbandoned(final Job job, User recipient, String emailTemplate, String whoAbandonedJob, String reasonForAbandoned){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		model.put("whoAbandonedJob", whoAbandonedJob);
+		model.put("reasonForAbandoned", reasonForAbandoned);
+		prepareAndSend(recipient, emailTemplate, model);
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map getJobSummaryMapForEmailDisplay(final Job job){
 		

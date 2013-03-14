@@ -166,7 +166,19 @@ public interface EmailService  {
 	 * Sends an email to specified recipient stating that a new job has been submitted  
 	 * The emailTemplate tailors the email to the recipient  
 	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format like emails/inform_submitter_job_started)
 	 */
 	public void sendJobStarted(final Job job, User recipient, String emailTemplate);
+	
+	/**
+	 * Sends an email to specified recipient stating that a job has been abandoned  
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format emails/inform_job_abandoned)
+	 * @param String whoAbandonedJob (weaved into the email text; it's not a name, but it is a role [such as Facility Manger])
+	 * @param String Comment (weaved into email text: comment written by the rejector)
+	 */
+	public void sendJobAbandoned(final Job job, User recipient, String emailTemplate, String whoAbandonedJob, String reasonForAbandoned);
 }
 
