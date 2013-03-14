@@ -21,12 +21,12 @@
     <property name="pageFlowOrder">
       <list>
 		<value>/jobsubmit/modifymeta/{n}</value>
-		<value>/jobsubmit/resource/#{mpsResourceType.iName}/{n}</value>
+		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/samples/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/chipSeq/pair/{n}</value> 
-		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.iName}/{n}</value>
-		<value>/jobsubmit/software/#{peakcallerResourceType.iName}/{n}</value>
+		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/software/#{peakcallerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value> 
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
