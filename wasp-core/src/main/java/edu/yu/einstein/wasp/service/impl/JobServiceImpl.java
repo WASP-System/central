@@ -1647,46 +1647,291 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return map;
 	}
 
-	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception{
+	@Override
+	public Map<String, Object> getJobSampleD3Tree(int id) throws Exception{
 		
 		Map <String, Object> jobRoot = new HashMap<String, Object>();
 		
-		Job job = getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null){
+		Job job = getJobByJobId(id);
+		if(job==null || job.getId()==null){
 			  throw new Exception("listJobSamples.jobNotFound.label");
 		}
 		
-		jobRoot.put("name", job.getName());
-		jobRoot.put("myid", jobId);
+		jobRoot.put("name", "Job: "+job.getName());
+		jobRoot.put("myid", id);
 		jobRoot.put("type", "job");
-		
-		List<Map> sampleNodes = new ArrayList<Map>();
-
-		List<JobSample> jobSampleList = job.getJobSample();
-		for (JobSample js : jobSampleList) {
-			Map sampleNode = new HashMap();
-			sampleNode.put("name", js.getSample().getName());
-			sampleNode.put("myid", js.getSampleId());
-			sampleNode.put("type", "sample");
-			
-			List<Map> fileNodes = new ArrayList<Map>();
-			List<SampleFile> sampleFileList = js.getSample().getSampleFile();
-			for (SampleFile sf : sampleFileList) {
-				Map fileNode = new HashMap();
-				fileNode.put("name", sf.getName());
-				fileNode.put("myid", sf.getFileGroup().getFileGroupId());
-				fileNode.put("type", "file");
-				
-				fileNodes.add(fileNode);
-			}
-			
-			sampleNode.put("children", fileNodes);
-			
-			sampleNodes.add(sampleNode);
-		}
-		jobRoot.put("children",sampleNodes);
+		jobRoot.put("children", getChildrenByNodeType(id, "job"));
 
 		return jobRoot;
+	}
+
+	@Override
+	public Map<String, Object> getD3Branch(int id, String type){
+		
+		Map <String, Object> curNode = new HashMap<String, Object>();
+		List<Map> children = new ArrayList<Map>();
+		
+		if (type.equalsIgnoreCase("job")) {
+			Job job = getJobByJobId(id);
+
+			curNode.put("name", "Job: "+job.getName());
+			curNode.put("myid", id);
+			curNode.put("type", "job");
+
+			List<Sample> sampleList = getSubmittedSamples(job);
+			for (Sample sample : sampleList) {
+				Map childNode = new HashMap();
+
+				if(!sampleService.isLibrary(sample)) {
+					// if it's non-library sample
+					childNode.put("name", "Sample: "+sample.getName());
+					childNode.put("myid", sample.getId());
+					childNode.put("type", "sample");
+					childNode.put("children", "");
+					//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
+				} else {
+					// if it's library sample
+					childNode.put("name", "Library: "+sample.getName());
+					childNode.put("myid", sample.getId());
+					childNode.put("type", "library");
+					childNode.put("children", "");
+					//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
+				}
+					
+				children.add(childNode);
+			}
+			
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("sample")) {
+			Sample sample = sampleService.getSampleById(id);
+
+			//curNode.put("name", "Sample: "+sample.getName());
+			//curNode.put("myid", id);
+			//curNode.put("type", "sample");
+			
+			// If the sample has parent facility-made library
+			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
+			for (Sample faclib : faclibList) {
+				Map childNode = new HashMap();
+				
+				childNode.put("name", "Facility-made Library: "+faclib.getName());
+				childNode.put("myid", faclib.getId());
+				childNode.put("type", "library");
+				childNode.put("children", "");
+				//faclibNode.put("children", getChildrenByNodeType(faclib.getId(), "library"));
+				
+				children.add(childNode);
+			}
+			
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("library")) {
+			Sample library = sampleService.getSampleById(id);
+
+			//curNode.put("name", "Library: "+library.getName());
+			//curNode.put("myid", id);
+			//curNode.put("type", "library");
+			
+			//get all cells associated with the library
+			try {
+				List<Sample> cellList = sampleService.getCellsForLibrary(library);
+				if (!cellList.isEmpty()) {
+					Map childNode = new HashMap();
+					Sample cell = cellList.get(0);	//only one possible cell for one library
+					childNode.put("name", "Cell: "+cell.getName());
+					childNode.put("myid", cell.getId());
+					childNode.put("type", "cell");
+					childNode.put("children", "");
+					//cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
+					
+					children.add(childNode);
+				}
+			} catch (SampleTypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("cell")) {
+			// if the sample is a cell
+			Sample cell = sampleService.getSampleById(id);
+
+			//get platform unit associated with the cell
+			try {
+					Sample pu = sampleService.getPlatformUnitForCell(cell);
+					Map childNode = new HashMap();
+					childNode.put("name", "Platform Unit: "+pu.getName());
+					childNode.put("myid", pu.getId());
+					childNode.put("type", "pu");
+					childNode.put("children", "");
+					//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
+					
+					children.add(childNode);
+				} catch (SampleTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SampleParentChildException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("pu")) {
+			// if the sample is a library
+			Sample pu = sampleService.getSampleById(id);
+
+			//get all seq runs associated with the platform unit
+			try {
+					List<Run> runList = runService.getRunsForPlatformUnit(pu);
+					for (Run run : runList) {
+						Map childNode = new HashMap();
+						childNode.put("name", "Run: "+run.getName());
+						childNode.put("myid", run.getId());
+						childNode.put("type", "run");
+						childNode.put("children", "");
+						//childNode.put("children", getChildrenByNodeType(run.getId(), "run"));
+						
+						children.add(childNode);
+					}
+				} catch (SampleTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			curNode.put("children", children);
+		}
+		
+		return curNode;
+	}
+
+	/**
+	 * @param job
+	 * @return
+	 */
+	private List<Map> getChildrenByNodeType(int id, String type) {
+		List<Map> children = new ArrayList<Map>();
+
+		if (type.equalsIgnoreCase("job")) {
+			Job job = getJobByJobId(id);
+			List<Sample> sampleList = getSubmittedSamples(job);
+
+			for (Sample sample : sampleList) {
+				Map sampleNode = new HashMap();
+
+				if(!sampleService.isLibrary(sample)) {
+					// if it's non-library sample
+					sampleNode.put("name", "Sample: "+sample.getName());
+					sampleNode.put("myid", sample.getId());
+					sampleNode.put("type", "sample");
+					sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
+				} else {
+					// if it's library sample
+					sampleNode.put("name", "Library: "+sample.getName());
+					sampleNode.put("myid", sample.getId());
+					sampleNode.put("type", "library");
+					sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
+				}
+					
+				children.add(sampleNode);
+			}
+		} else if (type.equalsIgnoreCase("sample")) {
+			Sample sample = sampleService.getSampleById(id);
+			
+			// If the sample has parent facility-made library
+			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
+			for (Sample faclib : faclibList) {
+				Map faclibNode = new HashMap();
+				
+				faclibNode.put("name", "Facility-made Lib: "+faclib.getName());
+				faclibNode.put("myid", faclib.getId());
+				faclibNode.put("type", "library");
+				faclibNode.put("children", getChildrenByNodeType(faclib.getId(), "library"));
+				
+				children.add(faclibNode);
+			}
+			
+		} else if (type.equalsIgnoreCase("library")) {
+			// if the sample is a library
+			Sample library = sampleService.getSampleById(id);
+
+			//get all cells associated with the library
+			try {
+				List<Sample> cellList = sampleService.getCellsForLibrary(library);
+				if (!cellList.isEmpty()) {
+					Map cellNode = new HashMap();
+					Sample cell = cellList.get(0);	//only one possible cell for one library
+					cellNode.put("name", "Cell: "+cell.getName());
+					cellNode.put("myid", cell.getId());
+					cellNode.put("type", "cell");
+					cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
+					
+					children.add(cellNode);
+				}
+			} catch (SampleTypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (type.equalsIgnoreCase("cell")) {
+			// if the sample is a library
+			Sample cell = sampleService.getSampleById(id);
+
+			//get all cells associated with the library
+			try {
+					Sample pu = sampleService.getPlatformUnitForCell(cell);
+					Map puNode = new HashMap();
+					puNode.put("name", "Platform Unit: "+pu.getName());
+					puNode.put("myid", pu.getId());
+					puNode.put("type", "pu");
+					puNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
+					
+					children.add(puNode);
+				} catch (SampleTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SampleParentChildException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		} else if (type.equalsIgnoreCase("pu")) {
+			// if the sample is a library
+			Sample pu = sampleService.getSampleById(id);
+
+			//get all cells associated with the library
+			try {
+					List<Run> runList = runService.getRunsForPlatformUnit(pu);
+					for (Run run : runList) {
+					Map runNode = new HashMap();
+						runNode.put("name", "Run: "+run.getName());
+						runNode.put("myid", run.getId());
+						runNode.put("type", "run");
+						runNode.put("children", getChildrenByNodeType(run.getId(), "run"));
+						
+						children.add(runNode);
+					}
+				} catch (SampleTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+		}
+		
+		return children;
+	}
+
+	/**
+	 * @param sampleId
+	 * @return
+	 */
+	private List<Map> getFileNodesBySample(Sample sample) {
+		List<Map> fileNodes = new ArrayList<Map>();
+		List<SampleFile> sampleFileList = sample.getSampleFile();
+		for (SampleFile sf : sampleFileList) {
+			Map fileNode = new HashMap();
+			fileNode.put("name", "File: "+sf.getName());
+			fileNode.put("myid", sf.getId());
+			fileNode.put("type", "file");
+			
+			fileNodes.add(fileNode);
+		}
+		return fileNodes;
 	}
 
 	

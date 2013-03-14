@@ -161,12 +161,9 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			} catch (IOException e) {
 				throw new WaspMessageInitializationException("IO problem encountered reading resource '"+messageFile.getFilename()+"': "+e.getMessage());
 			}		
-			
-			updateTestData(); // TODO: remove from production code
-			
 			logger.info("Property table was initialized succesfully for file '"+messageFile.getFilename()+"'");
-			
 		}
+		updateTestData(); // TODO: remove from production code
 	}
 	
 		// TODO: remove from production code
@@ -175,7 +172,7 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			for (WaspDao dao : daoBeans.values()){
 				for (Object model : dao.findAll()){
 					try {
-						if (model.getClass().getSimpleName().startsWith("UiField") || model.getClass().getSimpleName().startsWith("Userpasswordauth"))
+						if (model.getClass().getSimpleName().startsWith("Userpasswordauth"))
 							continue;
 						Method getterUUID = null;
 						Method getterUpdated = null;
@@ -222,9 +219,9 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 							setterCreated.invoke(model, updated);
 						}
 						User lastUpdatedUser = (User) getterUpdatedUser.invoke(model);
-						if (lastUpdatedUser == null || lastUpdatedUser.getId() == null){
+						if (lastUpdatedUser == null || lastUpdatedUser.getId() == null ||  (userDao.getUserByLogin("wasp").getId() != 0 && lastUpdatedUser.getId() == 0)){
 							logger.debug("setting Updated User for instance of class " + model.getClass().getName());
-							setterUpdatedUser.invoke(model, userDao.getById(0));
+							setterUpdatedUser.invoke(model, userDao.getUserByLogin("wasp"));
 						}
 						
 					} catch (Exception e) {

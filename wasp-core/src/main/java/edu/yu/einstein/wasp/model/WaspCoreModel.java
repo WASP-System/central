@@ -26,6 +26,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.hibernate.envers.NotAudited;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -287,8 +288,9 @@ public abstract class WaspCoreModel implements Serializable {
 			setUUID(UUID.randomUUID());
 	}
 	
+	@NotAudited
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="lastupdatebyuser", insertable=false, updatable=false)
+	@JoinColumn(name="lastupdatebyuser")
 	protected User lastUpdatedByUser;
 
 	/**
@@ -302,6 +304,7 @@ public abstract class WaspCoreModel implements Serializable {
 	 * @param lastUpdatedByUser the lastUpdatedByUser to set
 	 */
 	public void setLastUpdatedByUser(User lastUpdatedByUser) {
+		logger.debug("Setting lastUpdatedByUser to " + lastUpdatedByUser.getId());
 		this.lastUpdatedByUser = lastUpdatedByUser;
 	}
 	

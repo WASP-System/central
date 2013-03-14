@@ -103,13 +103,14 @@ public class ResultViewController extends WaspController {
 	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
 		
 		try {
-			Map <String, Object> jsTree = null;
+/*			Map <String, Object> jsTree = null;
 			if(type.equalsIgnoreCase("job")) {
 				jsTree = this.jobService.getJobSampleD3Tree(id);
 			} else if(type.equalsIgnoreCase("sample")) {
 				;
 			}
-			return outputJSON(jsTree, response); 	
+*/			
+			return outputJSON(jobService.getD3Branch(id, type), response); 	
 		} 
 		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);

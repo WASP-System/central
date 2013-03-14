@@ -385,9 +385,9 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 					final String login = SecurityContextHolder.getContext().getAuthentication().getName();
 					user = userService.getUserByLogin(login);
 					if (user.getId() == null)
-						user = userService.getUserDao().getById(0); // wasp user (reserved)
+						user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
 				} catch (Exception e){
-					user = userService.getUserDao().getById(0); // wasp user (reserved)
+					user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
 				}
 				setLastUpdatedUserMethod.invoke(entity, user);
 			} catch (Exception e){
