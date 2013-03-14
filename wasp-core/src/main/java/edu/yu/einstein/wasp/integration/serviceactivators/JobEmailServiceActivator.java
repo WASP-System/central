@@ -62,13 +62,18 @@ public class JobEmailServiceActivator {
 	
 	@ServiceActivator
 	public void isSuccessfulRun(Message<WaspStatus> jobStatusMessage) {
+		logger.debug("ROB at A ------------inside siSuccessfulRun");
 		if (!JobStatusMessageTemplate.isMessageOfCorrectType(jobStatusMessage)){
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
 		}
+		logger.debug("ROB at B ------------inside siSuccessfulRun");
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
+			logger.debug("ROB at C ------------inside siSuccessfulRun");
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
+			logger.debug("ROB at D ------------inside siSuccessfulRun");
 			if(job != null && job.getJobId() != null){
+				logger.debug("ROB at E the job is not null------------inside siSuccessfulRun");
 				//emailService.sendSubmitterJobStarted(job);
 				//emailService.sendJobStarted(jobService.getJobByJobId(47), userService.getUserByLogin("smaslova"), "emails/rob_test");
 				

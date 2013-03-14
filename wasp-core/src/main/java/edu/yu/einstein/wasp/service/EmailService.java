@@ -163,48 +163,10 @@ public interface EmailService  {
 	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending);
 
 	/**
-	 * Sends an email to a job submitter stating that their newly submitted job has been recorded
-	 * and is awaiting approval from PI/Lab Manager.
+	 * Sends an email to specified recipient stating that a new job has been submitted  
+	 * The emailTemplate tailors the email to the recipient  
 	 * @param Job job
 	 */
-	public void sendSubmitterJobStarted(final Job job);
-
-	/**
-	 * Sends an email to a job submitter (who is also the lab's PI) stating that their newly submitted job has been recorded
-	 * and is awaiting approval from the PI or the  lab's Lab Manager.
-	 * This exists so that if the PI is the job submitter, he/she only receives one email about this.
-	 * @param Job job
-	 */
-	public void sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(final Job job);
-
-	/**
-	 * Sends an email to a lab's PI, stating that a member of their lab has just submitted a new job
-	 * that is awaiting approval from either the PI or a Lab Manager.
-	 * @param Job job
-	 */
-	public void sendPIJobStartedConfirmRequest(final Job job);
-	
-	/**
-	 * Sends an email to a lab's Lab Manager(s), stating that a member of the lab has just submitted a new job
-	 * that is awaiting approval from either the PI or a Lab Manager.
-	 * @param Job job
-	 */
-	public void sendLabManagerJobStartedConfirmRequest(final Job job);
-	
-	/**
-	 * Sends an email to the Department Administrator(s) that cover this lab, stating that a member of a specific lab has just submitted a new job
-	 * that the administrator must generate a quote and either approve or reject the job submission, based on funds availability. 
-	 * @param Job job
-	 */
-	public void sendDAJobStartedConfirmRequest(final Job job);
-	
-	/**
-	 * Sends a Facitiy Manager an email stating that a new job has been submitted and that  
-	 * the submission must be reviewed and approved or rejected. 
-	 * @param Job job
-	 */
-	public void sendFacilityManagerJobStartedConfirmRequest(final Job job);
-
 	public void sendJobStarted(final Job job, User recipient, String emailTemplate);
 }
 
