@@ -69,23 +69,23 @@ public class RunCellFile extends WaspModel {
 	protected Integer runcellId;
 
 	/**
-	 * setRunlaneId(Integer runcellId)
+	 * setRuncellId(Integer runcellId)
 	 *
 	 * @param runcellId
 	 *
 	 */
 	
-	public void setRunlaneId (Integer runcellId) {
+	public void setRuncellId (Integer runcellId) {
 		this.runcellId = runcellId;
 	}
 
 	/**
-	 * getRunlaneId()
+	 * getRuncellId()
 	 *
 	 * @return runcellId
 	 *
 	 */
-	public Integer getRunlaneId () {
+	public Integer getRuncellId () {
 		return this.runcellId;
 	}
 

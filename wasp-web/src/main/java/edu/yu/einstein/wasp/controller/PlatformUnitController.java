@@ -88,17 +88,17 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 @RequestMapping("/facility/platformunit")
 public class PlatformUnitController extends WaspController {
 	
-	public static class LaneOptions {
-		private Integer laneCount; 
+	public static class CellOptions {
+		private Integer cellCount; 
 		private String label; 
 		
-		public LaneOptions(Integer lc, String l){
-			this.laneCount=lc;
+		public CellOptions(Integer lc, String l){
+			this.cellCount=lc;
 			this.label=l;
 		}
 		
-		public Integer getLaneCount(){
-			return laneCount;
+		public Integer getCellCount(){
+			return cellCount;
 		}
 		
 		public String getLabel(){
@@ -242,14 +242,14 @@ public class PlatformUnitController extends WaspController {
 		String sampleSubtypeNameFromGrid = request.getParameter("sampleSubtypeName")==null?null:request.getParameter("sampleSubtypeName").trim();//if not passed, will be null
 		String readTypeFromGrid = request.getParameter("readType")==null?null:request.getParameter("readType").trim();//if not passed, will be null
 		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
-		String lanecountFromGrid = request.getParameter("lanecount")==null?null:request.getParameter("lanecount").trim();//if not passed, will be null
+		String cellcountFromGrid = request.getParameter("cellcount")==null?null:request.getParameter("cellcount").trim();//if not passed, will be null
 		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
 		//next one no longer used
 		String resourceCategoryNameFromGrid = request.getParameter("resourceCategoryName")==null?null:request.getParameter("resourceCategoryName").trim();//if not passed, will be null
 		//logger.debug("nameFromGrid = " + nameFromGrid);logger.debug("barcodeFromGrid = " + barcodeFromGrid);
 		//logger.debug("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
 		//logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readlengthFromGrid = " + readlengthFromGrid);
-		//logger.debug("lanecountFromGrid = " + lanecountFromGrid);logger.debug("dateFromGridAsString = " + dateFromGridAsString);
+		//logger.debug("cellcountFromGrid = " + cellcountFromGrid);logger.debug("dateFromGridAsString = " + dateFromGridAsString);
 		//logger.debug("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
 		List<Sample> tempPlatformUnitList =  new ArrayList<Sample>();
@@ -303,7 +303,7 @@ public class PlatformUnitController extends WaspController {
 		
 		//have to deal with these separately. FIND certain attributes that cannot be dealt with via direct SQL
 		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
-				|| lanecountFromGrid != null || resourceCategoryNameFromGrid != null){
+				|| cellcountFromGrid != null || resourceCategoryNameFromGrid != null){
 			
 			if(barcodeFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
@@ -345,7 +345,7 @@ public class PlatformUnitController extends WaspController {
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
 			}			
-			if(lanecountFromGrid != null){
+			if(cellcountFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
 					
 					Integer numberOfIndexedCellsOnPlatformUnit;
@@ -353,7 +353,7 @@ public class PlatformUnitController extends WaspController {
 						numberOfIndexedCellsOnPlatformUnit = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample);
 					}catch(Exception e){numberOfIndexedCellsOnPlatformUnit = new Integer(0);}
 					
-					if(lanecountFromGrid.equals(numberOfIndexedCellsOnPlatformUnit.toString())){
+					if(cellcountFromGrid.equals(numberOfIndexedCellsOnPlatformUnit.toString())){
 						platformUnitsFoundInSearch.add(sample);
 					}
 				}
@@ -390,8 +390,8 @@ public class PlatformUnitController extends WaspController {
 			if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
 			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}
 			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}
-			//replaced 9-25-12    else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("lanecount")); indexSorted = true;}
-			else if(sidx.equals("lanecount")){Collections.sort(platformUnitList, new SampleLanecountComparator(sampleService)); indexSorted = true;}
+			//replaced 9-25-12    else if(sidx.equals("cellcount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("cellcount")); indexSorted = true;}
+			else if(sidx.equals("cellcount")){Collections.sort(platformUnitList, new SampleCellcountComparator(sampleService)); indexSorted = true;}
 			else if(sidx.equals("resourceCategoryName")){Collections.sort(platformUnitList, new SampleMetaIsResourceCategoryNameComparator(resourceCategoryDao)); indexSorted = true;}
 
 			if(indexSorted == true && sord.equals("desc")){//must be last
@@ -441,7 +441,7 @@ public class PlatformUnitController extends WaspController {
 				 
 				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
 				
-				String lanecount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample).toString();//throws exception if sample is not platformUnit
+				String cellcount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample).toString();//throws exception if sample is not platformUnit
 				
 				String readlength = "";
 				String readType = "";
@@ -453,9 +453,9 @@ public class PlatformUnitController extends WaspController {
 					if( sm.getK().indexOf("readType") > -1 ){
 						readType = sm.getV();
 					}
-					//9-25-12 for lanecount begin to use sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-					//if( sm.getK().indexOf("lanecount") > -1 ){
-					//	lanecount = sm.getV();
+					//9-25-12 for cellcount begin to use sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+					//if( sm.getK().indexOf("cellcount") > -1 ){
+					//	cellcount = sm.getV();
 					//}
 					if( sm.getK().indexOf("comment") > -1 ){
 					}
@@ -482,7 +482,7 @@ public class PlatformUnitController extends WaspController {
 							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
 							readType,
 							readlength,
-							lanecount
+							cellcount
 				}));
 				 
 				for (SampleMeta meta:sampleMetaList) {
@@ -621,7 +621,7 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("sampleSubtypeId") Integer sampleSubtypeId,
 			@RequestParam("sampleId") Integer sampleId,
 			@RequestParam("barcode") String barcode,
-			@RequestParam("numberOfLanesRequested") Integer numberOfLanesRequested,
+			@RequestParam("numberOfCellsRequested") Integer numberOfCellsRequested,
 			@Valid Sample platformunitInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
@@ -679,26 +679,26 @@ public class PlatformUnitController extends WaspController {
 				}
 			}
 	
-			Integer numberOfLanesInDatabase = null;
+			Integer numberOfCellsInDatabase = null;
 			
-			if(numberOfLanesRequested == null || numberOfLanesRequested.intValue()<=0){//error on form
-				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested.error");
-				m.put("numberOfLanesRequestedError", msg==null?new String("Lane Count cannot be empty."):msg);//"Lane count cannot be empty"
+			if(numberOfCellsRequested == null || numberOfCellsRequested.intValue()<=0){//error on form
+				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfCellsRequested.error");
+				m.put("numberOfCellsRequestedError", msg==null?new String("Cell Count cannot be empty."):msg);//"Cell count cannot be empty"
 				otherErrorsExist = true;
 			}	
-			else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and begin to deal with any potential loss of libraries such a lane change would require
-				numberOfLanesInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-				if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
-					throw new Exception("lanecount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
+			else if(action.equals("update")){	//if update, CHECK FOR CHANGE IN NUMBER OF LANES and begin to deal with any potential loss of libraries such a cell change would require
+				numberOfCellsInDatabase = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
+				if(numberOfCellsInDatabase==null || numberOfCellsInDatabase.intValue()<=0){//should never be 0 cells on a platformunit
+					throw new Exception("cellcount in database is not valid for platformunit with Id " + platformUnitInDatabase.getSampleId().intValue());
 				}
-				if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//request to add lanes, so not a problem
+				if(numberOfCellsRequested.intValue() > numberOfCellsInDatabase.intValue()){//request to add cells, so not a problem
 					;
 				}
-				else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+				else if(numberOfCellsRequested.intValue() < numberOfCellsInDatabase.intValue()){//request to remove cells; a potential problem if libraries are on the cells to be removed
 					// perform next test
-					if(sampleService.isRequestedReductionInCellNumberProhibited(platformUnitInDatabase, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
-						String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfLanesRequested_conflict.error");
-						m.put("numberOfLanesRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost."):msg);//"Lane count cannot be empty"
+					if(sampleService.isRequestedReductionInCellNumberProhibited(platformUnitInDatabase, numberOfCellsRequested)){//value of true means libraries are assigned to those cells being asked to be removed. Prohibit this action and inform user to first remove those libraries from the cells being requested to be removed
+						String msg = messageService.getMessage(metaHelperWebapp.getArea()+".numberOfCellsRequested_conflict.error");
+						m.put("numberOfCellsRequestedError", msg==null?new String("Action not permitted at this time. To reduce the number of cells, remove libraries on the cells that will be lost."):msg);//"Cell count cannot be empty"
 						otherErrorsExist = true;
 					}
 				}
@@ -708,7 +708,7 @@ public class PlatformUnitController extends WaspController {
 				m.put("sampleSubtypeId", sampleSubtypeId);
 				m.put("sampleId", sampleId);
 				m.put("barcode", barcode);
-				m.put("numberOfCellsOnThisPlatformUnit", numberOfLanesRequested);
+				m.put("numberOfCellsOnThisPlatformUnit", numberOfCellsRequested);
 				platformunitInstance.setSampleMeta((List<SampleMeta>) metaHelperWebapp.getMetaList());	
 				//DO I NEED THIS Next line??? It seems to be sent back automagically, even if the next line is missing (next line added 10-10-12)
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
@@ -723,12 +723,12 @@ public class PlatformUnitController extends WaspController {
 			
 			if(action.equals("create")){
 				//logger.debug("in create1");
-				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				sampleService.createUpdatePlatformUnit(platformunitInstance, sampleSubtype, barcode, numberOfCellsRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 				waspMessage("platformunitInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//logger.debug("in update1");
-				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfLanesRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
+				sampleService.createUpdatePlatformUnit(platformUnitInDatabase, sampleSubtype, barcode, numberOfCellsRequested, (List<SampleMeta>)metaHelperWebapp.getMetaList());
 				waspMessage("platformunitInstance.updated_success.label");
 			}
 			else{//action == null
@@ -1059,14 +1059,14 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentAdd1(
 			@RequestParam("librarysampleid") Integer librarySampleId,
-			@RequestParam("lanesampleid") Integer laneSampleId,
+			@RequestParam("cellsampleid") Integer cellSampleId,
 			@RequestParam("jobid") Integer jobId,
-			@RequestParam(value="libConcInLanePicoM", required=false) String libConcInLanePicoM,
+			@RequestParam(value="libConcInCellPicoM", required=false) String libConcInCellPicoM,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
 			ModelMap m) {
 	
-		assignmentAdd(librarySampleId, laneSampleId, jobId, libConcInLanePicoM);
+		assignmentAdd(librarySampleId, cellSampleId, jobId, libConcInCellPicoM);
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();
 	}
 	
@@ -1074,44 +1074,44 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentAdd2(
 			@RequestParam("librarysampleid") Integer librarySampleId,
-			@RequestParam("lanesampleid") Integer laneSampleId,
+			@RequestParam("cellsampleid") Integer cellSampleId,
 			@RequestParam("jobid") Integer jobId,
-			@RequestParam(value="libConcInLanePicoM", required=false) String libConcInLanePicoM,
+			@RequestParam(value="libConcInCellPicoM", required=false) String libConcInCellPicoM,
 			ModelMap m) {
 	
-		assignmentAdd(librarySampleId, laneSampleId, jobId, libConcInLanePicoM);
+		assignmentAdd(librarySampleId, cellSampleId, jobId, libConcInCellPicoM);
 		return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 	}
 	
   /**
    * assignmentAdd
 	 * 
-	 * @param librarySampleId (the library being added to a flowcell lane)
-	 * @param laneSampleId (lane of the flow cell)
+	 * @param librarySampleId (the library being added to a flowcell cell)
+	 * @param cellSampleId (cell of the flow cell)
 	 * @param jobId
-	 * @param libConcInLanePicoM (final concentration in pM of library being added to flow cell)
+	 * @param libConcInCellPicoM (final concentration in pM of library being added to flow cell)
    *
    */
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public void assignmentAdd(
-			Integer librarySampleId, Integer laneSampleId,
-			Integer jobId, String libConcInLanePicoM) {
+			Integer librarySampleId, Integer cellSampleId,
+			Integer jobId, String libConcInCellPicoM) {
 
 		Job job = jobService.getJobDao().getJobByJobId(jobId);
-		Sample laneSample = sampleService.getSampleDao().getSampleBySampleId(laneSampleId); 
+		Sample cellSample = sampleService.getSampleDao().getSampleBySampleId(cellSampleId); 
 		Sample librarySample = sampleService.getSampleDao().getSampleBySampleId(librarySampleId); 
 		JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
-		Float libConcInLanePicoMFloat = 0.0f;
+		Float libConcInCellPicoMFloat = 0.0f;
 		boolean error = false;
 		
 		if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
 			error = true; waspErrorMessage("platformunit.jobIdNotFound.error"); 
 		}
-		else if(laneSampleId == null || laneSampleId == 0){//user selected a flowcell from dropdown box (parameter laneSampleId == 0); we should actually prevent this with javascript
-			error = true; waspErrorMessage("platformunit.laneIsFlowCell.error");
+		else if(cellSampleId == null || cellSampleId == 0){//user selected a flowcell from dropdown box (parameter cellSampleId == 0); we should actually prevent this with javascript
+			error = true; waspErrorMessage("platformunit.cellIsFlowCell.error");
 		}
-		else if (laneSample == null || laneSample.getSampleId() == null) {
-			error = true; waspErrorMessage("platformunit.laneIdNotFound.error"); 
+		else if (cellSample == null || cellSample.getSampleId() == null) {
+			error = true; waspErrorMessage("platformunit.cellIdNotFound.error"); 
 		}
 		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
 			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
@@ -1119,19 +1119,19 @@ public class PlatformUnitController extends WaspController {
 		else if ( ! sampleService.isLibrary(librarySample)) {
 			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
 		}
-		else if ( ! laneSample.getSampleType().getIName().equals("cell")) { 
-			error = true; waspErrorMessage("platformunit.laneIsNotLane.error");
+		else if ( ! cellSample.getSampleType().getIName().equals("cell")) { 
+			error = true; waspErrorMessage("platformunit.cellIsNotCell.error");
 		}
 		else if(jobSample.getJobSampleId()==null || jobSample.getJobSampleId()==0){//confirm library is really part of this jobId
 			error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
 		}
-		else if ("".equals(libConcInLanePicoM)) {
+		else if ("".equals(libConcInCellPicoM)) {
 			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
 		}
 		else{
 			try{
-				libConcInLanePicoMFloat = new Float(Float.parseFloat(libConcInLanePicoM));
-				if(libConcInLanePicoMFloat.floatValue() <= 0){
+				libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoM));
+				if(libConcInCellPicoMFloat.floatValue() <= 0){
 					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
 				}
 			}
@@ -1148,7 +1148,7 @@ public class PlatformUnitController extends WaspController {
 		
 		boolean puIsAvailable = false;
 				
-		List<SampleSource> parentSampleSources = laneSample.getSourceSample();//should be one
+		List<SampleSource> parentSampleSources = cellSample.getSourceSample();//should be one
 		if(parentSampleSources == null || parentSampleSources.size()!=1){
 			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
 		}
@@ -1172,7 +1172,7 @@ public class PlatformUnitController extends WaspController {
 			return;
 		}
 		try{
-			sampleService.addLibraryToCell(laneSample, librarySample, libConcInLanePicoMFloat);
+			sampleService.addLibraryToCell(cellSample, librarySample, libConcInCellPicoMFloat);
 		} catch(SampleTypeException ste){
 			waspErrorMessage("platformunit.sampleType.error");
 			logger.warn(ste.getMessage()); // print more detailed error to warn logs
@@ -1306,22 +1306,22 @@ public class PlatformUnitController extends WaspController {
 	}
 
 	/*
-	 * update sampleSourceMetaData libConcInLanePicoM
+	 * update sampleSourceMetaData libConcInCellPicoM
 	 */
-	@RequestMapping(value="/updateConcInLane.do", method=RequestMethod.POST)
+	@RequestMapping(value="/updateConcInCell.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateConcInLane(
+	public String updateConcInCell(
 			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
-			@RequestParam("libConcInLanePicoM") String libConcInLanePicoM,
+			@RequestParam("libConcInCellPicoM") String libConcInCellPicoM,
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			ModelMap m) {
 		
 		//TODO confirm parameters
-		//confirm libConcInLanePicoM is integer or float
+		//confirm libConcInCellPicoM is integer or float
 		//confirm platformUnitId is Id of sample that is a platformUnit
-		//confirm that sampleSourceMetaId exists and k == "libConcInLanePicoM"
+		//confirm that sampleSourceMetaId exists and k == "libConcInCellPicoM"
 		SampleSourceMeta sampleSourceMeta = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
-		sampleSourceMeta.setV(libConcInLanePicoM);
+		sampleSourceMeta.setV(libConcInCellPicoM);
 		sampleSourceMetaDao.save(sampleSourceMeta);
 		//return "redirect:/dashboard.do";
 		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
@@ -1329,22 +1329,22 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 	/*
-	 * addNewControlToLane
+	 * addNewControlToCell
 	 */
-	@RequestMapping(value="addNewControlToLane.do", method=RequestMethod.POST)
+	@RequestMapping(value="addNewControlToCell.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String addNewControlToLane(
+	public String addNewControlToCell(
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			@RequestParam("cellId") Integer cellId,
 			@RequestParam("newControlId") Integer newControlId,	
-			@RequestParam("newControlConcInLanePicoM") String newControlConcInLanePicoM,
+			@RequestParam("newControlConcInCellPicoM") String newControlConcInCellPicoM,
 			ModelMap m){
 		
 		//TODO confirm parameters
 		//confirm platformUnitId is of a flow cell
 		//confirm cellId is a cell of this platformUnit
 		//confirm newControlId is the id of a controlLibrary
-		//confirm newControlConcInLanePicoM is a float (but store it as a string with setV)
+		//confirm newControlConcInCellPicoM is a float (but store it as a string with setV)
 		
 		SampleSource sampleSource = new SampleSource();
 		sampleSource.setSampleId(cellId);
@@ -1361,11 +1361,11 @@ public class PlatformUnitController extends WaspController {
 		sampleSource.setIndex(new Integer(maxMultipleIndex + 1));
 		sampleSource = sampleSourceDao.save(sampleSource);
 		//logger.debug("checking next multiplexIndex; new one is " + sampleSource.getMultiplexindex().intValue());
-		//deal with sampleSourceMeta to set newControlConcInLanePicoM for the control
+		//deal with sampleSourceMeta to set newControlConcInCellPicoM for the control
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
-		sampleSourceMeta.setK("libConcInLanePicoM");
-		sampleSourceMeta.setV(newControlConcInLanePicoM);
+		sampleSourceMeta.setK("libConcInCellPicoM");
+		sampleSourceMeta.setV(newControlConcInCellPicoM);
 		sampleSourceMetaDao.save(sampleSourceMeta);
 		
 		//return "redirect:/dashboard.do";
@@ -1456,24 +1456,24 @@ public class PlatformUnitController extends WaspController {
 			logger.warn("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
 			return return_string;
 		}
-		Integer laneCountFromMeta = null;
+		Integer cellCountFromMeta = null;
 		for(SampleMeta sm : platformUnit.getSampleMeta()){
-			if(sm.getK().indexOf("lanecount") > -1){
+			if(sm.getK().indexOf("cellcount") > -1){
 				try{
-					laneCountFromMeta = new Integer(sm.getV());
+					cellCountFromMeta = new Integer(sm.getV());
 				}
 				catch(Exception e){
-					logger.warn("Unable to capture platformUnit lanecount from sampleMetaData");
+					logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
 					return return_string;
 				}
 			}
 		}
-		if(laneCountFromMeta == null){
-			logger.warn("Unable to capture platformUnit lanecount from sampleMetaData");
+		if(cellCountFromMeta == null){
+			logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
 			return return_string;
 		}
-		if(laneCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
-			logger.warn("lanecount from sampleMetaData and from samplesource are discordant: unable to continue");
+		if(cellCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
+			logger.warn("cellcount from sampleMetaData and from samplesource are discordant: unable to continue");
 			return return_string;
 		}
 		//confirm machine and parameters readLength and readType are compatible
@@ -1624,23 +1624,23 @@ class SampleBarcodeComparator implements Comparator<Sample> {
 		return arg0.getSampleBarcode().get(0).getBarcode().getBarcode().compareToIgnoreCase(arg1.getSampleBarcode().get(0).getBarcode().getBarcode());
 	}
 }
-class SampleLanecountComparator implements Comparator<Sample> {
+class SampleCellcountComparator implements Comparator<Sample> {
 	SampleService sampleService;
-	SampleLanecountComparator(SampleService sampleService){
+	SampleCellcountComparator(SampleService sampleService){
 		this.sampleService = sampleService;
 	}
 	@Override
 	public int compare(Sample arg0, Sample arg1) {
 		
-		Integer lanecount0 = null;
-		Integer lanecount1 = null;
+		Integer cellcount0 = null;
+		Integer cellcount1 = null;
 		
-		try{lanecount0 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg0);
-		}catch(Exception e){lanecount0 = new Integer(0);}
-		try{lanecount1 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg1);
-		}catch(Exception e){lanecount1 = new Integer(0);}
+		try{cellcount0 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg0);
+		}catch(Exception e){cellcount0 = new Integer(0);}
+		try{cellcount1 = sampleService.getNumberOfIndexedCellsOnPlatformUnit(arg1);
+		}catch(Exception e){cellcount1 = new Integer(0);}
 		
-		return lanecount0.compareTo(lanecount1);
+		return cellcount0.compareTo(cellcount1);
 	}
 }
 class SampleMetaIsStringComparator implements Comparator<Sample> {

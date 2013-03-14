@@ -21,7 +21,7 @@
     </p>
 
     <p>
-    <fmt:message key="run.detailRunLanes.label"/>
+    <fmt:message key="run.detailRunCells.label"/>
     <c:forEach items="${runcell}" var="rl">
       <div>
       -- <fmt:message key="run.detailSamples.label"/>:
@@ -29,7 +29,7 @@
         <c:out value="${rl.sample.name}"/>
       </a>
       -- <fmt:message key="run.detailResourceCells.label"/>:
-      (<a href="/wasp/run/lane/detail/<c:out value="${rl.runId}"/>/<c:out value="${rl.runCellId}"/>.do">
+      (<a href="/wasp/run/cell/detail/<c:out value="${rl.runId}"/>/<c:out value="${rl.runCellId}"/>.do">
         <c:out value="${rl.resourceCell.name}"/>
       </a>)
       </div>

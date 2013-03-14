@@ -38,11 +38,11 @@
 </c:forEach>
  --%>
 
-<h2>Resource Lanes</h2>
+<h2>Resource Cells</h2>
 <c:forEach items="${resourcecell}" var="rl">
 	<div>
 		<a
-			href="/wasp/resource/lane/detail/<c:out value="${rl.resourceCellId}"/>.do">
+			href="/wasp/resource/cell/detail/<c:out value="${rl.resourceCellId}"/>.do">
 			<c:out value="${rl.name}" /> </a>
 	</div>
 </c:forEach>

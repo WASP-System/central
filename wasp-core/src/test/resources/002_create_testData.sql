@@ -654,7 +654,7 @@ insert into sampletype values
 (1, 'dna', 'DNA'), 
 (2, 'tissue', 'Tissue'),
 (3, 'library', 'Library'),
-(4, 'lane', 'Lane'), 
+(4, 'cell', 'Cell'), 
 (5, 'platformunit', 'Platform Unit');
 
 create table samplesubtype (
@@ -1129,7 +1129,7 @@ create table runcell (
   runcellid int(10) not null primary key auto_increment,
 
   runid int(10) not null, 
-  resourcecellid int(10) not null, -- lane 
+  resourcecellid int(10) not null, -- cell 
   sampleid int(10) not null, 
 
   foreign key fk_runcell_rid (runid) references run(runid),
@@ -1798,11 +1798,11 @@ INSERT INTO `uifield` (`uifieldid`, `locale`, `area`, `name`, `attrname`, `attrv
 (489, 'en_US', 'platformunit', 'version', 'label', 'Version', NULL, 1),
 (490, 'en_US', 'platformunit', 'version', 'error', 'VErsioN', NULL, 1),
 (491, 'en_US', 'platformunit', 'version', 'metaposition', '30', NULL, 1),
-(492, 'en_US', 'platformunit', 'lanecount', 'label', 'Lane Count', NULL, 1),
-(493, 'en_US', 'platformunit', 'lanecount', 'constraint', 'NotEmpty', NULL, 1),
-(494, 'en_US', 'platformunit', 'lanecount', 'error', 'Lane Count cannot be empty', NULL, 1),
-(495, 'en_US', 'platformunit', 'lanecount', 'control', 'select:1:1;8:8', NULL, 1),
-(496, 'en_US', 'platformunit', 'lanecount', 'metaposition', '40', NULL, 1),
+(492, 'en_US', 'platformunit', 'cellcount', 'label', 'Cell Count', NULL, 1),
+(493, 'en_US', 'platformunit', 'cellcount', 'constraint', 'NotEmpty', NULL, 1),
+(494, 'en_US', 'platformunit', 'cellcount', 'error', 'Cell Count cannot be empty', NULL, 1),
+(495, 'en_US', 'platformunit', 'cellcount', 'control', 'select:1:1;8:8', NULL, 1),
+(496, 'en_US', 'platformunit', 'cellcount', 'metaposition', '40', NULL, 1),
 (497, 'en_US', 'fmpayment', 'amount', 'label', 'Amount', NULL, 1),
 (498, 'en_US', 'fmpayment', 'amount', 'constraint', 'NotEmpty', NULL, 1),
 (499, 'en_US', 'fmpayment', 'amount', 'metaposition', '10', NULL, 1),

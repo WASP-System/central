@@ -108,28 +108,28 @@ public class TaskController extends WaspController {
 	  m.addAttribute("activePlatformUnits", activePlatformUnits);
 	  
 	  List<String> barcodes = new ArrayList<String>();
-	  List<String> lanes = new ArrayList<String>();
+	  List<String> cells = new ArrayList<String>();
 	  for(Sample platformUnit : activePlatformUnits){
 		  String barcode = platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode();
 		  if(barcode==null || barcode.equals("")){
 			  barcode = new String("Unknown");
 		  }
 		  barcodes.add(barcode);
-		  String lane = new String("");
+		  String cell = new String("");
 		  List<SampleMeta> sampleMetaList = platformUnit.getSampleMeta();
 		  for(SampleMeta sampleMeta : sampleMetaList){
-			  if(sampleMeta.getK().indexOf("lanecount") > -1){
-				  lane = sampleMeta.getV();
+			  if(sampleMeta.getK().indexOf("cellcount") > -1){
+				  cell = sampleMeta.getV();
 			  }
 		  }
-		  if(lane.equals("")){
-			  lane = new String("Unknown");
+		  if(cell.equals("")){
+			  cell = new String("Unknown");
 		  }
-		  lanes.add(lane);
+		  cells.add(cell);
 	  }
 	  
 	  m.addAttribute("barcodes", barcodes);
-	  m.addAttribute("lanes", lanes);
+	  m.addAttribute("cells", cells);
 	 
 	  return "task/assignLibraries/lists";
   }

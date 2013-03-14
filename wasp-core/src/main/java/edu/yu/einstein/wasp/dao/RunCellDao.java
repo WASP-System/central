@@ -18,7 +18,7 @@ public interface RunCellDao extends WaspDao<RunCell> {
 
   public RunCell getRunCellByRunCellId (final int runCellId);
 
-  public RunCell getRunCellByRunIdResourcelaneId (final int runId, final int resourcecellId);
+  public RunCell getRunCellByRunIdResourcecellId (final int runId, final int resourcecellId);
 
   public RunCell getRunCellBySampleIdRunId (final int sampleId, final int runId);
 

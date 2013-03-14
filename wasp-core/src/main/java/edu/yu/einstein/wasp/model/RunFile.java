@@ -37,24 +37,24 @@ public class RunFile extends WaspModel {
 	
 
 	/**
-	 * setRunlanefileId(Integer runcellfileId)
+	 * setRuncellfileId(Integer runcellfileId)
 	 *
 	 * @param runcellfileId
 	 *
 	 */
 	@Deprecated
-	public void setRunlanefileId (Integer runcellfileId) {
+	public void setRuncellfileId (Integer runcellfileId) {
 		setId(runcellfileId);
 	}
 
 	/**
-	 * getRunlanefileId()
+	 * getRuncellfileId()
 	 *
 	 * @return runcellfileId
 	 *
 	 */
 	@Deprecated
-	public Integer getRunlanefileId () {
+	public Integer getRuncellfileId () {
 		return getId();
 	}
 

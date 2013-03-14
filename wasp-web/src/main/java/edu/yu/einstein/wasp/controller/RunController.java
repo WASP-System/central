@@ -643,8 +643,8 @@ public class RunController extends WaspController {
 		return "run/detail";
 	}
 
-	@RequestMapping(value = "/lane/detail/{strRunId}/{strId}", method = RequestMethod.GET)
-	public String laneDetail(@PathVariable("strRunId") String strRunId, @PathVariable("strId") String strId, ModelMap m) {
+	@RequestMapping(value = "/cell/detail/{strRunId}/{strId}", method = RequestMethod.GET)
+	public String cellDetail(@PathVariable("strRunId") String strRunId, @PathVariable("strId") String strId, ModelMap m) {
 		String now = (new Date()).toString();
 
 		Integer i;
@@ -675,7 +675,7 @@ public class RunController extends WaspController {
 		m.addAttribute("runcell", runCell);
 		m.addAttribute("runcellfile", runCellFileList);
 
-		return "run/lanedetail";
+		return "run/celldetail";
 	}
 	
 	//helper method for createUpdateRun

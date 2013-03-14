@@ -29,7 +29,7 @@
 <br />
 <h2><fmt:message key="activePlatformUnit.tableHeader.label" /></h2>
 <table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.name.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.barcode.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.type.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListAssignLibrary.numberLanes.label" /></th></tr>
+<tr class="FormData"><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.name.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.barcode.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="activePlatformUnit.type.label" /></th><th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="jobListAssignLibrary.numberCells.label" /></th></tr>
 
 <c:choose>
 <c:when test="${activePlatformUnits.size()==0}">
@@ -41,7 +41,7 @@
 		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${barcodes[status.index]}" /></td>
 		<td style='text-align:center'><c:out value="${platformUnit.getSampleSubtype().getName()}" /> </td>
-		<td style='text-align:center'><c:out value="${lanes[status.index]}" /></td>
+		<td style='text-align:center'><c:out value="${cells[status.index]}" /></td>
 		</tr>
 </c:forEach>
 </c:otherwise>

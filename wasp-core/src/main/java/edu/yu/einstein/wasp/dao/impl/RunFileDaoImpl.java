@@ -36,7 +36,7 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
 
 
 	/**
-	 * getRunFileByRunlanefileId(final int runcellfileId)
+	 * getRunFileByRuncellfileId(final int runcellfileId)
 	 *
 	 * @param final int runcellfileId
 	 *
@@ -45,7 +45,7 @@ public class RunFileDaoImpl extends WaspDaoImpl<RunFile> implements edu.yu.einst
 
 	@Override
 	@Transactional
-	public RunFile getRunFileByRunlanefileId (final int runcellfileId) {
+	public RunFile getRunFileByRuncellfileId (final int runcellfileId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runcellfileId", runcellfileId);
 

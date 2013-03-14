@@ -55,9 +55,9 @@
         <td class="CaptionTD error"><c:out value="${barcodeError}" /> </td>
 	</tr>
 	<tr class="FormData">
-        <td class="CaptionTD"><fmt:message key="platformunitInstance.numberOfLanesRequested.label" />:</td>
+        <td class="CaptionTD"><fmt:message key="platformunitInstance.numberOfCellsRequested.label" />:</td>
         <td class="DataTD">        	
-        	<select class="FormElement ui-widget-content ui-corner-all" name="numberOfLanesRequested" size="1">
+        	<select class="FormElement ui-widget-content ui-corner-all" name="numberOfCellsRequested" size="1">
 				<option value="0"><fmt:message key="wasp.default_select.label"/> <%-- --select-- --%>
 				<c:forEach items="${numberOfCellsList}" var="item">
 					<c:set var="selectedFlag3" value=""/>
@@ -68,7 +68,7 @@
 				</c:forEach>
 		 	</select>        
         	<span class="requiredField">*</span></td>
-        <td class="CaptionTD error"><c:out value="${numberOfLanesRequestedError}" /> </td>
+        <td class="CaptionTD error"><c:out value="${numberOfCellsRequestedError}" /> </td>
 	</tr>
 	
 	<c:set var="_area" value = "sample" scope="request"/>

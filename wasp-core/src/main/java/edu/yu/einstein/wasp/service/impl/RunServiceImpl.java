@@ -247,7 +247,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		newRunMeta.setPosition(new Integer(0));//do we really use this???
 		newRunMeta = runMetaDao.save(newRunMeta);
 		logger.debug("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
-		//runlane
+		//runcell
 		for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
 			RunCell runCell = new RunCell();
 			runCell.setRun(newRun);//the runid
