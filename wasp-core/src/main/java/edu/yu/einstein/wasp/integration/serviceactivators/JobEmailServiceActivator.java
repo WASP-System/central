@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.User;
 //import edu.yu.einstein.wasp.model.Role;
 
-@Transactional("entityManager")
+////@Transactional("entityManager")
 public class JobEmailServiceActivator {
 	
 	@Autowired
