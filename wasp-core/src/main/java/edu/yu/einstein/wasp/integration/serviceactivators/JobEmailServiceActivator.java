@@ -36,7 +36,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.User;
 //import edu.yu.einstein.wasp.model.Role;
 
-////@Transactional("entityManager")
+@Transactional("entityManager")//must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
 public class JobEmailServiceActivator {
 	
 	@Autowired
@@ -146,7 +146,7 @@ public class JobEmailServiceActivator {
 					jobApproveCode = "daApprove";
 				}
 				logger.debug("ROB ---- at F in js for rejected by an admin or pi for cause");
-				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, job.getId());
+				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, 60);//job.getId());
 				if(metaMessageList.size()>0){
 					logger.debug("ROB ---- at G in js for rejected by an admin or pi for cause");
 					MetaMessage mm = metaMessageList.get(metaMessageList.size()-1);//get the last one
