@@ -1,5 +1,7 @@
 package edu.yu.einstein.wasp.integration.serviceactivators;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,7 +149,8 @@ public class JobEmailServiceActivator {
 				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, job.getId());
 				if(metaMessageList.size()>0){
 					logger.debug("ROB ---- at G in js for rejected by an admin or pi for cause");
-					reasonForAbandoned += metaMessageList.get(metaMessageList.size()-1);//get the last one
+					MetaMessage mm = metaMessageList.get(metaMessageList.size()-1);//get the last one
+					reasonForAbandoned += mm.getValue();
 				}
 				
 				
