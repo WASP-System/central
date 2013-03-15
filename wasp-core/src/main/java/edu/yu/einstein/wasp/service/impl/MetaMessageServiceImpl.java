@@ -149,24 +149,24 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 	}
 	
 	private <T extends MetaBase> MetaMessage getMetaMessage(T meta){
-		MetaMessage message = null;
-		String metaKey = meta.getK();
-		String nameAndValue = meta.getV();
-		if (metaKey.startsWith(STATUS_KEY_PREFIX)){
-			String group = StringUtils.substringBetween(metaKey, STATUS_KEY_PREFIX, DELIMITER);
-			if (!nameAndValue.contains(DELIMITER)){
-				message = new MetaMessage(metaKey, group, "", nameAndValue);
-			} else {
-				String[] valueComponents = StringUtils.split(nameAndValue, DELIMITER);
-				if (valueComponents.length == 1){
-					message = new MetaMessage(metaKey, group, valueComponents[0], "");
-				} else if (valueComponents.length == 2){
-					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
+		MetaMessage message = null;System.out.println("ROB-A");
+		String metaKey = meta.getK();System.out.println("ROB-B");
+		String nameAndValue = meta.getV();System.out.println("ROB-C");
+		if (metaKey.startsWith(STATUS_KEY_PREFIX)){System.out.println("ROB-D");
+			String group = StringUtils.substringBetween(metaKey, STATUS_KEY_PREFIX, DELIMITER);System.out.println("ROB-E");
+			if (!nameAndValue.contains(DELIMITER)){System.out.println("ROB-F");
+				message = new MetaMessage(metaKey, group, "", nameAndValue);System.out.println("ROB-G");
+			} else {System.out.println("ROB-H");
+				String[] valueComponents = StringUtils.split(nameAndValue, DELIMITER);System.out.println("ROB-I");
+				if (valueComponents.length == 1){System.out.println("ROB-J");
+					message = new MetaMessage(metaKey, group, valueComponents[0], "");System.out.println("ROB-K");
+				} else if (valueComponents.length == 2){System.out.println("ROB-K");
+					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);System.out.println("ROB-M");
 				} 
 			}
-			message.setDate(meta.getUpdated());
-			message.setUser(meta.getLastUpdatedByUser());
-		} 
+			message.setDate(meta.getUpdated());System.out.println("ROB-N");
+			message.setUser(meta.getLastUpdatedByUser());System.out.println("ROB-O");
+		} System.out.println("ROB-P");
 		return message;
 	}
 
