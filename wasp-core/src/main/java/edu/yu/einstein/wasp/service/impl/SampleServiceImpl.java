@@ -1261,7 +1261,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleTypeException("sample is not a platfrom unit");
 		for (Run run : platformUnit.getRun()){
 			// return run if it has been started by has no record of completion
-			if (run.getStartts() != null && run.getEnDts() == null)
+			if (run.getStarted() != null && run.getFinished() == null)
 				return run;
 		}
 		return null;

@@ -251,62 +251,62 @@ public class Run extends WaspModel {
 
 
 	/** 
-	 * startts
+	 * started
 	 *
 	 */
 	@Column(name="startts")
-	protected Date startts;
+	protected Date started;
 
 	/**
-	 * setStartts(Date startts)
+	 * setStarted(Date started)
 	 *
-	 * @param startts
+	 * @param started
 	 *
 	 */
 	
-	public void setStartts (Date startts) {
-		this.startts = startts;
+	public void setStarted(Date started) {
+		this.started = started;
 	}
 
 	/**
-	 * getStartts()
+	 * getStarted()
 	 *
-	 * @return startts
+	 * @return started
 	 *
 	 */
-	public Date getStartts () {
-		return this.startts;
+	public Date getStarted() {
+		return this.started;
 	}
 
 
 
 
 	/** 
-	 * enDts
+	 * finished
 	 *
 	 */
 	@Column(name="endts")
-	protected Date enDts;
+	protected Date finished;
 
 	/**
-	 * setEnDts(Date enDts)
+	 * setFinished(Date finished)
 	 *
-	 * @param enDts
+	 * @param finished
 	 *
 	 */
 	
-	public void setEnDts (Date enDts) {
-		this.enDts = enDts;
+	public void setFinished(Date finished) {
+		this.finished = finished;
 	}
 
 	/**
-	 * getEnDts()
+	 * getFinished()
 	 *
-	 * @return enDts
+	 * @return finished
 	 *
 	 */
-	public Date getEnDts () {
-		return this.enDts;
+	public Date getFinished() {
+		return this.finished;
 	}
 
 
