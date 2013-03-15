@@ -59,7 +59,6 @@ import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
@@ -107,7 +106,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -220,12 +218,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;	
 	}
-	
-	public void setSampleFileDao(SampleFileDao sampleFileDao) {
-		this.sampleFileDao = sampleFileDao;	
-
-	}
-	
+		
 	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
 		this.sampleTypeDao = sampleTypeDao;	
 
@@ -291,9 +284,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	protected SampleDao sampleDao;
-
-	@Autowired
-	protected SampleFileDao sampleFileDao;
 
 	@Autowired
 	protected JobSampleDao jobSampleDao;
@@ -1923,10 +1913,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	private List<Map> getFileNodesBySample(Sample sample) {
 		List<Map> fileNodes = new ArrayList<Map>();
-		List<SampleFile> sampleFileList = sample.getSampleFile();
-		for (SampleFile sf : sampleFileList) {
+		Set<FileGroup> sampleFiles = sample.getFileGroups();
+		for (FileGroup sf : sampleFiles) {
 			Map fileNode = new HashMap();
-			fileNode.put("name", "File: "+sf.getName());
+			// TODO: ensure this works
+			fileNode.put("name", "File: " + sf.getDescription());
 			fileNode.put("myid", sf.getId());
 			fileNode.put("type", "file");
 			

@@ -93,7 +93,7 @@ public interface FileService extends WaspService {
 	 * @param fileType
 	 * @return
 	 */
-	public List<FileGroup> getFilesByType(FileType fileType);
+	public Set<FileGroup> getFilesByType(FileType fileType);
 
 	
 	/**
@@ -103,7 +103,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	public List<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
+	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
 
 	/**
 	 * Returns a list of files for the given library or an empty list if none.
@@ -111,7 +111,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	public List<FileGroup> getFilesForLibrary(Sample library) throws SampleTypeException;
+	public Set<FileGroup> getFilesForLibrary(Sample library) throws SampleTypeException;
 
 	/**
 	 * Returns a Map of files for a given library associated by FileType
@@ -119,7 +119,7 @@ public interface FileService extends WaspService {
 	 * @return
 	 * @throws SampleTypeException
 	 */
-	public Map<FileType, List<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException;
+	public Map<FileType, Set<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException;
 	
 	public void addFile(FileHandle file);
 	
@@ -131,9 +131,9 @@ public interface FileService extends WaspService {
 	
 	public FileType getFileType(String iname);
 	
-	public void registerFile(FileHandle file) throws FileNotFoundException, GridException;
+	public void register(FileHandle file) throws FileNotFoundException, GridException;
 	
-	public void registerFileGroup(FileGroup group) throws FileNotFoundException, GridException;
+	public void register(FileGroup group) throws FileNotFoundException, GridException;
 
 }
 

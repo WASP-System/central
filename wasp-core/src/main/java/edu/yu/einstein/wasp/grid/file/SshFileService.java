@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.grid.file;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 
@@ -13,6 +14,7 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 
@@ -53,8 +55,11 @@ public class SshFileService implements GridFileService {
 	}
 
 	@Override
-	public void put(File localFile, String remoteFile)
-			throws IOException {
+	public void put(File localFile, String remoteFile) throws IOException {
+		put(localFile, remoteFile, retries, timeout);
+	}
+	
+	public void put(File localFile, String remoteFile, int attempts, int delayMillis) throws IOException {
 
 		logger.debug("put called: " + localFile + " to " + transportConnection.getHostName() + " as " + remoteFile);
 
@@ -64,54 +69,100 @@ public class SshFileService implements GridFileService {
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
-		try {
-			manager.init();
+		int attempt = 0;
+		FileObject file;
 
-			FileObject file = manager.resolveFile(localFile.getAbsolutePath());
-			String remote = getRemoteFileURL(remoteFile);
-			logger.debug("preparing to copy: " + file.toString() + " to: " + remote);
-			FileSystemOptions options = createDefaultOptions(hostKeyChecking, timeout);
-			FileObject destination = manager.resolveFile(remote, options);
+		while (attempt <= attempts) {
+			attempt++;
 
-			destination.copyFrom(file, Selectors.SELECT_SELF);
-			logger.debug(localFile.getAbsolutePath() + " copied to " + remote + " (" + destination.getName().getFriendlyURI() + ")");
+			try {
+				manager.init();
 
-		} catch (Exception e) {
-			logger.error("problem copying file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
+				file = manager.resolveFile(localFile.getAbsolutePath());
+				String remote = getRemoteFileURL(remoteFile);
+				logger.debug("preparing to copy: " + file.toString() + " to: " + remote);
+				FileSystemOptions options = createDefaultOptions(hostKeyChecking, timeout);
+				FileObject destination = manager.resolveFile(remote, options);
+
+				destination.copyFrom(file, Selectors.SELECT_SELF);
+				logger.debug(localFile.getAbsolutePath() + " copied to " + remote + " (" + destination.getName().getFriendlyURI() + ")");
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem putting file: " + e.toString());
+				throw new IOException(e);
+			} finally {
+				manager.close();
+			}
 		}
 	}
 
 	@Override
-	public void get(String remoteFile, File localFile)
+	public void get(String remoteFile, File localFile) throws IOException {
+		get(remoteFile, localFile, retries, timeout);
+	}
+	
+	public void get(String remoteFile, File localFile, int attempts, int delayMillis)
 			throws IOException {
 
 		logger.debug("get called: " + remoteFile + " from " + transportConnection.getHostName() + " as " + localFile);
 
 		StandardFileSystemManager manager = new StandardFileSystemManager();
+		
+		int attempt = 0;
+		FileObject file;
 
-		try {
-			if (!exists(remoteFile))
-				throw new IOException("FileHandle " + remoteFile + "@" + transportConnection.getHostName() + " not found");
-			
-			manager.init();
+		while (attempt <= attempts) {
+			attempt++;
+			try {
+				if (!exists(remoteFile))
+					throw new FileNotFoundException("FileHandle " + remoteFile + "@" + transportConnection.getHostName() + " not found");
 
-			String remote = getRemoteFileURL(remoteFile);
-			FileObject file = manager.resolveFile(remote,
-					createDefaultOptions(hostKeyChecking, timeout));
-			FileObject destination = manager.resolveFile(localFile.getAbsolutePath());
+				manager.init();
 
-			destination.copyFrom(file, Selectors.SELECT_SELF);
+				String remote = getRemoteFileURL(remoteFile);
+				file = manager.resolveFile(remote, createDefaultOptions(hostKeyChecking, timeout));
+				FileObject destination = manager.resolveFile(localFile.getAbsolutePath());
 
-			logger.debug(remote + " copied to " + localFile.getAbsolutePath());
+				destination.copyFrom(file, Selectors.SELECT_SELF);
 
-		} catch (Exception e) {
-			logger.error("problem getting file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
+				logger.debug(remote + " copied to " + localFile.getAbsolutePath());
+				
+				// no exception, return
+				break;
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					// ignore exception, try again
+					continue;
+				}
+				logger.error(e.getLocalizedMessage());
+				logger.error("problem getting file: " + e.toString());
+				throw new IOException(e);
+			} finally {
+				manager.close();
+			}
 		}
 	}
 
@@ -132,14 +183,13 @@ public class SshFileService implements GridFileService {
 		FileObject file;
 		boolean result = false;
 
-		while (attempt <= retries) {
+		while (attempt <= attempts) {
 			attempt++;
 			StandardFileSystemManager manager = new StandardFileSystemManager();
 			try {
 				manager.init();
 				// Create remote object
-				file = manager.resolveFile(
-						getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
+				file = manager.resolveFile(getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
 
 				result = file.exists();
 
@@ -148,14 +198,20 @@ public class SshFileService implements GridFileService {
 
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
-				logger.debug("caught exception in retry block: " + e.getLocalizedMessage());
-				if (attempt <= retries) {
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
 					logger.debug("failed, retrying: " + e.getCause().toString());
 					// ignore exception, try again
 					continue;
 				}
-				logger.error(e.getLocalizedMessage());
-				throw new IOException(e.getLocalizedMessage());
+				logger.error("problem testing for file existence: " + e.toString());
+				throw new IOException(e);
 			} finally {
 				manager.close();
 			}
@@ -166,26 +222,49 @@ public class SshFileService implements GridFileService {
 
 	@Override
 	public void delete(String remoteFile) throws IOException {
+		delete(remoteFile, retries, timeout);
+	}
+	
+	public void delete(String remoteFile, int attempts, int delayMillis) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
+		
+		int attempt = 0;
+		FileObject file;
 
 		logger.debug("delete called: " + remoteFile + " at " + transportConnection.getHostName());
 
-		try {
-			manager.init();
+		while (attempt <= attempts) {
+			attempt++;
+			try {
+				manager.init();
 
-			// Create remote object
-			FileObject file = manager.resolveFile(
-					getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
+				// Create remote object
+				file = manager.resolveFile(
+						getRemoteFileURL(remoteFile), createDefaultOptions(hostKeyChecking, timeout));
 
-			if (file.exists()) {
-				file.delete();
-				logger.debug("Deleted " + remoteFile + "@" + transportConnection.getHostName());
+				if (file.exists()) {
+					file.delete();
+					logger.debug("Deleted " + remoteFile + "@" + transportConnection.getHostName());
+				}
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem deleting file: " + e.getLocalizedMessage());
+				throw new IOException(e);
+			} finally {
+				manager.close();
 			}
-		} catch (Exception e) {
-			logger.error("problem deleting file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
 		}
 	}
 
@@ -206,7 +285,6 @@ public class SshFileService implements GridFileService {
 		File[] ifs = new File[1];
 		ifs[0] = identityFile.getAbsoluteFile();
 		SftpFileSystemConfigBuilder.getInstance().setIdentities(opts, ifs);
-		logger.debug(opts.toString());
 		return opts;
 	}
 
@@ -224,25 +302,48 @@ public class SshFileService implements GridFileService {
 
 	@Override
 	public void touch(String remoteFile) throws IOException {
+		touch (remoteFile, retries, timeout);
+	}
+	
+	public void touch(String remoteFile, int attempts, int delayMillis) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		logger.debug("touch called: " + remoteFile + " at " + transportConnection.getHostName());
 
-		try {
-			manager.init();
+		int attempt = 0;
 
-			String remote = getRemoteFileURL(remoteFile);
-			FileObject destination = manager.resolveFile(remote,
-					createDefaultOptions(hostKeyChecking, timeout));
+		while (attempt <= attempts) {
+			attempt++;
 
-			destination.createFile();
-			logger.debug(destination.getName().getPath() + " created on " + remote);
+			try {
+				manager.init();
 
-		} catch (Exception e) {
-			logger.error("problem touching file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
+				String remote = getRemoteFileURL(remoteFile);
+				FileObject destination = manager.resolveFile(remote,
+						createDefaultOptions(hostKeyChecking, timeout));
+
+				destination.createFile();
+				logger.debug(destination.getName().getPath() + " created on " + remote);
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem touching file: " + e.getLocalizedMessage());
+				throw new IOException(e);
+			} finally {
+				manager.close();
+			}
 		}
 
 	}
@@ -267,83 +368,149 @@ public class SshFileService implements GridFileService {
 	
 	@Override
 	public void mkdir(String remoteDir) throws IOException {
+		mkdir(remoteDir, retries, timeout);
+	}
+	
+	public void mkdir(String remoteDir, int attempts, int delayMillis) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		logger.debug("mkdir called: " + remoteDir + " at " + transportConnection.getHostName());
 
-		try {
-			manager.init();
+		int attempt = 0;
 
-			String remote = getRemoteFileURL(remoteDir);
-			FileObject destination = manager.resolveFile(remote,
-					createDefaultOptions(hostKeyChecking, timeout));
+		while (attempt <= attempts) {
+			attempt++;
 
-			if (!destination.exists())
-				destination.createFolder();
-			
-			logger.debug(destination.getName().getPath() + " created on " + remote);
+			try {
+				manager.init();
 
-		} catch (Exception e) {
-			logger.error("problem creating directory: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
+				String remote = getRemoteFileURL(remoteDir);
+				FileObject destination = manager.resolveFile(remote,
+						createDefaultOptions(hostKeyChecking, timeout));
+
+				if (!destination.exists())
+					destination.createFolder();
+
+				logger.debug(destination.getName().getPath() + " created on " + remote);
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem creating directory: " + e.getLocalizedMessage());
+				throw new IOException(e);
+			} finally {
+				manager.close();
+			}
 		}
-		
+
 	}
+	
+	
+	
 	@Override
 	public void move(String origin, String destination) throws IOException {
+		move(origin, destination, retries, timeout); 
+	}
+	
+	public void move(String origin, String destination, int attempts, int delayMillis) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		logger.debug("move called: " + origin + " to " + destination + " at " + transportConnection.getHostName());
+		
 
-		try {
-			manager.init();
+		int attempt = 0;
 
-			// Create remote object
-			FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
+		while (attempt <= attempts) {
+			attempt++;
 
-			if (!originFile.exists()) {
-				String mess = "Attempted to move non-existent file " + origin + "@" + transportConnection.getHostName();
-				logger.debug(mess);
-				throw new IOException(mess);
+			try {
+				manager.init();
+
+				// Create remote object
+				FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
+
+				if (!originFile.exists()) {
+					String mess = "Attempted to move non-existent file " + origin + "@" + transportConnection.getHostName();
+					logger.debug(mess);
+					throw new IOException(mess);
+				}
+
+				FileObject destFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
+
+				originFile.moveTo(destFile);
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= attempts) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					try {
+						Thread.sleep(delayMillis);
+					} catch (InterruptedException e1) {
+						logger.info("interrupted: " + e.toString());
+						Thread.currentThread().interrupt();
+					}
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem deleting file: " + e.getLocalizedMessage());
+				throw new IOException(e);
+			} finally {
+				manager.close();
 			}
-			
-			FileObject destFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
-			
-			originFile.moveTo(destFile);
-			
-		} catch (Exception e) {
-			logger.error("problem deleting file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
 		}
 		
 	}
 	
 	@Override
 	public void copy(String origin, String destination) throws IOException {
+		copy(origin, destination, retries, timeout);
+	}
+	
+	public void copy(String origin, String destination, int attempts, int delayMillis) throws IOException {
 		StandardFileSystemManager manager = new StandardFileSystemManager();
 
 		logger.debug("copy called: " + origin + " to " + destination + " at " + transportConnection.getHostName());
 
-		try {
-			manager.init();
+		int attempt = 0;
 
-			// Create remote object
-			FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
-			FileObject destinationFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
-			
-			destinationFile.copyFrom(originFile, Selectors.SELECT_SELF);
+		while (attempt <= retries) {
+			attempt++;
 
-		} catch (Exception e) {
-			logger.error("problem deleting file: " + e.getLocalizedMessage());
-			throw new IOException(e);
-		} finally {
-			manager.close();
+			try {
+				manager.init();
+
+				// Create remote object
+				FileObject originFile = manager.resolveFile(getRemoteFileURL(origin), createDefaultOptions(hostKeyChecking, timeout));
+				FileObject destinationFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
+
+				destinationFile.copyFrom(originFile, Selectors.SELECT_SELF);
+
+			} catch (Exception e) {
+				// FileSystemException, GridUnresolvableHostException
+				logger.debug("caught exception in retry block: " + e.toString());
+				if (attempt <= retries) {
+					logger.debug("failed, retrying: " + e.getCause().toString());
+					// ignore exception, try again
+					continue;
+				}
+				logger.error("problem deleting file: " + e.getLocalizedMessage());
+				throw new IOException(e);
+			} finally {
+				manager.close();
+			}
 		}
-		
 	}
 
 }

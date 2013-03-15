@@ -53,18 +53,13 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		Message<BatchJobLaunchContext> message = null;
 
 		try {
-			if (this.task == null){
-				message = MessageBuilder.withPayload(batchJobLaunchContext)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB)
-						.setHeader(TARGET_KEY, "batch")
-						.build();
-			} else {
-				message = MessageBuilder.withPayload(batchJobLaunchContext)
+			message = MessageBuilder.withPayload(batchJobLaunchContext)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB)
 						.setHeader(TARGET_KEY, "batch")
 						.setHeader(WaspJobTask.HEADER_KEY, task)
+						.setHeader(USER_KEY, userCreatingMessage)
+						.setHeader(COMMENT_KEY, comment)
 						.build();
-			}
 		} catch(Exception e){
 			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
 		}

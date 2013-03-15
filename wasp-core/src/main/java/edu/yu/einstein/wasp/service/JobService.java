@@ -31,7 +31,6 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
@@ -458,8 +457,6 @@ public interface JobService extends WaspMessageHandlingService {
 
 	public void setJobCellSelectionDao(
 			JobCellSelectionDao mockJobCellSelectionDao);
-
-	public void setSampleFileDao(SampleFileDao mockSampleFileDao);
 
 	public void setSampleMetaDao(SampleMetaDao mockSampleMetaDao);
 

@@ -110,7 +110,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	protected static final String LOCK_META_AREA = "lock";
 	
 	protected static final String LOCK_META_KEY = "status";
-
+	
 	protected SampleDao	sampleDao;
 
 	/**
@@ -2826,5 +2826,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
 		  }
+
 }
 

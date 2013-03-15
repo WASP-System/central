@@ -211,7 +211,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		@Override
 		public void run() {
 			try {
-				fileService.registerFile(file);
+				fileService.register(file);
 			} catch (FileNotFoundException e) {
 				logger.error("FileHandle not found: " + e.getLocalizedMessage());
 				e.printStackTrace();
