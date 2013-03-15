@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.model.User;
 
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml"})
@@ -221,6 +222,8 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			
 			template.setTask(WaspJobTask.PI_APPROVE);
 			template.setStatus(WaspStatus.ABANDONED);
+			template.setComment("A comment");
+			template.setUserCreatingMessage(new User());
 			Message<WaspStatus> piApprovedMessage = template.build();
 			logger.info("testJobNotApproved(): Sending message via 'outbound rmi gateway': "+piApprovedMessage.toString());
 			replyMessage = messagingTemplate.sendAndReceive(messageChannelRegistry.getChannel(OUTBOUND_MESSAGE_CHANNEL, DirectChannel.class), piApprovedMessage);

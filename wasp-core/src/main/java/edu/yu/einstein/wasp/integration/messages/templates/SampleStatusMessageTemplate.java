@@ -52,24 +52,16 @@ public class SampleStatusMessageTemplate extends WaspStatusMessageTemplate{
 			throw new WaspMessageBuildingException("no status message defined");
 		Message<WaspStatus> message = null;
 		try {
-			if (this.task == null){
-				message = MessageBuilder.withPayload(status)
+			message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
-						.setPriority(status.getPriority())
-						.build();
-			} else {
-				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.SAMPLE)
-						.setHeader(TARGET_KEY, target)
+						.setHeader(USER_KEY, userCreatingMessage)
+						.setHeader(COMMENT_KEY, comment)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.SAMPLE_ID, sampleId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
-			}
 		} catch(Exception e){
 			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
 		}

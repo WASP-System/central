@@ -163,7 +163,7 @@ public class PropertiesLoadServiceImpl implements ApplicationContextAware, Prope
 			}		
 			logger.info("Property table was initialized succesfully for file '"+messageFile.getFilename()+"'");
 		}
-		updateTestData(); // TODO: remove from production code
+		//updateTestData(); // TODO: remove from production code
 	}
 	
 		// TODO: remove from production code

@@ -87,7 +87,7 @@ public class FileController implements InitializingBean {
 
 			if (!filem.find()) {
 				logger.warn("unable to parse URI: " + wf.getFileURI().toString());
-				throw new WaspException("unable to parse URI: " + wf.getFileId());
+				throw new WaspException("unable to parse URI: " + wf.getId());
 			}
 
 			String prefix = "";
@@ -121,6 +121,8 @@ public class FileController implements InitializingBean {
 			}
 
 			InputStream is = new FileInputStream(download);
+			
+			// TODO: set content stream based on file type.
 
 			String content = new MediaType("application", "octet-stream").toString();
 			response.setContentType(content);

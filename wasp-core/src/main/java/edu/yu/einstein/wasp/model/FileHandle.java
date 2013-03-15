@@ -14,6 +14,7 @@ package edu.yu.einstein.wasp.model;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -202,6 +204,23 @@ public class FileHandle extends WaspModel {
 	public Integer getSizek () {
 		return this.sizek;
 	}
+	
+	@Column(name="archived")
+	protected boolean archived = false;
+	
+	/**
+	 * @param archived
+	 */
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	/**
+	 * @return
+	 */
+	public boolean isArchived() {
+		return this.archived;
+	}
 
 	/** 
 	 * md5hash
@@ -231,21 +250,20 @@ public class FileHandle extends WaspModel {
 		return this.md5hash;
 	}
 
-	@ManyToOne
-	@JoinColumn(name="filegroupid")
-	protected FileGroup fileGroup;
+	@ManyToMany(mappedBy="filehandles")
+	protected Set<FileGroup> fileGroup;
 
 	/**
 	 * @return the fileGroup
 	 */
-	public FileGroup getFileGroup() {
+	public Set<FileGroup> getFileGroup() {
 		return fileGroup;
 	}
 
 	/**
 	 * @param fileGroup the fileGroup to set
 	 */
-	public void setFileGroup(FileGroup fileGroup) {
+	public void setFileGroup(Set<FileGroup> fileGroup) {
 		this.fileGroup = fileGroup;
 	}
 	
