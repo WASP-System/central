@@ -510,8 +510,8 @@ public class FileGroup extends WaspModel {
 	}
 
 	
-	@OneToMany
-	@JoinColumn(name="filegroupid")
+	@ManyToMany
+    @JoinTable(name="groupfile", joinColumns={@JoinColumn(name="groupid")}, inverseJoinColumns={@JoinColumn(name="fileid")})
 	protected Set<FileHandle> filehandles;
 	
 	@JsonIgnore
@@ -527,7 +527,6 @@ public class FileGroup extends WaspModel {
         if (!getFileHandles().contains(fileHandle)) {
             getFileHandles().add(fileHandle);
         }
-        fileHandle.setFileGroup(this);
     }
 	
 	
@@ -587,6 +586,46 @@ public class FileGroup extends WaspModel {
             getDerivedFrom().add(fileGroup);
         }
     }
+	
+	/**
+	 * 
+	 */
+	@ManyToMany(mappedBy="fileGroups")
+	private Set<Sample> samples = new HashSet<Sample>();
+
+	/**
+	 * @return the fileGroups
+	 */
+	public Set<Sample> getSamples() {
+		return samples;
+	}
+
+	/**
+	 * @param fileGroups the fileGroups to set
+	 */
+	public void setSamples(Set<Sample> samples) {
+		this.samples = samples;
+	}
+	
+	/**
+	 * 
+	 */
+	@ManyToMany(mappedBy="fileGroups")
+	private Set<SampleSource> sampleSources = new HashSet<SampleSource>();
+
+	/**
+	 * @return the fileGroups
+	 */
+	public Set<SampleSource> getSampleSources() {
+		return this.sampleSources;
+	}
+
+	/**
+	 * @param fileGroups the fileGroups to set
+	 */
+	public void setSampleSources(Set<SampleSource> sampleSource) {
+		this.sampleSources = sampleSource;
+	}
 	
 
 }

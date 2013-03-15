@@ -1922,8 +1922,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	private List<Map> getFileNodesBySample(Sample sample) {
 		List<Map> fileNodes = new ArrayList<Map>();
-		List<SampleFile> sampleFileList = sample.getSampleFile();
-		for (SampleFile sf : sampleFileList) {
+		Set<SampleFile> sampleFiles = sample.getSampleFile();
+		for (SampleFile sf : sampleFiles) {
 			Map fileNode = new HashMap();
 			fileNode.put("name", "File: "+sf.getName());
 			fileNode.put("myid", sf.getId());

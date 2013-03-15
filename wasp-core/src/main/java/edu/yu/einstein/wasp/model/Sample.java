@@ -12,7 +12,9 @@
 package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +22,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -38,6 +42,10 @@ public class Sample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -324610621097231467L;
+	
+	public Sample() {
+		sampleFile = new HashSet<SampleFile>();
+	}
 
 	/**
 	 * setSampleId(Integer sampleId)
@@ -899,8 +907,8 @@ public class Sample extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="sampleid", insertable=false, updatable=false)
-	protected List<SampleFile> sampleFile;
+	@JoinColumn(name="sampleid")
+	protected Set<SampleFile> sampleFile;
 
 
 	/** 
@@ -910,7 +918,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@JsonIgnore
-	public List<SampleFile> getSampleFile() {
+	public Set<SampleFile> getSampleFile() {
 		return this.sampleFile;
 	}
 
@@ -921,7 +929,7 @@ public class Sample extends WaspModel {
 	 * @param sampleFile
 	 *
 	 */
-	public void setSampleFile (List<SampleFile> sampleFile) {
+	public void setSampleFile (Set<SampleFile> sampleFile) {
 		this.sampleFile = sampleFile;
 	}
 
@@ -993,6 +1001,27 @@ public class Sample extends WaspModel {
 		this.runCell = runCell;
 	}
 
+
+	/**
+	 * 
+	 */
+	@ManyToMany
+	@JoinTable(name="samplefilegroup", joinColumns={@JoinColumn(name="sampleid")}, inverseJoinColumns={@JoinColumn(name="filegroupid")})
+	private Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+
+	/**
+	 * @return the fileGroups
+	 */
+	public Set<FileGroup> getFileGroups() {
+		return fileGroups;
+	}
+
+	/**
+	 * @param fileGroups the fileGroups to set
+	 */
+	public void setFileGroups(Set<FileGroup> fileGroups) {
+		this.fileGroups = fileGroups;
+	}
 
 
 	

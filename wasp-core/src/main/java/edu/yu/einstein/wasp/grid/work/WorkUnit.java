@@ -49,7 +49,7 @@ public class WorkUnit {
 	/**
 	 * Newline (\n) terminated list of commands to be executed.
 	 */
-	private String command;
+	private String command = "";
 	/**
 	 * When implementations need to generate a command to execute a command (e.g. qsub a SGE job), that command
 	 * is stored here.
@@ -341,14 +341,14 @@ public class WorkUnit {
 	
 	protected void prepare() throws MisconfiguredWorkUnitException {
 		for (FileHandle f : getRequiredFiles()) {
-			if (f == null || f.getFileGroup().getIsActive().equals(0)) {
+			if (f == null) {
 				if (!isRegistering()) {
 					String message = "FileHandle has not been registered " + f.getFileURI();
 					logger.warn(message);
 					throw new MisconfiguredWorkUnitException(message);
 				}
 			}
-			if (f.getFileGroup().getIsArchived().equals(1)) {
+			if (f.isArchived()) {
 				// TODO: implement wait for de-archive step.
 				String message = "FileHandle is archived " + f.getFileURI();
 				logger.warn(message);

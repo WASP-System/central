@@ -131,9 +131,9 @@ public interface FileService extends WaspService {
 	
 	public FileType getFileType(String iname);
 	
-	public void registerFile(FileHandle file) throws FileNotFoundException, GridException;
+	public void register(FileHandle file) throws FileNotFoundException, GridException;
 	
-	public void registerFileGroup(FileGroup group) throws FileNotFoundException, GridException;
+	public void register(FileGroup group) throws FileNotFoundException, GridException;
 
 }
 

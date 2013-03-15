@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -87,6 +88,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
@@ -111,6 +113,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	protected static final String LOCK_META_KEY = "status";
 
+	@Autowired
+	protected SampleFileDao sampleFileDao;
+	
 	protected SampleDao	sampleDao;
 
 	/**
@@ -2826,5 +2831,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
 		  }
+
+		@Override
+		public void saveSampleFile(SampleFile sampleFile) {
+			sampleFileDao.save(sampleFile);
+			
+		}
 }
 
