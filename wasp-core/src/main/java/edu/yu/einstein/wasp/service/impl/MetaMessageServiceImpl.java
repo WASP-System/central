@@ -165,6 +165,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 				} 
 			}
 			message.setDate(meta.getUpdated());
+			message.setUser(meta.getLastUpdatedByUser());
 		} 
 		return message;
 	}

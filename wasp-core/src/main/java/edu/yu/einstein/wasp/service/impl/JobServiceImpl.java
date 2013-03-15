@@ -1551,7 +1551,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setFacilityJobComment(Integer jobId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -1620,13 +1620,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception{
 		try{
-			//tag the comment with the commentor's name and date/time)
-			User currentUser = authenticationService.getAuthenticatedUser();
-			SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");// HH:mm:ss
-		    Date now = new Date();
-		    String strDate = sdfDate.format(now);
-			String taggedComment = comment.trim() + " (" + currentUser.getNameFstLst() + "; " + strDate + ")";
-			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
