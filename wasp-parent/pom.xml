@@ -440,11 +440,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>2.7.7</version>
 			</dependency>
 			<dependency>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-				<version>3.3.1</version>
-			</dependency>
-			<dependency>
 				<groupId>aopalliance</groupId>
 				<artifactId>aopalliance</artifactId>
 				<version>1.0</version>

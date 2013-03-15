@@ -154,10 +154,6 @@
 				<groupId>antlr</groupId>
 				<artifactId>antlr</artifactId>
 			</dependency>
-			<dependency>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</dependency>
 			<!--
 			<dependency>
 				<groupId>aopalliance</groupId>
