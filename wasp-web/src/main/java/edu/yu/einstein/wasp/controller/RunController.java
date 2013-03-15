@@ -45,8 +45,6 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
-import edu.yu.einstein.wasp.model.RunCellFile;
-import edu.yu.einstein.wasp.model.RunFile;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
@@ -631,14 +629,10 @@ public class RunController extends WaspController {
 		List<RunCell> runCellList = run.getRunCell();
 		runCellList.size();
 
-		List<RunFile> runFileList = run.getRunFile();
-		runFileList.size();
-
 		m.addAttribute("now", now);
 		m.addAttribute("run", run);
 		m.addAttribute("runmeta", runMetaList);
 		m.addAttribute("runcell", runCellList);
-		m.addAttribute("runfile", runFileList);
 
 		return "run/detail";
 	}
@@ -668,12 +662,8 @@ public class RunController extends WaspController {
 		// TODO THROW EXCEPTION IF RUNID != RUNLANE.RUNID
 		//
 
-		List<RunCellFile> runCellFileList = runCell.getRunCellFile();
-		runCellFileList.size();
-
 		m.addAttribute("now", now);
 		m.addAttribute("runcell", runCell);
-		m.addAttribute("runcellfile", runCellFileList);
 
 		return "run/lanedetail";
 	}

@@ -252,40 +252,4 @@ public class RunCell extends WaspModel {
 	}
 
 
-	/** 
-	 * runCellFile
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="runcellid", insertable=false, updatable=false)
-	protected List<RunCellFile> runCellFile;
-
-
-	/** 
-	 * getRunCellfile()
-	 *
-	 * @return runCellFile
-	 *
-	 */
-	@JsonIgnore
-	public List<RunCellFile> getRunCellFile() {
-		return this.runCellFile;
-	}
-
-
-	/** 
-	 * setRunCellfile
-	 *
-	 * @param runCellFile
-	 *
-	 */
-	public void setRunCellFile (List<RunCellFile> runCellFile) {
-		this.runCellFile = runCellFile;
-	}
-
-
-
-
-
 }

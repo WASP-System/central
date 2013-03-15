@@ -52,7 +52,6 @@ import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -71,7 +70,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -87,9 +85,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private SampleService sampleService;
-
-	@Autowired
-	private SampleFileDao sampleFileDao;
 	
 	@Autowired
 	private SampleDao sampleDao;
@@ -300,12 +295,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<FileGroup> getFilesByType(FileType fileType) {
+	public Set<FileGroup> getFilesByType(FileType fileType) {
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("fileTypeId", fileType.getId());
-		return fileGroupDao.findByMap(m);
+		Set<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fileGroupDao.findByMap(m));
+		return result;
 	}
 
 	/**
@@ -314,16 +311,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public List<FileGroup> getFilesForLibrary(Sample library) throws SampleTypeException {
+	public Set<FileGroup> getFilesForLibrary(Sample library) throws SampleTypeException {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
-		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", library.getId());
-		List<FileGroup> files = new ArrayList<FileGroup>();
-		for (SampleFile sf : sampleFileDao.findByMap(m))
-			files.add(sf.getFileGroup());
-		return files;
+		Sample lib = sampleService.getSampleById(library.getId());
+		return lib.getFileGroups();
 	}
 
 	/**
@@ -332,12 +325,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public List<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException {
+	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException {
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
-		Assert.assertParameterNotNull(fileType.getFileTypeId(), "fileType has no valid fileTypeId");
-		Map<FileType, List<FileGroup>> filesByType = getFilesForLibraryMappedToFileType(library);
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForLibraryMappedToFileType(library);
 		if (!filesByType.containsKey(fileType))
-			return new ArrayList<FileGroup>();
+			return new HashSet<FileGroup>();
 		return filesByType.get(fileType);
 	}
 
@@ -347,19 +340,17 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws SampleTypeException
 	 */
 	@Override
-	public Map<FileType, List<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException {
+	public Map<FileType, Set<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException {
 		Assert.assertParameterNotNull(library, "must provide a library");
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
-		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", library.getSampleId());
-		Map<FileType, List<FileGroup>> filesByType = new HashMap<FileType, List<FileGroup>>();
-		for (SampleFile sf : sampleFileDao.findByMap(m)) {
-			FileGroup g = sf.getFileGroup();
-			FileType ft = g.getFileType();
+		Sample s = sampleDao.findById(library.getId());
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		for (FileGroup fg : s.getFileGroups()) {
+			FileType ft = fg.getFileType();
 			if (!filesByType.containsKey(ft))
-				filesByType.put(ft, new ArrayList<FileGroup>());
-			filesByType.get(ft).add(g);
+				filesByType.put(ft, new HashSet<FileGroup>());
+			filesByType.get(ft).add(fg);
 		}
 		return filesByType;
 	}
@@ -377,21 +368,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public void setSampleFile(FileGroup group, Sample sample) {
 		Sample s = sampleService.getSampleById(sample.getId());
-		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", sample.getId());
-		m.put("fileGroupId", group.getId());
-		List<SampleFile> sf = sampleFileDao.findByMap(m);
-		if (sf.size() == 0) {
-			if (s.getSampleFile() == null) {
-				s.setSampleFile(new HashSet<SampleFile>());
-			}
-			SampleFile sfi = new SampleFile();
-			sfi.setFileGroup(group);
-			sfi.setSample(s);
-			sampleFileDao.persist(sfi);
-			s.getSampleFile().add(sfi);
-			sampleDao.save(s);
-		}
+		s.getFileGroups().add(group);
+		sampleDao.save(s);
 	}
 
 	@Override

@@ -47,7 +47,6 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
@@ -63,7 +62,6 @@ import edu.yu.einstein.wasp.dao.impl.JobUserDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.LabDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.RoleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
-import edu.yu.einstein.wasp.dao.impl.SampleFileDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleJobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleTypeDaoImpl;
@@ -118,7 +116,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
   SampleJobCellSelectionDao mockSampleJobCellSelectionDao;
   JobDraftDao mockJobDraftDao;
   SampleMetaDao mockSampleMetaDao;
-  SampleFileDao mockSampleFileDao;
   SampleTypeDao mockSampleTypeDao;
 
   WorkflowDao mockWorkflowDao;
@@ -139,15 +136,15 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  List<JobSample> jobSamples = new ArrayList<JobSample>();
 	 
 	  Job job = new Job();
-	  job.setJobId(1);
+	  job.setId(1);
 	  Sample sample = new Sample();
-	  sample.setSampleId(1);
+	  sample.setId(1);
 	  Sample sampleParent  = new Sample();
 	  sample.setParent(sampleParent);
 	  sample.setParentId(2);
 	    
 	  JobSample jobSample = new JobSample();
-	  jobSample.setJobSampleId(0001);
+	  jobSample.setId(0001);
 	  jobSample.setJobId(1);
 	  jobSample.setSampleId(1);
 	  jobSample.setSample(sample);
@@ -799,7 +796,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobServiceImpl.setJobUserDao(mockJobUserDao);
 	  mockJobServiceImpl.setLabDao(mockLabDao);
 	  mockJobServiceImpl.setJobCellSelectionDao(mockJobCellSelectionDao);
-	  mockJobServiceImpl.setSampleFileDao(mockSampleFileDao);
 	  mockJobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
 	  mockJobServiceImpl.setJobSampleDao(mockJobSampleDao);
 	  mockJobServiceImpl.setSampleJobCellSelectionDao(mockSampleJobCellSelectionDao);
@@ -958,7 +954,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  // sampleFile.setIsActive(1);
 	  
 	  //expect(mockSampleFileDao.save(EasyMock.isA(SampleFile.class))).andReturn(sampleFile);
-	  replay(mockSampleFileDao);
 	  
 	//Sample Draft Meta
 	  SampleDraftMeta  sdm = new SampleDraftMeta();
@@ -1592,7 +1587,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setWorkflowDao(mockWorkflowDao);
 	  jobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  jobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
-	  jobServiceImpl.setSampleFileDao(mockSampleFileDao);
 
 
   }
@@ -1618,7 +1612,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockJobDraftDao);
 	  EasyMock.reset(mockSampleMetaDao);
 	  EasyMock.reset(mockSampleService);
-	  EasyMock.reset(mockSampleFileDao);
 	  EasyMock.reset(mockSampleTypeDao);
 
 
@@ -1651,7 +1644,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockWorkflowDao = createMockBuilder(WorkflowDaoImpl.class).addMockedMethods(WorkflowDaoImpl.class.getMethods()).createMock();
 	  mockJobDraftDao = createMockBuilder(JobDraftDaoImpl.class).addMockedMethods(JobDraftDaoImpl.class.getMethods()).createMock();
 	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
-	  mockSampleFileDao = createMockBuilder(SampleFileDaoImpl.class).addMockedMethods(SampleFileDaoImpl.class.getMethods()).createMock();
 	  mockSampleTypeDao = createMockBuilder(SampleTypeDaoImpl.class).addMockedMethods(SampleTypeDaoImpl.class.getMethods()).createMock();
 
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
@@ -1690,7 +1682,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Assert.assertNotNull(mockJobServiceImpl);
 	  Assert.assertNotNull(mockJobDraftDao);
 	  Assert.assertNotNull(mockSampleMetaDao);
-	  Assert.assertNotNull(mockSampleFileDao);
 	  Assert.assertNotNull(mockSampleTypeDao);
 
 

@@ -42,10 +42,6 @@ public class Sample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -324610621097231467L;
-	
-	public Sample() {
-		sampleFile = new HashSet<SampleFile>();
-	}
 
 	/**
 	 * setSampleId(Integer sampleId)
@@ -898,41 +894,6 @@ public class Sample extends WaspModel {
 	public void setSampleJobCellSelection (List<SampleJobCellSelection> sampleJobCellSelection) {
 		this.sampleJobCellSelection = sampleJobCellSelection;
 	}
-
-
-
-	/** 
-	 * sampleFile
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="sampleid")
-	protected Set<SampleFile> sampleFile;
-
-
-	/** 
-	 * getSampleFile()
-	 *
-	 * @return sampleFile
-	 *
-	 */
-	@JsonIgnore
-	public Set<SampleFile> getSampleFile() {
-		return this.sampleFile;
-	}
-
-
-	/** 
-	 * setSampleFile
-	 *
-	 * @param sampleFile
-	 *
-	 */
-	public void setSampleFile (Set<SampleFile> sampleFile) {
-		this.sampleFile = sampleFile;
-	}
-
 
 
 	/** 

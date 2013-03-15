@@ -63,7 +63,6 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
@@ -81,7 +80,6 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -190,9 +188,6 @@ public class JobSubmissionController extends WaspController {
 
 	@Autowired
 	protected SampleMetaDao sampleMetaDao;
-
-	@Autowired
-	protected SampleFileDao sampleFileDao;
 
 	@Autowired
 	protected JobSampleDao jobSampleDao;

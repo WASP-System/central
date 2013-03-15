@@ -39,7 +39,6 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -951,7 +950,5 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @throws SampleParentChildException
 	 */
 	public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException;
-	
-	public void saveSampleFile(SampleFile sampleFile);
 	  
 }
