@@ -129,7 +129,7 @@ public class PipelineTasklet extends WaspTasklet {
 		
 		String retval = "if [ ! -e wasp_begin.txt ]; then\n";
 		
-		retval=" loc=\"_pos.txt\"\n" + 
+		retval+=" loc=\"_pos.txt\"\n" + 
 				" if [ -e ../L001/s_1_1101.clocs ]; then\n" +
 				"  loc=.clocs\n" +
 				" elif [ -e ../L001/s_1_1101.locs ]; then\n" +

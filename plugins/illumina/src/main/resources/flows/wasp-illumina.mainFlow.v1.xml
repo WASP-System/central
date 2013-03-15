@@ -28,7 +28,7 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.listenForRunCompletion" next="wasp-illumina.mainFlow.listenForQCCompletion">
+		<batch:step id="wasp-illumina.mainFlow.listenForRunCompletion" next="wasp-illumina.mainFlow.updateRunCompleted">
 			<!-- look for evidence of a completed illumina run. At the moment, we look for "RTAComplete.txt" (not present in MiSeq) -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.ExternalFileExistsTasklet" scope="step">
@@ -38,9 +38,13 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="wasp-illumina.mainFlow.listenForQCCompletion" next="wasp-illumina.mainFlow.createSampleSheet">
-			<!-- task to wait for message from the web indicating that the run has been QC'd, currently skipping -->
-			<batch:tasklet ref="wasp-illumina.mainFlow.skipTasklet" />
+		<batch:step id="wasp-illumina.mainFlow.updateRunCompleted" next="wasp-illumina.mainFlow.createSampleSheet">
+			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.UpdateRunCompletedTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+				</bean>
+			</batch:tasklet>
 		</batch:step>
 		<batch:step id="wasp-illumina.mainFlow.createSampleSheet" next="wasp-illumina.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->

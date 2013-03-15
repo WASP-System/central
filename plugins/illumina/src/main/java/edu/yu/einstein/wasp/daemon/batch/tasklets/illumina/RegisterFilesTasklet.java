@@ -1,9 +1,9 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.illumina;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +170,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		GridResult r = transportConnection.sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
-		this.createSequenceFiles(allLibraries, br);
+		this.createSequenceFiles(platformUnit, allLibraries, br);
 		
 		w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -189,12 +189,26 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	}
 
 	@Transactional
-	private void createSequenceFiles(Set<Sample> samples, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
+	private void createSequenceFiles(Sample platformUnit, Set<Sample> samples, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
 		String line;
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
 		try {
+			FileGroup pufg = new FileGroup();
+			pufg.setIsActive(1);
+			pufg.setIsArchived(0);
+			pufg.setFileType(fastqFileType);
+			pufg.setSoftwareGeneratedBy(casava);
+			fileService.addFileGroup(pufg);
+			
+			FileGroup jobQCfg = new FileGroup();
+			jobQCfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
+			jobQCfg.setSoftwareGeneratedBy(casava);
+			fileService.addFileGroup(pufg);
+			
+			Map<Sample,FileGroup> sampleSeqfg = new HashMap<Sample,FileGroup>();
+			
 			line = br.readLine();
-			FileGroup fg = null;
+
 			Sample library = null;
 			
 			while (line != null) {
@@ -205,25 +219,27 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					throw new SampleException("Unexpected sample file name format");
 				}
 
-				Integer sampleId = new Integer(l.group(1));
+				Integer libraryId = new Integer(l.group(1));
 				String barcode = l.group(2);
 				Integer lane = new Integer(l.group(3));
 				Integer read = new Integer(l.group(4));
 				Integer fileNum = new Integer(l.group(5));
 				
-				if (library == null || !library.getId().equals(sampleId)) {
-					library = sampleService.getSampleById(sampleId);
-					if (fg == null) 
-						fg = new FileGroup();
-					fg.setFileType(fastqFileType);
-					fg.setSoftwareGeneratedBy(casava);
-					fileService.addFileGroup(fg);
-					fileService.setSampleFile(fg, library);
+				if (library == null || !library.getId().equals(libraryId)) {
+					if (!samples.contains(library))
+						continue;
+					library = sampleService.getSampleById(libraryId);
+					
+					// create a group for samplefiles
+					FileGroup sampleGroup = new FileGroup();
+					sampleGroup.setIsActive(1);
+					sampleGroup.setIsArchived(0);
+					sampleGroup.setFileType(fastqFileType);
+					sampleGroup.setSoftwareGeneratedBy(casava);
+					fileService.addFileGroup(sampleGroup);
+					sampleSeqfg.put(library, sampleGroup);
+					
 				}
-				
-				if (!samples.contains(library))
-					continue;
-
 				
 				FileHandle file = new FileHandle();
 				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
@@ -233,7 +249,8 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
 				}
 				
-				file.setFileGroup(fg);
+				String uri = file.getFileURI().toString();
+				file.setFileName(uri.substring(uri.lastIndexOf('/') + 1));
 				fileService.addFile(file);
 				fqs.setSingleFile(file, false);
 				fqs.setFileNumber(file, fileNum);
@@ -247,14 +264,33 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					f = true;
 				fqs.setReadsMarkedFailed(file, f);
 				
+				//add file to pu samplefile and library samplefile
+				pufg.getFileHandles().add(file);
+				sampleSeqfg.get(library).getFileHandles().add(file);
 				
 				logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getId());
 				
-				
 				line = br.readLine();
 			}
-			fileService.addFileGroup(fg);
-			fileService.registerFileGroup(fg);
+			
+			pufg.setDescription(platformUnit.getName() + " FASTQ files");
+			fileService.addFileGroup(pufg);
+			
+			platformUnit.getFileGroups().add(pufg);
+			sampleService.getSampleDao().save(platformUnit);
+			// register and md5sum
+			fileService.register(pufg);
+			
+			for (Sample lib : sampleSeqfg.keySet()) {
+				//save all samplefile groups
+				FileGroup sfg = sampleSeqfg.get(lib);
+				sfg.setDescription(lib.getName() + " FASTQ files");
+				sfg.setFileType(this.fastqFileType);
+				sfg.setSoftwareGeneratedBy(casava);
+				fileService.addFileGroup(sfg);
+				lib.getFileGroups().add(sfg);
+				sampleService.getSampleDao().save(lib);
+			}
 			
 		} catch (Exception e) {
 			logger.warn("unable to register files: " + e.getLocalizedMessage());
@@ -266,12 +302,12 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	
 	private void createQCFiles(Run run, BufferedReader br) {
 		String line;
-		FileGroup fg = new FileGroup();
-		fg.setFileType(waspIlluminaHiseqQcMetricsFileType);
-		fg.setSoftwareGeneratedBy(casava);
-		fg.setIsActive(1);
-		fg.setIsArchived(0);
-		fileService.addFileGroup(fg);
+		FileGroup qcfg = new FileGroup();
+		qcfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
+		qcfg.setSoftwareGeneratedBy(casava);
+		qcfg.setIsActive(1);
+		qcfg.setIsArchived(0);
+		
 		try {
 			line = br.readLine();
 			
@@ -280,11 +316,18 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/reports/" + line));
 				file.setFileName(line);
 				line = br.readLine();
-				file.setFileGroup(fg);
+				qcfg.getFileHandles().add(file);
 				fileService.addFile(file);
 			}
-			fileService.addFileGroup(fg);
-			fileService.registerFileGroup(fg);
+			qcfg.setDescription("Illumina QC files");
+			fileService.addFileGroup(qcfg);
+			fileService.register(qcfg);
+			
+			
+			Sample pu = run.getPlatformUnit();
+			pu.getFileGroups().add(qcfg);
+			sampleService.getSampleDao().save(pu);
+			
 		} catch (Exception e) {
 			logger.warn("unable to register files: " + e.getLocalizedMessage());
 			throw new RuntimeException(e);
