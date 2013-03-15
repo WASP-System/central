@@ -602,28 +602,15 @@ public class TaskController extends WaspController {
 	  else if("REJECTED".equalsIgnoreCase(action)){
 		  status = WaspStatus.ABANDONED;
 	  }	
+	  
 	  try {
-		  //jobService.updateJobFmApprovalStatus(job, status);
-		  jobService.updateJobApprovalStatus(jobApproveCode, job, status);
-
-	  } catch (WaspMessageBuildingException e) {
+		  jobService.setJobApprovalStatusAndComment(jobApproveCode, job, status, comment.trim());
+	  } catch (Exception e) {
 		  waspErrorMessage("jobapprovetask.updateFailed.error"); 
 		  logger.warn("Update unexpectedly failed");
 		  return;
 	  }
-	  
-	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
-	  //unfortunately, they are not easily linked within a single transaction.
-	  try{
-		  if(!comment.trim().isEmpty()){
-			  jobService.setJobApprovalComment(jobApproveCode, job.getJobId(), comment.trim());
-		  }
-	  }
-	  catch(Exception e){
-		  logger.warn(e.getMessage());
-		  return;
-	  }
-	  
+  
 	  String message = "APPROVED".equalsIgnoreCase(action)?"jobapprovetask.jobApproved.label":"jobapprovetask.jobRejected.label";
 	  waspMessage(message);
   }

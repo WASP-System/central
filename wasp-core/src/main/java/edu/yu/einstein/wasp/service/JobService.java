@@ -561,6 +561,17 @@ public interface JobService extends WaspMessageHandlingService {
 	public void terminate(Job job) throws WaspMessageBuildingException;
 
 	
-
+	/**
+	 * As the method title states, set the job approval status and the comment that goes along with it in a single transaction.
+	 * Throw exception if problem
+	 * @param String jobApproveCode (fmApprove, daApprove, piApprove)
+	 * @param Job job
+	 * @param WaspStatus status
+	 * @param String comment
+	 * @throws WaspMessageBuildingException
+	 */
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception;
+	//public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	//public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
 }

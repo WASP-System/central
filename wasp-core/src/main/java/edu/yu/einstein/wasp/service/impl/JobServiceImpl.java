@@ -75,6 +75,7 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -1619,6 +1620,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception{
 		try{
+			//tag the comment with the commentor's name and date/time)
+			User currentUser = authenticationService.getAuthenticatedUser();
+			SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");// HH:mm:ss
+		    Date now = new Date();
+		    String strDate = sdfDate.format(now);
+			String taggedComment = comment.trim() + " (" + currentUser.getNameFstLst() + "; " + strDate + ")";
 			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment, jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
@@ -1995,9 +2002,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
 			if(jobApprovalCommentsList.size()>0){
-				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
+				
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+				String currentStatusComment = mm.getValue();
 				if(currentStatusComment != null && !currentStatusComment.isEmpty())
 					return currentStatusComment;
 			}
@@ -2334,4 +2341,18 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public void terminate(Job job) throws WaspMessageBuildingException{
 		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception{
+		try{			
+			this.setJobApprovalComment(jobApproveCode, job.getId(), comment.trim());//throws Exception
+			this.updateJobApprovalStatus(jobApproveCode, job, status);//perform second, as it kicks off a message; throws WaspMessageBuildingException
+		}catch(Exception e){
+			throw new Exception();
+		}
+	}
+
 }
