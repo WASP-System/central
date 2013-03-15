@@ -55,24 +55,16 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 		Message<WaspStatus> message = null;
 
 		try {
-			if (this.task == null) {
-				message = MessageBuilder.withPayload(status)
+			message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
 						.setHeader(TARGET_KEY, "batch")
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.RUN_ID, runId)
-						.setPriority(status.getPriority())
-						.build();
-			} else {
-				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
-						.setHeader(TARGET_KEY, "batch")
+						.setHeader(USER_KEY, userCreatingMessage)
+						.setHeader(COMMENT_KEY, comment)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.RUN_ID, runId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
-			}
 		} catch (Exception e) {
 			throw new WaspMessageBuildingException("build() failed to build message: " + e.getMessage());
 		}
