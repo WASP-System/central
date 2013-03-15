@@ -77,4 +77,26 @@ public abstract class Assert {
 		return true;
 	}
 	
+	/**
+	 * Asserts that the supplied condition evaluates to true, otherwise throws an InvalidParameterException
+	 * @param condition
+	 * @param message
+	 * @return
+	 */
+	public static boolean assertTrue(boolean condition, String message){
+		if (!condition)
+			throw new InvalidParameterException(message);
+		return true;
+	}
+	
+	/**
+	 * Asserts that the supplied condition evaluates to true, otherwise throws an InvalidParameterException
+	 * which is of type RuntimeException
+	 * @param condition
+	 * @return
+	 */
+	public static boolean assertTrue(boolean condition){
+		return assertTrue(condition, null);
+	}
+	
 }

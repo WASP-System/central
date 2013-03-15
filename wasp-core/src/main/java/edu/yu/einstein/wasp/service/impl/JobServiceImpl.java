@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -114,6 +115,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -821,13 +823,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 				  break;
 			  }
 		  }
-		  for(JobMeta jobMeta : job.getJobMeta()){
-			  if(jobMeta.getK().indexOf("readLength") != -1){
-				  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-			  }
-			  if(jobMeta.getK().indexOf("readType") != -1){
-				  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta.getV().toUpperCase());
-			  }
+		  try {
+			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, JobMeta.class);
+			  extraJobDetailsMap.put("extraJobDetails.readLength.label", readProperties.getReadLength().toString());
+			  extraJobDetailsMap.put("extraJobDetails.readType.label", readProperties.getReadType().toUpperCase());
+		  } catch (MetadataException e) {
+			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 		  }
 		 
 		  /* replaced with code below

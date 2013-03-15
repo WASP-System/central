@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -47,6 +48,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -232,21 +234,12 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		newRun = runDao.save(newRun);
 		logger.debug("-----");
 		logger.debug("saved new run runid=" + newRun.getRunId().intValue());
-		//runmeta : readlength and readType
-		RunMeta newRunMeta = new RunMeta();
-		newRunMeta.setRun(newRun);
-		newRunMeta.setK("run.readlength");
-		newRunMeta.setV(readLength);
-		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		newRunMeta = runMetaDao.save(newRunMeta);
-		logger.debug("saved new run Meta for readLength id=" + newRunMeta.getRunMetaId().intValue());
-		newRunMeta = new RunMeta();
-		newRunMeta.setRun(newRun);
-		newRunMeta.setK("run.readType");
-		newRunMeta.setV(readType);
-		newRunMeta.setPosition(new Integer(0));//do we really use this???
-		newRunMeta = runMetaDao.save(newRunMeta);
-		logger.debug("saved new run Meta for readType runmetaid=" + newRunMeta.getRunMetaId().intValue());	
+		try {
+			SequenceReadProperties.setSequenceReadProperties(new SequenceReadProperties(readType, Integer.parseInt(readLength)), newRun, runMetaDao, RunMeta.class);
+		} catch (MetadataException e1) {
+			logger.warn("failed to save readLength and readtype for run with id=" + newRun.getId().intValue());
+		}
+		logger.debug("saved readLength and readtype for run with id=" + newRun.getId().intValue());
 		//runcell
 		for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
 			RunCell runCell = new RunCell();
@@ -310,36 +303,10 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 
 		run = runDao.save(run);//since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
 		
-		List<RunMeta> runMetaList = run.getRunMeta();
-		boolean readLengthIsSet = false;
-		boolean readTypeIsSet = false;
-		for(RunMeta rm : runMetaList){
-			if(rm.getK().indexOf("readlength") > -1){
-				rm.setV(readLength);
-				runMetaDao.save(rm);//probably superfluous
-				readLengthIsSet = true;
-			}
-			if(rm.getK().indexOf("readType") > -1){
-				rm.setV(readType);
-				runMetaDao.save(rm);//probably superfluous
-				readTypeIsSet = true;
-			}
-		}
-		if(readLengthIsSet == false){
-			RunMeta newRunMeta = new RunMeta();
-			newRunMeta.setRun(run);
-			newRunMeta.setK("run.readlength");
-			newRunMeta.setV(readLength);
-			newRunMeta.setPosition(new Integer(0));//do we really use this???
-			newRunMeta = runMetaDao.save(newRunMeta);
-		}
-		if(readTypeIsSet == false){
-			RunMeta newRunMeta = new RunMeta();
-			newRunMeta.setRun(run);
-			newRunMeta.setK("run.readType");
-			newRunMeta.setV(readType);
-			newRunMeta.setPosition(new Integer(0));//do we really use this???
-			newRunMeta = runMetaDao.save(newRunMeta);
+		try {
+			SequenceReadProperties.setSequenceReadProperties(new SequenceReadProperties(readType, Integer.parseInt(readLength)), run, runMetaDao, RunMeta.class);
+		} catch (MetadataException e1) {
+			logger.warn("failed to save readLength and readtype for run with id=" + run.getId().intValue());
 		}
 		return run;
 	}

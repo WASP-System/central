@@ -72,6 +72,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
@@ -314,33 +315,32 @@ public class PlatformUnitController extends WaspController {
 				}
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
-			}			
-			if(readTypeFromGrid != null){
+			}	
+			
+			  
+			
+			if(readTypeFromGrid != null && readlengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
-					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
-					for(SampleMeta sm : sampleMetaList){
-						if(sm.getK().indexOf("readType") > -1){
-							if(sm.getV().equalsIgnoreCase(readTypeFromGrid)){
+					 try {
+						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, "platformunitInstance", SampleMeta.class);
+						  if(readProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
 								platformUnitsFoundInSearch.add(sample);
-							}
-							break;//out of inner for loop
-						}
-					}					
+					  } catch (MetadataException e) {
+						  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+					  }				
 				}
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
 			}			
 			if(readlengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
-					List<SampleMeta> sampleMetaList = sample.getSampleMeta();
-					for(SampleMeta sm : sampleMetaList){
-						if(sm.getK().indexOf("readlength") > -1){
-							if(sm.getV().equalsIgnoreCase(readlengthFromGrid)){//remember both readlengthFromGrid and the metadata value are strings (in this case, they are string representations of numbers)
+					 try {
+						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, "platformunitInstance", SampleMeta.class);
+						  if(readProperties.getReadLength().equals(Integer.parseInt(readlengthFromGrid)))
 								platformUnitsFoundInSearch.add(sample);
-							}
-							break;
-						}
-					}					
+					  } catch (MetadataException e) {
+						  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+					  }				
 				}
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
