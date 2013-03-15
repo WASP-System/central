@@ -12,6 +12,7 @@ flush privileges;
 
 use wasp;
 
+
 # ************************************************************
 # Sequel Pro SQL dump
 # Version 4004
@@ -19,9 +20,9 @@ use wasp;
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.1.66)
+# Host: 127.0.0.1 (MySQL 5.1.66-log)
 # Database: wasp
-# Generation Time: 2013-03-11 23:58:29 +0000
+# Generation Time: 2013-03-15 19:55:47 +0000
 # ************************************************************
 
 
@@ -36,6 +37,8 @@ use wasp;
 
 # Dump of table acct_grant
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grant`;
 
 CREATE TABLE `acct_grant` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -57,8 +60,30 @@ CREATE TABLE `acct_grant` (
 
 
 
+# Dump of table acct_grant_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grant_AUD`;
+
+CREATE TABLE `acct_grant_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `expirationdt` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKA198D7C1DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_grantjob
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grantjob`;
 
 CREATE TABLE `acct_grantjob` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -80,8 +105,27 @@ CREATE TABLE `acct_grantjob` (
 
 
 
+# Dump of table acct_grantjob_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grantjob_AUD`;
+
+CREATE TABLE `acct_grantjob_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `grantid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKCEA3731EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_invoice
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_invoice`;
 
 CREATE TABLE `acct_invoice` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -104,8 +148,29 @@ CREATE TABLE `acct_invoice` (
 
 
 
+# Dump of table acct_invoice_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_invoice_AUD`;
+
+CREATE TABLE `acct_invoice_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK4BD28452DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_ledger
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_ledger`;
 
 CREATE TABLE `acct_ledger` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -128,8 +193,29 @@ CREATE TABLE `acct_ledger` (
 
 
 
+# Dump of table acct_ledger_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_ledger_AUD`;
+
+CREATE TABLE `acct_ledger_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `invoiceid` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK7C500266DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_quote
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quote`;
 
 CREATE TABLE `acct_quote` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -153,8 +239,30 @@ CREATE TABLE `acct_quote` (
 
 
 
+# Dump of table acct_quote_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quote_AUD`;
+
+CREATE TABLE `acct_quote_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK91E9A521DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_quotemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quotemeta`;
 
 CREATE TABLE `acct_quotemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -176,8 +284,26 @@ CREATE TABLE `acct_quotemeta` (
 
 
 
+# Dump of table acct_quotemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quotemeta_AUD`;
+
+CREATE TABLE `acct_quotemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKE1BC08A6DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_quoteuser
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quoteuser`;
 
 CREATE TABLE `acct_quoteuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -203,8 +329,30 @@ CREATE TABLE `acct_quoteuser` (
 
 
 
+# Dump of table acct_quoteuser_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quoteuser_AUD`;
+
+CREATE TABLE `acct_quoteuser_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `isapproved` int(11) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKECB38B6CDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table acct_workflowcost
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_workflowcost`;
 
 CREATE TABLE `acct_workflowcost` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -223,8 +371,26 @@ CREATE TABLE `acct_workflowcost` (
 
 
 
+# Dump of table acct_workflowcost_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_workflowcost_AUD`;
+
+CREATE TABLE `acct_workflowcost_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `basecost` float DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK99AA6A89DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table adaptor
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptor`;
 
 CREATE TABLE `adaptor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -248,8 +414,32 @@ CREATE TABLE `adaptor` (
 
 
 
+# Dump of table adaptor_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptor_AUD`;
+
+CREATE TABLE `adaptor_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  `barcodenumber` int(11) DEFAULT NULL,
+  `barcodesequence` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sequence` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK33F907D6DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table adaptormeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptormeta`;
 
 CREATE TABLE `adaptormeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -271,8 +461,26 @@ CREATE TABLE `adaptormeta` (
 
 
 
+# Dump of table adaptormeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptormeta_AUD`;
+
+CREATE TABLE `adaptormeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `adaptorid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK534108DBDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table adaptorset
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorset`;
 
 CREATE TABLE `adaptorset` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -293,8 +501,29 @@ CREATE TABLE `adaptorset` (
 
 
 
+# Dump of table adaptorset_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorset_AUD`;
+
+CREATE TABLE `adaptorset_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK8224150EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table adaptorsetmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetmeta`;
 
 CREATE TABLE `adaptorsetmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -316,8 +545,26 @@ CREATE TABLE `adaptorsetmeta` (
 
 
 
+# Dump of table adaptorsetmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetmeta_AUD`;
+
+CREATE TABLE `adaptorsetmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK4E32BA13DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table adaptorsetresourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetresourcecategory`;
 
 CREATE TABLE `adaptorsetresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -338,8 +585,27 @@ CREATE TABLE `adaptorsetresourcecategory` (
 
 
 
+# Dump of table adaptorsetresourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetresourcecategory_AUD`;
+
+CREATE TABLE `adaptorsetresourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK6C80281ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table barcode
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `barcode`;
 
 CREATE TABLE `barcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -357,8 +623,180 @@ CREATE TABLE `barcode` (
 
 
 
+# Dump of table barcode_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `barcode_AUD`;
+
+CREATE TABLE `barcode_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `barcode` varchar(255) DEFAULT NULL,
+  `barcodefor` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK6221D651DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_EXECUTION
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION`;
+
+CREATE TABLE `BATCH_JOB_EXECUTION` (
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) DEFAULT NULL,
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `CREATE_TIME` datetime NOT NULL,
+  `START_TIME` datetime DEFAULT NULL,
+  `END_TIME` datetime DEFAULT NULL,
+  `STATUS` varchar(10) DEFAULT NULL,
+  `EXIT_CODE` varchar(100) DEFAULT NULL,
+  `EXIT_MESSAGE` varchar(2500) DEFAULT NULL,
+  `LAST_UPDATED` datetime DEFAULT NULL,
+  PRIMARY KEY (`JOB_EXECUTION_ID`),
+  KEY `JOB_INST_EXEC_FK` (`JOB_INSTANCE_ID`),
+  CONSTRAINT `JOB_INST_EXEC_FK` FOREIGN KEY (`JOB_INSTANCE_ID`) REFERENCES `batch_job_instance` (`JOB_INSTANCE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_EXECUTION_CONTEXT
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION_CONTEXT`;
+
+CREATE TABLE `BATCH_JOB_EXECUTION_CONTEXT` (
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `SHORT_CONTEXT` varchar(2500) NOT NULL,
+  `SERIALIZED_CONTEXT` text,
+  PRIMARY KEY (`JOB_EXECUTION_ID`),
+  CONSTRAINT `JOB_EXEC_CTX_FK` FOREIGN KEY (`JOB_EXECUTION_ID`) REFERENCES `batch_job_execution` (`JOB_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_EXECUTION_SEQ
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_EXECUTION_SEQ`;
+
+CREATE TABLE `BATCH_JOB_EXECUTION_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_INSTANCE
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_INSTANCE`;
+
+CREATE TABLE `BATCH_JOB_INSTANCE` (
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) DEFAULT NULL,
+  `JOB_NAME` varchar(100) NOT NULL,
+  `JOB_KEY` varchar(32) NOT NULL,
+  PRIMARY KEY (`JOB_INSTANCE_ID`),
+  UNIQUE KEY `JOB_INST_UN` (`JOB_NAME`,`JOB_KEY`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_PARAMS
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_PARAMS`;
+
+CREATE TABLE `BATCH_JOB_PARAMS` (
+  `JOB_INSTANCE_ID` bigint(20) NOT NULL,
+  `TYPE_CD` varchar(6) NOT NULL,
+  `KEY_NAME` varchar(100) NOT NULL,
+  `STRING_VAL` varchar(250) DEFAULT NULL,
+  `DATE_VAL` datetime DEFAULT NULL,
+  `LONG_VAL` bigint(20) DEFAULT NULL,
+  `DOUBLE_VAL` double DEFAULT NULL,
+  KEY `JOB_INST_PARAMS_FK` (`JOB_INSTANCE_ID`),
+  CONSTRAINT `JOB_INST_PARAMS_FK` FOREIGN KEY (`JOB_INSTANCE_ID`) REFERENCES `batch_job_instance` (`JOB_INSTANCE_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_JOB_SEQ
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_JOB_SEQ`;
+
+CREATE TABLE `BATCH_JOB_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_STEP_EXECUTION
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION`;
+
+CREATE TABLE `BATCH_STEP_EXECUTION` (
+  `STEP_EXECUTION_ID` bigint(20) NOT NULL,
+  `VERSION` bigint(20) NOT NULL,
+  `STEP_NAME` varchar(100) NOT NULL,
+  `JOB_EXECUTION_ID` bigint(20) NOT NULL,
+  `START_TIME` datetime NOT NULL,
+  `END_TIME` datetime DEFAULT NULL,
+  `STATUS` varchar(10) DEFAULT NULL,
+  `COMMIT_COUNT` bigint(20) DEFAULT NULL,
+  `READ_COUNT` bigint(20) DEFAULT NULL,
+  `FILTER_COUNT` bigint(20) DEFAULT NULL,
+  `WRITE_COUNT` bigint(20) DEFAULT NULL,
+  `READ_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `WRITE_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `PROCESS_SKIP_COUNT` bigint(20) DEFAULT NULL,
+  `ROLLBACK_COUNT` bigint(20) DEFAULT NULL,
+  `EXIT_CODE` varchar(100) DEFAULT NULL,
+  `EXIT_MESSAGE` varchar(2500) DEFAULT NULL,
+  `LAST_UPDATED` datetime DEFAULT NULL,
+  PRIMARY KEY (`STEP_EXECUTION_ID`),
+  KEY `JOB_EXEC_STEP_FK` (`JOB_EXECUTION_ID`),
+  CONSTRAINT `JOB_EXEC_STEP_FK` FOREIGN KEY (`JOB_EXECUTION_ID`) REFERENCES `batch_job_execution` (`JOB_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_STEP_EXECUTION_CONTEXT
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION_CONTEXT`;
+
+CREATE TABLE `BATCH_STEP_EXECUTION_CONTEXT` (
+  `STEP_EXECUTION_ID` bigint(20) NOT NULL,
+  `SHORT_CONTEXT` varchar(2500) NOT NULL,
+  `SERIALIZED_CONTEXT` text,
+  PRIMARY KEY (`STEP_EXECUTION_ID`),
+  CONSTRAINT `STEP_EXEC_CTX_FK` FOREIGN KEY (`STEP_EXECUTION_ID`) REFERENCES `batch_step_execution` (`STEP_EXECUTION_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table BATCH_STEP_EXECUTION_SEQ
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `BATCH_STEP_EXECUTION_SEQ`;
+
+CREATE TABLE `BATCH_STEP_EXECUTION_SEQ` (
+  `ID` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table confirmemailauth
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `confirmemailauth`;
 
 CREATE TABLE `confirmemailauth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -380,8 +818,28 @@ CREATE TABLE `confirmemailauth` (
 
 
 
+# Dump of table confirmemailauth_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `confirmemailauth_AUD`;
+
+CREATE TABLE `confirmemailauth_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `authcode` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `userpendingid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKEE29F855DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table department
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `department`;
 
 CREATE TABLE `department` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -399,8 +857,28 @@ CREATE TABLE `department` (
 
 
 
+# Dump of table department_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `department_AUD`;
+
+CREATE TABLE `department_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isinternal` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKF0647823DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table departmentuser
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `departmentuser`;
 
 CREATE TABLE `departmentuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -421,34 +899,73 @@ CREATE TABLE `departmentuser` (
 
 
 
+# Dump of table departmentuser_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `departmentuser_AUD`;
+
+CREATE TABLE `departmentuser_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK1BA90D6EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table file
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `file`;
 
 CREATE TABLE `file` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
   `updated` datetime DEFAULT NULL,
   `uuid` binary(16) DEFAULT NULL,
+  `archived` tinyint(1) DEFAULT NULL,
   `file_name` varchar(255) DEFAULT NULL,
   `file_uri` longtext,
   `md5hash` varchar(255) DEFAULT NULL,
   `sizek` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
   `filetypeid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK2FF57C181C758A` (`filegroupid`),
   KEY `FK2FF57C50566623` (`lastupdatebyuser`),
   KEY `FK2FF57C175EFBBE` (`filetypeid`),
   CONSTRAINT `FK2FF57C175EFBBE` FOREIGN KEY (`filetypeid`) REFERENCES `filetype` (`id`),
-  CONSTRAINT `FK2FF57C181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
   CONSTRAINT `FK2FF57C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
+# Dump of table file_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `file_AUD`;
+
+CREATE TABLE `file_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `archived` tinyint(1) DEFAULT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `file_uri` longtext,
+  `md5hash` varchar(255) DEFAULT NULL,
+  `sizek` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKD42D054DDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filegroup
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup`;
 
 CREATE TABLE `filegroup` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -472,8 +989,30 @@ CREATE TABLE `filegroup` (
 
 
 
+# Dump of table filegroup_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup_AUD`;
+
+CREATE TABLE `filegroup_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `description` longtext,
+  `filetypeid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isarchived` int(11) DEFAULT NULL,
+  `softwaregeneratedbyid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK92642D4DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filegroup_rel
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup_rel`;
 
 CREATE TABLE `filegroup_rel` (
   `childfilegroupid` int(11) NOT NULL,
@@ -487,8 +1026,26 @@ CREATE TABLE `filegroup_rel` (
 
 
 
+# Dump of table filegroup_rel_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup_rel_AUD`;
+
+CREATE TABLE `filegroup_rel_AUD` (
+  `REV` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  `childfilegroupid` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`REV`,`childfilegroupid`,`filegroupid`),
+  KEY `FKF19F742EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filegroupmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroupmeta`;
 
 CREATE TABLE `filegroupmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -510,8 +1067,26 @@ CREATE TABLE `filegroupmeta` (
 
 
 
+# Dump of table filegroupmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroupmeta_AUD`;
+
+CREATE TABLE `filegroupmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK93C94D9DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filemeta`;
 
 CREATE TABLE `filemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -533,8 +1108,26 @@ CREATE TABLE `filemeta` (
 
 
 
+# Dump of table filemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filemeta_AUD`;
+
+CREATE TABLE `filemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `fileid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK95BB72D2DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filetype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetype`;
 
 CREATE TABLE `filetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -553,8 +1146,29 @@ CREATE TABLE `filetype` (
 
 
 
+# Dump of table filetype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetype_AUD`;
+
+CREATE TABLE `filetype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK88454987DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table filetypemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetypemeta`;
 
 CREATE TABLE `filetypemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -576,8 +1190,59 @@ CREATE TABLE `filetypemeta` (
 
 
 
+# Dump of table filetypemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetypemeta_AUD`;
+
+CREATE TABLE `filetypemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `filetypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK3F430A0CDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table groupfile
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `groupfile`;
+
+CREATE TABLE `groupfile` (
+  `groupid` int(11) NOT NULL,
+  `fileid` int(11) NOT NULL,
+  PRIMARY KEY (`groupid`,`fileid`),
+  KEY `FKA7A3947BA284E86` (`groupid`),
+  KEY `FKA7A3947BD1800F32` (`fileid`),
+  CONSTRAINT `FKA7A3947BD1800F32` FOREIGN KEY (`fileid`) REFERENCES `file` (`id`),
+  CONSTRAINT `FKA7A3947BA284E86` FOREIGN KEY (`groupid`) REFERENCES `filegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table groupfile_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `groupfile_AUD`;
+
+CREATE TABLE `groupfile_AUD` (
+  `REV` int(11) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  `fileid` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`REV`,`groupid`,`fileid`),
+  KEY `FK4AAB0CCCDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table job
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `job`;
 
 CREATE TABLE `job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -608,8 +1273,33 @@ CREATE TABLE `job` (
 
 
 
+# Dump of table job_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `job_AUD`;
+
+CREATE TABLE `job_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `viewablebylab` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `current_quote` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKAA4FA30EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobcellselection
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobcellselection`;
 
 CREATE TABLE `jobcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -628,8 +1318,27 @@ CREATE TABLE `jobcellselection` (
 
 
 
+# Dump of table jobcellselection_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobcellselection_AUD`;
+
+CREATE TABLE `jobcellselection_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `cellindex` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKF613F51EDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraft
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraft`;
 
 CREATE TABLE `jobdraft` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -659,8 +1368,32 @@ CREATE TABLE `jobdraft` (
 
 
 
+# Dump of table jobdraft_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraft_AUD`;
+
+CREATE TABLE `jobdraft_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `submittedjobid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK2FB037D5DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraftcellselection
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftcellselection`;
 
 CREATE TABLE `jobdraftcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -679,8 +1412,27 @@ CREATE TABLE `jobdraftcellselection` (
 
 
 
+# Dump of table jobdraftcellselection_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftcellselection_AUD`;
+
+CREATE TABLE `jobdraftcellselection_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `cellindex` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKF8AB9BB7DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraftfile
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftfile`;
 
 CREATE TABLE `jobdraftfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -688,11 +1440,11 @@ CREATE TABLE `jobdraftfile` (
   `updated` datetime DEFAULT NULL,
   `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `jobdraftid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK2FB3FF80181C758A` (`filegroupid`),
   KEY `FK2FB3FF8050566623` (`lastupdatebyuser`),
@@ -704,8 +1456,30 @@ CREATE TABLE `jobdraftfile` (
 
 
 
+# Dump of table jobdraftfile_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftfile_AUD`;
+
+CREATE TABLE `jobdraftfile_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK2ED46D51DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraftmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftmeta`;
 
 CREATE TABLE `jobdraftmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -727,8 +1501,26 @@ CREATE TABLE `jobdraftmeta` (
 
 
 
+# Dump of table jobdraftmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftmeta_AUD`;
+
+CREATE TABLE `jobdraftmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK3FD2215ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraftresourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftresourcecategory`;
 
 CREATE TABLE `jobdraftresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -749,8 +1541,27 @@ CREATE TABLE `jobdraftresourcecategory` (
 
 
 
+# Dump of table jobdraftresourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftresourcecategory_AUD`;
+
+CREATE TABLE `jobdraftresourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKC593DCE1DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobdraftsoftware
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftsoftware`;
 
 CREATE TABLE `jobdraftsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -771,8 +1582,27 @@ CREATE TABLE `jobdraftsoftware` (
 
 
 
+# Dump of table jobdraftsoftware_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftsoftware_AUD`;
+
+CREATE TABLE `jobdraftsoftware_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKE5429FCDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobfile
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobfile`;
 
 CREATE TABLE `jobfile` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -780,12 +1610,12 @@ CREATE TABLE `jobfile` (
   `updated` datetime DEFAULT NULL,
   `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKAA536AB9181C758A` (`filegroupid`),
   KEY `FKAA536AB950566623` (`lastupdatebyuser`),
@@ -797,8 +1627,31 @@ CREATE TABLE `jobfile` (
 
 
 
+# Dump of table jobfile_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobfile_AUD`;
+
+CREATE TABLE `jobfile_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK28E9940ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobmeta`;
 
 CREATE TABLE `jobmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -820,8 +1673,26 @@ CREATE TABLE `jobmeta` (
 
 
 
+# Dump of table jobmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobmeta_AUD`;
+
+CREATE TABLE `jobmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK39E74813DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobresourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobresourcecategory`;
 
 CREATE TABLE `jobresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -842,8 +1713,27 @@ CREATE TABLE `jobresourcecategory` (
 
 
 
+# Dump of table jobresourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobresourcecategory_AUD`;
+
+CREATE TABLE `jobresourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK17CFB61ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobsample
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsample`;
 
 CREATE TABLE `jobsample` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -864,8 +1754,27 @@ CREATE TABLE `jobsample` (
 
 
 
+# Dump of table jobsample_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsample_AUD`;
+
+CREATE TABLE `jobsample_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK206091F8DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobsamplemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsamplemeta`;
 
 CREATE TABLE `jobsamplemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -887,8 +1796,26 @@ CREATE TABLE `jobsamplemeta` (
 
 
 
+# Dump of table jobsamplemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsamplemeta_AUD`;
+
+CREATE TABLE `jobsamplemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobsampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK4EB2B1FDDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobsoftware
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsoftware`;
 
 CREATE TABLE `jobsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -909,8 +1836,27 @@ CREATE TABLE `jobsoftware` (
 
 
 
+# Dump of table jobsoftware_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsoftware_AUD`;
+
+CREATE TABLE `jobsoftware_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK17954C35DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table jobuser
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobuser`;
 
 CREATE TABLE `jobuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -934,8 +1880,28 @@ CREATE TABLE `jobuser` (
 
 
 
+# Dump of table jobuser_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobuser_AUD`;
+
+CREATE TABLE `jobuser_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK44DECAD9DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table lab
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lab`;
 
 CREATE TABLE `lab` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -958,8 +1924,29 @@ CREATE TABLE `lab` (
 
 
 
+# Dump of table lab_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lab_AUD`;
+
+CREATE TABLE `lab_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `primaryuserid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKFC3840DEDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table labmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labmeta`;
 
 CREATE TABLE `labmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -981,8 +1968,26 @@ CREATE TABLE `labmeta` (
 
 
 
+# Dump of table labmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labmeta_AUD`;
+
+CREATE TABLE `labmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK7AC7DE3DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table labpending
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpending`;
 
 CREATE TABLE `labpending` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1008,8 +2013,30 @@ CREATE TABLE `labpending` (
 
 
 
+# Dump of table labpending_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpending_AUD`;
+
+CREATE TABLE `labpending_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `primaryuserid` int(11) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  `userpendingid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKDD97E83BDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table labpendingmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpendingmeta`;
 
 CREATE TABLE `labpendingmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1031,8 +2058,26 @@ CREATE TABLE `labpendingmeta` (
 
 
 
+# Dump of table labpendingmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpendingmeta_AUD`;
+
+CREATE TABLE `labpendingmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `labpendingid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK57FF2EC0DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table labuser
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labuser`;
 
 CREATE TABLE `labuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1056,8 +2101,28 @@ CREATE TABLE `labuser` (
 
 
 
+# Dump of table labuser_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labuser_AUD`;
+
+CREATE TABLE `labuser_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK12A400A9DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table meta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `meta`;
 
 CREATE TABLE `meta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1076,8 +2141,25 @@ CREATE TABLE `meta` (
 
 
 
+# Dump of table meta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `meta_AUD`;
+
+CREATE TABLE `meta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKE52AB956DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table project
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `project`;
 
 CREATE TABLE `project` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1098,8 +2180,29 @@ CREATE TABLE `project` (
 
 
 
+# Dump of table project_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `project_AUD`;
+
+CREATE TABLE `project_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKC7FF446ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resource
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resource`;
 
 CREATE TABLE `resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1123,8 +2226,30 @@ CREATE TABLE `resource` (
 
 
 
+# Dump of table resource_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resource_AUD`;
+
+CREATE TABLE `resource_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKE91B3ADFDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcebarcode
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcebarcode`;
 
 CREATE TABLE `resourcebarcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1145,8 +2270,27 @@ CREATE TABLE `resourcebarcode` (
 
 
 
+# Dump of table resourcebarcode_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcebarcode_AUD`;
+
+CREATE TABLE `resourcebarcode_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `barcodeid` int(11) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK7BEA9D83DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategory`;
 
 CREATE TABLE `resourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1167,8 +2311,29 @@ CREATE TABLE `resourcecategory` (
 
 
 
+# Dump of table resourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategory_AUD`;
+
+CREATE TABLE `resourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK38BC5ADDDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcecategorymeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategorymeta`;
 
 CREATE TABLE `resourcecategorymeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1190,8 +2355,26 @@ CREATE TABLE `resourcecategorymeta` (
 
 
 
+# Dump of table resourcecategorymeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategorymeta_AUD`;
+
+CREATE TABLE `resourcecategorymeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKD0858062DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcecell
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecell`;
 
 CREATE TABLE `resourcecell` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1212,8 +2395,29 @@ CREATE TABLE `resourcecell` (
 
 
 
+# Dump of table resourcecell_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecell_AUD`;
+
+CREATE TABLE `resourcecell_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK5AB90C41DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcemeta`;
 
 CREATE TABLE `resourcemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1235,8 +2439,26 @@ CREATE TABLE `resourcemeta` (
 
 
 
+# Dump of table resourcemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcemeta_AUD`;
+
+CREATE TABLE `resourcemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK76908F64DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table resourcetype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcetype`;
 
 CREATE TABLE `resourcetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1254,8 +2476,41 @@ CREATE TABLE `resourcetype` (
 
 
 
+# Dump of table resourcetype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcetype_AUD`;
+
+CREATE TABLE `resourcetype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK691A6619DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table REVINFO
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `REVINFO`;
+
+CREATE TABLE `REVINFO` (
+  `REV` int(11) NOT NULL AUTO_INCREMENT,
+  `REVTSTMP` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table roleset
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `roleset`;
 
 CREATE TABLE `roleset` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1276,8 +2531,27 @@ CREATE TABLE `roleset` (
 
 
 
+# Dump of table roleset_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `roleset_AUD`;
+
+CREATE TABLE `roleset_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `childroleid` int(11) DEFAULT NULL,
+  `parentroleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK38BA17FDDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table run
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `run`;
 
 CREATE TABLE `run` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1312,8 +2586,35 @@ CREATE TABLE `run` (
 
 
 
+# Dump of table run_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `run_AUD`;
+
+CREATE TABLE `run_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `endts` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourceCategoryid` int(11) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `startts` datetime DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK5C67AADCDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table runcell
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `runcell`;
 
 CREATE TABLE `runcell` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1337,56 +2638,28 @@ CREATE TABLE `runcell` (
 
 
 
-# Dump of table runcellfile
+# Dump of table runcell_AUD
 # ------------------------------------------------------------
 
-CREATE TABLE `runcellfile` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created` datetime DEFAULT NULL,
-  `updated` datetime DEFAULT NULL,
-  `uuid` binary(16) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `runcellid` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK7226FD69181C758A` (`filegroupid`),
-  KEY `FK7226FD6950566623` (`lastupdatebyuser`),
-  KEY `FK7226FD69F0A9F55E` (`runcellid`),
-  CONSTRAINT `FK7226FD69F0A9F55E` FOREIGN KEY (`runcellid`) REFERENCES `runcell` (`id`),
-  CONSTRAINT `FK7226FD69181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
-  CONSTRAINT `FK7226FD6950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `runcell_AUD`;
 
-
-
-# Dump of table runfile
-# ------------------------------------------------------------
-
-CREATE TABLE `runfile` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created` datetime DEFAULT NULL,
-  `updated` datetime DEFAULT NULL,
-  `uuid` binary(16) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
+CREATE TABLE `runcell_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourcecellid` int(11) DEFAULT NULL,
   `runid` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK5C6B7287181C758A` (`filegroupid`),
-  KEY `FK5C6B728750566623` (`lastupdatebyuser`),
-  KEY `FK5C6B72879042067A` (`runid`),
-  CONSTRAINT `FK5C6B72879042067A` FOREIGN KEY (`runid`) REFERENCES `run` (`id`),
-  CONSTRAINT `FK5C6B7287181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
-  CONSTRAINT `FK5C6B728750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK722335BEDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
 # Dump of table runmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `runmeta`;
 
 CREATE TABLE `runmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1408,8 +2681,26 @@ CREATE TABLE `runmeta` (
 
 
 
+# Dump of table runmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `runmeta_AUD`;
+
+CREATE TABLE `runmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `runid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK8DFAB8E1DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sample
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sample`;
 
 CREATE TABLE `sample` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1448,8 +2739,37 @@ CREATE TABLE `sample` (
 
 
 
+# Dump of table sample_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sample_AUD`;
+
+CREATE TABLE `sample_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isgood` int(11) DEFAULT NULL,
+  `isreceived` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `parentid` int(11) DEFAULT NULL,
+  `receivedts` datetime DEFAULT NULL,
+  `receiver_userid` int(11) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `submitter_jobid` int(11) DEFAULT NULL,
+  `submitter_labid` int(11) DEFAULT NULL,
+  `submitter_userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK88CBE7BDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplebarcode
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplebarcode`;
 
 CREATE TABLE `samplebarcode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1470,8 +2790,27 @@ CREATE TABLE `samplebarcode` (
 
 
 
+# Dump of table samplebarcode_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplebarcode_AUD`;
+
+CREATE TABLE `samplebarcode_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `barcodeid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKD2871267DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sampledraft
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraft`;
 
 CREATE TABLE `sampledraft` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1507,8 +2846,34 @@ CREATE TABLE `sampledraft` (
 
 
 
+# Dump of table sampledraft_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraft_AUD`;
+
+CREATE TABLE `sampledraft_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `sourcesampleid` int(11) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKFC6C3888DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sampledraftjobdraftcellselection
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraftjobdraftcellselection`;
 
 CREATE TABLE `sampledraftjobdraftcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1530,8 +2895,28 @@ CREATE TABLE `sampledraftjobdraftcellselection` (
 
 
 
+# Dump of table sampledraftjobdraftcellselection_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraftjobdraftcellselection_AUD`;
+
+CREATE TABLE `sampledraftjobdraftcellselection_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobdraftcellselectionid` int(11) DEFAULT NULL,
+  `libraryindex` int(11) DEFAULT NULL,
+  `sampledraftid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK874E3960DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sampledraftmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraftmeta`;
 
 CREATE TABLE `sampledraftmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1553,33 +2938,59 @@ CREATE TABLE `sampledraftmeta` (
 
 
 
-# Dump of table samplefile
+# Dump of table sampledraftmeta_AUD
 # ------------------------------------------------------------
 
-CREATE TABLE `samplefile` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created` datetime DEFAULT NULL,
-  `updated` datetime DEFAULT NULL,
-  `uuid` binary(16) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampleid` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK8908626B8A37246` (`sampleid`),
-  KEY `FK8908626181C758A` (`filegroupid`),
-  KEY `FK890862650566623` (`lastupdatebyuser`),
-  CONSTRAINT `FK890862650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
-  CONSTRAINT `FK8908626181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
-  CONSTRAINT `FK8908626B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+DROP TABLE IF EXISTS `sampledraftmeta_AUD`;
+
+CREATE TABLE `sampledraftmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `sampledraftid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK5868908DDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplefilegroup
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplefilegroup`;
+
+CREATE TABLE `samplefilegroup` (
+  `sampleid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  PRIMARY KEY (`sampleid`,`filegroupid`),
+  KEY `FKC18C5819B8A37246` (`sampleid`),
+  KEY `FKC18C5819181C758A` (`filegroupid`),
+  CONSTRAINT `FKC18C5819181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FKC18C5819B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplefilegroup_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplefilegroup_AUD`;
+
+CREATE TABLE `samplefilegroup_AUD` (
+  `REV` int(11) NOT NULL,
+  `sampleid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`REV`,`sampleid`,`filegroupid`),
+  KEY `FKF52CD16ADF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
 # Dump of table samplejobcellselection
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplejobcellselection`;
 
 CREATE TABLE `samplejobcellselection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1601,8 +3012,28 @@ CREATE TABLE `samplejobcellselection` (
 
 
 
+# Dump of table samplejobcellselection_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplejobcellselection_AUD`;
+
+CREATE TABLE `samplejobcellselection_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `jobcellselectionid` int(11) DEFAULT NULL,
+  `libraryindex` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK5C21F1C8DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplelab
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplelab`;
 
 CREATE TABLE `samplelab` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1624,8 +3055,28 @@ CREATE TABLE `samplelab` (
 
 
 
+# Dump of table samplelab_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplelab_AUD`;
+
+CREATE TABLE `samplelab_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `isprimary` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKD99AF7F4DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplemeta`;
 
 CREATE TABLE `samplemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1647,8 +3098,26 @@ CREATE TABLE `samplemeta` (
 
 
 
+# Dump of table samplemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplemeta_AUD`;
+
+CREATE TABLE `samplemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKB41EE500DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplesource
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesource`;
 
 CREATE TABLE `samplesource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1670,34 +3139,61 @@ CREATE TABLE `samplesource` (
 
 
 
-# Dump of table samplesourcefile
+# Dump of table samplesource_AUD
 # ------------------------------------------------------------
 
-CREATE TABLE `samplesourcefile` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created` datetime DEFAULT NULL,
-  `updated` datetime DEFAULT NULL,
-  `uuid` binary(16) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `iname` varchar(255) DEFAULT NULL,
-  `isactive` int(11) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `sampleSourceid` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
-  `filegroupid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FKA060C141181C758A` (`filegroupid`),
-  KEY `FKA060C14150566623` (`lastupdatebyuser`),
-  KEY `FKA060C141267BC79C` (`sampleSourceid`),
-  CONSTRAINT `FKA060C141267BC79C` FOREIGN KEY (`sampleSourceid`) REFERENCES `samplesource` (`id`),
-  CONSTRAINT `FKA060C141181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
-  CONSTRAINT `FKA060C14150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+DROP TABLE IF EXISTS `samplesource_AUD`;
+
+CREATE TABLE `samplesource_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `indexvalue` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `source_sampleid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKA05CF996DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesourcefilegroup
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcefilegroup`;
+
+CREATE TABLE `samplesourcefilegroup` (
+  `samplesourceid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  PRIMARY KEY (`samplesourceid`,`filegroupid`),
+  KEY `FK67BBD5DE181C758A` (`filegroupid`),
+  KEY `FK67BBD5DE267BC79C` (`samplesourceid`),
+  CONSTRAINT `FK67BBD5DE267BC79C` FOREIGN KEY (`samplesourceid`) REFERENCES `samplesource` (`id`),
+  CONSTRAINT `FK67BBD5DE181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesourcefilegroup_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcefilegroup_AUD`;
+
+CREATE TABLE `samplesourcefilegroup_AUD` (
+  `REV` int(11) NOT NULL,
+  `samplesourceid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`REV`,`samplesourceid`,`filegroupid`),
+  KEY `FKD82DE4AFDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
 # Dump of table samplesourcemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcemeta`;
 
 CREATE TABLE `samplesourcemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1719,8 +3215,26 @@ CREATE TABLE `samplesourcemeta` (
 
 
 
+# Dump of table samplesourcemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcemeta_AUD`;
+
+CREATE TABLE `samplesourcemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `samplesourceid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK24D61A9BDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplesubtype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtype`;
 
 CREATE TABLE `samplesubtype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1742,8 +3256,30 @@ CREATE TABLE `samplesubtype` (
 
 
 
+# Dump of table samplesubtype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtype_AUD`;
+
+CREATE TABLE `samplesubtype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `arealist` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK92994A61DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplesubtypemeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtypemeta`;
 
 CREATE TABLE `samplesubtypemeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1765,8 +3301,26 @@ CREATE TABLE `samplesubtypemeta` (
 
 
 
+# Dump of table samplesubtypemeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtypemeta_AUD`;
+
+CREATE TABLE `samplesubtypemeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKB970DE6DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table samplesubtyperesourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtyperesourcecategory`;
 
 CREATE TABLE `samplesubtyperesourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1787,8 +3341,27 @@ CREATE TABLE `samplesubtyperesourcecategory` (
 
 
 
+# Dump of table samplesubtyperesourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtyperesourcecategory_AUD`;
+
+CREATE TABLE `samplesubtyperesourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK44FE576DDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sampletype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletype`;
 
 CREATE TABLE `sampletype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1809,8 +3382,29 @@ CREATE TABLE `sampletype` (
 
 
 
+# Dump of table sampletype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletype_AUD`;
+
+CREATE TABLE `sampletype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKA6A8BBB5DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table sampletypecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletypecategory`;
 
 CREATE TABLE `sampletypecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1828,8 +3422,28 @@ CREATE TABLE `sampletypecategory` (
 
 
 
+# Dump of table sampletypecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletypecategory_AUD`;
+
+CREATE TABLE `sampletypecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK41FEA5B3DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table software
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `software`;
 
 CREATE TABLE `software` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1850,8 +3464,29 @@ CREATE TABLE `software` (
 
 
 
+# Dump of table software_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `software_AUD`;
+
+CREATE TABLE `software_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKA56863F8DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table softwaremeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `softwaremeta`;
 
 CREATE TABLE `softwaremeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1873,8 +3508,26 @@ CREATE TABLE `softwaremeta` (
 
 
 
+# Dump of table softwaremeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `softwaremeta_AUD`;
+
+CREATE TABLE `softwaremeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK878183FDDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table uifield
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `uifield`;
 
 CREATE TABLE `uifield` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1898,6 +3551,8 @@ CREATE TABLE `uifield` (
 # Dump of table usermeta
 # ------------------------------------------------------------
 
+DROP TABLE IF EXISTS `usermeta`;
+
 CREATE TABLE `usermeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created` datetime DEFAULT NULL,
@@ -1918,8 +3573,26 @@ CREATE TABLE `usermeta` (
 
 
 
+# Dump of table usermeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `usermeta_AUD`;
+
+CREATE TABLE `usermeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKB38AAA21DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table userpasswordauth
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpasswordauth`;
 
 CREATE TABLE `userpasswordauth` (
   `id` int(11) NOT NULL,
@@ -1938,8 +3611,26 @@ CREATE TABLE `userpasswordauth` (
 
 
 
+# Dump of table userpasswordauth_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpasswordauth_AUD`;
+
+CREATE TABLE `userpasswordauth_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `authcode` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK3CB5DCDFDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table userpending
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpending`;
 
 CREATE TABLE `userpending` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1964,8 +3655,33 @@ CREATE TABLE `userpending` (
 
 
 
+# Dump of table userpending_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpending_AUD`;
+
+CREATE TABLE `userpending_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT NULL,
+  `login` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK51166B3DDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table userpendingmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpendingmeta`;
 
 CREATE TABLE `userpendingmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1987,8 +3703,26 @@ CREATE TABLE `userpendingmeta` (
 
 
 
+# Dump of table userpendingmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpendingmeta_AUD`;
+
+CREATE TABLE `userpendingmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `userpendingid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK12A060C2DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table userrole
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userrole`;
 
 CREATE TABLE `userrole` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2009,8 +3743,27 @@ CREATE TABLE `userrole` (
 
 
 
+# Dump of table userrole_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userrole_AUD`;
+
+CREATE TABLE `userrole_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKBE807412DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflow
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflow`;
 
 CREATE TABLE `workflow` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2029,8 +3782,29 @@ CREATE TABLE `workflow` (
 
 
 
+# Dump of table workflow_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflow_AUD`;
+
+CREATE TABLE `workflow_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK5D080E10DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowmeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowmeta`;
 
 CREATE TABLE `workflowmeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2052,8 +3826,26 @@ CREATE TABLE `workflowmeta` (
 
 
 
+# Dump of table workflowmeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowmeta_AUD`;
+
+CREATE TABLE `workflowmeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKB48E6215DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowresourcecategory
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategory`;
 
 CREATE TABLE `workflowresourcecategory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2074,8 +3866,27 @@ CREATE TABLE `workflowresourcecategory` (
 
 
 
+# Dump of table workflowresourcecategory_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategory_AUD`;
+
+CREATE TABLE `workflowresourcecategory_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKFBA5DD1CDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowresourcecategorymeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategorymeta`;
 
 CREATE TABLE `workflowresourcecategorymeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2097,8 +3908,26 @@ CREATE TABLE `workflowresourcecategorymeta` (
 
 
 
+# Dump of table workflowresourcecategorymeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategorymeta_AUD`;
+
+CREATE TABLE `workflowresourcecategorymeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `workflowresourcecategoryid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK2255CB21DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowresourcetype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcetype`;
 
 CREATE TABLE `workflowresourcetype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2119,8 +3948,27 @@ CREATE TABLE `workflowresourcetype` (
 
 
 
+# Dump of table workflowresourcetype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcetype_AUD`;
+
+CREATE TABLE `workflowresourcetype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKAD64DFD8DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowsamplesubtype
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsamplesubtype`;
 
 CREATE TABLE `workflowsamplesubtype` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2141,8 +3989,27 @@ CREATE TABLE `workflowsamplesubtype` (
 
 
 
+# Dump of table workflowsamplesubtype_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsamplesubtype_AUD`;
+
+CREATE TABLE `workflowsamplesubtype_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKD79E0882DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowsoftware
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftware`;
 
 CREATE TABLE `workflowsoftware` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2163,8 +4030,27 @@ CREATE TABLE `workflowsoftware` (
 
 
 
+# Dump of table workflowsoftware_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftware_AUD`;
+
+CREATE TABLE `workflowsoftware_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FK553B9537DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table workflowsoftwaremeta
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftwaremeta`;
 
 CREATE TABLE `workflowsoftwaremeta` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2186,8 +4072,26 @@ CREATE TABLE `workflowsoftwaremeta` (
 
 
 
+# Dump of table workflowsoftwaremeta_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftwaremeta_AUD`;
+
+CREATE TABLE `workflowsoftwaremeta_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `workflowsoftwareid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKCBCBFDBCDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table wrole
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wrole`;
 
 CREATE TABLE `wrole` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2205,8 +4109,28 @@ CREATE TABLE `wrole` (
 
 
 
+# Dump of table wrole_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wrole_AUD`;
+
+CREATE TABLE `wrole_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `domain` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `rolename` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKDBF01CBEDF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table wuser
 # ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wuser`;
 
 CREATE TABLE `wuser` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2225,6 +4149,28 @@ CREATE TABLE `wuser` (
   KEY `FK6C3D8C250566623` (`lastupdatebyuser`),
   CONSTRAINT `FK6C3D8C250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table wuser_AUD
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wuser_AUD`;
+
+CREATE TABLE `wuser_AUD` (
+  `id` int(11) NOT NULL,
+  `REV` int(11) NOT NULL,
+  `REVTYPE` tinyint(4) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT NULL,
+  `login` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`,`REV`),
+  KEY `FKDBF1D593DF74E053` (`REV`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
