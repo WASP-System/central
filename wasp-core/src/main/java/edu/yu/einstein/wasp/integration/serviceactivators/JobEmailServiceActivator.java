@@ -149,8 +149,11 @@ public class JobEmailServiceActivator {
 				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, job.getId());
 				if(metaMessageList.size()>0){
 					logger.debug("ROB ---- at G in js for rejected by an admin or pi for cause");
-					MetaMessage mm = metaMessageList.get(metaMessageList.size()-1);//get the last one
-					reasonForAbandoned += mm.getValue();
+					//MetaMessage mm = metaMessageList.get(metaMessageList.size()-1);
+					//reasonForAbandoned += mm.getValue();//unfortunately, this comes up empty, since same transaction or too fast, so use jobStatusMessageTemplate
+					String comment = jobStatusMessageTemplate.getComment();
+					User userWhoCreatedComment = jobStatusMessageTemplate.getUserCreatingMessage();
+					reasonForAbandoned = comment + " (" + userWhoCreatedComment.getNameFstLst() + ")";
 				}
 				
 				
