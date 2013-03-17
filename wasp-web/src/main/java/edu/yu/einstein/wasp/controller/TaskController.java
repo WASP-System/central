@@ -20,27 +20,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
-import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.SampleException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.SampleSourceMeta;
-import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -59,16 +50,10 @@ public class TaskController extends WaspController {
   @Autowired
   private AuthenticationService authenticationService;
 
-   @Autowired
-  private SampleDao sampleDao;
-
-   @Autowired
+  @Autowired
   private SampleSourceDao sampleSourceDao;
 
-  @Autowired
-  private JobDao jobDao;
-
-  @Autowired
+ @Autowired
   private JobService jobService;
 
   @Autowired
@@ -94,7 +79,7 @@ public class TaskController extends WaspController {
 	  List<Job> jobsActiveAndWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 	  for(Job jobActive : jobsActive){
 		  for(Job jobAwaiting : jobsWithLibrariesToGoOnFlowCell){
-			  if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
+			  if(jobActive.getId().intValue()==jobAwaiting.getId().intValue()){
 	    			jobsActiveAndWithLibrariesToGoOnFlowCell.add(jobActive);
 	    			break;
 	    	  }
@@ -115,17 +100,13 @@ public class TaskController extends WaspController {
 			  barcode = new String("Unknown");
 		  }
 		  barcodes.add(barcode);
-		  String cell = new String("");
-		  List<SampleMeta> sampleMetaList = platformUnit.getSampleMeta();
-		  for(SampleMeta sampleMeta : sampleMetaList){
-			  if(sampleMeta.getK().indexOf("cellcount") > -1){
-				  cell = sampleMeta.getV();
-			  }
+		  String cellCountStr = "Unknown";
+		  try {
+			  cellCountStr = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString();
+		  } catch (Exception e) {
+			  logger.warn(e.getLocalizedMessage());
 		  }
-		  if(cell.equals("")){
-			  cell = new String("Unknown");
-		  }
-		  cells.add(cell);
+		  cells.add(cellCountStr);
 	  }
 	  
 	  m.addAttribute("barcodes", barcodes);
@@ -142,10 +123,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSubmittedSamples){
-    	logger.debug("processing samples for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing samples for job with id='" + job.getId() + "'");
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	for (Sample sample: newSampleList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -193,8 +174,8 @@ public class TaskController extends WaspController {
 	 	  
 	  for(int i = 0; i < receivedStatusList.size(); i++){
 		  if(!receivedStatusList.get(i).isEmpty()){
-			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
-			  if(sample.getSampleId()<=0){
+			  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleIdList.get(i).intValue());
+			  if(sample.getId()<=0){
 				  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
 				  logger.warn("unable to find sampleId " + sampleIdList.get(i).intValue() + " in task/samplereceive/receive - POST");
 				  return "redirect:/task/samplereceive/list.do";
@@ -229,8 +210,8 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String updateSampleReceive(@PathVariable("jobId") Integer jobId, ModelMap m) {
 
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==0){
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  if(job.getId()==0){
 		  //message can't find job by id
 		  return "redirect:/dashboard.do";
 	  }
@@ -275,8 +256,8 @@ public class TaskController extends WaspController {
 	      @RequestParam("receivedStatus") List<String> receivedStatusList,
 	      ModelMap m) {
 
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==0){
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  if(job.getId()==0){
 		  //message can't find job by id
 		  return "redirect:/dashboard.do";
 	  }
@@ -286,8 +267,8 @@ public class TaskController extends WaspController {
 	  }
 	  int index = 0;
 	  for(Integer sampleId : sampleIdList){		  
-		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-		  if(sample.getSampleId() > 0 && ! sampleService.isSubmittedSampleProcessedByFacility(sample)){
+		  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+		  if(sample.getId() > 0 && ! sampleService.isSubmittedSampleProcessedByFacility(sample)){
 			  try{
 				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertSampleReceivedStatusFromWeb(receivedStatusList.get(index++)));
 			  } catch (WaspMessageBuildingException e){
@@ -308,10 +289,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSampleQC){
-    	logger.debug("processing samples for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing samples for job with id='" + job.getId() + "'");
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
     	for (Sample sample: newSampleList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -334,8 +315,8 @@ public class TaskController extends WaspController {
       @RequestParam("comment") String comment,
       ModelMap m) {	  
 	  
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){
+	  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+	  if(sample.getId()==null){
 		  waspErrorMessage("task.sampleqc_invalid_sample.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
@@ -373,7 +354,7 @@ public class TaskController extends WaspController {
 	  //unfortunately, they are not easily linked within a single transaction.
 	  try{
 		  if(!comment.trim().isEmpty()){
-			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+			  sampleService.setSampleQCComment(sample.getId(), comment.trim());
 		  }
 	  }
 	  catch(Exception e){
@@ -392,10 +373,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingLibraryQC){
-    	logger.debug("processing libraries for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing libraries for job with id='" + job.getId() + "'");
     	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
     	for (Sample sample: newLibraryList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newLibraryList);    	
     	jobAndSampleMap.put(job, newLibraryList);
     }
@@ -418,8 +399,8 @@ public class TaskController extends WaspController {
       @RequestParam("comment") String comment,
       ModelMap m) {
 	  
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){
+	  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+	  if(sample.getId()==null){
 		  waspErrorMessage("task.libraryqc_invalid_sample.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
@@ -457,7 +438,7 @@ public class TaskController extends WaspController {
 	  //unfortunately, they are not easily linked within a single transaction.
 	  try{
 		  if(!comment.trim().isEmpty()){
-			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+			  sampleService.setSampleQCComment(sample.getId(), comment.trim());
 		  }
 	  }
 	  catch(Exception e){
@@ -574,7 +555,7 @@ public class TaskController extends WaspController {
 	  }
 
 	  Job job = jobService.getJobByJobId(jobId);	   
-	  if(job.getJobId()==null){
+	  if(job.getId()==null){
 		  waspErrorMessage("jobapprovetask.invalidJob.error");
 		  logger.warn("Job not found");
 		  return;
@@ -616,7 +597,7 @@ public class TaskController extends WaspController {
 	  //unfortunately, they are not easily linked within a single transaction.
 	  try{
 		  if(!comment.trim().isEmpty()){
-			  jobService.setJobApprovalComment(jobApproveCode, job.getJobId(), comment.trim());
+			  jobService.setJobApprovalComment(jobApproveCode, job.getId(), comment.trim());
 		  }
 	  }
 	  catch(Exception e){
@@ -710,21 +691,21 @@ public class TaskController extends WaspController {
 
 	  class JobIdComparator implements Comparator<Job> {
 		  @Override
-		  public int compare(Job arg0, Job arg1) {
-			  return arg0.getJobId().compareTo(arg1.getJobId());
+		  public int compare(Job job1, Job job2) {
+			  return job1.getId().compareTo(job2.getId());
 		  }
 	  }
 	  //to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
 	  class SampleSourceComparator implements Comparator<SampleSource> {
 		    @Override
-		    public int compare(SampleSource arg0, SampleSource arg1) {
-		    	Sample library0 = sampleService.getLibrary(arg0);
+		    public int compare(SampleSource sample1, SampleSource sample2) {
+		    	Sample library0 = sampleService.getLibrary(sample1);
 		    	Sample macromolecule0 = library0.getParent();
-		    	if(macromolecule0==null || macromolecule0.getSampleId()==null){
+		    	if(macromolecule0==null || macromolecule0.getId()==null){
 		    		macromolecule0 = new Sample();
 		    		macromolecule0.setName("User-Supplied Library");
 		    	}	    	
-				Sample cell0 = sampleService.getCell(arg0);
+				Sample cell0 = sampleService.getCell(sample1);
 				Sample platformUnit0 = null;
 				try{
 					platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
@@ -738,15 +719,15 @@ public class TaskController extends WaspController {
 					run0 = new Run();
 					run0.setName("Not Run");
 				}
-			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + arg0.getIndex().toString() + run0.getName(); 
+			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + sample1.getIndex().toString() + run0.getName(); 
 				
-		    	Sample library1 = sampleService.getLibrary(arg1);
+		    	Sample library1 = sampleService.getLibrary(sample2);
 		    	Sample macromolecule1 = library1.getParent();
-		    	if(macromolecule1==null || macromolecule1.getSampleId()==null){
+		    	if(macromolecule1==null || macromolecule1.getId()==null){
 		    		macromolecule1 = new Sample();
 		    		macromolecule1.setName("User-Supplied Library");
 		    	}		    	
-				Sample cell1 = sampleService.getCell(arg1);
+				Sample cell1 = sampleService.getCell(sample2);
 				Sample platformUnit1 = null;
 				try{
 					platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
@@ -760,7 +741,7 @@ public class TaskController extends WaspController {
 					run1 = new Run();
 					run1.setName("Not Run");
 				}
-				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + arg1.getIndex().toString() + run1.getName(); 
+				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + sample2.getIndex().toString() + run1.getName(); 
 					
 		        return str0.compareToIgnoreCase(str1);
 		    }
@@ -811,7 +792,7 @@ public class TaskController extends WaspController {
 				  Sample library = sampleService.getLibrary(cellLibrary);
 				  cellLibraryLibraryMap.put(cellLibrary, library);
 				  Sample macromolecule = library.getParent();
-				  if(macromolecule == null || macromolecule.getSampleId() == null){
+				  if(macromolecule == null || macromolecule.getId() == null){
 					  macromolecule = new Sample();
 					  macromolecule.setName("User-Supplied Library");
 				  }
@@ -825,7 +806,7 @@ public class TaskController extends WaspController {
 				  catch(Exception e){//should not occur
 					  platformUnit = new Sample();
 					  platformUnit.setName("Not Found");
-					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getSampleId()); 
+					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getId()); 
 				  }
 				  cellLibraryPUMap.put(cellLibrary, platformUnit);
 				  
@@ -846,7 +827,7 @@ public class TaskController extends WaspController {
 				  }catch(Exception e){ }
 				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
 				  
-				  List<MetaMessage> inAnalysisCommentList = sampleService.getMetaInAggregateAnalysisComments(cellLibrary.getSampleSourceId());
+				  List<MetaMessage> inAnalysisCommentList = sampleService.getMetaInAggregateAnalysisComments(cellLibrary.getId());
 				  if(inAnalysisCommentList.size()<=0){
 					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
 				  }
@@ -888,7 +869,7 @@ public class TaskController extends WaspController {
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }
 	  Job job = jobService.getJobByJobId(jobId);
-	  if(job==null || job.getJobId()==null){
+	  if(job==null || job.getId()==null){
 		  waspErrorMessage("task.cellLibraryqc_jobNotFound.error");
 		  return "redirect:/task/cellLibraryQC/list.do";
 	  }

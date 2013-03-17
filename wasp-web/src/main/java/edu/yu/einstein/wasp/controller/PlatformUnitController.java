@@ -1440,23 +1440,18 @@ public class PlatformUnitController extends WaspController {
 			logger.warn("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
 			return return_string;
 		}
-		Integer cellCountFromMeta = null;
-		for(SampleMeta sm : platformUnit.getSampleMeta()){
-			if(sm.getK().indexOf("cellcount") > -1){
-				try{
-					cellCountFromMeta = new Integer(sm.getV());
-				}
-				catch(Exception e){
-					logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
-					return return_string;
-				}
-			}
+		Integer cellCount = null;
+		try {
+			cellCount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
+		} catch (SampleTypeException e1) {
+			logger.warn(e1.getLocalizedMessage());
+			return return_string;
 		}
-		if(cellCountFromMeta == null){
+		if(cellCount == null){
 			logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
 			return return_string;
 		}
-		if(cellCountFromMeta.intValue() != platformUnit.getSampleSource().size()){
+		if(cellCount != platformUnit.getSampleSource().size()){
 			logger.warn("cellcount from sampleMetaData and from samplesource are discordant: unable to continue");
 			return return_string;
 		}
