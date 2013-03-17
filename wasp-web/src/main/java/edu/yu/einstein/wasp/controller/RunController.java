@@ -52,6 +52,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Userrole;
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -137,13 +138,16 @@ public class RunController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(RunMeta.class, request.getSession());
 	}
+	
+	private static final String PLATFORM_UNIT_INSTANCE_AREA = "platformunitInstance";
+	private static final String RUN_INSTANCE_AREA = "runInstance";
 
 	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
-		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp(PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class, request.getSession());
 	}
 
 	private final MetaHelperWebapp getMetaHelperWebappRunInstance() {
-		return new MetaHelperWebapp("runInstance", RunMeta.class, request.getSession());
+		return new MetaHelperWebapp(RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
 	}
 
 	@RequestMapping("/list")
@@ -381,14 +385,12 @@ public class RunController extends WaspController {
 			}			
 			if(readTypeFromGrid != null){
 				for(Run run : tempRunList){
-					List<RunMeta> runMetaList = run.getRunMeta();
-					for(RunMeta rm : runMetaList){
-						if(rm.getK().indexOf("readType") > -1){
-							if(rm.getV().equalsIgnoreCase(readTypeFromGrid)){
-								runsFoundInSearch.add(run);
-							}
-							break;//out of inner for loop
-						}
+					try {
+						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+						if(runReadProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
+							runsFoundInSearch.add(run);
+					} catch (MetadataException e) {
+						logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 					}					
 				}
 				tempRunList.retainAll(runsFoundInSearch);
@@ -396,15 +398,13 @@ public class RunController extends WaspController {
 			}			
 			if(readlengthFromGrid != null){
 				for(Run run : tempRunList){
-					List<RunMeta> runMetaList = run.getRunMeta();
-					for(RunMeta rm : runMetaList){
-						if(rm.getK().indexOf("readlength") > -1){
-							if(rm.getV().equalsIgnoreCase(readlengthFromGrid)){
-								runsFoundInSearch.add(run);
-							}
-							break;//out of inner for loop
-						}
-					}					
+					try {
+						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+						if(runReadProperties.getReadLength().equals(Integer.parseInt(readlengthFromGrid)))
+							runsFoundInSearch.add(run);
+					} catch (MetadataException e) {
+						logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+					}				
 				}
 				tempRunList.retainAll(runsFoundInSearch);
 				runsFoundInSearch.clear();
@@ -492,16 +492,12 @@ public class RunController extends WaspController {
 				MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappRunInstance();
 				String area2 = metaHelperWebapp.getArea();
 				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
-			
-				String readlength = new String("unknown");
-				try{
-					readlength = MetaHelperWebapp.getMetaValue(area2, "readlength", run.getRunMeta());					
-				}catch(Exception e){}
-				
-				String readType = new String("unknown");
-				try{
-					readType = MetaHelperWebapp.getMetaValue(area2, "readType", run.getRunMeta());
-				}catch(Exception e){}
+				SequenceReadProperties readProperties = new SequenceReadProperties();
+				try {
+					readProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+				} catch (MetadataException e) {
+					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+				}
 				
 				String dateRunStarted = new String("not set");
 				if(run.getStartts()!=null){
@@ -536,8 +532,8 @@ public class RunController extends WaspController {
 						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+run.getName()+"</a>",
 						"<a href=/wasp/facility/platformunit/showPlatformUnit/"+platformUnit.getId()+".do>"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
-						readlength,
-						readType,
+						readProperties.getReadLength().toString(),
+						readProperties.getReadType(),
 						dateRunStarted,
 						dateRunEnded,
 						statusForRun
@@ -715,12 +711,15 @@ public class RunController extends WaspController {
 			m.addAttribute("typeOfPlatformUnit", platformUnit.getSampleSubtype().getName());
 			m.addAttribute("barcodeName", platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
 			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString());
-			
+			SequenceReadProperties readProperties = new SequenceReadProperties();
+			try {
+				readProperties = SequenceReadProperties.getSequenceReadProperties(platformUnit, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
+			} catch (MetadataException e) {
+				logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+			}
+			m.addAttribute("readlength", readProperties.getReadLength());
+			m.addAttribute("readType", readProperties.getReadType());
 			String area = getMetaHelperWebappPlatformUnitInstance().getArea();
-			String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit.getSampleMeta());
-			m.addAttribute("readlength", readlength);
-			String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit.getSampleMeta());
-			m.addAttribute("readType", readType);	
 			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			

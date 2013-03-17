@@ -197,16 +197,20 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private SampleService sampleService;
 	
+	private static final String PLATFORM_UNIT_AREA = "platformunit";
+	private static final String PLATFORM_UNIT_INSTANCE_AREA = "platformunitInstance";
+	private static final String RUN_INSTANCE_AREA = "runInstance";
+	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
-		return new MetaHelperWebapp("platformunit", SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp(PLATFORM_UNIT_AREA, SampleMeta.class, request.getSession());
 	}
 	
 	private final MetaHelperWebapp getMetaHelperWebappPlatformUnitInstance() {
-		return new MetaHelperWebapp("platformunitInstance", SampleMeta.class, request.getSession());
+		return new MetaHelperWebapp(PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class, request.getSession());
 	}
 
 	private final MetaHelperWebapp getMetaHelperWebappRunInstance() {
-		return new MetaHelperWebapp("runInstance", RunMeta.class, request.getSession());
+		return new MetaHelperWebapp(RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
 	}
 
 	//entry to platformunit grid
@@ -214,7 +218,7 @@ public class PlatformUnitController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showListShell(ModelMap m) {
 		m.addAttribute("_metaList", getMetaHelperWebapp().getMasterList(SampleMeta.class));
-		m.addAttribute(JQFieldTag.AREA_ATTR, "platformunit");
+		m.addAttribute(JQFieldTag.AREA_ATTR, PLATFORM_UNIT_AREA);
 		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 		
 		return "facility/platformunit/list";
@@ -270,7 +274,7 @@ public class PlatformUnitController extends WaspController {
 		}		
 		
 		Map<String, String> queryMap = new HashMap<String, String>();
-		queryMap.put("sampleType.iName", "platformunit");//restrict to platformUnit
+		queryMap.put("sampleType.iName", PLATFORM_UNIT_AREA);//restrict to platformUnit
 		//deal with those attributes that can be searched for directly in table sample (sample.name and sample.sampleSubtype)
 		if(nameFromGrid != null){
 			queryMap.put("name", nameFromGrid);//and restrict to the passed name
@@ -322,7 +326,7 @@ public class PlatformUnitController extends WaspController {
 			if(readTypeFromGrid != null && readlengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
 					 try {
-						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, "platformunitInstance", SampleMeta.class);
+						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
 						  if(readProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
 								platformUnitsFoundInSearch.add(sample);
 					  } catch (MetadataException e) {
@@ -335,7 +339,7 @@ public class PlatformUnitController extends WaspController {
 			if(readlengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
 					 try {
-						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, "platformunitInstance", SampleMeta.class);
+						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
 						  if(readProperties.getReadLength().equals(Integer.parseInt(readlengthFromGrid)))
 								platformUnitsFoundInSearch.add(sample);
 					  } catch (MetadataException e) {
@@ -437,34 +441,16 @@ public class PlatformUnitController extends WaspController {
 			List<Sample> samplePage = platformUnitList.subList(frId, toId);
 			for (Sample sample : samplePage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", sample.getSampleId());
+				cell.put("id", sample.getId());
 				 
 				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
 				
 				String cellcount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample).toString();//throws exception if sample is not platformUnit
-				
-				String readlength = "";
-				String readType = "";
-				
-				for(SampleMeta sm : sampleMetaList){
-					if( sm.getK().indexOf("readlength") > -1 ){
-						readlength = sm.getV();
-					}
-					if( sm.getK().indexOf("readType") > -1 ){
-						readType = sm.getV();
-					}
-					//9-25-12 for cellcount begin to use sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnitInDatabase);
-					//if( sm.getK().indexOf("cellcount") > -1 ){
-					//	cellcount = sm.getV();
-					//}
-					if( sm.getK().indexOf("comment") > -1 ){
-					}
-					if( sm.getK().indexOf("resourceCategoryId") > -1 ){
-					}
-				}
-				//logger.debug("resourceCategoryIdAsString: " + resourceCategoryIdAsString);
-				try{
-				}catch(NumberFormatException e){
+				SequenceReadProperties readProperties = new SequenceReadProperties();
+				try {
+					readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
+				} catch (MetadataException e) {
+					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 				}
 				String barcode = "";
 				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
@@ -477,11 +463,11 @@ public class PlatformUnitController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(sample.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							"<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getSampleId()+".do>"+sample.getName()+"</a>",
+							"<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getId()+".do>"+sample.getName()+"</a>",
 							barcode,
 							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
-							readType,
-							readlength,
+							readProperties.getReadType(),
+							readProperties.getReadLength().toString(),
 							cellcount
 				}));
 				 
@@ -561,7 +547,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		
 		try{
-			List<SampleSubtype> sampleSubtypes = sampleService.getSampleSubtypesBySampleTypeIName("platformunit");//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
+			List<SampleSubtype> sampleSubtypes = sampleService.getSampleSubtypesBySampleTypeIName(PLATFORM_UNIT_AREA);//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
 			if(sampleSubtypes.size()==0){
 				throw new Exception("No SampleSubtypes with SampleType of 'platformunit' found in database");
 			}
@@ -713,7 +699,7 @@ public class PlatformUnitController extends WaspController {
 				//DO I NEED THIS Next line??? It seems to be sent back automagically, even if the next line is missing (next line added 10-10-12)
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
 				
-				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName("platformunit"));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
+				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName(PLATFORM_UNIT_AREA));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
 				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
 				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
@@ -755,13 +741,16 @@ public class PlatformUnitController extends WaspController {
 			m.addAttribute("typeOfPlatformUnit", platformUnit.getSampleSubtype().getName());
 			m.addAttribute("barcodeName", platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
 			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString());
-			
+			SequenceReadProperties readProperties = new SequenceReadProperties();
+			try {
+				readProperties = SequenceReadProperties.getSequenceReadProperties(platformUnit, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
+			} catch (MetadataException e) {
+				logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+			}
+			m.addAttribute("readlength", readProperties.getReadLength());
+			m.addAttribute("readType", readProperties.getReadType());	
 			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
 			String area = metaHelperWebapp.getArea();
-			String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit.getSampleMeta());
-			m.addAttribute("readlength", readlength);
-			String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit.getSampleMeta());
-			m.addAttribute("readType", readType);	
 			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			
@@ -785,22 +774,17 @@ public class PlatformUnitController extends WaspController {
 			
 			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
 			for(Run sequenceRun : sequenceRuns){
+				SequenceReadProperties runReadProperties = new SequenceReadProperties();
+				try {
+					runReadProperties = SequenceReadProperties.getSequenceReadProperties(sequenceRun, RunMeta.class);
+				} catch (MetadataException e) {
+					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
+				}
 				
 				Map<String,String> detailMap = new HashMap<String, String>();
 				
-				String readlength2 = new String("unknown");
-				try{
-					readlength2 = MetaHelperWebapp.getMetaValue(area2, "readlength", sequenceRun.getRunMeta());					
-				}catch(Exception e){}
-				////readLengthForRuns.add(readlength2);
-				detailMap.put("readlength", readlength2);
-				
-				String readType2 = new String("unknown");
-				try{
-					readType2 = MetaHelperWebapp.getMetaValue(area2, "readType", sequenceRun.getRunMeta());
-				}catch(Exception e){}
-				////readTypeForRuns.add(readType2);
-				detailMap.put("readType", readType2);
+				detailMap.put("readlength", runReadProperties.getReadLength().toString());
+				detailMap.put("readType", runReadProperties.getReadType());
 				
 				String dateRunStarted = new String("not set");
 				if(sequenceRun.getStartts()!=null){
@@ -1432,7 +1416,7 @@ public class PlatformUnitController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		//confirm flowcell (platformUnit)
-		if( !platformUnit.getSampleType().getIName().equals("platformunit") ){
+		if( !platformUnit.getSampleType().getIName().equals(PLATFORM_UNIT_AREA) ){
 			//message - not a flow cell
 			logger.warn("PlatformUnit not a flow cell");
 			return return_string;

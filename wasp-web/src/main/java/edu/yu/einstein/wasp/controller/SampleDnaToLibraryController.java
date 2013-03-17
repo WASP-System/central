@@ -5,13 +5,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -50,14 +47,12 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -314,23 +309,6 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
 	 
-	  //  1/4/12  think this is old code with no effect
-	  //see if someone rejected this job and if so, find out who
-	  /*
-	  String newK = null;
-	  String newV = null;
-	  for(JobMeta jm : job.getJobMeta()){
-		  for(String jobApproveCode : jobApprovalsMap.keySet()){
-			  if(jobApproveCode.equals(jm.getK())){
-				  newK = new String(jobApproveCode);
-				  newV = new String(jm.getV());
-				  break;
-			  }
-		  }
-	  }
-	  if(newK != null && newV != null){jobApprovalsMap.put(newK, newV);}
-	  */
-	  
 	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
 	  //get the jobApprovals Comments (if any)
 	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
@@ -908,99 +886,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return "redirect:/sampleDnaToLibrary/sampledetail_ro/" + jobId + "/" + sampleId + ".do";
 
   }
-/*  
-  //no longer used, replaced by JobService.getExtraJobDetails(job);
-  private Map<String, String> getExtraJobDetails(Job job){
-	  
-	  //replaced by JobService.getExtraJobDetails(job); should be able to remove safely
-	  
-	  Map<String, String> extraJobDetailsMap = new HashMap<String, String>();
 
-	  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
-	  for(JobResourcecategory jrc : jobResourceCategoryList){
-		  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
-			  extraJobDetailsMap.put("Machine", jrc.getResourceCategory().getName());
-			  break;
-		  }
-	  }
-	  for(JobMeta jobMeta : job.getJobMeta()){
-		  if(jobMeta.getK().indexOf("readLength") != -1){
-			  extraJobDetailsMap.put("Read Length", jobMeta.getV());
-		  }
-		  if(jobMeta.getK().indexOf("readType") != -1){
-			  extraJobDetailsMap.put("Read Type", jobMeta.getV().toUpperCase());
-		  }
-	  }
-
-	  return extraJobDetailsMap;	  
-  }
-
- // can be removed, as replaced by jobService.getSubmittedSamples(job)
-  private List<Sample> getSubmittedSamplesViaJobCell(Job job){
-	  
-	  //replaced by jobService.getSubmittedSamples(job)
-	  //so do not use this private method
-	  
-	  
-	  //For a list of the samples initially submitted to a job, pull from table jobcell
-	  //exclude duplicates by using a set
-	  //transfer to list and order by sample name
-	  //Note that table jobsample is not appropriate as it will contain libraries made by the facility (from submitted macromolecules)
-	  Set<Sample> samplesSet = new HashSet<Sample>();//use this to store a set of unique samples submitted by the user for a specific job; use treeset as it is ordered (by what I don't know)
-	  Map filterJobCell = new HashMap();
-	  filterJobCell.put("jobId", job.getId());
-	  List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filterJobCell);
-	  for(JobCellSelection jobCellSelection : jobCellSelections){
-		  List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
-		  for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelections){
-			   samplesSet.add(sampleJobCellSelection.getSample());
-		  }
-	  }	  
-	  List<Sample> submittedSamples = new ArrayList<Sample>();//need list in order to sort (sets do not sort)
-	  for(Sample sample : samplesSet){
-		  submittedSamples.add(sample);
-	  }
-	  class SampleNameComparator implements Comparator<Sample> {
-		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-
-	  Collections.sort(submittedSamples, new SampleNameComparator());//for class SampleNameComparator, see end of this file
-	  
-	  return submittedSamples;
-	  
-  }
-  
-  // this method appears NOT to be used 
-  private List<Sample> getSubmittedSamplesViaJobSample(Job job){
-	  
-	  //Get list of all samples for a job from table jobsample
-	  //This will include gDNA, RNA, libraries submitted by a user, and libraries created by the facility.
-	  //Then, filter out all those samples that are libraries created by the facility (any sampleid that appears in samplesource.sampleid)
-	  List<Sample> submittedSamples = new ArrayList<Sample>();
-	  Map filterJobCell = new HashMap();
-	  filterJobCell.put("jobId", job.getId());
-	  List<JobSample> jobSamples = jobSampleDao.findByMap(filterJobCell);
-	  for(JobSample jobSample : jobSamples){
-		  Sample sample  = jobSample.getSample();
-		  if(sample.getSampleSource().size() == 0){//it's NOT a facility-generated library
-			  submittedSamples.add(sample);
-		  }
-	  }	  
-	  class SampleNameComparator implements Comparator<Sample> {
-		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-	  Collections.sort(submittedSamples, new SampleNameComparator());//sort by sample's name; for class SampleNameComparator, see end of this file
-	  
-	  return submittedSamples;
-	  
-  }
-  */
   /**
    * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
    * @param formSample

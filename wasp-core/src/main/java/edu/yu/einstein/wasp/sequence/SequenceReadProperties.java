@@ -2,6 +2,9 @@ package edu.yu.einstein.wasp.sequence;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.WaspMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -10,6 +13,8 @@ import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
 public class SequenceReadProperties {
+
+	private static final Logger logger = LoggerFactory.getLogger(SequenceReadProperties.class);
 	
 	static class ReadType{
 		public static final String SINGLE = "single";
@@ -23,7 +28,7 @@ public class SequenceReadProperties {
 		}
 	}
 	
-	public static final String READ_LENGTH_KEY = "readLength";
+	public static final String READ_LENGTH_KEY = "readlength";
 	public static final String READ_TYPE_KEY = "readType";
 	
 	private String readType;
@@ -71,13 +76,17 @@ public class SequenceReadProperties {
 		if (area != null)
 			metaHelper.setArea(area);
 		try{
-			metaHelper.setMetaList((List<? extends MetaBase>) metaClass.getMethod("get" + metaClass.getSimpleName()).invoke(modelInstance));
+			metaHelper.setMetaList((List<? extends MetaBase>) modelInstance.getClass().getDeclaredMethod("get" + metaClass.getSimpleName()).invoke(modelInstance));
 			try{
 				type = metaHelper.getMetaValueByName(READ_TYPE_KEY);
-			} catch (MetadataException e){}
+			} catch (MetadataException e){
+				logger.debug("Not setting readType as cannot find in meta with key " + area + "." + READ_TYPE_KEY + " for sample with id=" + modelInstance.getId());
+			}
 			try{
 				length = Integer.parseInt(metaHelper.getMetaValueByName(READ_LENGTH_KEY));
-			} catch (MetadataException e){}
+			} catch (MetadataException e){
+				logger.debug("Not setting readLength as cannot find in meta with key " + area + "." + READ_LENGTH_KEY + " for sample with id=" + modelInstance.getId());
+			}
 		} catch (Exception e){
 			throw new MetadataException("Failed to get metadata for modelInstance");
 		}
