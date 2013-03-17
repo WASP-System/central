@@ -787,18 +787,18 @@ public class PlatformUnitController extends WaspController {
 				detailMap.put("readType", runReadProperties.getReadType());
 				
 				String dateRunStarted = new String("not set");
-				if(sequenceRun.getStartts()!=null){
+				if(sequenceRun.getStarted()!=null){
 					try{				
-						dateRunStarted = new String(formatter.format(sequenceRun.getStartts()));//yyyy/MM/dd
+						dateRunStarted = new String(formatter.format(sequenceRun.getStarted()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				////startDateForRuns.add(dateRunStarted);
 				detailMap.put("dateRunStarted", dateRunStarted);
 				
 				String dateRunEnded = new String("not set");
-				if(sequenceRun.getEnDts()!=null){					
+				if(sequenceRun.getFinished()!=null){					
 					try{				
-						dateRunEnded = new String(formatter.format(sequenceRun.getEnDts()));//yyyy/MM/dd
+						dateRunEnded = new String(formatter.format(sequenceRun.getFinished()));//yyyy/MM/dd
 					}catch(Exception e){}
 					
 				}

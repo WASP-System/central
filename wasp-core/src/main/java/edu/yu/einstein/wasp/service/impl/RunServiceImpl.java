@@ -198,7 +198,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			run.setName(runInstance.getName());//set by system
 			run.setUserId(runInstance.getUserId());
 			//run.setStartts(new Date());//THIS MUST CHANGE so that it's gotten from param or the runInstance object
-			run.setStartts(runInstance.getStartts());
+			run.setStarted(runInstance.getStarted());
 			
 			run.setResourceId(sequencingMachineInstance.getResourceId());
 			run.setResourceCategoryId(resourceCategory.getResourceCategoryId());
@@ -230,7 +230,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		newRun.setName(runName.trim());
 		newRun.setPlatformUnit(platformUnit);//set the flow cell
 		newRun.setUser(technician);
-		newRun.setStartts(dateStart);
+		newRun.setStarted(dateStart);
 		newRun = runDao.save(newRun);
 		logger.debug("-----");
 		logger.debug("saved new run runid=" + newRun.getRunId().intValue());
@@ -299,7 +299,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		run.setName(runName.trim());
 		run.setPlatformUnit(platformUnit);
 		run.setUser(technician);
-		run.setStartts(dateStart);
+		run.setStarted(dateStart);
 
 		run = runDao.save(run);//since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
 		

@@ -346,26 +346,26 @@ public class RunController extends WaspController {
 		
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(dateRunStartedFromGridAsDate != null){
-			dateMap.put("startts", dateRunStartedFromGridAsDate);
+			dateMap.put("started", dateRunStartedFromGridAsDate);
 		}
 		if(dateRunEndedFromGridAsDate != null){
-			dateMap.put("enDts", dateRunEndedFromGridAsDate);
+			dateMap.put("finished", dateRunEndedFromGridAsDate);
 		}
 
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("dateRunStarted")){
-				orderByColumnAndDirection.add("startts " + sord);
+				orderByColumnAndDirection.add("started " + sord);
 			}
 			else if(sidx.equals("dateRunEnded")){
-				orderByColumnAndDirection.add("enDts " + sord);
+				orderByColumnAndDirection.add("finished " + sord);
 			}
 			else if(sidx.equals("name")){//run.name
 				orderByColumnAndDirection.add("name " + sord);
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
-			orderByColumnAndDirection.add("startts desc");
+			orderByColumnAndDirection.add("started desc");
 		}
 		tempRunList = runDao.findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
 
@@ -500,16 +500,16 @@ public class RunController extends WaspController {
 				}
 				
 				String dateRunStarted = new String("not set");
-				if(run.getStartts()!=null){
+				if(run.getStarted()!=null){
 					try{				
-						dateRunStarted = new String(formatter.format(run.getStartts()));//yyyy/MM/dd
+						dateRunStarted = new String(formatter.format(run.getStarted()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
 				String dateRunEnded = new String("not set");
-				if(run.getEnDts()!=null){					
+				if(run.getFinished()!=null){					
 					try{				
-						dateRunEnded = new String(formatter.format(run.getEnDts()));//yyyy/MM/dd
+						dateRunEnded = new String(formatter.format(run.getFinished()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
 				
@@ -746,11 +746,11 @@ public class RunController extends WaspController {
 					metaHelperWebapp.syncWithMaster(runInstance.getRunMeta());
 					runInstance.setRunMeta((List<RunMeta>)metaHelperWebapp.getMetaList());
 					
-					dateRunStarted = new String(formatter.format(runInstance.getStartts()));//yyyy/MM/dd
+					dateRunStarted = new String(formatter.format(runInstance.getStarted()));//yyyy/MM/dd
 					
-					if(runInstance.getEnDts()!=null){
+					if(runInstance.getFinished()!=null){
 						try{
-							dateRunEnded = new String(formatter.format(runInstance.getEnDts()));//yyyy/MM/dd
+							dateRunEnded = new String(formatter.format(runInstance.getFinished()));//yyyy/MM/dd
 						}catch(Exception e){dateRunEnded=new String("UNEXPECTED PROBLEM WITH DATE");}
 					}
 					
@@ -920,14 +920,14 @@ public class RunController extends WaspController {
 			//should really confirm resource is OK, platformunit is ok, resource is OK for the flow cell
 			if(action.equals("create")){
 				//logger.debug("in create1");
-				//if create, then set startts to the date in the parameter (currently that parameter does not exit)
-				runInstance.setStartts(dateRunStartedAsDateObject);
+				//if create, then set started to the date in the parameter (currently that parameter does not exit)
+				runInstance.setStarted(dateRunStartedAsDateObject);
 				runService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.created_success.label");
 			}
 			else if(action.equals("update")){
 				//logger.debug("in update1");
-				runInstance.setStartts(dateRunStartedAsDateObject);
+				runInstance.setStarted(dateRunStartedAsDateObject);
 				runService.createUpdateSequenceRun(runInstance, (List<RunMeta>)metaHelperWebapp.getMetaList(), platformUnitId, resourceId);
 				waspMessage("runInstance.updated_success.label");
 			}
@@ -984,8 +984,8 @@ class RunPlatformUnitBarcodeComparator implements Comparator<Run> {
 class DateRunEndedComparator implements Comparator<Run> {
 	@Override
 	public int compare(Run arg0, Run arg1) {
-		Date date0 = arg0.getEnDts()==null?new Date(0):arg0.getEnDts();
-		Date date1 = arg1.getEnDts()==null?new Date(0):arg1.getEnDts();
+		Date date0 = arg0.getFinished()==null?new Date(0):arg0.getFinished();
+		Date date1 = arg1.getFinished()==null?new Date(0):arg1.getFinished();
 		
 		return date0.compareTo(date1);
 	}
