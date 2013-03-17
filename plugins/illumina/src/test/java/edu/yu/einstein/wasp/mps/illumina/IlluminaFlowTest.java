@@ -220,10 +220,6 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		
 	}
 	
-	@Test
-	public void testListenForQC() throws Exception {
-		jltu.launchStep(WaspIlluminaPlugin.STEP_LISTEN_FOR_QC, getTestParameters());
-	}
 	
 	// @Test
 	public void testSampleSheet() throws Exception {
