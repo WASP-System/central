@@ -28,7 +28,7 @@ public class SequenceReadProperties {
 		}
 	}
 	
-	public static final String READ_LENGTH_KEY = "readlength";
+	public static final String READ_LENGTH_KEY = "readLength";
 	public static final String READ_TYPE_KEY = "readType";
 	
 	private String readType;
@@ -80,12 +80,12 @@ public class SequenceReadProperties {
 			try{
 				type = metaHelper.getMetaValueByName(READ_TYPE_KEY);
 			} catch (MetadataException e){
-				logger.debug("Not setting readType as cannot find in meta with key " + area + "." + READ_TYPE_KEY + " for sample with id=" + modelInstance.getId());
+				logger.debug("Not setting readType as cannot find in meta with key " + area + "." + READ_TYPE_KEY + " for " + modelInstance.getClass().getSimpleName() + " with id=" + modelInstance.getId());
 			}
 			try{
 				length = Integer.parseInt(metaHelper.getMetaValueByName(READ_LENGTH_KEY));
 			} catch (MetadataException e){
-				logger.debug("Not setting readLength as cannot find in meta with key " + area + "." + READ_LENGTH_KEY + " for sample with id=" + modelInstance.getId());
+				logger.debug("Not setting readLength as cannot find in meta with key " + area + "." + READ_LENGTH_KEY + " for " + modelInstance.getClass().getSimpleName() + " with id=" + modelInstance.getId());
 			}
 		} catch (Exception e){
 			throw new MetadataException("Failed to get metadata for modelInstance");

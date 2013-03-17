@@ -807,14 +807,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+		  String area = null;
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
 				  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+				  area = jrc.getResourceCategory().getIName();
 				  break;
 			  }
 		  }
 		  try {
-			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, JobMeta.class);
+			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
 			  extraJobDetailsMap.put("extraJobDetails.readLength.label", readProperties.getReadLength().toString());
 			  extraJobDetailsMap.put("extraJobDetails.readType.label", readProperties.getReadType().toUpperCase());
 		  } catch (MetadataException e) {
