@@ -180,5 +180,14 @@ public interface EmailService  {
 	 * @param String Comment (weaved into email text: comment written by the rejector)
 	 */
 	public void sendJobAbandoned(final Job job, User recipient, String emailTemplate, String whoAbandonedJob, String reasonForAbandoned);
+	
+	/**
+	 * Sends an email to specified recipient stating that a job has been completed   
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format like emails/inform_submitter_job_started)
+	 */
+	public void sendJobCompleted(final Job job, User recipient, String emailTemplate);
+
 }
 

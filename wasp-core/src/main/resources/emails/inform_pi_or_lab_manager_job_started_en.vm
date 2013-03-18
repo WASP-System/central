@@ -5,11 +5,14 @@ WASP: New Job Submission
 a new job request to the Genomics/Epigenomics Shared Facility. The reference number for this submission is J${job.getJobId()} and 
 a brief summary of the request appears below.</p>
 
-<p>This email is being sent to ${pi.firstName} ${pi.lastName} (the Principal Investigator of the lab), and to all designated Lab Managers for this lab, 
-to request that either the PI or Lab Manager approve or reject this new job submission. To review all details of this submission, 
-<a href="${baseUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, and click on the appropriate job number. 
-To approve or reject the submission, select Tasks from the main menu, click on the Lab Management Tasks link, select Job J${job.getJobId()}, 
-choose Approved or Rejected, and then click the Submit button. If you reject this job, please provide a reason in the space provided.</p> 
+<p>This email is being sent to ${pi.firstName} ${pi.lastName} (the Principal Investigator of the lab), 
+and to all designated Lab Managers for this lab, 
+to request that either the PI or Lab Manager approve or reject this new job submission. 
+To approve or reject the submission, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Tasks from the main menu, 
+click on the Lab Management Tasks link, select Job J${job.getJobId()}, choose Approved or Rejected, and then click the Submit button. 
+If you reject this job, please provide a reason in the space provided. 
+(Note that in addition, the Principal Investigator may review all details of this submission by 
+selecting Job/My Submitted Jobs from the main menu, and clicking on the appropriate job number.</p> 
 
 <p>Processing of this request will proceed following:<br />
 1. Approval by the Principal Investigator (or designated Lab Manager) of the laboratory<br />
