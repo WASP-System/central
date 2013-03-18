@@ -1,11 +1,12 @@
-WASP: Job Submission Completed
+WASP: Job Submission Accepted
 <p>Dear ${addressedTo.firstName} ${addressedTo.lastName},</p>
 
-<p>This is to inform you that job submission J${job.getJobId()} has been completed. This job was submitted to the Genomics/Epigenomics 
-Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
-headed by ${pi.firstName} ${pi.lastName}. To review the submission and to obtain your sequencing 
-files, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
-and click on the appropriate job number or click on View Files.</p>
+<p>This is to inform you that job submission J${job.getJobId()} has been accepted by the lab Principal Investigator, by the Sequencing Facility Manager,
+and by the Facility Account Manager. With these approvals in place, work on your samples has begun. Note that this job was submitted 
+to the Genomics/Epigenomics Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
+headed by ${pi.firstName} ${pi.lastName}. While a brief summary of the submission appears below, you may review the entire 
+submission by <a href="${baseUrl}/auth/login.do">logging into WASP</a>, selecting Job/My Submitted Jobs from the main menu, 
+and clicking on the appropriate job number.</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>
 

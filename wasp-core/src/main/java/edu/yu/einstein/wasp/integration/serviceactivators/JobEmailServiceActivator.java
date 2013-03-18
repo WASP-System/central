@@ -57,6 +57,9 @@ public class JobEmailServiceActivator {
 	@Value("${wasp.email.jobabandoned.rolenames:js;pi;lm;fm;da;su;}")
 	private String jobAbandonedRolenames;
 
+	@Value("${wasp.email.jobaccepted.rolenames:js;pi;lm;}")
+	private String jobAcceptedRolenames;
+
 	@Value("${wasp.email.jobcompleted.rolenames:js;pi;lm;fm;da;su;}")
 	private String jobCompletedRolenames;
 
@@ -115,7 +118,7 @@ public class JobEmailServiceActivator {
 				}//end for(User user
 			}//end if (job != null		
 		}//end if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && job
-		else if (   jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) 
+		else if (   ( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) || jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) ) 
 				&& 
 				(   jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)
 					||
@@ -128,6 +131,7 @@ public class JobEmailServiceActivator {
 				String labIdAsString = job.getLab().getId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
 				List<String> rolesForJobAbandoned = convertDelimitedListToArrayList(this.jobAbandonedRolenames, ";");
+				List<String> rolesForJobAccepted = convertDelimitedListToArrayList(this.jobAcceptedRolenames, ";");
 				String whoAbandonedJob = "";
 				String reasonForAbandoned = "";
 				String jobApproveCode = "";
@@ -160,26 +164,39 @@ public class JobEmailServiceActivator {
 					Set<String> grantedAuthoritySet = new HashSet<String>();
 					for(GrantedAuthority ga : grantedAuthorityList){
 						grantedAuthoritySet.add(ga.getAuthority());
-					}					
+					}
+					if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED)){
+						if(rolesForJobAccepted.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
+							emailService.sendJobAccepted(job, user, "emails/inform_job_accepted");
+						}
+						else if(rolesForJobAccepted.contains("lm") && grantedAuthoritySet.contains("lm-" + labIdAsString)){
+							emailService.sendJobAccepted(job, user, "emails/inform_job_accepted");
+						}
+						else if(rolesForJobAccepted.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
+							emailService.sendJobAccepted(job, user, "emails/inform_job_accepted");
+						}
+					}
+					else if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)){
 					//note that it really is not necessary to go through all users since the jobsubmitter, the pi, the correct lab managers, the facilty manager, and superuser can quickly be gotten directly, but.... 
-					if(rolesForJobAbandoned.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);//TODO maybe change this email
+						if(rolesForJobAbandoned.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);//TODO maybe change this email
+						}
+						else if(rolesForJobAbandoned.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
+						}
+						else if(rolesForJobAbandoned.contains("da") && grantedAuthoritySet.contains("da-" + departmentIdAsString)){//dept admin
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
+						}					
+						else if(rolesForJobAbandoned.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
+						}
+						else if(rolesForJobAbandoned.contains("lm") && grantedAuthoritySet.contains("lm-" + labIdAsString)){
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
+						}
+						else if(rolesForJobAbandoned.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
+							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
+						}
 					}
-					else if(rolesForJobAbandoned.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
-					}
-					else if(rolesForJobAbandoned.contains("da") && grantedAuthoritySet.contains("da-" + departmentIdAsString)){//dept admin
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
-					}					
-					else if(rolesForJobAbandoned.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
-					}
-					else if(rolesForJobAbandoned.contains("lm") && grantedAuthoritySet.contains("lm-" + labIdAsString)){
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
-					}
-					else if(rolesForJobAbandoned.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
-						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
-					}	
 				}//end of for(User user				
 			}//end of if(job!=null
 		}//end of else if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) and jobApprovals
