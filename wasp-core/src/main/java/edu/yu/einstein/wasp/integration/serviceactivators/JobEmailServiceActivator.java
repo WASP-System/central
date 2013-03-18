@@ -121,31 +121,25 @@ public class JobEmailServiceActivator {
 					jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)   ) 	){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){
-				logger.debug("ROB ---- at A in js for rejected by an admin or pi for cause");
 				String jobIdAsString = job.getJobId().toString();
 				String labIdAsString = job.getLab().getId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
 				List<String> rolesForJobAbandoned = convertDelimitedListToArrayList(this.jobAbandonedRolenames, ";");
-				logger.debug("ROB ---- at B in js for rejected by an admin or pi for cause");
 				String whoAbandonedJob = "";
 				String reasonForAbandoned = "";
 				String jobApproveCode = "";
 				if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)){
-					logger.debug("ROB ---- at C in js for rejected by an admin or pi for cause");
 					whoAbandonedJob += "Principal Investigator or designated Lab Manager";
 					jobApproveCode = "piApprove";
 				}
 				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE)){
-					logger.debug("ROB ---- at D in js for rejected by an admin or pi for cause");
 					whoAbandonedJob += "Sequencing Facility Manager";
 					jobApproveCode = "fmApprove";
 				}
 				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)){
-					logger.debug("ROB ---- at E in js for rejected by an admin or pi for cause");
 					whoAbandonedJob += "Accounts Manager";
 					jobApproveCode = "daApprove";
 				}
-				logger.debug("ROB ---- at F in js for rejected by an admin or pi for cause");
 				String comment = jobStatusMessageTemplate.getComment();
 				User userWhoCreatedComment = jobStatusMessageTemplate.getUserCreatingMessage();
 				reasonForAbandoned = comment + " (" + userWhoCreatedComment.getNameFstLst() + ")";
@@ -159,7 +153,6 @@ public class JobEmailServiceActivator {
 				*/
 				
 				for(User user : userService.getUserDao().findAll()){
-					logger.debug("ROB ---- at H in js for rejected by an admin or pi for cause");
 					List<GrantedAuthority> grantedAuthorityList = waspJdbcDaoImpl.getUserWaspAuthorities(user.getLogin());
 					Set<String> grantedAuthoritySet = new HashSet<String>();
 					for(GrantedAuthority ga : grantedAuthorityList){
@@ -167,33 +160,24 @@ public class JobEmailServiceActivator {
 					}					
 					//note that it really is not necessary to go through all users since the jobsubmitter, the pi, the correct lab managers, the facilty manager, and superuser can quickly be gotten directly, but.... 
 					if(rolesForJobAbandoned.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
-						logger.debug("ROB ---- at I in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, job.getUser(), "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);//TODO maybe change this email
 					}
 					else if(rolesForJobAbandoned.contains("fm") && (grantedAuthoritySet.contains("fm") || grantedAuthoritySet.contains("fm-*"))){//facility manager
-						logger.debug("ROB ---- at J in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
 					}
 					else if(rolesForJobAbandoned.contains("da") && grantedAuthoritySet.contains("da-" + departmentIdAsString)){//dept admin
-						logger.debug("ROB ---- at K in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
 					}					
 					else if(rolesForJobAbandoned.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
-						logger.debug("ROB ---- at K in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
 					}
 					else if(rolesForJobAbandoned.contains("lm") && grantedAuthoritySet.contains("lm-" + labIdAsString)){
-						logger.debug("ROB ---- at M in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
 					}
 					else if(rolesForJobAbandoned.contains("js") && grantedAuthoritySet.contains("js-" + jobIdAsString)){//job submitter (but not also pi)
-						logger.debug("ROB ---- at N in js for rejected by an admin or pi for cause");
 						emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);
 					}	
-					logger.debug("ROB ---- at O in js for rejected by an admin or pi for cause");
-				}//end for(User user
-				logger.debug("ROB ---- at P in js for rejected by an admin or pi for cause");
-				
+				}//end for(User user				
 			}
 		}
 				
