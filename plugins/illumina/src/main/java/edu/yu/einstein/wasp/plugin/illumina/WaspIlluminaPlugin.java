@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
@@ -35,7 +36,7 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  * 
  */
-public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding, WebInterfacing {
+public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding, SequencingViewProviding {
 
 	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaPlugin.class);
 
@@ -213,6 +214,12 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 	public Hyperlink getDescriptionPageHyperlink(){
 		return new Hyperlink("waspIlluminaPlugin.hyperlink.label", "/wasp-illumina/description.do");
 	}
+	
+	@Override
+	public String getShowPlatformUnitViewLink(Integer platformUnitId) {
+		return "wasp-illumina/flowcell/showFlowcell/" + platformUnitId.toString() + ".do";
+	}
+
 
 	/**
 	 * @return the casava
