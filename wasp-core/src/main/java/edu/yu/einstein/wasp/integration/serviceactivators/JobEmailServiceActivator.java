@@ -200,7 +200,9 @@ public class JobEmailServiceActivator {
 				}logger.debug("_____________________________ROB--4c");
 				String comment = jobStatusMessageTemplate.getComment();
 				User userWhoCreatedComment = jobStatusMessageTemplate.getUserCreatingMessage();
-				reasonForAbandoned = comment + " (" + userWhoCreatedComment.getNameFstLst() + ")";
+				if(userWhoCreatedComment!=null){
+					reasonForAbandoned = comment + " (" + userWhoCreatedComment.getNameFstLst() + ")";
+				}
 				/* never worked this way
 				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, job.getId());
 				if(metaMessageList.size()>0){
