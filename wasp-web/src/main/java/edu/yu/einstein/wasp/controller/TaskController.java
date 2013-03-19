@@ -554,6 +554,17 @@ public class TaskController extends WaspController {
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		
 		getJobApproveInfo(jobsPendingDaApprovalList, m);
+		
+		 //does the jobPendingDaApproval also require a quote?
+		//added so that a DA must quote the job before approving the job
+		  Map<Job, String> quoteMap = new HashMap<Job, String>();
+		  for(Job job : jobsPendingDaApprovalList){
+			  if(jobService.isJobAwaitingQuote(job)){
+				  quoteMap.put(job, "true");
+			  }
+			  else{quoteMap.put(job, "false");}
+		  }
+		  m.addAttribute("quotemap", quoteMap);
 
 		return "task/daapprove/list";
 	}
