@@ -25,15 +25,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import edu.yu.einstein.wasp.controller.PlatformUnitController;
-import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
@@ -105,8 +104,8 @@ public class WaspIlluminaController extends WaspController {
 			} catch (MetadataException e) {
 				logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 			}
-			m.addAttribute("readlength", readProperties.getReadLength());
-			m.addAttribute("readType", readProperties.getReadType());	
+			m.addAttribute(SequenceReadProperties.READ_LENGTH_KEY, readProperties.getReadLength());
+			m.addAttribute(SequenceReadProperties.READ_TYPE_KEY, readProperties.getReadType());	
 			String comment = MetaHelperWebapp.getMetaValue(PlatformUnitController.PLATFORM_UNIT_INSTANCE_AREA, "comment", platformUnit.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			
@@ -126,8 +125,8 @@ public class WaspIlluminaController extends WaspController {
 				
 				Map<String,String> detailMap = new HashMap<String, String>();
 				
-				detailMap.put("readlength", runReadProperties.getReadLength().toString());
-				detailMap.put("readType", runReadProperties.getReadType());
+				detailMap.put(SequenceReadProperties.READ_LENGTH_KEY, runReadProperties.getReadLength().toString());
+				detailMap.put(SequenceReadProperties.READ_TYPE_KEY, runReadProperties.getReadType());
 				
 				String dateRunStarted = new String("not set");
 				if(sequenceRun.getStarted()!=null){
@@ -288,10 +287,10 @@ public class WaspIlluminaController extends WaspController {
 		Resource resource;
 		resource = resourceService.getResourceDao().getResourceByResourceId(new Integer(resourceId));
 		ResourceCategory resourceCategory = resource.getResourceCategory();
-		for(SelectOptionsMeta som : getResourceCategoryMetaList(resourceCategory, "readType"))
-			readType.append("<option value='"+som.getValuePassedBack()+"'>"+som.getValueVisible()+"</option>");
-		for(SelectOptionsMeta som : getResourceCategoryMetaList(resourceCategory, "readlength"))
-			readLength.append("<option value='"+som.getValuePassedBack()+"'>"+som.getValueVisible()+"</option>");
+		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_TYPE_KEY))
+			readType.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
+		for(Option som : resourceService.getResourceCategorySelectOptions(resourceCategory, SequenceReadProperties.READ_LENGTH_KEY))
+			readLength.append("<option value='"+som.getValue()+"'>"+som.getLabel()+"</option>");
 		returnString = new String(readType + "****" + readLength);
 		//logger.debug("The return string = " + returnString);
 		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
@@ -336,8 +335,8 @@ public class WaspIlluminaController extends WaspController {
 			} catch (MetadataException e) {
 				logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 			}
-			m.addAttribute("readlength", readProperties.getReadLength());
-			m.addAttribute("readType", readProperties.getReadType());
+			m.addAttribute(SequenceReadProperties.READ_LENGTH_KEY, readProperties.getReadLength());
+			m.addAttribute(SequenceReadProperties.READ_TYPE_KEY, readProperties.getReadType());
 			String comment = MetaHelperWebapp.getMetaValue(PlatformUnitController.PLATFORM_UNIT_INSTANCE_AREA, "comment", platformUnit.getSampleMeta());
 			m.addAttribute("comment", comment);			
 			
@@ -380,8 +379,8 @@ public class WaspIlluminaController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), runInstance);//metaHelperWebapp.getParentArea() is run
 				
 				Resource requestedSequencingMachine = sampleService.getSequencingMachineByResourceId(resourceId);
-				m.addAttribute("readlengths", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readlength"));
-				m.addAttribute("readTypes", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readType"));
+				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
 
 				m.addAttribute("technicians", userService.getFacilityTechnicians());
 				m.addAttribute("dateRunStarted", dateRunStarted);
@@ -390,32 +389,17 @@ public class WaspIlluminaController extends WaspController {
 			
 			m.addAttribute("runId", runId);
 			m.addAttribute("resourceId", resourceId);
-			m.addAttribute("platformUnitId", platformUnit.getId().toString());			
+			m.addAttribute("platformUnitId", platformUnit.getId().toString());	
 			
 		}catch(Exception e){
 			logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
 		}
 
-		return "run/createUpdateRun";
+		return "wasp-illumina/flowcell/createUpdateRun";
 
 	}
 	
-	//helper method for createUpdateRun
-	private List<SelectOptionsMeta> getResourceCategoryMetaList(ResourceCategory resourceCategory, String metaKey) {
-			
-		List<SelectOptionsMeta> list = new ArrayList<SelectOptionsMeta>();
-		for(ResourceCategoryMeta rcm : resourceCategory.getResourceCategoryMeta()){
-			if( rcm.getK().indexOf(metaKey) > -1 ){//such as readlength
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String[] colonTokens = token.split(":");
-					list.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));							
-				}
-			}		
-		}	
-		return list;
-	}
 
 	//createUpdateRun - Post
 	@SuppressWarnings("unchecked")
@@ -521,10 +505,10 @@ public class WaspIlluminaController extends WaspController {
 				m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString());
 				
 				String area = platformUnitController.PLATFORM_UNIT_INSTANCE_AREA;
-				String readlength = MetaHelperWebapp.getMetaValue(area, "readlength", platformUnit.getSampleMeta());
-				m.addAttribute("readlength", readlength);
-				String readType = MetaHelperWebapp.getMetaValue(area, "readType", platformUnit.getSampleMeta());
-				m.addAttribute("readType", readType);	
+				String readLength = MetaHelperWebapp.getMetaValue(area, SequenceReadProperties.READ_LENGTH_KEY, platformUnit.getSampleMeta());
+				m.addAttribute(SequenceReadProperties.READ_LENGTH_KEY, readLength);
+				String readType = MetaHelperWebapp.getMetaValue(area, SequenceReadProperties.READ_TYPE_KEY, platformUnit.getSampleMeta());
+				m.addAttribute(SequenceReadProperties.READ_TYPE_KEY, readType);	
 				String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit.getSampleMeta());
 				m.addAttribute("comment", comment);			
 							
@@ -538,8 +522,8 @@ public class WaspIlluminaController extends WaspController {
 				m.put("resources", resources);
 
 				Resource requestedSequencingMachine = sampleService.getSequencingMachineByResourceId(resourceId);
-				m.addAttribute("readlengths", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readlength"));
-				m.addAttribute("readTypes", getResourceCategoryMetaList(requestedSequencingMachine.getResourceCategory(), "readType"));
+				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
 
 				m.addAttribute("technicians", userService.getFacilityTechnicians());
 				m.addAttribute("dateRunStarted",dateRunStarted);
@@ -549,7 +533,7 @@ public class WaspIlluminaController extends WaspController {
 				m.addAttribute("resourceId", resourceId);
 				m.addAttribute("platformUnitId", platformUnit.getId().toString());
 				
-				return "run/createUpdateRun";				
+				return "wasp-illumina/flowcell/createUpdateRun";				
 				
 			}//end of if errors
 			
@@ -601,8 +585,8 @@ public class WaspIlluminaController extends WaspController {
 	public String createNewRun(@RequestParam("platformUnitId") Integer platformUnitId,
 			@RequestParam("runName") String runName,
 			@RequestParam("resourceId") Integer resourceId,
-			@RequestParam("readLength") String readLength,
-			@RequestParam("readType") String readType,
+			@RequestParam(SequenceReadProperties.READ_LENGTH_KEY) String readLength,
+			@RequestParam(SequenceReadProperties.READ_TYPE_KEY) String readType,
 			@RequestParam("technicianId") Integer technicianId,
 			@RequestParam("runStartDate") String runStartDate,
 			@RequestParam(value="runId", required=false) Integer runId,
@@ -665,7 +649,7 @@ public class WaspIlluminaController extends WaspController {
 		ResourceCategory resourceCategory = machineInstance.getResourceCategory();
 		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
 		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-			if( rcm.getK().indexOf("readType") > -1 ){
+			if( rcm.getK().indexOf(SequenceReadProperties.READ_TYPE_KEY) > -1 ){
 				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
 				for(String token : tokens){//token could be single:single
 					String [] innerTokens = token.split(":");
@@ -676,7 +660,7 @@ public class WaspIlluminaController extends WaspController {
 					}
 				}
 			}
-			if( rcm.getK().indexOf("readlength") > -1 ){
+			if( rcm.getK().indexOf(SequenceReadProperties.READ_LENGTH_KEY) > -1 ){
 				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
 				for(String token : tokens){//token could be 50:50
 					String [] innerTokens = token.split(":");

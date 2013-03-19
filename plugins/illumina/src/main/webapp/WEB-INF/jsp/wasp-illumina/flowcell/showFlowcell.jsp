@@ -8,7 +8,7 @@
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.barcodeName.label"/>:</td><td class="DataTD"><c:out value="${barcodeName}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readType.label"/>:</td><td class="DataTD"><c:out value="${readType}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readlength.label"/>:</td><td class="DataTD"><c:out value="${readlength}" /></td></tr>
+<tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.readLength.label"/>:</td><td class="DataTD"><c:out value="${readLength}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="waspIlluminaPlugin.showPlatformUnit_cellcount.label"/>:</td><td class="DataTD"><c:out value="${numberOfCellsOnThisPlatformUnit}" /></td></tr>
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.comment.label"/>:</td><td class="DataTD"><textarea style='font-size:9px' DISABLED cols='30' rows='4' wrap='virtual'><c:out value="${comment}" /></textarea></td></tr>
 <tr><td colspan='2' style='text-align:center; padding:10px' >
@@ -43,7 +43,7 @@
 <td class="value-centered-small"><c:out value="${sequenceRun.getName()}" /></td>
 <td class="value-centered-small"><c:out value="${sequenceRun.resource.name}" /> - <c:out value="${sequenceRun.resourceCategory.name}" /></td>
 <c:set var="detailMap" value="${runDetails[sequenceRun.runId]}" scope="page" />
-<td class="value-centered-small"><c:out value='${detailMap["readlength"]}' /></td>
+<td class="value-centered-small"><c:out value='${detailMap["readLength"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["readType"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
@@ -185,7 +185,7 @@
 						</div>						
 					
 					</c:forEach>
-					<form  name='removeLib' method='post' action="<c:url value="/wasp-illumina/flowcell/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
+					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
 						<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 						<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
 						<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
