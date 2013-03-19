@@ -11,7 +11,8 @@ select Job/My Submitted Jobs from the main menu, and click on the appropriate jo
 3. Confirmation of funds availability by our Accounts Manager<br />
 4. Arrival of your samples at the facility<br /></p>
 <p>A separate email has been sent to ${pi.firstName} ${pi.lastName}, the PI of your lab, 
-requesting that (s)he review the job submission and either approve or withdraw it.</p> 
+requesting that (s)he review the job submission and either approve or withdraw it. Note that if your lab has a 
+designated WASP lab manager, (s)he has also been notified of your submission and can approve or withdraw it.</p> 
 <p>Note New Drop-off Times: Please drop off your samples on Mondays, Wednesdays, and Fridays between 2 pm and 4 pm (Price 159).</p>
 <p>Should you have any further questions, please contact us using the information below.</p>
 <p>Regards,<br />The WASP Team<br /></p>

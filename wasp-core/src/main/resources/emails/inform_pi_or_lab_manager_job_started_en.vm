@@ -12,7 +12,7 @@ To approve or reject the submission, <a href="${baseUrl}/auth/login.do">log into
 click on the Lab Management Tasks link, select Job J${job.getJobId()}, choose Approved or Rejected, and then click the Submit button. 
 If you reject this job, please provide a reason in the space provided. 
 (Note that in addition, the Principal Investigator may review all details of this submission by 
-selecting Job/My Submitted Jobs from the main menu, and clicking on the appropriate job number.</p> 
+selecting Job/My Submitted Jobs from the main menu, and clicking on the appropriate job number.)</p> 
 
 <p>Processing of this request will proceed following:<br />
 1. Approval by the Principal Investigator (or designated Lab Manager) of the laboratory<br />
