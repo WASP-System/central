@@ -175,17 +175,17 @@ public class JobEmailServiceActivator {
 					
 					( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS) )//all three accepted the job
 					
-				){		 System.out.println("ROB--4--in either abaondoned or accepted area");	
+				){		 logger.debug("_____________________________ROB--4--in either abaondoned or accepted area");	
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){
-				String jobIdAsString = job.getJobId().toString();
+				String jobIdAsString = job.getJobId().toString();logger.debug("_____________________________ROB--4aaa");
 				String labIdAsString = job.getLab().getId().toString();
 				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
 				List<String> rolesForJobAbandoned = convertDelimitedListToArrayList(this.jobAbandonedRolenames, ";");
 				List<String> rolesForJobAccepted = convertDelimitedListToArrayList(this.jobAcceptedRolenames, ";");
 				String whoAbandonedJob = "";
 				String reasonForAbandoned = "";
-				String jobApproveCode = "";
+				String jobApproveCode = "";logger.debug("_____________________________ROB--4b");
 				if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)){
 					whoAbandonedJob += "Principal Investigator or designated Lab Manager";
 					jobApproveCode = "piApprove";
@@ -197,7 +197,7 @@ public class JobEmailServiceActivator {
 				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)){
 					whoAbandonedJob += "Accounts Manager";
 					jobApproveCode = "daApprove";
-				}
+				}logger.debug("_____________________________ROB--4c");
 				String comment = jobStatusMessageTemplate.getComment();
 				User userWhoCreatedComment = jobStatusMessageTemplate.getUserCreatingMessage();
 				reasonForAbandoned = comment + " (" + userWhoCreatedComment.getNameFstLst() + ")";
@@ -209,7 +209,7 @@ public class JobEmailServiceActivator {
 					//reasonForAbandoned += mm.getValue();//unfortunately, this comes up empty, since same transaction or too fast, so use jobStatusMessageTemplate
 				}
 				*/
-				
+				logger.debug("_____________________________ROB--4d");
 				List<String> newRolesForJobAbandoned = new ArrayList<String>();
 				for(String str : rolesForJobAbandoned){
 					if(!str.equalsIgnoreCase("su") && !str.equalsIgnoreCase("fm") && 
@@ -225,7 +225,7 @@ public class JobEmailServiceActivator {
 						newRolesForJobAccepted.add(str);
 					}						
 				}
-
+				logger.debug("_____________________________ROB--4e");
 				
 				for(User user : userService.getUserDao().findAll()){
 					List<GrantedAuthority> grantedAuthorityList = waspJdbcDaoImpl.getUserWaspAuthorities(user.getLogin());
@@ -233,7 +233,7 @@ public class JobEmailServiceActivator {
 					for(GrantedAuthority ga : grantedAuthorityList){
 						grantedAuthoritySet.add(ga.getAuthority());
 					}
-					if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED)){System.out.println("ROB--5--should print for accpted");
+					if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED)){logger.debug("_______________________ROB--5--should print for accpted");
 						if(rolesForJobAccepted.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
 							emailService.sendJobAccepted(job, user, "emails/inform_job_accepted");
 						}
