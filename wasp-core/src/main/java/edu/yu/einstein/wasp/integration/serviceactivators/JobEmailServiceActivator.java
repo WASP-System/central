@@ -80,17 +80,30 @@ public class JobEmailServiceActivator {
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
 		}
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
-		
+		for(int i = 0; i < 20; i++){
+			System.out.println("----------ROB--i=" + i);
+			logger.debug("----------ROB--i=" + i);
+		}
+		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) ){
+			 System.out.println("ROB--0--message is STARTED");
+			 logger.debug("ROB--2--message is STARTED");
+		 }
 		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) ){
 			 System.out.println("ROB--1--message is abandoned");
+			 logger.debug("ROB--1--message is abandoned");
 		 }
 		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) ){
 			 System.out.println("ROB--2--message is accepted");
+			 logger.debug("ROB--2--message is accepted");
 		 }
 		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
 			 System.out.println("ROB--3--message is accepted and with notify status");
+			 logger.debug("ROB--3--message is accepted and with notify status");
 		 }
-		
+		for(int i = 30; i < 40; i++){
+			System.out.println("----------ROB--i=" + i);
+			logger.debug("----------ROB--i=" + i);
+		}
 		
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
