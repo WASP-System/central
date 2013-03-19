@@ -136,7 +136,7 @@ public class JobEmailServiceActivator {
 				}//end for(User user
 			}//end if (job != null		
 		}//end if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && job
-		else if (    jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)  
+		else if (    (jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)  
 					&& 
 					(
 						jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)//at least one rejected job
@@ -144,7 +144,7 @@ public class JobEmailServiceActivator {
 						jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE)
 						||
 						jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)
-					)
+					))
 					
 					|| 
 					
