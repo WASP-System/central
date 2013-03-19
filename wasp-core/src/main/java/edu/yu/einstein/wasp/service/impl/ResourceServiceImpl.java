@@ -1,6 +1,15 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.List;
+
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
+import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.service.ResourceService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +45,9 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	
 	@Autowired
 	private ResourceTypeDao resourceTypeDao;
+	
+	@Autowired
+	private SampleService sampleService;
 
 	@Override
 	public ResourceBarcodeDao getResourceBarcodeDao() {
@@ -66,5 +78,30 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	public ResourceTypeDao getResourceTypeDao() {
 		return resourceTypeDao;
 	} 
+	
+	@Override
+	public ResourceCategory getAssignedResourceCategory(Job job){
+		Assert.assertParameterNotNull(job, "a job must be provided");
+		Assert.assertParameterNotNull(job.getId(), "a valid job must be provided");
+		List<JobResourcecategory> jrc = job.getJobResourcecategory();
+		if (jrc == null || jrc.size() == 0 || jrc.size() > 1){
+			logger.warn("Unable to resolve a unique resource category for job with id=" + job.getId());
+			return null;
+		}
+		return jrc.get(0).getResourceCategory();
+	}
+	
+	@Override
+	public ResourceCategory getAssignedResourceCategory(Sample platformUnit){
+		Assert.assertParameterNotNull(platformUnit, "a sample must be provided");
+		Assert.assertParameterNotNull(platformUnit.getId(), "a valid sample must be provided");
+		Assert.assertTrue(sampleService.isPlatformUnit(platformUnit), "sample must be of type platformUnit");
+		List<SampleSubtypeResourceCategory> src = platformUnit.getSampleSubtype().getSampleSubtypeResourceCategory();
+		if (src == null || src.size() == 0 || src.size() > 1){
+			logger.warn("Unable to resolve a unique resource category for platformUnit with id=" + platformUnit.getId());
+			return null;
+		}
+		return src.get(0).getResourceCategory();
+	}
 
 }

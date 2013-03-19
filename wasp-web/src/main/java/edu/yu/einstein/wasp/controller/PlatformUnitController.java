@@ -23,7 +23,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +36,6 @@ import edu.yu.einstein.wasp.dao.BarcodeDao;
 import edu.yu.einstein.wasp.dao.JobResourcecategoryDao;
 import edu.yu.einstein.wasp.dao.JobSampleDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
-import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
@@ -76,6 +74,7 @@ import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
@@ -144,7 +143,7 @@ public class PlatformUnitController extends WaspController {
 	private ResourceCategoryDao resourceCategoryDao;
 	
 	@Autowired
-	private ResourceDao resourceDao;
+	private ResourceService resourceService;
 
 
 	@Autowired
@@ -197,9 +196,9 @@ public class PlatformUnitController extends WaspController {
 	@Autowired
 	private SampleService sampleService;
 	
-	private static final String PLATFORM_UNIT_AREA = "platformunit";
-	private static final String PLATFORM_UNIT_INSTANCE_AREA = "platformunitInstance";
-	private static final String RUN_INSTANCE_AREA = "runInstance";
+	public static final String PLATFORM_UNIT_AREA = "platformunit";
+	public static final String PLATFORM_UNIT_INSTANCE_AREA = "platformunitInstance";
+	public static final String RUN_INSTANCE_AREA = "runInstance";
 	
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(PLATFORM_UNIT_AREA, SampleMeta.class, request.getSession());
@@ -307,6 +306,7 @@ public class PlatformUnitController extends WaspController {
 		tempPlatformUnitList = sampleService.getSampleDao().findByMapsIncludesDatesDistinctOrderBy(queryMap, dateMap, null, orderByColumnAndDirection);
 		
 		//have to deal with these separately. FIND certain attributes that cannot be dealt with via direct SQL
+		ResourceCategory rcRequested = null;
 		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
 				|| cellcountFromGrid != null || resourceCategoryNameFromGrid != null){
 			
@@ -365,7 +365,7 @@ public class PlatformUnitController extends WaspController {
 				platformUnitsFoundInSearch.clear();
 			}			
 			if(resourceCategoryNameFromGrid != null){//not used
-				ResourceCategory rcRequested = resourceCategoryDao.getResourceCategoryByName(resourceCategoryNameFromGrid);
+				rcRequested = resourceCategoryDao.getResourceCategoryByName(resourceCategoryNameFromGrid);
 				if(rcRequested != null && rcRequested.getResourceCategoryId()!=null){//if not found, then platformUnitsFoundInSearch will be empty, and no records retained
 					for(Sample sample : tempPlatformUnitList){
 						List<SampleMeta> sampleMetaList = sample.getSampleMeta();
@@ -439,33 +439,33 @@ public class PlatformUnitController extends WaspController {
 			}				
 
 			List<Sample> samplePage = platformUnitList.subList(frId, toId);
-			for (Sample sample : samplePage) {
+			for (Sample platformUnit : samplePage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", sample.getId());
+				cell.put("id", platformUnit.getId());
 				 
-				List<SampleMeta> sampleMetaList = sample.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
+				List<SampleMeta> sampleMetaList = platformUnit.getSampleMeta();//getMetaHelperWebappPlatformUnitInstance().syncWithMaster(sample.getSampleMeta());
 				
-				String cellcount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(sample).toString();//throws exception if sample is not platformUnit
+				String cellcount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString();//throws exception if sample is not platformUnit
 				SequenceReadProperties readProperties = new SequenceReadProperties();
 				try {
-					readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
+					readProperties = SequenceReadProperties.getSequenceReadProperties(platformUnit, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
 				} catch (MetadataException e) {
 					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 				}
 				String barcode = "";
-				List<SampleBarcode> sampleBarcodeList = sample.getSampleBarcode();
-				if(sampleBarcodeList != null && sampleBarcodeList.size() > 0){
-					barcode = sampleBarcodeList.get(0).getBarcode().getBarcode();
+				List<SampleBarcode> platformUnitBarcodeList = platformUnit.getSampleBarcode();
+				if(platformUnitBarcodeList != null && platformUnitBarcodeList.size() > 0){
+					barcode = platformUnitBarcodeList.get(0).getBarcode().getBarcode();
 				}
 				
 				Format formatter = new SimpleDateFormat("yyyy/MM/dd");	
 				
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-							formatter.format(sample.getReceiveDts()),//use in this case as record created date
+							formatter.format(platformUnit.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							"<a href=/wasp/facility/platformunit/showPlatformUnit/"+sample.getId()+".do>"+sample.getName()+"</a>",
+							"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit)) + ">" + platformUnit.getName()+ "</a>",
 							barcode,
-							sample.getSampleSubtype()==null?"": sample.getSampleSubtype().getName(),
+							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
 							readProperties.getReadType(),
 							readProperties.getReadLength().toString(),
 							cellcount
@@ -729,168 +729,7 @@ public class PlatformUnitController extends WaspController {
 	}
 	
 
-	@RequestMapping(value = "/showPlatformUnit/{sampleId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String showPlatformUnit(@PathVariable("sampleId") Integer sampleId, ModelMap m){
-		
-		Sample platformUnit; 
-		try{
-			platformUnit = sampleService.getPlatformUnit(sampleId);
-			m.addAttribute("platformUnitSampleId", platformUnit.getSampleId().toString());
-			m.addAttribute("platformUnitSampleSubtypeId", platformUnit.getSampleSubtype().getSampleSubtypeId().toString());
-			m.addAttribute("typeOfPlatformUnit", platformUnit.getSampleSubtype().getName());
-			m.addAttribute("barcodeName", platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode());
-			m.addAttribute("numberOfCellsOnThisPlatformUnit", sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString());
-			SequenceReadProperties readProperties = new SequenceReadProperties();
-			try {
-				readProperties = SequenceReadProperties.getSequenceReadProperties(platformUnit, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
-			} catch (MetadataException e) {
-				logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
-			}
-			m.addAttribute("readlength", readProperties.getReadLength());
-			m.addAttribute("readType", readProperties.getReadType());	
-			MetaHelperWebapp metaHelperWebapp = getMetaHelperWebappPlatformUnitInstance();
-			String area = metaHelperWebapp.getArea();
-			String comment = MetaHelperWebapp.getMetaValue(area, "comment", platformUnit.getSampleMeta());
-			m.addAttribute("comment", comment);			
-			
-			/*
-			Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit2);//Integer is the index in the samplesource.
-			for(int i = 1; i <= indexedCellMap.size(); i++){
-				
-				Sample cell = indexedCellMap.get(new Integer(i));
-				List<Sample> libraryList = sampleService.getLibrariesOnCell(cell);//throws exception
-				
-				
-			}
-			*/
-			
-			List<Run> sequenceRuns = platformUnit.getRun();
-			m.addAttribute("sequenceRuns", sequenceRuns);
-			
-			metaHelperWebapp = getMetaHelperWebappRunInstance();//********note this is now runInstance
-			String area2 = metaHelperWebapp.getArea();
-			Format formatter = new SimpleDateFormat("yyyy/MM/dd");
-			
-			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
-			for(Run sequenceRun : sequenceRuns){
-				SequenceReadProperties runReadProperties = new SequenceReadProperties();
-				try {
-					runReadProperties = SequenceReadProperties.getSequenceReadProperties(sequenceRun, RunMeta.class);
-				} catch (MetadataException e) {
-					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
-				}
-				
-				Map<String,String> detailMap = new HashMap<String, String>();
-				
-				detailMap.put("readlength", runReadProperties.getReadLength().toString());
-				detailMap.put("readType", runReadProperties.getReadType());
-				
-				String dateRunStarted = new String("not set");
-				if(sequenceRun.getStarted()!=null){
-					try{				
-						dateRunStarted = new String(formatter.format(sequenceRun.getStarted()));//yyyy/MM/dd
-					}catch(Exception e){}					
-				}
-				////startDateForRuns.add(dateRunStarted);
-				detailMap.put("dateRunStarted", dateRunStarted);
-				
-				String dateRunEnded = new String("not set");
-				if(sequenceRun.getFinished()!=null){					
-					try{				
-						dateRunEnded = new String(formatter.format(sequenceRun.getFinished()));//yyyy/MM/dd
-					}catch(Exception e){}
-					
-				}
-				////endDateForRuns.add(dateRunEnded);
-				detailMap.put("dateRunEnded", dateRunEnded);
-				
-				////statusForRuns.add(new String("???"));
-				detailMap.put("runStatus", new String("???"));
-				
-				runDetails.put(sequenceRun.getRunId(), detailMap);
-			}
-			m.addAttribute("runDetails", runDetails);
-		}catch(Exception e){
-			logger.warn(e.getMessage());
-			waspErrorMessage("wasp.unexpected_error.error");
-			return "redirect:/dashboard.do";
-		}
-	
-		
-		//10-17-12 the remainder of this page (the items on the flow cell) was not reviewed; it can no doubt do with work
-		
-		
-		//is this flowcell on a run?
-		//////10-17-12List<Run> runList = platformUnit.getRun();
-		//////10-17-12m.put("runList", runList);
-		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
-		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
-		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
-		//Here, just determine if it's locked
-		SampleServiceImpl.LockStatus platformUnitLockStatus = SampleServiceImpl.LockStatus.UNKOWN;
-		try {
-			platformUnitLockStatus = sampleService.getPlatformUnitLockStatus(platformUnit);
-		} catch(SampleTypeException e){
-			logger.warn(e.getMessage());
-			waspErrorMessage("wasp.unexpected_error.error");
-			return "redirect:/dashboard.do";
-		}
-		m.put("platformUnitLockStatus", platformUnitLockStatus.toString());
-		
-		Map<Integer, String> technicians = new HashMap<Integer, String>();
-		List<User> allUsers = userDao.findAll();
-		for(User user : allUsers){
-			for(Userrole userrole : user.getUserrole()){
-				if(userrole.getRole().getRoleName().equals("fm") || userrole.getRole().getRoleName().equals("ft")){
-					technicians.put(userrole.getUser().getUserId(), user.getNameFstLst());
-				}
-			}
-		}
-		m.put("technicians", technicians);
-		
-		List<Resource> resourceList= resourceDao.findAll(); 
-		List<Resource> filteredResourceList = new ArrayList<Resource>();
-		for(Resource resource : resourceList){
-			//logger.debug("resource: " + resource.getName());
-			for(SampleSubtypeResourceCategory ssrc : resource.getResourceCategory().getSampleSubtypeResourceCategory()){
-				if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
-					filteredResourceList.add(resource);
-					//logger.debug("it's a match");					
-				}
-			}
-		}
-		m.put("resources", filteredResourceList);
-		
-		List<Adaptor> allAdaptors = adaptorDao.findAll();
-		Map<String, Adaptor> adaptorList = new HashMap<String, Adaptor>();
-		for(Adaptor adaptor : allAdaptors){
-			adaptorList.put(adaptor.getAdaptorId().toString(), adaptor);
-		}
-		m.addAttribute("adaptors", adaptorList);
-		
-		SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName("controlLibrarySample");
-		if(sampleSubtype.getSampleSubtypeId().intValue()==0){
-			//TODO throw error and get out of here ; probably go to dashboard, but would be best to go back from where you came from
-			logger.warn("Unable to find sampleSubtype of controlLibrarySample");
-		}
-		
-		Map<String, Integer> controlFilterMap = new HashMap<String, Integer>();
-		controlFilterMap.put("sampleSubtypeId", sampleSubtype.getSampleSubtypeId());
-		List<Sample> controlLibraryList = sampleService.getSampleDao().findByMap(controlFilterMap);
-		for(Sample sample : controlLibraryList){
-			logger.debug("control: " + sample.getName());
-			if(sample.getIsActive().intValue()==0){
-				controlLibraryList.remove(sample);
-			}
-		}
-		sampleService.sortSamplesBySampleName(controlLibraryList);
-		m.addAttribute("controlLibraryList", controlLibraryList);
-		
-		m.put("platformUnit", platformUnit);
-		return "facility/platformunit/showPlatformUnit";
-		//return "redirect:/dashboard.do";
-	}
+
 	
 
 	
@@ -1232,7 +1071,7 @@ public class PlatformUnitController extends WaspController {
 			return "redirect:/dashboard.do";
 		}
 		SampleSource cellLibraryLink = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
-		if(cellLibraryLink.getSampleSourceId()==null){//check for existence
+		if(cellLibraryLink.getId()==null){//check for existence
 			waspErrorMessage("platformunit.sampleSourceNotExist.error");
 		}
 		try{
@@ -1245,7 +1084,10 @@ public class PlatformUnitController extends WaspController {
 			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
 		}
 		else if(platformUnitId != null){
-			return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId + ".do";
+			return "redirect:/" + sampleService.getPlatformunitViewLink(
+					sampleService.getSampleById(platformUnitId), 
+					resourceService.getAssignedResourceCategory(jobService.getJobByJobId(jobId)) 
+					);
 		}
 		return "redirect:/dashboard.do";//it really wants to see some return statement outside the if clauses
 	  }
@@ -1263,10 +1105,21 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			@RequestParam("lock") String lock,
 			ModelMap m) {
-		
+		Sample platformUnit = null;
+		try {
+			platformUnit = sampleService.getPlatformUnit(platformUnitId);
+		} catch (Exception e){
+			logger.warn(e.getLocalizedMessage());
+		} finally {
+			if (platformUnit == null || platformUnit.getId() == null){
+				//message that platform unit not found
+				waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
+				return "redirect:/dashboard.do";
+			}
+		}
 		//logger.debug("ID: " + platformUnitId.intValue());
 		//logger.debug("lock: " + lock);
-		String ret_value = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
+		String ret_value = "redirect:/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit));
 		
 		SampleServiceImpl.LockStatus lockStatus = SampleServiceImpl.LockStatus.UNKOWN;
 		try{
@@ -1289,285 +1142,7 @@ public class PlatformUnitController extends WaspController {
 		return ret_value;
 	}
 
-	/*
-	 * update sampleSourceMetaData libConcInCellPicoM
-	 */
-	@RequestMapping(value="/updateConcInCell.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateConcInCell(
-			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
-			@RequestParam("libConcInCellPicoM") String libConcInCellPicoM,
-			@RequestParam("platformUnitId") Integer platformUnitId,
-			ModelMap m) {
-		
-		//TODO confirm parameters
-		//confirm libConcInCellPicoM is integer or float
-		//confirm platformUnitId is Id of sample that is a platformUnit
-		//confirm that sampleSourceMetaId exists and k == "libConcInCellPicoM"
-		SampleSourceMeta sampleSourceMeta = sampleSourceMetaDao.getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
-		sampleSourceMeta.setV(libConcInCellPicoM);
-		sampleSourceMetaDao.save(sampleSourceMeta);
-		//return "redirect:/dashboard.do";
-		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
 
-	}
-	
-	/*
-	 * addNewControlToCell
-	 */
-	@RequestMapping(value="addNewControlToCell.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String addNewControlToCell(
-			@RequestParam("platformUnitId") Integer platformUnitId,
-			@RequestParam("cellId") Integer cellId,
-			@RequestParam("newControlId") Integer newControlId,	
-			@RequestParam("newControlConcInCellPicoM") String newControlConcInCellPicoM,
-			ModelMap m){
-		
-		//TODO confirm parameters
-		//confirm platformUnitId is of a flow cell
-		//confirm cellId is a cell of this platformUnit
-		//confirm newControlId is the id of a controlLibrary
-		//confirm newControlConcInCellPicoM is a float (but store it as a string with setV)
-		
-		SampleSource sampleSource = new SampleSource();
-		sampleSource.setSampleId(cellId);
-		sampleSource.setSourceSampleId(newControlId);
-		//figure out the next multiplexindex
-		Sample cell = sampleService.getSampleDao().getSampleBySampleId(cellId);
-		List<SampleSource> sampleSourceList = cell.getSampleSource();
-		int maxMultipleIndex = 0;
-		for(SampleSource ss : sampleSourceList){
-			if(ss.getIndex().intValue() > maxMultipleIndex){
-				maxMultipleIndex = ss.getIndex().intValue();
-			}
-		}
-		sampleSource.setIndex(new Integer(maxMultipleIndex + 1));
-		sampleSource = sampleSourceDao.save(sampleSource);
-		//logger.debug("checking next multiplexIndex; new one is " + sampleSource.getMultiplexindex().intValue());
-		//deal with sampleSourceMeta to set newControlConcInCellPicoM for the control
-		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
-		sampleSourceMeta.setSampleSourceId(sampleSource.getSampleSourceId());
-		sampleSourceMeta.setK("libConcInCellPicoM");
-		sampleSourceMeta.setV(newControlConcInCellPicoM);
-		sampleSourceMetaDao.save(sampleSourceMeta);
-		
-		//return "redirect:/dashboard.do";
-		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
-	}
-	
-	@RequestMapping(value="ajaxReadType.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public @ResponseBody String ajaxReadType(@RequestParam("resourceId") String resourceId){
-		//logger.debug("in ajaxReadType and resourceId = " + resourceId);
-		String returnString;
-		StringBuffer readType = new StringBuffer("<option value=''>---SELECT A READ TYPE---</option>");
-		StringBuffer readLength = new StringBuffer("<option value=''>---SELECT A READ LENGTH---</option>");
-		Resource resource;
-		resource = resourceDao.getResourceByResourceId(new Integer(resourceId));
-		ResourceCategory resourceCategory = resource.getResourceCategory();
-		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-			if( rcm.getK().indexOf("readType") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String [] innerTokens = token.split(":");
-					readType.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-				}
-			}
-			if( rcm.getK().indexOf("readlength") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-				for(String token : tokens){//token could be 50:50
-					String [] innerTokens = token.split(":");
-					readLength.append("<option value='"+innerTokens[0]+"'>"+innerTokens[1]+"</option>");
-				}
-			}
-		}
-		returnString = new String(readType + "****" + readLength);
-		//logger.debug("The return string = " + returnString);
-		//return "<option value=''>---SELECT A READ TYPE---</option><option value='single'>single</option><option value='paired'>paired</option>";
-		return returnString;
-	}
-	
-	/*
-	 * createNewRun
-	 */
-	@RequestMapping(value = "/createNewRun.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createNewRun(@RequestParam("platformUnitId") Integer platformUnitId,
-			@RequestParam("runName") String runName,
-			@RequestParam("resourceId") Integer resourceId,
-			@RequestParam("readLength") String readLength,
-			@RequestParam("readType") String readType,
-			@RequestParam("technicianId") Integer technicianId,
-			@RequestParam("runStartDate") String runStartDate,
-			@RequestParam(value="runId", required=false) Integer runId,
-			ModelMap m){
-		
-		String return_string = "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
-		//must confirm validity of parameters
-		//must add success or failure messages
-		
-		//first, is the flowcell (via the platformUnitId, such as an Illumina Flowcell Version 3) compatible with the resourceId (the machine instance, such as an Illumina HiSeq 2000)
-		Sample platformUnit = sampleService.getSampleDao().getSampleBySampleId(platformUnitId);
-		if(platformUnit.getSampleId().intValue()==0){
-			//message unable to find platform unit record
-			logger.warn("unable to find platform unit record");
-			return "redirect:/dashboard.do";
-		}
-		//confirm flowcell (platformUnit)
-		if( !platformUnit.getSampleType().getIName().equals(PLATFORM_UNIT_AREA) ){
-			//message - not a flow cell
-			logger.warn("PlatformUnit not a flow cell");
-			return return_string;
-		}
-		//record for machine exists
-		Resource machineInstance = resourceDao.getResourceByResourceId(resourceId);
-		if(machineInstance.getResourceId().intValue() == 0){
-			//message: unable to find record for requested machine
-			logger.warn("unable to find record for requested sequencing machine");
-			return return_string;
-		}
-		//confirm the machine and the flow cell are compatible (via sampleSubtpeResourceCategory)
-		boolean platformUnitAndMachineAreCompatible = false;
-		for(SampleSubtypeResourceCategory ssrc : machineInstance.getResourceCategory().getSampleSubtypeResourceCategory()){
-			if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
-				platformUnitAndMachineAreCompatible = true;
-			}
-		}
-		if(platformUnitAndMachineAreCompatible==false){
-			//message Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible
-			logger.warn("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
-			return return_string;
-		}
-		Integer cellCount = null;
-		try {
-			cellCount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
-		} catch (SampleTypeException e1) {
-			logger.warn(e1.getLocalizedMessage());
-			return return_string;
-		}
-		if(cellCount == null){
-			logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
-			return return_string;
-		}
-		if(cellCount != platformUnit.getSampleSource().size()){
-			logger.warn("cellcount from sampleMetaData and from samplesource are discordant: unable to continue");
-			return return_string;
-		}
-		//confirm machine and parameters readLength and readType are compatible
-		boolean readTypeIsValid = false;
-		boolean readLengthIsValid = false;
-		ResourceCategory resourceCategory = machineInstance.getResourceCategory();
-		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-			if( rcm.getK().indexOf("readType") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String [] innerTokens = token.split(":");
-					for(String str : innerTokens){
-						if(readType.equals(str)){
-							readTypeIsValid = true;
-						}
-					}
-				}
-			}
-			if( rcm.getK().indexOf("readlength") > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-				for(String token : tokens){//token could be 50:50
-					String [] innerTokens = token.split(":");
-					for(String str : innerTokens){
-						if(readLength.equals(str)){
-							readLengthIsValid = true;
-						}
-					}
-				}
-			}
-		}
-		if(readTypeIsValid == false){
-			logger.warn("Readtype incompatible with selected machine: unable to continue");
-			return return_string;			
-		}
-		if(readLengthIsValid == false){
-			logger.warn("Readlength incompatible with selected machine: unable to continue");
-			return return_string;			
-		}		
-		if(runName.trim() == ""){
-			logger.warn("Run name is Not valid");
-			return return_string;			
-		}
-
-		//check technician
-		User tech = userDao.getUserByUserId(technicianId);
-		List<Userrole> userRoleList = tech.getUserrole();
-		boolean userIsTechnician = false;
-		for(Userrole ur : userRoleList){
-			if(ur.getRole().getRoleName().equals("ft") || ur.getRole().getRoleName().equals("fm")){
-				userIsTechnician = true;
-			}
-		}
-		if(userIsTechnician == false){
-			logger.warn("Selected Technical Personnel is NOT listed as technician or manager");
-			return return_string;				
-		}
-		
-		Date dateStart;
-		try{
-			DateFormat formatter;
-			formatter = new SimpleDateFormat("yyyy/MM/dd");
-			dateStart = (Date)formatter.parse(runStartDate);  
-		}
-		catch(Exception e){
-			logger.warn("Start Date format must be yyyy/MM/dd.");
-			return return_string;	
-		}
-		
-		//new run
-		if(runId==null){//new run
-			try {
-				runService.initiateRun(runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
-				//With the creation of this new sequence run record, we want to make it that the flow cell on this
-				//sequence run is no longer able to accept additional User libraries:
-				sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
-				waspMessage("runInstance.created_success.label");
-			} catch (MetadataException e){
-				waspErrorMessage("platformunit.locking.error");
-				logger.warn(e.getLocalizedMessage());
-			} catch (SampleTypeException e) {
-				waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
-				logger.warn(e.getLocalizedMessage());
-			} catch (MessagingException e) {
-				waspErrorMessage("wasp.integration_message_send.error");
-				logger.warn(e.getLocalizedMessage());
-			}
-		}
-		else if(runId != null){//update run
-			Run run = runService.getRunDao().getRunByRunId(runId);
-			if(run.getRunId().intValue()==0){
-				//unable to locate run record; 
-				logger.warn("Update Failed: Unable to locate Sequence Run record");
-				return return_string;
-			}
-			//confirm that the platformUnit on this run is actually the same platformUnit passed in via parameter platformUnitId
-			List<Run> runList = platformUnit.getRun();
-			if(runList.size() == 0){
-				//platformUnit referenced through parameter platformUnitId is NOT on any sequence run
-				logger.warn("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not on any sequence run");
-				return return_string;
-			}
-			if(runList.get(0).getRunId().intValue() != run.getRunId().intValue()){
-				//platformUnit referenced through parameter platformUnitId is NOT on part of This sequence run
-				logger.warn("Update Failed: Platform Unit " + platformUnit.getSampleId() + " is not part of this sequence run");
-				return return_string;
-			}
-			runService.updateRun(run, runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
-			waspMessage("run.updated_success.label");
-			logger.warn("Sequence run has been updated now: runStDate = " + runStartDate);
-		}
-		
-		//return "redirect:/dashboard.do";
-		return "redirect:/facility/platformunit/showPlatformUnit/" + platformUnitId.intValue() + ".do";
-	}
 	
 	
 //there are comparator classes below that need to be moved	

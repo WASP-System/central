@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -96,6 +97,8 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
+import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -125,19 +128,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.sampleDao = sampleDao;
 	}
 	
-	public void setWorkflowDao(WorkflowDao workflowDao) {
-		this.workflowDao = workflowDao;
-	}
-
-	/**
-	 * getSampleDao();
-	 * 
-	 * @return sampleDao
-	 * 
-	 */
 	@Override
 	public SampleDao getSampleDao() {
 		return this.sampleDao;
+	}
+	
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
 	}
 	
 	protected AuthenticationService authenticationService;
@@ -163,12 +160,45 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	protected SampleSourceDao sampleSourceDao;
 	
-	@Autowired
 	protected SampleSourceMetaDao sampleSourceMetaDao;
 	
 
-	@Autowired
 	protected SampleSubtypeDao sampleSubtypeDao;
+
+	@Override
+	public SampleSourceMetaDao getSampleSourceMetaDao() {
+		return sampleSourceMetaDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao) {
+		this.sampleSourceMetaDao = sampleSourceMetaDao;
+	}
+
+	@Override
+	public SampleSubtypeDao getSampleSubtypeDao() {
+		return sampleSubtypeDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleSubtypeDao(SampleSubtypeDao sampleSubtypeDao) {
+		this.sampleSubtypeDao = sampleSubtypeDao;
+	}
+	
+	protected SampleTypeDao sampleTypeDao;
+
+	@Override
+	public SampleTypeDao getSampleTypeDao() {
+		return sampleTypeDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+		this.sampleTypeDao = sampleTypeDao;
+	}
 
 	@Autowired
 	protected AdaptorDao adaptorDao;
@@ -201,14 +231,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected RunService runService;
 		
-	@Autowired
-	protected SampleTypeDao sampleTypeDao;
+	
 	
 	@Autowired
 	protected RunMetaDao runMetaDao;
 	
 	@Autowired
 	 protected ResourceDao resourceDao;
+	
+	@Autowired
+	protected WaspPluginRegistry pluginRegistry;
 	
 	/**
 	 * Setter for the sampleMetaDao
@@ -893,8 +925,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  SampleSource ss = sampleSourceList.get(0);
 		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
 		  return ss.getIndex();
-		  
 	  }
+
 	  
 	  /**
 	   * {@inheritDoc}
@@ -2308,9 +2340,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException{
+		
 		SampleSource sampleSource = getCellLibrary(cell, library);
 		if (sampleSource == null)
 			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		if (library.getJob() == null){
+			logger.debug("Not setting job for library on cell as library as no job associated with it (probably a control?)");
+			return;
+		}
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + JOB_ID);
 		sampleSourceMeta.setV(library.getJob().getId().toString());
@@ -2825,6 +2862,26 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
+		  }
+		  
+		  /**
+		   * Gets the link to display platformunit
+		   * @param platformunit
+		   * @return
+		   */
+		  @Override
+		  public String getPlatformunitViewLink(Sample platformunit, ResourceCategory resourceCategory){
+			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
+			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
+			  Assert.assertParameterNotNull(resourceCategory, "resourceCategory must be supplied");
+			  String area = resourceCategory.getIName();
+			  List<SequencingViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, SequencingViewProviding.class);
+			  // we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
+			  if (plugins.size() == 0)
+				  throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
+			  if (plugins.size() > 1)
+				  throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
+			  return plugins.get(0).getShowPlatformUnitViewLink(platformunit.getId());
 		  }
 
 }

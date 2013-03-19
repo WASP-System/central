@@ -14,11 +14,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
@@ -950,5 +954,26 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @throws SampleParentChildException
 	 */
 	public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException;
-	  
+
+	/**
+	 * gets the view link for displaying a platformunit view based on resource category.
+	 * @param platformunit
+	 * @param area
+	 * @return
+	 */
+	public String getPlatformunitViewLink(Sample platformunit, ResourceCategory resourceCategory);
+	
+	public SampleSubtypeDao getSampleSubtypeDao();
+
+	public void setSampleSubtypeDao(SampleSubtypeDao sampleSubtypeDao);
+
+	public SampleTypeDao getSampleTypeDao();
+
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao);
+	
+	public SampleSourceMetaDao getSampleSourceMetaDao();
+	
+	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao);
+
+	
 }
