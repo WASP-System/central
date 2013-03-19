@@ -101,6 +101,7 @@ import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -158,12 +159,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected SampleMetaDao sampleMetaDao;
 	
+	@Autowired
+	protected ResourceService resourceService;
+	
 	protected SampleSourceDao sampleSourceDao;
 	
 	protected SampleSourceMetaDao sampleSourceMetaDao;
 	
 
+	
 	protected SampleSubtypeDao sampleSubtypeDao;
+	
 
 	@Override
 	public SampleSourceMetaDao getSampleSourceMetaDao() {
@@ -2038,7 +2044,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		}
 		this.deleteSampleBarcode(platformUnit);
-		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
+		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readLength, readType, comments
 	}
 	protected void deleteSampleBarcode(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid platformUnit provided");
@@ -2870,11 +2876,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * @return
 		   */
 		  @Override
-		  public String getPlatformunitViewLink(Sample platformunit, ResourceCategory resourceCategory){
+		  public String getPlatformunitViewLink(Sample platformunit){
 			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
 			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
-			  Assert.assertParameterNotNull(resourceCategory, "resourceCategory must be supplied");
-			  String area = resourceCategory.getIName();
+			  ResourceCategory rc = resourceService.getAssignedResourceCategory(platformunit);
+			  String area = null;
+			  if (rc != null)
+				  area = rc.getIName();
 			  List<SequencingViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, SequencingViewProviding.class);
 			  // we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
 			  if (plugins.size() == 0)

@@ -214,6 +214,13 @@ public final class MetaAttribute implements Serializable {
 				private static final long serialVersionUID = -436008295959041019L;
 				private String value;
 				private String label;
+				
+				public Option(){}
+				
+				public Option(String value, String label){
+					setValue(value);
+					setLabel(label);
+				}
 
 
 				public String getValue() {

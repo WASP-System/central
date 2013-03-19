@@ -1,13 +1,17 @@
 package edu.yu.einstein.wasp.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
+import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -102,6 +106,48 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 			return null;
 		}
 		return src.get(0).getResourceCategory();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
+		List<Option> list = new ArrayList<Option>();
+		for(ResourceCategoryMeta rcm : resourceCategory.getResourceCategoryMeta()){
+			if( rcm.getK().indexOf(metaKey) > -1 ){//such as readLength
+				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
+				for(String token : tokens){//token could be single:single
+					String[] colonTokens = token.split(":");
+					list.add(new Option(colonTokens[0], colonTokens[1]));							
+				}
+			}		
+		}	
+		return list;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
+		List<Option> list = new ArrayList<Option>();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){			
+			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+		}	
+		return list;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
+		List<Option> list = new ArrayList<Option>();
+		for(SampleSubtypeResourceCategory ssrc : sample.getSampleSubtype().getSampleSubtypeResourceCategory()){			
+			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+		}	
+		return list;
 	}
 
 }

@@ -87,10 +87,13 @@ public class TaskController extends WaspController {
 	  }
 	  jobService.sortJobsByJobId(jobsActiveAndWithLibrariesToGoOnFlowCell);	  
 	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
-	  
 	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
 	  sampleService.sortSamplesBySampleName(activePlatformUnits);
-	  m.addAttribute("activePlatformUnits", activePlatformUnits);
+	  Map<Sample, String> activePlatformUnitsWithViewLinks = new LinkedHashMap<Sample, String>();
+	  for (Sample pu: activePlatformUnits)
+			  activePlatformUnitsWithViewLinks.put(pu, sampleService.getPlatformunitViewLink(pu));
+	 
+	  m.addAttribute("activePlatformUnitsWithViewLinks", activePlatformUnitsWithViewLinks);
 	  
 	  List<String> barcodes = new ArrayList<String>();
 	  List<String> cells = new ArrayList<String>();

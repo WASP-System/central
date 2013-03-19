@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -333,6 +335,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
 	  Map<Sample, List<Sample>> facilityLibraryMap = new HashMap<Sample, List<Sample>>();//key is a submitted sample (macromolecule) and value is list of facility-generated libraries created from that macromolecule)
 	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();//key is library and value is the adaptor used for that library
+	  Map<Sample, String> showPlatformunitViewMap = new HashMap<Sample, String>();;
 	  for(Sample sample : submittedSamplesList){
 		  	if (!sampleService.isDnaOrRna(sample) && !sampleService.isLibrary(sample))
 				throw new SampleTypeException("sample is not of expected type of DNA, RNA, Library or Facility Library");
@@ -373,9 +376,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		//sampleService.sortSamplesBySampleName(librarySubmittedSamplesList);
 		
 		//for each library (those in facilityLibraryMap and those in librarySubmittedSamplesList) get flowcells/runs and add to map Map<Sample, List<Sample>>
-		
 	  	Map<Sample, List<CellWrapper>> cellsByLibrary = new HashMap<Sample, List<CellWrapper>>();
-	  	for(Sample library : librarySubmittedSamplesList){
+	  	Set<Sample> allLibraries = new HashSet<Sample>();
+	  	allLibraries.addAll(librarySubmittedSamplesList);
+	  	for(List<Sample> libraryList : facilityLibraryMap.values())
+	  		allLibraries.addAll(libraryList);
+	  	for (Sample library: allLibraries){
 			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			if(adaptor==null){
 				//message and get out of here
@@ -386,7 +392,11 @@ public class SampleDnaToLibraryController extends WaspController {
 				if (cellsByLibrary.get(library) == null){
 					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
 					try {
-						cellsByLibrary.get(library).add(new CellWrapper(cell, sampleService));
+						CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
+						Sample platformunit = cellWrapper.getPlatformUnit();
+						if (platformunit != null)
+							showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
+						cellsByLibrary.get(library).add(cellWrapper);
 					} catch (SampleParentChildException e) {
 						logger.warn(e.getLocalizedMessage());
 					}
@@ -438,7 +448,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				logger.warn("Unable to resolve URL for fileId " + jf.getFile().getFileGroupId().intValue());}
 		}
 		
-		
+		m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap);
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);

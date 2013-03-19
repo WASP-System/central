@@ -961,7 +961,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @param area
 	 * @return
 	 */
-	public String getPlatformunitViewLink(Sample platformunit, ResourceCategory resourceCategory);
+	public String getPlatformunitViewLink(Sample platformunit);
 	
 	public SampleSubtypeDao getSampleSubtypeDao();
 

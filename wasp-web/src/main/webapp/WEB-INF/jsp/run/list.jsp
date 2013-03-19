@@ -105,7 +105,7 @@ $(document).ready(function() {
 				}
 			});
 
-	jQuery("#grid_id").jqGrid('setColProp', 'readlength',
+	jQuery("#grid_id").jqGrid('setColProp', 'readLength',
 			{
 				search:true,
 				sopt:['eq'],
@@ -148,11 +148,11 @@ $(document).ready(function() {
 	//function to validate the user-entered data 
 	validate = function(){
 
-		var readlength = $('#gs_readlength').val();
-		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 
+		var readLength = $('#gs_readLength').val();
+		readLength = readLength.replace(/^\s+|\s+$/g,'');//trim 
 		var numberFormat=new RegExp("^[0-9]+$");
-		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
-			if(!numberFormat.test(readlength)){
+		if(typeof(readLength) !== 'undefined' && readLength != null && readLength.length>0){
+			if(!numberFormat.test(readLength)){
 				alert("<fmt:message key="grid.readLengthInteger.label"/>");
 				return true;//do not perform search 
 			}

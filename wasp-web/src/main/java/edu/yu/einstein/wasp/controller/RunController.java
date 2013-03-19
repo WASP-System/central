@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +21,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
-import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
@@ -41,8 +35,6 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeResourceCategoryDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
-import edu.yu.einstein.wasp.model.ResourceCategory;
-import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
@@ -297,14 +289,14 @@ public class RunController extends WaspController {
 		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed,  will be null
 		String platformUnitBarcodeFromGrid = request.getParameter("platformUnitBarcode")==null?null:request.getParameter("platformUnitBarcode").trim();//if not passed, will be null
 		String machineAndMachineTypeFromGrid = request.getParameter("machine")==null?null:request.getParameter("machine").trim();//if not passed, will be null
-		String readTypeFromGrid = request.getParameter("readType")==null?null:request.getParameter("readType").trim();//if not passed, will be null
-		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
+		String readTypeFromGrid = request.getParameter(SequenceReadProperties.READ_TYPE_KEY)==null?null:request.getParameter(SequenceReadProperties.READ_TYPE_KEY).trim();//if not passed, will be null
+		String readLengthFromGrid = request.getParameter(SequenceReadProperties.READ_LENGTH_KEY)==null?null:request.getParameter(SequenceReadProperties.READ_LENGTH_KEY).trim();//if not passed, will be null
 		String dateRunStartedFromGridAsString = request.getParameter("dateRunStarted")==null?null:request.getParameter("dateRunStarted").trim();//if not passed, will be null
 		String dateRunEndedFromGridAsString = request.getParameter("dateRunEnded")==null?null:request.getParameter("dateRunEnded").trim();//if not passed, will be null
 		String statusForRunFromGrid = request.getParameter("statusForRun")==null?null:request.getParameter("statusForRun").trim();//if not passed, will be null
 		logger.debug("nameFromGrid = " + nameFromGrid);logger.debug("platformUnitBarcodeFromGrid = " + platformUnitBarcodeFromGrid);
 		logger.debug("machineAndMachineTypeFromGrid = " + machineAndMachineTypeFromGrid); 
-		logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readlengthFromGrid = " + readlengthFromGrid);
+		logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readLengthFromGrid = " + readLengthFromGrid);
 		logger.debug("dateRunStartedFromGridAsString = " + dateRunStartedFromGridAsString);logger.debug("dateRunEndedFromGridAsString = " + dateRunEndedFromGridAsString);
 		logger.debug("statusForRunFromGrid = " + statusForRunFromGrid);
 	
@@ -371,7 +363,7 @@ public class RunController extends WaspController {
 
 		//deal with searching for attributes that cannot directly be dealt with by the SQL statement
 		if(platformUnitBarcodeFromGrid != null || machineAndMachineTypeFromGrid != null || readTypeFromGrid != null 
-				|| readlengthFromGrid != null || statusForRunFromGrid != null){
+				|| readLengthFromGrid != null || statusForRunFromGrid != null){
 			
 			if(platformUnitBarcodeFromGrid != null){
 				for(Run run : tempRunList){
@@ -396,11 +388,11 @@ public class RunController extends WaspController {
 				tempRunList.retainAll(runsFoundInSearch);
 				runsFoundInSearch.clear();
 			}			
-			if(readlengthFromGrid != null){
+			if(readLengthFromGrid != null){
 				for(Run run : tempRunList){
 					try {
 						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
-						if(runReadProperties.getReadLength().equals(Integer.parseInt(readlengthFromGrid)))
+						if(runReadProperties.getReadLength().equals(Integer.parseInt(readLengthFromGrid)))
 							runsFoundInSearch.add(run);
 					} catch (MetadataException e) {
 						logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
@@ -443,8 +435,8 @@ public class RunController extends WaspController {
 			
 			if(sidx.equals("platformUnitBarcode")){Collections.sort(runList, new RunPlatformUnitBarcodeComparator()); indexSorted = true;}
 			else if(sidx.equals("machine")){Collections.sort(runList, new MachineNameComparator()); indexSorted = true;}
-			else if(sidx.equals("readlength")){Collections.sort(runList, new RunMetaIsStringComparator("readlength")); indexSorted = true;}
-			else if(sidx.equals("readType")){Collections.sort(runList, new RunMetaIsStringComparator("readType")); indexSorted = true;}
+			else if(sidx.equals(SequenceReadProperties.READ_LENGTH_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_LENGTH_KEY)); indexSorted = true;}
+			else if(sidx.equals(SequenceReadProperties.READ_TYPE_KEY)){Collections.sort(runList, new RunMetaIsStringComparator(SequenceReadProperties.READ_TYPE_KEY)); indexSorted = true;}
 
 			if(indexSorted == true && sord.equals("desc")){//must be last
 				Collections.reverse(runList);
@@ -529,8 +521,8 @@ public class RunController extends WaspController {
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", run.getId());	//used??			 
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit)) + ">"+run.getName()+"</a>",
-						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit)) + ">"+platformUnitBarcode+"</a>",
+						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+run.getName()+"</a>",
+						"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">"+platformUnitBarcode+"</a>",
 						run.getResource().getName() + " - " + run.getResource().getResourceCategory().getName(),
 						readProperties.getReadLength().toString(),
 						readProperties.getReadType(),

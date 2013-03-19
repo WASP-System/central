@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 
@@ -658,7 +659,7 @@ public class AutoCompleteController extends WaspController{
 		  for(ResourceCategory rc : resourceCategoryList){
 			  List<ResourceCategoryMeta> resourceCategoryMetaList = rc.getResourceCategoryMeta();
 			  for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-				  if(rcm.getK().indexOf("readType") > -1){
+				  if(rcm.getK().indexOf(SequenceReadProperties.READ_TYPE_KEY) > -1){
 					  String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
 					  for(String token : tokens){//token could be single:single
 						  String[] colonTokens = token.split(":");

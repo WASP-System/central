@@ -106,23 +106,6 @@ public class PlatformUnitController extends WaspController {
 		}
 	}
 	
-	public static class SelectOptionsMeta {
-		private String valuePassedBack; 
-		private String valueVisible; 
-		
-		public SelectOptionsMeta(String valuePassedBack, String valueVisible){
-			this.valuePassedBack=valuePassedBack;
-			this.valueVisible=valueVisible;
-		}
-		
-		public String getValuePassedBack(){
-			return valuePassedBack;
-		}
-		
-		public String getValueVisible(){
-			return valueVisible;
-		}
-	}
 
 	@Autowired
 	private AdaptorsetDao adaptorsetDao;
@@ -244,15 +227,15 @@ public class PlatformUnitController extends WaspController {
 		String nameFromGrid = request.getParameter("name")==null?null:request.getParameter("name").trim();//if not passed, jobIdAsString will be null
 		String barcodeFromGrid = request.getParameter("barcode")==null?null:request.getParameter("barcode").trim();//if not passed, will be null
 		String sampleSubtypeNameFromGrid = request.getParameter("sampleSubtypeName")==null?null:request.getParameter("sampleSubtypeName").trim();//if not passed, will be null
-		String readTypeFromGrid = request.getParameter("readType")==null?null:request.getParameter("readType").trim();//if not passed, will be null
-		String readlengthFromGrid = request.getParameter("readlength")==null?null:request.getParameter("readlength").trim();//if not passed, will be null
+		String readTypeFromGrid = request.getParameter(SequenceReadProperties.READ_TYPE_KEY)==null?null:request.getParameter(SequenceReadProperties.READ_TYPE_KEY).trim();//if not passed, will be null
+		String readLengthFromGrid = request.getParameter(SequenceReadProperties.READ_LENGTH_KEY)==null?null:request.getParameter(SequenceReadProperties.READ_LENGTH_KEY).trim();//if not passed, will be null
 		String cellcountFromGrid = request.getParameter("cellcount")==null?null:request.getParameter("cellcount").trim();//if not passed, will be null
 		String dateFromGridAsString = request.getParameter("date")==null?null:request.getParameter("date").trim();//if not passed, will be null
 		//next one no longer used
 		String resourceCategoryNameFromGrid = request.getParameter("resourceCategoryName")==null?null:request.getParameter("resourceCategoryName").trim();//if not passed, will be null
 		//logger.debug("nameFromGrid = " + nameFromGrid);logger.debug("barcodeFromGrid = " + barcodeFromGrid);
 		//logger.debug("sampleSubtypeNameFromGrid = " + sampleSubtypeNameFromGrid); 
-		//logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readlengthFromGrid = " + readlengthFromGrid);
+		//logger.debug("readTypeFromGrid = " + readTypeFromGrid);logger.debug("readLengthFromGrid = " + readLengthFromGrid);
 		//logger.debug("cellcountFromGrid = " + cellcountFromGrid);logger.debug("dateFromGridAsString = " + dateFromGridAsString);
 		//logger.debug("resourceCategoryNameFromGrid = " + resourceCategoryNameFromGrid);
 		
@@ -307,7 +290,7 @@ public class PlatformUnitController extends WaspController {
 		
 		//have to deal with these separately. FIND certain attributes that cannot be dealt with via direct SQL
 		ResourceCategory rcRequested = null;
-		if(barcodeFromGrid != null || readTypeFromGrid != null || readlengthFromGrid != null 
+		if(barcodeFromGrid != null || readTypeFromGrid != null || readLengthFromGrid != null 
 				|| cellcountFromGrid != null || resourceCategoryNameFromGrid != null){
 			
 			if(barcodeFromGrid != null){
@@ -323,7 +306,7 @@ public class PlatformUnitController extends WaspController {
 			
 			  
 			
-			if(readTypeFromGrid != null && readlengthFromGrid != null){
+			if(readTypeFromGrid != null && readLengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
 					 try {
 						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
@@ -336,11 +319,11 @@ public class PlatformUnitController extends WaspController {
 				tempPlatformUnitList.retainAll(platformUnitsFoundInSearch);
 				platformUnitsFoundInSearch.clear();
 			}			
-			if(readlengthFromGrid != null){
+			if(readLengthFromGrid != null){
 				for(Sample sample : tempPlatformUnitList){
 					 try {
 						  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(sample, PLATFORM_UNIT_INSTANCE_AREA, SampleMeta.class);
-						  if(readProperties.getReadLength().equals(Integer.parseInt(readlengthFromGrid)))
+						  if(readProperties.getReadLength().equals(Integer.parseInt(readLengthFromGrid)))
 								platformUnitsFoundInSearch.add(sample);
 					  } catch (MetadataException e) {
 						  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
@@ -392,8 +375,8 @@ public class PlatformUnitController extends WaspController {
 			boolean indexSorted = false;
 			
 			if(sidx.equals("barcode")){Collections.sort(platformUnitList, new SampleBarcodeComparator()); indexSorted = true;}
-			else if(sidx.equals("readlength")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("readlength")); indexSorted = true;}
-			else if(sidx.equals("readType")){Collections.sort(platformUnitList, new SampleMetaIsStringComparator("readType")); indexSorted = true;}
+			else if(sidx.equals(SequenceReadProperties.READ_LENGTH_KEY)){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator(SequenceReadProperties.READ_LENGTH_KEY)); indexSorted = true;}
+			else if(sidx.equals(SequenceReadProperties.READ_TYPE_KEY)){Collections.sort(platformUnitList, new SampleMetaIsStringComparator(SequenceReadProperties.READ_TYPE_KEY)); indexSorted = true;}
 			//replaced 9-25-12    else if(sidx.equals("cellcount")){Collections.sort(platformUnitList, new SampleMetaIsIntegerComparator("cellcount")); indexSorted = true;}
 			else if(sidx.equals("cellcount")){Collections.sort(platformUnitList, new SampleCellcountComparator(sampleService)); indexSorted = true;}
 			else if(sidx.equals("resourceCategoryName")){Collections.sort(platformUnitList, new SampleMetaIsResourceCategoryNameComparator(resourceCategoryDao)); indexSorted = true;}
@@ -463,7 +446,7 @@ public class PlatformUnitController extends WaspController {
 				List<String> cellList=new ArrayList<String>(Arrays.asList(new String[] {
 							formatter.format(platformUnit.getReceiveDts()),//use in this case as record created date
 							//resourceCategory.getName(),
-							"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit)) + ">" + platformUnit.getName()+ "</a>",
+							"<a href=/wasp/" + sampleService.getPlatformunitViewLink(platformUnit) + ">" + platformUnit.getName()+ "</a>",
 							barcode,
 							platformUnit.getSampleSubtype()==null?"": platformUnit.getSampleSubtype().getName(),
 							readProperties.getReadType(),
@@ -487,32 +470,6 @@ public class PlatformUnitController extends WaspController {
 		catch (Throwable e) {throw new IllegalStateException("Can't marshall to JSON " + platformUnitList, e);}	
 	}	
 
-	//helper method for createUpdatePlatformUnit
-	private List<SelectOptionsMeta> getDistinctResourceCategoryMetaListForSampleSubtype(SampleSubtype sampleSubtype, String meta) {
-		
-		List<SelectOptionsMeta> list = new ArrayList<SelectOptionsMeta>();
-		List<String> stringList = new ArrayList<String>();
-		
-		List<SampleSubtypeResourceCategory> sampleSubtypeResourceCategoryList = sampleSubtype.getSampleSubtypeResourceCategory();
-		for(SampleSubtypeResourceCategory ssrc : sampleSubtypeResourceCategoryList){			
-		
-			List<ResourceCategoryMeta> rcMetaList = ssrc.getResourceCategory().getResourceCategoryMeta();
-			for(ResourceCategoryMeta rcm : rcMetaList){
-			
-				if( rcm.getK().indexOf(meta) > -1 ){
-					String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-					for(String token : tokens){//token could be single:single
-						String[] colonTokens = token.split(":");
-						if(!stringList.contains(colonTokens[0])){//for distinct
-							stringList.add(colonTokens[0]);
-							list.add(new SelectOptionsMeta(colonTokens[0], colonTokens[1]));							
-						}
-					}
-				}		
-			}
-		}	
-		return list;
-	}
 
 	//deletePlatformunit - GET
 	@RequestMapping(value="/deletePlatformUnit.do", method=RequestMethod.GET)
@@ -538,7 +495,7 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("sampleId") Integer sampleId,
 			@RequestParam(value="reset", defaultValue="") String reset,
 			ModelMap m) {	
-	
+		m.addAttribute("referer", request.getHeader("Referer"));
 		if(sampleSubtypeId.intValue()<0){
 			sampleSubtypeId = new Integer(0);
 		}
@@ -586,15 +543,15 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);
 				
 				sampleSubtype = sampleService.getSampleSubtypeConfirmedForPlatformunit(sampleSubtypeId);//if not in database or not of type and subtype platformunit, throw exception
-				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
-				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 			
 			}//end of if(sampleSubtypeId.intValue()>0)				
 		}catch(Exception e){logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");return "redirect:/dashboard.do";}
 		
-		m.put("sampleSubtypeId", sampleSubtypeId);//must be down here, as value can cahnge if "reset"
-		m.put("sampleId", sampleId);
+		m.addAttribute("sampleSubtypeId", sampleSubtypeId);//must be down here, as value can cahnge if "reset"
+		m.addAttribute("sampleId", sampleId);
 
 		return "facility/platformunit/createUpdatePlatformUnit";
 	}
@@ -608,11 +565,12 @@ public class PlatformUnitController extends WaspController {
 			@RequestParam("sampleId") Integer sampleId,
 			@RequestParam("barcode") String barcode,
 			@RequestParam("numberOfCellsRequested") Integer numberOfCellsRequested,
+			@RequestParam("referer") String referer,
 			@Valid Sample platformunitInstance, 
 			 BindingResult result,
 			 SessionStatus status, 		
 			ModelMap m) throws MetadataException {
-	
+		m.addAttribute("referer", referer);
 		try{		
 			String action = null;
 			Sample platformUnitInDatabase = null;
@@ -700,8 +658,8 @@ public class PlatformUnitController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), platformunitInstance);//metaHelperWebapp.getParentArea() is sample
 				
 				m.put("sampleSubtypes", sampleService.getSampleSubtypesBySampleTypeIName(PLATFORM_UNIT_AREA));//throws exception if SampleTypeIName not valid, otherwise return empty (size=0) or full list
-				m.addAttribute("readlengths", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readlength"));
-				m.addAttribute("readTypes", getDistinctResourceCategoryMetaListForSampleSubtype(sampleSubtype, "readType"));
+				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_LENGTH_KEY));
+				m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(sampleSubtype, SequenceReadProperties.READ_TYPE_KEY));
 				m.addAttribute("numberOfCellsList", sampleService.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype));//throws exception if problems
 	
 				return "facility/platformunit/createUpdatePlatformUnit";			
@@ -1027,21 +985,22 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
-			@RequestParam("samplesourceid") int sampleSourceId,
+			@RequestParam("samplesourceid") int cellLibraryId,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
 			ModelMap m) {
-
-		SampleSource cellLibraryLink = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
-		if(cellLibraryLink.getSampleSourceId()==null){//check for existence
+		
+		SampleSource cellLibrary = sampleSourceDao.getSampleSourceBySampleSourceId(cellLibraryId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+		if(cellLibrary.getId()==null){//check for existence
 			waspErrorMessage("platformunit.sampleSourceNotExist.error");
 		}
 		try{
-			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);
+			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibrary);
 		} catch (SampleTypeException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("platformunit.samplesourceTypeError.error");
 		}
+		waspMessage("platformunit.libraryRemoved_success.label");
 		return "redirect:/facility/platformunit/assign.do?resourceCategoryId=" + resourceCategoryId.intValue() + "&jobsToWorkWith=" + jobsToWorkWith.intValue();//with this way, the page is updated but map is not passed, so SUCCESS is not displayed
 	}
 	
@@ -1055,41 +1014,33 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
-			@RequestParam("samplesourceid") Integer sampleSourceId,
+			@RequestParam("samplesourceid") Integer cellLibraryId,
 			@RequestParam(value="jobId", required=false) Integer jobId,
 			@RequestParam(value="platformUnitId", required=false) Integer platformUnitId,
 			ModelMap m) {
-
+		String referer = request.getHeader("Referer");
+		m.addAttribute("referer", referer);
 		if( jobId == null  &&  platformUnitId == null ){
 			logger.warn("should provide either jobId or platformUnitId. Neither provided");
 			waspErrorMessage("platformunit.parameter.error");
-			return "redirect:/dashboard.do";
+			return "redirect:" + referer;
 		}
 		else if(jobId != null && platformUnitId != null){//don't know what to do
 			logger.warn("should provide either jobId or platformUnitId. Both provided");
 			waspErrorMessage("platformunit.parameter.error");
-			return "redirect:/dashboard.do";
+			return "redirect:" + referer;
 		}
-		SampleSource cellLibraryLink = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
-		if(cellLibraryLink.getId()==null){//check for existence
+		SampleSource cellLibrary = sampleSourceDao.getSampleSourceBySampleSourceId(cellLibraryId);//this samplesource should represent a cell->lib link, where sampleid is the cell and source-sampleid is the library 
+		if(cellLibrary.getId()==null){//check for existence
 			waspErrorMessage("platformunit.sampleSourceNotExist.error");
 		}
 		try{
-			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibraryLink);
+			sampleService.removeLibraryFromCellOfPlatformUnit(cellLibrary);
 		} catch (SampleTypeException e){
 			logger.warn(e.getLocalizedMessage());
 			waspErrorMessage("platformunit.samplesourceTypeError.error");
 		}
-		if(jobId != null){
-			return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		}
-		else if(platformUnitId != null){
-			return "redirect:/" + sampleService.getPlatformunitViewLink(
-					sampleService.getSampleById(platformUnitId), 
-					resourceService.getAssignedResourceCategory(jobService.getJobByJobId(jobId)) 
-					);
-		}
-		return "redirect:/dashboard.do";//it really wants to see some return statement outside the if clauses
+		return "redirect:" + referer;
 	  }
 	
 	
@@ -1119,7 +1070,7 @@ public class PlatformUnitController extends WaspController {
 		}
 		//logger.debug("ID: " + platformUnitId.intValue());
 		//logger.debug("lock: " + lock);
-		String ret_value = "redirect:/" + sampleService.getPlatformunitViewLink(platformUnit, resourceService.getAssignedResourceCategory(platformUnit));
+		String ret_value = "redirect:/" + sampleService.getPlatformunitViewLink(platformUnit);
 		
 		SampleServiceImpl.LockStatus lockStatus = SampleServiceImpl.LockStatus.UNKOWN;
 		try{
