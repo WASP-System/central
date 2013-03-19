@@ -378,7 +378,7 @@ public class RunController extends WaspController {
 			if(readTypeFromGrid != null){
 				for(Run run : tempRunList){
 					try {
-						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class);
 						if(runReadProperties.getReadType().equalsIgnoreCase(readTypeFromGrid))
 							runsFoundInSearch.add(run);
 					} catch (MetadataException e) {
@@ -391,7 +391,7 @@ public class RunController extends WaspController {
 			if(readLengthFromGrid != null){
 				for(Run run : tempRunList){
 					try {
-						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+						SequenceReadProperties runReadProperties = SequenceReadProperties.getSequenceReadProperties(run, PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class);
 						if(runReadProperties.getReadLength().equals(Integer.parseInt(readLengthFromGrid)))
 							runsFoundInSearch.add(run);
 					} catch (MetadataException e) {
@@ -486,7 +486,7 @@ public class RunController extends WaspController {
 				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 				SequenceReadProperties readProperties = new SequenceReadProperties();
 				try {
-					readProperties = SequenceReadProperties.getSequenceReadProperties(run, RunMeta.class);
+					readProperties = SequenceReadProperties.getSequenceReadProperties(run, PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class);
 				} catch (MetadataException e) {
 					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 				}
@@ -656,7 +656,19 @@ public class RunController extends WaspController {
 		return "run/celldetail";
 	}
 	
-	
+	@RequestMapping(value="/deleteRun.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String deleteRun(@RequestParam("runId") Integer runId,
+			ModelMap m) {
+		try{
+			Run run = sampleService.getSequenceRun(runId);//exception if not msp run or not in db
+			sampleService.deleteSequenceRun(run);
+			return "redirect:"+ request.getHeader("Referer");
+		}catch(Exception e){
+			logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");
+			return "redirect:/dashboard.do";
+		}
+	}
 	
 
 }

@@ -38,7 +38,7 @@
 <c:otherwise>
 <c:forEach items="${activePlatformUnitsWithViewLinks.keySet()}" var="platformUnit" varStatus="status">	
 		<tr class="FormData">
-		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="${activePlatformUnitsWithViewLinks.get(platformUnit)}" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
+		<td style='text-align:center'><c:out value="${platformUnit.getName()}" /> [<a href="<c:url value="/${activePlatformUnitsWithViewLinks.get(platformUnit)}" />"><fmt:message key="jobListAssignLibrary.view.label" /></a>]</td>          
 		<td style='text-align:center'><c:out value="${barcodes[status.index]}" /></td>
 		<td style='text-align:center'><c:out value="${platformUnit.getSampleSubtype().getName()}" /> </td>
 		<td style='text-align:center'><c:out value="${cells[status.index]}" /></td>
