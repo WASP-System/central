@@ -80,6 +80,18 @@ public class JobEmailServiceActivator {
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
 		}
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
+		
+		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) ){
+			 System.out.println("ROB--1--message is abandoned");
+		 }
+		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) ){
+			 System.out.println("ROB--2--message is accepted");
+		 }
+		if( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
+			 System.out.println("ROB--3--message is accepted and with notify status");
+		 }
+		
+		
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getJobId() != null){
@@ -150,7 +162,7 @@ public class JobEmailServiceActivator {
 					
 					( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS) )//all three accepted the job
 					
-				){			
+				){		 System.out.println("ROB--4--in either abaondoned or accepted area");	
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){
 				String jobIdAsString = job.getJobId().toString();
@@ -208,7 +220,7 @@ public class JobEmailServiceActivator {
 					for(GrantedAuthority ga : grantedAuthorityList){
 						grantedAuthoritySet.add(ga.getAuthority());
 					}
-					if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED)){
+					if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED)){System.out.println("ROB--5--should print for accpted");
 						if(rolesForJobAccepted.contains("pi") && grantedAuthoritySet.contains("pi-" + labIdAsString)){
 							emailService.sendJobAccepted(job, user, "emails/inform_job_accepted");
 						}
@@ -227,7 +239,7 @@ public class JobEmailServiceActivator {
 							}
 						}
 					}
-					else if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)){
+					else if(jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)){System.out.println("ROB--6--should print for abandoned");
 					//note that it really is not necessary to go through all users since the jobsubmitter, the pi, the correct lab managers, the facilty manager, and superuser can quickly be gotten directly, but.... 
 						if(rolesForJobAbandoned.contains("su") && (grantedAuthoritySet.contains("su") || grantedAuthoritySet.contains("su-*"))){
 							emailService.sendJobAbandoned(job, user, "emails/inform_job_abandoned", whoAbandonedJob, reasonForAbandoned);//TODO maybe change this email
