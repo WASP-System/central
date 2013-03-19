@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
  <br />
-<title><fmt:message key="pageTitle.run/createUpdateRun.label"/></title>
+<title><fmt:message key="pageTitle./wasp-illumina/flowcell/createUpdateRun.label"/></title>
 <c:choose>
 	<c:when test='${runId == "0"}'>
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
@@ -32,20 +32,19 @@
 		
 	<td class="CaptionTD"><fmt:message key="runInstance.chooseResource.label"/>:</td>
 	<td class="DataTD">
-	<form method="GET" action="<c:url value="/run/createUpdateRun.do" />">
+	<form method="GET" action="<c:url value="/wasp-illumina/flowcell/createUpdateRun.do" />">
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" value="<c:out value="${runId}" />" />
 		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="platformUnitId" value="<c:out value="${platformUnitId}" />" />
 		<select class="FormElement ui-widget-content ui-corner-all" id="resourceId" name="resourceId" size="1" onchange="this.parentNode.submit()">
 			<c:if test='${runId <= 0}'>
 				<option value="0"><fmt:message key="wasp.default_select.label"/>
 			</c:if>			
-			<c:forEach items="${resources}" var="resource">
+			<c:forEach items="${waspResources}" var="waspResource">
 				<c:set var="selectedFlag2" value=""/>
-				<c:if test='${resourceId==resource.resourceId}'>
+				<c:if test='${resourceId == waspResource.getId()}'>
 					<c:set var="selectedFlag2" value="SELECTED"/>
 				</c:if>
-				<option value='<c:out value="${resource.getResourceId()}" />'    <c:out value="${selectedFlag2}" />     ><c:out value="${resource.getName()}" /> - <c:out value="${resource.getResourceCategory().getName()}" /></option>
-
+				<option value='<c:out value="${waspResource.getId()}" />'    <c:out value="${selectedFlag2}" />     ><c:out value="${waspResource.getName()}" /> - <c:out value="${waspResource.getResourceCategory().getName()}" /></option>
 			</c:forEach>
 		 </select>		 
 		 <%-- <span class="requiredField">*</span>--%>
@@ -55,9 +54,9 @@
 	 	
 </tr>
 
-<c:if test='${resourceId > "0"}'>
+<c:if test='${resourceId > 0}'>
 
-  	<form:form  cssClass="FormGrid" commandName="run" action="/wasp/run/createUpdateRun.do">
+  	<form:form  cssClass="FormGrid" commandName="run" action="/wasp/wasp-illumina/flowcell/createUpdateRun.do">
   	
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" id="runId" value="<c:out value="${runId}" />" />
   	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="platformUnitId" id="platformUnitId" value="<c:out value="${platformUnitId}" />" />

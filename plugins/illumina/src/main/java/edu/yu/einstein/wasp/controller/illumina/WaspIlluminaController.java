@@ -118,7 +118,7 @@ public class WaspIlluminaController extends WaspController {
 			for(Run sequenceRun : sequenceRuns){
 				SequenceReadProperties runReadProperties = new SequenceReadProperties();
 				try {
-					runReadProperties = SequenceReadProperties.getSequenceReadProperties(sequenceRun, RunMeta.class);
+					runReadProperties = SequenceReadProperties.getSequenceReadProperties(sequenceRun, platformUnitController.RUN_INSTANCE_AREA, RunMeta.class);
 				} catch (MetadataException e) {
 					logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 				}
@@ -156,7 +156,7 @@ public class WaspIlluminaController extends WaspController {
 		}catch(Exception e){
 			logger.warn(e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error");
-			return "redirect:/dashboard.do";
+			return "redirect:" + request.getHeader("Referer");
 		}
 	
 		
@@ -165,7 +165,7 @@ public class WaspIlluminaController extends WaspController {
 		
 		//is this flowcell on a run?
 		//////10-17-12List<Run> runList = platformUnit.getRun();
-		//////10-17-12m.put("runList", runList);
+		//////10-17-12m.addAttribute("runList", runList);
 		//if this flowcell is on a run, it gets locked to the addition of new user-libraries
 		//There are conditions under which the flow cell may need to be unlocked. Currently this will be 
 		//visible on a the platform unit form only to superuser, who may unlock and later relock the flow cell.
@@ -178,7 +178,7 @@ public class WaspIlluminaController extends WaspController {
 			waspErrorMessage("wasp.unexpected_error.error");
 			return "redirect:/dashboard.do";
 		}
-		m.put("platformUnitLockStatus", platformUnitLockStatus.toString());
+		m.addAttribute("platformUnitLockStatus", platformUnitLockStatus.toString());
 		
 		Map<Integer, String> technicians = new HashMap<Integer, String>();
 		List<User> allUsers = userDao.findAll();
@@ -189,7 +189,7 @@ public class WaspIlluminaController extends WaspController {
 				}
 			}
 		}
-		m.put("technicians", technicians);
+		m.addAttribute("technicians", technicians);
 		
 		List<Resource> resourceList= resourceService.getResourceDao().findAll(); 
 		List<Resource> filteredResourceList = new ArrayList<Resource>();
@@ -202,7 +202,7 @@ public class WaspIlluminaController extends WaspController {
 				}
 			}
 		}
-		m.put("resources", filteredResourceList);
+		m.addAttribute("resources", filteredResourceList);
 		
 		List<Adaptor> allAdaptors = adaptorService.getAdaptorDao().findAll();
 		Map<String, Adaptor> adaptorList = new HashMap<String, Adaptor>();
@@ -229,7 +229,7 @@ public class WaspIlluminaController extends WaspController {
 		sampleService.sortSamplesBySampleName(controlLibraryList);
 		m.addAttribute("controlLibraryList", controlLibraryList);
 		
-		m.put("platformUnit", platformUnit);
+		m.addAttribute("platformUnit", platformUnit);
 		return "wasp-illumina/flowcell/showflowcell";
 	}
 	
@@ -341,7 +341,7 @@ public class WaspIlluminaController extends WaspController {
 			m.addAttribute("comment", comment);			
 			
 			List<Resource> resources = sampleService.getSequencingMachinesCompatibleWithPU(platformUnit);
-			m.put("resources", resources);
+			m.addAttribute("waspResources", resources);
 			
 			if(resourceId.intValue() > 0){
 				
@@ -396,7 +396,7 @@ public class WaspIlluminaController extends WaspController {
 			return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
 		}
 
-		return "wasp-illumina/flowcell/createUpdateRun";
+		return "wasp-illumina/flowcell/createupdaterun";
 
 	}
 	
@@ -469,13 +469,13 @@ public class WaspIlluminaController extends WaspController {
 			//check for runInstance.UserId, which cannot be empty 		
 			if(runInstance.getUserId()==null || runInstance.getUserId().intValue()<=0){
 				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".technician.error");//area here is runInstance
-				m.put("technicianError", msg==null?new String("Technician cannot be empty."):msg);
+				m.addAttribute("technicianError", msg==null?new String("Technician cannot be empty."):msg);
 				otherErrorsExist = true;
 			}
 			//check dateRunStarted
 			if(dateRunStarted==null || "".equals(dateRunStarted.trim())){
 				String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStarted.error");//area here is runInstance
-				m.put("dateRunStartedError", msg==null?new String("Cannot be empty."):msg);
+				m.addAttribute("dateRunStartedError", msg==null?new String("Cannot be empty."):msg);
 				otherErrorsExist = true;
 			}			
 			else{
@@ -485,7 +485,7 @@ public class WaspIlluminaController extends WaspController {
 					dateRunStartedAsDateObject = (Date) formatter.parseObject(dateRunStarted.trim()); 				
 				}catch(Exception e){
 					String msg = messageService.getMessage(metaHelperWebapp.getArea()+".dateRunStartedFormat.error");//area here is runInstance
-					m.put("dateRunStartedError", msg==null?new String("Incorrect Format"):msg);
+					m.addAttribute("dateRunStartedError", msg==null?new String("Incorrect Format"):msg);
 					otherErrorsExist = true;
 				}
 			}
@@ -519,7 +519,7 @@ public class WaspIlluminaController extends WaspController {
 				m.addAttribute(metaHelperWebapp.getParentArea(), runInstance);//metaHelperWebapp.getParentArea() is run
 
 				List<Resource> resources = sampleService.getSequencingMachinesCompatibleWithPU(platformUnit);
-				m.put("resources", resources);
+				m.addAttribute("resources", resources);
 
 				Resource requestedSequencingMachine = sampleService.getSequencingMachineByResourceId(resourceId);
 				m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
@@ -533,7 +533,7 @@ public class WaspIlluminaController extends WaspController {
 				m.addAttribute("resourceId", resourceId);
 				m.addAttribute("platformUnitId", platformUnit.getId().toString());
 				
-				return "wasp-illumina/flowcell/createUpdateRun";				
+				return "wasp-illumina/flowcell/createupdaterun";				
 				
 			}//end of if errors
 			
@@ -565,19 +565,7 @@ public class WaspIlluminaController extends WaspController {
 		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
 	}
 	
-	@RequestMapping(value="/flowcell/deleteRun.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String deleteRun(@RequestParam("runId") Integer runId,
-			ModelMap m) {
-		try{
-			Run run = sampleService.getSequenceRun(runId);//exception if not msp run or not in db
-			sampleService.deleteSequenceRun(run);
-			return "redirect:/wasp-illumina/flowcell/showFlowcell/" + run.getPlatformUnit().getId() + ".do";
-		}catch(Exception e){
-			logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");
-			return "redirect:/dashboard.do";
-		}
-	}
+	
 	
 	/*
 	@RequestMapping(value = "/flowcell/showFlowcell/createNewRun.do", method = RequestMethod.POST)
