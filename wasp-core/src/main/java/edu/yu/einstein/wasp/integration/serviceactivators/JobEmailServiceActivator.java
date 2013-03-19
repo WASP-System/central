@@ -136,13 +136,21 @@ public class JobEmailServiceActivator {
 				}//end for(User user
 			}//end if (job != null		
 		}//end if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && job
-		else if (   ( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) || jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) ) 
-				&& 
-				(   jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)
-					||
-					jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE)
-					||
-					jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)   ) 	){			
+		else if (    jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED)  
+					&& 
+					(
+						jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)//at least one rejected job
+						||
+						jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE)
+						||
+						jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)
+					)
+					
+					|| 
+					
+					( jobStatusMessageTemplate.getStatus().equals(WaspStatus.ACCEPTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS) )//all three accepted the job
+					
+				){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){
 				String jobIdAsString = job.getJobId().toString();
