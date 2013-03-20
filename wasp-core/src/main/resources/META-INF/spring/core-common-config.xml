@@ -13,7 +13,6 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.beans" />
   
   <context:annotation-config/>
   
