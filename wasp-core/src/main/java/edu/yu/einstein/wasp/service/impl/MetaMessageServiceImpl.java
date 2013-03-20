@@ -164,7 +164,9 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 					message = new MetaMessage(metaKey, group, valueComponents[0], valueComponents[1]);
 				} 
 			}
-			if (message != null){
+			if (message == null){
+				logger.warn("Message unexpectedly null!!");
+			} else {
 				message.setDate(meta.getUpdated());
 			}
 		} 
