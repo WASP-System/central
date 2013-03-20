@@ -2,10 +2,11 @@
 package edu.yu.einstein.wasp.service;
 
 import org.springframework.stereotype.Service;
-
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 
@@ -161,6 +162,42 @@ public interface EmailService  {
 	 */
 	public void sendExistingUserPendingPrincipalConfirmRequest(final LabPending labPending);
 
+	/**
+	 * Sends an email to specified recipient stating that a new job has been submitted  
+	 * The emailTemplate tailors the email to the recipient  
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format like emails/inform_submitter_job_started)
+	 */
+	public void sendJobStarted(final Job job, User recipient, String emailTemplate);
+	
+	/**
+	 * Sends an email to specified recipient stating that a job has been abandoned  
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format emails/inform_job_abandoned)
+	 * @param String whoAbandonedJob (weaved into the email text; it's not a name, but it is a role [such as Facility Manger])
+	 * @param String Comment (weaved into email text: comment written by the rejector)
+	 */
+	public void sendJobAbandoned(final Job job, User recipient, String emailTemplate, String whoAbandonedJob, String reasonForAbandoned);
+
+	/**
+	 * Sends an email to specified recipient stating that a job has been accepted 
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format emails/inform_job_accepted)
+	 * @param String whoAbandonedJob (weaved into the email text; it's not a name, but it is a role [such as Facility Manger])
+	 * @param String Comment (weaved into email text: comment written by the rejector)
+	 */
+	public void sendJobAccepted(final Job job, User recipient, String emailTemplate);
+
+	/**
+	 * Sends an email to specified recipient stating that a job has been completed   
+	 * @param Job job
+	 * @param User recipient
+	 * @param String emailTemplate (with format like emails/inform_submitter_job_started)
+	 */
+	public void sendJobCompleted(final Job job, User recipient, String emailTemplate);
 
 }
 

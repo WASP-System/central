@@ -1,0 +1,49 @@
+WASP: New Job Submission
+<p>Dear ${addressedTo.firstName} ${addressedTo.lastName},</p>
+
+<p>As a WASP Department Administrator, you are being sent this email to inform you that ${jobSubmitter.firstName} ${jobSubmitter.lastName}, 
+a member of the lab headed by ${pi.firstName} ${pi.lastName}, has recently submitted a new job request to the 
+Genomics/Epigenomics Shared Facility. The reference number for this submission is J${job.getJobId()} 
+and a brief summary of the request appears below.</p>
+
+<p>This email has been sent to all Department Administrators responsible for this lab, any one of which may act upon this request. 
+A Department Administrator is required to perform two essential tasks in order to move this job submission forward. These two tasks are:<br />
+1. Generate an estimated cost (or quote) for this job and record that cost in WASP<br />
+2. If you determine that sufficient funds are available to this Principal Investigator to cover the anticipated cost of this job, 
+then approve this submission, otherwise reject it.<br />
+</p>
+ 
+<p>To execute these two tasks, <a href="${baseUrl}/auth/login.do">log into WASP</a> and select Tasks from the main menu. You should see  
+a list of your tasks.<br /><br />
+To generate an estimated cost for this job, click on the Job Quote Tasks link, double click on J${job.getJobId()}, complete the pop-up form, 
+and hit the submit button. (If you need to re-quote a job, select Admin from the main menu, then select Quotes.)<br /><br />
+Once a job quote is generated, determine whether ${pi.firstName} ${pi.lastName} has sufficient funds to cover the job costs. 
+To approve or reject the job based on available funds, select Tasks from the main menu, click on the Department Administration Tasks link, 
+choose Job J${job.getJobId()}, indicate either Approved or Rejected, and submit. If you reject this job, please indicate that reason 
+in the space provided. Note: That reason will be displayed to the PI and to the job submitter!</p>
+
+<p>Should you have any further questions, please contact us using the information below.</p>
+
+<p>Regards,<br />The WASP Team<br /></p>
+
+<p>
+<br />
+<b>BRIEF JOB SUMMARY</b><br />
+<b>Job Name &amp; Submitters</b><br />
+Reference Number: J${job.getJobId()}<br />
+Job Name: ${job.getName()}<br />
+Date Submitted: ${job.getCreatets()}<br />
+Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+
+<b>Workflow &amp; Sequencer</b><br />
+Workflow: ${job.getWorkflow().getName()}<br />
+Sequencing Machine: ${machine}<br />
+ReadType: ${readType}<br />
+ReadLength: ${readLength} bp<br /><br />
+
+<b>Samples</b><br />
+#foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
+  ${velocityCount}. ${sample.getName()} (sample type: ${sample.getSampleType().getName()})<br />
+#end
+</p>

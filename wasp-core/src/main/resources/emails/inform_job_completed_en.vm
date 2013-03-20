@@ -1,0 +1,35 @@
+WASP: Job Submission Completed
+<p>Dear ${addressedTo.firstName} ${addressedTo.lastName},</p>
+
+<p>This is to inform you that job submission J${job.getJobId()} has been completed. This job was submitted to the Genomics/Epigenomics 
+Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
+headed by ${pi.firstName} ${pi.lastName}. To review the submission and to obtain your sequencing 
+files, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
+and click on the appropriate job number or click on View Files.</p>
+
+<p>Should you have any further questions, please contact us using the information below.</p>
+
+<p>Regards,<br />The WASP Team<br /></p>
+
+<p>
+<br />
+<b>BRIEF JOB SUMMARY</b><br />
+
+<b>Job Name &amp; Submitters</b><br />
+Reference Number: J${job.getJobId()}<br />
+Job Name: ${job.getName()}<br />
+Date Submitted: ${job.getCreatets()}<br />
+Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+
+<b>Workflow &amp; Sequencer</b><br />
+Workflow: ${job.getWorkflow().getName()}<br />
+Sequencing Machine: ${machine}<br />
+ReadType: ${readType}<br />
+ReadLength: ${readLength} bp<br /><br />
+
+<b>Samples</b><br />
+#foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
+  ${velocityCount}. ${sample.getName()} (sample type: ${sample.getSampleType().getName()})<br />
+#end
+</p>

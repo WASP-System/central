@@ -174,7 +174,7 @@ $(document).ready(function() {
 		var date = $('#gs_date').val();	
 		date = date.replace(/^\s+|\s+$/g,'');//trim 
 		if(typeof(date) !== 'undefined' && date != null && date.length>0){
-			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 			if(!dateFormat.test(date)){
 				alert("<fmt:message key="grid.dateFormat.label" />");
 				return true;//do not perform search 

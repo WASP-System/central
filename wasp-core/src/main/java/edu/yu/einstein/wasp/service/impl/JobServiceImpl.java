@@ -75,6 +75,7 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -122,6 +123,7 @@ import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.util.WaspJobContext;
@@ -318,7 +320,10 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
-	
+
+	@Autowired
+	protected UserService userService;
+
 	@Autowired
 	protected FileService fileService;
 
@@ -1355,7 +1360,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE);
+		updateJobStatus(job, status, WaspJobTask.QUOTE, "");
 	}
 	
 	
@@ -1363,16 +1368,16 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException{
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
 		
 		if(jobApproveCode.equals("piApprove")){
-			updateJobPiApprovalStatus(job, status);
+			updateJobPiApprovalStatus(job, status, comment);
 		}
 		else if(jobApproveCode.equals("daApprove")){
-			updateJobDaApprovalStatus(job, status);
+			updateJobDaApprovalStatus(job, status, comment);
 		}
 		else if(jobApproveCode.equals("fmApprove")){
-			updateJobFmApprovalStatus(job, status);
+			updateJobFmApprovalStatus(job, status, comment);
 		}
 		else{
 			throw new WaspMessageBuildingException();
@@ -1384,8 +1389,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.DA_APPROVE);
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.DA_APPROVE, comment);
 	}
 
 	
@@ -1393,19 +1398,19 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.PI_APPROVE, comment);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.FM_APPROVE);
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.FM_APPROVE, comment);
 	}
 	
-	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
+	private void updateJobStatus(Job job, WaspStatus status, String task, String comment) throws WaspMessageBuildingException{
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
@@ -1416,6 +1421,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (!this.isJobActive(job))
 			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+		messageTemplate.setUserCreatingMessageFromSession(userService);
+		messageTemplate.setComment(comment);
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
 		try{
@@ -1543,7 +1550,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setFacilityJobComment(Integer jobId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -1612,7 +1619,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -1989,9 +1996,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
 			if(jobApprovalCommentsList.size()>0){
-				Format formatter = new SimpleDateFormat("yyyy/MM/dd");
+				
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
+				String currentStatusComment = mm.getValue();
 				if(currentStatusComment != null && !currentStatusComment.isEmpty())
 					return currentStatusComment;
 			}
@@ -2325,7 +2332,22 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void terminate(Job job) throws WaspMessageBuildingException{
-		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS);
+	public void terminate(Job job) throws WaspMessageBuildingException{//will need to provide a comment at some time
+		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS, "");
+
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception{
+		try{			
+			this.setJobApprovalComment(jobApproveCode, job.getId(), comment.trim());//throws Exception
+			this.updateJobApprovalStatus(jobApproveCode, job, status, comment.trim());//perform second, as it kicks off a message; throws WaspMessageBuildingException
+		}catch(Exception e){
+			throw new Exception();
+		}
+	}
+
 }

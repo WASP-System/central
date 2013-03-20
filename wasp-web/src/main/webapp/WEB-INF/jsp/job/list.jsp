@@ -131,7 +131,7 @@ validate = function(){
 	}
 	var createts = $('#gs_createts').val();		 
 	if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
-		var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+		var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 		if(!dateFormat.test(createts)){
 			alert("<fmt:message key="grid.dateFormat.label"/>");
 			return true;//do not perform search 
@@ -334,7 +334,7 @@ jQuery("#list").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true,
 		}
 		var createts = $('#gs_createts').val();		 
 		if(typeof(createts) !== 'undefined' && createts != null && createts.length>0){
-			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 			if(!dateFormat.test(createts)){
 				alert("Required date format: yyyy/MM/dd. It is best to use calendar to select date.");
 				return true;//do not perform search 
