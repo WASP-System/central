@@ -20,7 +20,11 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
-
+/**
+ * Class for resolving file handle objects or ids to urls
+ * @author asmclellan
+ *
+ */
 public class UrlForFile extends BodyTagSupport {
 	
 
