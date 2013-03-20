@@ -4,7 +4,7 @@ WASP: Job Submission Accepted
 <p>This is to inform you that job submission J${job.getJobId()} has been accepted by the lab Principal Investigator (or by a designated Lab Manager), 
 by the Sequencing Facility Manager, and by the Facility Account Manager, allowing this submission to proceed. Note that this job was submitted 
 to the Genomics/Epigenomics Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
-headed by ${pi.firstName} ${pi.lastName}. While a brief summary of the submission appears below, you may review the entire 
+headed by ${pi.firstName} ${pi.lastName}. While a brief summary of the submission appears below, the job submitter and the lab PI may review the entire 
 submission by <a href="${baseUrl}/auth/login.do">logging into WASP</a>, selecting Job/My Submitted Jobs from the main menu, 
 and clicking on the appropriate job number.</p>
 
