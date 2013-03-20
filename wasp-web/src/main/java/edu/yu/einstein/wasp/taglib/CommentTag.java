@@ -46,9 +46,9 @@ public class CommentTag extends BodyTagSupport {
 	
 		
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 		if (commentText == null) 
-			return Tag.SKIP_BODY;
+			return Tag.SKIP_PAGE;
 		
 		StringBuffer buf=new StringBuffer("");
 		buf.append(Tooltip.getCommentHtmlString(commentText));
