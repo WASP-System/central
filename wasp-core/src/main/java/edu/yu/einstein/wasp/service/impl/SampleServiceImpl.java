@@ -54,6 +54,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
@@ -96,8 +97,11 @@ import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
+import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -125,19 +129,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		this.sampleDao = sampleDao;
 	}
 	
-	public void setWorkflowDao(WorkflowDao workflowDao) {
-		this.workflowDao = workflowDao;
-	}
-
-	/**
-	 * getSampleDao();
-	 * 
-	 * @return sampleDao
-	 * 
-	 */
 	@Override
 	public SampleDao getSampleDao() {
 		return this.sampleDao;
+	}
+	
+	public void setWorkflowDao(WorkflowDao workflowDao) {
+		this.workflowDao = workflowDao;
 	}
 	
 	protected AuthenticationService authenticationService;
@@ -161,14 +159,52 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected SampleMetaDao sampleMetaDao;
 	
+	@Autowired
+	protected ResourceService resourceService;
+	
 	protected SampleSourceDao sampleSourceDao;
 	
-	@Autowired
 	protected SampleSourceMetaDao sampleSourceMetaDao;
 	
 
-	@Autowired
+	
 	protected SampleSubtypeDao sampleSubtypeDao;
+	
+
+	@Override
+	public SampleSourceMetaDao getSampleSourceMetaDao() {
+		return sampleSourceMetaDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao) {
+		this.sampleSourceMetaDao = sampleSourceMetaDao;
+	}
+
+	@Override
+	public SampleSubtypeDao getSampleSubtypeDao() {
+		return sampleSubtypeDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleSubtypeDao(SampleSubtypeDao sampleSubtypeDao) {
+		this.sampleSubtypeDao = sampleSubtypeDao;
+	}
+	
+	protected SampleTypeDao sampleTypeDao;
+
+	@Override
+	public SampleTypeDao getSampleTypeDao() {
+		return sampleTypeDao;
+	}
+
+	@Override
+	@Autowired
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
+		this.sampleTypeDao = sampleTypeDao;
+	}
 
 	@Autowired
 	protected AdaptorDao adaptorDao;
@@ -201,14 +237,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected RunService runService;
 		
-	@Autowired
-	protected SampleTypeDao sampleTypeDao;
+	
 	
 	@Autowired
 	protected RunMetaDao runMetaDao;
 	
 	@Autowired
 	 protected ResourceDao resourceDao;
+	
+	@Autowired
+	protected WaspPluginRegistry pluginRegistry;
 	
 	/**
 	 * Setter for the sampleMetaDao
@@ -893,8 +931,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  SampleSource ss = sampleSourceList.get(0);
 		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
 		  return ss.getIndex();
-		  
 	  }
+
 	  
 	  /**
 	   * {@inheritDoc}
@@ -1092,13 +1130,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
-	  public void addLibraryToCell(Sample cell, Sample library, Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
+	  public void addLibraryToCell(Sample cell, Sample library, Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(cell, "No cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  Assert.assertParameterNotNull(library, "No library provided");
 		  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
-		  Assert.assertParameterNotNull(libConcInLanePicoM, "No lib conc provided");
+		  Assert.assertParameterNotNull(libConcInCellPicoM, "No lib conc provided");
 		  if (!isCell(cell)){
 			  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		  }
@@ -1107,11 +1145,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  /* 
 			(1) identify the barcode sequence on the library being added. If problem then terminate. 
-			(2) if the library being added has a barcode that is NONE, and the lane contains ANY OTHER LIBRARY, then terminate. 
-			(3) identify barcode of libraries already on lane; if problem, terminate. Should also get their jobIds.
-			(4) if the lane already has a library with a barcode of NONE, then terminate
-			(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the lane has that same barcode, then terminate. 
-			(6) do we want to maintain only a single jobId for a lane???
+			(2) if the library being added has a barcode that is NONE, and the cell contains ANY OTHER LIBRARY, then terminate. 
+			(3) identify barcode of libraries already on cell; if problem, terminate. Should also get their jobIds.
+			(4) if the cell already has a library with a barcode of NONE, then terminate
+			(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the cell has that same barcode, then terminate. 
+			(6) do we want to maintain only a single jobId for a cell???
 		   */
 
 		  //case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
@@ -1134,34 +1172,34 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
 
 		  //case 2: dispense with this easy check 
-		  if( barcodeOnLibBeingAdded.equals("NONE") && libraries != null && libraries.size() > 0  ){ //case 2: the library being added has a barcode of "NONE" AND the lane to which user wants to add this library already contains one or more libraries (such action is prohibited)
+		  if( barcodeOnLibBeingAdded.equals("NONE") && libraries != null && libraries.size() > 0  ){ //case 2: the library being added has a barcode of "NONE" AND the cell to which user wants to add this library already contains one or more libraries (such action is prohibited)
 			  throw new SampleMultiplexException("Cannot add more than one sample to cell if not multiplexed. Input library has barcode 'NONE'.");
 		  }
 		 
 		  //cases 3, 4, 5, 6 
 		  if (libraries != null) {
-			  for (Sample libraryAlreadyOnLane: libraries) {
-				  Adaptor adaptorOnLane = null;
+			  for (Sample libraryAlreadyOnCell: libraries) {
+				  Adaptor adaptorOnCell = null;
 				  try{
-					  adaptorOnLane = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnLane.getSampleMeta())));
+					  adaptorOnCell = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnCell.getSampleMeta())));
 				  } catch(NumberFormatException e){
-					  throw new MetadataException("Library already on lane: Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
+					  throw new MetadataException("Library already on cell: Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
 				  }
 				  
-				  if(adaptorOnLane==null || adaptorOnLane.getAdaptorId()==null){
-					  throw new SampleException("Library already on lane : No adaptor associated with library");
+				  if(adaptorOnCell==null || adaptorOnCell.getAdaptorId()==null){
+					  throw new SampleException("Library already on cell : No adaptor associated with library");
 				  }
-				  else if( adaptorOnLane.getBarcodesequence()==null || adaptorOnLane.getBarcodesequence().equals("") ){
-					  throw new SampleException("Library already on lane: adaptor has no barcode");
+				  else if( adaptorOnCell.getBarcodesequence()==null || adaptorOnCell.getBarcodesequence().equals("") ){
+					  throw new SampleException("Library already on cell: adaptor has no barcode");
 				  } 
-				  else if( adaptorOnLane.getBarcodesequence().equals("NONE")){ 
-					  throw new SampleMultiplexException("Library already on lane: Cannot add more than one sample to cell if not multiplexed. Library has barcode 'NONE'");
+				  else if( adaptorOnCell.getBarcodesequence().equals("NONE")){ 
+					  throw new SampleMultiplexException("Library already on cell: Cannot add more than one sample to cell if not multiplexed. Library has barcode 'NONE'");
 				  }
-				  else if(adaptorOnLane.getBarcodesequence().equals(barcodeOnLibBeingAdded)){
-					  throw new SampleMultiplexException("Library already on lane: has same barcode as input library");
+				  else if(adaptorOnCell.getBarcodesequence().equals(barcodeOnLibBeingAdded)){
+					  throw new SampleMultiplexException("Library already on cell: has same barcode as input library");
 				  }
 				  else{
-					  // TODO: confirm library is really part of this jobId. For now do nothing. If Einstein, then terminate (lane restricted to libraries from single job)
+					  // TODO: confirm library is really part of this jobId. For now do nothing. If Einstein, then terminate (cell restricted to libraries from single job)
 				  }
 			  }	
 		  }
@@ -1174,7 +1212,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  
 		  try{
 			  setJobForLibraryOnCell(cell, library);
-			  setLibraryOnCellConcentration(cell, library, libConcInLanePicoM);		  
+			  setLibraryOnCellConcentration(cell, library, libConcInCellPicoM);		  
 		  } catch(Exception e){
 			  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
 		  }
@@ -1559,19 +1597,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException{
+	public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfCellsRequested) throws SampleException, SampleTypeException{
 		Assert.assertParameterNotNull(platformUnitInDatabase, "No platform unit provided");
 		Assert.assertParameterNotNullNotZero(platformUnitInDatabase.getId(), "Invalid platform unit Provided");
-		Assert.assertParameterNotNullNotZero(numberOfLanesRequested, "Invalid numberOflanesRequested value provided");
+		Assert.assertParameterNotNullNotZero(numberOfCellsRequested, "Invalid numberOfcellsRequested value provided");
 		Map<Integer,Sample> indexedCellMap = this.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);//throws exception	
-		Integer numberOfLanesInDatabase = indexedCellMap.size();
-		if(numberOfLanesInDatabase.intValue() <= numberOfLanesRequested.intValue()){//no loss of lanes, so return false, as action not prohibited
+		Integer numberOfCellsInDatabase = indexedCellMap.size();
+		if(numberOfCellsInDatabase.intValue() <= numberOfCellsRequested.intValue()){//no loss of cells, so return false, as action not prohibited
 			return false;
 		}
 		
-		//user asking to reduce number of lanes
-		//must check for presence of libraries on those lanes that user seems to want to remove. If any found, return true.
-		for(int i = numberOfLanesRequested.intValue() + 1; i <= numberOfLanesInDatabase.intValue(); i++){
+		//user asking to reduce number of cells
+		//must check for presence of libraries on those cells that user seems to want to remove. If any found, return true.
+		for(int i = numberOfCellsRequested.intValue() + 1; i <= numberOfCellsInDatabase.intValue(); i++){
 			Integer index = new Integer(i);
 			Sample cell = indexedCellMap.get(index);
 			if(cell == null){
@@ -1591,18 +1629,18 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException{
+	public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfCellsRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException{
 		Assert.assertParameterNotNull(platformUnit, "No platformUnit provided");
 		Assert.assertParameterNotNull(sampleSubtype, "No sampleSubtype provided");
 		Assert.assertParameterNotNullNotZero(sampleSubtype.getSampleSubtypeId(), "Invalid sampleSubtype Provided");
 		Assert.assertParameterNotNull(barcodeName, "No barcodeName provided");
-		Assert.assertParameterNotNullNotZero(numberOfLanesRequested, "Invalid numberOfLanesRequested value provided");
+		Assert.assertParameterNotNullNotZero(numberOfCellsRequested, "Invalid numberOfCellsRequested value provided");
 		Assert.assertParameterNotNull(sampleMetaList, "No sampleMetaList provided");
 		String action = new String("create");
 		Sample pu = null;
 		SampleType sampleTypeForPlatformUnit = null;
 		SampleType sampleTypeForCell = null;
-		Integer numberOfLanesInDatabase = null;
+		Integer numberOfCellsInDatabase = null;
 		boolean platformUnitNameHasBeenChanged = false;
 		
 		if(isSampleInDatabase(platformUnit)){//this is an update of an existing record
@@ -1612,9 +1650,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 			
 			//check this first, since it could throw an exception, so no need to proceed with the update unless this is OK
-			numberOfLanesInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
-			if(numberOfLanesInDatabase==null || numberOfLanesInDatabase.intValue()<=0){//should never be 0 lanes on a platformunit
-				throw new SampleException("lanecount in database is not valid for platformunit with Id " + pu.getId().intValue());
+			numberOfCellsInDatabase = this.getNumberOfIndexedCellsOnPlatformUnit(pu);
+			if(numberOfCellsInDatabase==null || numberOfCellsInDatabase.intValue()<=0){//should never be 0 cells on a platformunit
+				throw new SampleException("cellcount in database is not valid for platformunit with Id " + pu.getId().intValue());
 			}	
 			
 			//if update, determine whether platformunit name has been changed
@@ -1626,7 +1664,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			action = new String("update");			
 		}
 		else{//request for a new platformunit record 
-			numberOfLanesInDatabase = new Integer(0);
+			numberOfCellsInDatabase = new Integer(0);
 			pu = new Sample();
 		}
 		
@@ -1642,30 +1680,30 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleTypeException("SampleType of type cell unexpectedly not found");
 		}
 		
-		if(numberOfLanesRequested == null || numberOfLanesRequested.intValue() <= 0){
-			throw new SampleException("Number of lanes requested not valid value");
+		if(numberOfCellsRequested == null || numberOfCellsRequested.intValue() <= 0){
+			throw new SampleException("Number of cells requested not valid value");
 		}
-		else{//confirm numberOfLanesRequested is a valid value for this subtype of platformUnit
+		else{//confirm numberOfCellsRequested is a valid value for this subtype of platformUnit
 			List<Integer> numberOfCellsList = this.getNumberOfCellsListForThisTypeOfPlatformUnit(sampleSubtype);
 			boolean foundIt = false;
 			for(Integer numberOfCellsAllowed : numberOfCellsList){
-				if(numberOfCellsAllowed.intValue()==numberOfLanesRequested.intValue()){
+				if(numberOfCellsAllowed.intValue()==numberOfCellsRequested.intValue()){
 					foundIt = true;
 					break;
 				}
 			}
 			if(!foundIt){
-				throw new SampleException("Number of lanes requested is not compatible with the requested sampleSubtype");
+				throw new SampleException("Number of cells requested is not compatible with the requested sampleSubtype");
 			}
 		}
 		
-		if(numberOfLanesRequested.intValue() >= numberOfLanesInDatabase.intValue()){//request to add lanes or no change in lane number, so not a problem
+		if(numberOfCellsRequested.intValue() >= numberOfCellsInDatabase.intValue()){//request to add cells or no change in cell number, so not a problem
 			;
 		}
-		else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//request to remove lanes; a potential problem if libraries are on the lanes to be removed
+		else if(numberOfCellsRequested.intValue() < numberOfCellsInDatabase.intValue()){//request to remove cells; a potential problem if libraries are on the cells to be removed
 			// perform next test
-			if(this.isRequestedReductionInCellNumberProhibited(pu, numberOfLanesRequested)){//value of true means libraries are assigned to those lanes being asked to be removed. Prohibit this action and inform user to first remove those libraries from the lanes being requested to be removed
-				throw new SampleException("Sample Exception during platform unit update: Action not permitted at this time. To reduce the number of lanes, remove libraries on the lanes that will be lost.");
+			if(this.isRequestedReductionInCellNumberProhibited(pu, numberOfCellsRequested)){//value of true means libraries are assigned to those cells being asked to be removed. Prohibit this action and inform user to first remove those libraries from the cells being requested to be removed
+				throw new SampleException("Sample Exception during platform unit update: Action not permitted at this time. To reduce the number of cells, remove libraries on the cells that will be lost.");
 			}
 		}
 		
@@ -1753,11 +1791,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				}
 			}
 			
-			//lanes
-			//if create new platformunit, or add/remove additional lanes during and update
-			if(numberOfLanesRequested.intValue() > numberOfLanesInDatabase.intValue()){//add lanes; can be create new record (where numberOfLanesInDatabase = 0) or an update to add some more lanes 
+			//cells
+			//if create new platformunit, or add/remove additional cells during and update
+			if(numberOfCellsRequested.intValue() > numberOfCellsInDatabase.intValue()){//add cells; can be create new record (where numberOfCellsInDatabase = 0) or an update to add some more cells 
 	
-				for(int i = numberOfLanesInDatabase + 1; i <= numberOfLanesRequested; i++){//add additional lanes
+				for(int i = numberOfCellsInDatabase + 1; i <= numberOfCellsRequested; i++){//add additional cells
 				
 					Sample cell = new Sample();
 					cell.setSubmitterLabId(platformUnitDb.getSubmitterLabId());
@@ -1784,7 +1822,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					}
 				}
 			}
-			else if(numberOfLanesRequested.intValue() < numberOfLanesInDatabase.intValue()){//update requests to remove lanes; above we already confirmed that this will NOT result in loss of info  with this call (if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfLanesRequested))  
+			else if(numberOfCellsRequested.intValue() < numberOfCellsInDatabase.intValue()){//update requests to remove cells; above we already confirmed that this will NOT result in loss of info  with this call (if(this.requestedReductionInCellNumberIsProhibited(pu, numberOfCellsRequested))  
 				
 				//get the list 
 				//Map<Integer, Sample> indexedCellMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnitInDatabase);
@@ -1794,19 +1832,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 						throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 					}
 					Integer index = ss.getIndex();
-					if(index.intValue() >= numberOfLanesRequested.intValue() + 1 && index.intValue() <= numberOfLanesInDatabase.intValue()){
+					if(index.intValue() >= numberOfCellsRequested.intValue() + 1 && index.intValue() <= numberOfCellsInDatabase.intValue()){
 						//check for present of any libraries on these cells (just as a final fail safe mechanism, as this was tested above)
 						List<Sample> libraryList = null;
 						libraryList = this.getLibrariesOnCell(cell);//throws exception
 						if(libraryList!=null && libraryList.size()>0){//found at least one library
-							throw new SampleException("Cell " + cell.getId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this lane");
+							throw new SampleException("Cell " + cell.getId().intValue() + "unexpectedly has " + libraryList.size() + " libraries on it. Unable to remove this cell");
 						}
 						//first deletes each pu-cell link and its meta (if any) AND THEN ALSO deletes the cell and the cell's meta (if any)
 						this.deleteCellFromPlatformUnit(ss);
 					}
 				}
 			}
-			else if(numberOfLanesRequested.intValue() == numberOfLanesInDatabase.intValue()){//do nothing
+			else if(numberOfCellsRequested.intValue() == numberOfCellsInDatabase.intValue()){//do nothing
 				;
 			}
 	
@@ -1825,7 +1863,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Sample platformUnit = this.getPlatformUnit(platformUnitId);//throws exceptions if not valid pu
 	
 			for (SampleSource puCellLink : platformUnit.getSampleSource()){//represents pu-cell link
-				Sample cell = puCellLink.getSourceSample();//cell is the lane
+				Sample cell = puCellLink.getSourceSample();//cell is the cell
 				if (!isCell(cell)){//confirm its a cell
 					throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 				}
@@ -1988,7 +2026,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	protected void deleteCellFromPlatformUnit(SampleSource puCellLink)throws SampleTypeException{
 		Assert.assertParameterNotNull(puCellLink, "Invalid puCellLink provided");
 		Assert.assertParameterNotNullNotZero(puCellLink.getId(), "Invalid puCellLink provided");
-		Sample cell = puCellLink.getSourceSample();//cell is the lane
+		Sample cell = puCellLink.getSourceSample();//cell is the cell
 		if (!isCell(cell)){
 			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
 		}
@@ -2006,7 +2044,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			throw new SampleTypeException("Expected 'platformunit' but got Sample of type '" + platformUnit.getSampleType().getIName() + "' instead.");
 		}
 		this.deleteSampleBarcode(platformUnit);
-		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readlength, readType, comments
+		this.deleteSampleAndItsMeta(platformUnit);//currently, meta includes readLength, readType, comments
 	}
 	protected void deleteSampleBarcode(Sample sample){
 		Assert.assertParameterNotNull(sample, "Invalid platformUnit provided");
@@ -2261,7 +2299,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	
 	
 	public static final String LIBRARY_ON_CELL_AREA = "LibraryOnCell";
-	public static final String LIB_CONC = "libConcInLanePicoM";
+	public static final String LIB_CONC = "libConcInCellPicoM";
 	public static final String JOB_ID = "jobId";
 	
 	/**
@@ -2308,9 +2346,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException{
+		
 		SampleSource sampleSource = getCellLibrary(cell, library);
 		if (sampleSource == null)
 			throw new SampleException("no relationship between provided cell and library exists in the samplesource table");
+		if (library.getJob() == null){
+			logger.debug("Not setting job for library on cell as library as no job associated with it (probably a control?)");
+			return;
+		}
 		SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 		sampleSourceMeta.setK(LIBRARY_ON_CELL_AREA + "." + JOB_ID);
 		sampleSourceMeta.setV(library.getJob().getId().toString());
@@ -2825,6 +2868,28 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
+		  }
+		  
+		  /**
+		   * Gets the link to display platformunit
+		   * @param platformunit
+		   * @return
+		   */
+		  @Override
+		  public String getPlatformunitViewLink(Sample platformunit){
+			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
+			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
+			  ResourceCategory rc = resourceService.getAssignedResourceCategory(platformunit);
+			  String area = null;
+			  if (rc != null)
+				  area = rc.getIName();
+			  List<SequencingViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, SequencingViewProviding.class);
+			  // we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
+			  if (plugins.size() == 0)
+				  throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
+			  if (plugins.size() > 1)
+				  throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
+			  return plugins.get(0).getShowPlatformUnitViewLink(platformunit.getId());
 		  }
 
 }

@@ -32,11 +32,23 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 public class AdaptorServiceImpl extends WaspServiceImpl implements
 		AdaptorService {
 	
-	@Autowired
 	AdaptorDao adaptorDao;
+
+	@Autowired
+	@Override
+	public void setAdaptorDao(AdaptorDao adaptorDao) {
+		this.adaptorDao = adaptorDao;
+	}
 	
+	@Override
+	public AdaptorDao getAdaptorDao() {
+		return adaptorDao;
+	}
+
 	@Autowired
 	SampleService sampleService;
+	
+	
 
 	/**
 	 * {@inheritDoc}

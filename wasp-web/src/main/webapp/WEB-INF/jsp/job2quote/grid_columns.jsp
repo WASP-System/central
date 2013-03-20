@@ -45,9 +45,9 @@ function isNumber(str) {
 function sumCosts() {
 	if (isNumber($('#acctQuote\\.library_cost').val())
 		&& isNumber($('#acctQuote\\.sample_cost').val())
-		&& isNumber($('#acctQuote\\.lane_cost').val())) {
+		&& isNumber($('#acctQuote\\.cell_cost').val())) {
 		return window.Number($('#acctQuote\\.library_cost').val()) 
 			+ window.Number($('#acctQuote\\.sample_cost').val()) 
-			+ window.Number($('#acctQuote\\.lane_cost').val());
+			+ window.Number($('#acctQuote\\.cell_cost').val());
 	}
 };

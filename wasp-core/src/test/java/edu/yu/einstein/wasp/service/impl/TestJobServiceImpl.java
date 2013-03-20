@@ -599,7 +599,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
   }
 
-  @Test (description="test when machine, readLength and quote are set")
+  @Test (description="test when machine, readLength, readType and quote are set")
   public void getExtraJobDetails() {
 	  
 	  Job job = new Job();
@@ -613,6 +613,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  resourceType.setResourceTypeId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setIName("IlluminaHiSeq2000");
 	  resourceCategory.setResourceType(resourceType);
 	  jrc.setResourceCategory(resourceCategory);
 	    
@@ -622,10 +623,19 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  //Job meta
 	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
+	  jobMeta.setId(1);
+	  jobMeta.setK("IlluminaHiSeq2000.readLength");
 	  jobMeta.setV("1");
 	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 	  jobMetaList.add(jobMeta);
+	  
+	//Job meta
+	  JobMeta jobMeta2 = new JobMeta();
+	  jobMeta2.setId(2);
+	  jobMeta2.setK("IlluminaHiSeq2000.readType");
+	  jobMeta2.setV("single");
+	  jobMetaList.add(jobMeta2);
+	  
 	  job.setJobMeta(jobMetaList);
 	  
 	  //Quote
@@ -641,6 +651,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();	 
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", acctQuote.getAmount()));
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
@@ -661,6 +672,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  resourceType.setId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setIName("IlluminaHiSeq2000");
 	  resourceCategory.setResourceType(resourceType);
 	  jrc.setResourceCategory(resourceCategory);
 	    
@@ -668,12 +680,21 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobResourceCategoryList.add(jrc);
 	  job.setJobResourcecategory(jobResourceCategoryList);
 	  
-	  //Job meta
+	//Job meta
 	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
+	  jobMeta.setId(1);
+	  jobMeta.setK("IlluminaHiSeq2000.readLength");
 	  jobMeta.setV("1");
 	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 	  jobMetaList.add(jobMeta);
+	  
+	//Job meta
+	  JobMeta jobMeta2 = new JobMeta();
+	  jobMeta2.setId(2);
+	  jobMeta2.setK("IlluminaHiSeq2000.readType");
+	  jobMeta2.setV("single");
+	  jobMetaList.add(jobMeta2);
+	  
 	  job.setJobMeta(jobMetaList);
 	  	  
 	  AcctQuote acctQuote = new AcctQuote();
@@ -685,6 +706,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Float price = new Float(123.45);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
@@ -700,6 +722,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(0);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	 
@@ -715,6 +738,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(123);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	
@@ -730,6 +754,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(123);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	
@@ -745,6 +770,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(9999999999.9999999);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	 

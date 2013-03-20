@@ -199,7 +199,7 @@
 								<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 				<input type='hidden' name='librarysampleid' value='<c:out value="${facilityLibraryForThisMacromolecule.getSampleId()}" />'/>
 								<br />
-				 				<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
+				 				<select class="FormElement ui-widget-content ui-corner-all" name="cellsampleid" id="cellsampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
 								<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
 								<c:forEach items="${availableAndCompatibleFlowCells}" var="flowCell">
 								<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
@@ -229,7 +229,7 @@
 								</c:forEach> 
 							</c:forEach>
 							</select>
-								<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
+								<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
 								<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 							</form>
 							</td></tr>
@@ -238,30 +238,27 @@
 						
 					</td>						
 					<td>
-					<c:set var="sampleSourceList" value="${facilityLibraryForThisMacromolecule.getSourceSample()}" scope="page" />
-							<c:choose>
-								<c:when test="${sampleSourceList.size() > 0}">
-									<c:forEach items="${sampleSourceList}" var="sampleSource">
-										<c:set var="cell" value="${sampleSource.getSample()}" scope="page" />
-										<c:set var="sampleSourceList2" value="${cell.getSourceSample()}" scope="page" />
-										<c:forEach items="${sampleSourceList2}" var="sampleSource2">
-											<c:set var="laneNumber" value="${sampleSource2.getIndex()}" scope="page" />
-											<c:set var="platformUnit" value="${sampleSource2.getSample()}" scope="page" />
-											<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${laneNumber}"/> 
-											<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
-											<c:if test="${runList.size() > 0}">
-												<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
-											</c:if>
-											<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
-											<br />
-										</c:forEach>
-									</c:forEach>
-	
-								</c:when>
-								<c:otherwise>
-									<fmt:message key="listJobSamples.noPlatformUnitsAndRuns.label" /> <br />
-								</c:otherwise>
-							</c:choose>
+					
+					<c:set var="cellWrapperList" value="${cellsByLibrary.get(facilityLibraryForThisMacromolecule)}" scope="page" />
+					<c:choose>
+						<c:when test="${cellWrapperList.size() > 0}">
+							<c:forEach items="${cellWrapperList}" var="cellWrapper">
+								<c:set var="cell" value="${cellWrapper.getCell()}" scope="page" />
+								<c:set var="cellNumber" value="${cellWrapper.getIndex()}" scope="page" />
+								<c:set var="platformUnit" value="${cellWrapper.getPlatformUnit()}" scope="page" />
+								<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${cellNumber}"/> 
+								<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
+								<c:if test="${runList.size() > 0}">
+									<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
+								</c:if>
+								<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
+								<br />
+							</c:forEach>			
+						</c:when>
+						<c:otherwise>
+							<fmt:message key="listJobSamples.noPlatformUnitsAndRuns.label" /><br />
+						</c:otherwise>
+					</c:choose>
 					</td>				
 					</tr>					  	
 					<c:set var="rowCounter" value="${rowCounter + 1}" scope="page" />
@@ -318,7 +315,7 @@
 						<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
 				 		<input type='hidden' name='librarysampleid' value='<c:out value="${userSubmittedLibrary.getSampleId()}" />'/>
 						<br />
-				 		<select class="FormElement ui-widget-content ui-corner-all" name="lanesampleid" id="lanesampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
+				 		<select class="FormElement ui-widget-content ui-corner-all" name="cellsampleid" id="cellsampleid_<c:out value="${idCounter}" />" size="1" onchange="validate(this)">
 							<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
 							<c:forEach items="${availableAndCompatibleFlowCells}" var="flowCell">
 								<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${flowCell.getName()}" /> [<c:out value="${flowCell.getSampleSubtype().getName()}" />]</option>
@@ -348,7 +345,7 @@
 								</c:forEach> 
 							</c:forEach>
 						</select>
-						<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
+						<br />&nbsp;<fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${idCounter}" />" size='3' maxlength='5'>
 						<br />&nbsp;<input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input class="button" type="button" value="<fmt:message key="listJobSamples.cancel.label" />" onclick='toggleDisplayOfAddLibraryForm("cancel", <c:out value="${idCounter}" />)' />
 					</form>
 					</td></tr>
@@ -359,17 +356,17 @@
 		<td>
 		<c:set var="cellWrapperList" value="${cellsByLibrary.get(userSubmittedLibrary)}" scope="page" />
 		<c:choose>
-			<c:when test="${sampleSourceList.size() > 0}">
+			<c:when test="${cellWrapperList.size() > 0}">
 				<c:forEach items="${cellWrapperList}" var="cellWrapper">
 					<c:set var="cell" value="${cellWrapper.getCell()}" scope="page" />
-					<c:set var="laneNumber" value="${cellWrapper.getIndex()}" scope="page" />
+					<c:set var="cellNumber" value="${cellWrapper.getIndex()}" scope="page" />
 					<c:set var="platformUnit" value="${cellWrapper.getPlatformUnit()}" scope="page" />
-					<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${laneNumber}"/> 
+					<c:out value="${platformUnit.getName()}"/> <fmt:message key="listJobSamples.cell.label" />: <c:out value="${cellNumber}"/> 
 					<c:set var="runList" value="${platformUnit.getRun()}" scope="page" />
 					<c:if test="${runList.size() > 0}">
 						<br />&nbsp;&nbsp;&nbsp;---&gt; <c:out value="${runList.get(0).getName()}"/>
 					</c:if>
-					<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/facility/platformunit/showPlatformUnit/${platformUnit.getSampleId()}.do" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
+					<sec:authorize access="hasRole('su') or hasRole('ft')"><a href="<c:url value="/${showPlatformunitViewMap.get(platformUnit)}" />"> [<fmt:message key="listJobSamples.view.label" />]</a></sec:authorize>
 					<br />
 				</c:forEach>			
 			</c:when>

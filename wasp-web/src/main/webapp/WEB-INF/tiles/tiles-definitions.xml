@@ -225,10 +225,6 @@
 	<definition name="run/detail" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/run/detail.jsp" />
 	</definition>
-	<definition name="run/createUpdateRun" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/run/createUpdateRun.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/run/createUpdateRun.jsp" />
-	</definition>
 	<definition name="task/assignLibraries/lists" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/assignLibraries/lists.jsp" />
 	</definition>
@@ -371,10 +367,6 @@
 	</definition>
 	<definition name="facility/platformunit/limitPriorToPlatUnitAssign" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/limitPriorToPlatformUnitListForm.jsp" />
-	</definition>
-	<definition name="facility/platformunit/showPlatformUnit" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/facility/platformunit/showPlatformUnit.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/facility/platformunit/showPlatformUnit.jsp" />
 	</definition>
 	<definition name="lab/pendinguser/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/lab/pendinguser/list.jsp" />

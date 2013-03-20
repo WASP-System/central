@@ -165,11 +165,11 @@ $(document).ready(function() {
 			}
 		}
 /*
-		var readlength = $('#gs_readlength').val();
-		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 
+		var readLength = $('#gs_readLength').val();
+		readLength = readLength.replace(/^\s+|\s+$/g,'');//trim 
 		var numberFormat=new RegExp("^[0-9]+$");
-		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
-			if(!numberFormat.test(readlength)){
+		if(typeof(readLength) !== 'undefined' && readLength != null && readLength.length>0){
+			if(!numberFormat.test(readLength)){
 				alert("Readlength must be an integer");
 				return true;//do not perform search 
 			}

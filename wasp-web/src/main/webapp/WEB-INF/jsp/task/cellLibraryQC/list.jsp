@@ -12,7 +12,7 @@
 		<c:set value="${cellLibraryRunMap.get(cellLibrary)}" var="run" />
 		<br />-<c:out value="${macromolecule.getName()}" />		
 		<br />--<c:out value="${library.getName()}" />
-		<br />---<c:out value="${pu.getName()}" /> (Lane <c:out value="${cellLibrary.getIndex().toString()}" />)
+		<br />---<c:out value="${pu.getName()}" /> (Cell <c:out value="${cellLibrary.getIndex().toString()}" />)
 		<br />----<c:out value="${run.getName()}" />
 	</c:forEach>
 </c:forEach>
@@ -58,7 +58,7 @@
 			<c:set value="${cellLibraryRunMap.get(cellLibrary)}" var="run" />
 			<td style='text-align:center;vertical-align:middle;'><c:out value="${macromolecule.getName()}" /></td>
 			<td style='text-align:center;vertical-align:middle;'><c:out value="${library.getName()}" /></td>
-			<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Lane: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
+			<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
 			<td style='text-align:center;vertical-align:middle;'>
 			
 				<c:if test="${status.first}"><br /></c:if>
