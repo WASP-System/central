@@ -7,7 +7,8 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-	<context:component-scan base-package="edu.yu.einstein.wasp.file.web" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.file.web.controller" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.file.web.service.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
 
