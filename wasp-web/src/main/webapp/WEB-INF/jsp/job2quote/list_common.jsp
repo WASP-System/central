@@ -110,7 +110,7 @@ validate = function(){
 	
 	var submitted_on = $('#gs_submitted_on').val();		 
 	if(typeof(submitted_on) !== 'undefined' && submitted_on != null && submitted_on.length>0){
-		var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+		var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 		if(!dateFormat.test(submitted_on)){
 			alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
 			return true;//do not perform search 

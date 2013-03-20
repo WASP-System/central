@@ -267,7 +267,7 @@ public class SampleDnaToLibraryController extends WaspController {
   } 
   
   @RequestMapping(value="/listJobSamples/{jobId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
   public String listJobSamples(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
     
 	

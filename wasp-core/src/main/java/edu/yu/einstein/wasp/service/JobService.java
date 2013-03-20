@@ -303,7 +303,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	
 	/**
@@ -313,7 +313,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	/**
 	 * Updates the Job Pi Approval Status for job
@@ -322,7 +322,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	/**
 	 * Updates the Job Facility Manager Approval Status for job
@@ -331,7 +331,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 
 	/**
 	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
@@ -558,6 +558,17 @@ public interface JobService extends WaspMessageHandlingService {
 	public void terminate(Job job) throws WaspMessageBuildingException;
 
 	
-
+	/**
+	 * As the method title states, set the job approval status and the comment that goes along with it in a single transaction.
+	 * Throw exception if problem
+	 * @param String jobApproveCode (fmApprove, daApprove, piApprove)
+	 * @param Job job
+	 * @param WaspStatus status
+	 * @param String comment
+	 * @throws WaspMessageBuildingException
+	 */
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception;
+	//public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	//public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
 }

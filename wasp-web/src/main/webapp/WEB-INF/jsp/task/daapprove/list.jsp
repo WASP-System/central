@@ -93,14 +93,26 @@
       			</c:forEach>
       			
       			<br />
-      			<form action="<c:url value="/task/daJobApprove/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
- 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
- 				<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="jobapprovetask.approve.label" /> &nbsp;
- 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="jobapprovetask.reject.label" /><br />
- 				<textarea id="comment" name="comment" cols="30" rows="2"></textarea><br />
-					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="jobapprovetask.reset.label" />">
-				<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobapprovetask.submit.label" />">
-				</form>  
+      			<c:choose>
+      				<c:when test='${quotemap.get(job)=="true"}'>
+      					<h2 style="color:red">*****<fmt:message key="jobapprovetask.jobneedsquote.label" />*****</h2>
+      					<a href="<c:url value="/job2quote/list.do" />"><fmt:message key="jobapprovetask.gotoquotes.label" /></a>
+      				</c:when>
+      				<c:otherwise>
+		    			<form action="<c:url value="/task/daJobApprove/${job.lab.departmentId}.do"/>" id="theForm<c:out value="${job.jobId}" />" method="POST" onsubmit="return validate(this);">
+						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.jobId}"> 
+						<div style="color:red;font-size:11px;font-weight:bold;">
+ 							<fmt:message key="dapendingtask.reasonForReject.label" /><br />
+ 							<fmt:message key="dapendingtask.conveyedToUser.label" /> 					
+ 						</div>
+						<input class="FormElement ui-widget-content ui-corner-all" type="radio" id = "action" name = "action" value = "APPROVED"><fmt:message key="jobapprovetask.approve.label" /> &nbsp;
+						<input class="FormElement ui-widget-content ui-corner-all" onclick='selectedFail("theForm<c:out value="${job.jobId}" />");' type="radio" id = "action" name = "action" value = "REJECTED"><fmt:message key="jobapprovetask.reject.label" /><br />
+						<textarea id="comment" name="comment" cols="30" rows="2"></textarea><br />
+						<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="jobapprovetask.reset.label" />">
+						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobapprovetask.submit.label" />">
+						</form> 
+					</c:otherwise>
+				</c:choose>	 
       		</div>      
    		 </c:forEach>
     	</div> 

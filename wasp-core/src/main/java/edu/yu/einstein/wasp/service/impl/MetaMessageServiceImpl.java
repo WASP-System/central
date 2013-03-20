@@ -157,7 +157,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 			if (!nameAndValue.contains(DELIMITER)){
 				message = new MetaMessage(metaKey, group, "", nameAndValue);
 			} else {
-				String[] valueComponents = StringUtils.split(nameAndValue, DELIMITER);
+				String[] valueComponents = nameAndValue.split(DELIMITER, 2);////StringUtils.split(nameAndValue, DELIMITER); don't use StringUtils.split() - it can actually return more than two elements - even though the specs say only two
 				if (valueComponents.length == 1){
 					message = new MetaMessage(metaKey, group, valueComponents[0], "");
 				} else if (valueComponents.length == 2){
@@ -165,6 +165,7 @@ public class MetaMessageServiceImpl extends WaspServiceImpl implements MetaMessa
 				} 
 			}
 			message.setDate(meta.getUpdated());
+			message.setUser(meta.getLastUpdatedByUser());
 		} 
 		return message;
 	}

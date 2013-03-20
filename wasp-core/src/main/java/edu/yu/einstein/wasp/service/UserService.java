@@ -63,5 +63,11 @@ public interface UserService extends WaspService {
    */
   public UserMetaDao getUserMetaDao();
 
+  	/**
+	 * get list of facility managers (distinct list of users with role of fm ).
+	 * @return List<User>
+	 */
+  public List<User> getFacilityManagers();
+
 }
 

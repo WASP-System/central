@@ -1,0 +1,52 @@
+WASP: New Job Submission
+<p>Dear ${addressedTo.firstName} ${addressedTo.lastName},</p>
+
+<p>This is to inform you that a member of your lab, ${jobSubmitter.firstName} ${jobSubmitter.lastName}, has recently submitted 
+a new job request to the Genomics/Epigenomics Shared Facility. The reference number for this submission is J${job.getJobId()} and 
+a brief summary of the request appears below.</p>
+
+<p>This email is being sent to ${pi.firstName} ${pi.lastName} (the Principal Investigator of the lab), 
+and to all designated Lab Managers for this lab, 
+to request that either the PI or Lab Manager approve or reject this new job submission. 
+To approve or reject the submission, <a href="${baseUrl}/auth/login.do">log into WASP</a>, select Tasks from the main menu, 
+click on the Lab Management Tasks link, select Job J${job.getJobId()}, choose Approved or Rejected, and then click the Submit button. 
+If you reject this job, please provide a reason in the space provided. 
+(Note that in addition, the Principal Investigator may review all details of this submission by 
+selecting Job/My Submitted Jobs from the main menu, and clicking on the appropriate job number.)</p> 
+
+<p>Processing of this request will proceed following:<br />
+1. Approval by the Principal Investigator (or designated Lab Manager) of the laboratory<br />
+2. Approval by the head of the Genomics/Epigenomics Shared Facility<br />
+3. Confirmation of funds availability by our Accounts Manager<br />
+4. Arrival of samples at the facility<br /></p>
+
+<p>Note: To assign a regular lab member the status of Lab Manager, to demote a Lab Manager to that of regular lab member, 
+or to change the status of an active lab member to that of inactive lab member, <a href="${baseUrl}/auth/login.do">log into WASP</a>, 
+select Labs from the main menu, click on the User Manager link for the lab, and follow the directions provided.</p>
+
+<p>Should you have any further questions, please contact us using the information below.</p>
+
+<p>Regards,<br />The WASP Team<br /></p>
+
+<p>
+<br />
+<b>BRIEF JOB SUMMARY</b><br />
+
+<b>Job Name &amp; Submitters</b><br />
+Reference Number: J${job.getJobId()}<br />
+Job Name: ${job.getName()}<br />
+Date Submitted: ${job.getCreatets()}<br />
+Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+
+<b>Workflow &amp; Sequencer</b><br />
+Workflow: ${job.getWorkflow().getName()}<br />
+Sequencing Machine: ${machine}<br />
+ReadType: ${readType}<br />
+ReadLength: ${readLength} bp<br /><br />
+
+<b>Samples</b><br />
+#foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
+  ${velocityCount}. ${sample.getName()} (sample type: ${sample.getSampleType().getName()})<br />
+#end
+</p>

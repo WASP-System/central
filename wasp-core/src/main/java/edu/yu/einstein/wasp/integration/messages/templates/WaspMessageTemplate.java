@@ -44,15 +44,15 @@ public abstract class WaspMessageTemplate implements MessageTemplate{
 	}
 	
 	public void setUserCreatingMessageFromSession(UserService userService){
-		User user = null;
+		userCreatingMessage = null;
 		try{
 			try{
 				final String login = SecurityContextHolder.getContext().getAuthentication().getName();
-				user = userService.getUserByLogin(login);
-				if (user.getId() == null)
-					user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
+				userCreatingMessage = userService.getUserByLogin(login);
+				if (userCreatingMessage.getId() == null)
+					userCreatingMessage = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
 			} catch (Exception e){
-				user = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
+				userCreatingMessage = userService.getUserDao().getUserByLogin("wasp"); // wasp user (reserved)
 			}
 		} catch (Exception e){
 			logger.debug("not attempting setting last updating user as not able to resolve a user to assign");
