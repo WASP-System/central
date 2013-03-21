@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
@@ -46,9 +47,9 @@ public class TooltipTag extends BodyTagSupport {
 	
 		
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws JspException {
 		if (tooltipText == null) 
-			return Tag.SKIP_BODY;
+			return Tag.SKIP_PAGE;
 		
 		StringBuffer buf=new StringBuffer("");
 		buf.append(Tooltip.getTooltipHtmlString(tooltipText));

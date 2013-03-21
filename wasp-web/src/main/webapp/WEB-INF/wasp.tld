@@ -286,4 +286,24 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>		
 	</tag>
+	<tag>
+        <!-- 
+		<description>Gets URL for a file</description>
+          -->
+		<name>url</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.UrlForFile</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Gets the URL for a given file registered in the database</description>
+			<name>fileHandle</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Provide a literal value for the comment text</description>
+			<name>fileHandleId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
 </taglib>

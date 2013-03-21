@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.file.web;
+package edu.yu.einstein.wasp.file.web.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,8 +12,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javassist.util.proxy.ProxyFactory;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -21,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 
@@ -113,7 +110,11 @@ public class FileController implements InitializingBean {
 			}
 			
 			logger.debug(prefix + "/" + folder + filename);
-
+			
+			ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
+			String contentType = mimeMap.getContentType(filename);
+			logger.debug("ContentType of file is: " + contentType);
+			
 			java.io.File download = new java.io.File(prefix + "/" + folder + filename);
 			
 			if (!download.exists()) {
@@ -122,11 +123,7 @@ public class FileController implements InitializingBean {
 
 			InputStream is = new FileInputStream(download);
 			
-			// TODO: set content stream based on file type.
-
-			String content = new MediaType("application", "octet-stream").toString();
-			response.setContentType(content);
-
+			response.setContentType(contentType);
 			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
 			response.setHeader( "Content-Length", String.valueOf( download.length() ));
 

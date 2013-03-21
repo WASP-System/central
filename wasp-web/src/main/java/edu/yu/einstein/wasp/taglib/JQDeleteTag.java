@@ -31,7 +31,7 @@ public class JQDeleteTag extends BodyTagSupport {
 
 
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 		
 		
 		String buf=

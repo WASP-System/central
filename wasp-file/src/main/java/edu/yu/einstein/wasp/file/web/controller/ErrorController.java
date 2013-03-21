@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.file.web;
+package edu.yu.einstein.wasp.file.web.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

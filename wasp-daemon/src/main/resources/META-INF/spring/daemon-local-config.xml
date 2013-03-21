@@ -9,6 +9,9 @@
 	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
  	
+ 	<!-- import custom service activators -->
+ 	<import resource="classpath*:META-INF/spring/**/*service-activators.xml" />
+ 	
  	<!-- import internationalized messaging -->
 	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" >
 		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" /> 

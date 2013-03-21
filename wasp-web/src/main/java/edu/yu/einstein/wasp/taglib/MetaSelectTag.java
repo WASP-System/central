@@ -40,7 +40,7 @@ public class MetaSelectTag extends BodyTagSupport {
 
 
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 
 		if (control==null) return Tag.EVAL_PAGE;
 		

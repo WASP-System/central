@@ -469,7 +469,7 @@ public class JQFieldTag extends BodyTagSupport {
 			throw new JspTagException(e.getMessage(),e);
 		}
 		
-		return Tag.EVAL_PAGE;
+		return Tag.EVAL_BODY_INCLUDE;
 	}
 	
 	//replace "#field" tokens in tag body with real name 
