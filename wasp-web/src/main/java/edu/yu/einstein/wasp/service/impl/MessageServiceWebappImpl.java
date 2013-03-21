@@ -14,6 +14,11 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Qualifier("messageServiceWebappImpl")
 @Transactional("entityManager")

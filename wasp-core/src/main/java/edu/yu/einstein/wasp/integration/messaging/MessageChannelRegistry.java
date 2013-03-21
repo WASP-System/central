@@ -9,7 +9,7 @@ import org.springframework.integration.MessagingException;
 
 /**
  * Registry for storing and retrieving message channel bean references
- * @author andymac
+ * @author asmclellan
  *
  */
 public class MessageChannelRegistry {

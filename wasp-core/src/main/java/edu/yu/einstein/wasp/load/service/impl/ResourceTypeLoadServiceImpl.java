@@ -9,6 +9,11 @@ import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.load.service.ResourceTypeLoadService;
 import edu.yu.einstein.wasp.model.ResourceType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class ResourceTypeLoadServiceImpl extends WaspLoadServiceImpl implements	ResourceTypeLoadService {

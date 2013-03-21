@@ -9,6 +9,11 @@ import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.load.service.FileTypeLoadService;
 import edu.yu.einstein.wasp.model.FileType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class FileTypeLoadServiceImpl extends WaspLoadServiceImpl implements FileTypeLoadService {

@@ -6,7 +6,7 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 
 /**
  * Interface defining message templates
- * @author andymac
+ * @author asmclellan
  *
  */
 public interface MessageTemplate {

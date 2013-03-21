@@ -11,6 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional
 public class JobStatusServiceImpl {

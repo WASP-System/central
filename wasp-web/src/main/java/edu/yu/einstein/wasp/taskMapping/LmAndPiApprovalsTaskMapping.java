@@ -5,6 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.TaskService;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class LmAndPiApprovalsTaskMapping extends WaspTaskMapping {
 	
 	private TaskService taskService;

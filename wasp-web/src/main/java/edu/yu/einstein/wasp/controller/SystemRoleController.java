@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.util.StringHelper;
 
 /**
  * Class for handling requests for adding and removing system roles to existing users
- * @author andymac
+ * @author asmclellan
  *
  */
 @Controller

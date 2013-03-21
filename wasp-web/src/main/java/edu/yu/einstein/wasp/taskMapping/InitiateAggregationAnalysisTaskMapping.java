@@ -6,7 +6,11 @@ import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.JobService;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class InitiateAggregationAnalysisTaskMapping extends WaspTaskMapping {
 	
 	private JobService jobService;

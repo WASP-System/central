@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation for applying generic retry advice for Spring Batch 
  * 
- * @author andymac
+ * @author asmclellan
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

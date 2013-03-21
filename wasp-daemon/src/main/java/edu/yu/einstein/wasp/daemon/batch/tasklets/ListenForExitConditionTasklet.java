@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate
 /**
  * Listens on the provided subscribable channel(s) for relevant completion messages. Also monitors the abort monitoring channel
  * and stops the entire job if a relevant notifying abort message is received at any time. 
- * @author andymac
+ * @author asmclellan
  */
 public class ListenForExitConditionTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
 	

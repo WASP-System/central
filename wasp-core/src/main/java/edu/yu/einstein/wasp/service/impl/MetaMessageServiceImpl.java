@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.service.MetaMessageService;
 /**
  * Message metadata saving and retrieval. Can store chronological metadata about the status of an entity via a key - value system. Ideal for
  * Displaying status information to users.
- * @author andymac
+ * @author asmclellan
  *
  */
 @Service
