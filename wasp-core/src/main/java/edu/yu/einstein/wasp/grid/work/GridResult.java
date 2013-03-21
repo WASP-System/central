@@ -3,6 +3,8 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.InputStream;
 import java.util.UUID;
 
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+
 /**
  * Wrapper for results returned from an execution of work on a {@link GridWorkService}.
  * @author calder
@@ -82,5 +84,9 @@ public interface GridResult {
 	 * @return
 	 */
 	public void setArchivedResultOutputPath(String path);
+	
+	public ExecutionMode getMode();
+	
+	public int getNumberOfTasks();
 
 }

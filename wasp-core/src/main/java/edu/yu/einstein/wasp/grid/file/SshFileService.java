@@ -86,7 +86,7 @@ public class SshFileService implements GridFileService {
 
 				destination.copyFrom(file, Selectors.SELECT_SELF);
 				logger.debug(localFile.getAbsolutePath() + " copied to " + remote + " (" + destination.getName().getFriendlyURI() + ")");
-
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
@@ -246,6 +246,7 @@ public class SshFileService implements GridFileService {
 					file.delete();
 					logger.debug("Deleted " + remoteFile + "@" + transportConnection.getHostName());
 				}
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
@@ -324,7 +325,7 @@ public class SshFileService implements GridFileService {
 
 				destination.createFile();
 				logger.debug(destination.getName().getPath() + " created on " + remote);
-
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
@@ -392,7 +393,7 @@ public class SshFileService implements GridFileService {
 					destination.createFolder();
 
 				logger.debug(destination.getName().getPath() + " created on " + remote);
-
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
@@ -449,7 +450,7 @@ public class SshFileService implements GridFileService {
 				FileObject destFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
 
 				originFile.moveTo(destFile);
-
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());
@@ -496,7 +497,7 @@ public class SshFileService implements GridFileService {
 				FileObject destinationFile = manager.resolveFile(getRemoteFileURL(destination), createDefaultOptions(hostKeyChecking, timeout));
 
 				destinationFile.copyFrom(originFile, Selectors.SELECT_SELF);
-
+				break;
 			} catch (Exception e) {
 				// FileSystemException, GridUnresolvableHostException
 				logger.debug("caught exception in retry block: " + e.toString());

@@ -47,7 +47,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	private Session session;
 	
 	// TODO: configure
-	private int execTimeout = 30000;
+	private int execTimeout = 60000;
 	
 		
 	private String identityFileName;
@@ -122,14 +122,21 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			return;
 		}
 		logger.debug("opening session");
-		session = client.startSession();
+		try {
+			session = client.startSession();
+		} catch (ConnectionException e) {
+			logger.warn("session apparently timed out, attempting to recover: " + e.toString());
+			initClient();
+			session = client.startSession();
+		}
 	}
 	
 	private void closeSession() throws TransportException, ConnectionException {
-		logger.debug("no session to close");
+		logger.debug("closing session");
 		if (session != null) {
-			logger.debug("closing session");
 			session.close();
+		} else {
+			logger.debug("no session to close");
 		}
 	}
 
@@ -196,7 +203,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			logger.error("problem sending command");
 			throw new GridAccessException("problem closing session", e);
 		}
-
+		logger.debug("returning result");
 		return (GridResult) result;
 
 	}

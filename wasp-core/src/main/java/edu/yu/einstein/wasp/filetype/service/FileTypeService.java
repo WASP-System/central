@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.service.filetype;
+package edu.yu.einstein.wasp.filetype.service;
 
 import edu.yu.einstein.wasp.model.FileHandle;
 
@@ -28,7 +28,7 @@ public interface FileTypeService {
 	 * In the case where multiple files comprise a component of a single file (e.g. separate FASTQ files
 	 * for forward and reverse reads in an Illumina run), each of these files will have the same "file number"
 	 * and must be discriminated by an additional piece of metadata supplied by the file specific service. (e.g.
-	 * FastqService.READ_SEGMENT_NUMBER_META_KEY). 
+	 * FastqService.FASTQ_READ_SEGMENT_NUMBER). 
 	 * 
 	 * @param file
 	 * @return integer or null

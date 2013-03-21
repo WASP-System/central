@@ -136,7 +136,7 @@ public class WorkUnit {
 	/**
 	 * Method for determining how many processors are necessary to execute this task.
 	 */
-	private ProcessMode processMode = ProcessMode.MAX;
+	private ProcessMode processMode = ProcessMode.FIXED;
 	
 	/**
 	 * get the ProcessMode
@@ -153,6 +153,27 @@ public class WorkUnit {
 		this.processMode = mode;
 	}
 	
+	private Integer numberOfTasks;
+	
+	/**
+	 * 
+	 * @return the numberOfTasks
+	 */
+	public Integer getNumberOfTasks() {
+		return numberOfTasks;
+	}
+	/**
+	 * When the WorkUnit is run in ExecutionMode.TASK_ARRAY, this is the number of tasks that will be requested.
+	 * all files will be numbered prefix:$TASK.  Where $TASK is zero based.
+	 * 
+	 * @param numberOfTasks the numberOfTasks to set
+	 */
+	public void setNumberOfTasks(Integer numberOfTasks) {
+		this.numberOfTasks = numberOfTasks;
+	}
+	
+	
+	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
 	 * and is not guaranteed to have any additional effects.  Future implementation may include ARRAY, MPI.
@@ -164,7 +185,7 @@ public class WorkUnit {
 		/**
 		 * Handle processing at the process level.  Default.
 		 */
-		PROCESS, MPI;
+		PROCESS, MPI, TASK_ARRAY;
 	}
 	
 	/**

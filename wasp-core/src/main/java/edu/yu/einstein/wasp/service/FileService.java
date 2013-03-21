@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -134,6 +135,8 @@ public interface FileService extends WaspService {
 	public void register(FileHandle file) throws FileNotFoundException, GridException;
 	
 	public void register(FileGroup group) throws FileNotFoundException, GridException;
+	
+	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
 }
 
