@@ -68,7 +68,7 @@ import edu.yu.einstein.wasp.service.JobService;
 
 /**
  * Methods for handling json responses for JQuery auto-complete on input boxes
- * @author andymac
+ * @author asmclellan
  *
  */
 

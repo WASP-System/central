@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.model.MetaBase;
 /**
  * Implements validation of MetaBase children based on "constraint" properties read from uifield table
  * 
- * @Author Sasha Levchuk
+ * @Author Sasha Levchuk / asmclellan
  */
 
 public class MetaValidatorImpl implements MetaValidator {

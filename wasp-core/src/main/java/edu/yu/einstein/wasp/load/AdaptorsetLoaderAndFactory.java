@@ -16,8 +16,10 @@ import edu.yu.einstein.wasp.model.SampleType;
 
 /**
  * update/inserts adaptorset from bean definition 
+ * 
+ * @author asmclellan
+ *
  */
-
 public class AdaptorsetLoaderAndFactory extends WaspLoader implements FactoryBean<Adaptorset> {
 
 	@Autowired

@@ -11,6 +11,8 @@ import edu.yu.einstein.wasp.model.ResourceType;
 /**
  * update/inserts db copy of ResourceType from bean definition
  * 
+ * @author asmclellan
+ * 
  */
 
 public class ResourceTypeLoaderAndFactory extends WaspLoader implements	FactoryBean<ResourceType> {

@@ -17,6 +17,8 @@ import edu.yu.einstein.wasp.model.UiField;
  * base clase for all the wasp loaders
  * full of convenience methods like
  *	- updateUiFields
+ * 
+ * @author asmclellan
  *
  */
 

@@ -14,6 +14,8 @@ import edu.yu.einstein.wasp.model.WorkflowMeta;
 
 /**
  * update/inserts db copy of subtype sample from bean definition
+ * 
+ * @author asmclellan
  */
 
 public class WorkflowLoaderAndFactory extends WaspResourceLoader implements	FactoryBean<Workflow> {

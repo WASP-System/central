@@ -10,7 +10,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 /**
  * Routes messages with a task of NOTIFY_STATUS reporting a WaspStatus of FAILED or ABANDONED to the abort channel. All
  * other messages go to the success channel
- * @author andymac
+ * @author asmclellan
  *
  */
 public class SuccessOrAbortMessageRouter {

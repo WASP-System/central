@@ -14,7 +14,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Converts Apache Tiles mapping to page title string
  * Expects "pageTitle.definitionName.label" property in uifield database table.
  * @Author Sasha Levchuk
