@@ -54,7 +54,7 @@ public class FileController implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(method = RequestMethod.GET, value = "/get/{uuid}")
+	@RequestMapping(method = RequestMethod.GET, value = "/get/file/{uuid}")
 	public void getFile(@PathVariable("uuid") String uuid, HttpServletResponse response) {
 
 		try {

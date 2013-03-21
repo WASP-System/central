@@ -49,7 +49,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	 */
 	@Override
 	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
-		return getURL(file, "");
+		return getURL(file, "file");
 	}
 	
 	public URL getURL(FileHandle file, String subPath) throws GridUnresolvableHostException {
