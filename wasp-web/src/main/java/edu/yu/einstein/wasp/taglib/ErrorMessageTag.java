@@ -17,10 +17,10 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Displays localized messages using list of keys stored in session under name "_feedback"
  * 
- * @Author Sasha Levchuk
+ * @Author asmclellan
  */
 public class ErrorMessageTag extends BodyTagSupport {
 	

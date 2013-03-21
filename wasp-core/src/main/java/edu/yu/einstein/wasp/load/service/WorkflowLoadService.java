@@ -7,6 +7,12 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
 
+
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface WorkflowLoadService extends WaspLoadService {
 
 	

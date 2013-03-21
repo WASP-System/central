@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 /**
  * Contains utility methods for manipulating
  * meta and MetaAttribute objects
- * @author Sasha Levchuk
+ * @author asmclellan
  *
  */
 public class MetaHelperWebapp extends MetaHelper {

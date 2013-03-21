@@ -17,6 +17,11 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class ResourceCategoryLoadServiceImpl extends WaspLoadServiceImpl implements ResourceCategoryLoadService {

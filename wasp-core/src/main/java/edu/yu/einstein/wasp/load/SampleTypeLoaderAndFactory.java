@@ -11,6 +11,8 @@ import edu.yu.einstein.wasp.model.SampleTypeCategory;
 
 /**
  * update/inserts db copy of type SampleType from bean definition
+ * 
+ * @author asmclellan
  */
 
 public class SampleTypeLoaderAndFactory extends WaspLoader implements FactoryBean<SampleType> {

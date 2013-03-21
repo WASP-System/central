@@ -13,7 +13,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 /**
  * Handling WaspRunStatus messages.
  * 
- * @author andymac
+ * @author asmclellan
  * 
  */
 public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {

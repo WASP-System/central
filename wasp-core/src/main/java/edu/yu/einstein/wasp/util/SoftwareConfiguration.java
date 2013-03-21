@@ -8,7 +8,7 @@ import edu.yu.einstein.wasp.model.Software;
 
 /**
  * Simple class to bind software to its parameters.
- * @author andymac
+ * @author asmclellan
  *
  */
 public class SoftwareConfiguration implements Serializable{

@@ -13,6 +13,11 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.User;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 
 	protected UserDao userDao;

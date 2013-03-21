@@ -18,6 +18,8 @@ import edu.yu.einstein.wasp.model.SoftwareMeta;
 /**
  * update/inserts db copy of subtype sample from bean definition
  * 
+ * @author asmclellan
+ * 
  */
 
 public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLoader implements FactoryBean<T>, ApplicationContextAware {

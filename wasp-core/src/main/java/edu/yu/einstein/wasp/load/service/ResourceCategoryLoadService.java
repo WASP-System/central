@@ -6,6 +6,11 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface ResourceCategoryLoadService extends WaspLoadService{
 
 	public ResourceCategory update(List<ResourceCategoryMeta> meta, ResourceType resourceType, String iname, String name, int isActive);

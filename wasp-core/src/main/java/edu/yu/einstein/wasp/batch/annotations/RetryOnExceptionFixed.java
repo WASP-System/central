@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Retry advice for fixed backoff retry
  * 
- * @author andymac
+ * @author asmclellan
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

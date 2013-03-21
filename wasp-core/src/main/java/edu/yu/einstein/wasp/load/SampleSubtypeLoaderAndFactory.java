@@ -16,6 +16,8 @@ import edu.yu.einstein.wasp.model.SampleType;
 /**
  * update/inserts db copy of subtype sample from bean definition
  * 
+ * @author asmclellan
+ * 
  */
 public class SampleSubtypeLoaderAndFactory extends WaspLoader implements FactoryBean<SampleSubtype> {
 

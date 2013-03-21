@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.service.RoleService;
 /**
  * Contains utility methods for manipulating
  * meta and MetaAttribute objects
- * @author Sasha Levchuk
+ * @author asmclellan / Sasha Levchuk
  *
  */
 public class MetaHelper {

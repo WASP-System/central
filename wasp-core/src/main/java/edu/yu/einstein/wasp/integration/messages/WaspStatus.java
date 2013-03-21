@@ -7,7 +7,7 @@ package edu.yu.einstein.wasp.integration.messages;
  * 
  * This enum is modeled after the Spring Batch BatchStatus enum.
  * 
- * @author andymac / brent
+ * @author asmclellan / brent
  *
  */
 public enum WaspStatus {

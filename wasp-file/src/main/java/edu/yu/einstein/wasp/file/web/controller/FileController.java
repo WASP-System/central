@@ -4,11 +4,13 @@
 package edu.yu.einstein.wasp.file.web.controller;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,29 +54,32 @@ public class FileController implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(method = RequestMethod.GET, value = "/get/{id}")
-	public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
+	@RequestMapping(method = RequestMethod.GET, value = "/get/file/{uuid}")
+	public void getFile(@PathVariable("uuid") String uuid, HttpServletResponse response) {
 
 		try {
-			Integer i;
+			UUID uu;
 			try {
-				i = new Integer(id);
+				uu = UUID.fromString(uuid);
 			} catch (NumberFormatException e) {
-				throw new WaspException("unable to search for record " + id);
+				throw new WaspException("unable to search for record " + uuid);
 			}
-			FileHandle wf = fileService.getFileHandleById(i);
 			
-			if (wf == null || !(wf instanceof FileHandle)) {
-				logger.debug("not in db");
+			FileHandle wf;
+			try {
+				 wf = fileService.getFileHandle(uu);
+				 logger.debug(wf.toString());
+			} catch (FileNotFoundException e1) {
+				logger.debug(uuid.toString() + " not in db");
 				throw new WaspException("FileHandle not in database");
-			} else {
-				logger.debug(wf.toString());
 			}
+
 			if (wf.getId() == null) {
 				logger.debug("empty object");
 				throw new WaspException("FileHandle is not known");
 			}
 
+			// TODO: non file URL and URN resolution
 			if (!wf.getFileURI().toString().startsWith("file://")) {
 				logger.warn("This implementation only handles file URIs. URI: " + wf.getFileURI());
 				throw new WaspException("unable to resolve URI: " + wf.getId());
@@ -132,10 +137,10 @@ public class FileController implements InitializingBean {
 			response.flushBuffer();
 			is.close();
 		} catch (IOException ex) {
-			logger.warn("Error writing file " + id + " to output stream.");
+			logger.warn("Error writing file " + uuid.toString() + " to output stream.");
 			ex.printStackTrace();
 		} catch (WaspException e) {
-			logger.warn("unable to deliver file: " + id);
+			logger.warn("unable to deliver file: " + uuid.toString());
 			try {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {

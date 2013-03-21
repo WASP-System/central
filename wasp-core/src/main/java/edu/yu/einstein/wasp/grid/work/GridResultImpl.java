@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.UUID;
 
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+
 
 /**
  * Default Implementation of {@link GridResult}.
@@ -30,6 +32,40 @@ public class GridResultImpl implements GridResult, Serializable {
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
+	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
+	private int numberOfTasks = 1;
+	
+	/**
+	 * @return the mode
+	 */
+	@Override
+	public ExecutionMode getMode() {
+		return mode;
+	}
+
+	/**
+	 * @param mode the mode to set
+	 */
+	public void setMode(ExecutionMode mode) {
+		this.mode = mode;
+	}
+
+	/**
+	 * @return the numberOfTasks
+	 */
+	@Override
+	public int getNumberOfTasks() {
+		return numberOfTasks;
+	}
+
+	/**
+	 * @param numberOfTasks the numberOfTasks to set
+	 */
+	public void setNumberOfTasks(int numberOfTasks) {
+		this.numberOfTasks = numberOfTasks;
+	}
+
 	@Override
 	public int getExitStatus() {
 		return exitStatus;

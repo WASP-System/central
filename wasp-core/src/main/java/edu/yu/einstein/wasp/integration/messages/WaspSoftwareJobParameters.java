@@ -5,6 +5,11 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class WaspSoftwareJobParameters extends WaspJobParameters {
 
 	public static final String LIBRARY_CELL_ID_LIST = "libraryCellIdList"; // Sample Source reference
