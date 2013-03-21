@@ -27,7 +27,7 @@
          <property name="area" ref="illuminaMiSeqPersonalSequencerArea" />
          <property name="metaList">
          	<list>
-         		<value>allowableUiField.readlength=25:25;36:36;50:50;100:100;150:150</value>
+         		<value>allowableUiField.readLength=25:25;36:36;50:50;100:100;150:150</value>
          		<value>allowableUiField.readType=single:single;paired:paired</value>
          	</list>
          </property>
@@ -40,7 +40,7 @@
           <property name="baseName" value="readLength" />
           <property name="metaposition" value="10" />
           <property name="label" value="Read Length" />
-          <property name="control" value="select:#{dollar}{resourceOptions.get(readlength)}:value:label" /> 
+          <property name="control" value="select:#{dollar}{resourceOptions.get(readLength)}:value:label" /> 
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must choose a read length" />
         </bean>

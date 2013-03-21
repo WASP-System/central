@@ -1,12 +1,10 @@
 package edu.yu.einstein.wasp.service.impl.illumina;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
@@ -15,7 +13,6 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
-import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -27,8 +24,8 @@ import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.illumina.IlluminaQcContext;
 
-@Component
-@Transactional
+@Service
+@Transactional("entityManager")
 public class WaspIlluminaQcServiceImpl extends WaspServiceImpl implements WaspIlluminaQcService{
 	
 	public static class CellSuccessQcMetaKey extends CellSuccessMeta{

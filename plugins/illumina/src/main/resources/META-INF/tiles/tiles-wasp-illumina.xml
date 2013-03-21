@@ -48,7 +48,15 @@
 	<definition name="wasp-illumina/postrunqc/list" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/list.jsp" />
 	</definition>
-
+	<definition name="wasp-illumina/flowcell/showflowcell" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/flowcell/showFlowcell.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/flowcell/showFlowcell.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/flowcell/createupdaterun" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/flowcell/createUpdateRun.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/flowcell/createUpdateRun.jsp" />
+	</definition>
 
 
 </tiles-definitions>
