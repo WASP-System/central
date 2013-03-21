@@ -42,6 +42,8 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
+import edu.yu.einstein.wasp.dao.AcctQuoteDao;
+import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -84,6 +86,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -232,6 +235,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		this.logger = logger;
 	}
 	
+	@Autowired
+	private AcctQuoteDao acctQuoteDao;
+
+	@Autowired
+	private AcctQuoteMetaDao acctQuoteMetaDao;
+
 	@Autowired
 	private JobDraftDao jobDraftDao;
 	
@@ -1360,7 +1369,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE, "");
+		updateJobStatus(job, status, WaspJobTask.QUOTE, "", false);
 	}
 	
 	
@@ -1390,7 +1399,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobDaApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.DA_APPROVE, comment);
+		updateJobStatus(job, status, WaspJobTask.DA_APPROVE, comment, true);
 	}
 
 	
@@ -1399,7 +1408,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobPiApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.PI_APPROVE, comment);
+		updateJobStatus(job, status, WaspJobTask.PI_APPROVE, comment, true);
 	}
 	
 	/**
@@ -1407,10 +1416,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobFmApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.FM_APPROVE, comment);
+		updateJobStatus(job, status, WaspJobTask.FM_APPROVE, comment, true);
 	}
 	
-	private void updateJobStatus(Job job, WaspStatus status, String task, String comment) throws WaspMessageBuildingException{
+	private void updateJobStatus(Job job, WaspStatus status, String task, String comment, boolean checkForJobActive) throws WaspMessageBuildingException{
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
@@ -1418,7 +1427,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		Assert.assertParameterNotNull(task, "No Task provided");
-		if (!this.isJobActive(job))
+		if (checkForJobActive && !this.isJobActive(job))
 			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
@@ -2333,7 +2342,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void terminate(Job job) throws WaspMessageBuildingException{//will need to provide a comment at some time
-		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS, "");
+		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS, "", true);
 
 	}
 	
@@ -2350,4 +2359,50 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception{
+		Assert.assertParameterNotNullNotZero(jobId, "jobId cannot be null or zero");
+		Job job = jobDao.getById(jobId);
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+jobId+" not found in database");
+		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
+		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
+		Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+		quoteForm.setJobId(jobId);
+		quoteForm.setId(null);//new one; must leave this - problem without it
+		User user = authenticationService.getAuthenticatedUser();
+		quoteForm.setUser(user);
+		acctQuoteDao.save(quoteForm);	//the save has set the new id in quoteForm	
+		Integer quoteId = quoteForm.getId();		
+		if(quoteId==null||quoteId==0){		
+			String str = "acctQuote not properly saved to database - invalid id";
+			logger.warn(str);
+			throw new Exception(str);
+		}
+			
+		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
+		try{	
+			this.acctQuoteMetaDao.setMeta(metaList, quoteId);	
+		} catch (MetadataException e){
+			logger.warn(e.getMessage());
+			throw new Exception(e.getMessage());
+		}
+				
+		if (!job.getAcctQuote().contains(quoteForm)){//it will not contain it, as this is a new quote
+					
+			job.getAcctQuote().add(quoteForm);//no real reason to do this here
+		}
+		job.setCurrentQuote(quoteForm);		
+		this.getJobDao().save(job);		
+				
+		try{	
+			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
+		} catch (WaspMessageBuildingException e){
+			logger.warn(e.getMessage());
+			throw new Exception(e.getMessage());
+		}	
+	}
 }
