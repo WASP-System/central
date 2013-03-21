@@ -25,26 +25,10 @@
 	
 	<script type="text/javascript">
 	
-		function waspTooltip(){
-			$( ".tooltip" ).tooltip({
-		  	      position: {
-		  	        my: "center bottom-20",
-		  	        at: "center top",
-		  	        using: function( position, feedback ) {
-		  	          $( this ).css( position );
-		  	          $( "<div>" )
-		  	            .addClass( "arrow" )
-		  	            .addClass( feedback.vertical )
-		  	            .addClass( feedback.horizontal )
-		  	            .appendTo( this );
-		  	        }
-		  	      }
-		  	    });
-		}
+		
 	
 		$( document ).ready( function(){
-			waspTooltip();
-	  		waspFade("waspErrorMessage");
+			waspFade("waspErrorMessage");
 	  		waspFade("waspMessage");
 	  	});
 	
@@ -610,10 +594,32 @@
 						else {
 						    jQuery("#grid_id").setSelection (userdata.selId, true);
 						}
+						
 					},
+					
+					
+					
 		
 					onPaging : function(which_button) {
 						$("#grid_id").setGridParam({datatype:'json'});
+						
+					},
+					
+					gridComplete : function(){
+						$( ".tooltip" ).tooltip({
+					  	      position: {
+					  	        my: "center bottom-20",
+					  	        at: "center top",
+					  	        using: function( position, feedback ) {
+					  	          $( this ).css( position );
+					  	          $( "<div>" )
+					  	            .addClass( "arrow" )
+					  	            .addClass( feedback.vertical )
+					  	            .addClass( feedback.horizontal )
+					  	            .appendTo( this );
+					  	        }
+					  	      }
+					  	    });
 					},
 		 
 					ondblClickRow: function(rowid) {//enable "edit" on dblClick			
