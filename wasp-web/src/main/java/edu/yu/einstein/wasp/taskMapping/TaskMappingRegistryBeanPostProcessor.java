@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.exception.WaspException;
 
 /**
  * Registers any beans extending the {@link WaspTaskMapping} abstract class with the injected {@link TaskMappingRegistry}
- * @author andymac
+ * @author asmclellan
  *
  */
 public class TaskMappingRegistryBeanPostProcessor implements BeanPostProcessor {

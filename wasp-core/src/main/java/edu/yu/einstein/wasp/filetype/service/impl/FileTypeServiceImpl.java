@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.service.filetype.impl;
+package edu.yu.einstein.wasp.filetype.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.filetype.service.FileTypeService;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
-import edu.yu.einstein.wasp.service.filetype.FileTypeService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 

@@ -12,6 +12,11 @@ import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class SequenceReadProperties {
 
 	private static final Logger logger = LoggerFactory.getLogger(SequenceReadProperties.class);

@@ -11,26 +11,18 @@
 
 package edu.yu.einstein.wasp.model;
 
-import java.net.URI;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
@@ -40,13 +32,14 @@ import org.hibernate.envers.NotAudited;
 @Audited
 @Table(name="filegroup")
 public class FileGroup extends WaspModel {
-
+	
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1239304568632087021L;
-	
-	
+	private static final long serialVersionUID = 8180206804994670917L;
+
+
 	public FileGroup() {
 		filehandles = new HashSet<FileHandle>();
 		begat = new HashSet<FileGroup>();

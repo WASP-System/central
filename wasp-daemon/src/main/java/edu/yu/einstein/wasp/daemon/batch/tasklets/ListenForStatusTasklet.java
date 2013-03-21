@@ -28,7 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
 /**
  * Listens on the provided subscribable channel for a message with a task and status specified in the
  * provided message template.
- * @author andymac
+ * @author asmclellan
  */
 public class ListenForStatusTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
 	

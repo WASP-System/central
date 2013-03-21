@@ -6,7 +6,7 @@ import edu.yu.einstein.wasp.model.User;
 
 /**
  * Encapsulates metadata messages for attaching to entities e.g. facility manager notes and status reports from wasp-daemon
- * @author andymac
+ * @author asmclellan
  *
  */
 public class MetaMessage{

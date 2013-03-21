@@ -8,6 +8,11 @@ import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface AdaptorsetLoadService extends WaspLoadService{
 	
 	public Adaptorset update(List<AdaptorsetMeta> adaptorsetmeta, List<Adaptor> adaptorList, SampleType sampleType, String iname,

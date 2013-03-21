@@ -15,7 +15,11 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class SampleWrapperWebapp extends SampleWrapper{
 
 	

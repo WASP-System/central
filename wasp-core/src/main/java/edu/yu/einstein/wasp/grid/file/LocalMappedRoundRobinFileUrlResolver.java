@@ -49,11 +49,16 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	 */
 	@Override
 	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
+		return getURL(file, "file");
+	}
+	
+	public URL getURL(FileHandle file, String subPath) throws GridUnresolvableHostException {
 		if (! file.getFileURI().toString().startsWith("file://")) {
-			logger.warn("unable to obtain file URL for file " + file.getFileId());
+			logger.warn("unable to obtain file URL for file " + file.getId());
 			throw new GridUnresolvableHostException();
 		}
 		
+		//currently only handles file:// URLs.
 		Matcher hostm = Pattern.compile("^file://(.*?)/").matcher(file.getFileURI().toString());
 		
 		if (! hostm.find()) {
@@ -79,16 +84,20 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		if (!destination.endsWith("/"))
 			destination += "/";
 		
+		if (!subPath.endsWith("/"))
+			subPath += "/";
+		
 		URL retval;
 		
+		String file_uri = destination + subPath + "/" + file.getUUID().toString();
 		try {
-			URI uri = new URI(destination + file.getFileId());
+			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();
 		} catch (URISyntaxException e) {
-			logger.debug("unable to coerce " + destination + file.getFileId() + " to URI");
+			logger.warn("unable to coerce " + file_uri + " to URI");
 			throw new GridUnresolvableHostException();
 		} catch (MalformedURLException e) {
-			logger.debug("unable to coerce " + destination + file.getFileId() + " to URL");
+			logger.warn("unable to coerce " + file_uri + " to URL");
 			throw new GridUnresolvableHostException();
 		} finally {
 			

@@ -2,7 +2,11 @@ package edu.yu.einstein.wasp.util;
 
 import java.util.Random;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class AuthCode {
 
 	public static String create(int length){

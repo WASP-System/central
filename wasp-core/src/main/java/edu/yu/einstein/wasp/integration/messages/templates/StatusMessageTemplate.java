@@ -6,7 +6,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 /**
  * Interface defining status message templates
- * @author andymac
+ * @author asmclellan
  *
  */
 public interface StatusMessageTemplate extends MessageTemplate{

@@ -21,6 +21,11 @@ import edu.yu.einstein.wasp.batch.core.extension.dao.WaspStepExecutionDao;
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplorerWasp{
 	
 	private WaspJobInstanceDao waspJobInstanceDao;

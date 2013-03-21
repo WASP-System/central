@@ -3,7 +3,7 @@ package edu.yu.einstein.wasp.exception;
 import java.sql.SQLException;
 
 /**
- * @author andymac
+ * @author asmclellan
  *
  */
 public class BatchDaoDataRetrievalException extends SQLException {

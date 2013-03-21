@@ -1,5 +1,10 @@
 package edu.yu.einstein.wasp.integration.messages;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class WaspJobParameters {
 	
 	public static final String JOB_ID = "jobId";

@@ -38,6 +38,11 @@ import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.service.impl.WorkflowServiceImpl;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class WorkflowLoadServiceImpl extends WaspLoadServiceImpl implements	WorkflowLoadService {

@@ -5,6 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.service.JobService;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class SampleQCTaskMapping extends WaspTaskMapping {
 	
 	private JobService jobService;

@@ -24,7 +24,11 @@ import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Repository
 public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements WaspStepExecutionDao, InitializingBean{
 	

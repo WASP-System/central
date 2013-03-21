@@ -85,7 +85,7 @@
   <import resource="classpath*:/wasp-site-context.xml" />
   
   <!-- load universal file type service beans -->
-  <bean id="fastqService" class="edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl" />
+  <bean id="fastqService" class="edu.yu.einstein.wasp.filetype.service.impl.FastqServiceImpl" />
 
 
 

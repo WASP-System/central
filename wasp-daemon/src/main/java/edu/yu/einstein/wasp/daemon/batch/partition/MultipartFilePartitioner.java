@@ -11,10 +11,10 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.filetype.service.FastqService;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.filetype.FastqService;
 
 /**
  * {@link Partitioner} that takes a 

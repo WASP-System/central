@@ -12,6 +12,8 @@ import edu.yu.einstein.wasp.model.FileType;
 
 /**
  * update/inserts db copy of type FileType from bean definition
+ * 
+ * @author asmclellan
  */
 
 public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<FileType> {

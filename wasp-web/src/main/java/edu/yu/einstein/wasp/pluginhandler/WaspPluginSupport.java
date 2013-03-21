@@ -33,6 +33,7 @@ import org.springframework.web.context.ServletContextAware;
 /**
  * Allows extraction of contents of a JAR file under the specified resource path and placed within the webapp in the equivalent location. All files matching 
  * a given Ant path pattern under the source path will be copied to the destination path using the same structure.
+ * 
  */
 public class WaspPluginSupport implements ServletContextAware {
 

@@ -23,7 +23,5 @@ public interface FileHandleMetaDao extends WaspMetaDao<FileHandleMeta> {
   public FileHandleMeta getFileMetaByKWorkflowId(String k, Integer fileId);
 
 
-
-
 }
 

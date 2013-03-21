@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * Handling Wasp Analysis Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
- * @author andymac
+ * @author asmclellan
  *
  */
 public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{

@@ -28,7 +28,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Builds jqGrid-compatible JavaScript object to describe a field
  * 
  * @Author Sasha Levchuk

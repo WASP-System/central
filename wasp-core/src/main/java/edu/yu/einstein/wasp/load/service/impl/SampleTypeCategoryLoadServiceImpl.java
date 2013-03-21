@@ -9,6 +9,11 @@ import edu.yu.einstein.wasp.dao.SampleTypeCategoryDao;
 import edu.yu.einstein.wasp.load.service.SampleTypeCategoryLoadService;
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class SampleTypeCategoryLoadServiceImpl extends WaspLoadServiceImpl implements SampleTypeCategoryLoadService {

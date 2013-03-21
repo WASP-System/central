@@ -176,6 +176,24 @@ public class FileHandle extends WaspModel {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
+	@ManyToOne
+	@JoinColumn(name="filetypeid")
+	protected FileType fileType;
+	
+	/**
+	 * @return the fileType
+	 */
+	public FileType getFileType() {
+		return fileType;
+	}
+
+	/**
+	 * @param fileType the fileType to set
+	 */
+	public void setFileType(FileType fileType) {
+		this.fileType = fileType;
+	}
 
 	/** 
 	 * sizek

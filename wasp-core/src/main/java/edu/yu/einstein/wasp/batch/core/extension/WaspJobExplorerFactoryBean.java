@@ -18,6 +18,11 @@ import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobExecutionDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspStepExecutionDao;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class WaspJobExplorerFactoryBean extends JobExplorerFactoryBean implements InitializingBean {
 
 	
