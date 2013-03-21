@@ -12,6 +12,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -26,6 +27,7 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  *
  */
+@Transactional("entityManager")
 @Component
 public class UpdateRunCompletedTasklet extends WaspTasklet {
 	
@@ -38,6 +40,10 @@ public class UpdateRunCompletedTasklet extends WaspTasklet {
 	@Autowired
 	private IlluminaSequenceRunProcessor casava;
 
+	public UpdateRunCompletedTasklet() {
+		
+	}
+	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**

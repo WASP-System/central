@@ -11,19 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
-import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -83,7 +79,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			logger.debug("platform unit: " + platformUnit.getName());
 		} else {
 			logger.error("Not a platform unit: " + platformUnit.getName());
-			throw new edu.yu.einstein.wasp.exception.InvalidParameterException(platformUnit.getSampleId() + " is not a platform unit");
+			throw new edu.yu.einstein.wasp.exception.InvalidParameterException(platformUnit.getId() + " is not a platform unit");
 		}
 		
 		List<SoftwarePackage> sp = new ArrayList<SoftwarePackage>();
@@ -230,7 +226,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			if (cellMarked[cellid-1] == false) {
 				Sample placeholder = new Sample();
 				Adaptor adaptor = new Adaptor();
-				placeholder.setSampleId(-1);
+				placeholder.setId(-1);
 				
 				String line = buildLine(platformUnit, cellid, "", placeholder, "N", "WASP");
 				
@@ -251,7 +247,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			// if it is null or otherwise not set, it does not exist
 			adapter = "";
 		}
-		String sampleId = sample.getSampleId().toString();
+		String sampleId = sample.getId().toString();
 		String sampleName = sample.getName();
 		
 		if (sampleId.equals("-1")) {

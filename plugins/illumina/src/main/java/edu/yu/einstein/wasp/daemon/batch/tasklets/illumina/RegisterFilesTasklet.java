@@ -24,6 +24,8 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.filetype.service.FastqService;
+import edu.yu.einstein.wasp.filetype.service.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
@@ -41,8 +43,6 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.service.filetype.FastqService;
-import edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
@@ -129,7 +129,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		w.setCommand("mkdir -p wasp && cd wasp && ln -fs ../reports . && mkdir -p sequence && cd sequence");
 		// rename files with spaces in names
 		w.addCommand("shopt -s nullglob");
-		w.addCommand("for f in ../reports/*' '* ; do mv \"$f\" \"${f// /_}\"; done");
+		w.addCommand("for f in ../reports/*' '* ; do mv -f \"$f\" \"${f// /_}\"; done");
 		
 		Set<Sample> allLibraries = new HashSet<Sample>();
 		Sample platformUnit = run.getPlatformUnit();
@@ -155,7 +155,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				logger.debug("setting up for sample " + s.getId());
 				// generate symlinks for fastq
 				w.addCommand("for x in ../../Project_WASP/Sample_" + s.getId() + "/" + s.getId() + "*.fastq.gz ; do \n" +
-						"  ln -s `readlink -f ${x}` .\ndone");
+						"  ln -sf `readlink -f ${x}` .\ndone");
 			}
 
 		}
@@ -188,10 +188,10 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 	}
 
-	@Transactional
 	private void createSequenceFiles(Sample platformUnit, Set<Sample> samples, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
 		String line;
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
+		logger.debug("parsing output to create sequence files for " + platformUnit.getName());
 		try {
 			FileGroup pufg = new FileGroup();
 			pufg.setIsActive(1);
@@ -212,6 +212,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			Sample library = null;
 			
 			while (line != null) {
+				logger.debug(line);
 				Matcher l = Pattern.compile("^(.*?)_(.*?)_L(.*?)_R(.*?)_(.*?).fastq.gz$").matcher(line);
 				
 				if (!l.find()) {
@@ -225,11 +226,16 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				Integer read = new Integer(l.group(4));
 				Integer fileNum = new Integer(l.group(5));
 				
+				logger.debug("file: " + libraryId + ":" + barcode + ":" + lane + ":" + read + ":" + fileNum);
+				logger.debug("from: " + line);
+				
 				if (library == null || !library.getId().equals(libraryId)) {
-					if (!samples.contains(library))
-						continue;
 					library = sampleService.getSampleById(libraryId);
-					
+					logger.debug("saw library: " + libraryId + "(" + library.getName() + ")");
+					if (!samples.contains(library)) {
+						logger.warn("library " + library.getId() + " is not in the list of libraries to process");
+						continue;
+					}
 					// create a group for samplefiles
 					FileGroup sampleGroup = new FileGroup();
 					sampleGroup.setIsActive(1);
@@ -251,6 +257,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				
 				String uri = file.getFileURI().toString();
 				file.setFileName(uri.substring(uri.lastIndexOf('/') + 1));
+				file.setFileType(fastqFileType);
 				fileService.addFile(file);
 				fqs.setSingleFile(file, false);
 				fqs.setFileNumber(file, fileNum);
@@ -262,7 +269,9 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				boolean f = false;
 				if (PropertyHelper.isSet(failed) && failed == "true")
 					f = true;
-				fqs.setReadsMarkedFailed(file, f);
+				fqs.setContainsFailed(file, f);
+				
+				fqs.setLibraryUUID(file, library);
 				
 				//add file to pu samplefile and library samplefile
 				pufg.getFileHandles().add(file);
@@ -317,12 +326,12 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				file.setFileName(line);
 				line = br.readLine();
 				qcfg.getFileHandles().add(file);
+				file.setFileType(waspIlluminaHiseqQcMetricsFileType);
 				fileService.addFile(file);
 			}
 			qcfg.setDescription("Illumina QC files");
 			fileService.addFileGroup(qcfg);
 			fileService.register(qcfg);
-			
 			
 			Sample pu = run.getPlatformUnit();
 			pu.getFileGroups().add(qcfg);
