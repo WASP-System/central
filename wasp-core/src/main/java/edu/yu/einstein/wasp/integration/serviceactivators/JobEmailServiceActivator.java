@@ -1,13 +1,8 @@
 package edu.yu.einstein.wasp.integration.serviceactivators;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,25 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.MetaMessage;
-//import edu.yu.einstein.wasp.controller.PlatformUnitController.SelectOptionsMeta;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
-
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.security.WaspJdbcDaoImpl;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
-
-import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.User;
-//import edu.yu.einstein.wasp.model.Role;
 
 @Transactional("entityManager")//must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
 public class JobEmailServiceActivator {
@@ -85,10 +74,10 @@ public class JobEmailServiceActivator {
 		
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
-			if(job != null && job.getJobId() != null){
-				String jobIdAsString = job.getJobId().toString();
+			if(job != null && job.getId() != null){
+				String jobIdAsString = job.getId().toString();
 				String labIdAsString = job.getLab().getId().toString();
-				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
+				String departmentIdAsString = job.getLab().getDepartment().getId().toString();
 				List<String> rolesForJobStart = convertDelimitedListToArrayList(this.jobStartRolenames, ";");
 				
 				List<String> newRolesForJobStart = new ArrayList<String>();
@@ -156,26 +145,19 @@ public class JobEmailServiceActivator {
 				){	
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){
-				String jobIdAsString = job.getJobId().toString();
+				String jobIdAsString = job.getId().toString();
 				String labIdAsString = job.getLab().getId().toString();
-				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
+				String departmentIdAsString = job.getLab().getDepartment().getId().toString();
 				List<String> rolesForJobAbandoned = convertDelimitedListToArrayList(this.jobAbandonedRolenames, ";");
 				List<String> rolesForJobAccepted = convertDelimitedListToArrayList(this.jobAcceptedRolenames, ";");
 				String whoAbandonedJob = "";
 				String reasonForAbandoned = "";
-				String jobApproveCode = "";
-				if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE)){
+				if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.PI_APPROVE))
 					whoAbandonedJob += "Principal Investigator or designated Lab Manager";
-					jobApproveCode = "piApprove";
-				}
-				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE)){
+				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.FM_APPROVE))
 					whoAbandonedJob += "Sequencing Facility Manager";
-					jobApproveCode = "fmApprove";
-				}
-				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE)){
+				else if(jobStatusMessageTemplate.getTask().equals(WaspJobTask.DA_APPROVE))
 					whoAbandonedJob += "Accounts Manager";
-					jobApproveCode = "daApprove";
-				}
 				String comment = jobStatusMessageTemplate.getComment();
 				if(comment == null){comment = "";}
 				User userWhoCreatedComment = jobStatusMessageTemplate.getUserCreatingMessage();
@@ -184,14 +166,7 @@ public class JobEmailServiceActivator {
 				}else{
 					reasonForAbandoned = comment;
 				}
-				/* never worked this way
-				List<MetaMessage> metaMessageList = jobService.getJobApprovalComments(jobApproveCode, job.getId());
-				if(metaMessageList.size()>0){
-					logger.debug("ROB ---- at G in js for rejected by an admin or pi for cause");
-					//MetaMessage mm = metaMessageList.get(metaMessageList.size()-1);
-					//reasonForAbandoned += mm.getValue();//unfortunately, this comes up empty, since same transaction or too fast, so use jobStatusMessageTemplate
-				}
-				*/
+				
 				
 				List<String> newRolesForJobAbandoned = new ArrayList<String>();
 				for(String str : rolesForJobAbandoned){
@@ -268,10 +243,10 @@ public class JobEmailServiceActivator {
 		}//end of else if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.ABANDONED) and jobApprovals
 		else if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.COMPLETED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
-			if(job != null && job.getJobId() != null){
-				String jobIdAsString = job.getJobId().toString();
+			if(job != null && job.getId() != null){
+				String jobIdAsString = job.getId().toString();
 				String labIdAsString = job.getLab().getId().toString();
-				String departmentIdAsString = job.getLab().getDepartment().getDepartmentId().toString();
+				String departmentIdAsString = job.getLab().getDepartment().getId().toString();
 				List<String> rolesForJobCompleted = convertDelimitedListToArrayList(this.jobCompletedRolenames, ";");
 				
 				List<String> newRolesForJobCompleted = new ArrayList<String>();
