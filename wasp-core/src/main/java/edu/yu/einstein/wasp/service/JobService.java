@@ -38,6 +38,8 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -571,4 +573,12 @@ public interface JobService extends WaspMessageHandlingService {
 	//public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
 	//public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
+	/**
+	 * Adds a new quote for a job
+	 * @param Integer jobId
+	 * @param AcctQuote quoteForm
+	 * @param List<AcctQuoteMeta> metaList (information for storage within AcctQuoteMeta)
+	 * @throws Exception
+	 */
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
 }

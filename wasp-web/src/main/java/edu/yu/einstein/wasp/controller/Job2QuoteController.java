@@ -43,6 +43,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
 @Transactional
@@ -313,28 +314,47 @@ public class Job2QuoteController extends WaspController {
 				}
 				catch(Exception e){
 					  logger.warn("JobController: jobList : " + e);
-					  quoteAsString = "?.??"; 
+					  quoteAsString = "Problem - Contact Admin"; 
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : 
-				getMetaHelperWebapp().syncWithMaster(currentQuote.getAcctQuoteMeta());
+			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : currentQuote.getAcctQuoteMeta();
+			List<AcctQuoteMeta> syncItemMetaList = getMetaHelperWebapp().syncWithMaster(itemMetaList);
 			
 			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
+			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
+			String currentStatus = jobService.getJobStatus(item);
+			String jobStatusComment = jobService.getJobStatusComment(item);
+			if (jobStatusComment != null)
+				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment);
+			
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] { 
+					//"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>) " + "<span style='color:red;font-size:11px;font-weight:bold;'>"+ noteAboutNeedingQuote+"</span>",
 					"J"+item.getId().intValue() + " (<a href=/wasp/sampleDnaToLibrary/listJobSamples/"+item.getId()+".do>details</a>)",
+					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),
 					quoteAsString,
 					user.getNameFstLst(), 
 					item.getLab().getUser().getNameFstLst(),
 					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 
-					quoteId
+					quoteId//this is not needed, I don't think, since we're going to create new quotes
 				}));
 
-			for (AcctQuoteMeta meta : itemMetaList) {
+			for (AcctQuoteMeta meta : syncItemMetaList) {
+				if(meta.getV()==null || meta.getV()==""){
+					String str = this.messageService.getMessage("acctQuote.not_yet_set.label");
+					if(str==null || "".equals(str)){
+						meta.setV("not yet set");
+						//meta.setV("0");
+					}
+					else{
+						meta.setV(str);
+						//meta.setV("0");
+					}
+				}
 				cellList.add(meta.getV());
 				logger.debug("acctquotemeta: " + meta.getK() + ":" + meta.getV());
 			}
@@ -376,51 +396,20 @@ public class Job2QuoteController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('sa') or hasRole('ga')")
 	public String updateDetailJSON(@RequestParam("id") Integer jobId, AcctQuote quoteForm, ModelMap m, HttpServletResponse response) {
 
-		List<AcctQuoteMeta> metaList = getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class);
-		quoteForm.setId( (Integer) m.get("quoteId"));
-		quoteForm.setJobId(jobId);
-		this.acctQuoteDao.save(quoteForm);
-		
-		Integer quoteId = quoteForm.getId();
+		String message = null;
 		try{
-			try{
-				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
-			} catch (MetadataException e){
-				logger.warn(e.getMessage());
-				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
-				return null;
-			}
-			
-			Job currentJob = this.jobService.getJobByJobId(jobId);
-			quoteForm.setId(quoteId);
-			// if jobid is null, create a new record in database table
-			
-			if(quoteForm.getId() == null) {
-				quoteForm.setJob(currentJob);
-				acctQuoteDao.persist(quoteForm);
-			} else {
-				acctQuoteDao.save(quoteForm);
-			}
-			try{
-				jobService.updateJobQuoteStatus(jobService.getJobDao().getJobByJobId(jobId), WaspStatus.COMPLETED);
-			} catch (WaspMessageBuildingException e){
-				logger.warn(e.getMessage());
-				response.getWriter().println(this.messageService.getMessage("wasp.integration_message_send.error"));
-				return null;
-			}
-			
-			if (!currentJob.getAcctQuote().contains(quoteForm))
-				currentJob.getAcctQuote().add(quoteForm);
-			currentJob.setCurrentQuote(quoteForm);
-			jobService.getJobDao().save(currentJob);
-			
-			
-			response.getWriter().println(this.messageService.getMessage("acctQuote.created_success.label"));
-			return null;
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output message to response.getWriter", e);
+			jobService.addNewQuote(jobId, quoteForm, getMetaHelperWebapp().getFromJsonForm(request, AcctQuoteMeta.class));
+			message = this.messageService.getMessage("acctQuote.created_success.label");
 		}
-
+		catch(Exception e){
+			logger.warn(e.getMessage());
+			message = this.messageService.getMessage("acctQuote.update_failed.label");
+		}
+		
+		try{
+			response.getWriter().println(message);
+		}catch(Exception e){}
+		return null;//why bother with a return value??
 	}
 	
 	class JobIdComparator implements Comparator<Job> {
