@@ -110,7 +110,7 @@ public class ResultViewController extends WaspController {
 				;
 			}
 */			
-			return outputJSON(jobService.getD3Branch(id, type), response); 	
+			return outputJSON(jobService.getJobViewBranch(id, type), response); 	
 		} 
 		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
@@ -123,7 +123,7 @@ public class ResultViewController extends WaspController {
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
-			if(type.equalsIgnoreCase("job")) {
+			if(type.startsWith("job")) {
 				Integer jobId = id;
 				Job job = this.jobService.getJobDao().getById(jobId);
 				if(job==null || job.getId()==null){
@@ -170,7 +170,7 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.equalsIgnoreCase("sample")) {
+			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
 				Integer sampleId = id;
 				Sample sample = this.sampleService.getSampleById(sampleId);
 				if(sample==null || sample.getId()==null){
@@ -200,7 +200,7 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.equalsIgnoreCase("file")) {
+			} else if(type.startsWith("file")) {
 				Integer fileId = id;
 				FileHandle file = this.fileService.getFileHandleById(fileId);
 				if(file==null || file.getId()==null){

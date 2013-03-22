@@ -1318,6 +1318,29 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
+		
+		List<Sample> puList = new ArrayList<Sample>();
+		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
+			try{
+				puList.add(sampleService.getPlatformUnitForCell(cellLibrary.getSample()));
+			} catch(SampleTypeException e){
+				logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
+			} catch (SampleParentChildException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}						  
+		}
+
+		return puList;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
 		Assert.assertParameterNotNull(user, "No User provided");
 		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
@@ -1656,26 +1679,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return map;
 	}
 
-	@Override
-	public Map<String, Object> getJobSampleD3Tree(int id) throws Exception{
-		
-		Map <String, Object> jobRoot = new HashMap<String, Object>();
-		
-		Job job = getJobByJobId(id);
-		if(job==null || job.getId()==null){
-			  throw new Exception("listJobSamples.jobNotFound.label");
-		}
-		
-		jobRoot.put("name", "Job: "+job.getName());
-		jobRoot.put("myid", id);
-		jobRoot.put("type", "job");
-		jobRoot.put("children", getChildrenByNodeType(id, "job"));
 
-		return jobRoot;
-	}
 
 	@Override
-	public Map<String, Object> getD3Branch(int id, String type){
+	public Map<String, Object> getJobViewBranch(int id, String type) throws SampleTypeException, SampleParentChildException{
 		
 		Map <String, Object> curNode = new HashMap<String, Object>();
 		List<Map> children = new ArrayList<Map>();
@@ -1711,6 +1718,63 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("job-pu")) {
+			Job job = getJobByJobId(id);
+
+			curNode.put("name", "Job: "+job.getName());
+			curNode.put("myid", id);
+			curNode.put("type", "job");
+
+			Set<SampleSource> clSet = sampleService.getCellLibrariesForJob(job);
+			HashMap<Integer, Map> puMap = new HashMap();
+			List<Map> puNodeList = new ArrayList<Map>();
+			for (SampleSource cl : clSet) {
+				Sample cell = cl.getSample();
+				
+				Map cellNode = new HashMap();
+				cellNode.put("name", "Cell: "+cell.getName());
+				cellNode.put("myid", cell.getId());
+				cellNode.put("type", "cell");
+				Map libNode = new HashMap();
+				Sample lib = cl.getSourceSample();
+				libNode.put("name", lib.getName());
+				libNode.put("myid", lib.getId());
+				libNode.put("type", "library-pu");
+				libNode.put("children", "");
+				List<Map> cellChildren = new ArrayList<Map>();
+				cellChildren.add(libNode);
+				cellNode.put("_children", cellChildren);
+				
+				Sample pu = sampleService.getPlatformUnitForCell(cell);
+				Map puNode;
+				if (!puMap.containsKey(pu.getId())) {
+					puNode = new HashMap();
+					puNode.put("name", "Platform Unit: "+pu.getName());
+					puNode.put("myid", pu.getId());
+					puNode.put("type", "pu");
+					List<Map> gchildren = new ArrayList<Map>();
+					gchildren.add(cellNode);
+					puNode.put("_children", gchildren);
+				} else {
+					puNode = puMap.get(pu.getId());
+					List<Map> gchildren = (List<Map>) puNode.get("_children");
+					boolean cellExist = false;
+					for (Map cc : gchildren) {
+						if (cc.get("myid").toString().equals(cellNode.get("myid").toString()) ) {
+							List<Map> ccChildren = (List<Map>)cc.get("_children");
+							ccChildren.addAll(cellChildren);
+							cellExist = true;
+							break;
+						}
+					}
+					if (!cellExist)	gchildren.add(cellNode);
+					
+					puNode.put("_children", gchildren);
+				}
+				puMap.put(pu.getId(), puNode);
+			}
+			
+			curNode.put("children", puMap.values());
 		} else if (type.equalsIgnoreCase("sample")) {
 			Sample sample = sampleService.getSampleById(id);
 
@@ -1741,56 +1805,43 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			//curNode.put("type", "library");
 			
 			//get all cells associated with the library
-			try {
-				List<Sample> cellList = sampleService.getCellsForLibrary(library);
-				if (!cellList.isEmpty()) {
-					Map childNode = new HashMap();
-					Sample cell = cellList.get(0);	//only one possible cell for one library
-					childNode.put("name", "Cell: "+cell.getName());
-					childNode.put("myid", cell.getId());
-					childNode.put("type", "cell");
-					childNode.put("children", "");
-					//cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
-					
-					children.add(childNode);
-				}
-			} catch (SampleTypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			List<Sample> cellList = sampleService.getCellsForLibrary(library);
+			if (!cellList.isEmpty()) {
+				Map childNode = new HashMap();
+				Sample cell = cellList.get(0);	//only one possible cell for one library
+				childNode.put("name", "Cell: "+cell.getName());
+				childNode.put("myid", cell.getId());
+				childNode.put("type", "cell");
+				childNode.put("children", "");
+				//cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
+
+				children.add(childNode);
 			}
 			
 			curNode.put("children", children);
-		} else if (type.equalsIgnoreCase("cell")) {
+		} /*else if (type.equalsIgnoreCase("cell")) {
 			// if the sample is a cell
 			Sample cell = sampleService.getSampleById(id);
 
 			//get platform unit associated with the cell
-			try {
-					Sample pu = sampleService.getPlatformUnitForCell(cell);
-					Map childNode = new HashMap();
-					childNode.put("name", "Platform Unit: "+pu.getName());
-					childNode.put("myid", pu.getId());
-					childNode.put("type", "pu");
-					childNode.put("children", "");
-					//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
-					
-					children.add(childNode);
-				} catch (SampleTypeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SampleParentChildException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			Sample pu = sampleService.getPlatformUnitForCell(cell);
+			Map childNode = new HashMap();
+			childNode.put("name", "Platform Unit: "+pu.getName());
+			childNode.put("myid", pu.getId());
+			childNode.put("type", "pu");
+			childNode.put("children", "");
+			//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
+
+			children.add(childNode);
 			
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("pu")) {
-			// if the sample is a library
+			// if the sample is a platform unit
 			Sample pu = sampleService.getSampleById(id);
 
 			//get all seq runs associated with the platform unit
 			try {
-					List<Run> runList = runService.getRunsForPlatformUnit(pu);
+					List<Sample> cellList = sampleService.getPreprocessedCellLibrariesOnPU(job, pu);
 					for (Run run : runList) {
 						Map childNode = new HashMap();
 						childNode.put("name", "Run: "+run.getName());
@@ -1807,122 +1858,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 			
 			curNode.put("children", children);
-		}
+		} */
 		
 		return curNode;
-	}
-
-	/**
-	 * @param job
-	 * @return
-	 */
-	private List<Map> getChildrenByNodeType(int id, String type) {
-		List<Map> children = new ArrayList<Map>();
-
-		if (type.equalsIgnoreCase("job")) {
-			Job job = getJobByJobId(id);
-			List<Sample> sampleList = getSubmittedSamples(job);
-
-			for (Sample sample : sampleList) {
-				Map sampleNode = new HashMap();
-
-				if(!sampleService.isLibrary(sample)) {
-					// if it's non-library sample
-					sampleNode.put("name", "Sample: "+sample.getName());
-					sampleNode.put("myid", sample.getId());
-					sampleNode.put("type", "sample");
-					sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
-				} else {
-					// if it's library sample
-					sampleNode.put("name", "Library: "+sample.getName());
-					sampleNode.put("myid", sample.getId());
-					sampleNode.put("type", "library");
-					sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
-				}
-					
-				children.add(sampleNode);
-			}
-		} else if (type.equalsIgnoreCase("sample")) {
-			Sample sample = sampleService.getSampleById(id);
-			
-			// If the sample has parent facility-made library
-			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
-			for (Sample faclib : faclibList) {
-				Map faclibNode = new HashMap();
-				
-				faclibNode.put("name", "Facility-made Lib: "+faclib.getName());
-				faclibNode.put("myid", faclib.getId());
-				faclibNode.put("type", "library");
-				faclibNode.put("children", getChildrenByNodeType(faclib.getId(), "library"));
-				
-				children.add(faclibNode);
-			}
-			
-		} else if (type.equalsIgnoreCase("library")) {
-			// if the sample is a library
-			Sample library = sampleService.getSampleById(id);
-
-			//get all cells associated with the library
-			try {
-				List<Sample> cellList = sampleService.getCellsForLibrary(library);
-				if (!cellList.isEmpty()) {
-					Map cellNode = new HashMap();
-					Sample cell = cellList.get(0);	//only one possible cell for one library
-					cellNode.put("name", "Cell: "+cell.getName());
-					cellNode.put("myid", cell.getId());
-					cellNode.put("type", "cell");
-					cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
-					
-					children.add(cellNode);
-				}
-			} catch (SampleTypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else if (type.equalsIgnoreCase("cell")) {
-			// if the sample is a library
-			Sample cell = sampleService.getSampleById(id);
-
-			//get all cells associated with the library
-			try {
-					Sample pu = sampleService.getPlatformUnitForCell(cell);
-					Map puNode = new HashMap();
-					puNode.put("name", "Platform Unit: "+pu.getName());
-					puNode.put("myid", pu.getId());
-					puNode.put("type", "pu");
-					puNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
-					
-					children.add(puNode);
-				} catch (SampleTypeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SampleParentChildException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		} else if (type.equalsIgnoreCase("pu")) {
-			// if the sample is a library
-			Sample pu = sampleService.getSampleById(id);
-
-			//get all cells associated with the library
-			try {
-					List<Run> runList = runService.getRunsForPlatformUnit(pu);
-					for (Run run : runList) {
-					Map runNode = new HashMap();
-						runNode.put("name", "Run: "+run.getName());
-						runNode.put("myid", run.getId());
-						runNode.put("type", "run");
-						runNode.put("children", getChildrenByNodeType(run.getId(), "run"));
-						
-						children.add(runNode);
-					}
-				} catch (SampleTypeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-		}
-		
-		return children;
 	}
 
 	/**
