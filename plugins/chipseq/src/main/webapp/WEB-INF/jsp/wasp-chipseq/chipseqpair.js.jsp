@@ -1,5 +1,4 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
 <script>
 
 function toggleRow(controlIndex, testCount){
