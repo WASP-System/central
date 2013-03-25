@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>wasp-plugin</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>wasp-fastq</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>bom</artifactId>
+				<version>${project.parent.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-web</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<targetPath>WEB-INF</targetPath>
+				<filtering>true</filtering>
+				<directory>src/main/webapp/WEB-INF</directory>
+			</resource>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>true</filtering>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+	</build>
+
+
+</project>
