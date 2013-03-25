@@ -387,7 +387,6 @@ function toggle(d) {
 }
 	
 function click(d) {
-//  toggle(d);
 	
   $.ajax({
       url: '/wasp/jobresults/getDetailsJson.do?type='+d.type+'&id='+d.myid,
@@ -430,6 +429,8 @@ function click(d) {
       	}
       });
   }
+
+  toggle(d);
 }
 
 function color(d) {
