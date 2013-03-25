@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.yu.einstein.wasp</groupId>
+		<artifactId>wasp-parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+		<relativePath>../../wasp-parent/pom.xml</relativePath>
+	</parent>
+
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>wasp-eclipse</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+	<properties>
+		<tycho.version>0.17.0</tycho.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
+		<java.version>1.6</java.version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-core</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>eclipse-juno</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/juno/</url>
+		</repository>
+	</repositories>
+
+
+</project>
