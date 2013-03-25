@@ -21,7 +21,7 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.wasp-fastq" />
 	
-	<bean id="wasp-fastq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspFastqPlugin">
+	<bean id="wasp-fastq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.fileformat.WaspFastqPlugin">
 		<constructor-arg name="pluginName" ref="waspFastqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-fastq" />
