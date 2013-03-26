@@ -100,6 +100,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.addCommand("cp -f ../Data/reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
 		w.addCommand("cp -f ../Data/reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
 		w.addCommand("cp -f ../Data/reports/NumGT30/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("cp -f ../Data/reports/ByCycle/*.png ${WASP_RESULT_DIR}/reports/ByCycle");
 
 		GridResult result = gws.execute(w);
 		

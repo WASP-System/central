@@ -38,6 +38,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -131,7 +132,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		w.addCommand("shopt -s nullglob");
 		w.addCommand("for f in ../reports/*' '* ; do mv -f \"$f\" \"${f// /_}\"; done");
 		
-		Set<Sample> allLibraries = new HashSet<Sample>();
+		Set<SampleSource> allCellLib = new HashSet<SampleSource>();
 		Sample platformUnit = run.getPlatformUnit();
 		logger.debug("Registering files for " + platformUnit.getName());
 
@@ -147,14 +148,15 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				continue;
 			List<Sample> libraries = sampleService.getLibrariesOnCell(cell);
 			logger.debug("found " + libraries.size() + " libraries");
-			allLibraries.addAll(libraries);
 
 			for (Sample s : libraries) {
+				SampleSource cellLib = sampleService.getCellLibrary(cell, s);
+				allCellLib.add(cellLib);
 				if (sampleService.isControlLibrary(s))
 					continue;
-				logger.debug("setting up for sample " + s.getId());
+				logger.debug("setting up for sample: " + s.getId() + " using Library-cell: " + cellLib.getId());
 				// generate symlinks for fastq
-				w.addCommand("for x in ../../Project_WASP/Sample_" + s.getId() + "/" + s.getId() + "*.fastq.gz ; do \n" +
+				w.addCommand("for x in ../../Project_WASP/Sample_" + cellLib.getId() + "/" + cellLib.getId() + "*.fastq.gz ; do \n" +
 						"  ln -sf `readlink -f ${x}` .\ndone");
 			}
 
@@ -170,7 +172,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		GridResult r = transportConnection.sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
-		this.createSequenceFiles(platformUnit, allLibraries, br);
+		this.createSequenceFiles(platformUnit, allCellLib, br);
 		
 		w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -188,7 +190,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 	}
 
-	private void createSequenceFiles(Sample platformUnit, Set<Sample> samples, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
+	private void createSequenceFiles(Sample platformUnit, Set<SampleSource> cellLibs, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
 		String line;
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
 		logger.debug("parsing output to create sequence files for " + platformUnit.getName());
@@ -205,11 +207,11 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			jobQCfg.setSoftwareGeneratedBy(casava);
 			fileService.addFileGroup(pufg);
 			
-			Map<Sample,FileGroup> sampleSeqfg = new HashMap<Sample,FileGroup>();
+			Map<SampleSource,FileGroup> cellLibSeqfg = new HashMap<SampleSource,FileGroup>();
 			
 			line = br.readLine();
 
-			Sample library = null;
+			SampleSource cellLib = null;
 			
 			while (line != null) {
 				logger.debug(line);
@@ -220,20 +222,20 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					throw new SampleException("Unexpected sample file name format");
 				}
 
-				Integer libraryId = new Integer(l.group(1));
+				Integer cellLibId = new Integer(l.group(1));
 				String barcode = l.group(2);
 				Integer lane = new Integer(l.group(3));
 				Integer read = new Integer(l.group(4));
 				Integer fileNum = new Integer(l.group(5));
 				
-				logger.debug("file: " + libraryId + ":" + barcode + ":" + lane + ":" + read + ":" + fileNum);
+				logger.debug("file: " + cellLibId + ":" + barcode + ":" + lane + ":" + read + ":" + fileNum);
 				logger.debug("from: " + line);
 				
-				if (library == null || !library.getId().equals(libraryId)) {
-					library = sampleService.getSampleById(libraryId);
-					logger.debug("saw library: " + libraryId + "(" + library.getName() + ")");
-					if (!samples.contains(library)) {
-						logger.warn("library " + library.getId() + " is not in the list of libraries to process");
+				if (cellLib == null || !cellLib.getId().equals(cellLibId)) {
+					cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+					logger.debug("saw library-cell: " + cellLibId + "(" + sampleService.getLibrary(cellLib).getName() + ")");
+					if (!cellLibs.contains(cellLib)) {
+						logger.warn("library " + cellLib.getId() + " is not in the list of cell-libraries to process");
 						continue;
 					}
 					// create a group for samplefiles
@@ -243,13 +245,13 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					sampleGroup.setFileType(fastqFileType);
 					sampleGroup.setSoftwareGeneratedBy(casava);
 					fileService.addFileGroup(sampleGroup);
-					sampleSeqfg.put(library, sampleGroup);
+					cellLibSeqfg.put(cellLib, sampleGroup);
 					
 				}
 				
 				FileHandle file = new FileHandle();
 				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
-				String actualBarcode = sampleService.getLibraryAdaptor(library).getBarcodesequence();
+				String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
 				if (!actualBarcode.equals(barcode)) {
 					logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
 					throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
@@ -271,11 +273,11 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					f = true;
 				fqs.setContainsFailed(file, f);
 				
-				fqs.setLibraryUUID(file, library);
+				fqs.setLibraryUUID(file, sampleService.getLibrary(cellLib));
 				
 				//add file to pu samplefile and library samplefile
 				pufg.getFileHandles().add(file);
-				sampleSeqfg.get(library).getFileHandles().add(file);
+				cellLibSeqfg.get(cellLib).getFileHandles().add(file);
 				
 				logger.debug("created file " + file.getFileURI().toASCIIString() + " id: " + file.getId());
 				
@@ -290,15 +292,15 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			// register and md5sum
 			fileService.register(pufg);
 			
-			for (Sample lib : sampleSeqfg.keySet()) {
+			for (SampleSource cl : cellLibSeqfg.keySet()) {
 				//save all samplefile groups
-				FileGroup sfg = sampleSeqfg.get(lib);
-				sfg.setDescription(lib.getName() + " FASTQ files");
+				FileGroup sfg = cellLibSeqfg.get(cl);
+				sfg.setDescription(sampleService.getLibrary(cellLib).getName() + " FASTQ files");
 				sfg.setFileType(this.fastqFileType);
 				sfg.setSoftwareGeneratedBy(casava);
 				fileService.addFileGroup(sfg);
-				lib.getFileGroups().add(sfg);
-				sampleService.getSampleDao().save(lib);
+				cl.getFileGroups().add(sfg);
+				sampleService.getSampleSourceDao().save(cl);
 			}
 			
 		} catch (Exception e) {
