@@ -6,7 +6,7 @@
 </div>
 
 <div id="left-container">
-	<p><input type="submit" value="Show Filters" onClick="showhide(this,'filters');"/></p>
+<!-- 	<p><input type="submit" value="Show Filters" onClick="showhide(this,'filters');"/></p> -->
 	<div id="filters" style="display: none;">
 		Please select what to show:<br />
 		Sample: <input type="checkbox" name="sports" value="sample" checked /> &nbsp;&nbsp;
@@ -15,7 +15,9 @@
 		File: <input type="checkbox" name="sports" value="file" checked /> &nbsp;&nbsp;
 		<p><input type="submit" value="Update" onClick="update(root);"/></p>
 	</div>
-	<div id="treeview"></div>
+	<div id="treeview">
+		<p><input type="submit" value="Toggle Views" onClick="toggleview();"/></p>
+	</div>
 </div>
 
 <div id="right-container">

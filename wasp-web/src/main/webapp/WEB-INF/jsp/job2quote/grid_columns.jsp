@@ -31,6 +31,10 @@ _editAttr['beforeShowForm'] = function(formId) {
 };
 --%>
 
+function isNonNegNumber(str) {
+	isPrice = /^[^-]*?\d+(\.\d{0,2})?$/;
+	return isPrice.test( str );
+} 
 _editAttr['beforeSubmit'] = function(postdata, formid) {
 
 	if (isNonNegNumber($('#acctQuote\\.library_cost').val())
@@ -41,6 +45,15 @@ _editAttr['beforeSubmit'] = function(postdata, formid) {
 	return [false,"Provide numerical value 0 or greater for each cost"];	
 }
 
+function sumCosts() {
+	if (isNonNegNumber($('#acctQuote\\.library_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.sample_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.cell_cost').val())) {
+		return window.Number($('#acctQuote\\.library_cost').val()) 
+			+ window.Number($('#acctQuote\\.sample_cost').val()) 
+			+ window.Number($('#acctQuote\\.cell_cost').val());
+	}
+};
 _editAttr['afterShowForm'] = function(formId) {
 	$('#name').attr('disabled', 'disabled');
 	$('#amount').attr('disabled', 'disabled');
@@ -51,16 +64,3 @@ _editAttr['afterShowForm'] = function(formId) {
 	} );
 };
 
-function isNonNegNumber(str) {
-	isPrice = /^[^-]*?\d+(\.\d{0,2})?$/;
-	return isPrice.test( str );
-} 
-function sumCosts() {
-	if (isNonNegNumber($('#acctQuote\\.library_cost').val())
-		&& isNonNegNumber($('#acctQuote\\.sample_cost').val())
-		&& isNonNegNumber($('#acctQuote\\.cell_cost').val())) {
-		return window.Number($('#acctQuote\\.library_cost').val()) 
-			+ window.Number($('#acctQuote\\.sample_cost').val()) 
-			+ window.Number($('#acctQuote\\.cell_cost').val());
-	}
-};

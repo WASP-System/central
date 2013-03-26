@@ -36,6 +36,8 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.AcctQuote;
@@ -487,14 +489,14 @@ public interface JobService extends WaspMessageHandlingService {
 
 
 	/**
-	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
-	 * @param int jobId
+	 * getJobViewBranch() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param int id, String type
 	 * @return Map<String, Object>
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+	public Map<String, Object> getJobViewBranch(int id, String type) throws SampleTypeException, SampleParentChildException;
 
-	public Map<String, Object> getD3Branch(int id, String type);
+	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job);
 
 	/**
 	 * getJobDetailWithMeta() returns all detail information with meta for a job
