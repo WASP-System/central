@@ -1,6 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="jobId" type="text" sortable="true" searchable="true" editable="false"/>
+<wasp:field name="currentStatus" type="text" sortable="false" searchable="false" editable="false"/>
 
 <wasp:field name="name" type="text" sortable="true" searchable="false"/>
 
@@ -24,10 +25,35 @@ _navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,befo
 		}
 };
 
+<%-- 
 _editAttr['beforeShowForm'] = function(formId) {
 	$('input[type="text"][name$="cost"]').val('0');
 };
+--%>
 
+function isNonNegNumber(str) {
+	isPrice = /^[^-]*?\d+(\.\d{0,2})?$/;
+	return isPrice.test( str );
+} 
+_editAttr['beforeSubmit'] = function(postdata, formid) {
+
+	if (isNonNegNumber($('#acctQuote\\.library_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.sample_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.cell_cost').val())) {
+		return [true,""]; 
+	}
+	return [false,"Provide numerical value 0 or greater for each cost"];	
+}
+
+function sumCosts() {
+	if (isNonNegNumber($('#acctQuote\\.library_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.sample_cost').val())
+		&& isNonNegNumber($('#acctQuote\\.cell_cost').val())) {
+		return window.Number($('#acctQuote\\.library_cost').val()) 
+			+ window.Number($('#acctQuote\\.sample_cost').val()) 
+			+ window.Number($('#acctQuote\\.cell_cost').val());
+	}
+};
 _editAttr['afterShowForm'] = function(formId) {
 	$('#name').attr('disabled', 'disabled');
 	$('#amount').attr('disabled', 'disabled');
@@ -38,16 +64,3 @@ _editAttr['afterShowForm'] = function(formId) {
 	} );
 };
 
-function isNumber(str) {
-	isPrice = /^\d+(\.\d{0,2})?$/;
-	return isPrice.test( str );
-} 
-function sumCosts() {
-	if (isNumber($('#acctQuote\\.library_cost').val())
-		&& isNumber($('#acctQuote\\.sample_cost').val())
-		&& isNumber($('#acctQuote\\.cell_cost').val())) {
-		return window.Number($('#acctQuote\\.library_cost').val()) 
-			+ window.Number($('#acctQuote\\.sample_cost').val()) 
-			+ window.Number($('#acctQuote\\.cell_cost').val());
-	}
-};

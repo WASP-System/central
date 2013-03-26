@@ -36,8 +36,12 @@ import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -485,14 +489,14 @@ public interface JobService extends WaspMessageHandlingService {
 
 
 	/**
-	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
-	 * @param int jobId
+	 * getJobViewBranch() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param int id, String type
 	 * @return Map<String, Object>
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+	public Map<String, Object> getJobViewBranch(int id, String type) throws SampleTypeException, SampleParentChildException;
 
-	public Map<String, Object> getD3Branch(int id, String type);
+	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job);
 
 	/**
 	 * getJobDetailWithMeta() returns all detail information with meta for a job
@@ -571,4 +575,12 @@ public interface JobService extends WaspMessageHandlingService {
 	//public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
 	//public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
 	
+	/**
+	 * Adds a new quote for a job
+	 * @param Integer jobId
+	 * @param AcctQuote quoteForm
+	 * @param List<AcctQuoteMeta> metaList (information for storage within AcctQuoteMeta)
+	 * @throws Exception
+	 */
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
 }

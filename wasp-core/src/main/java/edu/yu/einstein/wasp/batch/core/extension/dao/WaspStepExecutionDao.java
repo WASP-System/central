@@ -10,6 +10,11 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.repository.dao.StepExecutionDao;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface WaspStepExecutionDao extends StepExecutionDao{
 	
 	/**

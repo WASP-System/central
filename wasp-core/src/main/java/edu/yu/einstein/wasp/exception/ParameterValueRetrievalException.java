@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.exception;
 
 
 /**
- * @author andymac
+ * @author asmclellan
  *
  */
 public class ParameterValueRetrievalException extends Exception {

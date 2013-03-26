@@ -25,6 +25,18 @@ function showhide(btn,layer_ref) {
 	}
 }
 
+function toggleview() {
+	if (root.type == 'job') {
+		root.type = 'job-pu';
+	} else {
+		root.type = 'job';
+	}
+	root.children = '';
+	click(root);
+	update(root);
+}
+
+
 var margin = {top: 20, right: 80, bottom: 20, left: 20},
     width = 460 - margin.right - margin.left,
     height = 700 - margin.top - margin.bottom,
@@ -385,7 +397,7 @@ function click(d) {
       	d3.select('#detailview').select("h3").remove();
       	d3.select('#detailview').select("tbody").remove();
       	
-      	d3.select('#detailview').append("h3").html(d.type.toUpperCase()+" Details");
+      	d3.select('#detailview').append("h3").html((d.type.split('-'))[0].toUpperCase()+" Details");
       	var table = d3.select('#detailview').append("tbody");
           $.each(result, function (index, item) {
          		var row = table.append("tr");

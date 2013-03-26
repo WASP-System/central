@@ -10,7 +10,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 
 /**
  * Placeholder tasklet. Simply executes once and completes immediately
- * @author andymac
+ * @author asmclellan
  *
  */
 public class SkipTasklet implements Tasklet {

@@ -20,7 +20,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Repository
 public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements WaspJobExecutionDao, InitializingBean{
 	

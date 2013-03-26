@@ -27,7 +27,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * Implements {@link ClientMessageI} cli interface to receive requests to list
  * installed plugins and uses the MessageChannel "wasp.channel.pluginRegistry"
  * 
- * @author andymac and brent
+ * @author asmclellan and brent
  * 
  */
 public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {

@@ -148,7 +148,6 @@ jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:me
 //disable all the td tooltips that the grid automatically sets  and in line after, enable the other tooltip (on anchors)
 //$("td").attr('title', '');
 
-	waspTooltip();
 
 });//end document.ready() 
   

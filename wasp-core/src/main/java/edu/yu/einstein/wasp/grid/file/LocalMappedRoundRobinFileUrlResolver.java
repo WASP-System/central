@@ -49,7 +49,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	 */
 	@Override
 	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
-		return getURL(file, "");
+		return getURL(file, "file");
 	}
 	
 	public URL getURL(FileHandle file, String subPath) throws GridUnresolvableHostException {
@@ -89,7 +89,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		
 		URL retval;
 		
-		String file_uri = destination + subPath + "/" + file.getUUID().toString();
+		String file_uri = destination + subPath + file.getUUID().toString();
 		try {
 			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();

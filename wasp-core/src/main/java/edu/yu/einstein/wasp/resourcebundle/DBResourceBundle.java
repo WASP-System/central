@@ -35,6 +35,11 @@ import edu.yu.einstein.wasp.service.PropertiesLoadService;
 import edu.yu.einstein.wasp.service.WaspSqlService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class DBResourceBundle implements ApplicationContextAware{
 
 	@Autowired

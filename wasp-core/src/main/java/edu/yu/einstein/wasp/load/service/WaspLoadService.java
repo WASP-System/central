@@ -4,6 +4,11 @@ import java.util.List;
 
 import edu.yu.einstein.wasp.model.UiField;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface WaspLoadService {
 	
 	public void updateUiFields(List<UiField> uiFields);

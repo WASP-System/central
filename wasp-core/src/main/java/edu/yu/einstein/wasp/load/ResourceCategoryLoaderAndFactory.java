@@ -13,7 +13,9 @@ import edu.yu.einstein.wasp.model.ResourceCategoryMeta;
 import edu.yu.einstein.wasp.model.ResourceType;
 
 /**
- * update/inserts db copy of subtype sample from bean definition 
+ * update/inserts db copy of subtype sample from bean definition
+ * 
+ * @author asmclellan 
  */
 
 public class ResourceCategoryLoaderAndFactory extends WaspLoader implements	FactoryBean<ResourceCategory> {

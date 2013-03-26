@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.batch.launch;
 
 /**
  * Interface for launching running jobs on batch restart
- * @author andymac
+ * @author asmclellan
  *
  */
 public interface BatchRelaunchRunningJobsOnStartup {

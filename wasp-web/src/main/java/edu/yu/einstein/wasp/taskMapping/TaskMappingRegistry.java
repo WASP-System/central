@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.exception.WaspException;
 
 /**
  * Registry for storing and retrieving task-mapping bean references
- * @author andymac
+ * @author asmclellan
  *
  */
 public class TaskMappingRegistry {

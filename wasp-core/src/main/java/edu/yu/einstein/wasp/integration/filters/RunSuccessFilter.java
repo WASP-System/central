@@ -9,6 +9,11 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class RunSuccessFilter {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RunSuccessFilter.class);

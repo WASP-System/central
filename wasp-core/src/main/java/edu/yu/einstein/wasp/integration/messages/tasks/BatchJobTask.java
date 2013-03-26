@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp.integration.messages.tasks;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class BatchJobTask extends WaspTask{
 	
 	public static final String GENERIC = "WaspBatchJobTypeGeneric";

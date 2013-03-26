@@ -54,7 +54,7 @@ public class FileController implements InitializingBean {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(method = RequestMethod.GET, value = "/get/{uuid}")
+	@RequestMapping(method = RequestMethod.GET, value = "/get/file/{uuid}")
 	public void getFile(@PathVariable("uuid") String uuid, HttpServletResponse response) {
 
 		try {
@@ -130,7 +130,11 @@ public class FileController implements InitializingBean {
 			
 			response.setContentType(contentType);
 			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-			response.setHeader( "Content-Length", String.valueOf( download.length() ));
+			response.setHeader("Content-Length", String.valueOf( download.length() ));
+			
+			// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway. 
+			// We use 'must-revalidate' to force browser to always use this rule. 
+			response.setHeader("Cache-Control", "max-age=3600, must-revalidate"); 
 
 			// copy it to response's OutputStream
 			IOUtils.copy(is, response.getOutputStream());

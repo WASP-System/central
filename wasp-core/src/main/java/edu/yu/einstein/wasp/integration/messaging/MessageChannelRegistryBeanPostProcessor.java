@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
 
 /**
  * Registers any beans implementing the {@link MessageChannel} interface with the injected {@link MessageChannelRegistry}
- * @author andymac
+ * @author asmclellan
  *
  */
 public class MessageChannelRegistryBeanPostProcessor implements BeanPostProcessor {

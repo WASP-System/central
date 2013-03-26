@@ -12,6 +12,11 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public abstract class WaspTaskMapping extends WebHyperlink{
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.exception;
 
 /**
  * Exception thrown during failure to build WASP messages
- * @author andymac
+ * @author asmclellan
  *
  */
 public class WaspMessageBuildingException extends Exception {

@@ -8,6 +8,11 @@ import java.util.Map;
 import edu.yu.einstein.wasp.exception.UiFieldParseException;
 import edu.yu.einstein.wasp.model.UiField;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class UiFieldFamilyWrapper {
 
 	private String baseLocale;

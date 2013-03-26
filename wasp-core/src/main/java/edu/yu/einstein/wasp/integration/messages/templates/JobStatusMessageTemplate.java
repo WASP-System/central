@@ -12,7 +12,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 
 /**
  * Handling WaspJobStatus messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
- * @author andymac
+ * @author asmclellan
  *
  */
 public class JobStatusMessageTemplate extends WaspStatusMessageTemplate {

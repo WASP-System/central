@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.Job;
@@ -58,7 +57,7 @@ public class ResultViewController extends WaspController {
 	private SampleService sampleService;
 	
 	@Autowired
-	private DummyFileUrlResolver fileUrlResolver;
+	private FileUrlResolver fileUrlResolver;
 
 	@Autowired
 	private FileService fileService;
@@ -110,7 +109,7 @@ public class ResultViewController extends WaspController {
 				;
 			}
 */			
-			return outputJSON(jobService.getD3Branch(id, type), response); 	
+			return outputJSON(jobService.getJobViewBranch(id, type), response); 	
 		} 
 		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
@@ -123,7 +122,7 @@ public class ResultViewController extends WaspController {
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
-			if(type.equalsIgnoreCase("job")) {
+			if(type.startsWith("job")) {
 				Integer jobId = id;
 				Job job = this.jobService.getJobDao().getById(jobId);
 				if(job==null || job.getId()==null){
@@ -170,7 +169,7 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.equalsIgnoreCase("sample")) {
+			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
 				Integer sampleId = id;
 				Sample sample = this.sampleService.getSampleById(sampleId);
 				if(sample==null || sample.getId()==null){
@@ -200,7 +199,7 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.equalsIgnoreCase("file")) {
+			} else if(type.startsWith("file")) {
 				Integer fileId = id;
 				FileHandle file = this.fileService.getFileHandleById(fileId);
 				if(file==null || file.getId()==null){

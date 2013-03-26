@@ -7,6 +7,11 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface SampleSubtypeLoadService extends WaspLoadService {
 	
 	public SampleSubtype update(String iname, String name, SampleType sampleType, int isActive,  List<ResourceCategory> compatibleResources, 

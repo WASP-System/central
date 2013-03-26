@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp.integration.messages.tasks;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class SequencingBatchJobTask extends BatchJobTask {
 
 	public static final String ALIGNMENT = "alignment";

@@ -25,6 +25,11 @@ import edu.yu.einstein.wasp.model.SampleSubtypeMeta;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.SampleType;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements SampleSubtypeLoadService {

@@ -1,10 +1,12 @@
 package edu.yu.einstein.wasp.taglib;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -18,6 +20,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
 /**
@@ -30,16 +33,10 @@ public class UrlForFile extends BodyTagSupport {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private Integer fileHandleId;
-	
-	private FileHandle fileHandle;
-	
-	public void setFileHandle(FileHandle fileHandle) {
-		this.fileHandle = fileHandle;
-	}
-	
-	public void setFileHandleId(Integer fileHandleId) {
-		this.fileHandleId = fileHandleId;
+	private Object fileAccessor;
+		
+	public void setFileAccessor(Object fileAccessor) {
+		this.fileAccessor = fileAccessor;
 	}
 	
 	
@@ -67,16 +64,33 @@ public class UrlForFile extends BodyTagSupport {
 		FileService fileService = fileServices.get(0);
 		
 		URL url = null;
+		if (fileAccessor == null)
+			throw new JspException("No object (accessor) with which to obtain a file has been provided");
 		try{
-			if (fileHandle != null)
-				url = fileUrlResolver.getURL((FileHandle) fileHandle);
-			else if (fileHandleId != null)
-				url = fileUrlResolver.getURL(fileService.getFileHandleById(fileHandleId));
-			else
-				throw new JspException("No Filehandle has been provided");
+			if (FileHandle.class.isInstance(fileAccessor))
+				url = fileUrlResolver.getURL((FileHandle) fileAccessor);
+			else {
+				try{
+					UUID uuid = UUID.fromString((String) fileAccessor);
+					url = fileUrlResolver.getURL(fileService.getFileHandle(uuid));
+				} catch (IllegalArgumentException e){
+					// not a valid UUID so try an integer
+					try{
+						Integer fileHandleId = Integer.parseInt( (String) fileAccessor);
+						url = fileUrlResolver.getURL(fileService.getFileHandleById(fileHandleId));
+					} catch (NumberFormatException e1){
+						throw new JspException("No Filehandle has been provided", e1);
+					}
+				}
+			}
+				
+				
+				
 		} catch (GridUnresolvableHostException e){
 			throw new JspException("Unable to resolve grid host", e);
-		}
+		} catch (FileNotFoundException e1){
+			throw new JspException("Unable to find file", e1);
+		} 
 		if (url == null)
 			return Tag.SKIP_PAGE;
 		

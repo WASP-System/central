@@ -12,6 +12,11 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JobExecutionDao;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface WaspJobExecutionDao extends JobExecutionDao{
 	
 	

@@ -8,6 +8,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import edu.yu.einstein.wasp.batch.launch.BatchRelaunchRunningJobsOnStartup;
 import edu.yu.einstein.wasp.batch.launch.WaspBatchRelaunchRunningJobsOnStartup;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class StartDaemon {
 
 	private static final Logger logger = LoggerFactory.getLogger(StartDaemon.class);

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -56,7 +56,7 @@ public class ChipSeqResultViewController extends WaspController {
 	private SampleService sampleService;
 	
 	@Autowired
-	private DummyFileUrlResolver fileUrlResolver;
+	private FileUrlResolver fileUrlResolver;
 
 	//get locale-specific message
 	private String getMessage(String key, String defaultMessage) {
