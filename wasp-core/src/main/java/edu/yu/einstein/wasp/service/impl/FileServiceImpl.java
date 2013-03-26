@@ -442,6 +442,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// use task array to submit in one batch
 		WorkUnit w = new WorkUnit();
 		w.setRegistering(true);
+		w.setSecureResults(false);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
@@ -485,11 +486,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 				}
 			}, 1, TimeUnit.SECONDS);
 			while (!md5t.isDone()) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				// not done
 			}
 		}
 		ex.shutdownNow();

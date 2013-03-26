@@ -32,6 +32,13 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
+/**
+ * 
+ * Library-cell relationship.  Used for mapping sample pair relationships for analysis.
+ * 
+ * @author calder
+ *
+ */
 @Entity
 @Audited
 @Table(name="samplesource")
