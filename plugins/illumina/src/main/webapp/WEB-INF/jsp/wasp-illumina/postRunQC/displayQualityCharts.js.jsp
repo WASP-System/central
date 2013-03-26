@@ -1,9 +1,6 @@
-<%@ page session="true"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 
 <script>
@@ -42,34 +39,44 @@
 		}
 	}
 	
+	var urlArray = [];
+	
+	function populateUrlArray(){
+	<c:forEach items="${fileHandlesByName.keySet()}" var="fileName" varStatus="status">
+		urlArray['<c:out value="${fileName}" />'] = '<wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />';
+	</c:forEach>
+	}
+	
 
 	function updateOnSlideH( value_update ){
 		$( "#amountH" ).val( value_update );
-		$( "#intA" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_a.png)");
-		$( "#intC" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_c.png)");
-		$( "#intT" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_t.png)");
-		$( "#intG" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + "_g.png)");
+		$( "#intA" ).css("background-image", "url(" + urlArray['<c:out value="${chartSubFolder}" />/Chart_' + value_update + '_a.png'] + ")");
+		$( "#intC" ).css("background-image", "url(" + urlArray['<c:out value="${chartSubFolder}" />/Chart_' + value_update + '_c.png'] + ")");
+		$( "#intT" ).css("background-image", "url(" + urlArray['<c:out value="${chartSubFolder}" />/Chart_' + value_update + '_t.png'] + ")");
+		$( "#intG" ).css("background-image", "url(" + urlArray['<c:out value="${chartSubFolder}" />/Chart_' + value_update + '_g.png'] + ")");
 	}	
 	
 	function updateOnSlideV( value_update ){
 		$( "#amountV" ).val( value_update );
-		$( "#int" ).css("background-image", "url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}"/>/Chart_" + value_update + ".png)");
+		$( "#int" ).css("background-image", "url(" + urlArray['<c:out value="${chartSubFolder}" />/Chart_' + value_update + '.png'] + ")");
 	}	
 
 	$( window ).load( function(){
+		$( "#main" ).css("visibility", "visible");
+		$( "#selectionWindow" ).css("visibility", "visible");
+		$( "#error_dialog-modal" ).css("visibility", "visible");
 		$( "#main" ).show();
 		$( '#loading_dialog-modal' ).dialog( 'close' );
 	});
 		
 	$(function() {
-		$( "#main" ).hide();
 		$( "#selectionWindow" ).hide();
 		
 		$( ".radio-jquery-ui" ).buttonset();
 		
 		$( "#qscoreSelector" ).change(function(){
 				newLane = $("input[name=qscoreRadio]:checked").val();
-				$( "#qscoreChart" ).attr("src", "<c:out value="${runReportBaseImagePath}/${qscoreSubFolder}"/>/QScore_L" + newLane + ".png");
+				$( "#qscoreChart" ).attr("src", urlArray['<c:out value="${qscoreSubFolder}" />/QScore_L' + newLane + '.png']);
 			});
 
 		$( "#submitForm" ).button()
@@ -133,7 +140,8 @@
 				$(this).parents(".ui-dialog:first").find(".ui-dialog-titlebar").addClass("errorHeader"); // change header bar background color 
 			}
 		});
-				
+		
+		populateUrlArray();
 	});
 
 	
