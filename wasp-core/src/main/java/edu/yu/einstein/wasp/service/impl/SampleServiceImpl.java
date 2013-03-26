@@ -2850,6 +2850,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  return preprocessedCellLibraries;
 		  }
 		  
+		  @Override
+		  public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu) throws SampleParentChildException{
+			  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();//preprocessed means sequenced and aligned
+			  for (SampleSource cellLibrary: this.getPreprocessedCellLibraries(job)){
+				  try{
+					  if (getPlatformUnitForCell(cellLibrary.getSample()).getId()==pu.getId()){
+						  preprocessedCellLibraries.add(cellLibrary);
+					  }
+				  }
+				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
+				  }						  
+			  }
+			  return preprocessedCellLibraries;
+		  }
+		  
 		  /**
 		   * {@inheritDoc}
 		   */

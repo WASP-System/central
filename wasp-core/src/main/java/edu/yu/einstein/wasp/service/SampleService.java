@@ -976,4 +976,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao);
 
 	
+	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
+			throws SampleParentChildException;
+	  
+
 }

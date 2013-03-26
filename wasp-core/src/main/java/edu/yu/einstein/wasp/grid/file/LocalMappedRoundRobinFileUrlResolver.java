@@ -89,7 +89,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		
 		URL retval;
 		
-		String file_uri = destination + subPath + "/" + file.getUUID().toString();
+		String file_uri = destination + subPath + file.getUUID().toString();
 		try {
 			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();
