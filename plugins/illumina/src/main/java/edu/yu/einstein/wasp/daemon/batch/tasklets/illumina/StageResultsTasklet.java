@@ -96,6 +96,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/FWHM");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/Intensity");
 		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/NumGT30");
+		w.addCommand("mkdir -p ${WASP_RESULT_DIR}/reports/ByCycle");
 		w.addCommand("cp -f ../Data/reports/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports");
 		w.addCommand("cp -f ../Data/reports/FWHM/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/FWHM");
 		w.addCommand("cp -f ../Data/reports/Intensity/{*.xml,*[^@].png} ${WASP_RESULT_DIR}/reports/Intensity");
