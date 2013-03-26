@@ -16,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -188,7 +191,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				if ((libraries.size() == 0) && (all.size() == 1)) {
 					Sample control = all.get(0);
 					
-					String line = buildLine(platformUnit, cellid, control.getName(), control, "Y", "control");
+					String line = buildLine(platformUnit, cell, control.getName(), control, "Y", "control");
 					sampleSheet += "\n" + line;
 					continue;
 				}
@@ -212,7 +215,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				String control = "N";
 				String recipe = "WASP";
 
-				String line = buildLine(platformUnit, cellid, genome, sample, control, recipe);
+				String line = buildLine(platformUnit, cell, genome, sample, control, recipe);
 
 				logger.debug("sample sheet: " + line);
 
@@ -228,7 +231,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				Adaptor adaptor = new Adaptor();
 				placeholder.setId(-1);
 				
-				String line = buildLine(platformUnit, cellid, "", placeholder, "N", "WASP");
+				String line = buildLine(platformUnit, cell, "", placeholder, "N", "WASP");
 				
 				sampleSheet += "\n" + line;
 			}
@@ -238,7 +241,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		
 	}
 
-	private String buildLine(Sample platformUnit, Integer cellIndex, String genome, Sample sample, String control, String recipe) {
+	private String buildLine(Sample platformUnit, Sample cell, String genome, Sample sample, String control, String recipe) {
 		
 		String adapter = null;
 		try {
@@ -249,6 +252,14 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		}
 		String sampleId = sample.getId().toString();
 		String sampleName = sample.getName();
+		
+		Integer cellIndex;
+		try {
+			cellIndex = sampleService.getCellIndex(cell);
+		} catch (SampleException e) {
+			logger.error("sample type exception: " + e.toString());
+			throw new InvalidParameterException("sample type exception" + e);
+		}
 		
 		if (sampleId.equals("-1")) {
 			sampleId = "lane_" + cellIndex;
@@ -281,7 +292,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 * @return
 	 */
 	private String getSampleSheetHeader() {
-		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Recipe,Operator,SampleProject";
+		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Operator,SampleProject";
 	}
 
 	@Override
