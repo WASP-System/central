@@ -58,7 +58,6 @@ public class SelPendingLabs extends SelBaseTest{
 	  List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='approve']"));
 	  List<WebElement> submits = driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']"));
 
-	  System.out.println("Radios size="+radios.size());
 	  for (int i = 0; i < radios.size(); i++) {  
 		  if (radios.get(i).isDisplayed() ) {
 			  radios.get(i).click(); 
