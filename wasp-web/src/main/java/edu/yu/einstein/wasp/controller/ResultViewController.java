@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
-import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.model.Job;
@@ -58,7 +57,7 @@ public class ResultViewController extends WaspController {
 	private SampleService sampleService;
 	
 	@Autowired
-	private DummyFileUrlResolver fileUrlResolver;
+	private FileUrlResolver fileUrlResolver;
 
 	@Autowired
 	private FileService fileService;

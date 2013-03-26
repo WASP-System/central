@@ -130,7 +130,8 @@ public class FileController implements InitializingBean {
 			
 			response.setContentType(contentType);
 			response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-			response.setHeader( "Content-Length", String.valueOf( download.length() ));
+			response.setHeader("Content-Length", String.valueOf( download.length() ));
+			response.setHeader("Cache-Control", "max-age=3600, must-revalidate");
 
 			// copy it to response's OutputStream
 			IOUtils.copy(is, response.getOutputStream());
