@@ -13,7 +13,6 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import edu.yu.einstein.wasp.controller.PlatformUnitController;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
+import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -38,8 +38,6 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
 import edu.yu.einstein.wasp.model.User;
@@ -51,6 +49,7 @@ import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.illumina.WaspIlluminaService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
 
 @Controller
@@ -77,6 +76,11 @@ public class WaspIlluminaController extends WaspController {
 	
 	@Autowired
 	private MessageServiceWebapp messageService;
+	
+	@Autowired
+	private WaspIlluminaService waspIlluminaService;
+	
+	
 
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
@@ -91,7 +95,11 @@ public class WaspIlluminaController extends WaspController {
 	@RequestMapping(value = "/flowcell/showFlowcell/{platformUnitId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("platformUnitId") Integer platformUnitId, ModelMap m){
-		
+		try {
+			waspIlluminaService.getIlluminaRunFolders();
+		} catch (GridException e1) {
+			logger.warn("Failed to get Illumina run folders: " + e1.getLocalizedMessage());
+		}
 		Sample platformUnit; 
 		try{
 			platformUnit = sampleService.getPlatformUnit(platformUnitId);
