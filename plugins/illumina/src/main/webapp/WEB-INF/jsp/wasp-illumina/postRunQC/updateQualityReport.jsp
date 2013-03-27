@@ -45,14 +45,14 @@
 				<td>
 					<div class="radio-jquery-ui">
 						<input type="radio" id="passL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="1" 
-							<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed).get(index)) && not empty(existingQcValuesIndexed).get(index).isPassedQc()) && existingQcValuesIndexed.get(index).isPassedQc() == true}"> checked="checked"</c:if> />
+							<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && existingQcValuesIndexed.get(index).isPassedQc() == true}"> checked="checked"</c:if> />
 						<label for="passL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.updateQualityReport_accept.label" /></label>
 						<input type="radio" id="failL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="0" 
-							<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed).get(index)) && not empty(existingQcValuesIndexed).get(index).isPassedQc()) && existingQcValuesIndexed.get(index).isPassedQc() == false}"> checked="checked"</c:if>/>
+							<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && existingQcValuesIndexed.get(index).isPassedQc() == false}"> checked="checked"</c:if>/>
 						<label for="failL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.updateQualityReport_reject.label" /></label>
 					</div>
 				</td>
-				<td><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" id="commentsL<c:out value="${index}" />" rows="4" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed).get(index)) && not empty(existingQcValuesIndexed).get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
+				<td><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" id="commentsL<c:out value="${index}" />" rows="4" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && not empty(existingQcValuesIndexed.get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
 				</tr>
 			</c:forEach>
 		</table>

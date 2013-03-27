@@ -39,7 +39,8 @@
 	}
 		
 	$(function() {
-
+		$( "#main" ).css("visibility", "visible");
+		$( "#error_dialog-modal" ).css("visibility", "visible");
 		$( ".radio-jquery-ui" ).buttonset();
 
 		$( "#submitForm" ).button()

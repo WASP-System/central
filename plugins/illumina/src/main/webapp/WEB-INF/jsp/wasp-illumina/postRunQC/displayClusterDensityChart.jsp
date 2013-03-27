@@ -48,7 +48,7 @@
 	</p>
 	<p><fmt:message key="waspIlluminaPlugin.clustersQc_instructions.label" /></p>
 	<div id="displayWindow" style="float:right;"><button id="showForm"><fmt:message key="waspIlluminaPlugin.displayQc_continue.label" /></button></div>
-	<div id="mainImage" class="ui-widget-content ui-corner-all"><wasp:url fileAccessor = '${fileHandlesByName.get("/NumClusters%20By%20Lane.png")}' />' height='400' width='800'></div>
+	<div id="mainImage" class="ui-widget-content ui-corner-all"><img src='<wasp:url fileAccessor = '${clusterDensityChartFileHandle}' />' height='400' width='800'></div>
 </div>	
 
 <div id="error_dialog-modal" title="<fmt:message key="waspIlluminaPlugin.displayQc_warningTitle.label" />" >

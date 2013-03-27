@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.controller.illumina;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.exception.FormParameterException;
-import edu.yu.einstein.wasp.exception.ModelIdException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -117,12 +114,12 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		} catch (SampleTypeException e) {
 			logger.warn(e.getLocalizedMessage());
 		}
-		if (!metaKey.equals(CellSuccessQcMetaKey.RUN_SUCCESS)){
+		if (!metaKey.equals(CellSuccessQcMetaKey.RUN_SUCCESS) && !metaKey.equals(CellSuccessQcMetaKey.CLUSTER_DENSITY)){
 			String subFolder =  getSubfolderByMetaKey(metaKey);
 			m.addAttribute("fileHandlesByName", getFileHandlesByName(run, subFolder));
-			m.addAttribute("numCycles", getCycleCount(run));
 			m.addAttribute("chartSubFolder", subFolder);
 		}
+		m.addAttribute("numCycles", getCycleCount(run));
 		m.addAttribute("cellIndexList", cellIndexList);
 		m.addAttribute("runName", run.getName());
 		m.addAttribute("existingQcValuesIndexed",indexedQcData);
@@ -297,6 +294,8 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		}
 		try{
 			setCoreDataModelParameters(run, CellSuccessQcMetaKey.CLUSTER_DENSITY, m);
+			Map<String, FileHandle> fileHandlesByName = getFileHandlesByName(run, "");
+			m.addAttribute("clusterDensityChartFileHandle", fileHandlesByName.get("NumClusters_By_Lane.png"));
 		} catch (SampleTypeException e1) {
 			logger.warn(e1.getLocalizedMessage());
 			waspErrorMessage("waspIlluminaPlugin.notPu.error");
