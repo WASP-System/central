@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -37,6 +38,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleSubtypeResourceCategory;
@@ -236,20 +238,26 @@ public class WaspIlluminaController extends WaspController {
 	/*
 	 * update sampleSourceMetaData libConcInCellPicoM
 	 */
-	@RequestMapping(value="/flowcell/showFlowcell/updateConcInLane.do", method=RequestMethod.POST)
+	@RequestMapping(value="/flowcell/updateConcInLane.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateConcInCell(
-			@RequestParam("sampleSourceMetaId") Integer sampleSourceMetaId,
+			@RequestParam("cellLibraryId") Integer cellLibraryId,
 			@RequestParam("libConcInCellPicoM") String libConcInCellPicoM,
 			@RequestParam("platformUnitId") Integer platformUnitId,
 			ModelMap m) {
-		
+		logger.debug("sampleSourceMetaId=" + cellLibraryId);
+		logger.debug("libConcInCellPicoM=" + libConcInCellPicoM);
+		logger.debug("platformUnitId=" + platformUnitId);
 		//TODO confirm parameters
 		//confirm libConcInCellPicoM is integer or float
 		//confirm platformUnitId is Id of sample that is a platformUnit
 		//confirm that sampleSourceMetaId exists and k == "libConcInCellPicoM"
-		SampleSourceMeta sampleSourceMeta = sampleService.getSampleSourceMetaDao().getSampleSourceMetaBySampleSourceMetaId(sampleSourceMetaId);
-		sampleSourceMeta.setV(libConcInCellPicoM);
+		try {
+			sampleService.setLibraryOnCellConcentration(sampleService.getSampleSourceDao().getById(cellLibraryId), Float.parseFloat(libConcInCellPicoM));
+		} catch (Exception e) {
+			logger.warn("Problem occurred setting library concentration on cell: " + e.getLocalizedMessage());
+			waspErrorMessage("platformunit.libUpdated.error");
+		}
 		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
 
 	}
@@ -263,15 +271,16 @@ public class WaspIlluminaController extends WaspController {
 			@RequestParam("platformUnitId") String platformUnitId,
 			@RequestParam("cellId") Integer cellId,
 			@RequestParam("newControlId") Integer newControlId,	
-			@RequestParam("newControlConcInLanePicoM") String newControlConcInLanePicoM,
+			@RequestParam("newControlConcInCellPicoM") String newControlConcInCellPicoM,
 			ModelMap m){
 		
 		Sample controlLibrary = sampleService.getSampleById(newControlId);
 		Sample cell = sampleService.getSampleById(cellId);
 		try {
-			sampleService.addLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInLanePicoM));
+			sampleService.addLibraryToCell(cell, controlLibrary, Float.parseFloat(newControlConcInCellPicoM));
 		} catch (Exception e) {
 			logger.warn("Problem adding library to cell: " + e.getLocalizedMessage());
+			waspErrorMessage("platformunit.libAdded.error");
 		}
 
 		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";

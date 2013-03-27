@@ -66,19 +66,19 @@
 	<table class="data" >
 		<tr><td colspan="${platformUnit.sampleSource.size()}" class="label-centered" style="background-color:#FAF2D6" nowrap><c:out value="${platformUnit.name}" /></td></tr>
 		<tr>
-			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
-				<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
+			<c:forEach items="${platformUnit.sampleSource}" var="puCell">
+				<c:set var="cell" value="${puCell.sourceSample}" scope="page" />
 					<td class="label-centered"  style="background-color:#FAF2D6" nowrap><fmt:message key="waspIlluminaPlugin.showPlatformUnit_cell.label"/>: <c:out value="${fn:substringAfter(cell.name, '/')}" /></td>
 			</c:forEach>
 		</tr>
 		<tr>
 		  
-			<c:forEach items="${platformUnit.sampleSource}" var="ss1">
+			<c:forEach items="${platformUnit.sampleSource}" var="puCell">
 				<c:set var="numberControlLibrariesPerLane" value="0" scope="page" />
-				<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
+				<c:set var="cell" value="${puCell.sourceSample}" scope="page" />
 				 <td class="value-centered-small-heavyborder" nowrap>			
-					<c:forEach items="${cell.sampleSource}" var="ss2">
-				  		<c:set var="controlLibrary" value="${ss2.sourceSample}" scope="page" />
+					<c:forEach items="${cell.sampleSource}" var="cellLibrary">
+				  		<c:set var="controlLibrary" value="${cellLibrary.sourceSample}" scope="page" />
 				  		<c:if test="${controlLibrary.sampleSubtype.getIName() == 'controlLibrarySample'}">
 				  			<c:set var="numberControlLibrariesPerLane" value="${numberControlLibrariesPerLane + 1}" scope="page" />
 				  			<c:out value="${controlLibrary.name}" /> 
@@ -89,14 +89,14 @@
             						<br /><fmt:message key="showPlatformUnit.index.label"/> <c:out value="${adaptors.get(controlLibraryMetaItem.v).barcodenumber}"/>: <c:out value="${adaptors.get(controlLibraryMetaItem.v).barcodesequence}"/>
             					</c:if> 
             				</c:forEach>
-            				<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
-            				<c:forEach items="${ss2Meta}" var="ss2MetaItem">
-            					<c:if test="${fn:indexOf(ss2MetaItem.k,'libConcInCellPicoM') > -1 }"><br /><fmt:message key="waspIlluminaPlugin.showPlatformUnit_concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
+            				<c:set var="cellLibraryMeta" value="${cellLibrary.sampleSourceMeta}" scope="page" />
+            				<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
+            					<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'libConcInCellPicoM') > -1 }"><br /><fmt:message key="waspIlluminaPlugin.showPlatformUnit_concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
             				</c:forEach>
             				
             				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-							<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
+							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
 							</form>	
             				
@@ -131,7 +131,7 @@
 								</select>
 								
 								</td></tr>
-								<tr><td class="value-centered-small"><fmt:message key="showPlatformUnit.finalConcPM.label"/>: <input type='text' name='newControlConcInLanePicoM' id="newControlConcInLanePicoM_<c:out value="${idNewControlCounter}" />" size='3' maxlength='5' ></td></tr>
+								<tr><td class="value-centered-small"><fmt:message key="showPlatformUnit.finalConcPM.label"/>: <input type='text' name='newControlConcInCellPicoM' id="newControlConcInCellPicoM_<c:out value="${idNewControlCounter}" />" size='3' maxlength='5' ></td></tr>
 								<tr><td class="value-centered-small">
 								<input type="button" value="<fmt:message key="showPlatformUnit.add.label"/>" onclick='validateAddNewControlToLaneForm(<c:out value="${idNewControlCounter}" />)' />&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.cancel.label"/>" onclick='toggleDisplayAddNewControlForm("cancel_form", <c:out value="${idNewControlCounter}" />)' />
 								</td></tr>
@@ -143,21 +143,21 @@
 		</tr>
 		
 		<tr>
-		<c:forEach items="${platformUnit.sampleSource}" var="ss1">
-			<c:set var="cell" value="${ss1.sourceSample}" scope="page" />
+		<c:forEach items="${platformUnit.sampleSource}" var="puCell">
+			<c:set var="cell" value="${puCell.sourceSample}" scope="page" />
 			<td class="value-centered-top-small-heavyborder" >
 				<c:set var="counter" value="1" scope="page" />
 				<c:set var="numberRegularLibrariesPerLane" value="0" scope="page" />
-				<c:forEach items="${cell.sampleSource}" var="ss2">
-				  <c:set var="library" value="${ss2.sourceSample}" scope="page" />
+				<c:forEach items="${cell.sampleSource}" var="cellLibrary">
+				  <c:set var="library" value="${cellLibrary.sourceSample}" scope="page" />
 				  <c:if test="${counter > 1}"><hr></c:if>
 				  
 				  <c:if test="${library.sampleSubtype.getIName() != 'controlLibrarySample'}">	
 					<c:set var="numberRegularLibrariesPerLane" value="${numberRegularLibrariesPerLane + 1}" scope="page" />						
 					<c:out value="${library.name}" />
-					<c:set var="ss2Meta" value="${ss2.sampleSourceMeta}" scope="page" />
-					<c:forEach items="${ss2Meta}" var="ss2MetaItem">
-						<c:if test="${fn:indexOf(ss2MetaItem.k,'jobId') > -1}"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${ss2MetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${ss2MetaItem.v}"/>)</a></c:if>
+					<c:set var="cellLibraryMeta" value="${cellLibrary.sampleSourceMeta}" scope="page" />
+					<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
+						<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'jobId') > -1}"><a href="<c:url value="/sampleDnaToLibrary/listJobSamples/${cellLibraryMetaItem.v}.do" />"> (<fmt:message key="showPlatformUnit.jobJ.label"/><c:out value="${cellLibraryMetaItem.v}"/>)</a></c:if>
 					</c:forEach>
 					<br />				
 					<c:set var="libraryMeta" value="${library.sampleMeta}" scope="page" />
@@ -167,21 +167,21 @@
             				<fmt:message key="showPlatformUnit.index.label"/> <c:out value="${adaptors.get(libraryMetaItem.v).barcodenumber}"/>: <c:out value="${adaptors.get(libraryMetaItem.v).barcodesequence}"/><br />
             			</c:if> 
 					</c:forEach>
-					<c:forEach items="${ss2Meta}" var="ss2MetaItem">
+					<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
 						<c:set var="idCounter" value="${idCounter + 1}" scope="page" />
-						<%--  	<c:if test="${ss2MetaItem.k=='libConcInLanePicoM'}"><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <br /></c:if>  --%>
+						<%--  	<c:if test="${cellLibraryMetaItem.k=='libConcInCellPicoM'}"><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <br /></c:if>  --%>
 						<c:set var="currentConcentration" value="" scope="page" />
 						<div id="editAnchorDiv_<c:out value="${idCounter}" />" >
-						<c:if test="${fn:indexOf(ss2MetaItem.k, 'libConcInCellPicoM') > -1 }"><c:set var="currentConcentration" value="${ss2MetaItem.v}" scope="page" /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${ss2MetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[<fmt:message key="showPlatformUnit.edit.label"/>]</a><br />	</c:if>					
+						<c:if test="${fn:indexOf(cellLibraryMetaItem.k, 'libConcInCellPicoM') > -1 }"><c:set var="currentConcentration" value="${cellLibraryMetaItem.v}" scope="page" /><fmt:message key="showPlatformUnit.concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> <a href="javascript:void(0)" onclick='toggleDisplayOfUpdateForm("show", <c:out value="${idCounter}" />);'>[<fmt:message key="showPlatformUnit.edit.label"/>]</a><br />	</c:if>					
 						</div>	
 						
 						<div id="updatePicoFormDiv_<c:out value="${idCounter}" />" style="display:none">
 						<form id="updatePicoForm_<c:out value="${idCounter}" />"  method='post' action="<c:url value="/wasp-illumina/flowcell/updateConcInLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-							<input type='hidden' name='sampleSourceMetaId' value='<c:out value="${ss2MetaItem.sampleSourceMetaId}" />'/>
+							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<table class="data">
 								<tr><td class="value-centered-small"><fmt:message key="showPlatformUnit.currentConcPM.label"/>: <c:out value="${currentConcentration}" /></td></tr>
-								<tr><td class="value-centered-small"><fmt:message key="showPlatformUnit.newConcPM.label"/>: <input type='text' name='libConcInLanePicoM' id="libConcInLanePicoM_<c:out value="${idCounter}" />" size='3' maxlength='5' ></td></tr>
+								<tr><td class="value-centered-small"><fmt:message key="showPlatformUnit.newConcPM.label"/>: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${idCounter}" />" size='3' maxlength='5' ></td></tr>
 								<tr><td class="value-centered-small">
 								<input type="button" value="<fmt:message key="showPlatformUnit.update.label"/>" onclick='validateUpdateForm(<c:out value="${idCounter}" />)' />&nbsp;<input type="button" value="<fmt:message key="showPlatformUnit.cancel.label"/>" onclick='toggleDisplayOfUpdateForm("cancel", <c:out value="${idCounter}" />)' />
 								</td></tr>
@@ -192,7 +192,7 @@
 					</c:forEach>
 					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
 						<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-						<input type='hidden' name='samplesourceid' value='<c:out value="${ss2.sampleSourceId}" />'/>
+						<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 						<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
 					</form>					
 					<c:set var="counter" value="${counter + 1}" scope="page" />

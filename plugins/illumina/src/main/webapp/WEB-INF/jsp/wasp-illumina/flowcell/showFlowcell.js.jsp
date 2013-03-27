@@ -80,37 +80,37 @@ function validateCreateNewRunForm(){
 	var technicianId = document.getElementById("technicianId");
 	var runStartDate = document.getElementById("runStartDate");
 	if(runName.value=="" || runName.value.replace(/^\s+|\s+$/g, '') ==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseProvideValidName_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseProvideValidName_alert.label"/>");
 		runName.focus();
 		return false;
 	}
 	if(resourceId.value==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseSelectMachine_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseSelectMachine_alert.label"/>");
 		resourceId.focus();
 		return false;
 	}
 	if(readLength.value==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseSelectReadLength_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseSelectReadLength_alert.label"/>");
 		readLength.focus();
 		return false;
 	}
 	if(readType.value==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseSelectReadType_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseSelectReadType_alert.label"/>");
 		readType.focus();
 		return false;
 	}
 	if(technicianId.value==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseSelectTechnician_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseSelectTechnician_alert.label"/>");
 		technicianId.focus();
 		return false;
 	}
 	if(runStartDate.value == "" || runStartDate.value.replace(/^\s+|\s+$/g, '') ==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseProvideStartDate_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseProvideStartDate_alert.label"/>");
 		runStartDate.focus();
 		return false;
 	}
     if (runStartDate.value != "" && !isDate(runStartDate.value)) {
-    	alert("<fmt:message key="showPlatformUnit.pleaseProvideValidStartDate_alert.label"/>");
+    	alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseProvideValidStartDate_alert.label"/>");
     	runStartDate.focus();
 		return false;
     }
@@ -141,28 +141,28 @@ function toggleDisplayAddNewControlForm(action, counter){
 		newControlFormDiv.style.display = 'none';
 		var newControlIdName = "newControlId_" + counter;
 		var newControlId = document.getElementById(newControlIdName);
-		var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
-		var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+		var newControlConcInCellPicoMName = "newControlConcInCellPicoM_" + counter;
+		var newControlConcInCellPicoM = document.getElementById(newControlConcInCellPicoMName);
 		newControlId.value="";
-		newControlConcInLanePicoM.value="";
+		newControlConcInCellPicoM.value="";
 	}
 }
 function validateAddNewControlToLaneForm(counter){
 	//alert("testing alert in validate add new control. counter=" + counter);
 	var newControlIdName = "newControlId_" + counter;
 	var newControlId = document.getElementById(newControlIdName);
-	var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
-	var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+	var newControlConcInCellPicoMName = "newControlConcInCellPicoM_" + counter;
+	var newControlConcInCellPicoM = document.getElementById(newControlConcInCellPicoMName);
 	if(newControlId.value==""){
-		alert("<fmt:message key="showPlatformUnit.pleaseSelectControl_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseSelectControl_alert.label"/>");
 		newControlId.focus();
 		return false;
 	}
-	var trimmed = newControlConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
+	var trimmed = newControlConcInCellPicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){//must trim before testing
-		alert("<fmt:message key="showPlatformUnit.pleaseProvideControlConc_alert.label"/>");
-		newControlConcInLanePicoM.value = "";
-		newControlConcInLanePicoM.focus();
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseProvideControlConc_alert.label"/>");
+		newControlConcInCellPicoM.value = "";
+		newControlConcInCellPicoM.focus();
 		return false;
 	}
 	else{
@@ -187,18 +187,18 @@ function toggleDisplayOfUpdateForm(instruction, idCounter){
 	else if(instruction == 'cancel'){
 		editAnchorDiv.style.display = 'block';
 		formDiv.style.display = 'none';
-		var textInputName = "libConcInLanePicoM_" + idCounter;
+		var textInputName = "libConcInCellPicoM_" + idCounter;
 		var textInputObject = document.getElementById(textInputName);
 		textInputObject.value="";
 	}	
 }
 function validateUpdateForm(idCounter){
 	//alert("validateUpdate; id = " + idCounter);
-	var textInputName = "libConcInLanePicoM_" + idCounter;
+	var textInputName = "libConcInCellPicoM_" + idCounter;
 	var textInputObject = document.getElementById(textInputName);
 	var trimmed = textInputObject.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){
-		alert("<fmt:message key="showPlatformUnit.pleaseProvideValue_alert.label"/>");
+		alert("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_pleaseProvideValue_alert.label"/>");
 		textInputObject.value = "";
 		textInputObject.focus();
 		return false;
