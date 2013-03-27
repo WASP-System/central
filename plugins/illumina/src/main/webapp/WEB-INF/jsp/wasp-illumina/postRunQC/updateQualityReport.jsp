@@ -52,7 +52,7 @@
 						<label for="failL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.updateQualityReport_reject.label" /></label>
 					</div>
 				</td>
-				<td><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" id="commentsL<c:out value="${index}" />" rows="4" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && not empty(existingQcValuesIndexed.get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
+				<td><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" id="commentsL<c:out value="${index}" />" rows="4" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && not empty(existingQcValuesIndexed.get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
 				</tr>
 			</c:forEach>
 		</table>

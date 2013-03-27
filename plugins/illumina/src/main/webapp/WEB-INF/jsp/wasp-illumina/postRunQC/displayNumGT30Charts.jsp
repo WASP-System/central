@@ -39,7 +39,7 @@
 						</div>
 					</td>
 					<td class="formLabel vcenter"><fmt:message key="waspIlluminaPlugin.displayQc_comments.label" /></td>
-					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" rows="3" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index))}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
+					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" rows="3" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index))}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
 				</tr>
 </c:forEach>
 					
