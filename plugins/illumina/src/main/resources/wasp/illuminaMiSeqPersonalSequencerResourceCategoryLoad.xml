@@ -19,7 +19,7 @@
   </bean>
 
   <bean id="illuminaMiSeqPersonalSequencer" class="edu.yu.einstein.wasp.load.ResourceCategoryLoaderAndFactory">
-    <property name="name" value="Illumina MiSeq Personal Sequencer" />
+    <property name="name" value="Illumina MiSeq" />
     <property name="area" ref="illuminaMiSeqPersonalSequencerArea" />
     <property name="resourceType" ref="mpsResourceType" />
 	 <property name="metaFromWrapper">
