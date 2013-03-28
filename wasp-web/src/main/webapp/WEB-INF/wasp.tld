@@ -292,7 +292,7 @@
 		<tag-class>edu.yu.einstein.wasp.taglib.UrlForFile</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
-			<description>May be a FileHandle object, fileHandle Id, or fileHandle UUID</description>
+			<description>May be a FileHandle object, fileGroup object, fileHandle Id, or fileHandle UUID</description>
 			<name>fileAccessor</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
