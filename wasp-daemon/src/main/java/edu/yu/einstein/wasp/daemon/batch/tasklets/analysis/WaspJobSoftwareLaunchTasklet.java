@@ -29,7 +29,6 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -66,6 +65,8 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	
 	private List<Integer> libraryCellIds;
 	
+	private String task;
+	
 	// jobId may be set via setter in which case it overrides any values associated with the libraryCells.
 	// If not set, at initialization step an attempt is made to obtain a unique jobId across the supplied libraryCells.
 	private Integer jobId;
@@ -90,6 +91,13 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	public WaspJobSoftwareLaunchTasklet(List<Integer> libraryCellIds, ResourceType softwareResourceType) {
 		this.libraryCellIds = libraryCellIds;
 		this.softwareResourceType = softwareResourceType;
+		this.task = BatchJobTask.GENERIC; // default
+	}
+	
+	public WaspJobSoftwareLaunchTasklet(List<Integer> libraryCellIds, ResourceType softwareResourceType, String task) {
+		this.libraryCellIds = libraryCellIds;
+		this.softwareResourceType = softwareResourceType;
+		this.task = task;
 	}
 	
 	public WaspJobSoftwareLaunchTasklet(Integer libraryCellId, ResourceType softwareResourceType) {
@@ -109,7 +117,7 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
+		String flowName = softwarePlugin.getBatchJobName(this.task);
 		if (flowName == null)
 			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
@@ -137,6 +145,10 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		this.jobId = jobId;
 	}
 	
+	public void setTask(String task) {
+		this.task = task;
+	}
+	
 	@PostConstruct
 	public void init(){
 		// if jobId is not set, get it from the first libraryCell in the list and check it is unique across all in the list
@@ -145,10 +157,10 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 			for (Integer libraryCellId: libraryCellIds){
 				if (this.jobId == null){
 					this.jobId = sampleService.getJobOfLibraryOnCell(
-							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId) ).getJobId();
+							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId) ).getId();
 					continue;
 				}
-				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId)).getJobId()
+				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId)).getId()
 						.equals(jobId))
 					throw new RuntimeException("No master Wasp jobId was provided and the libraryCells do not all reference the same job so no master can be determined");
 			}

@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1946,8 +1947,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
 				String currentStatusComment = mm.getValue();
-				if(currentStatusComment != null && !currentStatusComment.isEmpty())
-					return currentStatusComment;
+				if(currentStatusComment != null && !currentStatusComment.isEmpty()){
+					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+					return currentStatusComment + " (" + mm.getUser().getNameFstLst() + "; " + dateFormat.format(mm.getDate()) + ")";
+				}
 			}
 		}
 		return null;

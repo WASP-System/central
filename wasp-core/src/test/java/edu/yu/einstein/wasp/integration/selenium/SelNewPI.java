@@ -147,7 +147,7 @@ public class SelNewPI extends SelBaseTest {
   		
   		try {
 	  		Statement s = connection.createStatement();
-	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
+	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");
 	  		ResultSet rs = s.getResultSet();
 	  		
 	  		while (rs.next ())  {
@@ -156,7 +156,6 @@ public class SelNewPI extends SelBaseTest {
 	  			
 	  			driver.get("http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
 	  	        
-	  			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
 	  			CharSequence csValue = "/wasp/auth/newpi/emailok.do";
 	  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue));
 	  	    }

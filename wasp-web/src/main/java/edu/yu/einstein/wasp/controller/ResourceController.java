@@ -264,7 +264,7 @@ public class ResourceController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
 			Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
