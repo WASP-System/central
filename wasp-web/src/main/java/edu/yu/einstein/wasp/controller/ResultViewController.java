@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -24,13 +25,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -100,7 +106,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
-	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
+	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, @RequestParam("jid") Integer jid, HttpServletResponse response) {
 		
 		try {
 /*			Map <String, Object> jsTree = null;
@@ -110,7 +116,7 @@ public class ResultViewController extends WaspController {
 				;
 			}
 */			
-			return outputJSON(jobService.getJobViewBranch(id, type), response); 	
+			return outputJSON(jobService.getTreeViewBranch(id, type, jid), response); 	
 		} 
 		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
@@ -200,30 +206,33 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.startsWith("file")) {
-				Integer fileId = id;
-				FileHandle file = this.fileService.getFileHandleById(fileId);
-				if(file==null || file.getId()==null){
-					  waspErrorMessage("file.not_found.error");
-					  return null;
-				}
-				
-				jsDetails.put(getMessage("file.name.label"), file.getFileName());
-				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
+			} else if(type.startsWith("file-lib")) {
+				Integer libId = id;
+				Sample library = sampleService.getSampleById(libId);
+				String[] splits = type.split("-");
+				FileType fileType = fileService.getFileType(splits[2]);
+				Set<FileGroup> fileGroupSet = this.fileService.getFilesForLibraryByType(library, fileType);
 
-			
-				List<FileHandleMeta> metaList = file.getFileHandleMeta();
+				for (FileGroup fg : fileGroupSet) {
+					jsDetails.put(fg.getDescription(), fileService.getFileDetailsByFileType(fg));
+					
+//					jsDetails.put(getMessage("file.name.label"), fg.getDescription());
+//					jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(fg)+"\">Download All Files Here</a>");
+	
 				
-				for (FileHandleMeta mt : metaList) {
-					String mKey = mt.getK();
-					try {
-						String msg = getMessage(mKey+".label");
-						if (!msg.equals(mKey+".label"))
-							jsDetails.put(msg, mt.getV());
-					}
-					catch (NoSuchMessageException e) {
-						;
-					}
+//					Set<FileHandle> fhSet = fg.getFileHandles();
+//					
+//					for (FileHandle fh : fhSet) {
+//						String mKey = mt.getK();
+//						try {
+//							String msg = getMessage(mKey+".label");
+//							if (!msg.equals(mKey+".label"))
+//								jsDetails.put(msg, mt.getV());
+//						}
+//						catch (NoSuchMessageException e) {
+//							;
+//						}
+//					}
 				}
 			}
 			

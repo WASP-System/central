@@ -26,10 +26,10 @@ function showhide(btn,layer_ref) {
 }
 
 function toggleview() {
-	if (root.type == 'job') {
-		root.type = 'job-pu';
+	if (root.jid == undefined || root.jid < 1) {
+		root.jid = root.id;
 	} else {
-		root.type = 'job';
+		root.jid = -1;
 	}
 	root.children = '';
 	click(root);
@@ -87,7 +87,7 @@ function collapse(d) {
 //d3.json("../data/flare100.json", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${jobId}", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {
-d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {	
+d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}&jid=${myid}", function(json) {	
 /*   if (height < json.children.length * min_branch_int) {
 	  height = json.children.length * min_branch_int;
   }
@@ -393,16 +393,35 @@ function click(d) {
       type: 'GET',
       dataType: 'json',
       success: function (result) {
+    	if (d.type=='dummy') return;  
+      
       	d3.select('#detailview').select("h3").remove();
       	d3.select('#detailview').select("tbody").remove();
       	
-      	d3.select('#detailview').append("h3").html((d.type.split('-'))[0].toUpperCase()+" Details");
-      	var table = d3.select('#detailview').append("tbody");
-          $.each(result, function (index, item) {
-         		var row = table.append("tr");
-         		row.append("td").html(index);
+      	//remove all tabs first
+      	/*for (var i = $("div#tabs ul li").length  - 1; i >= 0; i--) {
+			$('div#tabs').tabs('remove', i);
+		} */
+      	
+/*      	$.each(result, function (index, item) {
+			var num_tabs = $("div#tabs ul li").length + 1;
 
-         		if (typeof item == 'string' || item instanceof String) {
+             $("div#tabs ul").append(
+                 "<li><a href='#tab" + num_tabs + "'>" + index + "</a></li>"
+             );
+			$("div#tabs").append(
+                 "<div id='tab" + num_tabs + "'>" + item + "</div>"
+             );
+             $("div#tabs").tabs("refresh");
+      	});
+*/      	
+     	d3.select('#detailview').append("h3").html((d.type.split('-'))[0].toUpperCase()+" Details");
+      	var table = d3.select('#detailview').append("tbody");
+        $.each(result, function (index, item) {
+         	var row = table.append("tr");
+         	row.append("td").html(index);
+
+         	if (typeof item == 'string' || item instanceof String) {
           		row.append("td").html(item);
           	} else {
           		var td = row.append("td");
@@ -412,13 +431,20 @@ function click(d) {
               		row2.append("td").html(item2);
           		});
           	}
-          });
+        });
+
       }
   });
   
   if (d.children == '') {
+	  if (d.jid==undefined) {
+		  jid = -1;
+	  } else {
+		  jid = d.jid;
+	  }
+
 	  $.ajax({
-	      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid,
+	      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid+'&jid='+jid,
 	      type: 'GET',
 	      dataType: 'json',
 	      success: function (result) {

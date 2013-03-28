@@ -138,5 +138,7 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
+	public List<Map> getFileDetailsByFileType(FileGroup filegroup);
+
 }
 

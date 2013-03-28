@@ -59,6 +59,7 @@ import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -76,6 +77,10 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
+import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -91,6 +96,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	protected WaspPluginRegistry pluginRegistry;
 
 	@Autowired
 	private SampleDao sampleDao;
@@ -642,6 +650,19 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (fh == null)
 			throw new FileNotFoundException("File represented by " + uuid.toString() + " was not found.");
 		return fh;
+	}
+	
+	@Override
+	public List<Map> getFileDetailsByFileType(FileGroup filegroup) {
+		FileType ft = filegroup.getFileType();
+		String area = ft.getIName();
+		List<FileTypeViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, FileTypeViewProviding.class);
+		// we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
+		if (plugins.size() == 0)
+			throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
+		if (plugins.size() > 1)
+			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
+		return plugins.get(0).getFileDetails(filegroup.getId());
 	}
 
 }

@@ -1682,7 +1682,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 
 	@Override
-	public Map<String, Object> getJobViewBranch(int id, String type) throws SampleTypeException, SampleParentChildException{
+	public Map<String, Object> getTreeViewBranch(Integer id, String type, Integer jid) throws SampleTypeException, SampleParentChildException{
 		
 		Map <String, Object> curNode = new HashMap<String, Object>();
 		List<Map> children = new ArrayList<Map>();
@@ -1694,31 +1694,67 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			curNode.put("myid", id);
 			curNode.put("type", "job");
 
-			List<Sample> sampleList = getSubmittedSamples(job);
-			for (Sample sample : sampleList) {
-				Map childNode = new HashMap();
+			if (jid==null || jid<1) {  // jid==null/<1 means this is a analysis view
+				List<Sample> sampleList = getSubmittedSamples(job);
+				for (Sample sample : sampleList) {
+					Map childNode = new HashMap();
 
-				if(!sampleService.isLibrary(sample)) {
-					// if it's non-library sample
-					childNode.put("name", "Sample: "+sample.getName());
-					childNode.put("myid", sample.getId());
-					childNode.put("type", "sample");
-					childNode.put("children", "");
-					//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
-				} else {
-					// if it's library sample
-					childNode.put("name", "Library: "+sample.getName());
-					childNode.put("myid", sample.getId());
-					childNode.put("type", "library");
-					childNode.put("children", "");
-					//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
+					if(!sampleService.isLibrary(sample)) {
+						// if it's non-library sample
+						childNode.put("name", "Sample: "+sample.getName());
+						childNode.put("myid", sample.getId());
+						childNode.put("type", "sample");
+						childNode.put("children", "");
+						//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
+					} else {
+						// if it's library sample
+						childNode.put("name", "Library: "+sample.getName());
+						childNode.put("myid", sample.getId());
+						childNode.put("type", "library");
+						childNode.put("children", "");
+						//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
+					}
+
+					children.add(childNode);
 				}
+			} else {  //jid>=1 means this is a job-run view which needs the job id on the fly
+				curNode.put("jid", id);
+				
+				// get the list of all successful runs for the job
+				List<Sample> puList = this.getPlatformUnitWithLibrariesOnForJob(job);
+				Map<Integer, Run> runMap = new HashMap();
+				for (Sample pu : puList) {
+					List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(pu);
+					for (Run run : runList) {
+						runMap.put(run.getId(), run);
+					}
+				}
+				
+				for (Run run : runMap.values()) {
+					Map childNode = new HashMap();
+
+					childNode.put("name", "Run: "+run.getName());
+					childNode.put("myid", run.getId());
+					childNode.put("type", "run");
+					childNode.put("jid", jid);
+					childNode.put("children", "");
+
+					children.add(childNode);
+				}
+				
+				if (children.isEmpty()) {
+					Map childNode = new HashMap();
+					childNode.put("name", "No completed run yet");
+					childNode.put("myid", -1);
+					childNode.put("type", "dummy");
+					childNode.put("children", "");
 					
-				children.add(childNode);
+					children.add(childNode);
+				}
 			}
 			
 			curNode.put("children", children);
-		} else if (type.equalsIgnoreCase("job-pu")) {
+		} /*else if (type.equalsIgnoreCase("job-pu")) {
 			Job job = getJobByJobId(id);
 
 			curNode.put("name", "Job: "+job.getName());
@@ -1775,7 +1811,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			curNode.put("children", puMap.values());
-		} else if (type.equalsIgnoreCase("sample")) {
+		}*/ else if (type.equalsIgnoreCase("sample")) {
 			Sample sample = sampleService.getSampleById(id);
 
 			//curNode.put("name", "Sample: "+sample.getName());
@@ -1817,25 +1853,38 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 				children.add(childNode);
 			}
-			
+
+			// add fastq file node to library
+			Map childNode = new HashMap();
+			childNode.put("name", "Fastq");
+			childNode.put("myid", id);
+			childNode.put("type", "file-lib-fastq");
+			childNode.put("children", "");
+			children.add(childNode);
+
 			curNode.put("children", children);
-		} /*else if (type.equalsIgnoreCase("cell")) {
+		} else if (type.equalsIgnoreCase("cell")) {
 			// if the sample is a cell
 			Sample cell = sampleService.getSampleById(id);
 
 			//get platform unit associated with the cell
-			Sample pu = sampleService.getPlatformUnitForCell(cell);
-			Map childNode = new HashMap();
-			childNode.put("name", "Platform Unit: "+pu.getName());
-			childNode.put("myid", pu.getId());
-			childNode.put("type", "pu");
-			childNode.put("children", "");
+//			Sample pu = sampleService.getPlatformUnitForCell(cell);
+//			Map childNode = new HashMap();
+//			childNode.put("name", "Platform Unit: "+pu.getName());
+//			childNode.put("myid", pu.getId());
+//			childNode.put("type", "pu");
+//			childNode.put("children", "");
 			//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
 
+			Map childNode = new HashMap();
+			childNode.put("name", "Fastq");
+			childNode.put("myid", 1);
+			childNode.put("type", "file-cell-fastq");
+			childNode.put("children", "");
 			children.add(childNode);
 			
 			curNode.put("children", children);
-		} else if (type.equalsIgnoreCase("pu")) {
+		} /*else if (type.equalsIgnoreCase("pu")) {
 			// if the sample is a platform unit
 			Sample pu = sampleService.getSampleById(id);
 
@@ -1858,7 +1907,41 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				}
 			
 			curNode.put("children", children);
-		} */
+		}*/ else if (type.equalsIgnoreCase("run")) {
+			Run run = runService.getRunById(id);
+			
+			if (jid==null || jid<1) {
+				Set<SampleSource> libcellList = runService.getLibraryCellPairsOnSuccessfulRunCells(run);
+				for (SampleSource libcell : libcellList) {
+					Sample cell = sampleService.getCell(libcell);
+					Map childNode = new HashMap();
+					
+					childNode.put("name", "Cell: "+cell.getName());
+					childNode.put("myid", cell.getId());
+					childNode.put("type", "cell");
+					childNode.put("children", "");
+					
+					children.add(childNode);
+				}
+				
+				curNode.put("children", children);
+			} else {
+				List<Sample> cellList = runService.getCellsOnSuccessfulRunCellsWithoutControlsForJob(run, this.getJobByJobId(jid));
+				for (Sample cell : cellList) {
+					Map childNode = new HashMap();
+					
+					childNode.put("name", "Cell: "+cell.getName());
+					childNode.put("myid", cell.getId());
+					childNode.put("type", "cell");
+					childNode.put("jid", jid);
+					childNode.put("children", "");
+					
+					children.add(childNode);
+				}
+				
+				curNode.put("children", children);
+			}
+		}
 		
 		return curNode;
 	}
