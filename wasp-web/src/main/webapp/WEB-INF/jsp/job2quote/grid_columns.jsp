@@ -32,7 +32,7 @@ _editAttr['beforeShowForm'] = function(formId) {
 --%>
 
 function isNonNegNumber(str) {
-	isPrice = /^[^-]*?\d+(\.\d{0,2})?$/;
+	isPrice = /^\d+(\.\d{0,2})?$/;
 	return isPrice.test( str );
 } 
 _editAttr['beforeSubmit'] = function(postdata, formid) {
