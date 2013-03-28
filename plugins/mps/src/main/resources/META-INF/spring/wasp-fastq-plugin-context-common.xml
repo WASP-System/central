@@ -14,7 +14,7 @@
 
 	<bean id="waspFastqPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>wasp-fastqPlugin</value>
+			<value>fastq</value>
 		</constructor-arg>
 	</bean>
 	

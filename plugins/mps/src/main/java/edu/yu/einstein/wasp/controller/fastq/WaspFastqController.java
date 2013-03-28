@@ -16,5 +16,10 @@ public class WaspFastqController extends WaspController {
 		return "fastq/description";
 	}
 	
+	@RequestMapping(value="/details", method=RequestMethod.GET)
+	public String displayDetails(ModelMap m){
+		return "fastq/details";
+	}
+	
 
 }
