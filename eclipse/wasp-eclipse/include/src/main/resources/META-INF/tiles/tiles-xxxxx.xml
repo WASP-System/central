@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+	<definition name="waspillumina/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/description.jsp" />
+	</definition>
+	
+	<definition name="waspillumina/task/qc/list" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/illuminaQC.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/illuminaQC.jsp" />
+	</definition>
+
+	<definition name="wasp-illumina/postrunqc/displayfocusqualitycharts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayFocusQualityCharts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displayinstensitycharts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayIntensityQualityCharts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displaynumgt30charts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayNumGT30Charts.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/displayclusterdensitychart" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayClusterDensityChart.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/updatequalityreport" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/wasp-illumina/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/updateQualityReport.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/postrunqc/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/postRunQC/list.jsp" />
+	</definition>
+	<definition name="wasp-illumina/flowcell/showflowcell" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/flowcell/showFlowcell.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/flowcell/showFlowcell.jsp" />
+	</definition>
+	
+	<definition name="wasp-illumina/flowcell/createupdaterun" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/wasp-illumina/flowcell/createUpdateRun.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/wasp-illumina/flowcell/createUpdateRun.jsp" />
+	</definition>
+
+
+</tiles-definitions>
+

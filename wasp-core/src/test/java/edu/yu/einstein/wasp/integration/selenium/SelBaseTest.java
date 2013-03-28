@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -26,16 +27,18 @@ public class SelBaseTest {
     public void setUp() throws Exception {
 		
 		//final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
-	    //FirefoxProfile profile = new FirefoxProfile();   
-		ProfilesIni allProfiles = new ProfilesIni();
-		FirefoxProfile profile = allProfiles.getProfile("wasp_selenium_tests");
+	    FirefoxProfile profile = new FirefoxProfile();
+	    profile.setEnableNativeEvents(true);
+
+		//ProfilesIni allProfiles = new ProfilesIni();
+		//FirefoxProfile profile = allProfiles.getProfile("wasp_selenium_tests");
 
 	    //profile.addExtension(new FileHandle(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
 
 	    // Add more if needed
 	    driver = new FirefoxDriver(profile);
-	    
+	    driver.manage().window().setSize(new Dimension(1920, 1080));	    
 		
 		//driver = new FirefoxDriver();
    		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);

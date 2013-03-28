@@ -122,6 +122,33 @@ public interface FileService extends WaspService {
 	 */
 	public Map<FileType, Set<FileGroup>> getFilesForLibraryMappedToFileType(Sample library) throws SampleTypeException;
 	
+	/**
+	 * Returns a list of files of specified fileType for the given platformUnit or an empty list if none.
+	 * @param fileType
+	 * @param platformUnit
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType) throws SampleTypeException;
+
+	/**
+	 * Returns a list of files for the given platformUnit or an empty list if none.
+	 * @param platformUnit
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Set<FileGroup> getFilesForPlatformUnit(Sample platformUnit) throws SampleTypeException;
+
+	/**
+	 * Returns a Map of files for a given platformUnit associated by FileType
+	 * @param platformUnit
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public Map<FileType, Set<FileGroup>> getFilesForPlatformUnitMappedToFileType(Sample platformUnit) throws SampleTypeException;
+	
+	
+	
 	public void addFile(FileHandle file);
 	
 	public void addFileGroup(FileGroup group);
