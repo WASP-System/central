@@ -325,7 +325,7 @@ public class Job2QuoteController extends WaspController {
 			
 			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
 			String currentStatus = jobService.getJobStatus(item);
-			String jobStatusComment = jobService.getJobStatusComment(item);
+			String jobStatusComment = jobService.getJobStatusComment(item);//this is really ONLY a comment if the job was rejected by fm, pi, or da
 			if (jobStatusComment != null)
 				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment);
 			
