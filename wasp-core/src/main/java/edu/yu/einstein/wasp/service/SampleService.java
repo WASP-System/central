@@ -768,13 +768,22 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 */
 	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
+	  
+	  
+	  /**
+	   * Set the concentration of library added to a cell (as SampleSource metadata)
+	   * @param cellLibrary
+	   *  @param valueInPicoM
+	   * @throws MetadataException
+	   */
+	  public void setLibraryOnCellConcentration(SampleSource cellLibrary, Float valueInPicoM) throws MetadataException;
 
 	  /**
 	   * Set the concentration of library added to a cell (as SampleSource metadata)
 	   * @param cell
 	   * @param library
 	   * @param valueInPicoM
-	   * @throws SampleException
+	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
 	  public void setLibraryOnCellConcentration(Sample cell, Sample library, Float valueInPicoM) throws SampleException, MetadataException;
@@ -790,12 +799,20 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  /**
 	   * Record the job associated with the library added to the cell (as SampleSource metadata)
-	   * @param cell
-	   * @param library
-	   * @throws SampleException
+	   * @param cellLibrary
+	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
-	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException;
+	  public void setJobForLibraryOnCell(SampleSource cellLibrary) throws MetadataException;
+	  
+	  /**
+	   * Record the job associated with the library added to the cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @throws SampleTypeException
+	   * @throws MetadataException
+	   */
+	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * get the job of the library on a cell

@@ -334,6 +334,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(library, "must provide a library");
 		Assert.assertParameterNotNull(fileType, "must provide a fileType");
 		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
 		Map<FileType, Set<FileGroup>> filesByType = getFilesForLibraryMappedToFileType(library);
@@ -341,7 +342,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			return new HashSet<FileGroup>();
 		return filesByType.get(fileType);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -353,6 +354,58 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (!sampleService.isLibrary(library))
 			throw new SampleTypeException("sample is not of type library");
 		Sample s = sampleDao.findById(library.getId());
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		for (FileGroup fg : s.getFileGroups()) {
+			FileType ft = fg.getFileType();
+			if (!filesByType.containsKey(ft))
+				filesByType.put(ft, new HashSet<FileGroup>());
+			filesByType.get(ft).add(fg);
+		}
+		return filesByType;
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForPlatformUnit(Sample platformUnit) throws SampleTypeException {
+		Assert.assertParameterNotNull(platformUnit, "must provide a platformUnit");
+		if (!sampleService.isPlatformUnit(platformUnit))
+			throw new SampleTypeException("sample is not of type platformUnit");
+		Sample lib = sampleService.getSampleById(platformUnit.getId());
+		return lib.getFileGroups();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForPlatformUnitByType(Sample platformUnit, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(platformUnit, "must provide a platformUnit");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForPlatformUnitMappedToFileType(platformUnit);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForPlatformUnitMappedToFileType(Sample platformUnit) throws SampleTypeException {
+		Assert.assertParameterNotNull(platformUnit, "must provide a platformUnit");
+		if (!sampleService.isPlatformUnit(platformUnit))
+			throw new SampleTypeException("sample is not of type platformUnit");
+		Sample s = sampleDao.findById(platformUnit.getId());
 		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : s.getFileGroups()) {
 			FileType ft = fg.getFileType();
