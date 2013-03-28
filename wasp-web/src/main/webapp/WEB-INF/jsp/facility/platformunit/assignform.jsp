@@ -180,7 +180,7 @@ function hideCoverage(e) {
 			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
 			                    </c:if> 
 			                  </c:forEach> 
-			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromCell.label"/></a></div>
+			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?cellLibraryId=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromCell.label"/></a></div>
 			              </c:if>
 			             </div>
 			           </c:forEach>

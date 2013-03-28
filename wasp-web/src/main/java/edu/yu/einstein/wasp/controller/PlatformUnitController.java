@@ -985,7 +985,7 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
-			@RequestParam("samplesourceid") int cellLibraryId,
+			@RequestParam("cellLibraryId") int cellLibraryId,
 			@RequestParam("resourceCategoryId") Integer resourceCategoryId,
 			@RequestParam("jobsToWorkWith") Integer jobsToWorkWith,
 			ModelMap m) {
@@ -1014,7 +1014,7 @@ public class PlatformUnitController extends WaspController {
 	@RequestMapping(value="/assignRemove.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String assignmentRemove(
-			@RequestParam("samplesourceid") Integer cellLibraryId,
+			@RequestParam("cellLibraryId") Integer cellLibraryId,
 			@RequestParam(value="jobId", required=false) Integer jobId,
 			@RequestParam(value="platformUnitId", required=false) Integer platformUnitId,
 			ModelMap m) {
