@@ -79,7 +79,7 @@
           <property name="label" value="IP vs Input Pairings" />
         </bean>
         <bean parent="chipSeqUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/aligner" />
+          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
           <property name="label" value="Aligner Selection" />
         </bean>
         <bean parent="chipSeqUiFieldWrapper">
