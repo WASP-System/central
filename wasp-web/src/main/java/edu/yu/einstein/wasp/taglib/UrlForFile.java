@@ -69,6 +69,8 @@ public class UrlForFile extends BodyTagSupport {
 		try{
 			if (FileHandle.class.isInstance(fileAccessor))
 				url = fileUrlResolver.getURL((FileHandle) fileAccessor);
+			else if (FileGroup.class.isInstance(fileAccessor))
+				url = fileUrlResolver.getURL((FileGroup) fileAccessor);
 			else {
 				try{
 					UUID uuid = UUID.fromString((String) fileAccessor);

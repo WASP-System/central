@@ -2452,7 +2452,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
 		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");
-		return sampleDao.getSampleBySampleId(cellLibrary.getId()); // get from Dao in case cellLibrary not entity managed
+		return sampleDao.getSampleBySampleId(cellLibrary.getSampleId()); // get from Dao in case cellLibrary not entity managed
 	}
 	
 	/**
@@ -2789,7 +2789,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(samplePair, "Sample pair cannot be empty");
 			Assert.assertParameterNotNull(samplePair.getId(), "Sample pair must have a valid id");
 			
-			return sampleDao.getSampleBySampleId(samplePair.getId()); // get from Dao in case sample pair not entity managed
+			return sampleDao.getSampleBySampleId(samplePair.getSampleId()); // get from Dao in case sample pair not entity managed
 		}
 		
 		/**
