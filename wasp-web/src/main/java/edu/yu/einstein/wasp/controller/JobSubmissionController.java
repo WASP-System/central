@@ -1876,7 +1876,14 @@ public class JobSubmissionController extends WaspController {
 
 
 		List<String[]> rt = new ArrayList<String[]>(); 
-
+		//add the jobDraft's start page breadcrumb (3/29/13; dubin)
+		String jobDraftStartPageBreadcrumbMessage = messageService.getMessage("jobDraft.startPageBreadcrumbMessage.label");
+		if(jobDraftStartPageBreadcrumbMessage != null && !"".equals(jobDraftStartPageBreadcrumbMessage)){
+			String[] startPage = {"/jobsubmit/modify/"+jobDraft.getId().toString(), jobDraftStartPageBreadcrumbMessage};
+			rt.add(startPage);
+		}
+		
+		
 		for (int i=0; i < pageFlowArray.length -1; i++) {
 			String page = pageFlowArray[i];
 			String mapPage = page.replaceAll("^/", "");
