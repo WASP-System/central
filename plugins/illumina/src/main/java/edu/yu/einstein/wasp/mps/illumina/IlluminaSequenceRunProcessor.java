@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -112,6 +114,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			f.delete();
 		} catch (Exception e) {
 			logger.error("problem: " + e.getLocalizedMessage());
+			e.printStackTrace();
 			throw new GridExecutionException("unable to pre-process illumina sample sheet", e);
 		}
 		
@@ -175,39 +178,41 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 
 			// throws SampleTypeException
 
-			List<Sample> all = sampleService.getLibrariesOnCell(cell);
+			List<SampleSource> all = sampleService.getCellLibraries(cell);
 			
 			List<Sample> libraries = sampleService.getLibrariesOnCellWithoutControls(cell);
 
-			for (Sample library : all) {
+			for (SampleSource cellLibrary : all) {
+				
+				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
+						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
 				
 				// if the sample is not TruSeq, do not place it in the sample sheet
-				if (! adaptorService.getAdaptor(library).getAdaptorset().getIName().equals(truseqIndexedDnaArea))
+				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
+				if (! adaptorService.getAdaptor(cellLibrary.getSourceSample()).getAdaptorset().getIName().equals(truseqIndexedDnaArea))
 					continue;
 				
 				cellMarked[cellid-1] = true;
 				
 				// if there is one control sample in the lane and no libraries, set the control flag
 				if ((libraries.size() == 0) && (all.size() == 1)) {
-					Sample control = all.get(0);
 					
-					String line = buildLine(platformUnit, cell, control.getName(), control, "Y", "control");
+					SampleSource controlCellLib = all.get(0);
+					logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
+					
+					String line = buildLine(platformUnit, cell, controlCellLib.getSourceSample().getName(), controlCellLib, "Y", "control");
 					sampleSheet += "\n" + line;
 					continue;
 				}
 
 				// necessary?
-				String iname = library.getSampleType().getIName();
+				String iname = cellLibrary.getSourceSample().getSampleType().getIName();
 				if ((!iname.equals("library") && (!iname
 						.equals("facilityLibrary")))) {
 					logger.warn("Expected library, saw " + iname);
 					continue;
 				}
 
-				Sample sample = library.getParent();
-				
-				if (sample == null)
-					sample = library;
 
 				// TODO:implement this job service method to get JobSampleMeta
 				// from sample and platform unit
@@ -215,7 +220,7 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 				String control = "N";
 				String recipe = "WASP";
 
-				String line = buildLine(platformUnit, cell, genome, sample, control, recipe);
+				String line = buildLine(platformUnit, cell, genome, cellLibrary, control, recipe);
 
 				logger.debug("sample sheet: " + line);
 
@@ -227,8 +232,9 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			// or a single sample for the entire lane
 				
 			if (cellMarked[cellid-1] == false) {
-				Sample placeholder = new Sample();
-				Adaptor adaptor = new Adaptor();
+				logger.debug("setting dummy sample cell: " + cellid);
+				SampleSource placeholder = new SampleSource();
+				//Adaptor adaptor = new Adaptor();
 				placeholder.setId(-1);
 				
 				String line = buildLine(platformUnit, cell, "", placeholder, "N", "WASP");
@@ -241,18 +247,11 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 		
 	}
 
-	private String buildLine(Sample platformUnit, Sample cell, String genome, Sample sample, String control, String recipe) {
-		
-		String adapter = null;
-		try {
-			adapter = adaptorService.getAdaptor(sample).getBarcodesequence();
-		} catch (Exception e) {
-			// if it is null or otherwise not set, it does not exist
-			adapter = "";
-		}
-		String sampleId = sample.getId().toString();
-		String sampleName = sample.getName();
-		
+	private String buildLine(Sample platformUnit, Sample cell, String genome, SampleSource cellLibrary, String control, String recipe) {
+
+		String adapter = "";
+		String sampleId;
+		String sampleName;
 		Integer cellIndex;
 		try {
 			cellIndex = sampleService.getCellIndex(cell);
@@ -260,23 +259,39 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 			logger.error("sample type exception: " + e.toString());
 			throw new InvalidParameterException("sample type exception" + e);
 		}
-		
-		if (sampleId.equals("-1")) {
+		Sample sample = null;
+		if (cellLibrary.getId().equals(-1)) {
 			sampleId = "lane_" + cellIndex;
 			sampleName = sampleId;
+		} else {
+			try {
+				adapter = adaptorService.getAdaptor(cellLibrary.getSourceSample()).getBarcodesequence();
+			} catch (Exception e) {
+				// if it is null or otherwise not set, it does not exist
+				adapter = "";
+			}
+			sample = cellLibrary.getSourceSample().getParent();
+
+			if (sample == null)
+				sample = cellLibrary.getSourceSample();
+			sampleId = cellLibrary.getId().toString();
+			sampleName = sample.getName();
+
 		}
-		return new StringBuilder()
-						.append(platformUnit.getName() + ",")
-						.append(cellIndex + ",")
-						.append(sampleId + ",")
-						.append(genome + ",")
-						.append(adapter + ",")
-						.append(sampleName + ",")
-						.append(control + ",")
-						.append(recipe + ",") // TODO:recipe
-						.append("WASP" + ",")
-						.append("WASP")
-						.toString();
+		String entry = new StringBuilder()
+				.append(platformUnit.getName() + ",")
+				.append(cellIndex + ",")
+				.append(sampleId + ",")
+				.append(genome + ",")
+				.append(adapter + ",")
+				.append(sampleName + ",")
+				.append(control + ",")
+				.append(recipe + ",") // TODO:recipe
+				.append("WASP" + ",")
+				.append("WASP")
+				.toString();
+		logger.debug("building sample sheet entry: " + entry);
+		return entry;
 	}
 
 	/**

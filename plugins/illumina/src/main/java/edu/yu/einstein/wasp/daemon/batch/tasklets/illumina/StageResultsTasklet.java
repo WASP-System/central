@@ -90,6 +90,8 @@ public class StageResultsTasklet extends WaspTasklet {
 		
 		w.setCommand("mkdir -p ${WASP_RESULT_DIR}");
 		w.addCommand("cp -f *.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f ../RunInfo.xml ${WASP_RESULT_DIR}");
+		w.addCommand("cp -f ../Data/Intensities/BaseCalls/SampleSheet.csv ${WASP_RESULT_DIR}");
 		w.addCommand("cp -f *.txt ${WASP_RESULT_DIR}");
 		w.addCommand("cp -fR Project_* ${WASP_RESULT_DIR}");
 		w.addCommand("cp -fR Undetermined_indices ${WASP_RESULT_DIR}");

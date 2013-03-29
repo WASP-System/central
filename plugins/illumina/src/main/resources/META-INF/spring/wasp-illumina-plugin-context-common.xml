@@ -25,7 +25,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
 	
-	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin">
+	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin" depends-on="mps-tools">
 		<constructor-arg name="pluginName" ref="illuminaPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-illumina" />

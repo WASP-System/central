@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -172,7 +173,19 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		GridResult r = transportConnection.sendExecToRemote(w);
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
-		this.createSequenceFiles(platformUnit, allCellLib, br);
+		
+		w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		w.setSoftwareDependencies(sd);
+		w.setWorkingDirectory(workingDirectory);
+		w.setCommand("grep -c \"IsIndexedRead=\\\"N\\\"\" RunInfo.xml");
+		
+		r = transportConnection.sendExecToRemote(w);
+		
+		BufferedReader rsn = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
+		Integer readSegments = new Integer(StringUtils.chomp(rsn.readLine()));
+		
+		this.createSequenceFiles(platformUnit, allCellLib, br, readSegments);
 		
 		w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
@@ -190,7 +203,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 
 	}
 
-	private void createSequenceFiles(Sample platformUnit, Set<SampleSource> cellLibs, BufferedReader br) throws SampleException, InvalidFileTypeException, MetadataException {
+	private void createSequenceFiles(Sample platformUnit, Set<SampleSource> cellLibs, BufferedReader br, Integer readSegments) throws SampleException, InvalidFileTypeException, MetadataException {
 		String line;
 		FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
 		logger.debug("parsing output to create sequence files for " + platformUnit.getName());
@@ -245,6 +258,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 					sampleGroup.setFileType(fastqFileType);
 					sampleGroup.setSoftwareGeneratedBy(casava);
 					fileService.addFileGroup(sampleGroup);
+					fqs.setNumberOfReadSegments(sampleGroup, readSegments);
 					cellLibSeqfg.put(cellLib, sampleGroup);
 					
 				}
@@ -253,7 +267,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 				file.setFileURI(workService.getGridFileService().remoteFileRepresentationToLocalURI(workingDirectory + "wasp/sequence/" + line));
 				String actualBarcode = sampleService.getLibraryAdaptor(sampleService.getLibrary(cellLib)).getBarcodesequence();
 				if (!actualBarcode.equals(barcode)) {
-					logger.error("library barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
+					logger.error("cell library " + cellLibId + " barcode " + actualBarcode + " does not match file's indicaded barcode: " + barcode);
 					throw new edu.yu.einstein.wasp.exception.SampleIndexException("sample barcode does not match");
 				}
 				
@@ -286,6 +300,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			
 			pufg.setDescription(platformUnit.getName() + " FASTQ files");
 			fileService.addFileGroup(pufg);
+			fqs.setNumberOfReadSegments(pufg, readSegments);
 			
 			platformUnit.getFileGroups().add(pufg);
 			sampleService.getSampleDao().save(platformUnit);
@@ -294,8 +309,9 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			
 			for (SampleSource cl : cellLibSeqfg.keySet()) {
 				//save all samplefile groups
+				logger.debug("saving cell library " + cl.getId());
 				FileGroup sfg = cellLibSeqfg.get(cl);
-				sfg.setDescription(sampleService.getLibrary(cellLib).getName() + " FASTQ files");
+				sfg.setDescription(sampleService.getLibrary(cl).getName() + " FASTQ files");
 				sfg.setFileType(this.fastqFileType);
 				sfg.setSoftwareGeneratedBy(casava);
 				fileService.addFileGroup(sfg);
