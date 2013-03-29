@@ -35,11 +35,11 @@
 	          <property name="error" value="You must provide a standard deviation" />
 	        </bean>
 	        
-	        <bean parent="helpTagLibraryUiFieldWrapper">
+<!-- 	        <bean parent="helpTagLibraryUiFieldWrapper">
 	          <property name="baseName" value="antibody" />
 	          <property name="label" value="Antibody" />
 	          <property name="metaposition" value="30" />
-	        </bean>
+	        </bean> -->
 	      </list>
       </property>
   </bean>
