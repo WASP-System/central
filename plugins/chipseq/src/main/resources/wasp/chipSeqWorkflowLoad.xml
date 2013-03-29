@@ -97,7 +97,7 @@
         </bean>
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="pairing_instructions" />
-          <property name="label" value="Please pair up Input and IP samples that should be analyzed together, following sequencing, for the purposes of peak calling. Note that such pairing is optional." />
+          <property name="label" value="Please pair up Input and IP samples that should be analyzed together for peak calling. Note that this pairing is optional." />
         </bean>  
         <bean parent="chipSeqUiFieldWrapper">
           <property name="baseName" value="test" />
