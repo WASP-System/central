@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <script>
 
@@ -39,7 +39,8 @@
 	}
 		
 	$(function() {
-
+		$( "#main" ).css("visibility", "visible");
+		$( "#error_dialog-modal" ).css("visibility", "visible");
 		$( ".radio-jquery-ui" ).buttonset();
 
 		$( "#submitForm" ).button()

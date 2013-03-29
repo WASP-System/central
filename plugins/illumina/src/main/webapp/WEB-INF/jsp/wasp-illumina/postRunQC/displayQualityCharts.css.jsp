@@ -1,4 +1,5 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 
 <style>
 	
@@ -163,9 +164,9 @@
 		height: 695px;
 		margin: 15px;
 	}
-	
+	<c:if test="${chartSubFolder.equals('NumGT30')}">
 	#int{
-		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1.png" />);
+		background-image:url(<c:set var="fileName" value="${chartSubFolder}/Chart_1.png" /><wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 		width: 260px;
@@ -174,31 +175,34 @@
 		margin-left: 15px;
 		margin-top: 15px;
 	}
+	</c:if>
 	
+	<c:if test="${not empty (chartSubFolder) && not chartSubFolder.equals('NumGT30')}">
 	#intA{
 		clear: left;
-		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_a.png" />);
+		background-image:url(<c:set var="fileName" value="${chartSubFolder}/Chart_1_a.png" /><wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intC{
-		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_c.png" />);
+		background-image:url(<c:set var="fileName" value="${chartSubFolder}/Chart_1_c.png" /><wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intT{
-		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_t.png" />);
+		background-image:url(<c:set var="fileName" value="${chartSubFolder}/Chart_1_t.png" /><wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
 	
 	#intG{
-		background-image:url(<c:out value="${runReportBaseImagePath}/${chartSubFolder}/Chart_1_g.png" />);
+		background-image:url(<c:set var="fileName" value="${chartSubFolder}/Chart_1_g.png" /><wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />);
 		background-size: 260px;
 		background-repeat: no-repeat;
 	}
+	</c:if>
 	
 	#loading_dialog-modal{
 		padding:15px;
@@ -214,6 +218,7 @@
 		padding:15px;
 		font-size: 14px;
 		z-index:100;
+		visibility:hidden;
 	}
 	
 	#qscoreFrame{
@@ -223,6 +228,10 @@
 		padding: 15px;
 		width:815px;
 		height:450px;
+	}
+	
+	#qscoreIframe{
+		overflow-x:auto; 
 	}
 	
 	#qscoreSelector{
@@ -268,6 +277,14 @@
 	
 	td.fixedWidth{
 		width:120px;
+	}
+	
+	#selectionWindow {
+		visibility:hidden;
+	}
+	
+	#main {
+		visibility:hidden;
 	}
 	
 	

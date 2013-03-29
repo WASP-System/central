@@ -1,4 +1,9 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp"%>
+<%@ page session="true"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 
 
 
@@ -28,13 +33,13 @@
 					<td class="vcenter">
 						<div class="radio-jquery-ui">
 							<input type="radio" id="passL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="1" 
-								<c:if test="${not empty(existingQcValuesIndexed.get(index).isPassedQc()) && existingQcValuesIndexed.get(index).isPassedQc() == true}"> checked="checked"</c:if> /><label for="passL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.displayQc_pass.label" /></label>
+								<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && existingQcValuesIndexed.get(index).isPassedQc() == true}"> checked="checked"</c:if> /><label for="passL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.displayQc_pass.label" /></label>
 							<input type="radio" id="failL<c:out value="${index}" />" name="radioL<c:out value="${index}" />" size="25" value="0"  
-								<c:if test="${(not empty(existingQcValuesIndexed.get(index).isPassedQc())) && existingQcValuesIndexed.get(index).isPassedQc() == false}"> checked="checked"</c:if> /><label for="failL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.displayQc_fail.label" /></label>
+								<c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index)) && existingQcValuesIndexed.get(index).isPassedQc() == false}"> checked="checked"</c:if> /><label for="failL<c:out value="${index}" />" ><fmt:message key="waspIlluminaPlugin.displayQc_fail.label" /></label>
 						</div>
 					</td>
 					<td class="formLabel vcenter"><fmt:message key="waspIlluminaPlugin.displayQc_comments.label" /></td>
-					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" rows="3" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed.get(index).getComment())}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
+					<td class="vcenter"><textarea style="resize: none;" name="commentsL<c:out value="${index}" />" rows="3" cols="20" maxlength="100"><c:if test="${not empty(existingQcValuesIndexed) && not empty(existingQcValuesIndexed.get(index))}"><c:out value="${existingQcValuesIndexed.get(index).getComment()}" /></c:if></textarea></td>
 				</tr>
 </c:forEach>
 					
@@ -77,9 +82,10 @@
 			</table>
 		</div>
 		<div id="qscoreIframe">
-			<iframe id="qscoreChart" src='<c:out value="${runReportBaseImagePath}/${qscoreSubFolder}"/>/QScore_L1.png' width="800" height="400" frameborder="0" scrolling="auto">
-				<p>Your browser does not support iframes.</p>
-			</iframe>
+			<c:set var="fileName" value="${qscoreSubFolder}/QScore_L1.png" />
+			<div id="qscoreIFrameImage">
+				<img id="qscoreChart" src='<wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />'  />
+			</div>
 		</div>
 	</div>
 
@@ -92,6 +98,6 @@
 
 
 
-<c:forEach items="${imageFileUrlList}" var="fileUrl" varStatus="status" >
-	<img src='<c:out value="${fileUrl}" />' alt='Cycle <c:out value="${status.count}" /> Quality Plot <c:out value="${fileUrl}" />' class='preloadHidden' />
+<c:forEach items="${fileHandlesByName.keySet()}" var="fileName" varStatus="status" >
+	<img src='<wasp:url fileAccessor = "${fileHandlesByName.get(fileName)}" />' alt='Cycle <c:out value="${status.count}" /> Quality Plot <c:out value="${fileName}" />' class='preloadHidden' />
 </c:forEach>
