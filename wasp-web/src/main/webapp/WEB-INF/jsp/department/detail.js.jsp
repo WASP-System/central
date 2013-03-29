@@ -1,5 +1,4 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script>
 
  <script type="text/javascript">
      $(document).ready(function() {            
