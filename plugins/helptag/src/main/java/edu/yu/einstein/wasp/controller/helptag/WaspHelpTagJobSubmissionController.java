@@ -2,10 +2,12 @@ package edu.yu.einstein.wasp.controller.helptag;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController; 
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,25 +47,23 @@ public class WaspHelpTagJobSubmissionController extends JobSubmissionController 
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
-
-		List<SampleDraft> samples=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
-		if (samples.size() < 2){
+		List<SampleDraft> sampleDrafts=sampleDraftDao.getSampleDraftByJobId(jobDraftId);
+		if (sampleDrafts.size() < 2){
 			return nextPage(jobDraft);
 		}
 
-		Set<String> selectedSamplePairs = new HashSet<String>();
-		String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraftId);
-		if (samplePairsTvsC.getJobDraftMetaId() != null){
-			for(String pair: samplePairsTvsC.getV().split(";")){
-				String[] pairList = pair.split(":");
-				selectedSamplePairs.add("testVsControl_"+pairList[0]+"_"+pairList[1]);
+		Set<String> selectedSampleDraftPairStringSet = new HashSet<String>();
+		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = jobDraftService.getSampleDraftPairsByJobDraft(jobDraft);
+		if (!sampleDraftPairSet.isEmpty()){
+			for(Map<SampleDraft, SampleDraft> pair: sampleDraftPairSet){
+				Entry<SampleDraft, SampleDraft> e = pair.entrySet().iterator().next();
+				selectedSampleDraftPairStringSet.add("testVsControl_"+e.getKey().getSampleDraftId()+"_"+e.getValue().getSampleDraftId());
 			}
 		}
 
 		m.put("jobDraft", jobDraft);
-		m.put("samples", samples);
-		m.put("selectedSamplePairs", selectedSamplePairs);
+		m.put("samples", sampleDrafts);
+		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/helptagform";
 	}
@@ -78,19 +78,9 @@ public class WaspHelpTagJobSubmissionController extends JobSubmissionController 
 	
 	    Map<String,String[]> params = request.getParameterMap();
 	
-	    JobDraft jobDraftDb = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-	    List<SampleDraft> samples =  jobDraftDb.getSampleDraft();
+	    List<SampleDraft> samples =  jobDraft.getSampleDraft();
 	
-	    String pairMetaString = ""; 
-	    
-	    // remove old paired sample for jobdraft
-	    String samplePairsKey = jobDraft.getWorkflow().getIName()+".samplePairsTvsC";
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraftId);
-		if (samplePairsTvsC.getJobDraftMetaId() != null){
-			jobDraftMetaDao.remove(samplePairsTvsC);
-			jobDraftMetaDao.flush(samplePairsTvsC);
-		}
-		
+	    Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = new HashSet<Map<SampleDraft, SampleDraft>>();
 	    for (SampleDraft sd1: samples) {
 	    	String sd1Id = String.valueOf(sd1.getSampleDraftId().intValue());
 	    	for (SampleDraft sd2: samples) {
@@ -104,21 +94,16 @@ public class WaspHelpTagJobSubmissionController extends JobSubmissionController 
 	    		}
 		
 	    		if (checkValue.equals("1")){
-	    			pairMetaString += sd1Id + ":" + sd2Id + ";";
+	    			Map<SampleDraft,SampleDraft> sampleDraftPair = new HashMap<SampleDraft,SampleDraft>();
+	    			sampleDraftPair.put(sd1, sd2);
+	    			sampleDraftPairSet.add(sampleDraftPair);
 	    		}
 	    	}
 	    }
+	    
+	    jobDraftService.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
 	
-		if (!pairMetaString.isEmpty()){
-			// persist pair meta string
-			JobDraftMeta jdm = new JobDraftMeta(); 
-			jdm.setJobDraftId(jobDraftDb.getJobDraftId());
-			jdm.setK(samplePairsKey);
-			jdm.setV(pairMetaString); 
-			jobDraftMetaDao.save(jdm);
-		}
-	
-		return nextPage(jobDraftDb);
+		return nextPage(jobDraft);
 	}
 
 
