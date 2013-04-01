@@ -579,13 +579,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
 
-	  /**
-	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
-	   * @param Integer runId
-	   * @return Run run
-	   */
-	  public Run getSequenceRun(Integer runId) throws RunException;
-	   
+	    
 	 
 	  
 	  /**
@@ -596,13 +590,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isPlatformUnitCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
 	  
-	  /**
-	   * Delete sequence run
-	   * @param Run run
-	   * @return void
-	   */
-	  public void deleteSequenceRun(Run run)throws Exception;
-
+	  
 	  /**
 	   * is sampleDraft a DNA or RNA molecule
 	   * @param sampleDraft

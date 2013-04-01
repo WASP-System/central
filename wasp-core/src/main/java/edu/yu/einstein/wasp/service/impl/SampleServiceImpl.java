@@ -1940,27 +1940,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Run getSequenceRun(Integer runId) throws RunException{
-		Assert.assertParameterNotNullNotZero(runId, "Invalid runId provided");
-		Run run = runDao.getRunByRunId(runId.intValue());
-		if(run==null||run.getRunId()==null||run.getRunId().intValue()<=0){
-			throw new RunException("Run with runId of " + runId.intValue() + " not found in database");
-		}
-		else if(!run.getResourceCategory().getResourceType().getIName().equals("mps")){
-			throw new RunException("Run with runId of " + runId.intValue() + " does not have resourcecategory of mps");
-		}
-		else if(!run.getResource().getResourceType().getIName().equals("mps")){
-			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcetype is mps");
-		}
-		else if(!run.getResource().getResourceCategory().getResourceType().getIName().equals("mps")){
-			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcecategory is mps");
-		}
-		return run;
-	}
 	
 	/**
 	 * {@inheritDoc}
@@ -1978,18 +1957,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return false;
 	}
 
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void deleteSequenceRun(Run run)throws Exception{
-		try{
-		deleteSequenceRunAndItsMeta(run);
-		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
-		return;
-	}
 	
 	/**
 	 * {@inheritDoc}
@@ -2156,20 +2123,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		return runningOrSuccessfullyRunPlatformUnits;
 	}
 
-	
-	
-	private void deleteSequenceRunAndItsMeta(Run run){
-		Assert.assertParameterNotNull(run, "Invalid run provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "Invalid run provided");
-		for(RunMeta runMeta : run.getRunMeta()){
-			runMetaDao.remove(runMeta);
-			runMetaDao.flush(runMeta);
-		}
-		runDao.remove(run);
-		runDao.flush(run);
-		return;
-	}
-	
+
 	public enum LockStatus{LOCKED,UNLOCKED,UNKOWN}
 	
 	/**
