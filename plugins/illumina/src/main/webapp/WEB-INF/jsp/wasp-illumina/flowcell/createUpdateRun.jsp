@@ -7,7 +7,7 @@
  <br />
 <title><fmt:message key="pageTitle./wasp-illumina/flowcell/createUpdateRun.label"/></title>
 <c:choose>
-	<c:when test='${runId == "0"}'>
+	<c:when test='${run.getId() == "0"}'>
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
 	</c:when>
 	<c:otherwise>
@@ -34,55 +34,60 @@
 <table class="EditTable ui-widget ui-widget-content">
 
 <tr class="FormData">
-		
-	<td class="CaptionTD"><fmt:message key="runInstance.chooseResource.label"/>:</td>
+	<td class="CaptionTD"><fmt:message key="runInstance.chooseRunFolder.label"/>:</td>
 	<td class="DataTD">
-	<form method="GET" action="<c:url value="/wasp-illumina/flowcell/createUpdateRun.do" />">
-		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" value="<c:out value="${runId}" />" />
-		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="platformUnitId" value="<c:out value="${platformUnitId}" />" />
-		<select class="FormElement ui-widget-content ui-corner-all" id="resourceId" name="resourceId" size="1" onchange="this.parentNode.submit()">
-			<c:if test='${runId <= 0}'>
-				<option value="0"><fmt:message key="wasp.default_select.label"/>
+	<form name="selectRunFolder" class="FormGrid" method="get">
+		<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
+			<c:if test='${run.getId() == 0}'>
+				<option value=""><fmt:message key="wasp.default_select.label"/>
 			</c:if>			
-			<c:forEach items="${waspResources}" var="waspResource">
+			<c:forEach items="${runFolderSet}" var="runFolder">
 				<c:set var="selectedFlag2" value=""/>
-				<c:if test='${resourceId == waspResource.getId()}'>
-					<c:set var="selectedFlag2" value="SELECTED"/>
+				<c:if test='${run.getName() == runFolder}'>
+					<c:set var="selectedFlag2" value="selected='selected'"/>
 				</c:if>
-				<option value='<c:out value="${waspResource.getId()}" />'    <c:out value="${selectedFlag2}" />     ><c:out value="${waspResource.getName()}" /> - <c:out value="${waspResource.getResourceCategory().getName()}" /></option>
+				<option value='<c:out value="${runFolder}" />' <c:out value="${selectedFlag2}" />><c:out value="${runFolder}" /></option>
 			</c:forEach>
-		 </select>		 
-		 <%-- <span class="requiredField">*</span>--%>
-	</form>
+		 </select>	
+		 <table>
+		 	<tr class="FormData">
+			 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/>:</td>
+			   	<td class="DataTD"><input type="checkbox" name="showAll" value="true" <c:if test="${showAll == true }">checked="checked"</c:if> onclick="document.selectRunFolder.submit()" /></td>
+			</tr>
+		 </table>
+	 </form>
 	</td>
-	<td class="CaptionTD error"></td>
-	 	
+	<td>&nbsp;</td>
 </tr>
 
-<c:if test='${resourceId > 0}'>
 
-  	<form:form  cssClass="FormGrid" commandName="run" action="/wasp/wasp-illumina/flowcell/createUpdateRun.do">
-  	
-  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="runId" id="runId" value="<c:out value="${runId}" />" />
-  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="platformUnitId" id="platformUnitId" value="<c:out value="${platformUnitId}" />" />
-  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceId" id="resourceId" value="<c:out value="${resourceId}" />" />
-  	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="dateRunEnded" id="dateRunEnded" value="<c:out value="${dateRunEnded}" />" />
-  
+
+
+<c:if test='${run.getResource() != null}'>
+
+  	<form:form  cssClass="FormGrid" commandName="run" method="post">
+  	<form:hidden path="name" />
+  	<input type="hidden" name="showAll" value="${showAll}" />
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.name.label" />:</td>
-        <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all"  type="text" name = "name" id="name" size="25" maxlength="250" value="${run.name}" /><span class="requiredField">*</span></td>
-        <td class="CaptionTD error"><form:errors path="name" /></td> 
+        <td class="DataTD"><c:out value="${run.getName()}" /></td>
+      	<td>&nbsp;</td>
+	</tr>
+	<tr class="FormData">
+        <td class="CaptionTD"><fmt:message key="runInstance.resourceName.label" />:</td>
+        <td class="DataTD"><c:out value="${run.getResource().getName()}" /></td>
+      	<td>&nbsp;</td>
 	</tr>
 
 	<c:set var="_area" value = "run" scope="request"/>
 	<c:set var="_metaArea" value = "runInstance" scope="request"/>
-    <c:set var="_metaList" value = "${run.runMeta}" scope="request" />
+    <c:set var="_metaList" value = "${run.getRunMeta()}" scope="request" />
     <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
 
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.technician.label" />:</td>
         <td class="DataTD">        	
-        	<form:select class="FormElement ui-widget-content ui-corner-all" path="UserId" size="1">
+        	<form:select class="FormElement ui-widget-content ui-corner-all" path="userId" size="1">
 				<option value="0"><fmt:message key="wasp.default_select.label"/> <%-- --select-- --%>
 				<c:forEach items="${technicians}" var="technician">
 					<c:set var="selectedFlag3" value=""/>
@@ -93,27 +98,35 @@
 				</c:forEach>
 		 	</form:select>        
         	<span class="requiredField">*</span></td>
-        <td class="CaptionTD error"><c:out value="${technicianError}" /> </td>
+       <td class="CaptionTD error"><form:errors path="userId" /></td>
 	</tr>
 
-	<tr class="FormData"><%--<c:out value="${dateRunStarted}" />  --%>
+	<tr class="FormData">
         <td nowrap class="CaptionTD"><fmt:message key="runInstance.dateRunStarted.label" />:</td>
-        <td class="DataTD"><input class="FormElement ui-widget-content ui-corner-all"  type="text" name = "dateRunStarted" id="dateRunStarted" value="${dateRunStarted}" /><span class="requiredField">*</span></td>
-        <td class="CaptionTD error"><c:out value="${dateRunStartedError}" /></td>
+        <td class="DataTD"><fmt:formatDate pattern="yyyy/MM/dd" value="${run.getStarted()}"/></td>
+        <td>&nbsp;</td>
 	</tr>
-	<tr class="FormData"><%--<c:out value="${dateRunEnded}" />  --%>
+	<tr class="FormData">
         <td nowrap class="CaptionTD"><fmt:message key="runInstance.dateRunEnded.label" />:</td>
-        <td class="DataTD"><c:out value="${dateRunEnded}" /><span class="requiredField"></span></td>
-        <td class="CaptionTD error"><c:out value="${dateRunEndedError}" /></td>
+        
+        <td class="DataTD">
+        <c:if test="${run.getFinished() == null}" >
+        	N/A
+        </c:if>
+        <c:if test="${run.getFinished() != null}" >
+        	<fmt:formatDate pattern="yyyy/MM/dd" value="${run.getFinished()}"/>
+        </c:if>
+        </td>
+       <td>&nbsp;</td>
 	</tr>
 
 	<tr><td colspan="3">
     	<div class="submit">
    	    	<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
-    		<c:if test="${runId > 0}">
-    			&nbsp;<input class="fm-button" type="button" onClick="location.href='createUpdateRun.do?reset=reset&platformUnitId=${platformUnitId}&runId=${runId}&resourceId=${resourceId}';" value="<fmt:message key='runInstance.reset.label'/>" /> 
+    		<c:if test="${run.getId() > 0}">
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/${run.getPlatformUnit().getId()}/run/${run.getId()}/createUpdate.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
     		</c:if>
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp-illumina/flowcell//showFlowcell/${platformUnitId}.do';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/showFlowcell/${run.getPlatformUnit().getId()}.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
     	</div>
     </td></tr>
 

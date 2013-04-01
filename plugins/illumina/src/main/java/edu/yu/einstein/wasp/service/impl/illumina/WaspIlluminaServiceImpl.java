@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.service.impl.illumina;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 	 */
 	@Override
 	public Set<String> getIlluminaRunFolders() throws GridException{
-		Set<String> folderNames = new HashSet<String>();
+		Set<String> folderNames = new LinkedHashSet<String>();
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		GridWorkService workService = hostResolver.getGridWorkService(w);
@@ -42,7 +42,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
 		w.setWorkingDirectory(stageDir);
-		w.addCommand("ls -1");
+		w.addCommand("ls -1t");
 		try {
 			GridResult r = transportConnection.sendExecToRemote(w);
 			BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
@@ -60,6 +60,7 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 					logger.debug(parser.toString());
 				}
 			}
+			br.close();
 		} catch (Exception e) {
 			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder (illumina.data.stage): " + e.getLocalizedMessage());
 		}

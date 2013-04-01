@@ -21,7 +21,7 @@
 <%--permit platformUnit to be deleted only if it has no runs --%>
 <c:if test="${sequenceRuns.size()==0}">
 | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
-| <a href='<c:url value="/wasp-illumina/flowcell/createUpdateRun.do?resourceId=0&runId=0&platformUnitId=${platformUnitSampleId}" />'><fmt:message key="platformunitShow.addToRun.label"/></a>
+| <a href='<c:url value="/wasp-illumina/flowcell/${platformUnitSampleId}/run/0/createUpdate.do"/>'><fmt:message key="platformunitShow.addToRun.label"/></a>
 </c:if>
 </td></tr>
 </table>
@@ -53,7 +53,7 @@
 <td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
-<td class="value-centered-small"><a href='<c:url value="/wasp-illumina/flowcell/createUpdateRun.do?resourceId=${sequenceRun.resource.resourceId}&runId=${sequenceRun.runId}&platformUnitId=${sequenceRun.sampleId}" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/deleteRun.do?runId=${sequenceRun.runId}" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
+<td class="value-centered-small"><a href='<c:url value="/wasp-illumina/flowcell/${sequenceRun.sampleId}/run/${sequenceRun.runId}/createUpdate.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
 </tr>
 </c:forEach>
 </table>
