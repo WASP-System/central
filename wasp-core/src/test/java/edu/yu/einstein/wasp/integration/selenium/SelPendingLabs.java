@@ -42,7 +42,6 @@ public class SelPendingLabs extends SelBaseTest{
 	  Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
 	  driver.findElement(By.linkText("Tasks")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")), "Unable to locate 'Department Administration Tasks' link.");
-	  
 	  Assert.assertTrue(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).isDisplayed());	  
 
 	  //driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).click();
