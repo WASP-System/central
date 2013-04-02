@@ -37,8 +37,12 @@ import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -62,17 +66,36 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * @author calder
  * 
  */
-public class SgeWorkService implements GridWorkService {
+public class SgeWorkService implements GridWorkService, ApplicationContextAware {
 	
 	@Value("${wasp.temporary.dir}")
 	private String localTempDir;
 	
-	@Autowired
+	private ApplicationContext applicationContext;
+	
 	private FileService fileService;
+	
+	/**
+	 * This method gets around a circular reference:
+	 * 
+	 * HostResolver-+
+	 *     |        |
+	 * WorkService  |
+	 *     |        |
+	 * FileService -+
+	 * @return the fileService
+	 */
+	public FileService getFileService() {
+		if (fileService == null) {
+			this.fileService = applicationContext.getBean(FileService.class);
+		}
+		return fileService;
+	}
 	
 	private static Logger logger = LoggerFactory.getLogger(SgeWorkService.class);
 
 	private String jobNamePrefix = "WASP-";
+	
 	public void setJobNamePrefix(String np) {
 		this.jobNamePrefix = np + "-";
 	}
@@ -449,12 +472,13 @@ public class SgeWorkService implements GridWorkService {
 	 * @throws FileNotFoundException 
 	 */
 	private void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
-		copyResultsFiles(g);
-		for (Integer id : g.getFileGroupIds()) {
-			FileGroup fg = fileService.getFileGroupById(id);
-			fileService.register(fg);
+		if (g.getFileGroupIds() != null && g.getFileGroupIds().size() > 0) {
+			copyResultsFiles(g);
+			for (Integer id : g.getFileGroupIds()) {
+				FileGroup fg = getFileService().getFileGroupById(id);
+				getFileService().register(fg);
+			}
 		}
-		
 	}
 	
 	private void copyResultsFiles(GridResult g) throws GridException {
@@ -466,7 +490,7 @@ public class SgeWorkService implements GridWorkService {
 		w.setCommand("touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
 		int files = 0;
 		for (Integer id : g.getFileGroupIds()) {
-			FileGroup fg = fileService.getFileGroupById(id);
+			FileGroup fg = getFileService().getFileGroupById(id);
 			for (FileHandle f : fg.getFileHandles()) {
 				w.addCommand("COPY[" + files + "]=\""+ WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() + "." + f.getId() + 
 						" " + f.getFileName() + "\"");
@@ -1037,6 +1061,12 @@ public class SgeWorkService implements GridWorkService {
 		agz.close();
 	    afis.close();
 		throw new FileNotFoundException("Archive " + f.getAbsolutePath() + " did not appear to contain " + contentName);
+	}
+	
+	@Override
+	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+		this.applicationContext = arg0;
+		
 	}
 	
 }
