@@ -7,7 +7,7 @@
  <br />
 <title><fmt:message key="pageTitle./wasp-illumina/flowcell/createUpdateRun.label"/></title>
 <c:choose>
-	<c:when test='${run.getId() == "0"}'>
+	<c:when test='${run.getId() == null}'>
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
 	</c:when>
 	<c:otherwise>
@@ -38,7 +38,7 @@
 	<td class="DataTD">
 	<form name="selectRunFolder" class="FormGrid" method="get">
 		<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
-			<c:if test='${run.getId() == 0}'>
+			<c:if test='${run.getId() == null}'>
 				<option value=""><fmt:message key="wasp.default_select.label"/>
 			</c:if>			
 			<c:forEach items="${runFolderSet}" var="runFolder">
@@ -76,31 +76,32 @@
 	<tr class="FormData">
         <td class="CaptionTD"><fmt:message key="runInstance.resourceName.label" />:</td>
         <td class="DataTD"><c:out value="${run.getResource().getName()}" /></td>
-      	<td>&nbsp;</td>
+      	<td class="CaptionTD error"><c:out value="${resourceNameError}"/></td>
 	</tr>
-
-	<c:set var="_area" value = "run" scope="request"/>
-	<c:set var="_metaArea" value = "runInstance" scope="request"/>
-    <c:set var="_metaList" value = "${run.getRunMeta()}" scope="request" />
-    <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
-
-	<tr class="FormData">
-        <td class="CaptionTD"><fmt:message key="runInstance.technician.label" />:</td>
-        <td class="DataTD">        	
-        	<form:select class="FormElement ui-widget-content ui-corner-all" path="userId" size="1">
-				<option value="0"><fmt:message key="wasp.default_select.label"/> <%-- --select-- --%>
-				<c:forEach items="${technicians}" var="technician">
-					<c:set var="selectedFlag3" value=""/>
-					<c:if test='${technician.getUserId()==run.getUserId()}'>
-						<c:set var="selectedFlag3" value="SELECTED"/>
-					</c:if>
-					<option value="<c:out value="${technician.getUserId()}"/>"  <c:out value="${selectedFlag3}" /> /> <c:out value="${technician.getFirstName()}" /><c:out value=" " /><c:out value="${technician.getLastName()}" />
-				</c:forEach>
-		 	</form:select>        
-        	<span class="requiredField">*</span></td>
-       <td class="CaptionTD error"><form:errors path="userId" /></td>
-	</tr>
-
+	
+	<c:if test="${empty(resourceNameError)}" >
+		<c:set var="_area" value = "run" scope="request"/>
+		<c:set var="_metaArea" value = "runInstance" scope="request"/>
+	    <c:set var="_metaList" value = "${run.getRunMeta()}" scope="request" />
+	    <c:import url="/WEB-INF/jsp/meta_rw.jsp"/>
+	
+		<tr class="FormData">
+	        <td class="CaptionTD"><fmt:message key="runInstance.technician.label" />:</td>
+	        <td class="DataTD">        	
+	        	<form:select class="FormElement ui-widget-content ui-corner-all" path="userId" size="1">
+					<option value="0"><fmt:message key="wasp.default_select.label"/> <%-- --select-- --%>
+					<c:forEach items="${technicians}" var="technician">
+						<c:set var="selectedFlag3" value=""/>
+						<c:if test='${technician.getUserId()==run.getUserId()}'>
+							<c:set var="selectedFlag3" value="SELECTED"/>
+						</c:if>
+						<option value="<c:out value="${technician.getUserId()}"/>"  <c:out value="${selectedFlag3}" /> /> <c:out value="${technician.getFirstName()}" /><c:out value=" " /><c:out value="${technician.getLastName()}" />
+					</c:forEach>
+			 	</form:select>        
+	        	<span class="requiredField">*</span></td>
+	       <td class="CaptionTD error"><form:errors path="userId" /></td>
+		</tr>
+	</c:if>
 	<tr class="FormData">
         <td nowrap class="CaptionTD"><fmt:message key="runInstance.dateRunStarted.label" />:</td>
         <td class="DataTD"><fmt:formatDate pattern="yyyy/MM/dd" value="${run.getStarted()}"/></td>
@@ -122,11 +123,16 @@
 
 	<tr><td colspan="3">
     	<div class="submit">
-   	    	<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
+    		<c:if test="${empty(resourceNameError)}" >
+   	    		<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
+   	    	</c:if>
+   	    	<c:if test="${not empty(resourceNameError)}" >
+   	    		<input class="fm-button" type="button" onClick="location.href='<c:url value="/resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
+			</c:if>
     		<c:if test="${run.getId() > 0}">
-    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/${run.getPlatformUnit().getId()}/run/${run.getId()}/createUpdate.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
     		</c:if>
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/showFlowcell/${run.getPlatformUnit().getId()}.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
     	</div>
     </td></tr>
 

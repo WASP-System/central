@@ -217,7 +217,7 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 	
 	@Override
 	public String getShowPlatformUnitViewLink(Integer platformUnitId) {
-		return "wasp-illumina/flowcell/showFlowcell/" + platformUnitId.toString() + ".do";
+		return "wasp-illumina/flowcell/" + platformUnitId + "/show.do";
 	}
 
 

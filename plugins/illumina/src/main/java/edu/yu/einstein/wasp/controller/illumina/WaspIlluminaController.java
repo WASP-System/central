@@ -18,6 +18,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +37,6 @@ import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
-import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
@@ -98,7 +98,7 @@ public class WaspIlluminaController extends WaspController {
 		return "waspillumina/task/qc/list";
 	}
 	
-	@RequestMapping(value = "/flowcell/showFlowcell/{platformUnitId}.do", method = RequestMethod.GET)
+	@RequestMapping(value = "/flowcell/{platformUnitId}/show.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("platformUnitId") Integer platformUnitId, ModelMap m){
 		
@@ -255,7 +255,7 @@ public class WaspIlluminaController extends WaspController {
 			logger.warn("Problem occurred setting library concentration on cell: " + e.getLocalizedMessage());
 			waspErrorMessage("platformunit.libUpdated.error");
 		}
-		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
+		return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
 
 	}
 	
@@ -280,7 +280,7 @@ public class WaspIlluminaController extends WaspController {
 			waspErrorMessage("platformunit.libAdded.error");
 		}
 
-		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
+		return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
 	}
 	
 	@RequestMapping(value="/flowcell/ajaxReadType.do", method=RequestMethod.POST)
@@ -334,7 +334,7 @@ public class WaspIlluminaController extends WaspController {
 			for (String runFolder : waspIlluminaService.getIlluminaRunFolders()){
 				Map<String, String> searchMap = new HashMap<String, String>();
 				searchMap.put("name", runFolder);
-				if (runService.getRunDao().findByMap(searchMap).isEmpty())
+				if (runService.getRunDao().findByMap(searchMap).isEmpty() || (run.getName() != null && run.getName().equals(runFolder)))
 					runFolderSet.add(runFolder); // only record folders not already associated with runs in WASP
 			}
 		} else {
@@ -345,7 +345,7 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("runFolderSet", runFolderSet);
 		
 		Resource requestedSequencingMachine = run.getResource();
-		if (requestedSequencingMachine != null){
+		if (requestedSequencingMachine != null && requestedSequencingMachine.getId() != null){
 			m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
 			m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
 			m.addAttribute("technicians", userService.getFacilityTechnicians());
@@ -354,12 +354,10 @@ public class WaspIlluminaController extends WaspController {
 	
 
 	
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/flowcell/{platformUnitId}/run/{runId}/createUpdate.do", method=RequestMethod.GET)
+	@RequestMapping(value="/flowcell/{platformUnitId}/run/create.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createUpdateRun(
+	public String createRunGet(
 			@PathVariable("platformUnitId") Integer platformUnitId,
-			@PathVariable("runId") Integer runId,
 			@RequestParam(value="runFolderName", defaultValue="", required=false) String runFolderName,
 			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
 			ModelMap m) {	
@@ -372,31 +370,27 @@ public class WaspIlluminaController extends WaspController {
 				throw new SampleTypeException("sample is not platformunit");
 			setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 			Run run = new Run();
-			run.setId(0);
 			run.setPlatformUnit(platformUnit);
-			if (runId > 0 || !runFolderName.isEmpty()){
-				MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
-				if(runId == 0){
-					IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
-					run.setName(runFolderParser.getRunFolderName());
-					run.setRunMeta(metaHelperWebapp.getMasterList(RunMeta.class));
-					run.setStarted(runFolderParser.getDate());
-					Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
-					run.setResource(resource);
-				}
-				else{
-					run = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
-					if (!run.getPlatformUnit().equals(platformUnit))
-						throw new SampleParentChildException("platform unit on existing run does not match platform unit requested based on supplied path variables");
-					run.setRunMeta( (List<RunMeta>) metaHelperWebapp.syncWithMaster(run.getRunMeta()) );
-				}
+			
+			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
+			run.setRunMeta(metaHelperWebapp.getMasterList(RunMeta.class));
+			if (!runFolderName.isEmpty()){
+				IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
+				run.setName(runFolderParser.getRunFolderName());
+				run.setStarted(runFolderParser.getDate());
+				Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
+				if (resource.getId() == null){
+					m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
+					resource.setName(runFolderParser.getMachineName());
+				} 
+				run.setResource(resource);
 			}
 			setCommonCreateUpdateRunModelData(m, run, showAll);
 			
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
+			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
 		}
 
 		return "wasp-illumina/flowcell/createupdaterun";
@@ -404,13 +398,11 @@ public class WaspIlluminaController extends WaspController {
 	}
 	
 
-	//createUpdateRun - Post
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/flowcell/{platformUnitId}/run/{runId}/createUpdate.do", method=RequestMethod.POST)
+	@RequestMapping(value="/flowcell/{platformUnitId}/run/create.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createUpdateRunPost(
+	public String createPost(
 			@PathVariable("platformUnitId") Integer platformUnitId,
-			@PathVariable("runId") Integer runId,
 			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
 			@Valid Run runForm, 
 			 BindingResult result,
@@ -435,36 +427,124 @@ public class WaspIlluminaController extends WaspController {
 			runForm.setPlatformUnit(platformUnit);
 			runForm.setRunMeta( (List<RunMeta>) metaHelperWebapp.getMetaList());
 			IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runForm.getName());
-			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
 			runForm.setStarted(runFolderParser.getDate());
+			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
+			if (resource.getId() == null){
+				result.reject(metaHelperWebapp.getArea()+".resourceNameNotFound.error");
+				m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
+				resource = new Resource();
+				resource.setName(runFolderParser.getMachineName());
+			} 
 			runForm.setResource(resource);
-			runForm.setResourceCategory(resource.getResourceCategory());
-			Run modelRunForm = runForm;
-			if(runForm.getId() != 0){
-				modelRunForm = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
-				if (!modelRunForm.getPlatformUnit().equals(platformUnit))
-					throw new SampleParentChildException("platform unit on existing run does not match platform unit requested based on supplied path variables");
-				modelRunForm.setStarted(runForm.getStarted());
-				modelRunForm.setResource(runForm.getResource());
-				modelRunForm.setResourceCategory(runForm.getResourceCategory());
-				modelRunForm.setName(runForm.getName());
-				modelRunForm.setRunMeta(runForm.getRunMeta());
+			if (result.hasErrors()){
+				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
+				setCommonCreateUpdateRunModelData(m, runForm, showAll);
+				return "wasp-illumina/flowcell/createupdaterun";
 			}
+			runForm.setResourceCategory(resource.getResourceCategory());
+			runService.updateRun(runForm);
+		}catch(Exception e){
+			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
+			waspErrorMessage("wasp.unexpected_error.error"); 
+			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
+		}
+		waspMessage("runInstance.created_success.label");
+		return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
+	}
+	
+	@RequestMapping(value="/run/{runId}/update.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String updateRunGet(
+			@PathVariable("runId") Integer runId,
+			@RequestParam(value="runFolderName", defaultValue="", required=false) String runFolderName,
+			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
+			ModelMap m) {	
+		Sample platformUnit = null;
+		try{
+			Run existingrun = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
+			platformUnit = existingrun.getPlatformUnit();
+			setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
+			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
+			Run run = new Run();
+			run.setId(existingrun.getId());
+			run.setPlatformUnit(platformUnit);
+			run.setRunMeta((List<RunMeta>) metaHelperWebapp.syncWithMaster(existingrun.getRunMeta()) );
+			run.setFinished(existingrun.getFinished());
+			run.setUser(existingrun.getUser());
+			if (runFolderName.isEmpty())
+				runFolderName = existingrun.getName();
+			IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
+			run.setName(runFolderParser.getRunFolderName());
+			run.setStarted(runFolderParser.getDate());
+			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
+			if (resource.getId() == null){
+				m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
+				resource.setName(runFolderParser.getMachineName());
+			} 
+			run.setResource(resource);
+			setCommonCreateUpdateRunModelData(m, run, showAll);
+			
+			
+		}catch(Exception e){
+			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
+			waspErrorMessage("wasp.unexpected_error.error"); 
+			return "redirect:/wasp-illumina/flowcell/" + platformUnit.getId() + "/show.do";
+		}
+
+		return "wasp-illumina/flowcell/createupdaterun";
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/run/{runId}/update.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String updateRunPost(
+			@PathVariable("runId") Integer runId,
+			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
+			@Valid Run runForm, 
+			 BindingResult result,
+			 SessionStatus status, 		
+			ModelMap m) throws MetadataException {
+	
+		MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
+		//check for runInstance.UserId, which cannot be empty 		
+		if (runForm.getUserId() == null || runForm.getUserId().intValue() <= 0){
+			Errors errors=new BindException(result.getTarget(), metaHelperWebapp.getParentArea());
+			errors.rejectValue("userId", metaHelperWebapp.getArea()+".technician.error", metaHelperWebapp.getArea()+".technician.error (no message has been defined for this property)");
+			result.addAllErrors(errors);
+		}
+		metaHelperWebapp.getFromRequest(request, RunMeta.class);
+		metaHelperWebapp.validate(result);
+		Sample platformUnit = null;
+		try{
+			IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runForm.getName());
+			Run modelRunForm = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
+			modelRunForm.setStarted(runFolderParser.getDate());
+			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
+			if (resource.getId() == null){
+				result.reject(metaHelperWebapp.getArea()+".resourceNameNotFound.error");
+				m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
+				resource = new Resource();
+				resource.setName(runFolderParser.getMachineName());
+			} 
+			modelRunForm.setResource(resource);
+			modelRunForm.setName(runForm.getName());
+			modelRunForm.setRunMeta((List<RunMeta>) metaHelperWebapp.getMetaList());
+			platformUnit = modelRunForm.getPlatformUnit();
 			if (result.hasErrors()){
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 				setCommonCreateUpdateRunModelData(m, modelRunForm, showAll);
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
-			if (modelRunForm.getId() == 0)
-				modelRunForm.setId(null);
+			modelRunForm.setResourceCategory(resource.getResourceCategory());
 			runService.updateRun(modelRunForm);
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
+			return "redirect:/wasp-illumina/flowcell/" + platformUnit.getId() + "/show.do";
 		}
-
-		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
+		waspMessage("runInstance.updated_success.label");
+		return "redirect:/wasp-illumina/flowcell/" + platformUnit.getId() + "/show.do";
 	}
 	
 	
