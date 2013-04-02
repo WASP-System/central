@@ -599,6 +599,12 @@ public class JobSubmissionController extends WaspController {
 		if (jobDraftForm.getLabId() == null || jobDraftForm.getLabId().intValue() < 1){
 			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
 		}
+		
+		if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
+			errors.rejectValue("workflowId", "jobDraft.workflowId_change.error");//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
+		}
+		
 		result.addAllErrors(errors);
 		if (result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
@@ -1870,7 +1876,14 @@ public class JobSubmissionController extends WaspController {
 
 
 		List<String[]> rt = new ArrayList<String[]>(); 
-
+		//add the jobDraft's start page breadcrumb (3/29/13; dubin)
+		String jobDraftStartPageBreadcrumbMessage = messageService.getMessage("jobDraft.startPageBreadcrumbMessage.label");
+		if(jobDraftStartPageBreadcrumbMessage != null && !"".equals(jobDraftStartPageBreadcrumbMessage)){
+			String[] startPage = {"/jobsubmit/modify/"+jobDraft.getId().toString(), jobDraftStartPageBreadcrumbMessage};
+			rt.add(startPage);
+		}
+		
+		
 		for (int i=0; i < pageFlowArray.length -1; i++) {
 			String page = pageFlowArray[i];
 			String mapPage = page.replaceAll("^/", "");
