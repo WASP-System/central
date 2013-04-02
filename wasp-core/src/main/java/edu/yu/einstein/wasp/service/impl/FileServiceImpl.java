@@ -73,6 +73,7 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.model.SampleSource;
 
 @Service
 @Transactional("entityManager")
@@ -440,6 +441,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws GridUnresolvableHostException
 	 */
 	@Override
+	@Deprecated
 	public void register(FileHandle file) throws FileNotFoundException, GridException {
 		file = fileHandleDao.merge(file);
 
@@ -687,6 +689,31 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (fh == null)
 			throw new FileNotFoundException("File represented by " + uuid.toString() + " was not found.");
 		return fh;
+	}
+
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
+						"JOIN fg.sampleSources cl " +
+						"WHERE cl = :cellLibrary AND cl = fg.fileType = :fileType", FileGroup.class)
+				.setParameter("cellLibrary", cellLibrary)
+				.setParameter("fileType", fileType);
+		HashSet<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fgq.getResultList());
+		return result;
+	}
+
+	@Override
+	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
+						"JOIN fg.sampleSources cl " +
+						"WHERE cl = :cellLibrary", FileGroup.class)
+				.setParameter("cellLibrary", cellLibrary);
+		HashSet<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fgq.getResultList());
+		return result;
 	}
 
 }

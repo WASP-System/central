@@ -115,6 +115,12 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		return numberOfSegments;
 	}
 	
+	public void setNumberOfReadSegments(FileGroup filegroup, Integer number) throws MetadataException {
+		Assert.assertParameterNotNull(filegroup);
+		Assert.assertParameterNotNull(number);
+		setMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS, number.toString());
+	}
+	
 	
 
 }

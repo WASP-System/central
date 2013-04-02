@@ -10,6 +10,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -2352,12 +2353,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		Assert.assertParameterNotNull(libraryCell.getId(), "libraryCell must have a valid id");
 		Job job = null;
 		List<SampleSourceMeta> ssMetaList = libraryCell.getSampleSourceMeta();
-		if (ssMetaList == null)
+		logger.debug("libraryCell: " + libraryCell.getId());
+		if (ssMetaList == null) {
+			logger.debug("sample source meta list is null");
 			return job;
-		try{
+		}
+		if (ssMetaList.size() == 0) {
+			logger.debug("sample source meta list empty");
+		} else {
+			logger.debug(Arrays.toString(ssMetaList.toArray()));
+		}
+		try {
 			job = jobDao.getJobByJobId(Integer.valueOf(MetaHelper.getMetaValue(LIBRARY_ON_CELL_AREA, JOB_ID, ssMetaList)));
-			if (job.getId() == null)
+			if (job.getId() == null) {
+				logger.debug("Job has a null id");
 				job = null;
+			}
+				
 		} catch(Exception e) {
 			// value not found or not a sensible value
 		}
@@ -2877,6 +2889,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 			  return plugins.get(0).getShowPlatformUnitViewLink(platformunit.getId());
 		  }
+
+		@Override
+		public List<SampleSource> getCellLibraries(Sample cell) {
+			Assert.assertTrue(this.isCell(cell));
+			return sampleSourceDao.getCellLibraries(cell);
+		}
 
 }
 
