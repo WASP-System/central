@@ -27,6 +27,7 @@
 		<value>/jobsubmit/helpTag/pair/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{helptagPipelineResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
@@ -82,6 +83,10 @@
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/helptagPipeline" />
           <property name="label" value="HELP-tag Pipeline Selection" />
+        </bean>
+        <bean parent="helpTagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="Comments" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
