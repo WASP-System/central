@@ -40,7 +40,6 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
-import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
@@ -550,20 +549,20 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Run getSequenceRun(Integer runId) {
+	public Run getSequenceRun(Integer runId) throws RunException {
 		Assert.assertParameterNotNullNotZero(runId, "Invalid runId provided");
 		Run run = runDao.getRunByRunId(runId.intValue());
 		if(run == null || run.getId() == null){
-			throw new RuntimeException("Run with runId of " + runId.intValue() + " not found in database");
+			throw new RunException("Run with runId of " + runId.intValue() + " not found in database");
 		}
 		else if(!run.getResourceCategory().getResourceType().getIName().equals("mps")){
-			throw new RuntimeException("Run with runId of " + runId.intValue() + " does not have resourcecategory of mps");
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resourcecategory of mps");
 		}
 		else if(!run.getResource().getResourceType().getIName().equals("mps")){
-			throw new RuntimeException("Run with runId of " + runId.intValue() + " does not have resource whose resourcetype is mps");
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcetype is mps");
 		}
 		else if(!run.getResource().getResourceCategory().getResourceType().getIName().equals("mps")){
-			throw new RuntimeException("Run with runId of " + runId.intValue() + " does not have resource whose resourcecategory is mps");
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcecategory is mps");
 		}
 		return run;
 	}
