@@ -50,8 +50,6 @@ public class FastqComparator extends FileHandleComparator {
 		Assert.isTrue(arg0.getFileType().equals(fastqFileType));
 		Assert.isTrue(arg1.getFileType().equals(fastqFileType));
 		
-		
-		
 		return new CompareToBuilder()
 			.append(fastqService.getLibraryFromFASTQ(arg0).getId(), fastqService.getLibraryFromFASTQ(arg1).getId())
 			.append(fastqService.getFastqFileNumber(arg0), fastqService.getFastqFileNumber(arg1))

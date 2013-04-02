@@ -9,9 +9,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
@@ -22,6 +25,9 @@ import edu.yu.einstein.wasp.util.MetaHelper;
  *
  */
 public abstract class FileTypeServiceImpl extends WaspServiceImpl implements FileTypeService {
+	
+	@Autowired
+	private FileGroupMetaDao fileGroupMetaDao;
 	
 	private FileHandleMetaDao fileMetaDao;
 	
@@ -65,6 +71,20 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		}
 		return v;
 	}
+	
+	protected String getMeta(FileGroup f, String area, String k) {
+		Assert.assertParameterNotNull(f, "file group cannot be null");
+		String v = null;
+		List<FileGroupMeta> fileGroupMetaList = f.getFileGroupMeta();
+		if (fileGroupMetaList == null)
+			fileGroupMetaList = new ArrayList<FileGroupMeta>();
+		try{
+			v = (String) MetaHelper.getMetaValue(area, k, fileGroupMetaList);
+		} catch(MetadataException e) {
+			// value not found
+		}
+		return v;
+	}
 
 	protected void setMeta(FileHandle file, String area, String metaKey, String metaValue) throws MetadataException{
 		Assert.assertParameterNotNull(file, "file cannot be null");
@@ -75,6 +95,17 @@ public abstract class FileTypeServiceImpl extends WaspServiceImpl implements Fil
 		fileMeta.setK(area + "." + metaKey);
 		fileMeta.setV(metaValue);
 		fileMetaDao.setMeta(fileMeta);
+	}
+	
+	protected void setMeta(FileGroup fileGroup, String area, String metaKey, String metaValue) throws MetadataException{
+		Assert.assertParameterNotNull(fileGroup, "file cannot be null");
+		Assert.assertParameterNotNull(metaKey, "metaKey cannot be null");
+		Assert.assertParameterNotNull(metaValue, "metaValue cannot be null");
+		FileGroupMeta fileMeta = new FileGroupMeta();
+		fileMeta.setFileGroupId(fileGroup.getId());
+		fileMeta.setK(area + "." + metaKey);
+		fileMeta.setV(metaValue);
+		fileGroupMetaDao.setMeta(fileMeta);
 	}
 	
 }
