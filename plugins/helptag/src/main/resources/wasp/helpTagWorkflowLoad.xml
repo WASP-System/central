@@ -77,7 +77,7 @@
           <property name="label" value="HpaII vs MspI Pairings" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/aligner" />
+          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
           <property name="label" value="Aligner Selection" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
