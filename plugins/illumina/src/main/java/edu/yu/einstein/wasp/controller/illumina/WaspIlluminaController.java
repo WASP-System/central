@@ -386,6 +386,7 @@ public class WaspIlluminaController extends WaspController {
 				run.setResource(resource);
 			}
 			setCommonCreateUpdateRunModelData(m, run, showAll);
+			m.addAttribute("action", "create");
 			
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
@@ -439,6 +440,7 @@ public class WaspIlluminaController extends WaspController {
 			if (result.hasErrors()){
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 				setCommonCreateUpdateRunModelData(m, runForm, showAll);
+				m.addAttribute("action", "create");
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
 			runForm.setResourceCategory(resource.getResourceCategory());
@@ -465,26 +467,9 @@ public class WaspIlluminaController extends WaspController {
 			platformUnit = existingrun.getPlatformUnit();
 			setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
-			Run run = new Run();
-			run.setId(existingrun.getId());
-			run.setPlatformUnit(platformUnit);
-			run.setRunMeta((List<RunMeta>) metaHelperWebapp.syncWithMaster(existingrun.getRunMeta()) );
-			run.setFinished(existingrun.getFinished());
-			run.setUser(existingrun.getUser());
-			if (runFolderName.isEmpty())
-				runFolderName = existingrun.getName();
-			IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runFolderName);
-			run.setName(runFolderParser.getRunFolderName());
-			run.setStarted(runFolderParser.getDate());
-			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
-			if (resource.getId() == null){
-				m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
-				resource.setName(runFolderParser.getMachineName());
-			} 
-			run.setResource(resource);
-			setCommonCreateUpdateRunModelData(m, run, showAll);
-			
-			
+			existingrun.setRunMeta((List<RunMeta>) metaHelperWebapp.syncWithMaster(existingrun.getRunMeta()) );
+			setCommonCreateUpdateRunModelData(m, existingrun, showAll);
+			m.addAttribute("action", "update");
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
@@ -517,27 +502,16 @@ public class WaspIlluminaController extends WaspController {
 		metaHelperWebapp.validate(result);
 		Sample platformUnit = null;
 		try{
-			IlluminaRunFolderNameParser runFolderParser = new IlluminaRunFolderNameParser(runForm.getName());
-			Run modelRunForm = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
-			modelRunForm.setStarted(runFolderParser.getDate());
-			Resource resource = resourceService.getResourceDao().getResourceByName(runFolderParser.getMachineName());
-			if (resource.getId() == null){
-				result.reject(metaHelperWebapp.getArea()+".resourceNameNotFound.error");
-				m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
-				resource = new Resource();
-				resource.setName(runFolderParser.getMachineName());
-			} 
-			modelRunForm.setResource(resource);
-			modelRunForm.setName(runForm.getName());
-			modelRunForm.setRunMeta((List<RunMeta>) metaHelperWebapp.getMetaList());
-			platformUnit = modelRunForm.getPlatformUnit();
+			Run existingrun = runService.getSequenceRun(runId);//throws exception if not valid mps Run in database 
+			existingrun.setRunMeta((List<RunMeta>) metaHelperWebapp.getMetaList());
+			platformUnit = existingrun.getPlatformUnit();
 			if (result.hasErrors()){
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
-				setCommonCreateUpdateRunModelData(m, modelRunForm, showAll);
+				setCommonCreateUpdateRunModelData(m, existingrun, showAll);
+				m.addAttribute("action", "update");
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
-			modelRunForm.setResourceCategory(resource.getResourceCategory());
-			runService.updateRun(modelRunForm);
+			runService.updateRun(existingrun);
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 

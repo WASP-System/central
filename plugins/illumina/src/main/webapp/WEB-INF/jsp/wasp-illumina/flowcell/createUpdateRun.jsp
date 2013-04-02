@@ -7,7 +7,7 @@
  <br />
 <title><fmt:message key="pageTitle./wasp-illumina/flowcell/createUpdateRun.label"/></title>
 <c:choose>
-	<c:when test='${run.getId() == null}'>
+	<c:when test="${action == 'create'}">
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
 	</c:when>
 	<c:otherwise>
@@ -32,36 +32,32 @@
 <div id="right" style="overflow:hidden">
 
 <table class="EditTable ui-widget ui-widget-content">
-
-<tr class="FormData">
-	<td class="CaptionTD"><fmt:message key="runInstance.chooseRunFolder.label"/>:</td>
-	<td class="DataTD">
-	<form name="selectRunFolder" class="FormGrid" method="get">
-		<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
-			<c:if test='${run.getId() == null}'>
-				<option value=""><fmt:message key="wasp.default_select.label"/>
-			</c:if>			
-			<c:forEach items="${runFolderSet}" var="runFolder">
-				<c:set var="selectedFlag2" value=""/>
-				<c:if test='${run.getName() == runFolder}'>
-					<c:set var="selectedFlag2" value="selected='selected'"/>
-				</c:if>
-				<option value='<c:out value="${runFolder}" />' <c:out value="${selectedFlag2}" />><c:out value="${runFolder}" /></option>
-			</c:forEach>
-		 </select>	
-		 <table>
-		 	<tr class="FormData">
-			 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/>:</td>
-			   	<td class="DataTD"><input type="checkbox" name="showAll" value="true" <c:if test="${showAll == true }">checked="checked"</c:if> onclick="document.selectRunFolder.submit()" /></td>
-			</tr>
-		 </table>
-	 </form>
-	</td>
-	<td>&nbsp;</td>
-</tr>
-
-
-
+<c:if test="${action == 'create'}">
+	<tr class="FormData">
+		<td class="CaptionTD"><fmt:message key="runInstance.chooseRunFolder.label"/>:</td>
+		<td class="DataTD">
+		<form name="selectRunFolder" class="FormGrid" method="get">
+			<select class="FormElement ui-widget-content ui-corner-all" id="runFolderName" name="runFolderName" size="1" onchange="document.selectRunFolder.submit()">
+				<option value=""><fmt:message key="wasp.default_select.label"/>		
+				<c:forEach items="${runFolderSet}" var="runFolder">
+					<c:set var="selectedFlag2" value=""/>
+					<c:if test='${run.getName() == runFolder}'>
+						<c:set var="selectedFlag2" value="selected='selected'"/>
+					</c:if>
+					<option value='<c:out value="${runFolder}" />' <c:out value="${selectedFlag2}" />><c:out value="${runFolder}" /></option>
+				</c:forEach>
+			 </select>	
+			 <table>
+			 	<tr class="FormData">
+				 	<td class="CaptionTD"><fmt:message key="runInstance.showAll.label"/>:</td>
+				   	<td class="DataTD"><input type="checkbox" name="showAll" value="true" <c:if test="${showAll == true }">checked="checked"</c:if> onclick="document.selectRunFolder.submit()" /></td>
+				</tr>
+			 </table>
+		 </form>
+		</td>
+		<td>&nbsp;</td>
+	</tr>
+</c:if>
 
 <c:if test='${run.getResource() != null}'>
 
