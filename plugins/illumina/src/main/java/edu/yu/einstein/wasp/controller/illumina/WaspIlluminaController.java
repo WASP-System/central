@@ -324,11 +324,18 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("comment", comment);	
 	}
 	
-	private void setCommonCreateUpdateRunModelData(ModelMap m, Run run, boolean showAll) throws GridException {
+	private void setCommonCreateUpdateRunModelData(ModelMap m, Run run)  {
 		m.addAttribute("run", run);
+		Resource requestedSequencingMachine = run.getResource();
+		if (requestedSequencingMachine != null && requestedSequencingMachine.getId() != null){
+			m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
+			m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
+			m.addAttribute("technicians", userService.getFacilityTechnicians());
+		}
+	}
+	
+	private void setRunFoldersInModel(ModelMap m, Run run, boolean showAll) throws GridException {
 		m.addAttribute("showAll", showAll);
-		Sample platformUnit = run.getPlatformUnit();
-		
 		Set<String> runFolderSet = new LinkedHashSet<String>();
 		if (showAll){
 			for (String runFolder : waspIlluminaService.getIlluminaRunFolders()){
@@ -339,17 +346,10 @@ public class WaspIlluminaController extends WaspController {
 			}
 		} else {
 			for (String runFolder : waspIlluminaService.getIlluminaRunFolders())
-				if ( runFolder.toUpperCase().contains(platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode().toUpperCase()) )
+				if ( runFolder.toUpperCase().contains(run.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().toUpperCase()) )
 					runFolderSet.add(runFolder);
 		}
 		m.addAttribute("runFolderSet", runFolderSet);
-		
-		Resource requestedSequencingMachine = run.getResource();
-		if (requestedSequencingMachine != null && requestedSequencingMachine.getId() != null){
-			m.addAttribute("readLengths", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_LENGTH_KEY));
-			m.addAttribute("readTypes", resourceService.getResourceCategorySelectOptions(requestedSequencingMachine.getResourceCategory(), SequenceReadProperties.READ_TYPE_KEY));
-			m.addAttribute("technicians", userService.getFacilityTechnicians());
-		}
 	}
 	
 
@@ -385,10 +385,15 @@ public class WaspIlluminaController extends WaspController {
 				} 
 				run.setResource(resource);
 			}
-			setCommonCreateUpdateRunModelData(m, run, showAll);
+			setCommonCreateUpdateRunModelData(m, run);
+			setRunFoldersInModel(m, run, showAll);
 			m.addAttribute("action", "create");
 			
-		}catch(Exception e){
+		} catch(GridException e1){
+			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
+			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
+			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
+		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
@@ -439,13 +444,18 @@ public class WaspIlluminaController extends WaspController {
 			runForm.setResource(resource);
 			if (result.hasErrors()){
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
-				setCommonCreateUpdateRunModelData(m, runForm, showAll);
+				setCommonCreateUpdateRunModelData(m, runForm);
+				setRunFoldersInModel(m, runForm, showAll);
 				m.addAttribute("action", "create");
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
 			runForm.setResourceCategory(resource.getResourceCategory());
 			runService.updateRun(runForm);
-		}catch(Exception e){
+		} catch(GridException e1){
+			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
+			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
+			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
+		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
@@ -459,7 +469,6 @@ public class WaspIlluminaController extends WaspController {
 	public String updateRunGet(
 			@PathVariable("runId") Integer runId,
 			@RequestParam(value="runFolderName", defaultValue="", required=false) String runFolderName,
-			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
 			ModelMap m) {	
 		Sample platformUnit = null;
 		try{
@@ -468,7 +477,7 @@ public class WaspIlluminaController extends WaspController {
 			setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
 			existingrun.setRunMeta((List<RunMeta>) metaHelperWebapp.syncWithMaster(existingrun.getRunMeta()) );
-			setCommonCreateUpdateRunModelData(m, existingrun, showAll);
+			setCommonCreateUpdateRunModelData(m, existingrun);
 			m.addAttribute("action", "update");
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
@@ -485,7 +494,6 @@ public class WaspIlluminaController extends WaspController {
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateRunPost(
 			@PathVariable("runId") Integer runId,
-			@RequestParam(value="showAll", defaultValue="false", required=false) boolean showAll,
 			@Valid Run runForm, 
 			 BindingResult result,
 			 SessionStatus status, 		
@@ -507,7 +515,7 @@ public class WaspIlluminaController extends WaspController {
 			platformUnit = existingrun.getPlatformUnit();
 			if (result.hasErrors()){
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
-				setCommonCreateUpdateRunModelData(m, existingrun, showAll);
+				setCommonCreateUpdateRunModelData(m, existingrun);
 				m.addAttribute("action", "update");
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
