@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessageHandlingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -450,10 +451,15 @@ public class WaspIlluminaController extends WaspController {
 				return "wasp-illumina/flowcell/createupdaterun";
 			}
 			runForm.setResourceCategory(resource.getResourceCategory());
-			runService.updateRun(runForm);
+			runService.updateAndInitiateRun(runForm);
+			sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
+			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
+		} catch(MessageHandlingException e2){
+			logger.warn("Caught unexpected " + e2.getClass().getName() + " exception: " + e2.getMessage());
+			waspErrorMessage("waspIlluminaPlugin.runInitialize.error"); 
 			return "redirect:/wasp-illumina/flowcell/" + platformUnitId + "/show.do";
 		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
@@ -528,187 +534,6 @@ public class WaspIlluminaController extends WaspController {
 		waspMessage("runInstance.updated_success.label");
 		return "redirect:/wasp-illumina/flowcell/" + platformUnit.getId() + "/show.do";
 	}
-	
-	
-	
-	/*
-	@RequestMapping(value = "/flowcell/showFlowcell/createNewRun.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String createNewRun(@RequestParam("platformUnitId") Integer platformUnitId,
-			@RequestParam("runName") String runName,
-			@RequestParam("resourceId") Integer resourceId,
-			@RequestParam(SequenceReadProperties.READ_LENGTH_KEY) String readLength,
-			@RequestParam(SequenceReadProperties.READ_TYPE_KEY) String readType,
-			@RequestParam("technicianId") Integer technicianId,
-			@RequestParam("runStartDate") String runStartDate,
-			@RequestParam(value="runId", required=false) Integer runId,
-			ModelMap m){
-		
-		String return_string = "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
-		//must confirm validity of parameters
-		//must add success or failure messages
-		
-		//first, is the flowcell (via the platformUnitId, such as an Illumina Flowcell Version 3) compatible with the resourceId (the machine instance, such as an Illumina HiSeq 2000)
-		Sample platformUnit = sampleService.getSampleDao().getSampleBySampleId(platformUnitId);
-		if(platformUnit.getId() == null){
-			//message unable to find platform unit record
-			logger.warn("unable to find platform unit record");
-			return "redirect:/dashboard.do";
-		}
-		//confirm flowcell (platformUnit)
-		if( !sampleService.isPlatformUnit(platformUnit)){
-			//message - not a flow cell
-			logger.warn("Not a flow cell");
-			return return_string;
-		}
-		//record for machine exists
-		Resource machineInstance = resourceService.getResourceDao().getResourceByResourceId(resourceId);
-		if(machineInstance.getId().intValue() == 0){
-			//message: unable to find record for requested machine
-			logger.warn("unable to find record for requested sequencing machine");
-			return return_string;
-		}
-		//confirm the machine and the flow cell are compatible (via sampleSubtpeResourceCategory)
-		boolean platformUnitAndMachineAreCompatible = false;
-		for(SampleSubtypeResourceCategory ssrc : machineInstance.getResourceCategory().getSampleSubtypeResourceCategory()){
-			if(ssrc.getSampleSubtypeId().intValue() == platformUnit.getSampleSubtypeId().intValue()){
-				platformUnitAndMachineAreCompatible = true;
-			}
-		}
-		if(platformUnitAndMachineAreCompatible==false){
-			//message Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible
-			logger.warn("Platform Unit (flowcell) and Resource (sequencing machine) are Not compatible");
-			return return_string;
-		}
-		Integer cellCount = null;
-		try {
-			cellCount = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit);
-		} catch (SampleTypeException e1) {
-			logger.warn(e1.getLocalizedMessage());
-			return return_string;
-		}
-		if(cellCount == null){
-			logger.warn("Unable to capture platformUnit cellcount from sampleMetaData");
-			return return_string;
-		}
-		if(cellCount != platformUnit.getSampleSource().size()){
-			logger.warn("cellcount from sampleMetaData and from samplesource are discordant: unable to continue");
-			return return_string;
-		}
-		//confirm machine and parameters readLength and readType are compatible
-		boolean readTypeIsValid = false;
-		boolean readLengthIsValid = false;
-		ResourceCategory resourceCategory = machineInstance.getResourceCategory();
-		List<ResourceCategoryMeta> resourceCategoryMetaList = resourceCategory.getResourceCategoryMeta();
-		for(ResourceCategoryMeta rcm : resourceCategoryMetaList){
-			if( rcm.getK().indexOf(SequenceReadProperties.READ_TYPE_KEY) > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
-				for(String token : tokens){//token could be single:single
-					String [] innerTokens = token.split(":");
-					for(String str : innerTokens){
-						if(readType.equals(str)){
-							readTypeIsValid = true;
-						}
-					}
-				}
-			}
-			if( rcm.getK().indexOf(SequenceReadProperties.READ_LENGTH_KEY) > -1 ){
-				String[] tokens = rcm.getV().split(";");//rcm.getV() will be 50:50;100:100
-				for(String token : tokens){//token could be 50:50
-					String [] innerTokens = token.split(":");
-					for(String str : innerTokens){
-						if(readLength.equals(str)){
-							readLengthIsValid = true;
-						}
-					}
-				}
-			}
-		}
-		if(readTypeIsValid == false){
-			logger.warn("Readtype incompatible with selected machine: unable to continue");
-			return return_string;			
-		}
-		if(readLengthIsValid == false){
-			logger.warn("Readlength incompatible with selected machine: unable to continue");
-			return return_string;			
-		}		
-		if(runName.trim() == ""){
-			logger.warn("Run name is Not valid");
-			return return_string;			
-		}
 
-		//check technician
-		User tech = userDao.getUserByUserId(technicianId);
-		List<Userrole> userRoleList = tech.getUserrole();
-		boolean userIsTechnician = false;
-		for(Userrole ur : userRoleList){
-			if(ur.getRole().getRoleName().equals("ft") || ur.getRole().getRoleName().equals("fm")){
-				userIsTechnician = true;
-			}
-		}
-		if(userIsTechnician == false){
-			logger.warn("Selected Technical Personnel is NOT listed as technician or manager");
-			return return_string;				
-		}
-		
-		Date dateStart;
-		try{
-			DateFormat formatter;
-			formatter = new SimpleDateFormat("yyyy/MM/dd");
-			dateStart = (Date)formatter.parse(runStartDate);  
-		}
-		catch(Exception e){
-			logger.warn("Start Date format must be yyyy/MM/dd.");
-			return return_string;	
-		}
-		
-		//new run
-		if(runId==null){//new run
-			try {
-				runService.initiateRun(runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
-				//With the creation of this new sequence run record, we want to make it that the flow cell on this
-				//sequence run is no longer able to accept additional User libraries:
-				sampleService.setPlatformUnitLockStatus(platformUnit, SampleServiceImpl.LockStatus.LOCKED);
-				waspMessage("runInstance.created_success.label");
-			} catch (MetadataException e){
-				waspErrorMessage("platformunit.locking.error");
-				logger.warn(e.getLocalizedMessage());
-			} catch (SampleTypeException e) {
-				waspErrorMessage("platformunit.notFoundOrNotCorrectType.error");
-				logger.warn(e.getLocalizedMessage());
-			} catch (MessagingException e) {
-				waspErrorMessage("wasp.integration_message_send.error");
-				logger.warn(e.getLocalizedMessage());
-			}
-		}
-		else if(runId != null){//update run
-			Run run = runService.getRunDao().getRunByRunId(runId);
-			if(run.getId().intValue()==0){
-				//unable to locate run record; 
-				logger.warn("Update Failed: Unable to locate Sequence Run record");
-				return return_string;
-			}
-			//confirm that the platformUnit on this run is actually the same platformUnit passed in via parameter platformUnitId
-			List<Run> runList = platformUnit.getRun();
-			if(runList.size() == 0){
-				//platformUnit referenced through parameter platformUnitId is NOT on any sequence run
-				logger.warn("Update Failed: Platform Unit " + platformUnit.getId() + " is not on any sequence run");
-				return return_string;
-			}
-			if(runList.get(0).getId().intValue() != run.getId().intValue()){
-				//platformUnit referenced through parameter platformUnitId is NOT on part of This sequence run
-				logger.warn("Update Failed: Platform Unit " + platformUnit.getId() + " is not part of this sequence run");
-				return return_string;
-			}
-			runService.updateRun(run, runName, machineInstance, platformUnit, tech, readLength, readType, dateStart);
-			waspMessage("run.updated_success.label");
-			logger.warn("Sequence run has been updated now: runStDate = " + runStartDate);
-		}
-		
-		return "redirect:/wasp-illumina/flowcell/showFlowcell/" + platformUnitId + ".do";
-	}
-	
-	*/
-	
 
 }
