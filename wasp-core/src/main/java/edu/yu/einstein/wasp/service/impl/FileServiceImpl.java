@@ -50,7 +50,9 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
+import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
+import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -70,6 +72,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -99,6 +102,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private JobFileDao jobFileDao;
+	
+	@Autowired
+	private JobDao jobDao;
 
 	@Value("${wasp.temporary.dir}")
 	protected String tempDir;
@@ -160,6 +169,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 		File temporaryDirectory = new File(tempDir);
 
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
+			}
+		}
+		
 		File localFile;
 		try {
 			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
@@ -170,13 +187,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
-		if (!temporaryDirectory.exists()) {
-			try {
-				temporaryDirectory.mkdir();
-			} catch (Exception e) {
-				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
-			}
-		}
 
 		FileGroup retGroup = new FileGroup();
 		FileHandle file = new FileHandle();
@@ -210,7 +220,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
-		String remoteDir = draftDir + "/" + "jobDraft/";
+		String remoteDir = draftDir + "/" + jobDraft.getId() + "/";
 		String remoteFile;
 		try {
 			gfs.mkdir(remoteDir);
@@ -276,7 +286,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 
 		fileHandleDao.save(file);
-		return fileGroupDao.save(retGroup);
+		fileGroupDao.save(retGroup);
+		
+		return retGroup;
 	}
 
 	/**
@@ -675,8 +687,16 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 			fh.setFileURI(newUri);
 			fileHandleDao.save(fh);
-
 		}
+
+		JobFile jf = new JobFile();
+		jf.setFileGroup(filegroup);
+		jf.setIsActive(1);
+		jobFileDao.save(jf);
+		
+		job.getJobFile().add(jf);
+		jobDao.save(job);
+		
 		return fileGroupDao.findById(filegroup.getId());
 	}
 
