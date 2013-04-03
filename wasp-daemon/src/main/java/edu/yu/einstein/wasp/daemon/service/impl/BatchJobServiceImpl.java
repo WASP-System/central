@@ -46,6 +46,10 @@ public class BatchJobServiceImpl implements BatchJobService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private JobExplorerWasp jobExplorer;
+	
+	private WaspPluginRegistry waspPluginRegistry;
+	
+	private JobService jobService;
 
 	private QueueChannel launchChannel; // channel to send messages out of system
 
@@ -55,16 +59,24 @@ public class BatchJobServiceImpl implements BatchJobService {
 		this.launchChannel = launchChannel;
 	}
 
+	@Override
 	@Autowired
-	void setJobExplorer(JobExplorer jobExplorer) {
+	public void setJobExplorer(JobExplorer jobExplorer) {
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
 
+	@Override
 	@Autowired
-	private JobService jobService;
+	public void setWaspPluginRegistry(WaspPluginRegistry waspPluginRegistry){
+		this.waspPluginRegistry = waspPluginRegistry;
+	}
 
+	@Override
 	@Autowired
-	private WaspPluginRegistry waspPluginRegistry;
+	public void setJobService(JobService jobService){
+		this.jobService = jobService;
+	}
+	
 
 	/*
 	 * (non-Javadoc)
