@@ -12,13 +12,13 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
       </classes>
    </test>
-<!--  
+
    <test name="WASP Regression Testing: Submit New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
       </classes>
    </test>
- -->
+
    <test name="WASP Regression Testing: Approve New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>

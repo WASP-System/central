@@ -41,16 +41,12 @@ public class SelApproveNewJob extends SelBaseTest{
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void approveNewJob(String sUserName, String sUserPass, String jobId) throws Exception {   
   		
-  		SeleniumHelper.login(sUserName, sUserPass, driver);	 
-   	
-    	//Assert.assertEquals(driver.getCurrentUrl(), sExpectedUrl);
-    	
+  		SeleniumHelper.login(sUserName, sUserPass, driver);	     	
     	Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
     	
-    	
     	List<WebElement> radios;
-    	 /*
-    	 //QUOTE JOB(s)
+ 	 
+    	//QUOTE JOB
     	driver.findElement(By.linkText("Tasks")).click();   
    	    Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/job2quote/list.do')]")), "Unable to locate 'Job Quote Tasks' link.");
    	    Assert.assertTrue(driver.findElement(By.xpath("//a[contains(@href,'/wasp/job2quote/list.do')]")).isDisplayed());	  
@@ -68,15 +64,12 @@ public class SelApproveNewJob extends SelBaseTest{
 	   	driver.findElement(By.xpath("//input[@id='acctQuote.cell_cost']")).sendKeys("300");
 	   	driver.findElement(By.xpath("//a[@id='sData']")).click();
 	   	
-    	
     	//DEPARTMENT ADMIN APPROVAL
    	    driver.findElement(By.linkText("Tasks")).click();
   	    driver.findElement(By.linkText("Department Administration Tasks")).click();
   	    driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
-  	    List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
-		List<WebElement> submits = driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']"));
-		
+  	    radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));		
 		for (int i = 0; i < radios.size(); i++) {  
 			  if (radios.get(i).isDisplayed() ) {
 				  radios.get(i).click(); 
@@ -88,14 +81,12 @@ public class SelApproveNewJob extends SelBaseTest{
 			  }
 		  }
 		  
-		  
 		  //FACILITY MANAGER APPROVAL
 		  driver.findElement(By.linkText("Tasks")).click();
   	      driver.findElement(By.linkText("Facility Manager Tasks")).click();
   	      driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
-  	      List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
-		
+  	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
 		  for (int i = 0; i < radios.size(); i++) {  
 			  if (radios.get(i).isDisplayed() ) {
 				  radios.get(i).click(); 
@@ -112,8 +103,7 @@ public class SelApproveNewJob extends SelBaseTest{
   	      driver.findElement(By.linkText("Lab Management Tasks")).click();
   	      driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
-  	      List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
-		
+  	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));	
 		  for (int i = 0; i < radios.size(); i++) {  
 			  if (radios.get(i).isDisplayed() ) {
 				  radios.get(i).click(); 
@@ -124,33 +114,36 @@ public class SelApproveNewJob extends SelBaseTest{
 				  driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).click();
 			  }
 		  }
-   	      */
+  	    
     	  //SAMPLE RECEIVER MANAGER
 		  driver.findElement(By.linkText("Tasks")).click();
 	      driver.findElement(By.linkText("Sample Receiver Manager")).click();
 	      List<WebElement> selects = driver.findElements(By.xpath("//select"));
 	      
-	      for (int i = 0; i < selects.size(); i++) {  
-				  Select select = new Select(selects.get(i)); 
-				  select.selectByValue("RECEIVED");
-			  
-	      }
-	      driver.findElement(By.xpath("//input[@type='submit' and @value='Submit']")).click();
+	      //for (int i = 0; i < selects.size(); i++) {  
+		  //Select select = new Select(selects.get(0)); 
+		  //select.selectByValue("RECEIVED");	  
+	      //}
 	      
+	      driver.findElement(By.linkText("set all received")).click();
+	      driver.findElement(By.xpath("//input[@type='submit' and @value='Submit']")).click();    
+	 
 	      //Library QC
 	      driver.findElement(By.linkText("Tasks")).click();
-  	      driver.findElement(By.linkText("Lab Management Tasks")).click();
      	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/libraryqc/list.do')]")).click();	  
-     	  
-     	 radios = driver.findElements(By.xpath("//input[@type='radio' and @value='PASSED']"));
- 		
-		  for (int i = 0; i < radios.size(); i++) {  
-			  if (radios.get(i).isDisplayed() ) {
-				  radios.get(i).click(); 
-				  driver.findElement(By.xpath("//input[@type='submit' and @value='SUBMIT']")).click();
-			  }
-	      }
+     	  radios = driver.findElements(By.xpath("//input[@type='radio' and @value='PASSED']"));
+		  radios.get(0).click(); 
+		  driver.findElement(By.xpath("//input[@type='submit' and @value='Submit']")).click();
+		  
+		  //Sample QC
+		  driver.findElement(By.linkText("Tasks")).click();
+     	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/sampleqc/list.do')]")).click();	  
+     	  radios = driver.findElements(By.xpath("//input[@type='radio' and @value='PASSED']"));
+		  radios.get(0).click(); 
+		  driver.findElement(By.xpath("//input[@type='submit' and @value='Submit']")).click();
+			  
 
+	   
     }
   	
   	public static void pause(final int iTimeInMillis) {
