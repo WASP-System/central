@@ -47,7 +47,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	private Session session;
 	
 	// TODO: configure
-	private int execTimeout = 60000;
+	private int execTimeout = 300000; // 5m, VERY generous
 	
 		
 	private String identityFileName;

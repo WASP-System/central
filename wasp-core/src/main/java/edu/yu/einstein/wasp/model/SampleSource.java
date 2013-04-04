@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,6 +33,13 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
+/**
+ * 
+ * Library-cell relationship.  Used for mapping sample pair relationships for analysis.
+ * 
+ * @author calder
+ *
+ */
 @Entity
 @Audited
 @Table(name="samplesource")
@@ -161,7 +169,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="sampleid", insertable=false, updatable=false)
 	protected Sample sample;
 
@@ -193,7 +201,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
 	protected Sample sourceSample;
 
@@ -225,7 +233,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@OneToMany
+	@OneToMany(fetch=FetchType.EAGER)
 	@JoinColumn(name="samplesourceid", insertable=false, updatable=false)
 	protected List<SampleSourceMeta> sampleSourceMeta;
 

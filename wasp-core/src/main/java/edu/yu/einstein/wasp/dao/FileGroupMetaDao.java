@@ -9,6 +9,6 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
  * @author calder
  *
  */
-public interface FileGroupMetaDao extends WaspDao<FileGroupMeta> {
+public interface FileGroupMetaDao extends WaspMetaDao<FileGroupMeta> {
 
 }

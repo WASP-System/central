@@ -20,6 +20,7 @@
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a concentration" />
           <property name="type" value="NUMBER" />
+          <property name="range" value="0.0001:1000000000" />
         </bean>
         
         <bean parent="genericDNAUiFieldWrapper">
@@ -29,6 +30,7 @@
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide a volume" />
        	  <property name="type" value="NUMBER" />
+       	  <property name="range" value="0.0001:1000000000" />
         </bean>
 
         <bean parent="genericDNAUiFieldWrapper">
@@ -47,6 +49,7 @@
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide an A260/280 reading" />
        	  <property name="type" value="NUMBER" />
+       	  <property name="range" value="0.0001:1000000000" />
         </bean>
         
         <bean parent="genericDNAUiFieldWrapper">
@@ -56,6 +59,7 @@
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="You must provide an A260/230 reading" />
        	  <property name="type" value="NUMBER" />
+       	  <property name="range" value="0.0001:1000000000" />
         </bean>
 
       </list>

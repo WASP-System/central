@@ -5,6 +5,8 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -172,5 +174,30 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public void setArchivedResultOutputPath(String path) {
 		this.archivedResultOutputPath = path;
+	}
+	
+	private boolean secureResults;
+
+	@Override
+	public boolean isSecureResults() {
+		return secureResults;
+	}
+	
+	public void setSecureResults(boolean secure) {
+		this.secureResults = secure;
+	}
+	
+	private Set<Integer> fileGroupIds = new HashSet<Integer>();
+
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.grid.work.GridResult#getFileGroupIds()
+	 */
+	@Override
+	public Set<Integer> getFileGroupIds() {
+		return fileGroupIds;
+	}
+	
+	public void setFileGroupIds(Set<Integer> ids) {
+		this.fileGroupIds = ids;
 	}
 }
