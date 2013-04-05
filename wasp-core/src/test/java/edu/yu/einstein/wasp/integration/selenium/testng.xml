@@ -24,7 +24,8 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
       </classes>
    </test>
- <!-- 
+ <!--
+ 
   <test name="WASP Regression Testing: Login Page" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
