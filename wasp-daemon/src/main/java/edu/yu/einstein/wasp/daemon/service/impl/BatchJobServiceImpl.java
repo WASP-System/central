@@ -97,7 +97,7 @@ public class BatchJobServiceImpl implements BatchJobService {
 	}
 
 	@Override
-	public Message<?> launch(Integer jobId, ResourceType softwareResourceType, List<Integer> libraryCellIds, 
+	public Message<?> launchAnalysisJob(Integer jobId, ResourceType softwareResourceType, List<Integer> libraryCellIds, 
 			String batchJobType, int messageTimeoutInMillis) throws JobContextInitializationException, SoftwareConfigurationException {
 		WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobByJobId(jobId));
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);
@@ -106,6 +106,7 @@ public class BatchJobServiceImpl implements BatchJobService {
 		}
 		Map<String, String> jobParameters = softwareConfig.getParameters();
 		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
+		jobParameters.put(WaspSoftwareJobParameters.JOB_ID, jobId.toString());
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);

@@ -17,7 +17,7 @@ public interface BatchJobService {
 
 	public abstract Set<JobExecution> findAllRunningJobExecutions();
 
-	public Message<?> launch(Integer jobId, ResourceType softwareResourceType, List<Integer> libraryCellIds, 
+	public Message<?> launchAnalysisJob(Integer jobId, ResourceType softwareResourceType, List<Integer> libraryCellIds, 
 			String batchJobType, int messageTimeoutInMillis) throws JobContextInitializationException, SoftwareConfigurationException;
 	
 	public void setJobExplorer(JobExplorer jobExplorer);
