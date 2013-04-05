@@ -13,13 +13,16 @@ package edu.yu.einstein.wasp.service;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 
 
 @Service
+@Transactional("entityManager")
 public interface GenomeService extends WaspService {
 
 	public Set<Organism> getOrganisms();
@@ -33,6 +36,6 @@ public interface GenomeService extends WaspService {
 	 */
 	public Organism getOrganismByName(String name);
 	
-	//public Build getBuild(String genome, String build) throws ParameterValueRetrievalException;
+	public Build getBuild(Integer organism, String genome, String build) throws ParameterValueRetrievalException;
 	  
 }

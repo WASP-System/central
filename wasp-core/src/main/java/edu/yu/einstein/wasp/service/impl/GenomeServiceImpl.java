@@ -5,9 +5,11 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
@@ -35,7 +38,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private Set<Organism> organisms;
+	private Map<Integer, Organism> organisms = new TreeMap<Integer, Organism>();
 	
 	@Autowired
 	private Properties localGenomesProperties;
@@ -51,7 +54,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		logger.debug("INITIALIZING GENOME SERVICE");
 		Map<Integer, Organism> orgs = initOrganisms();
 		initGenomes(orgs);
-		organisms = new TreeSet<Organism>(orgs.values());
+		organisms = orgs;
 	}
 
 	public Map<Integer, Organism> initOrganisms() {
@@ -130,7 +133,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						Genome g = new Genome(name);
 						Organism o = organisms.get(orgId);
 						g.setOrganism(o);
-						o.getGenomes().add(g);
+						o.getGenomes().put(name,g);
 						genomes.put(name, g);
 					} else {
 						Genome g = genomes.get(genomeName);
@@ -165,7 +168,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						logger.debug("creating genome build " + name);
 						Build b = new Build(name);
 						Genome g = genomes.get(genomeName);
-						g.getBuilds().add(b);
+						g.getBuilds().put(name,b);
 						builds.put(buildName, b);
 					} else {
 						Build b = builds.get(buildName);
@@ -201,7 +204,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	 */
 	@Override
 	public Set<Organism> getOrganisms() {
-		return this.organisms;
+		return new TreeSet<Organism>(this.organisms.values());
 	}
 	
 	/**
@@ -221,12 +224,18 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	@Override
 	public boolean exists(GridWorkService workService, Build build, String index) {
 		// TODO Auto-generated method stub
-		return false;
+		// this is to get through at the moment
+		return true;
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		initialize();
+	}
+
+	@Override
+	public Build getBuild(Integer organism, String genome, String build) throws ParameterValueRetrievalException {
+		return organisms.get(organism).getGenomes().get(genome).getBuilds().get(build);
 	}
 
 }
