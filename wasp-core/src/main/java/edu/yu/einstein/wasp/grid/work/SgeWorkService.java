@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -55,6 +56,7 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.service.FileService;
@@ -68,6 +70,9 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  */
 public class SgeWorkService implements GridWorkService, ApplicationContextAware {
 	
+	/**
+	 * LOCAL temporary directory
+	 */
 	@Value("${wasp.temporary.dir}")
 	private String localTempDir;
 	
@@ -745,6 +750,23 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			if (PropertyHelper.isSet(env)) {
 				configuration = env + "\n";
 			}
+			// If the ProcessMode is set to MAX, get the configuration for this host and set processor reqs
+			String pmodeMax = transportConnection.getConfiguredSetting("processmode.max");
+			if (!PropertyHelper.isSet(pmodeMax)) {
+				pmodeMax = "2";
+			}
+			if (w.getProcessMode().equals(ProcessMode.MAX)) {
+				w.setProcessorRequirements(new Integer(pmodeMax));
+			}
+			// If the ProcessMode is set to FIXED, make sure it does not exceed the max setting for this host.
+			String pmodeMaximum = transportConnection.getConfiguredSetting("processmode.absolutemaximum");
+			if (!PropertyHelper.isSet(pmodeMaximum)) {
+				pmodeMax = "2";
+			}
+			Integer pmm = new Integer(pmodeMaximum);
+			if (w.getProcessorRequirements() > pmm) 
+				w.setProcessorRequirements(pmm);
+			
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);
 				if (config != null) {

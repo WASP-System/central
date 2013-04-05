@@ -17,6 +17,7 @@ import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
@@ -40,7 +41,7 @@ import edu.yu.einstein.wasp.util.WaspJobContext;
  * 
  */
 @Service
-@Transactional
+@Transactional("entityManager")
 public class BatchJobServiceImpl implements BatchJobService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -99,6 +100,7 @@ public class BatchJobServiceImpl implements BatchJobService {
 	@Override
 	public Message<?> launchAnalysisJob(Integer jobId, ResourceType softwareResourceType, List<Integer> libraryCellIds, 
 			String batchJobType, int messageTimeoutInMillis) throws JobContextInitializationException, SoftwareConfigurationException {
+		logger.debug("launch for jobId: " + jobId);
 		WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobByJobId(jobId));
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);
 		if (softwareConfig == null) {
@@ -110,6 +112,7 @@ public class BatchJobServiceImpl implements BatchJobService {
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
 		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
+		Assert.notNull(softwarePlugin);
 		String flowName = softwarePlugin.getBatchJobName(batchJobType);
 		if (flowName == null)
 			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());

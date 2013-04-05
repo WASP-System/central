@@ -108,7 +108,7 @@ public class WorkUnit {
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
 	 */
-	private LinkedHashSet<FileHandle> requiredFiles = new LinkedHashSet<FileHandle>();
+	private List<FileHandle> requiredFiles = new ArrayList<FileHandle>();
 	
 	/**
 	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link FileHandle} objects
@@ -170,7 +170,7 @@ public class WorkUnit {
 	/**
 	 * Method for determining how many processors are necessary to execute this task.
 	 */
-	private ProcessMode processMode = ProcessMode.FIXED;
+	private ProcessMode processMode = ProcessMode.SINGLE;
 	
 	/**
 	 * get the ProcessMode
@@ -417,14 +417,14 @@ public class WorkUnit {
 	 * Accessible through the WASPFILE bash array.  
 	 * @return the requiredFiles
 	 */
-	public Set<FileHandle> getRequiredFiles() {
+	public List<FileHandle> getRequiredFiles() {
 		return requiredFiles;
 	}
 	
 	/**
 	 * @param requiredFiles the requiredFiles to set
 	 */
-	public void setRequiredFiles(LinkedHashSet<FileHandle> requiredFiles) {
+	public void setRequiredFiles(List<FileHandle> requiredFiles) {
 		this.requiredFiles = requiredFiles;
 	}
 	
