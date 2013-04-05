@@ -190,7 +190,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		String md5 = null;
 		
 		try{
-			if(newFile.exists()){ newFile.delete(); }
+			
 			if(newFile.createNewFile()){			
 
 				OutputStream tmpFile = new FileOutputStream(newFile);
