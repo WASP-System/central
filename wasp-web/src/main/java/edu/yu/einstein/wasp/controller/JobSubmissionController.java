@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -1249,6 +1250,8 @@ public class JobSubmissionController extends WaspController {
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		
 		if (mpFiles != null){
 			int fileCount = -1;
 			for (MultipartFile mpFile: mpFiles){
@@ -1257,7 +1260,7 @@ public class JobSubmissionController extends WaspController {
 					continue;
 				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount));
+					FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);
 					fileService.linkFileGroupWithJobDraft(group, jobDraft);
 				} catch(FileUploadException e){
 					logger.warn(e.getMessage());

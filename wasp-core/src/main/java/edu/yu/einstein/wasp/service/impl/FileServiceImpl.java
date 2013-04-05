@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -172,9 +173,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description) {
-		
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) {
+/*		
+		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
 
 		File directoryForThisJobDraft = new File(baseDir + "/" + jobDraft.getId().toString());
 		
@@ -186,7 +189,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			}
 		}
 		
-		File newFile = new File(directoryForThisJobDraft + "/" + noSpacesFileName);
+		File newFile = new File(directoryForThisJobDraft + "/" + taggedNoSpacesFileName);
 		String md5 = null;
 		
 		try{
@@ -235,9 +238,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		retGroup = fileGroupDao.save(retGroup);
 
 		return retGroup;
-		
-	/*
+*/		
+	
+		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
+
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
 
 		File temporaryDirectory = new File(tempDir);
 
@@ -258,8 +264,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			e.printStackTrace();
 			throw new FileUploadException(mess);
 		}
-
-
+		
 		FileGroup retGroup = new FileGroup();
 		FileHandle file = new FileHandle();
 		file = fileHandleDao.save(file);
@@ -295,12 +300,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		String remoteDir = draftDir + "/" + jobDraft.getId() + "/";
 		String remoteFile;
 		try {
-			gfs.mkdir(remoteDir);
-			remoteFile = remoteDir + "/" + noSpacesFileName;
+			if(!gfs.exists(remoteDir)){
+				gfs.mkdir(remoteDir);
+			}
+			remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
 
 			if (gfs.exists(remoteFile)) {
-				noSpacesFileName = retGroup.getId() + "__" + noSpacesFileName;
-				remoteFile = remoteDir + "/" + noSpacesFileName;
+				taggedNoSpacesFileName = retGroup.getId() + "__" + taggedNoSpacesFileName;
+				remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
 			}
 		} catch (IOException e) {
 			String mess = "problem creating resources on remote host " + gws.getTransportConnection().getHostName();
@@ -309,7 +316,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
-		file.setFileName(noSpacesFileName);
+		file.setFileName(mpFile.getOriginalFilename());
 
 		try {
 			OutputStream tmpFile = new FileOutputStream(localFile);
@@ -317,7 +324,8 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			int read = 0;
 			byte[] bytes = new byte[1024];
 
-			while ((read = mpFile.getInputStream().read(bytes)) != -1) {
+			InputStream mpFileInputStream = mpFile.getInputStream();
+			while ((read = mpFileInputStream.read(bytes)) != -1) {
 				tmpFile.write(bytes, 0, read);
 			}
 
@@ -341,8 +349,10 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
 
 		try {
-			gfs.put(localFile, remoteFile);
-			register(retGroup);
+			gfs.put(localFile, remoteFile);			
+			if(1==2){
+				register(retGroup);
+			}
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -362,7 +372,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		
 		return retGroup;
 		
-	*/
+	
 		
 	}
 
@@ -848,23 +858,33 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		else if(!fileHandleList.contains(fileHandle)){
 			throw new FileNotFoundException("List of fileHandles in filegroup " + fileGroupId + " unexpectedly does NOT contain fileHandle " + fileHandleId);
 		}
-		
-		//for the moment, it's on disc
-		file_path = fileHandle.getFileURI().getPath();
-		
+
+		file_path = fileHandle.getFileURI().getPath();//example of a file_path: /wasp/draft/85/783768138_bioanalyzer_test.txt
+
 		fileHandleList.remove(fileHandle);
 		fileGroupDao.save(fileGroup);//this removes the db entry in groupfile, but not db entry in filehandle (which is table file)
-		fileHandleDao.remove(fileHandle);//this removew the db entry for the filehandle (in table file)
+		fileHandleDao.remove(fileHandle);//this removes the db entry for the filehandle (in table file)
 
-		if(fileHandleList.size()==0){//likely the case for uploaded files			
+		if(fileHandleList.size()==0){//will be the case for uploaded files			
 			jobDraftFileDao.remove(jobDraftFile);//remove the db jobDraftFile entry
 			fileGroupDao.remove(fileGroup);//remove the db fileGroup entry
 		}
 		
-		//delete the file on disc
-		File theFileOnDisc = new File(file_path);
-		if(theFileOnDisc.exists()){ theFileOnDisc.delete(); }
-
+		//delete the file on the remote server. don't really care if this works or not, so do not re-throw any exception
+		GridWorkService gws;
+		GridFileService gfs;
+		try {
+			gws = hostResolver.getGridWorkService(fileHost);
+			gfs = gws.getGridFileService();
+			if(gfs.exists(file_path)){
+				gfs.delete(file_path);
+			}
+		} catch (Exception e) {
+			String mess = "Unable to resolve remote host";
+			logger.warn(mess);
+			e.printStackTrace();
+		}	
+		
 	}
 
 }

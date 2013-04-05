@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -74,10 +75,11 @@ public interface FileService extends WaspService {
 	 * @param mpFile
 	 * @param destPath
 	 * @param description
+	 * @param Random randomNumberGenerator
 	 * @return entity-managed file object
 	 * @throws FileUploadException
 	 */
-	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description);
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator);
 	
 	public FileGroup promoteJobDraftFileGroupToJob(Job job, FileGroup filegroup) throws GridUnresolvableHostException, IOException;
 
