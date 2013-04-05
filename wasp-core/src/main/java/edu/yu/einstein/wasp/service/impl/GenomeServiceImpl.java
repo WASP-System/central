@@ -203,6 +203,17 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public Set<Organism> getOrganisms() {
 		return this.organisms;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Organism getOrganismByName(String name) {
+		for (Organism organism : this.organisms)
+			if (organism.getName().equals(name))
+				return organism;
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.service.GenomeService#exists(edu.yu.einstein.wasp.plugin.supplemental.organism.Build, java.lang.String)

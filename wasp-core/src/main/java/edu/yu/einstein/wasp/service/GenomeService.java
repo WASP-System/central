@@ -25,6 +25,13 @@ public interface GenomeService extends WaspService {
 	public Set<Organism> getOrganisms();
 	
 	public boolean exists(GridWorkService workService, Build build, String index);
+
+	/**
+	 * Returns registered organism who's name matches that given exactly, or null if no match
+	 * @param name
+	 * @return
+	 */
+	public Organism getOrganismByName(String name);
 	
 	//public Build getBuild(String genome, String build) throws ParameterValueRetrievalException;
 	  
