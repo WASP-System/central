@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -80,6 +81,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
@@ -1197,16 +1199,44 @@ public class JobSubmissionController extends WaspController {
 		String[] roles = new String[1];
 		roles[0] = "lu";
 		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<FileGroup> files = new ArrayList<FileGroup>();
-		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
-			files.add(jdf.getFileGroup());
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
+			FileGroup fileGroup = jdf.getFileGroup();
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
 		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
 		m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
-		m.addAttribute("files", files);
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		return "jobsubmit/sample";
 	}
+	
+	@Transactional
+	@RequestMapping(value="/file/{jobDraftId}/{fileGroupId}/{fileHandleId}/delete", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String deleteUploadedFile(@PathVariable("jobDraftId") Integer jobDraftId, @PathVariable("fileGroupId") Integer fileGroupId, @PathVariable("fileHandleId") Integer fileHandleId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		try{
+			fileService.removeUploadedFileFromJobDraft(jobDraftId, fileGroupId, fileHandleId);
+			//success message
+		}catch (FileNotFoundException e){
+			logger.debug(e.getMessage());
+			//message to display
+		}
+		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
+	}
+
 	
 	@Transactional
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.POST)

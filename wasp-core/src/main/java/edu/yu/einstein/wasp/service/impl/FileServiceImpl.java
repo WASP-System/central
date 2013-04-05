@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -51,6 +52,7 @@ import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
+import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
@@ -89,6 +91,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	private JobDraftFileDao jobDraftFileDao;
 
 	@Autowired
+	private JobDraftDao jobDraftDao;
+
+	@Autowired
 	private SampleService sampleService;
 
 	@Autowired
@@ -114,6 +119,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Value("${wasp.primaryfilehost}")
 	protected String fileHost;
+	
+	@Value("/Users/robertdubin/uploads")
+	protected String baseDir;
 
 	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
@@ -165,6 +173,70 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 */
 	@Override
 	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description) {
+		
+		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+
+		File directoryForThisJobDraft = new File(baseDir + "/" + jobDraft.getId().toString());
+		
+		if (!directoryForThisJobDraft.exists()) {
+			try {
+				directoryForThisJobDraft.mkdir();
+			} catch (Exception e) {
+				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
+			}
+		}
+		
+		File newFile = new File(directoryForThisJobDraft + "/" + noSpacesFileName);
+		String md5 = null;
+		
+		try{
+			if(newFile.exists()){ newFile.delete(); }
+			if(newFile.createNewFile()){			
+
+				OutputStream tmpFile = new FileOutputStream(newFile);
+				int read = 0;
+				byte[] bytes = new byte[1024];
+
+				InputStream mpFileInputStream = mpFile.getInputStream();
+				while ((read = mpFileInputStream.read(bytes)) != -1) {
+					tmpFile.write(bytes, 0, read);
+				}
+
+				mpFile.getInputStream().close();
+				tmpFile.flush();
+				tmpFile.close();
+				FileInputStream fis = new FileInputStream(newFile);
+				md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);		
+			} 
+		}catch (IOException e) {
+			String mess = "Unable to generate file with contents of multipart file";
+			logger.warn(mess);
+			e.printStackTrace();
+			try{if(newFile.exists()){ newFile.delete(); }}catch(Exception e2){}
+			throw new FileUploadException(mess);
+		}
+
+			
+		
+		
+		FileHandle fileHandle = new FileHandle();
+		fileHandle.setMd5hash(md5);
+		fileHandle.setFileName(mpFile.getOriginalFilename());
+		fileHandle.setFileURI(newFile.toURI());
+		
+		FileGroup retGroup = new FileGroup();
+		retGroup.setDescription(description);
+		retGroup.setIsActive(1);
+		retGroup.setIsArchived(0);
+		//register(retGroup);
+		
+		fileHandle = fileHandleDao.save(fileHandle);
+		retGroup.addFileHandle(fileHandle);
+		retGroup = fileGroupDao.save(retGroup);
+
+		return retGroup;
+		
+	/*
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
 
 		File temporaryDirectory = new File(tempDir);
@@ -289,6 +361,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileGroupDao.save(retGroup);
 		
 		return retGroup;
+		
+	*/
+		
 	}
 
 	/**
@@ -734,6 +809,62 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		HashSet<FileGroup> result = new HashSet<FileGroup>();
 		result.addAll(fgq.getResultList());
 		return result;
+	}
+
+	@Override
+	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException{
+		//how to remove the file from disc or on the server???
+		//for the moment, if local disc
+		JobDraft jobDraft = jobDraftDao.findById(jobDraftId);
+		FileHandle fileHandle = fileHandleDao.findById(fileHandleId);
+		FileGroup fileGroup = fileGroupDao.findById(fileGroupId);
+		JobDraftFile jobDraftFile = null;
+		String file_path = null;
+		
+		if(jobDraft==null || jobDraft.getId()==null){
+			throw new FileNotFoundException("JobDraft  " + jobDraftId + " unexpectedly not found");
+		}
+		else if(fileHandle==null || fileHandle.getId()==null){
+			throw new FileNotFoundException("FileHandle  " + fileHandleId + " unexpectedly not found");
+		}
+		else if(fileGroup==null || fileGroup.getId()==null){
+			throw new FileNotFoundException("FileGroup  " + fileGroupId + " unexpectedly not found");
+		}
+		
+		for(JobDraftFile jdf : jobDraft.getJobDraftFile()){
+			if(jdf.getFileGroup().getId() == fileGroupId){
+				jobDraftFile = jdf;
+				break;
+			}
+		}
+		if(jobDraftFile==null){
+			throw new FileNotFoundException("No jobDraftFile found in db associated with fileGroupId  " + fileGroupId);
+		}
+		
+		Set<FileHandle> fileHandleList = fileGroup.getFileHandles();
+		if(fileHandleList.size()==0){
+			throw new FileNotFoundException("List of fileHandles in filegroup " + fileGroupId + " is unexpectedly empty");
+		}
+		else if(!fileHandleList.contains(fileHandle)){
+			throw new FileNotFoundException("List of fileHandles in filegroup " + fileGroupId + " unexpectedly does NOT contain fileHandle " + fileHandleId);
+		}
+		
+		//for the moment, it's on disc
+		file_path = fileHandle.getFileURI().getPath();
+		
+		fileHandleList.remove(fileHandle);
+		fileGroupDao.save(fileGroup);//this removes the db entry in groupfile, but not db entry in filehandle (which is table file)
+		fileHandleDao.remove(fileHandle);//this removew the db entry for the filehandle (in table file)
+
+		if(fileHandleList.size()==0){//likely the case for uploaded files			
+			jobDraftFileDao.remove(jobDraftFile);//remove the db jobDraftFile entry
+			fileGroupDao.remove(fileGroup);//remove the db fileGroup entry
+		}
+		
+		//delete the file on disc
+		File theFileOnDisc = new File(file_path);
+		if(theFileOnDisc.exists()){ theFileOnDisc.delete(); }
+
 	}
 
 }
