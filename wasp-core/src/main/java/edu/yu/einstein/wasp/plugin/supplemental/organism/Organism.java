@@ -3,7 +3,9 @@
  */
 package edu.yu.einstein.wasp.plugin.supplemental.organism;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -17,7 +19,7 @@ public class Organism implements Comparable<Organism>{
 	
 	private Integer ncbiID;
 	
-	private Set<Genome> genomes = new TreeSet<Genome>();
+	private Map<String,Genome> genomes = new TreeMap<String,Genome>();
 	
 	private Integer geneticCode;
 	private Integer mitochondrialGeneticCode;
@@ -36,10 +38,10 @@ public class Organism implements Comparable<Organism>{
 	public void setNcbiID(Integer ncbiID) {
 		this.ncbiID = ncbiID;
 	}
-	public Set<Genome> getGenomes() {
+	public Map<String,Genome> getGenomes() {
 		return genomes;
 	}
-	public void setGenomes(Set<Genome> genomes) {
+	public void setGenomes(Map<String,Genome> genomes) {
 		this.genomes = genomes;
 	}
 	public Integer getGeneticCode() {
