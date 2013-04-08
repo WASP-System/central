@@ -81,7 +81,7 @@ public class FileGroupMeta extends MetaBase {
 	 * @return fileId
 	 *
 	 */
-	public Integer getFileId () {
+	public Integer getFileGroupId () {
 		return this.fileGroupId;
 	}
 

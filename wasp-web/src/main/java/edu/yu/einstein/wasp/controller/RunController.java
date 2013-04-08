@@ -53,7 +53,6 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 
 @Controller
-@Transactional
 @RequestMapping("/run")
 public class RunController extends WaspController {
 	
@@ -546,57 +545,7 @@ public class RunController extends WaspController {
 	
 	}
 
-	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-	public String updateDetailJSON(@RequestParam("id") Integer runId, Run runForm, ModelMap m, HttpServletResponse response) {
-		boolean adding = (runId == null || runId.intValue() == 0);
-
-		List<RunMeta> runMetaList = getMetaHelperWebapp().getFromJsonForm(request, RunMeta.class);
-
-		runForm.setRunMeta(runMetaList);
-			
-		if (adding) {
-			// To add new run to DB
-			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
-			Map<String, String> queryMap = new HashMap<String, String>();
-			queryMap.put("name", runForm.getName());
-			List<Run> runList = this.runDao.findByMap(queryMap);
-			if(runList!=null && runList.size()>0) {
-				try{
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					response.getWriter().println(messageService.getMessage("run.run_exists.error"));
-					return null;
-				} catch (Throwable e) {
-					throw new IllegalStateException("Cant output validation error "+messageService.getMessage("run.run_exists.error"),e);
-				}
-				
-			}
-			
-			runForm.setUserId(Integer.parseInt(request.getParameter("start_esf_staff")));
-			runForm.setIsActive(1);
-			
-			Run runDb = this.runDao.save(runForm);
-			runId = runDb.getId();
-		} else {
-			
-			// editing run is not allowed
-		}
-		try {
-			try {
-				runMetaDao.setMeta(runMetaList, runId);
-				response.getWriter().println(adding ? messageService.getMessage("run.created_success.label") 
-						: messageService.getMessage("run.updated_success.label"));
-				return null;
-			} catch (MetadataException e1) {
-				response.getWriter().println(messageService.getMessage("run.created_failure.label"));
-				logger.warn(e1.getLocalizedMessage());
-				return null;
-			}
-
-		} catch (Throwable e) {
-			throw new IllegalStateException("Cant output success message ", e);
-		}
-	}
+	
 
 	@RequestMapping(value = "/detail/{strId}", method = RequestMethod.GET)
 	public String detail(@PathVariable("strId") String strId, ModelMap m) {
@@ -656,18 +605,18 @@ public class RunController extends WaspController {
 		return "run/celldetail";
 	}
 	
-	@RequestMapping(value="/deleteRun.do", method=RequestMethod.GET)
+	@RequestMapping(value="/{runId}/delete.do", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String deleteRun(@RequestParam("runId") Integer runId,
-			ModelMap m) {
+	public String deleteRun(@PathVariable("runId") Integer runId, ModelMap m) {
 		try{
-			Run run = sampleService.getSequenceRun(runId);//exception if not msp run or not in db
-			sampleService.deleteSequenceRun(run);
-			return "redirect:"+ request.getHeader("Referer");
+			Run run = runService.getSequenceRun(runId);//exception if not msp run or not in db
+			runService.delete(run);
 		}catch(Exception e){
-			logger.warn(e.getMessage());waspErrorMessage("wasp.unexpected_error.error");
-			return "redirect:/dashboard.do";
+			//throw new RuntimeException(e);
+			logger.warn(e.getMessage());
+			waspErrorMessage("wasp.unexpected_error.error");
 		}
+		return "redirect:"+ request.getHeader("Referer");
 	}
 	
 

@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
+import java.util.Set;
 import java.util.UUID;
 
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
@@ -88,5 +89,21 @@ public interface GridResult {
 	public ExecutionMode getMode();
 	
 	public int getNumberOfTasks();
+	
+	/**
+	 * Default true.  Whether the job is to be marked as completed and results files copied to the results directory.
+	 * 
+	 * @return
+	 * 
+	 */
+	public boolean isSecureResults();
+	
+	/**
+	 * Set of result FileGroup IDs.  Stored as a set of id's because the GridResult is often stored in the execution
+	 * context, and the serialized result must fit in the Batch ExecutionContext database column.
+	 * 
+	 * @return
+	 */
+	public Set<Integer> getFileGroupIds();
 
 }

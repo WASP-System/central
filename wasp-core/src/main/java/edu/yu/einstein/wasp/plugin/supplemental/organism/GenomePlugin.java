@@ -66,8 +66,8 @@ public class GenomePlugin extends WaspPlugin {
 		String retval = "\n";
 		for (Organism o : orgs) {
 			retval += o.getNcbiID() + ": " + o.getName() + "\n";
-			for (Genome g : o.getGenomes()) {
-				for (Build b : g.getBuilds()) {
+			for (Genome g : o.getGenomes().values()) {
+				for (Build b : g.getBuilds().values()) {
 					retval += "\t" + g.getName() + ": " + b.getVersion() + "\n\t\t" + b.getDescription() + "\n"; 
 				}
 			}

@@ -29,6 +29,11 @@
     <property name="name" value="Sequence Run Processor" />
     <property name="area" value="sequenceRunProcessor" />
   </bean>
+  
+  <bean id="bamProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+  	<property name="name" value="BAM Processor" />
+  	<property name="area" value="bamProcessor" />
+  	</bean>
  
 </beans>
 

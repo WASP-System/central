@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,15 +12,13 @@ import org.springframework.stereotype.Service;
 import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.User;
 
 /**
  * @author calder
@@ -68,42 +65,17 @@ public interface RunService extends WaspMessageHandlingService {
 	public RunCellDao getRunCellDao();
 
 	/**
-	 * Create of update sequence run. Check parameters for compatibility and if problem throw exception
-	 * @param Run runInstance
-	 * @param List<RunMeta> runMetaList
-	 * @param Integer platformUnitId (for a sample)
-	 * @param Integer resourceId (for a resource)
-	 * @return void
-	 */
-	public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
-
-	/**
 	 * Sets up a sequencing run and sends a message via RMI to the wasp-daemon to initiate sequencing run flow
-	 * @param runName
-	 * @param machineInstance
-	 * @param platformUnit
-	 * @param technician
-	 * @param readLength
-	 * @param readType
-	 * @param dateStart
-	 * @return
-	 * @throws SampleTypeException, WaspMessageBuildingException
+	 * @param run
 	 */
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException;
+	public void initiateRun(Run run);
 
 	/**
 	 * Update details of existing sequencing run
 	 * @param run
-	 * @param runName
-	 * @param machineInstance
-	 * @param platformUnit
-	 * @param technician
-	 * @param readLength
-	 * @param readType
-	 * @param dateStart
 	 * @return
 	 */
-	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart);
+	public Run updateRun(Run run);
 
 	/**
 	 * Returns a list of runs which match the provided platform unit
@@ -212,5 +184,24 @@ public interface RunService extends WaspMessageHandlingService {
 
 	public List<Sample> getCellsOnSuccessfulRunCellsWithoutControlsForJob(Run run, Job job);
 
+	/**
+	 * Delete sequence run
+	 * @param Run run
+	 * @return void
+	 */
+	public void delete(Run run)throws Exception;
 
+	/**
+	 * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
+	 * @param Integer runId
+	 * @return Run run
+	 */
+	public Run getSequenceRun(Integer runId) throws RunException;
+
+	/**
+	 * save and initiate a run
+	 * @param run
+	 * @return
+	 */
+	public Run updateAndInitiateRun(Run run);
 }

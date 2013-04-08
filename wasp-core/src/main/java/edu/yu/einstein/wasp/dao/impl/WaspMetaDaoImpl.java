@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.WaspMetaDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaBase;
-import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 
 @Repository
 public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {

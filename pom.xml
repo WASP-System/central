@@ -6,7 +6,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
-		<module.version>${project.version}</module.version>
+		<module.version>0.1.0-SNAPSHOT</module.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<maven.surefire.version>2.12.4</maven.surefire.version>

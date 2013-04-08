@@ -11,27 +11,22 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,7 +50,9 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
+import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
+import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -76,6 +73,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
@@ -83,6 +81,7 @@ import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.model.SampleSource;
 
 @Service
 @Transactional("entityManager")
@@ -111,6 +110,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private JobFileDao jobFileDao;
+	
+	@Autowired
+	private JobDao jobDao;
 
 	@Value("${wasp.temporary.dir}")
 	protected String tempDir;
@@ -172,6 +177,14 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 		File temporaryDirectory = new File(tempDir);
 
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
+			}
+		}
+		
 		File localFile;
 		try {
 			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
@@ -182,13 +195,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
-		if (!temporaryDirectory.exists()) {
-			try {
-				temporaryDirectory.mkdir();
-			} catch (Exception e) {
-				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
-			}
-		}
 
 		FileGroup retGroup = new FileGroup();
 		FileHandle file = new FileHandle();
@@ -222,7 +228,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new FileUploadException(mess);
 		}
 
-		String remoteDir = draftDir + "/" + "jobDraft/";
+		String remoteDir = draftDir + "/" + jobDraft.getId() + "/";
 		String remoteFile;
 		try {
 			gfs.mkdir(remoteDir);
@@ -288,7 +294,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}
 
 		fileHandleDao.save(file);
-		return fileGroupDao.save(retGroup);
+		fileGroupDao.save(retGroup);
+		
+		return retGroup;
 	}
 
 	/**
@@ -453,6 +461,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	 * @throws GridUnresolvableHostException
 	 */
 	@Override
+	@Deprecated
 	public void register(FileHandle file) throws FileNotFoundException, GridException {
 		file = fileHandleDao.merge(file);
 
@@ -463,15 +472,27 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileHandleDao.save(file);
 	}
 
+	private enum Md5 { YES, NO };
+	
 	@Override
 	public void register(FileGroup group) throws FileNotFoundException, GridException {
+		register(group, Md5.YES);
+	}
+	
+	@Override
+	public void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException {
+		register(group, Md5.NO);
+	}
+	
+	public void register(FileGroup group, Md5 md5) throws FileNotFoundException, GridException {
 		group = fileGroupDao.merge(group);
 		for (FileHandle f : group.getFileHandles()) {
 			validateFile(f);
 		}
 		logger.debug("attempting to register FileGroup: " + group.getId());
 
-		setMD5(group);
+		if (md5.equals(Md5.YES))
+			setMD5(group);
 
 		group.setIsActive(1);
 		group.setIsArchived(0);
@@ -503,6 +524,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		// use task array to submit in one batch
 		WorkUnit w = new WorkUnit();
 		w.setRegistering(true);
+		w.setSecureResults(false);
 		w.setResultsDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
 		w.setMode(ExecutionMode.TASK_ARRAY);
 
@@ -546,11 +568,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 				}
 			}, 1, TimeUnit.SECONDS);
 			while (!md5t.isDone()) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				// not done
 			}
 		}
 		ex.shutdownNow();
@@ -689,8 +707,16 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 			fh.setFileURI(newUri);
 			fileHandleDao.save(fh);
-
 		}
+
+		JobFile jf = new JobFile();
+		jf.setFileGroup(filegroup);
+		jf.setIsActive(1);
+		jobFileDao.save(jf);
+		
+		job.getJobFile().add(jf);
+		jobDao.save(job);
+		
 		return fileGroupDao.findById(filegroup.getId());
 	}
 
@@ -716,6 +742,31 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (plugins.size() > 1)
 			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 		return plugins.get(0).getFileDetails(filegroup.getId());
+	}
+
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
+						"JOIN fg.sampleSources cl " +
+						"WHERE cl = :cellLibrary AND cl = fg.fileType = :fileType", FileGroup.class)
+				.setParameter("cellLibrary", cellLibrary)
+				.setParameter("fileType", fileType);
+		HashSet<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fgq.getResultList());
+		return result;
+	}
+
+	@Override
+	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary) {
+		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
+				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
+						"JOIN fg.sampleSources cl " +
+						"WHERE cl = :cellLibrary", FileGroup.class)
+				.setParameter("cellLibrary", cellLibrary);
+		HashSet<FileGroup> result = new HashSet<FileGroup>();
+		result.addAll(fgq.getResultList());
+		return result;
 	}
 
 }

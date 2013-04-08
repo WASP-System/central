@@ -176,7 +176,7 @@ public class WorkflowController extends WaspController {
 										.toString(), 
 								workflow.getName(),
 								workflow.getIsActive().intValue() == 1 ? "yes" : "no",
-								"configure"}));
+										workflow.getIsActive().intValue() == 1 ? "configure" : ""}));
 
 				for (WorkflowMeta meta : workflowMeta) {
 					cellList.add(meta.getV());

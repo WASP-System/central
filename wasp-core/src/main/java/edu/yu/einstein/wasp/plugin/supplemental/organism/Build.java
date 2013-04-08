@@ -5,8 +5,13 @@ package edu.yu.einstein.wasp.plugin.supplemental.organism;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.builder.CompareToBuilder;
 
 /**
  * @author calder
@@ -21,6 +26,7 @@ public class Build implements Comparable<Build> {
 	private String description;
 	private URL site;
 	private URL url;
+	private Date buildDate;
 	private Map<String,OrganismMetadataSource> metadata = new HashMap<String,OrganismMetadataSource>();
 	
 	public Build(String name) {
@@ -122,9 +128,32 @@ public class Build implements Comparable<Build> {
 		}
 	}
 
+	/**
+	 * @return the buildDate
+	 */
+	public Date getBuildDate() {
+		return buildDate;
+	}
+
+	/**
+	 * @param buildDate the buildDate to set
+	 */
+	public void setBuildDate(Date buildDate) {
+		this.buildDate = buildDate;
+	}
+	
+	public void setDate(String date) throws ParseException {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+		this.buildDate = df.parse(date);
+	}
+
 	@Override
 	public int compareTo(Build b) {
-		return this.version.compareTo(b.getVersion());
+		return new CompareToBuilder()
+	       .append(b.buildDate, this.buildDate)
+	       .append(this.version, b.version)
+	       .toComparison();
+
 	}
 
 }

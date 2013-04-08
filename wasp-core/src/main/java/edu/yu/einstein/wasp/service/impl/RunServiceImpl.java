@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -39,7 +40,6 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
-import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunCell;
 import edu.yu.einstein.wasp.model.RunMeta;
@@ -158,6 +158,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return runDao.findByMap(searchMap);
 	}
 	
+
 	@Override
 	public List<Run> getSuccessfullyCompletedRunsForPlatformUnit(Sample pu) throws SampleTypeException{
 		Assert.assertParameterNotNull(pu, "no platform unit provided (is null)");
@@ -176,105 +177,16 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return runList;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-    public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception{
-		
-		//first check compatibility, then perform create or update
-		
-		Sample platformUnit = null;
-		Resource sequencingMachineInstance = null;
-		ResourceCategory resourceCategory = null;
-		Run run = null;
-		
-		if(runInstance==null || runMetaList==null || platformUnitId == null || platformUnitId.intValue()<=0 || resourceId==null || resourceId.intValue()<=0){
-			throw new Exception("parameter error in sampleservice.createUpdateSequenceRun");
-		}
-		
-		//database create or update
-		try{//regular (rather than runtime) exceptions
-			if(runInstance.getId()!=null && runInstance.getId().intValue()>0){
-				run = sampleService.getSequenceRun(runInstance.getId());//throws an exception if problem
-			}
-			else{
-				run = new Run();
-			}
-			platformUnit = sampleService.getPlatformUnit(platformUnitId);//throws exception if not found in db or if not a platformUnit
-			sequencingMachineInstance = sampleService.getSequencingMachineByResourceId(resourceId);//throws exception if not found in db or if not for massively-parallel seq.
-			resourceCategory = sequencingMachineInstance.getResourceCategory();
-			if(resourceCategory==null || resourceCategory.getId()==null || resourceCategory.getId().intValue()<=0){
-				throw new Exception("Problem with resourcecategory in sampleservice.createUpdateSequenceRun");
-			}
-			if(!sampleService.isPlatformUnitCompatibleWithSequencingMachine(platformUnit, sequencingMachineInstance)){
-				throw new Exception("platformUnit (ID: " + platformUnit.getId().toString() + ") is not compatible with sequencing machine (ID: " + sequencingMachineInstance.getId().toString()+").");
-			}			
-		}catch (Exception e){ throw e; }
-		
-		try{//runtime exceptions
-			run.setName(runInstance.getName());//set by system
-			run.setUserId(runInstance.getUserId());
-			//run.setStartts(new Date());//THIS MUST CHANGE so that it's gotten from param or the runInstance object
-			run.setStarted(runInstance.getStarted());
-			
-			run.setResourceId(sequencingMachineInstance.getId());
-			run.setResourceCategoryId(resourceCategory.getId());
-			run.setSampleId(platformUnitId);
-			
-			Run runDB = runDao.save(run);
-			if(runDB==null || runDB.getId()==null || runDB.getId().intValue()<=0){
-				throw new SampleException("new run unexpectedly not saved");
-			}
-			runMetaDao.setMeta(runMetaList, runDB.getId()); // persist the metadata; no way to check as this returns void
-			
-		}catch (Exception e){	throw new RuntimeException(e.getMessage());	}
-		return;
-	}
-	
-	@Override
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException{
-		Assert.assertParameterNotNull(runName, "runName cannot be null");
-		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");
-		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
-		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "platformUnit sampleId is zero");
-		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getId(), "technician UserId is zero");
-		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
-		Assert.assertParameterNotNull(readType, "readType cannot be null");
-		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
-		Run newRun = new Run();
-		newRun.setResource(machineInstance);
-		newRun.setName(runName.trim());
-		newRun.setPlatformUnit(platformUnit);//set the flow cell
-		newRun.setUser(technician);
-		newRun.setStarted(dateStart);
-		newRun = runDao.save(newRun);
-		logger.debug("-----");
-		logger.debug("saved new run runid=" + newRun.getId().intValue());
-		try {
-			SequenceReadProperties.setSequenceReadProperties(new SequenceReadProperties(readType, Integer.parseInt(readLength)), newRun, runMetaDao, RunMeta.class);
-		} catch (MetadataException e1) {
-			logger.warn("failed to save readLength and readtype for run with id=" + newRun.getId().intValue());
-		}
-		logger.debug("saved readLength and readtype for run with id=" + newRun.getId().intValue());
-		//runcell
-		for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
-			RunCell runCell = new RunCell();
-			runCell.setRun(newRun);//the runid
-			runCell.setSample(cell);//the cellid
-			runCell = runCellDao.save(runCell);
-			logger.debug("saved new run cell runcellid=" + runCell.getId().intValue());
-		}
-		logger.debug("-----");
-		
-		
+	public void initiateRun(Run run) {
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getId(), "run is not valid");
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getId().toString() );
-		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
-		String rcIname = newRun.getResourceCategory().getIName();
-		logger.debug("launching Batch job for runId=" + newRun.getId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
+		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString() );
+		jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
+		String rcIname = run.getResourceCategory().getIName();
+		logger.debug("launching Batch job for runId=" + run.getId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
 		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
@@ -291,7 +203,6 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 				throw new MessagingException(e.getLocalizedMessage(), e);
 			}
 		}
-		return newRun;
 	}
 	
 	@Override
@@ -301,33 +212,27 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
-	public Run updateRun(Run run, String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart){
+	public Run updateAndInitiateRun(Run run){
+		// transactional such that if message sending fails run saving will be rolled back
+		Run savedRun = this.updateRun(run);
+		this.initiateRun(savedRun);
+		return savedRun;
+	}
+	
+	@Override
+	public Run updateRun(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
-		Assert.assertParameterNotNullNotZero(run.getId(), "runId is zero");
-		Assert.assertParameterNotNull(runName, "runName cannot be null");
-		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");
-		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
-		Assert.assertParameterNotNullNotZero(platformUnit.getId(), "platformUnit sampleId is zero");
-		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getId(), "technician UserId is zero");
-		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
-		Assert.assertParameterNotNull(readType, "readType cannot be null");
-		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
-		run.setResource(machineInstance);
-		run.setName(runName.trim());
-		run.setPlatformUnit(platformUnit);
-		run.setUser(technician);
-		run.setStarted(dateStart);
-
-		run = runDao.save(run);//since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
-		
+		List<RunMeta> meta = new ArrayList<RunMeta>();
+		meta.addAll(run.getRunMeta()); // effectively copies the list
+		run = runDao.save(run); //since this object was pulled from the database, it is persistent, and any alterations are automatically updated; thus this line is superfluous
 		try {
-			SequenceReadProperties.setSequenceReadProperties(new SequenceReadProperties(readType, Integer.parseInt(readLength)), run, runMetaDao, RunMeta.class);
-		} catch (MetadataException e1) {
-			logger.warn("failed to save readLength and readtype for run with id=" + run.getId().intValue());
+			runMetaDao.setMeta(meta, run.getId());
+		} catch (MetadataException e) {
+			throw new RuntimeException(e); // trigger rollback
 		}
 		return run;
 	}
+
 
 	@Override
 	public Run getRunById(int runId) {
@@ -636,7 +541,41 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void delete(Run run){
+		Assert.assertParameterNotNull(run, "Invalid run provided");
+		Assert.assertParameterNotNullNotZero(run.getId(), "Invalid run provided");
+		for(RunMeta runMeta : run.getRunMeta()){
+			runMetaDao.remove(runMeta);
+		}
+		runDao.remove(run);
+		return;
+	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Run getSequenceRun(Integer runId) throws RunException {
+		Assert.assertParameterNotNullNotZero(runId, "Invalid runId provided");
+		Run run = runDao.getRunByRunId(runId.intValue());
+		if(run == null || run.getId() == null){
+			throw new RunException("Run with runId of " + runId.intValue() + " not found in database");
+		}
+		else if(!run.getResourceCategory().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resourcecategory of mps");
+		}
+		else if(!run.getResource().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcetype is mps");
+		}
+		else if(!run.getResource().getResourceCategory().getResourceType().getIName().equals("mps")){
+			throw new RunException("Run with runId of " + runId.intValue() + " does not have resource whose resourcecategory is mps");
+		}
+		return run;
+	}
 
 	
 
