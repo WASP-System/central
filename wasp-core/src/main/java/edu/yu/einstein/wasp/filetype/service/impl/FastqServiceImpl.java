@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.filetype.service.FastqService;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
@@ -105,6 +106,19 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		Sample result = query.getSingleResult();
 		Assert.assertParameterNotNull(result);
 		return result;
+	}
+
+	@Override
+	public Integer getNumberOfReadSegments(FileGroup filegroup) {
+		Assert.assertParameterNotNull(filegroup);
+		Integer numberOfSegments = new Integer(getMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS));
+		return numberOfSegments;
+	}
+	
+	public void setNumberOfReadSegments(FileGroup filegroup, Integer number) throws MetadataException {
+		Assert.assertParameterNotNull(filegroup);
+		Assert.assertParameterNotNull(number);
+		setMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS, number.toString());
 	}
 	
 	

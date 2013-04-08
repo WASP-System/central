@@ -579,13 +579,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
 
-	  /**
-	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
-	   * @param Integer runId
-	   * @return Run run
-	   */
-	  public Run getSequenceRun(Integer runId) throws RunException;
-	   
+	    
 	 
 	  
 	  /**
@@ -596,13 +590,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isPlatformUnitCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
 	  
-	  /**
-	   * Delete sequence run
-	   * @param Run run
-	   * @return void
-	   */
-	  public void deleteSequenceRun(Run run)throws Exception;
-
+	  
 	  /**
 	   * is sampleDraft a DNA or RNA molecule
 	   * @param sampleDraft
@@ -996,5 +984,13 @@ public interface SampleService extends WaspMessageHandlingService {
 	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
 			throws SampleParentChildException;
 	  
+	/**
+	 * Find the cell-libraries (type SampleSource) for a given cell instance.  A cell library is the 
+	 * most atomic entity, representing an instance of a library assayed on a given cell.
+	 * 
+	 * @param cell (of type Sample)
+	 * @return List of Cell-libraries
+	 */
+	public List<SampleSource> getCellLibraries(Sample cell);
 
 }

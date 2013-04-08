@@ -1,16 +1,14 @@
 package edu.yu.einstein.wasp.dao.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
-import edu.yu.einstein.wasp.exception.ModelDetachException;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 
-public class FileGroupMetaDaoImpl extends WaspDaoImpl<FileGroupMeta> implements FileGroupMetaDao {
+@Transactional
+@Repository
+public class FileGroupMetaDaoImpl extends WaspMetaDaoImpl<FileGroupMeta> implements FileGroupMetaDao {
 	
 	public FileGroupMetaDaoImpl() {
 		super();

@@ -3,7 +3,9 @@
  */
 package edu.yu.einstein.wasp.plugin.supplemental.organism;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -20,7 +22,7 @@ public class Genome implements Comparable<Genome> {
 	private String description;
 	private String alias;
 	
-	private Set<Build> builds = new TreeSet<Build>();
+	private Map<String,Build> builds = new TreeMap<String,Build>();
 	
 	
 	public Genome(String name) {
@@ -63,14 +65,14 @@ public class Genome implements Comparable<Genome> {
 	/**
 	 * @return the builds
 	 */
-	public Set<Build> getBuilds() {
+	public Map<String,Build> getBuilds() {
 		return builds;
 	}
 
 	/**
 	 * @param builds the builds to set
 	 */
-	public void setBuilds(Set<Build> builds) {
+	public void setBuilds(Map<String,Build> builds) {
 		this.builds = builds;
 	}
 

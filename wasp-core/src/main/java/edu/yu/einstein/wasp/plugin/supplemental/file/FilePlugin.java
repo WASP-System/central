@@ -115,7 +115,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 	private void validateAdd(JSONObject add) throws JSONException {
 		String t = add.get("fileType").toString();
 		FileType ft = fileService.getFileType(t);
-		if (ft.getFileTypeId() == null)
+		if (ft.getId() == null)
 			throw new EntityNotFoundException("filetype " + t + " not found");
 		JSONArray ja = add.getJSONArray("files");
 		if (ja.length() == 0) 
@@ -138,7 +138,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 			throw new JSONException("fileGroup is a required parameter");
 		Integer fg = register.getInt("fileGroup");
 		FileGroup group = fileService.getFileGroupById(fg);
-		if (group == null || group.getFileGroupId() == null)
+		if (group == null || group.getId() == null)
 			throw new EntityNotFoundException("file group " + fg + "was not found");
 	}
 
@@ -146,7 +146,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 		FileGroup group = new FileGroup();
 		String t = in.get("fileType").toString();
 		FileType ft = fileService.getFileType(t);
-		if (ft.getFileTypeId() == null)
+		if (ft.getId() == null)
 			throw new EntityNotFoundException("filetype " + t + " not found");
 		group.setFileType(ft);
 		String description = in.get("description").toString();
@@ -180,7 +180,7 @@ public class FilePlugin extends WaspPlugin implements InitializingBean, Disposab
 
 		for (FileHandle f : group.getFileHandles()) {
 			if (f.getMd5hash() != null && !f.getMd5hash().equals("")) {
-				logger.warn("file " + f.getFileId() + " appears to already be registered, skipping");
+				logger.warn("file " + f.getId() + " appears to already be registered, skipping");
 				continue;
 			}
 			Runnable reg = new RegThread(f);

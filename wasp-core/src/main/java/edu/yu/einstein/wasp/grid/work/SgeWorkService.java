@@ -17,7 +17,12 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -32,12 +37,18 @@ import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -45,7 +56,10 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
@@ -54,14 +68,39 @@ import edu.yu.einstein.wasp.util.PropertyHelper;
  * @author calder
  * 
  */
-public class SgeWorkService implements GridWorkService {
+public class SgeWorkService implements GridWorkService, ApplicationContextAware {
 	
+	/**
+	 * LOCAL temporary directory
+	 */
 	@Value("${wasp.temporary.dir}")
 	private String localTempDir;
+	
+	private ApplicationContext applicationContext;
+	
+	private FileService fileService;
+	
+	/**
+	 * This method gets around a circular reference:
+	 * 
+	 * HostResolver-+
+	 *     |        |
+	 * WorkService  |
+	 *     |        |
+	 * FileService -+
+	 * @return the fileService
+	 */
+	public FileService getFileService() {
+		if (fileService == null) {
+			this.fileService = applicationContext.getBean(FileService.class);
+		}
+		return fileService;
+	}
 	
 	private static Logger logger = LoggerFactory.getLogger(SgeWorkService.class);
 
 	private String jobNamePrefix = "WASP-";
+	
 	public void setJobNamePrefix(String np) {
 		this.jobNamePrefix = np + "-";
 	}
@@ -380,20 +419,34 @@ public class SgeWorkService implements GridWorkService {
 		}
 	}
 	
-	private void cleanUpCompletedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
-		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString());
+	private void cleanUpCompletedJob(GridResult g) throws GridException {
+		cleanUpCompletedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString(), !g.isSecureResults());
+		if (g.isSecureResults())
+			try {
+				secureResultsFiles(g);
+			} catch (FileNotFoundException e) {
+				logger.warn("File not found: " + e.toString());
+				e.printStackTrace();
+				throw new GridException("File not found error", e);
+			}
 	}
 
-	private void cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
+	private void cleanUpCompletedJob(String hostname, String workingDirectory, String resultsDirectory, String id, boolean markUnfinished)
+			throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		logger.debug("Cleaning successful job " + id + " at " + transportConnection.getHostName() + ":" + workingDirectory);
 		
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
 		
 		String outputFile = jobNamePrefix + id + ".tar.gz ";
-		String manifestFile = jobNamePrefix + id + ".bom";
-		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print > " + manifestFile + " && " + 
+		String manifestFile = jobNamePrefix + id + ".manifest";
+		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+		if (markUnfinished) {
+			command += " && touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+		} else {
+			command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
+		}
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
 			command += " && cp " + outputFile + " " + prd;
@@ -416,6 +469,62 @@ public class SgeWorkService implements GridWorkService {
 		}
 	}
 	
+	/**
+	 * copy declared result files to results directory and register
+	 * 
+	 * @param g
+	 * @throws GridException 
+	 * @throws FileNotFoundException 
+	 */
+	private void secureResultsFiles(GridResult g) throws GridException, FileNotFoundException {
+		if (g.getFileGroupIds() != null && g.getFileGroupIds().size() > 0) {
+			copyResultsFiles(g);
+			for (Integer id : g.getFileGroupIds()) {
+				FileGroup fg = getFileService().getFileGroupById(id);
+				getFileService().register(fg);
+			}
+		}
+	}
+	
+	private void copyResultsFiles(GridResult g) throws GridException {
+		WorkUnit w = new WorkUnit();
+		w.setWorkingDirectory(g.getWorkingDirectory());
+		w.setResultsDirectory(g.getResultsDirectory());
+		w.setRegistering(true);
+		w.setMode(ExecutionMode.TASK_ARRAY);
+		w.setCommand("touch " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
+		int files = 0;
+		for (Integer id : g.getFileGroupIds()) {
+			FileGroup fg = getFileService().getFileGroupById(id);
+			for (FileHandle f : fg.getFileHandles()) {
+				w.addCommand("COPY[" + files + "]=\""+ WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() + "." + f.getId() + 
+						" " + f.getFileName() + "\"");
+				files++;
+			}
+		}
+		w.setNumberOfTasks(files-1);
+		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
+		w.addCommand("read -ra FILE <<< \"$THIS\"");
+		w.addCommand("cp ${THIS[0]} " + WorkUnit.RESULTS_DIRECTORY + "${THIS[1]}");
+		w.addCommand("rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
+		GridResult r = execute(w);
+		logger.debug("waiting for results file copy");
+		ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+		while (!isFinished(r)) {
+			ScheduledFuture<?> md5t = ex.schedule(new Runnable() {
+				@Override
+				public void run() {
+				}
+			}, 5, TimeUnit.SECONDS);
+			while (!md5t.isDone()) {
+				// not done
+			}
+		}
+		ex.shutdownNow();
+		logger.debug("copied");
+
+	}
+	
 	private void cleanUpAbnormallyTerminatedJob(GridResult g) throws GridAccessException, GridExecutionException, GridUnresolvableHostException {
 		cleanUpAbnormallyTerminatedJob(g.getHostname(), g.getWorkingDirectory(), g.getResultsDirectory(), g.getUuid().toString());
 	}
@@ -427,9 +536,10 @@ public class SgeWorkService implements GridWorkService {
 		w.setWorkingDirectory(transportConnection.prefixRemoteFile(workingDirectory));
 		
 		String outputFile = jobNamePrefix + id + "-FAILED.tar.gz ";
-		String manifestFile = jobNamePrefix + id + ".bom";
-		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print > " + manifestFile + " && " + 
+		String manifestFile = jobNamePrefix + id + ".manifest";
+		String command = "touch " + manifestFile + " && find . -name '" + jobNamePrefix + id + "*' -print | sed 's/^\\.\\///' > " + manifestFile + " && " + 
 				"tar --remove-files -czvf " + outputFile + " -T " + manifestFile;
+		command += " && rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME;
 		String prd = transportConnection.prefixRemoteFile(resultsDirectory);
 		if (!w.getWorkingDirectory().equals(prd)) {
 				command += " && cp " + outputFile + " " + prd;
@@ -518,6 +628,14 @@ public class SgeWorkService implements GridWorkService {
 		result.setResultsDirectory(w.getResultsDirectory());
 		result.setHostname(transportConnection.getHostName());
 		result.setMode(w.getMode());
+		result.setSecureResults(w.isSecureResults());
+		if (w.isSecureResults()) {
+			for (FileGroup fg : w.getResultFiles()) {
+				result.getFileGroupIds().add(fg.getId());
+			}
+			
+		}
+			
 		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
 			result.setNumberOfTasks(w.getNumberOfTasks());
 		return (GridResult) result;
@@ -588,14 +706,14 @@ public class SgeWorkService implements GridWorkService {
 					"set -o physical\n"; 		// replace symbolic links with physical path
 			
 			preamble += "\ncd " + w.remoteWorkingDirectory + "\n" +
-					"WASPNAME=" + jobNamePrefix + name + "\n" +
-					"WASP_WORK_DIR=" + w.remoteWorkingDirectory + "\n" +
-					"WASP_RESULT_DIR=" + w.remoteResultsDirectory + "\n";
+					WorkUnit.JOB_NAME + "=" + jobNamePrefix + name + "\n" +
+					WorkUnit.WORKING_DIRECTORY + "=" + w.remoteWorkingDirectory + "\n" +
+					WorkUnit.RESULTS_DIRECTORY + "=" + w.remoteResultsDirectory + "\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				preamble += "WASP_TASK_ID=$[SGE_TASK_ID-1]\n" + 
-						"WASP_TASK_OUTPUT=$WASPNAME:${WASP_TASK_ID}.out\n" +
-						"WASP_TASK_END=$WASPNAME:${WASP_TASK_ID}.end\n";
+				preamble += WorkUnit.TASK_ARRAY_ID + "=$[SGE_TASK_ID-1]\n" + 
+						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME:${WASP_TASK_ID}.out\n" +
+						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
 			}
 			
 			int fi = 0;
@@ -603,15 +721,18 @@ public class SgeWorkService implements GridWorkService {
 				
 				logger.debug("WorkUnit required file: " + f.getFileURI().toString());
 				try {
-					preamble += "WASPFILE[" + fi + "]=" + provisionRemoteFile(f) + "\n";
+					preamble += WorkUnit.INPUT_FILE + "[" + fi + "]=" + provisionRemoteFile(f) + "\n";
 				} catch (FileNotFoundException e) {
 					throw new MisconfiguredWorkUnitException("unknown file " + f.getFileURI());
 				} 
 				fi++;
 			}
 			fi = 0;
-			for (String of : w.getResultFiles()) {
-				preamble += "WASPOUTPUT[" + fi + "]=" + of + "\n";
+			for (FileGroup fg : w.getResultFiles()) {
+				for (FileHandle f : fg.getFileHandles()) {
+					preamble += WorkUnit.OUTPUT_FILE + "[" + fi + "]=" + WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() +"."+ f.getId() + "\n";
+					fi++;
+				}
 			}
 			
 			preamble += "\n# Configured environment variables\n\n";
@@ -622,13 +743,30 @@ public class SgeWorkService implements GridWorkService {
 			
 			preamble += "\n####\n";
 			
-			preamble +=	"\necho $JOB_ID >> " + "${WASPNAME}.start\n" +
+			preamble +=	"\necho $JOB_ID >> " + "${" + WorkUnit.JOB_NAME + "}.start\n" +
 					"echo submitted to host `hostname -f` `date` 1>&2";
 			// if there is a configured setting to prepare the interpreter, do that here 
 			String env = transportConnection.getConfiguredSetting("env");
 			if (PropertyHelper.isSet(env)) {
 				configuration = env + "\n";
 			}
+			// If the ProcessMode is set to MAX, get the configuration for this host and set processor reqs
+			String pmodeMax = transportConnection.getConfiguredSetting("processmode.max");
+			if (!PropertyHelper.isSet(pmodeMax)) {
+				pmodeMax = "2";
+			}
+			if (w.getProcessMode().equals(ProcessMode.MAX)) {
+				w.setProcessorRequirements(new Integer(pmodeMax));
+			}
+			// If the ProcessMode is set to FIXED, make sure it does not exceed the max setting for this host.
+			String pmodeMaximum = transportConnection.getConfiguredSetting("processmode.absolutemaximum");
+			if (!PropertyHelper.isSet(pmodeMaximum)) {
+				pmodeMax = "2";
+			}
+			Integer pmm = new Integer(pmodeMaximum);
+			if (w.getProcessorRequirements() > pmm) 
+				w.setProcessorRequirements(pmm);
+			
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);
 				if (config != null) {
@@ -636,17 +774,17 @@ public class SgeWorkService implements GridWorkService {
 				}
 			} 
 			command = w.getCommand();
-			postscript = "echo \"##### begin ${WASPNAME}\" > " + w.remoteWorkingDirectory + "${WASPNAME}.command\n\n" +
+			postscript = "echo \"##### begin ${" + WorkUnit.JOB_NAME + "}\" > " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n\n" +
 					"awk '/^##### preamble/,/^##### postscript|~$/' " + 
-						w.remoteWorkingDirectory + "${WASPNAME}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
-						w.remoteWorkingDirectory + "${WASPNAME}.command\n" +
-					"echo \"##### end ${WASPNAME}\" >> " + w.remoteWorkingDirectory + "${WASPNAME}.command\n";
+						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.sh | sed 's/^##### .*$//g' | grep -v \"^$\" >> " +
+						w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n" +
+					"echo \"##### end ${" + WorkUnit.JOB_NAME + "}\" >> " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.command\n";
 			
 			if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
-				postscript += "touch ${WASP_WORK_DIR}/${WASP_TASK_END}\n" +
+				postscript += "touch ${" + WorkUnit.WORKING_DIRECTORY + "}/${" + WorkUnit.TASK_END_FILE + "}\n" +
 					"echo completed on `hostname -f` `date` 1>&2\n";
 			} else {
-				postscript += "touch " + w.remoteWorkingDirectory + "${WASPNAME}.end\n" +
+				postscript += "touch " + w.remoteWorkingDirectory + "${" + WorkUnit.JOB_NAME + "}.end\n" +
 					"echo completed on `hostname -f` `date` 1>&2\n";
 			}
 		}
@@ -812,7 +950,8 @@ public class SgeWorkService implements GridWorkService {
 	}
 	
 	/**
-	 * This needs to be fleshed out.  Files which are not
+	 * This needs to be fleshed out.  Files which are not on the compute host need to be copied into place
+	 * prior to execution of the work unit.
 	 * 
 	 */
 	private String provisionRemoteFile(FileHandle file) throws FileNotFoundException, GridException {
@@ -944,6 +1083,12 @@ public class SgeWorkService implements GridWorkService {
 		agz.close();
 	    afis.close();
 		throw new FileNotFoundException("Archive " + f.getAbsolutePath() + " did not appear to contain " + contentName);
+	}
+	
+	@Override
+	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+		this.applicationContext = arg0;
+		
 	}
 	
 }

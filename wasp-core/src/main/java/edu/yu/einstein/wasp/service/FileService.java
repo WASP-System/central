@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 
 @Service
 public interface FileService extends WaspService {
@@ -105,6 +106,19 @@ public interface FileService extends WaspService {
 	 * @throws SampleTypeException
 	 */
 	public Set<FileGroup> getFilesForLibraryByType(Sample library, FileType fileType) throws SampleTypeException;
+	
+	/**
+	 * @param cellLibrary
+	 * @param fileType
+	 * @return
+	 */
+	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType);
+	
+	/**
+	 * @param cellLibrary
+	 * @return
+	 */
+	public Set<FileGroup> getFilesForCellLibrary(SampleSource cellLibrary);
 
 	/**
 	 * Returns a list of files for the given library or an empty list if none.
@@ -159,11 +173,24 @@ public interface FileService extends WaspService {
 	
 	public FileType getFileType(String iname);
 	
+	@Deprecated
 	public void register(FileHandle file) throws FileNotFoundException, GridException;
 	
+	/**
+	 * @param group
+	 * @throws FileNotFoundException
+	 * @throws GridException
+	 */
 	public void register(FileGroup group) throws FileNotFoundException, GridException;
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
+
+	/**
+	 * @param group
+	 * @throws FileNotFoundException
+	 * @throws GridException
+	 */
+	void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException;
 
 	
 

@@ -62,10 +62,10 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		super();
 	}
 	
-	public void setLibraryCellId(Integer libraryCellId){
-		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId);
-		this.libraryId = sampleService.getLibrary(libraryCell).getSampleId();
-		this.jobId  = sampleService.getJobOfLibraryOnCell(libraryCell).getJobId();
+	public void setCellLibraryId(Integer cellLibraryId){
+		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId);
+		this.libraryId = sampleService.getLibrary(libraryCell).getId();
+		this.jobId  = sampleService.getJobOfLibraryOnCell(libraryCell).getId();
 	}
 	
 	public AnalysisStatusMessageTemplate(Message<WaspStatus> message){
