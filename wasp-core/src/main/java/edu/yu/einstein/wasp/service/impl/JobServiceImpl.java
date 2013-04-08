@@ -89,6 +89,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTempl
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
@@ -1683,7 +1684,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 
 
 	@Override
-	public Map<String, Object> getTreeViewBranch(Integer id, String type, Integer jid) throws SampleTypeException, SampleParentChildException{
+	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException{
 		
 		Map <String, Object> curNode = new HashMap<String, Object>();
 		List<Map> children = new ArrayList<Map>();
@@ -1849,24 +1850,21 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				childNode.put("name", "Cell: "+cell.getName());
 				childNode.put("myid", cell.getId());
 				childNode.put("type", "cell");
+				childNode.put("libid", id);
 				childNode.put("children", "");
 				//cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
 
 				children.add(childNode);
 			}
 
-			// add fastq file node to library
-			Map childNode = new HashMap();
-			childNode.put("name", "Fastq");
-			childNode.put("myid", id);
-			childNode.put("type", "file-lib-fastq");
-			childNode.put("children", "");
-			children.add(childNode);
+			// add file type nodes to library
+			children.addAll(getFileNodesByLibrary(library));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
 			// if the sample is a cell
 			Sample cell = sampleService.getSampleById(id);
+			Sample library = sampleService.getSampleById(pid);
 
 			//get platform unit associated with the cell
 //			Sample pu = sampleService.getPlatformUnitForCell(cell);
@@ -1877,12 +1875,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 //			childNode.put("children", "");
 			//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
 
-			Map childNode = new HashMap();
-			childNode.put("name", "Fastq");
-			childNode.put("myid", 1);
-			childNode.put("type", "file-cell-fastq");
-			childNode.put("children", "");
-			children.add(childNode);
+			// add file type nodes to library
+			children.addAll(getFileNodesByCellLibrary(cell, library));
 			
 			curNode.put("children", children);
 		} /*else if (type.equalsIgnoreCase("pu")) {
@@ -1947,25 +1941,50 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return curNode;
 	}
 
-	/**
-	 * @param sampleId
-	 * @return
-	 */
-	private List<Map> getFileNodesBySample(Sample sample) {
-		List<Map> fileNodes = new ArrayList<Map>();
-		Set<FileGroup> sampleFiles = sample.getFileGroups();
-		for (FileGroup sf : sampleFiles) {
-			Map fileNode = new HashMap();
-			// TODO: ensure this works
-			fileNode.put("name", "File: " + sf.getDescription());
-			fileNode.put("myid", sf.getId());
-			fileNode.put("type", "file");
-			
-			fileNodes.add(fileNode);
+	private List<Map> getFileNodesByLibrary(Sample library) {
+		List<Map> fileTypeNodes = new ArrayList<Map>();
+		Set<FileGroup> fgSet = library.getFileGroups();
+		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
+		for (FileGroup fg : fgSet) {
+			ftMap.put(fg.getFileTypeId(), fg.getFileType());
 		}
-		return fileNodes;
+		
+		for (FileType ft : ftMap.values()) {
+			Map ftNode = new HashMap();
+
+			ftNode.put("name", "File Type: " + ft.getName());
+			ftNode.put("myid", ft.getId());
+			ftNode.put("type", "filetype-"+ft.getIName());
+			ftNode.put("libid", library.getId());
+			ftNode.put("children", "");
+			
+			fileTypeNodes.add(ftNode);
+		}
+		return fileTypeNodes;
 	}
 
+	private List<Map> getFileNodesByCellLibrary(Sample cell, Sample library) throws SampleTypeException {
+		List<Map> fileTypeNodes = new ArrayList<Map>();
+		Set<FileGroup> fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
+		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
+		for (FileGroup fg : fgSet) {
+			ftMap.put(fg.getFileTypeId(), fg.getFileType());
+		}
+		
+		for (FileType ft : ftMap.values()) {
+			Map ftNode = new HashMap();
+
+			ftNode.put("name", "File Type: " + ft.getName());
+			ftNode.put("myid", ft.getId());
+			ftNode.put("type", "filetype-"+ft.getIName());
+			ftNode.put("libid", library.getId());
+			ftNode.put("cellid", cell.getId());
+			ftNode.put("children", "");
+			
+			fileTypeNodes.add(ftNode);
+		}
+		return fileTypeNodes;
+	}
 	
 	/**
 	 * {@inheritDoc}

@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +10,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
@@ -31,6 +34,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -100,7 +104,7 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
-	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, @RequestParam("jid") Integer jid, HttpServletResponse response) {
+	public @ResponseBody String getTreeJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		try {
 /*			Map <String, Object> jsTree = null;
@@ -110,19 +114,31 @@ public class ResultViewController extends WaspController {
 				;
 			}
 */			
-			return outputJSON(jobService.getTreeViewBranch(id, type, jid), response); 	
+			JSONObject node = new JSONObject(nodeJSON);
+			Integer id = node.getInt("myid");
+			String type = node.getString("type");
+			Integer pid = node.getInt("pid");
+			Integer jid = node.getInt("jid");
+			
+			return outputJSON(jobService.getTreeViewBranch(id, pid, type, jid), response); 	
 		} 
 		catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
+			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
-	public @ResponseBody String getDetailsJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
+	public @ResponseBody String getDetailsJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
+			JSONObject node = new JSONObject(nodeJSON);
+			Integer id = node.getInt("myid");
+			String type = node.getString("type");
+			Integer pid = node.getInt("pid");
+			Integer jid = node.getInt("jid");
+			
 			if(type.startsWith("job")) {
 				Integer jobId = id;
 				Job job = this.jobService.getJobDao().getById(jobId);
@@ -200,15 +216,21 @@ public class ResultViewController extends WaspController {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
 
-			} else if(type.startsWith("file-lib")) {
-				Integer libId = id;
-				Sample library = sampleService.getSampleById(libId);
-				String[] splits = type.split("-");
-				FileType fileType = fileService.getFileType(splits[2]);
-				Set<FileGroup> fileGroupSet = this.fileService.getFilesForLibraryByType(library, fileType);
+			} else if(type.startsWith("filetype-")) {
+				FileType ft = fileService.getFileType(id);
+				Set<FileGroup> fgSet = new HashSet<FileGroup>();
+				if (node.has("libid")) {
+					Sample library = sampleService.getSampleById(node.getInt("libid"));
+					if (node.has("cellid")) {
+						Sample cell = sampleService.getSampleById(node.getInt("cellid"));
+						fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
+					} else {
+						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
+					}
+				}
 
-				for (FileGroup fg : fileGroupSet) {
-					jsDetails.put(fg.getDescription(), fileService.getFileDetailsByFileType(fg));
+				for (FileGroup fg : fgSet) {
+					jsDetails.putAll(fileService.getFileDetailsByFileType(fg));
 					
 //					jsDetails.put(getMessage("file.name.label"), fg.getDescription());
 //					jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(fg)+"\">Download All Files Here</a>");
@@ -233,7 +255,7 @@ public class ResultViewController extends WaspController {
 			return outputJSON(jsDetails, response);
 		} 
 		catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
+			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}
 }

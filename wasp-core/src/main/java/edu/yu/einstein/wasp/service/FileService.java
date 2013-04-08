@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -186,7 +187,15 @@ public interface FileService extends WaspService {
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
 
-	public List<Map> getFileDetailsByFileType(FileGroup filegroup);
+	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+
+	public FileType getFileType(Integer id);
+
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
+			Sample cell, Sample library) throws SampleTypeException;
+
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
+			FileType fileType) throws SampleTypeException;
 
 	/**
 	 * @param group

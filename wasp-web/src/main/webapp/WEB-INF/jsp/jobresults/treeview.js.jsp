@@ -44,7 +44,7 @@ var margin = {top: 20, right: 80, bottom: 20, left: 20},
     duration = 500,
     branch_length = 100,
     min_branch_int = 40,
-    root;
+    root=new Object();
     
 var barHeight = 20,
 	barWidth = width * .6;
@@ -82,12 +82,26 @@ function collapse(d) {
   }
 }
 
+root.myid=${myid};
+root.type="${type}";
+root.jid=${myid};
+root.pid=-1;
+var seen = [];
+var rootstr = JSON.stringify(root, function(key, val) {
+   if (typeof val == "object") {
+        if (seen.indexOf(val) >= 0)
+            return undefined;
+        seen.push(val);
+    }
+    return val; });
+
 
 //d3.json("../data/flare.json", function(json) {
 //d3.json("../data/flare100.json", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${jobId}", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {
-d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}&jid=${myid}", function(json) {	
+//d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}&jid=${myid}&pid=-1", function(json) {	
+d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 /*   if (height < json.children.length * min_branch_int) {
 	  height = json.children.length * min_branch_int;
   }
@@ -241,6 +255,14 @@ function update(source) {
 	d.y0 = d.y;
 	});
 
+	// store the parent's id in everynode
+	nodes.forEach(function(d) {
+		if (d!=root)
+			d.pid = d.parent.myid;
+		else
+			d.pid = -1;
+	});
+
 /*
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
@@ -387,9 +409,28 @@ function toggle(d) {
 }
 	
 function click(d) {
+	if (d.jid==undefined) {
+	 d.jid = -1;
+	}/*  else {
+	 jid = d.jid;
+	} */
 	
+	// parent node's id
+/* 	var pid = -1;
+	if (d!=root)
+		d.pid = d.parent.myid; */
+
+	var seen = [];
+	var dstr = JSON.stringify(d, function(key, val) {
+	   if (typeof val == "object") {
+	        if (seen.indexOf(val) >= 0)
+	            return undefined;
+	        seen.push(val);
+	    }
+	    return val; });
+  
   $.ajax({
-      url: '/wasp/jobresults/getDetailsJson.do?type='+d.type+'&id='+d.myid,
+      url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
       type: 'GET',
       dataType: 'json',
       success: function (result) {
@@ -414,8 +455,14 @@ function click(d) {
              );
              $("div#tabs").tabs("refresh");
       	});
-*/      	
-     	d3.select('#detailview').append("h3").html((d.type.split('-'))[0].toUpperCase()+" Details");
+*/      
+		var headStr;
+		if ((d.type.split('-'))[0]=="filetype") {
+			headStr = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+		} else {
+			headStr = d.type.toUpperCase()+" Details";
+		}
+     	d3.select('#detailview').append("h3").html(headStr);
       	var table = d3.select('#detailview').append("tbody");
         $.each(result, function (index, item) {
          	var row = table.append("tr");
@@ -423,6 +470,8 @@ function click(d) {
 
          	if (typeof item == 'string' || item instanceof String) {
           		row.append("td").html(item);
+         	} else if (item.targetLink != undefined) {
+         		row.append("td").html('<a href="'+item.targetLink+'">'+item.label+'</a>');
           	} else {
           		var td = row.append("td");
           		$.each(item, function (index2, item2) {
@@ -437,14 +486,9 @@ function click(d) {
   });
   
   if (d.children == '') {
-	  if (d.jid==undefined) {
-		  jid = -1;
-	  } else {
-		  jid = d.jid;
-	  }
-
+	  
 	  $.ajax({
-	      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid+'&jid='+jid,
+	      url: '/wasp/jobresults/getTreeJson.do?node='+dstr,
 	      type: 'GET',
 	      dataType: 'json',
 	      success: function (result) {

@@ -495,7 +495,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return Map<String, Object>
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getTreeViewBranch(Integer id, String type, Integer jid) throws SampleTypeException, SampleParentChildException;
+	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException;
 
 	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job);
 

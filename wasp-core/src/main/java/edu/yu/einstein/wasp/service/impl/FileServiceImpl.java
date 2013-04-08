@@ -47,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
@@ -75,6 +76,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
@@ -380,6 +382,53 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return filesByType;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(cell, "must provide a cell");
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("sample is not of type cell");
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForCellLibraryMappedToFileType(cell, library);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException {
+		Assert.assertParameterNotNull(cell, "must provide a cell");
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("sample is not of type cell");
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		
+		SampleSource ss = sampleService.getCellLibrary(cell, library);
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		for (FileGroup fg : ss.getFileGroups()) {
+			FileType ft = fg.getFileType();
+			if (!filesByType.containsKey(ft))
+				filesByType.put(ft, new HashSet<FileGroup>());
+			filesByType.get(ft).add(fg);
+		}
+		return filesByType;
+	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -452,6 +501,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public FileType getFileType(String iname) {
 		return fileTypeDao.getFileTypeByIName(iname);
+	}
+
+	@Override
+	public FileType getFileType(Integer id) {
+		return fileTypeDao.getById(id);
 	}
 
 	/**
@@ -732,7 +786,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public List<Map> getFileDetailsByFileType(FileGroup filegroup) {
+	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup) {
 		FileType ft = filegroup.getFileType();
 		String area = ft.getIName();
 		List<FileTypeViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, FileTypeViewProviding.class);
