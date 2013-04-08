@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -78,12 +79,9 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.model.SampleSource;
 
 @Service
 @Transactional("entityManager")
