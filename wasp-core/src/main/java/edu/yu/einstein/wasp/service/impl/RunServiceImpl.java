@@ -160,48 +160,15 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	
 	
 	@Override
-	public Run initiateRun(String runName, Resource machineInstance, Sample platformUnit, User technician, String readLength, String readType, Date dateStart ) throws SampleTypeException{
-		Assert.assertParameterNotNull(runName, "runName cannot be null");
-		Assert.assertParameterNotNull(machineInstance, "machineInstance cannot be null");
-		Assert.assertParameterNotNull(platformUnit, "platformUnit cannot be null");
-		Assert.assertParameterNotNullNotZero(platformUnit.getSampleId(), "platformUnit sampleId is zero");
-		Assert.assertParameterNotNull(technician, "technician cannot be null");
-		Assert.assertParameterNotNullNotZero(technician.getUserId(), "technician UserId is zero");
-		Assert.assertParameterNotNull(readLength, "readLength cannot be null");
-		Assert.assertParameterNotNull(readType, "readType cannot be null");
-		Assert.assertParameterNotNull(dateStart, "dateStart cannot be null");
-		Run newRun = new Run();
-		newRun.setResource(machineInstance);
-		newRun.setName(runName.trim());
-		newRun.setPlatformUnit(platformUnit);//set the flow cell
-		newRun.setUser(technician);
-		newRun.setStarted(dateStart);
-		newRun = runDao.save(newRun);
-		logger.debug("-----");
-		logger.debug("saved new run runid=" + newRun.getRunId().intValue());
-		try {
-			SequenceReadProperties.setSequenceReadProperties(new SequenceReadProperties(readType, Integer.parseInt(readLength)), newRun, runMetaDao, RunMeta.class);
-		} catch (MetadataException e1) {
-			logger.warn("failed to save readLength and readtype for run with id=" + newRun.getId().intValue());
-		}
-		logger.debug("saved readLength and readtype for run with id=" + newRun.getId().intValue());
-		//runcell
-		for(Sample cell: sampleService.getIndexedCellsOnPlatformUnit(platformUnit).values()){
-			RunCell runCell = new RunCell();
-			runCell.setRun(newRun);//the runid
-			runCell.setSample(cell);//the cellid
-			runCell = runCellDao.save(runCell);
-			logger.debug("saved new run cell runcellid=" + runCell.getRunCellId().intValue());
-		}
-		logger.debug("-----");
-		
-		
+	public void initiateRun(Run run) {
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getId(), "run is not valid");
 		// send message to initiate job processing
 		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.RUN_ID, newRun.getRunId().toString() );
-		jobParameters.put(WaspJobParameters.RUN_NAME, newRun.getName());
-		String rcIname = newRun.getResourceCategory().getIName();
-		logger.debug("launching Batch job for runId=" + newRun.getRunId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
+		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString() );
+		jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
+		String rcIname = run.getResourceCategory().getIName();
+		logger.debug("launching Batch job for runId=" + run.getId().toString() + ", looking for GENERIC flows handling area '" + rcIname + "'");
 		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(rcIname, BatchJobProviding.class)) {
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
@@ -218,13 +185,20 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 				throw new MessagingException(e.getLocalizedMessage(), e);
 			}
 		}
-		return newRun;
 	}
 	
 	@Override
 	public void launchBatchJob(String flow, Map<String,String> jobParameters) throws WaspMessageBuildingException {
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flow, jobParameters));
 		sendOutboundMessage(batchJobLaunchMessageTemplate.build(), true);
+	}
+	
+	@Override
+	public Run updateAndInitiateRun(Run run){
+		// transactional such that if message sending fails run saving will be rolled back
+		Run savedRun = this.updateRun(run);
+		this.initiateRun(savedRun);
+		return savedRun;
 	}
 	
 	@Override

@@ -111,7 +111,7 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		Message<?> reply = batchJobService.launch(jobId, softwareResourceType, libraryCellIds, this.task, messageTimeoutInMillis);
+		Message<?> reply = batchJobService.launchAnalysisJob(jobId, softwareResourceType, libraryCellIds, this.task, messageTimeoutInMillis);
 		return RepeatStatus.FINISHED;
 	}
 

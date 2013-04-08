@@ -328,7 +328,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
 			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
 			JobParameters params = je.getJobInstance().getJobParameters();
-			Assert.assertEquals(params.getParameters().size(), 3);
+			Assert.assertEquals(params.getParameters().size(), 4);
 			Assert.assertNotNull(params.getString("libraryCellIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
