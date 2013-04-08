@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -183,7 +184,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
 			command = "cd " + w.remoteWorkingDirectory + " && " + command;
-			command = "source $HOME/.bash_profile && " + command;
+			// command = "source $HOME/.bash_profile && " + command;
 			logger.debug("sending exec: " + command + " at: " + getHostName());
 
 				final Command exec = session.exec(command);
@@ -195,7 +196,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 				logger.debug("sent command");
 				if (exec.getExitStatus() != 0) {
 					logger.error("exec terminated with non-zero exit status: " + command);
-					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitErrorMessage());
+					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
 				}
 				session.close();	
 		} catch (Exception e) {
