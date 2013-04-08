@@ -464,15 +464,27 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		fileHandleDao.save(file);
 	}
 
+	private enum Md5 { YES, NO };
+	
 	@Override
 	public void register(FileGroup group) throws FileNotFoundException, GridException {
+		register(group, Md5.YES);
+	}
+	
+	@Override
+	public void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException {
+		register(group, Md5.NO);
+	}
+	
+	public void register(FileGroup group, Md5 md5) throws FileNotFoundException, GridException {
 		group = fileGroupDao.merge(group);
 		for (FileHandle f : group.getFileHandles()) {
 			validateFile(f);
 		}
 		logger.debug("attempting to register FileGroup: " + group.getId());
 
-		setMD5(group);
+		if (md5.equals(Md5.YES))
+			setMD5(group);
 
 		group.setIsActive(1);
 		group.setIsArchived(0);
