@@ -31,25 +31,25 @@ import edu.yu.einstein.wasp.service.GenomeService;
 
 /**
  * @author calder
- *
+ * 
  */
 @Service
 public class GenomeServiceImpl implements GenomeService, InitializingBean {
-	
+
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	private Map<Integer, Organism> organisms = new TreeMap<Integer, Organism>();
-	
+
 	@Autowired
 	private Properties localGenomesProperties;
-	
+
 	@Autowired
 	private GridHostResolver hostResolver;
-	
+
 	public GenomeServiceImpl() {
 		logger.debug("CREATED GENOME SERVICE");
 	}
-	
+
 	public void initialize() {
 		logger.debug("INITIALIZING GENOME SERVICE");
 		Map<Integer, Organism> orgs = initOrganisms();
@@ -126,15 +126,15 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						}
 						if (genomes.containsKey(name)) {
 							String mess = "Genome with name " + name + " already exists";
-							logger.error(mess);
-							throw new RuntimeException(mess);
+							logger.debug(mess);
+						} else {
+							logger.debug("creating genome " + genomeName);
+							Genome g = new Genome(name);
+							Organism o = organisms.get(orgId);
+							g.setOrganism(o);
+							o.getGenomes().put(name, g);
+							genomes.put(name, g);
 						}
-						logger.debug("creating genome " + genomeName);
-						Genome g = new Genome(name);
-						Organism o = organisms.get(orgId);
-						g.setOrganism(o);
-						o.getGenomes().put(name,g);
-						genomes.put(name, g);
 					} else {
 						Genome g = genomes.get(genomeName);
 						try {
@@ -154,7 +154,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 					logger.debug("fields: " + key + ":" + fields.length + ":" + fields.toString());
 					if (fields[4].equals("name")) {
 						String name = (String) localGenomesProperties.get(k);
-						if (!name.equals(buildName)) {
+						if (!name.equals(buildVersion)) {
 							String mess = "Genome build with name " + genomeName + " and version " + buildVersion +
 									" does not match value " + name;
 							logger.error(mess);
@@ -168,11 +168,11 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						logger.debug("creating genome build " + name);
 						Build b = new Build(name);
 						Genome g = genomes.get(genomeName);
-						g.getBuilds().put(name,b);
+						g.getBuilds().put(name, b);
 						builds.put(buildName, b);
 					} else {
 						Build b = builds.get(buildName);
-						
+
 						if (fields.length == 5) {
 							// this is a build attribute
 							try {
@@ -197,9 +197,10 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 			}
 		}
 	}
-	
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see edu.yu.einstein.wasp.service.GenomeService#getOrganisms()
 	 */
 	@Override
@@ -218,8 +219,12 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.service.GenomeService#exists(edu.yu.einstein.wasp.plugin.supplemental.organism.Build, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * edu.yu.einstein.wasp.service.GenomeService#exists(edu.yu.einstein.wasp
+	 * .plugin.supplemental.organism.Build, java.lang.String)
 	 */
 	@Override
 	public boolean exists(GridWorkService workService, Build build, String index) {
