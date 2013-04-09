@@ -3,21 +3,26 @@
  */
 package edu.yu.einstein.wasp.plugin.fileformat;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.dao.FileGroupDao;
+import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.FileService;
 
 /**
  * @author asmclellan
@@ -25,6 +30,15 @@ import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
  */
 public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileTypeViewProviding {
 
+	@Autowired
+	private FileGroupDao fileGroupDao;
+
+	@Autowired
+	protected FileService fileService;
+
+	@Autowired
+	private FileUrlResolver fileUrlResolver;
+	
 	private static Logger logger = LoggerFactory.getLogger(WaspFastqPlugin.class);
 
 	/**
@@ -55,11 +69,23 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 	}
 	
 	@Override
-	public List<Map> getFileDetails(Integer fileGroupId)	{
-		List<Map> details = new ArrayList<Map>();
-		Map<String, String> detail1 = new HashMap();
-		detail1.put("fastq", "test");
-		details.add(detail1);
+	public Map<String, Hyperlink> getFileDetails(Integer fileGroupId)	{
+		logger.debug("fastq plugin - filegroupid: "+fileGroupId);
+		
+		FileGroup fg = fileGroupDao.getById(fileGroupId);
+		Set<FileHandle> fhSet = fg.getFileHandles();
+		
+		Map<String, Hyperlink> details = new HashMap<String, Hyperlink>();
+		Hyperlink hl;
+		for (FileHandle fh : fhSet) {
+			try {
+				hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+				details.put(fh.getFileName(), hl);
+			} catch (GridUnresolvableHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return details;
 	}
