@@ -32,7 +32,7 @@
 					<td class="DataTD " rowspan="${sdCount}">
 						<table>
 							<tr>
-								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_genome.label"/></td>
+								<td class="CaptionTD value-centered"><fmt:message key="jobDraft.sample_genome.label"/></td>
 								<td class="DataTD value-centered">
 									<select name="genomeSelect_${organism.getNcbiID()}" id="genomeSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
@@ -56,7 +56,7 @@
 						</table>
 						<table>
 							<tr id="buildSelectTr_${organism.getNcbiID()}">
-								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_build.label"/></td>
+								<td class="CaptionTD value-centered"><fmt:message key="jobDraft.sample_build.label"/></td>
 								<td class="DataTD value-centered">
 									<select name="buildSelect_${organism.getNcbiID()}" id="buildSelect_${organism.getNcbiID()}">
 										

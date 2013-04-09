@@ -1650,14 +1650,13 @@ public class JobSubmissionController extends WaspController {
 				}
 				sampleDraftsByOrganism.get(currentOrganism).add(sampleDraft);
 			} catch (Exception e) {
-				throw new RuntimeException(e);
-				//logger.warn(e.getLocalizedMessage());
-				//waspErrorMessage("jobDraft.organimsNotSelected.error");
+				logger.warn(e.getLocalizedMessage());
+				waspErrorMessage("jobDraft.organimsNotSelected.error");
 			} 
-			m.addAttribute("sampleDraftsByOrganism", sampleDraftsByOrganism);
-			m.addAttribute("currentBuildByOrganism", currentBuildByOrganism);
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		}
+		m.addAttribute("sampleDraftsByOrganism", sampleDraftsByOrganism);
+		m.addAttribute("currentBuildByOrganism", currentBuildByOrganism);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/genomes";
 	}
 	
