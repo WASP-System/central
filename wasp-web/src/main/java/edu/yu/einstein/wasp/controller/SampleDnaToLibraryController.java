@@ -114,7 +114,8 @@ public class SampleDnaToLibraryController extends WaspController {
     return new MetaHelperWebapp(SampleMeta.class, request.getSession());
   }
 
-
+  public static final String ORGANISM_META_AREA = "genericBiomolecule";
+  public static final String ORGANISM_META_KEY = "organism";
 
   final public String defaultPageFlow = "/sampleDnaToLibrary/detail/{n};/sampleDnaToLibrary/addLibraryMeta/{n};/sampleDnaToLibrary/verify/{n}";
 
@@ -326,7 +327,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 	  List<Sample> macromoleculeSubmittedSamplesList = new ArrayList<Sample>();
 	  List<Sample> librarySubmittedSamplesList = new ArrayList<Sample>();
-	  Map<Sample, String> speciesMap = new HashMap<Sample, String>();
+	  Map<Sample, String> organismMap = new HashMap<Sample, String>();
 	  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 	  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
@@ -361,11 +362,11 @@ public class SampleDnaToLibraryController extends WaspController {
 				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 			}
 			try{		
-				speciesMap.put(sample, MetaHelper.getMetaValue("genericBiomolecule", "species", sample.getSampleMeta()));
+				organismMap.put(sample, MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
 			}
 			catch(MetadataException me){
-				speciesMap.put(sample, "Species Not Found");
-				logger.warn("Unable to identify species for sampleId " + sample.getId());
+				organismMap.put(sample, "Organism Not Found");
+				logger.warn("Unable to identify organism for sampleId " + sample.getId());
 			}
 			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
@@ -452,7 +453,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("macromoleculeSubmittedSamplesList", macromoleculeSubmittedSamplesList);
 		m.addAttribute("facilityLibraryMap", facilityLibraryMap);
 		m.addAttribute("librarySubmittedSamplesList", librarySubmittedSamplesList);
-		m.addAttribute("speciesMap", speciesMap);
+		m.addAttribute("organismMap", organismMap);
 		m.addAttribute("receivedStatusMap", receivedStatusMap);
 		m.addAttribute("qcStatusMap", qcStatusMap);
 		m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);

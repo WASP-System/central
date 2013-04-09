@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
@@ -992,5 +995,17 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @return List of Cell-libraries
 	 */
 	public List<SampleSource> getCellLibraries(Sample cell);
+
+	public void setSampleMetaDao(SampleMetaDao sampleMetaDao); 
+	
+	public SampleMetaDao getSampleMetaDao();
+	
+	public void setSampleDraftDao(SampleDraftDao sampleDraftDao);
+	
+	public SampleDraftDao getSampleDraftDao();
+	
+	public void setSampleDraftMetaDao(SampleDraftMetaDao sampleDraftMetaDao);
+	
+	public SampleDraftMetaDao getSampleDraftMetaDao();
 
 }

@@ -472,7 +472,7 @@ public class TaskController extends WaspController {
 			for(Sample sample : sampleList){
 				int speciesFound = 0;
 				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
+					if(sampleMeta.getK().indexOf("organism") > -1){
 						sampleSpeciesMap.put(sample, sampleMeta.getV());
 						speciesFound = 1;
 						break;

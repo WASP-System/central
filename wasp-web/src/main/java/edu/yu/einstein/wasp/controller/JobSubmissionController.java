@@ -76,6 +76,8 @@ import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -102,6 +104,7 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -265,7 +268,7 @@ public class JobSubmissionController extends WaspController {
 
 	@Transactional
 	public String nextPage(JobDraft jobDraft) {
-		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowDao.getWorkflowByWorkflowId(jobDraft.getId()));
+		String[] pageFlowArray = workflowService.getPageFlowOrder(workflowDao.getWorkflowByWorkflowId(jobDraft.getWorkflowId()));
 		if (pageFlowArray.length == 0)
 			pageFlowArray = defaultPageFlow;
 
@@ -605,9 +608,9 @@ public class JobSubmissionController extends WaspController {
 			errors.rejectValue("labId", "jobDraft.labId.error", "jobDraft.labId.error (no message has been defined for this property");
 		}
 		
-		if(jobDraftForm.getId() != null && jobDraft.getId() != null && jobDraft.getId() != jobDraftForm.getId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
+		if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
 			errors.rejectValue("workflowId", "jobDraft.workflowId_change.error");//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
-			jobDraftForm.setWorkflowId(jobDraft.getId());//set it back for re-display
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
 		}
 		
 		result.addAllErrors(errors);
@@ -618,7 +621,7 @@ public class JobSubmissionController extends WaspController {
 		}
 
 		jobDraft.setName(jobDraftForm.getName());
-		jobDraft.setWorkflowId(jobDraftForm.getId());
+		jobDraft.setWorkflowId(jobDraftForm.getWorkflowId());
 		jobDraft.setLabId(jobDraftForm.getLabId());
 
 		JobDraft jobDraftDb = jobDraftDao.save(jobDraft); 
@@ -703,7 +706,7 @@ public class JobSubmissionController extends WaspController {
 		jobDraftForm.setId(jobDraftId);
 		jobDraftForm.setUserId(jobDraft.getUserId());
 		jobDraftForm.setLabId(jobDraft.getLabId());
-		jobDraftForm.setWorkflowId(jobDraft.getId());
+		jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 
 		MetaHelperWebapp metaHelperWebapp = getMetaHelperWebapp();
 		
@@ -744,7 +747,7 @@ public class JobSubmissionController extends WaspController {
 		// check at least one resource exists of the requested resource type
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getId());
-		if (wrt.getId() == null){
+		if (wrt.getResourceTypeId() == null){
 			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
@@ -842,7 +845,7 @@ public class JobSubmissionController extends WaspController {
 		// check at least one resource exists of the requested resource type
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getId());
-		if (wrt.getId() == null){
+		if (wrt.getResourceTypeId() == null){
 			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
@@ -899,7 +902,7 @@ public class JobSubmissionController extends WaspController {
 		if (result.hasErrors()) {
 			waspErrorMessage("jobDraft.form.error");
 			jobDraftForm.setName(jobDraft.getName());
-			jobDraftForm.setWorkflowId(jobDraft.getId());
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
 			return showResourceMetaForm(resourceTypeIName, jobDraftId, jobDraftForm, m);
 		}
@@ -1004,7 +1007,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getId());
-		if (wrt.getId() == null){
+		if (wrt.getResourceTypeId() == null){
 			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
@@ -1026,7 +1029,7 @@ public class JobSubmissionController extends WaspController {
 			return "redirect:/dashboard.do";
 		WorkflowResourceType wrt = workflowResourceTypeDao.getWorkflowResourceTypeByWorkflowIdResourceTypeId(jobDraft.getWorkflow().getId(), 
 				resourceTypeDao.getResourceTypeByIName(resourceTypeIName).getId());
-		if (wrt.getId() == null){
+		if (wrt.getResourceTypeId() == null){
 			logger.warn("Resource with iname=" + resourceTypeIName + " has no entry in the database");
 			waspErrorMessage("jobDraft.no_resources.error");
 			return "redirect:/dashboard.do";
@@ -1082,7 +1085,7 @@ public class JobSubmissionController extends WaspController {
 		
 		if (result.hasErrors()) {
 			jobDraftForm.setName(jobDraft.getName());
-			jobDraftForm.setWorkflowId(jobDraft.getId());
+			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());
 			jobDraftForm.setLabId(jobDraft.getLabId());
 			waspErrorMessage("jobDraft.form.error");
 			String returnPage = showSoftwareForm(resourceTypeIName, jobDraftId, jobDraftForm, m); 
@@ -1191,6 +1194,7 @@ public class JobSubmissionController extends WaspController {
 
 	}
 	
+	
 	@Transactional
 	@RequestMapping(value="/samples/{jobDraftId}", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
@@ -1201,7 +1205,7 @@ public class JobSubmissionController extends WaspController {
 		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
 		String[] roles = new String[1];
 		roles[0] = "lu";
-		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getId(), roles);
+		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
 		List<FileGroup> files = new ArrayList<FileGroup>();
 		for(JobDraftFile jdf: jobDraft.getJobDraftFile())
 			files.add(jdf.getFileGroup());
@@ -1322,6 +1326,7 @@ public class JobSubmissionController extends WaspController {
 		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
+		m.addAttribute("organisms", genomeService.getOrganisms()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", sampleDraft);
@@ -1364,6 +1369,7 @@ public class JobSubmissionController extends WaspController {
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
+			m.addAttribute("organisms", genomeService.getOrganisms()); // required for metadata control element (select:${organisms}:name:name)
 			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
 			m.addAttribute("normalizedMeta", metaFromForm);
 			m.addAttribute("sampleDraft", sampleDraftForm);
@@ -1408,6 +1414,7 @@ public class JobSubmissionController extends WaspController {
 		if (sampleService.isLibrary(clone)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
+		m.addAttribute("organisms", genomeService.getOrganisms()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", clone);
@@ -1589,6 +1596,78 @@ public class JobSubmissionController extends WaspController {
 			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
 
+	/*
+	 * Returns genome builds 
+	 * 
+	 * @Author asmclellan
+	 */	
+	@RequestMapping(value="/organism/{organism}/genome/{genomeName}/getBuilds.do", method=RequestMethod.GET)	
+	public String adaptorsByAdaptorId(@PathVariable("organism") Integer organism, 
+			@PathVariable("genomeName") String genomeName, 
+			HttpServletResponse response) {
+		Map <String, String> buildsMap = new LinkedHashMap<String, String>();
+		try {
+			for (String buildName : genomeService.getBuilds(organism, genomeName).keySet())
+				buildsMap.put(buildName, buildName);
+			return outputJSON(buildsMap, response); 	
+		} catch (Throwable e) {
+			throw new IllegalStateException("Can't marshall to JSON "+buildsMap, e);
+		}
+	}
+	
+	public static final String ORGANISM_META_AREA = "genericBiomolecule";
+	public static final String ORGANISM_META_KEY = "organism";
+	
+	@RequestMapping(value="/genomes/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String selectGenomesGet(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
+		Map<Organism, List<SampleDraft>> sampleDraftsByOrganism = new HashMap<Organism, List<SampleDraft>>();
+		Map<Organism, Build> currentBuildByOrganism = new HashMap<Organism, Build>();
+		for (SampleDraft sampleDraft : sampleDraftList){
+			try {
+				List<SampleDraftMeta> sampleDraftMetas = sampleDraft.getSampleDraftMeta();
+				if (sampleDraftMetas == null)
+					throw new MetadataException("No meta returned for sampleDraft with id: " + sampleDraft.getId());
+				Integer organismId = Integer.parseInt(MetaHelperWebapp.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sampleDraft.getSampleDraftMeta()));
+				Organism currentOrganism = genomeService.getOrganismById(organismId);
+				if (currentOrganism == null)
+					throw new WaspException("No organism found with an id of " + organismId);
+				if (sampleDraftsByOrganism.get(currentOrganism) == null){
+					sampleDraftsByOrganism.put(currentOrganism, new ArrayList<SampleDraft>());
+					Build build = null;
+					try{
+						build = genomeService.getBuild(sampleDraft);
+						currentBuildByOrganism.put(currentOrganism, build);
+					} catch (ParameterValueRetrievalException e1){} // not found	
+				}
+				sampleDraftsByOrganism.get(currentOrganism).add(sampleDraft);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+				//logger.warn(e.getLocalizedMessage());
+				//waspErrorMessage("jobDraft.organimsNotSelected.error");
+			} 
+			m.addAttribute("sampleDraftsByOrganism", sampleDraftsByOrganism);
+			m.addAttribute("currentBuildByOrganism", currentBuildByOrganism);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		}
+		return "jobsubmit/genomes";
+	}
+	
+	
+	@RequestMapping(value="/genomes/{jobDraftId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String selectGenomesPost(
+			@PathVariable("jobDraftId") Integer jobDraftId) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		
+		return nextPage(jobDraft);
+	}
 
 	@Transactional
 	@RequestMapping(value="/cells/{jobDraftId}.do", method=RequestMethod.GET)

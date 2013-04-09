@@ -44,6 +44,8 @@ import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleBarcodeDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
@@ -254,8 +256,40 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * @param sampleMetaDao
 	 */
 	@Autowired
+	@Override
 	public void setSampleMetaDao(SampleMetaDao sampleMetaDao) {
 		this.sampleMetaDao = sampleMetaDao;
+	}
+	
+	@Override
+	public SampleMetaDao getSampleMetaDao(){
+		return this.sampleMetaDao;
+	}
+	
+	protected SampleDraftDao sampleDraftDao;
+	
+	@Autowired
+	@Override
+	public void setSampleDraftDao(SampleDraftDao sampleDraftDao) {
+		this.sampleDraftDao = sampleDraftDao;
+	}
+	
+	@Override
+	public SampleDraftDao getSampleDraftDao(){
+		return this.sampleDraftDao;
+	}
+	
+	protected SampleDraftMetaDao sampleDraftMetaDao;
+	
+	@Autowired
+	@Override
+	public void setSampleDraftMetaDao(SampleDraftMetaDao sampleDraftMetaDao) {
+		this.sampleDraftMetaDao = sampleDraftMetaDao;
+	}
+	
+	@Override
+	public SampleDraftMetaDao getSampleDraftMetaDao(){
+		return this.sampleDraftMetaDao;
 	}
 
 
