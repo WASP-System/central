@@ -25,12 +25,12 @@
 			<c:set var="currentGenomeName" value="${currentBuildByOrganism.get(organism).genGenome().getName()}" />
 		</c:if>
 		<c:forEach items="${sampleDraftsByOrganism.get(organism)}" var="sampleDraft" varStatus="statusSD">
-			<tr>
+			<tr <c:if test="${statusSD.count == 1}">class="top-heading"</c:if> >
 				<td class="DataTD value-centered">${sampleDraft.getName()}</td>
 				<c:if test="${statusSD.count == 1}">
 					<td class="DataTD value-centered" rowspan="${sdCount}">${organism.getName()}</td>
-					<td class="DataTD value-centered" rowspan="${sdCount}">
-						<table style="width:600px;">
+					<td class="DataTD " rowspan="${sdCount}">
+						<table>
 							<tr>
 								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_genome.label"/></td>
 								<td class="DataTD value-centered">
@@ -41,19 +41,20 @@
 										<c:forEach items="${organism.getGenomes().keySet()}" var="genomeName" varStatus="statusGenome" >
 											<c:if test="${organism.getGenomes().get(genomeName).isDefault() == true}">
 												<c:set var="defaultValue" value=" (default)" />
-												<c:out value="Hello1: currentGenomeName = ${currentGenomeName}" />
 												<c:if test="${empty(currentGenomeName)}" >
 													<c:set var="currentGenomeName" value="${genomeName}" />
-													<c:out value="Hello2: currentGenomeName = ${currentGenomeName}" />
 												</c:if>
 											</c:if>
-											<c:out value="Hello3: ${genomeName} == ${currentGenomeName}" />
 											<c:if test="${genomeName == currentGenomeName}"><c:set var="genomeSelectedStatus" value="selected='selected'" /></c:if>
 											<option value="organism/${organism.getNcbiID()}/genome/${genomeName}" <c:out value="${genomeSelectedStatus}" />><c:out value="${genomeName}${defaultValue}" /></option>
 										</c:forEach>
 									</select>
+									<span class="requiredField">*</span>
 								</td>
+								<td class="error"><c:out value="${genomeError.get(organism.getNcbiID())}" /> </td>
 							</tr>
+						</table>
+						<table>
 							<tr id="buildSelectTr_${organism.getNcbiID()}">
 								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_build.label"/></td>
 								<td class="DataTD value-centered">
@@ -62,10 +63,11 @@
 									</select>
 								</td>
 							</tr>
+						</table>
+						<table style="width:500px;">
 							<tr id="buildDescriptionTr_${organism.getNcbiID()}">
-								<td>&nbsp;</td><td id="buildDescriptionTd_${organism.getNcbiID()}"></td>
+								<td id="buildDescriptionTd_${organism.getNcbiID()}"></td>
 							</tr>
-							
 						</table>
 					</td>
 				</c:if>

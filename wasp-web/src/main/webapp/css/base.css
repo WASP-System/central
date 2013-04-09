@@ -442,6 +442,14 @@ TD.top-heading, TH.top-heading	{
 	padding: 5px 10px 5px 10px;
 }
 
+tr.top-heading td {
+	border-top: 1px solid #000;
+}
+
+tr.top-heading td td{
+	border-top: none;;
+}
+
 .td-even-number {
 	background-color: #FFF;
 }
