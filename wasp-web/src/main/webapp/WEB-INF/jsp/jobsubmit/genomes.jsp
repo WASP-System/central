@@ -36,10 +36,20 @@
 								<td class="DataTD value-centered">
 									<select name="genomeSelect_${organism.getNcbiID()}" id="genomeSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
+										<c:set var="default" value="" />
 										<c:forEach items="${organism.getGenomes().keySet()}" var="genomeName" varStatus="statusGenome" >
+											<c:forEach items="${organism.getGenomes().get(genomeName).getBuilds().values()}" var="build">
+												<c:if test="${build.isDefault() == true}">
+													<c:set var="defaultValue" value=" (default)" />
+													<c:if test="${empty(currentGenomeName)}" >
+														<c:set var="currentGenomeName" value="${genomeName}" />
+														<c:set var="currentBuildName" value="${build.getName()}" />
+													</c:if>
+												</c:if>
+											</c:forEach>
 											<c:set var="genomeSelectedStatus" value="" />
 											<c:if test="${genomeName == currentGenomeName}"><c:set var="genomeSelectedStatus" value="selected='selected'" /></c:if>
-											<option value="organism/${organism.getNcbiID()}/genome/${genomeName}" <c:out value="${genomeSelectedStatus}" />><c:out value="${genomeName}" /></option>
+											<option value="organism/${organism.getNcbiID()}/genome/${genomeName}" <c:out value="${genomeSelectedStatus}" />><c:out value="${genomeName}${defaultValue}" /></option>
 										</c:forEach>
 									</select>
 								</td>
@@ -48,14 +58,7 @@
 								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_build.label"/></td>
 								<td class="DataTD value-centered">
 									<select name="buildSelect_${organism.getNcbiID()}" id="buildSelect_${organism.getNcbiID()}">
-										<option value=""><fmt:message key="wasp.default_select.label" /></option>
-										<c:if test="${not empty(currentGenomeName)}">
-											<c:forEach items="${organism.getGenomes().get(currentGenomeName).getBuilds.keySet()}" var="buildName" varStatus="statusBuild" >
-												<c:set var="buildSelectedStatus" value="" />
-												<c:if test="${buildName == currentBuildName}"><c:set var="buildSelectedStatus" value="selected='selected'" /></c:if>
-												<option value="${buildName}" <c:out value="${buildSelectedStatus}" />><c:out value="${buildName}" /></option>
-											</c:forEach>
-										</c:if>
+										
 									</select>
 								</td>
 							</tr>
