@@ -36,18 +36,18 @@
 								<td class="DataTD value-centered">
 									<select name="genomeSelect_${organism.getNcbiID()}" id="genomeSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
-										<c:set var="default" value="" />
+										<c:set var="defaultValue" value="" />
+										<c:set var="genomeSelectedStatus" value="" />
 										<c:forEach items="${organism.getGenomes().keySet()}" var="genomeName" varStatus="statusGenome" >
-											<c:forEach items="${organism.getGenomes().get(genomeName).getBuilds().values()}" var="build">
-												<c:if test="${build.isDefault() == true}">
-													<c:set var="defaultValue" value=" (default)" />
-													<c:if test="${empty(currentGenomeName)}" >
-														<c:set var="currentGenomeName" value="${genomeName}" />
-														<c:set var="currentBuildName" value="${build.getName()}" />
-													</c:if>
+											<c:if test="${organism.getGenomes().get(genomeName).isDefault() == true}">
+												<c:set var="defaultValue" value=" (default)" />
+												<c:out value="Hello1: currentGenomeName = ${currentGenomeName}" />
+												<c:if test="${empty(currentGenomeName)}" >
+													<c:set var="currentGenomeName" value="${genomeName}" />
+													<c:out value="Hello2: currentGenomeName = ${currentGenomeName}" />
 												</c:if>
-											</c:forEach>
-											<c:set var="genomeSelectedStatus" value="" />
+											</c:if>
+											<c:out value="Hello3: ${genomeName} == ${currentGenomeName}" />
 											<c:if test="${genomeName == currentGenomeName}"><c:set var="genomeSelectedStatus" value="selected='selected'" /></c:if>
 											<option value="organism/${organism.getNcbiID()}/genome/${genomeName}" <c:out value="${genomeSelectedStatus}" />><c:out value="${genomeName}${defaultValue}" /></option>
 										</c:forEach>

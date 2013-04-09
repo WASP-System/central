@@ -114,6 +114,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		Map<String, Genome> genomes = new HashMap<String, Genome>();
 		Map<String, Build> builds = new HashMap<String, Build>();
 		Set<String> genomesWithADefaultBuild = new HashSet<String>();
+		Set<Integer> organismsWithADefaultGenome = new HashSet<Integer>();
 		Set<Object> keys = localGenomesProperties.keySet();
 		for (Object k : keys) {
 			String key = (String) k;
@@ -150,6 +151,14 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 							o.getGenomes().put(name, g);
 							genomes.put(name, g);
 						}
+					} else if (attrib.equals("default")){
+						boolean defaultValue = Boolean.parseBoolean((String) localGenomesProperties.get(k));
+						if (defaultValue == true){
+							if (organismsWithADefaultGenome.contains(orgId))
+								throw new RuntimeException("More than one default genome specified for organism " + orgId.toString());
+							organismsWithADefaultGenome.add(orgId);
+						}
+						genomes.get(genomeName).setDefault(defaultValue);
 					} else {
 						Genome g = genomes.get(genomeName);
 						try {
