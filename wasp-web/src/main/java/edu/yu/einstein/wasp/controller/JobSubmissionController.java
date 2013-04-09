@@ -1607,8 +1607,12 @@ public class JobSubmissionController extends WaspController {
 			HttpServletResponse response) {
 		Map <String, String> buildsMap = new LinkedHashMap<String, String>();
 		try {
-			for (String buildName : genomeService.getBuilds(organism, genomeName).keySet())
-				buildsMap.put(buildName, buildName);
+			for (String buildName : genomeService.getBuilds(organism, genomeName).keySet()){
+				Build build = genomeService.getBuilds(organism, genomeName).get(buildName);
+				if (build.isDefault())
+					buildName += " (default)";
+					buildsMap.put(buildName, build.getDescription());
+			}
 			return outputJSON(buildsMap, response); 	
 		} catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON "+buildsMap, e);

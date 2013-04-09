@@ -29,12 +29,12 @@
 				<td class="DataTD value-centered">${sampleDraft.getName()}</td>
 				<c:if test="${statusSD.count == 1}">
 					<td class="DataTD value-centered" rowspan="${sdCount}">${organism.getName()}</td>
-					<td rowspan="${sdCount}">
-						<table>
+					<td class="DataTD value-centered" rowspan="${sdCount}">
+						<table style="width:600px;">
 							<tr>
-								<td class="CaptionTD"><fmt:message key="jobDraft.sample_genome.label"/></td>
+								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_genome.label"/></td>
 								<td class="DataTD value-centered">
-									<select name="genomeSelect" id="genomeSelect">
+									<select name="genomeSelect_${organism.getNcbiID()}" id="genomeSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
 										<c:forEach items="${organism.getGenomes().keySet()}" var="genomeName" varStatus="statusGenome" >
 											<c:set var="genomeSelectedStatus" value="" />
@@ -44,10 +44,10 @@
 									</select>
 								</td>
 							</tr>
-							<tr id="buildSelectTr">
-								<td class="CaptionTD"><fmt:message key="jobDraft.sample_build.label"/></td>
+							<tr id="buildSelectTr_${organism.getNcbiID()}">
+								<td class="CaptionTD label-right"><fmt:message key="jobDraft.sample_build.label"/></td>
 								<td class="DataTD value-centered">
-									<select name="buildSelect" id="buildSelect">
+									<select name="buildSelect_${organism.getNcbiID()}" id="buildSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
 										<c:if test="${not empty(currentGenomeName)}">
 											<c:forEach items="${organism.getGenomes().get(currentGenomeName).getBuilds.keySet()}" var="buildName" varStatus="statusBuild" >
@@ -59,6 +59,10 @@
 									</select>
 								</td>
 							</tr>
+							<tr id="buildDescriptionTr_${organism.getNcbiID()}">
+								<td>&nbsp;</td><td id="buildDescriptionTd_${organism.getNcbiID()}"></td>
+							</tr>
+							
 						</table>
 					</td>
 				</c:if>

@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.service.impl;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -112,6 +113,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public void initGenomes(Map<Integer, Organism> organisms) {
 		Map<String, Genome> genomes = new HashMap<String, Genome>();
 		Map<String, Build> builds = new HashMap<String, Build>();
+		Set<String> genomesWithADefaultBuild = new HashSet<String>();
 		Set<Object> keys = localGenomesProperties.keySet();
 		for (Object k : keys) {
 			String key = (String) k;
@@ -183,6 +185,14 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						Genome g = genomes.get(genomeName);
 						g.getBuilds().put(name, b);
 						builds.put(buildName, b);
+					} else if (fields.length == 5 && fields[4].equals("default")){
+						boolean defaultValue = Boolean.parseBoolean((String) localGenomesProperties.get(k));
+						if (defaultValue == true){
+							if (genomesWithADefaultBuild.contains(genomeName))
+								throw new RuntimeException("More than one default build specified for genome " + genomeName);
+							genomesWithADefaultBuild.add(genomeName);
+						}
+						builds.get(buildName).setDefault(defaultValue);
 					} else {
 						Build b = builds.get(buildName);
 

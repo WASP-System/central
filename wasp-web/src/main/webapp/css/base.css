@@ -462,6 +462,13 @@ TABLE.data TD.label-centered	{
 	text-align: center;
 	}
 	
+TABLE.data TD.label-right	{
+	background: #f7f7f7;
+	border-right: 1px solid #ccc;
+	font-weight: bold;
+	text-align: right;
+	}
+	
 TABLE.data TD.input	{
 	background: #ffffff;
 	border-right: 1px solid #ccc;
