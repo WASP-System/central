@@ -79,7 +79,7 @@ public interface FileService extends WaspService {
 	 * @return entity-managed file object
 	 * @throws FileUploadException
 	 */
-	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator);
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException;
 	
 	public FileGroup promoteJobDraftFileGroupToJob(Job job, FileGroup filegroup) throws GridUnresolvableHostException, IOException;
 
@@ -196,7 +196,15 @@ public interface FileService extends WaspService {
 	 */
 	void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException;
 
-	
+	/**
+	 * 
+	 */
+	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
+	/**
+	 * 
+	 */
+	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 
 }

@@ -32,8 +32,18 @@ function addFileUploadRow(){
 	var td3 = newRow.insertCell(2);
 	td3.className = "DataTD value-centered";
 	td3.innerHTML = '<fmt:message key="jobDraft.file_not_applicable.label"/>';
-	
-	
 }
 
+function validate(thisForm){
+	var fileUploads = thisForm.file_upload;
+	var fileDescriptions = thisForm.file_description;
+	for(var i = 0; i < fileUploads.length; i++){
+		if(fileUploads[i].value != "" && fileDescriptions[i].value == ""){ 
+			alert("<fmt:message key="jobDraft.file_description_missing.label"/>");
+			fileDescriptions[i].focus();
+			return false;
+		} 
+	}
+	return true;
+}
 </script>

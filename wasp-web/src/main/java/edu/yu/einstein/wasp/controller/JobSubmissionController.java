@@ -1230,10 +1230,10 @@ public class JobSubmissionController extends WaspController {
 		}
 		try{
 			fileService.removeUploadedFileFromJobDraft(jobDraftId, fileGroupId, fileHandleId);
-			//success message
+			waspMessage("jobDraft_upload_file_removed.label");
 		}catch (FileNotFoundException e){
 			logger.debug(e.getMessage());
-			//message to display
+			waspErrorMessage("jobDraft_upload_file_removal_failed.label");
 		}
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
@@ -1258,10 +1258,10 @@ public class JobSubmissionController extends WaspController {
 				fileCount++;
 				if (mpFile.isEmpty())
 					continue;
-				String path = downloadFolder+"/jd_"+jobDraftId;
 				try{
-					FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);
-					fileService.linkFileGroupWithJobDraft(group, jobDraft);
+					fileService.uploadJobDraftFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);//uploads file and performs database updates
+					//////FileGroup group = fileService.processUploadedFile(mpFile, jobDraft, fileDescriptions.get(fileCount), randomNumberGenerator);
+					//////fileService.linkFileGroupWithJobDraft(group, jobDraft);
 				} catch(FileUploadException e){
 					logger.warn(e.getMessage());
 					waspErrorMessage("jobDraft.upload_file.error");

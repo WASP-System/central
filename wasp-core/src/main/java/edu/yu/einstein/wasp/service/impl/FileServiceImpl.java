@@ -121,9 +121,6 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Value("${wasp.primaryfilehost}")
 	protected String fileHost;
 	
-	@Value("/Users/robertdubin/uploads")
-	protected String baseDir;
-
 	private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
 	/**
@@ -169,77 +166,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 	/**
+	 * this has actually been replaced by this.uploadJobDraftFile();
 	 * Upload submitted file to a temporary location on the remote host.
 	 * {@inheritDoc}
 	 */
 	@Override
-	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) {
-/*		
-		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
-		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
-		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException{
 
-		File directoryForThisJobDraft = new File(baseDir + "/" + jobDraft.getId().toString());
-		
-		if (!directoryForThisJobDraft.exists()) {
-			try {
-				directoryForThisJobDraft.mkdir();
-			} catch (Exception e) {
-				throw new FileUploadException("FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage());
-			}
-		}
-		
-		File newFile = new File(directoryForThisJobDraft + "/" + taggedNoSpacesFileName);
-		String md5 = null;
-		
-		try{
-			
-			if(newFile.createNewFile()){			
-
-				OutputStream tmpFile = new FileOutputStream(newFile);
-				int read = 0;
-				byte[] bytes = new byte[1024];
-
-				InputStream mpFileInputStream = mpFile.getInputStream();
-				while ((read = mpFileInputStream.read(bytes)) != -1) {
-					tmpFile.write(bytes, 0, read);
-				}
-
-				mpFile.getInputStream().close();
-				tmpFile.flush();
-				tmpFile.close();
-				FileInputStream fis = new FileInputStream(newFile);
-				md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);		
-			} 
-		}catch (IOException e) {
-			String mess = "Unable to generate file with contents of multipart file";
-			logger.warn(mess);
-			e.printStackTrace();
-			try{if(newFile.exists()){ newFile.delete(); }}catch(Exception e2){}
-			throw new FileUploadException(mess);
-		}
-
-			
-		
-		
-		FileHandle fileHandle = new FileHandle();
-		fileHandle.setMd5hash(md5);
-		fileHandle.setFileName(mpFile.getOriginalFilename());
-		fileHandle.setFileURI(newFile.toURI());
-		
-		FileGroup retGroup = new FileGroup();
-		retGroup.setDescription(description);
-		retGroup.setIsActive(1);
-		retGroup.setIsArchived(0);
-		//register(retGroup);
-		
-		fileHandle = fileHandleDao.save(fileHandle);
-		retGroup.addFileHandle(fileHandle);
-		retGroup = fileGroupDao.save(retGroup);
-
-		return retGroup;
-*/		
-	
 		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
 
 		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
@@ -350,9 +283,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 		try {
 			gfs.put(localFile, remoteFile);			
-			if(1==2){
-				register(retGroup);
-			}
+			registerWithoutMD5(retGroup);
 		} catch (GridException e) {
 			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
 			logger.warn(mess);
@@ -835,8 +766,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException{
-		//how to remove the file from disc or on the server???
-		//for the moment, if local disc
+
 		JobDraft jobDraft = jobDraftDao.findById(jobDraftId);
 		FileHandle fileHandle = fileHandleDao.findById(fileHandleId);
 		FileGroup fileGroup = fileGroupDao.findById(fileGroupId);
@@ -897,6 +827,176 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			e.printStackTrace();
 		}	
 		
+	}
+
+	@Override
+	@Transactional
+	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.uploadFile(mpFile, jobDraft.getId(), fileDescription, randomNumberGenerator, "draft.dir", "");
+			this.linkFileGroupWithJobDraft(fileGroup, jobDraft);
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.uploadFile(mpFile, job.getId(), fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			this.linkFileGroupWithJob(fileGroup, job);
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+
+	private FileGroup uploadFile(MultipartFile mpFile, Integer id, String fileDescription, Random randomNumberGenerator, String targetDir, String additionalSubJobDir) throws FileUploadException{
+		
+		int randomNumber = randomNumberGenerator.nextInt(1000000000) + 100;
+		String noSpacesFileName = mpFile.getOriginalFilename().replaceAll("\\s+", "_");
+		String taggedNoSpacesFileName = randomNumber + "_" + noSpacesFileName;
+
+		if(tempDir == null){
+			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+		if (fileHost == null) {
+			String mess = "Primary file host has not been configured!  Please set \"wasp.primaryfilehost\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+		
+		File temporaryDirectory = new File(tempDir);
+
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				String mess = "FileHandle upload failure trying to create '" + tempDir + "': " + e.getMessage();
+				logger.warn(mess);
+				throw new FileUploadException(mess);
+			}
+		}
+		
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+		GridWorkService gws;
+		GridFileService gfs;
+		try {
+			gws = hostResolver.getGridWorkService(fileHost);
+			gfs = gws.getGridFileService();
+		} catch (GridUnresolvableHostException e) {
+			String mess = "Unable to resolve remote host ";
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+		//////////String draftDir = gws.getTransportConnection().getConfiguredSetting("draft.dir");
+		String partialDir = gws.getTransportConnection().getConfiguredSetting(targetDir);
+		
+		if (partialDir == null) {
+			String mess = "Attempted to configure for file copy to " + fileHost + ", but hostname.settings." + targetDir + " has not been set.";
+			logger.warn(mess);
+			throw new FileUploadException(mess);
+		}
+
+		//String remoteDir = partialDir + "/" + id + "/";
+		String remoteDir;
+		if(additionalSubJobDir==null || additionalSubJobDir.isEmpty()){
+			remoteDir = partialDir + "/" + id + "/"; 
+		}
+		else{
+			remoteDir = partialDir + "/" + id + "/" + additionalSubJobDir + "/";
+		}
+
+		try {
+			if(!gfs.exists(remoteDir)){
+				gfs.mkdir(remoteDir);
+			}
+		} catch (IOException e) {
+			String mess = "Problem creating resources (remote directory:"+remoteDir+") on remote host " + gws.getTransportConnection().getHostName();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+
+		try {
+			OutputStream tmpFile = new FileOutputStream(localFile);
+
+			int read = 0;
+			byte[] bytes = new byte[1024];
+
+			InputStream mpFileInputStream = mpFile.getInputStream();
+			while ((read = mpFileInputStream.read(bytes)) != -1) {
+				tmpFile.write(bytes, 0, read);
+			}
+
+			mpFile.getInputStream().close();
+			tmpFile.flush();
+			tmpFile.close();
+		} catch (IOException e) {
+			String mess = "Unable to generate local temporary file with contents of multipart file";
+			logger.warn(mess);
+			e.printStackTrace();
+			localFile.delete();
+			throw new FileUploadException(mess);
+		}
+		
+		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
+
+		FileHandle file = new FileHandle();
+		file.setFileName(mpFile.getOriginalFilename());
+		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
+		file = fileHandleDao.save(file);
+		FileGroup retGroup = new FileGroup();
+		retGroup.addFileHandle(file);
+		retGroup.setDescription(fileDescription);
+		retGroup = fileGroupDao.save(retGroup);	
+
+		// TODO: Determine file type and set on the group.
+		// probably not.  Figure out where to put or whether to
+		// automatically determine mime type.
+
+		try {
+			gfs.put(localFile, remoteFile);			
+			registerWithoutMD5(retGroup);
+		} catch (GridException e) {
+			String mess = "Problem accessing remote resources " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} catch (IOException e) {
+			String mess = "Problem putting remote file " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		} finally {
+			localFile.delete();
+		}
+
+		fileHandleDao.save(file);
+		fileGroupDao.save(retGroup);
+		
+		return retGroup;
+	}	
+	
+	private JobFile linkFileGroupWithJob(FileGroup filegroup, Job job) {
+		JobFile jobFile = new JobFile();
+		jobFile.setFileGroup(filegroup);
+		jobFile.setJob(job);
+		return jobFileDao.save(jobFile);
 	}
 
 }
