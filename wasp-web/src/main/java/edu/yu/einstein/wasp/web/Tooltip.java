@@ -1,5 +1,10 @@
 package edu.yu.einstein.wasp.web;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class Tooltip {
 
 	public static String getTooltipHtmlString(String tooltipText){

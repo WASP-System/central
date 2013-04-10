@@ -17,7 +17,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Displays localized messages using list of keys stored in session under name "_feedback"
  * 
  * @Author Sasha Levchuk
@@ -48,11 +48,11 @@ public class MessageTag extends BodyTagSupport {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 	
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
 		
-		if (session==null) return Tag.SKIP_BODY;
+		if (session==null) return Tag.SKIP_PAGE;
 		
 		List<String> messageKeys=(List<String>)session.getAttribute(FEEDBACK_SESSION_ATTRIBUTE_NAME);
 	

@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,25 +20,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.yu.einstein.wasp.dao.JobDao;
-import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
+import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
@@ -47,13 +53,10 @@ public class TaskController extends WaspController {
   @Autowired
   private AuthenticationService authenticationService;
 
-   @Autowired
-  private SampleDao sampleDao;
-  
   @Autowired
-  private JobDao jobDao;
+  private SampleSourceDao sampleSourceDao;
 
-  @Autowired
+ @Autowired
   private JobService jobService;
 
   @Autowired
@@ -67,6 +70,9 @@ public class TaskController extends WaspController {
   
   @Autowired
   private TaskMappingRegistry taskMappingRegistry;
+  
+  @Autowired
+  private GenomeService genomeService;
 
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
@@ -79,7 +85,7 @@ public class TaskController extends WaspController {
 	  List<Job> jobsActiveAndWithLibrariesToGoOnFlowCell = new ArrayList<Job>();
 	  for(Job jobActive : jobsActive){
 		  for(Job jobAwaiting : jobsWithLibrariesToGoOnFlowCell){
-			  if(jobActive.getJobId().intValue()==jobAwaiting.getJobId().intValue()){
+			  if(jobActive.getId().intValue()==jobAwaiting.getId().intValue()){
 	    			jobsActiveAndWithLibrariesToGoOnFlowCell.add(jobActive);
 	    			break;
 	    	  }
@@ -87,34 +93,33 @@ public class TaskController extends WaspController {
 	  }
 	  jobService.sortJobsByJobId(jobsActiveAndWithLibrariesToGoOnFlowCell);	  
 	  m.addAttribute("jobList", jobsActiveAndWithLibrariesToGoOnFlowCell);
-	  
 	  List<Sample> activePlatformUnits = sampleService.getAvailablePlatformUnits();
 	  sampleService.sortSamplesBySampleName(activePlatformUnits);
-	  m.addAttribute("activePlatformUnits", activePlatformUnits);
+	  Map<Sample, String> activePlatformUnitsWithViewLinks = new LinkedHashMap<Sample, String>();
+	  for (Sample pu: activePlatformUnits)
+			  activePlatformUnitsWithViewLinks.put(pu, sampleService.getPlatformunitViewLink(pu));
+	 
+	  m.addAttribute("activePlatformUnitsWithViewLinks", activePlatformUnitsWithViewLinks);
 	  
 	  List<String> barcodes = new ArrayList<String>();
-	  List<String> lanes = new ArrayList<String>();
+	  List<String> cells = new ArrayList<String>();
 	  for(Sample platformUnit : activePlatformUnits){
 		  String barcode = platformUnit.getSampleBarcode().get(0).getBarcode().getBarcode();
 		  if(barcode==null || barcode.equals("")){
 			  barcode = new String("Unknown");
 		  }
 		  barcodes.add(barcode);
-		  String lane = new String("");
-		  List<SampleMeta> sampleMetaList = platformUnit.getSampleMeta();
-		  for(SampleMeta sampleMeta : sampleMetaList){
-			  if(sampleMeta.getK().indexOf("lanecount") > -1){
-				  lane = sampleMeta.getV();
-			  }
+		  String cellCountStr = "Unknown";
+		  try {
+			  cellCountStr = sampleService.getNumberOfIndexedCellsOnPlatformUnit(platformUnit).toString();
+		  } catch (Exception e) {
+			  logger.warn(e.getLocalizedMessage());
 		  }
-		  if(lane.equals("")){
-			  lane = new String("Unknown");
-		  }
-		  lanes.add(lane);
+		  cells.add(cellCountStr);
 	  }
 	  
 	  m.addAttribute("barcodes", barcodes);
-	  m.addAttribute("lanes", lanes);
+	  m.addAttribute("cells", cells);
 	 
 	  return "task/assignLibraries/lists";
   }
@@ -127,10 +132,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSubmittedSamples){
-    	logger.debug("processing samples for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing samples for job with id='" + job.getId() + "'");
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetReceived(job);
     	for (Sample sample: newSampleList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -178,8 +183,8 @@ public class TaskController extends WaspController {
 	 	  
 	  for(int i = 0; i < receivedStatusList.size(); i++){
 		  if(!receivedStatusList.get(i).isEmpty()){
-			  Sample sample = sampleDao.getSampleBySampleId(sampleIdList.get(i).intValue());
-			  if(sample.getSampleId()<=0){
+			  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleIdList.get(i).intValue());
+			  if(sample.getId()<=0){
 				  waspErrorMessage("task.samplereceive_receivedstatus_unexpected.error");
 				  logger.warn("unable to find sampleId " + sampleIdList.get(i).intValue() + " in task/samplereceive/receive - POST");
 				  return "redirect:/task/samplereceive/list.do";
@@ -214,8 +219,8 @@ public class TaskController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
   public String updateSampleReceive(@PathVariable("jobId") Integer jobId, ModelMap m) {
 
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==0){
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  if(job.getId()==0){
 		  //message can't find job by id
 		  return "redirect:/dashboard.do";
 	  }
@@ -260,8 +265,8 @@ public class TaskController extends WaspController {
 	      @RequestParam("receivedStatus") List<String> receivedStatusList,
 	      ModelMap m) {
 
-	  Job job = jobDao.getJobByJobId(jobId);
-	  if(job.getJobId()==0){
+	  Job job = jobService.getJobDao().getJobByJobId(jobId);
+	  if(job.getId()==0){
 		  //message can't find job by id
 		  return "redirect:/dashboard.do";
 	  }
@@ -271,8 +276,8 @@ public class TaskController extends WaspController {
 	  }
 	  int index = 0;
 	  for(Integer sampleId : sampleIdList){		  
-		  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-		  if(sample.getSampleId() > 0 && ! sampleService.isSubmittedSampleProcessedByFacility(sample)){
+		  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+		  if(sample.getId() > 0 && ! sampleService.isSubmittedSampleProcessedByFacility(sample)){
 			  try{
 				  sampleService.updateSampleReceiveStatus(sample, sampleService.convertSampleReceivedStatusFromWeb(receivedStatusList.get(index++)));
 			  } catch (WaspMessageBuildingException e){
@@ -293,10 +298,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSampleQC){
-    	logger.debug("processing samples for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing samples for job with id='" + job.getId() + "'");
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
     	for (Sample sample: newSampleList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -319,8 +324,8 @@ public class TaskController extends WaspController {
       @RequestParam("comment") String comment,
       ModelMap m) {	  
 	  
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){
+	  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+	  if(sample.getId()==null){
 		  waspErrorMessage("task.sampleqc_invalid_sample.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
@@ -358,7 +363,7 @@ public class TaskController extends WaspController {
 	  //unfortunately, they are not easily linked within a single transaction.
 	  try{
 		  if(!comment.trim().isEmpty()){
-			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+			  sampleService.setSampleQCComment(sample.getId(), comment.trim());
 		  }
 	  }
 	  catch(Exception e){
@@ -377,10 +382,10 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingLibraryQC){
-    	logger.debug("processing libraries for job with id='" + job.getJobId() + "'");
+    	logger.debug("processing libraries for job with id='" + job.getId() + "'");
     	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
     	for (Sample sample: newLibraryList)
-    		logger.debug("    .... sample: id='" + sample.getSampleId() + "'");
+    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newLibraryList);    	
     	jobAndSampleMap.put(job, newLibraryList);
     }
@@ -403,8 +408,8 @@ public class TaskController extends WaspController {
       @RequestParam("comment") String comment,
       ModelMap m) {
 	  
-	  Sample sample = sampleDao.getSampleBySampleId(sampleId);
-	  if(sample.getSampleId()==null){
+	  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+	  if(sample.getId()==null){
 		  waspErrorMessage("task.libraryqc_invalid_sample.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
@@ -442,7 +447,7 @@ public class TaskController extends WaspController {
 	  //unfortunately, they are not easily linked within a single transaction.
 	  try{
 		  if(!comment.trim().isEmpty()){
-			  sampleService.setSampleQCComment(sample.getSampleId(), comment.trim());
+			  sampleService.setSampleQCComment(sample.getId(), comment.trim());
 		  }
 	  }
 	  catch(Exception e){
@@ -470,24 +475,13 @@ public class TaskController extends WaspController {
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("species") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
-				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
-				}
-			}
+			for(Sample sample : sampleList)
+				sampleSpeciesMap.put(sample, sampleService.getNameOfOrganism(sample));
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
 		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);  
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
   }
   
   @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)
@@ -539,6 +533,17 @@ public class TaskController extends WaspController {
 		m.addAttribute("jobspendinglist", jobsPendingDaApprovalList);
 		
 		getJobApproveInfo(jobsPendingDaApprovalList, m);
+		
+		 //does the jobPendingDaApproval also require a quote?
+		//added so that a DA must quote the job before approving the job
+		  Map<Job, String> quoteMap = new HashMap<Job, String>();
+		  for(Job job : jobsPendingDaApprovalList){
+			  if(jobService.isJobAwaitingQuote(job)){
+				  quoteMap.put(job, "true");
+			  }
+			  else{quoteMap.put(job, "false");}
+		  }
+		  m.addAttribute("quotemap", quoteMap);
 
 		return "task/daapprove/list";
 	}
@@ -559,7 +564,7 @@ public class TaskController extends WaspController {
 	  }
 
 	  Job job = jobService.getJobByJobId(jobId);	   
-	  if(job.getJobId()==null){
+	  if(job.getId()==null){
 		  waspErrorMessage("jobapprovetask.invalidJob.error");
 		  logger.warn("Job not found");
 		  return;
@@ -587,28 +592,15 @@ public class TaskController extends WaspController {
 	  else if("REJECTED".equalsIgnoreCase(action)){
 		  status = WaspStatus.ABANDONED;
 	  }	
+	  
 	  try {
-		  //jobService.updateJobFmApprovalStatus(job, status);
-		  jobService.updateJobApprovalStatus(jobApproveCode, job, status);
-
-	  } catch (WaspMessageBuildingException e) {
+		  jobService.setJobApprovalStatusAndComment(jobApproveCode, job, status, comment.trim());
+	  } catch (Exception e) {
 		  waspErrorMessage("jobapprovetask.updateFailed.error"); 
 		  logger.warn("Update unexpectedly failed");
 		  return;
 	  }
-	  
-	  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
-	  //unfortunately, they are not easily linked within a single transaction.
-	  try{
-		  if(!comment.trim().isEmpty()){
-			  jobService.setJobApprovalComment(jobApproveCode, job.getJobId(), comment.trim());
-		  }
-	  }
-	  catch(Exception e){
-		  logger.warn(e.getMessage());
-		  return;
-	  }
-	  
+
 	  String message = "APPROVED".equalsIgnoreCase(action)?"jobapprovetask.jobApproved.label":"jobapprovetask.jobRejected.label";
 	  waspMessage(message);
   }
@@ -688,14 +680,323 @@ public class TaskController extends WaspController {
 		return "task/myTaskList";
 	}
 
-  @RequestMapping(value = "/initiateAnalysis/list", method = RequestMethod.GET)
+ 
+  @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
-	public String initiateAnalysis(ModelMap m) {
+	public String listCellLibraryQC(ModelMap m) {
 
-	
+	  class JobIdComparator implements Comparator<Job> {
+		  @Override
+		  public int compare(Job job1, Job job2) {
+			  return job1.getId().compareTo(job2.getId());
+		  }
+	  }
+	  //to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
+	  class SampleSourceComparator implements Comparator<SampleSource> {
+		    @Override
+		    public int compare(SampleSource sample1, SampleSource sample2) {
+		    	Sample library0 = sampleService.getLibrary(sample1);
+		    	Sample macromolecule0 = library0.getParent();
+		    	if(macromolecule0==null || macromolecule0.getId()==null){
+		    		macromolecule0 = new Sample();
+		    		macromolecule0.setName("User-Supplied Library");
+		    	}	    	
+				Sample cell0 = sampleService.getCell(sample1);
+				Sample platformUnit0 = null;
+				try{
+					platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
+				}catch(SampleException e){logger.warn(e.getMessage());}
+				List<Run> runs = platformUnit0.getRun();
+				Run run0=null;
+				if(!runs.isEmpty()){
+					run0 = runs.get(0);
+				}
+				else{
+					run0 = new Run();
+					run0.setName("Not Run");
+				}
+			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + sample1.getIndex().toString() + run0.getName(); 
+				
+		    	Sample library1 = sampleService.getLibrary(sample2);
+		    	Sample macromolecule1 = library1.getParent();
+		    	if(macromolecule1==null || macromolecule1.getId()==null){
+		    		macromolecule1 = new Sample();
+		    		macromolecule1.setName("User-Supplied Library");
+		    	}		    	
+				Sample cell1 = sampleService.getCell(sample2);
+				Sample platformUnit1 = null;
+				try{
+					platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
+				}catch(SampleException e){logger.warn(e.getMessage());}
+				List<Run> moreRuns = platformUnit0.getRun();
+				Run run1;
+				if(!moreRuns.isEmpty()){
+					run1 = moreRuns.get(0);
+				}
+				else{
+					run1 = new Run();
+					run1.setName("Not Run");
+				}
+				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + sample2.getIndex().toString() + run1.getName(); 
+					
+		        return str0.compareToIgnoreCase(str1);
+		    }
+		}
+	  
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete  
+	 
+	  /* *************will currently be none, so add two jobs.
+	  boolean fakeIt = false;
+	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
+		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(40));
+		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(46));
+		  fakeIt = true;
+	  }
+	  */  //**************will currently be none, so add two jobs.
+	  
+	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun = new ArrayList<Job>();
+	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
+	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
+	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+	  Map<SampleSource, Boolean> cellLibraryInAnalysisMap = new HashMap<SampleSource, Boolean>();
+	  Map<SampleSource, String> cellLibraryInAnalysisCommentMap = new HashMap<SampleSource,String>();
+	  
+	  for(Job job : activeJobsWithNoSamplesCurrentlyBeingProcessed){
+		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
+		  if(jobService.isAggregationAnalysisBatchJob(job)){
+			  continue;
+		  }
+		  List<SampleSource> preprocessedCellLibraries = sampleService.getPreprocessedCellLibraries(job);//a preprocessed library is one that is sequenced and aligned
+		  
+		  /*  //*******************will currently be none, so fake for some data
+		  if(fakeIt){
+			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
+				  preprocessedCellLibraries.add(ss);
+			  }
+		  }
+		  */  //*******************will currently be none, so fake for some data	
+		  
+		  if(preprocessedCellLibraries.size()>0){
+			  activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun.add(job);
+			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
+			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
+			  //fill up the maps
+			  for(SampleSource cellLibrary : preprocessedCellLibraries){//TODO this can be a service
+				  
+				  Sample library = sampleService.getLibrary(cellLibrary);
+				  cellLibraryLibraryMap.put(cellLibrary, library);
+				  Sample macromolecule = library.getParent();
+				  if(macromolecule == null || macromolecule.getId() == null){
+					  macromolecule = new Sample();
+					  macromolecule.setName("User-Supplied Library");
+				  }
+				  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
+				  
+				  Sample cell = sampleService.getCell(cellLibrary);
+				  Sample platformUnit = null;
+				  try{
+					  platformUnit = sampleService.getPlatformUnitForCell(cell);
+				  }
+				  catch(Exception e){//should not occur
+					  platformUnit = new Sample();
+					  platformUnit.setName("Not Found");
+					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getId()); 
+				  }
+				  cellLibraryPUMap.put(cellLibrary, platformUnit);
+				  
+				  List<Run> runs = platformUnit.getRun();
+				  Run run = null;
+				  if(!runs.isEmpty()){
+					  run = platformUnit.getRun().get(0);
+				  }
+				  else{
+					  run = new Run();
+					  run.setName("Not run");					  
+				  }
+				  cellLibraryRunMap.put(cellLibrary, run);	
+				  
+				  Boolean b = null;
+				  try{
+					  b = new Boolean(sampleService.isMetaCellLibraryInAggregateAnalysis(cellLibrary));
+				  }catch(Exception e){ }
+				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
+				  
+				  List<MetaMessage> inAnalysisCommentList = sampleService.getMetaInAggregateAnalysisComments(cellLibrary.getId());
+				  if(inAnalysisCommentList.size()<=0){
+					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
+				  }
+				  else{
+					  cellLibraryInAnalysisCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
+				  }
+			  }  
+		  }
+	  }
+	  //sort by job ID desc
+	  Collections.sort(activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun, new JobIdComparator()); 
 
-		return "task/initiateanalysis/list";
+	  m.addAttribute("jobs", activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun);
+	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
+	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
+	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
+	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
+	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
+	  m.addAttribute("cellLibraryInAnalysisMap", cellLibraryInAnalysisMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
+	  m.addAttribute("cellLibraryInAnalysisCommentMap", cellLibraryInAnalysisCommentMap);
+
+	  return "task/cellLibraryQC/list";
 	}
   
+
+  
+  @RequestMapping(value = "/cellLibraryQC/qc", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
+	public String updateCellLibraryQC(
+			@RequestParam("jobId") Integer jobId,
+			@RequestParam("maxNumCellLibrariesThatCanBeRecorded") Integer maxNumCellLibrariesThatCanBeRecorded,
+			@RequestParam("sampleSourceId") List<Integer> sampleSourceIdList,
+			@RequestParam("startAnalysis") String startAnalysis,
+		    ModelMap m) {
+	  
+	  //1. check the most basic parameters
+	  if(jobId==null){
+		  waspErrorMessage("task.cellLibraryqc_invalid_jobId.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  Job job = jobService.getJobByJobId(jobId);
+	  if(job==null || job.getId()==null){
+		  waspErrorMessage("task.cellLibraryqc_jobNotFound.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	 
+	  //check whether this job has already been terminated -- unlikely, but not impossible in a multi-user system
+	  if(jobService.isTerminated(job)){
+	  	waspErrorMessage("task.cellLibraryqc_jobPreviouslyTerminated.error");
+  		return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  //check whether aggregate analysis has already been started -- unlikely, but not impossible in a multi-user system
+	  if(jobService.isAggregationAnalysisBatchJob(job)){
+		  waspErrorMessage("task.cellLibraryqc_aggregateAnalysisAlreadyUnderway.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if(sampleSourceIdList==null || sampleSourceIdList.isEmpty()){//an empty list should never be sent by the webpage
+		  waspErrorMessage("task.cellLibraryqc_invalid_samplesource.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if(startAnalysis == null || "".equals(startAnalysis)){
+		  waspErrorMessage("task.cellLibraryqc_invalid_startAnalysis.error");//shouldn't occur as jovascript should prevent, but....
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  if( !"Now".equalsIgnoreCase(startAnalysis) && !"Later".equalsIgnoreCase(startAnalysis) && !"Never".equalsIgnoreCase(startAnalysis) ){
+		  waspErrorMessage("task.cellLibraryqc_invalidValues_startAnalysis.error");//shouldn't occur as jovascript should prevent, but....
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  //gather info from web
+	  List<SampleSource> sampleSourceList = new ArrayList<SampleSource>();
+	  List<String> qcStatusList = new ArrayList<String>();
+	  List<String> commentList = new ArrayList<String>(); 
+	  Set<String> errorMessages = new HashSet<String>();//use a set so as not to repeat a message
+	  
+	  for(Integer sampleSourceId : sampleSourceIdList){
+			
+		  String qcStatus = request.getParameter("qcStatus" + sampleSourceId.toString());//qcStatus is radio button, so may or may not be sent
+		  if(qcStatus==null){//this particular item not sent by web so we do NOT have to deal with it
+			  continue;
+		  }
+		  else if(!qcStatus.trim().equalsIgnoreCase("INCLUDE") && !qcStatus.trim().equalsIgnoreCase("EXCLUDE")){//should not occur
+			  waspErrorMessage("task.cellLibraryqc_invalid_qcStatus_value.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+		  qcStatusList.add(qcStatus);
+		  String comment = request.getParameter("comment" + sampleSourceId.toString());//should always be sent
+		  if(comment==null){//should always be sent, so null is a problem (however the empty string is just fine)
+			  waspErrorMessage("task.cellLibraryqc_comment_not_sent.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+		  commentList.add(comment);
+		  SampleSource sampleSource = sampleSourceDao.getSampleSourceBySampleSourceId(sampleSourceId);
+		  if(sampleSource==null || sampleSource.getSampleId()==null){//unlikely, but...
+			  waspErrorMessage("task.cellLibraryqc_sampleSourceNotFound.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+		  sampleSourceList.add(sampleSource);
+	  }
+	  
+	  //update database
+	  int totalRecordsToRecord = sampleSourceList.size();
+	  if(totalRecordsToRecord<=0){//are there any to deal with?? It's very unlikely to be zero, but......
+		  waspErrorMessage("task.cellLibraryqc_noRecordsSelected.error");
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  
+	  //perform as many database saves as possible
+	  int numCellLibrariesRecordedAsInclude = 0;
+	  int numCellLibrariesRecordedAsExclude = 0;
+	  for(int i = 0; i < totalRecordsToRecord; i++){
+		  String qcStatus = qcStatusList.get(i);
+		  String trimmedComment = commentList.get(i);
+		  if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){//unlikely, since javascript prevents, but....
+			  //record a flash error in the Set errorMessages (to avoid display more than once), since excluding a library-run from analysis requires a valid comment
+			  errorMessages.add("task.cellLibraryqc_excludeRequiresComment.error");
+			  continue;
+		  }
+		  try{
+			  sampleService.saveMetaCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);//will deal with insert and update
+			  if("EXCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
+			  else if("INCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
+		  }catch(Exception e){
+			  errorMessages.add("task.cellLibraryqc_message.error");
+		  }		  
+	  }
+	  
+	  if(!errorMessages.isEmpty()){//some error occurred during the database save(s). Note that if any errors, do not start any analysis or terminate job.
+		  //add all to waspErrorMessage
+		  for(String s : errorMessages){
+			  waspErrorMessage(s);
+		  }
+		  return "redirect:/task/cellLibraryQC/list.do";
+	  }
+	  
+	  //finally, deal with kicking off the analysis or terminating the job (don't want to do analysis) (or else postpone decision for analysis for later on)
+	  if("Now".equalsIgnoreCase(startAnalysis)){
+		  //this can proceed if, for all the cellLibrary records that have been aligned, 
+		  //they also have been recorded for in_aggreagte_analysis and at least one is true for in_aggreagate_analysis
+		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsInclude + numCellLibrariesRecordedAsExclude 
+				  && numCellLibrariesRecordedAsInclude > 0){
+			  //kick off analysis
+			  jobService.initiateAggregationAnalysisBatchJob(job);
+			  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisBegun.label");
+		  }
+		  else{
+			  waspErrorMessage("task.cellLibraryqc_startAnalysisNotPossibleNow.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  }
+	  else if("Never".equalsIgnoreCase(startAnalysis)){//do not want analysis, so don't care
+		  //To terminate the job without analysis, you must mark each record as Exclude and provide a reason for exclusion
+		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsExclude){
+			  //terminate job
+			  try{
+				  jobService.terminate(job);// throws WaspMessageBuildingException;
+				  waspMessage("task.cellLibraryqc_updateSuccessfulAndJobTerminated.label");
+			  }
+			  catch(WaspMessageBuildingException e){
+				  waspErrorMessage("task.cellLibraryqc_terminateJobUnexpectedlyFailed.error");
+				  return "redirect:/task/cellLibraryQC/list.do";
+			  }
+		  }
+		  else{
+			  waspErrorMessage("task.cellLibraryqc_terminateJobNotPossibleNow.error");
+			  return "redirect:/task/cellLibraryQC/list.do";
+		  }
+	  }
+	  else if("Later".equalsIgnoreCase(startAnalysis)){
+		  ;//do nothing
+		  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisNotBegun.label");
+	  }
+	  //waspMessage("task.cellLibraryqc_update_success.label");	
+	  return "redirect:/task/cellLibraryQC/list.do";
+  }
 }
 

@@ -44,13 +44,13 @@ public class TestRoleServiceImpl {
 	  LabUser labUser = new LabUser();
 	  
 	  Role role1 = new Role();
-	  role1.setRoleId(1);
+	  role1.setId(1);
 	  role1.setName("Facility Manager");
 	  userrole.setRole(role1);
 	  userroles.add(userrole);
 	  
 	  Role role2 = new Role();
-	  role2.setRoleId(2);
+	  role2.setId(2);
 	  role2.setName("PI");
 	  labUser.setRole(role2);
 	  labUsers.add(labUser);
@@ -59,7 +59,7 @@ public class TestRoleServiceImpl {
 	  user.setLabUser(labUsers);
 	  
 	  Map<String, Integer> departmentuserQueryMap = new HashMap<String, Integer>();
-	  departmentuserQueryMap.put("UserId", null);
+	  departmentuserQueryMap.put("userId", null);
 	  
 	  List<DepartmentUser> departmentUsers = new ArrayList<DepartmentUser>();
 	 	  
@@ -93,7 +93,7 @@ public class TestRoleServiceImpl {
 	  lab.setUser(user);
 	  
 	  Role role1 = new Role();
-	  role1.setRoleId(1);
+	  role1.setId(1);
 	  role1.setName("Facility Manager");
 	  userrole.setRole(role1);
 	  userroles.add(userrole);
@@ -103,7 +103,7 @@ public class TestRoleServiceImpl {
 	  LabUser labUser = new LabUser();
 	  List<LabUser> labUsers = new ArrayList<LabUser>();
 	  Role role2 = new Role();
-	  role2.setRoleId(2);
+	  role2.setId(2);
 	  role2.setRoleName("pi");
 	  role2.setName("Primary Investigator");
 	  labUser.setRole(role2);
@@ -116,7 +116,7 @@ public class TestRoleServiceImpl {
 	  
 	  User testUser2 = new User();
 	  Role role3 = new Role();
-	  role3.setRoleId(3);
+	  role3.setId(3);
 	  role3.setRoleName("lm");
 	  role3.setName("Lab Manager");
 	  labUser2.setRole(role3);
@@ -132,7 +132,7 @@ public class TestRoleServiceImpl {
 	  
 	  
 	  Map<String, Integer> departmentuserQueryMap = new HashMap<String, Integer>();
-	  departmentuserQueryMap.put("UserId", null);
+	  departmentuserQueryMap.put("userId", null);
 	  
 	  List<DepartmentUser> departmentUsers = new ArrayList<DepartmentUser>();
 	 	  

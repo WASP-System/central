@@ -47,7 +47,7 @@ public class ProjectDaoImpl extends WaspDaoImpl<Project> implements edu.yu.einst
 	@Transactional
 	public Project getProjectByProjectId (final int projectId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("projectId", projectId);
+		m.put("id", projectId);
 
 		List<Project> results = this.findByMap(m);
 

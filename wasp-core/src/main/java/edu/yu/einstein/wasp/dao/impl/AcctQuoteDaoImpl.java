@@ -47,7 +47,7 @@ public class AcctQuoteDaoImpl extends WaspDaoImpl<AcctQuote> implements edu.yu.e
 	@Transactional
 	public AcctQuote getAcctQuoteByQuoteId (final int quoteId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("quoteId", quoteId);
+		m.put("id", quoteId);
 
 		List<AcctQuote> results = this.findByMap(m);
 

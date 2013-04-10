@@ -20,7 +20,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Repository
 public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements WaspJobExecutionDao, InitializingBean{
 	
@@ -86,6 +90,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 			}
 			sql += " )";
 		}
+		sql += " ORDER BY E.JOB_INSTANCE_ID DESC, E.JOB_EXECUTION_ID DESC";
 		logger.trace("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.trace("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());

@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.exception;
 
 /**
  * Reporting of WASP parameter exceptions
- * @author andymac
+ * @author asmclellan
  *
  */
 public class InvalidParameterException extends RuntimeException{

@@ -47,7 +47,7 @@ public class WorkflowresourcecategoryDaoImpl extends WaspDaoImpl<Workflowresourc
 	@Transactional
 	public Workflowresourcecategory getWorkflowresourcecategoryByWorkflowresourcecategoryId (final Integer workflowresourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowresourcecategoryId", workflowresourcecategoryId);
+		m.put("id", workflowresourcecategoryId);
 
 		List<Workflowresourcecategory> results = this.findByMap(m);
 

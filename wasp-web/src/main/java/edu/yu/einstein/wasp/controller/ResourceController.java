@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.common.util.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -86,7 +87,7 @@ public class ResourceController extends WaspController {
 		//When adding a new record in Resources JqGrid, it displays  all Type Resources that are NOT "aligner" or "peakcaller"
 		for (Iterator<ResourceType> it = resourceTypeList.iterator(); it.hasNext();) {
 			ResourceType tr = it.next();
-			if (tr.getIName().equals("aligner") || tr.getIName().equals("peakcaller")) {
+			if (!tr.getIName().equals("mps")) {
 				it.remove();
 			}
 		}
@@ -99,7 +100,7 @@ public class ResourceController extends WaspController {
 //			}
 //		}
 		m.addAttribute("categoryResources", resourceCategoryDao.getActiveResourceCategories());
-
+		
 	}
 
 	@RequestMapping("/list")
@@ -166,7 +167,7 @@ public class ResourceController extends WaspController {
 			for (Barcode barcode : this.barcodeDao.findAll()) {
 				if (barcode != null) {
 					
-					allBarcode.put(barcode.getBarcodeId(), barcode.getBarcode());
+					allBarcode.put(barcode.getId(), barcode.getBarcode());
 				}
 			}
 			
@@ -224,7 +225,7 @@ public class ResourceController extends WaspController {
 			List<Resource> resourcePage = resourceList.subList(frId, toId);
 			for (Resource resource : resourcePage) {
 				Map<String, Object> cell = new HashMap<String, Object>();
-				cell.put("id", resource.getResourceId());
+				cell.put("id", resource.getId());
 
 				List<ResourceMeta> resourceMeta = getMetaHelperWebapp()
 						.syncWithMaster(resource.getResourceMeta());
@@ -236,7 +237,7 @@ public class ResourceController extends WaspController {
 								"",
 								resource.getResourceType().getName(), 
 								resource.getIsActive().intValue() == 1 ? "yes" : "no", //}));
-								allResourceBarcode.get(resource.getResourceId())==null? "" : allBarcode.get(allResourceBarcode.get(resource.getResourceId()))}));
+								allResourceBarcode.get(resource.getId())==null? "" : allBarcode.get(allResourceBarcode.get(resource.getId()))}));
 
 				for (ResourceMeta meta : resourceMeta) {
 					cellList.add(meta.getV());
@@ -263,18 +264,23 @@ public class ResourceController extends WaspController {
 	 * @Author Sasha Levchuk 
 	 */	
 	@RequestMapping(value = "/detail_rw/updateJSON.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or User.login == principal.name")
+	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
 	public String updateDetailJSON(@RequestParam("id") Integer resourceId,
 			Resource resourceForm, ModelMap m, HttpServletResponse response) {
 
 		List<ResourceMeta> resourceMetaList = getMetaHelperWebapp().getFromJsonForm(request, ResourceMeta.class);
 
 		resourceForm.setResourceMeta(resourceMetaList);
-			
+		
+		for (ResourceMeta rm : resourceMetaList) {
+			logger.debug("Got resourceMeta: " + rm.getK() + ":" + rm.getV());
+		}
+		
 		if (resourceId == null || resourceId.intValue() == 0) {
 			
 			//check if Resource Name already exists in db; if 'true', do not allow to proceed.
 			if(this.resourceDao.getResourceByName(resourceForm.getName()).getName() != null) {
+				logger.debug("obtained null or 0 resource from form and found not null resource by name");
 				try{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					response.getWriter().println(messageService.getMessage("resource.resource_exists.error"));
@@ -298,15 +304,12 @@ public class ResourceController extends WaspController {
 				
 			}
 			
-			ResourceCategory resourceCategory = this.resourceCategoryDao.getResourceCategoryByResourceCategoryId(new Integer(request.getParameter("resourceCategoryId")));
-			Integer resourceCategoryId =resourceCategory.getResourceCategoryId();
-			Integer resourceTypeId = resourceCategory.getResourceTypeId();
+			ResourceCategory resourceCategory = this.resourceCategoryDao.findById(new Integer(request.getParameter("resourceCategoryId")));
 
-			resourceForm.setResourcecategoryId(resourceCategoryId);
-			resourceForm.setResourceTypeId(resourceTypeId);
+			resourceForm.setResourceCategory(resourceCategory);
+			resourceForm.setResourceType(resourceCategory.getResourceType());
 			
 			resourceForm.setIName(resourceForm.getName());
-			resourceForm.setLastUpdTs(new Date());
 			
 			if(request.getParameter("resource.decommission_date") == null || request.getParameter("resource.decommission_date").length() == 0){
 				resourceForm.setIsActive(1);
@@ -319,16 +322,20 @@ public class ResourceController extends WaspController {
 			Barcode barcode = new Barcode();
 			
 			barcode.setBarcode(request.getParameter("barcode")==null? "" : request.getParameter("barcode"));
-			resourceBarcode.setBarcode(barcode);
-			
 			Barcode barcodeDB = this.barcodeDao.save(barcode);
-			resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
+			
+			logger.debug("barcode id: " + barcodeDB.getId());
+			
+			resourceBarcode.setBarcode(barcodeDB);
+			
+			logger.debug("resource form id: " + resourceForm.getId());
 
 			Resource resourceDb = this.resourceDao.save(resourceForm);
-			resourceId = resourceDb.getResourceId();
 			
-			resourceBarcode.setResourceId(resourceId);
+			resourceBarcode.setResource(resourceDb);
 			this.resourceBarcodeDao.save(resourceBarcode);
+			
+			resourceId = resourceDb.getId();
 			
 		} else {
 			
@@ -356,7 +363,7 @@ public class ResourceController extends WaspController {
 				resourceBarcode.setBarcode(barcode);
 				
 				Barcode barcodeDB = this.barcodeDao.save(barcode);
-				resourceBarcode.setBarcodeId(barcodeDB.getBarcodeId());
+				resourceBarcode.setBarcodeId(barcodeDB.getId());
 			
 				resourceBarcode.setResourceId(resourceId);
 				this.resourceBarcodeDao.save(resourceBarcode);
@@ -369,6 +376,7 @@ public class ResourceController extends WaspController {
 		}
 		try {
 			try{
+				logger.debug("setting resource meta for " + resourceId);
 				resourceMetaDao.setMeta(resourceMetaList, resourceId);
 				response.getWriter().println(messageService.getMessage("resource.updated_success.label"));
 				return null;
@@ -379,6 +387,7 @@ public class ResourceController extends WaspController {
 			}
 			
 		} catch (Throwable e1) {
+			logger.warn(e1.getLocalizedMessage());
 			throw new IllegalStateException("Cant output success message ", e1);
 		}
 	}
@@ -427,8 +436,9 @@ public class ResourceController extends WaspController {
 			int j = 0;
 			for (Run run : runs) {
 
-				text = run.getRunId() == null ? "No Runs"
-						: "<a href=/wasp/run/detail/" + run.getRunId() + ".do>"
+				text = run.getId() == null ? "No Runs"
+						//old, no longer used      : "<a href=/wasp/run/detail/" + run.getId() + ".do>"
+						: "<a href=/wasp/wasp-illumina/flowcell/" + run.getId() + "/show.do>"
 								+ run.getName() + "</a>";
 				mtrx[j] = text;
 
@@ -457,144 +467,6 @@ public class ResourceController extends WaspController {
 		}
 
 	}
-	
-	@RequestMapping(value = "/detail_rw/{resourceId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
-	public String detailRW(@PathVariable("resourceId") Integer resourceId,
-			ModelMap m) {
-		return detail(resourceId, m, true);
-	}
 
-	@RequestMapping(value = "/detail_ro/{resourceId}.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
-	public String detailRO(@PathVariable("resourceId") Integer resourceId,
-			ModelMap m) {
-		return detail(resourceId, m, false);
-	}
-
-	private String detail(Integer resourceId, ModelMap m, boolean isRW) {
-		Resource resource = resourceDao.getById(resourceId);
-		resource.setResourceMeta(getMetaHelperWebapp().syncWithMaster(
-				resource.getResourceMeta()));
-
-		// List<ResourceMeta> resourceMetaList = resource.getResourceMeta();
-		// resourceMetaList.size();
-
-		List<ResourceCell> resourceCellList = resource.getResourceCell();
-		resourceCellList.size();
-
-		List<Run> runList = resource.getRun();
-		runList.size();
-
-		// List<ResourceUser> resourceUserList = resource.getResourceUser();
-		// resourceUserList.size();
-
-		// m.addAttribute("now", now);
-		m.addAttribute("resource", resource);
-		// m.addAttribute("resourcemeta", resourceMetaList);
-		m.addAttribute("resourcecell", resourceCellList);
-		m.addAttribute("run", runList);
-		// m.addAttribute("resourceuser", resourceUserList);
-
-		prepareSelectListData(m);
-
-		return isRW ? "resource/detail_rw" : "resource/detail_ro";
-	}
-
-	@RequestMapping(value = "/detail_rw/{resourceId}.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
-	public String updateResource(
-			@PathVariable("resourceId") Integer resourceId,
-			@Valid Resource resourceForm, BindingResult result,
-			SessionStatus status, ModelMap m) {
-		return validateAndUpdateResource(resourceId.intValue(), resourceForm,
-				result, status, m);
-	}
-
-	@RequestMapping(value = "/create.do", method = RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
-	public String showCreateForm(ModelMap m) {
-
-		Resource resource = new Resource();
-
-		resource.setResourceMeta(getMetaHelperWebapp().getMasterList(
-				ResourceMeta.class));
-
-		m.put("resource", resource);
-
-		prepareSelectListData(m);
-
-		return "resource/create";
-	}
-
-	@RequestMapping(value = "/create.do", method = RequestMethod.POST)
-	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('ga') or hasRole('fm')")
-	public String createResource(@Valid Resource resourceForm,
-			BindingResult result, SessionStatus status, ModelMap m) {
-		return validateAndUpdateResource(-1, resourceForm, result, status, m);
-	}
-
-	public String validateAndUpdateResource(int resourceId,
-			Resource resourceForm, BindingResult result, SessionStatus status,
-			ModelMap m) {
-
-		boolean newResource = true;
-		if (resourceId > 0) {
-			newResource = false;
-		}
-		MetaHelperWebapp metaHelper = getMetaHelperWebapp();
-		List<ResourceMeta> resourceMetaList = metaHelper.getFromRequest(
-				request, ResourceMeta.class);
-
-		metaHelper.validate(result);
-
-		if (result.hasErrors()) {
-			resourceForm.setResourceMeta(resourceMetaList);
-			m.put("resource", resourceForm);
-			prepareSelectListData(m);
-
-			if (newResource) {
-				waspErrorMessage("resource.created.error");
-				return "resource/create";
-			} else {
-				waspErrorMessage("resource.updated.error");
-				return "resource/detail_rw";
-			}
-		}
-
-	/*	for (ResourceMeta meta : resourceMetaList) {
-			if (meta.getK().contains("assay_platform")) {
-				resourceForm.setPlatform(meta.getV());
-				break;
-			}
-		} */
-
-		resourceForm.setResourceMeta(resourceMetaList);
-		// resourceForm.setLastUpdTs(new Date());
-		// resourceForm.setLastUpdUser(getAuthenticatedUser().getUserId());
-
-		Resource resourceDb;
-		if (newResource) {
-			resourceDb = resourceDao.save(resourceForm);
-		} else {
-			resourceForm.setResourceId(resourceId);
-			resourceDb = resourceDao.merge(resourceForm);
-		}
-
-		resourceId = resourceDb.getResourceId();
-		try{ 
-			resourceMetaDao.setMeta(resourceForm.getResourceMeta(), resourceId);
-	
-			status.setComplete();
-	
-			waspMessage(newResource ? "resource.created_success.label"
-				: "resource.updated_success.label");
-		} catch (MetadataException e){
-			logger.warn(e.getLocalizedMessage());
-			waspErrorMessage("resource.updated.error");
-		}
-
-		return "redirect:/resource/detail_ro/" + resourceId + ".do";
-	}
 
 }

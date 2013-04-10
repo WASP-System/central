@@ -24,7 +24,11 @@ import org.springframework.util.Assert;
 
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Repository
 public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements WaspStepExecutionDao, InitializingBean{
 	
@@ -92,6 +96,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			}
 			sql += " )";
 		}
+		sql += " ORDER BY STEP_EXECUTION_ID DESC, SE.JOB_EXECUTION_ID DESC";
 		logger.trace("Built SQL string: " + getQuery(sql));
 		for (String key: parameterSource.getValues().keySet())
 			logger.trace("Parameter: " + key + "=" + parameterSource.getValues().get(key).toString());

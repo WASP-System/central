@@ -20,7 +20,7 @@ import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.interfaces.cli.ClientMessageI;
+import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * 
  */
 public abstract class WaspPlugin extends HashMap<String, String> implements
-		InitializingBean, DisposableBean, ClientMessageI {
+		InitializingBean, DisposableBean, WaspPluginI, ClientMessageI {
 
 	private static final long serialVersionUID = 44139013862650632L;
 
@@ -152,8 +152,9 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	}
 
 	/**
-	 * @return the provides
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Set<SoftwarePackage> getProvides() {
 		return provides;
 	}
@@ -167,8 +168,9 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	}
 
 	/**
-	 * @return the handles
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Set<String> getHandles() {
 		return handles;
 	}
@@ -182,8 +184,9 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	}
 
 	/**
-	 * @return the pluginName
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String getPluginName() {
 		return pluginName;
 	}

@@ -49,7 +49,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	@Transactional
 	public Sample getSampleBySampleId (final int sampleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleId", sampleId);
+		m.put("id", sampleId);
 
 		List<Sample> results = this.findByMap(m);
 
@@ -64,9 +64,9 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 	@Override
 	public List<Sample> getSamplesByJobId (final int jobId) {
 		   String sql=
-			   "SELECT s.sampleId, s.name\n"+
+			   "SELECT s.id, s.name\n"+
 			   "FROM jobsample js\n"+
-			   "JOIN sample s ON s.sampleId = js.sampleId\n"+
+			   "JOIN sample s ON s.id = js.sampleId\n"+
 			   "WHERE jobId = :jobId\n"+
 			   "ORDER by s.name";
 			  
@@ -81,7 +81,7 @@ public class SampleDaoImpl extends WaspDaoImpl<Sample> implements edu.yu.einstei
 			   String name=(String)o[1];
 			   
 			   Sample sample = new Sample();
-			   sample.setSampleId(sampleId);
+			   sample.setId(sampleId);
 			   sample.setName(name);
 			   
 			   result.add(sample);

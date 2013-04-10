@@ -47,7 +47,7 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	@Transactional
 	public ResourceCell getResourceCellByResourceCellId (final Integer resourceCellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceCellId", resourceCellId);
+		m.put("id", resourceCellId);
 
 		List<ResourceCell> results = this.findByMap(m);
 

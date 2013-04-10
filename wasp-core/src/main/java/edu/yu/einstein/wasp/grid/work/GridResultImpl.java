@@ -5,7 +5,11 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+
+import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 
 
 /**
@@ -30,6 +34,40 @@ public class GridResultImpl implements GridResult, Serializable {
 	transient private InputStream stdOutStream;
 	transient private InputStream stdErrStream;
 	
+	private ExecutionMode mode = ExecutionMode.PROCESS;
+	
+	private int numberOfTasks = 1;
+	
+	/**
+	 * @return the mode
+	 */
+	@Override
+	public ExecutionMode getMode() {
+		return mode;
+	}
+
+	/**
+	 * @param mode the mode to set
+	 */
+	public void setMode(ExecutionMode mode) {
+		this.mode = mode;
+	}
+
+	/**
+	 * @return the numberOfTasks
+	 */
+	@Override
+	public int getNumberOfTasks() {
+		return numberOfTasks;
+	}
+
+	/**
+	 * @param numberOfTasks the numberOfTasks to set
+	 */
+	public void setNumberOfTasks(int numberOfTasks) {
+		this.numberOfTasks = numberOfTasks;
+	}
+
 	@Override
 	public int getExitStatus() {
 		return exitStatus;
@@ -136,5 +174,30 @@ public class GridResultImpl implements GridResult, Serializable {
 	@Override
 	public void setArchivedResultOutputPath(String path) {
 		this.archivedResultOutputPath = path;
+	}
+	
+	private boolean secureResults;
+
+	@Override
+	public boolean isSecureResults() {
+		return secureResults;
+	}
+	
+	public void setSecureResults(boolean secure) {
+		this.secureResults = secure;
+	}
+	
+	private Set<Integer> fileGroupIds = new HashSet<Integer>();
+
+	/* (non-Javadoc)
+	 * @see edu.yu.einstein.wasp.grid.work.GridResult#getFileGroupIds()
+	 */
+	@Override
+	public Set<Integer> getFileGroupIds() {
+		return fileGroupIds;
+	}
+	
+	public void setFileGroupIds(Set<Integer> ids) {
+		this.fileGroupIds = ids;
 	}
 }

@@ -8,14 +8,13 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Converts Apache Tiles mapping to page title string
  * Expects "pageTitle.definitionName.label" property in uifield database table.
  * @Author Sasha Levchuk
@@ -29,13 +28,6 @@ public class PageTitleTag extends BodyTagSupport {
 	
 	@Override
 	public int doStartTag() throws javax.servlet.jsp.JspException {
-	
-		return Tag.EVAL_PAGE;
-	}
-	
-	
-	@Override
-	public int doEndTag() throws javax.servlet.jsp.JspException {
 		
 		HttpSession session=((HttpServletRequest)this.pageContext.getRequest()).getSession();
 		

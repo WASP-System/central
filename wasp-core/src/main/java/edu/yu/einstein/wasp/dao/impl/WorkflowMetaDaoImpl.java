@@ -47,7 +47,7 @@ public class WorkflowMetaDaoImpl extends WaspMetaDaoImpl<WorkflowMeta> implement
 	@Transactional
 	public WorkflowMeta getWorkflowMetaByWorkflowMetaId (final Integer workflowMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowMetaId", workflowMetaId);
+		m.put("id", workflowMetaId);
 
 		List<WorkflowMeta> results = this.findByMap(m);
 

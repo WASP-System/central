@@ -1,5 +1,10 @@
 package edu.yu.einstein.wasp.integration.messages;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class WaspMessageType {
 	
 	// constant for use with message headers

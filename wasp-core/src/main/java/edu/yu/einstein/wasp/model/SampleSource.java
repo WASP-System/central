@@ -12,14 +12,19 @@
 package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,6 +33,13 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
+/**
+ * 
+ * Library-cell relationship.  Used for mapping sample pair relationships for analysis.
+ * 
+ * @author calder
+ *
+ */
 @Entity
 @Audited
 @Table(name="samplesource")
@@ -37,12 +49,7 @@ public class SampleSource extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = 5159692371397079658L;
-	/** 
-	 * sampleSourceId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSourceId;
+	
 
 	/**
 	 * setSampleSourceId(Integer sampleSourceId)
@@ -50,9 +57,9 @@ public class SampleSource extends WaspModel {
 	 * @param sampleSourceId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSourceId (Integer sampleSourceId) {
-		this.sampleSourceId = sampleSourceId;
+		setId(sampleSourceId);
 	}
 
 	/**
@@ -61,8 +68,9 @@ public class SampleSource extends WaspModel {
 	 * @return sampleSourceId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSourceId () {
-		return this.sampleSourceId;
+		return getId();
 	}
 
 
@@ -102,7 +110,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@Column(name="indexvalue")
-	protected Integer index;
+	protected Integer index = 0;
 
 	/**
 	 * setIndex(Integer index)
@@ -156,77 +164,12 @@ public class SampleSource extends WaspModel {
 		return this.sourceSampleId;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sample
 	 *
 	 */
 	@NotAudited
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="sampleid", insertable=false, updatable=false)
 	protected Sample sample;
 
@@ -238,7 +181,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -258,7 +201,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="source_sampleid", insertable=false, updatable=false)
 	protected Sample sourceSample;
 
@@ -270,7 +213,7 @@ public class SampleSource extends WaspModel {
 	 */
 	public void setSourceSample (Sample sourceSample) {
 		this.sourceSample = sourceSample;
-		this.sourceSampleId = sourceSample.sampleId;
+		this.sourceSampleId = sourceSample.getId();
 	}
 
 	/**
@@ -290,7 +233,7 @@ public class SampleSource extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@OneToMany
+	@OneToMany(fetch=FetchType.EAGER)
 	@JoinColumn(name="samplesourceid", insertable=false, updatable=false)
 	protected List<SampleSourceMeta> sampleSourceMeta;
 
@@ -316,4 +259,26 @@ public class SampleSource extends WaspModel {
 	public void setSampleSourceMeta (List<SampleSourceMeta> sampleSourceMeta) {
 		this.sampleSourceMeta = sampleSourceMeta;
 	}
+	
+	/**
+	 * 
+	 */
+	@ManyToMany
+	@JoinTable(name="samplesourcefilegroup", joinColumns={@JoinColumn(name="samplesourceid")}, inverseJoinColumns={@JoinColumn(name="filegroupid")})
+	private Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+
+	/**
+	 * @return the fileGroups
+	 */
+	public Set<FileGroup> getFileGroups() {
+		return fileGroups;
+	}
+
+	/**
+	 * @param fileGroups the fileGroups to set
+	 */
+	public void setFileGroups(Set<FileGroup> fileGroups) {
+		this.fileGroups = fileGroups;
+	}
+	
 }

@@ -56,27 +56,27 @@
 	
 	<!-- bridges between priority and publish-subscribe channels to throttle messages -->
 	<int:bridge id="wasp.channel.bridge.job" input-channel="wasp.channel.priority.job" output-channel="wasp.channel.notification.job" >
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.run" input-channel="wasp.channel.priority.run" output-channel="wasp.channel.notification.run">
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.sample"  input-channel="wasp.channel.priority.sample" output-channel="wasp.channel.notification.sample">
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.library"  input-channel="wasp.channel.priority.library" output-channel="wasp.channel.notification.library">
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	<int:bridge id="wasp.channel.bridge.analysis"  input-channel="wasp.channel.priority.analysis" output-channel="wasp.channel.notification.analysis">
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 		
 	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
-		<int:poller max-messages-per-poll="1" fixed-rate="100" />
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
 	
@@ -126,4 +126,6 @@
 		<int:mapping value="#{waspMessageType.GENERIC}" channel="wasp.channel.priority.default"/>
 	</int:header-value-router>
 		
+	
+	
 </beans>

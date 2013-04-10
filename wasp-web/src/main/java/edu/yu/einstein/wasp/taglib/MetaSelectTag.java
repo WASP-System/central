@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.model.MetaAttribute;
 
-/*
+/**
  * Initializes request attributes selectItems,itemValue and itemLabel based on MetaAttribute.Control object.
  * The purpose of this tag is: 
  *    a) obtain list of objects to render "option" HTML tags of "select" HTML tag and save the list under "selectItems" name in request attributes. 
@@ -40,7 +40,7 @@ public class MetaSelectTag extends BodyTagSupport {
 
 
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 
 		if (control==null) return Tag.EVAL_PAGE;
 		

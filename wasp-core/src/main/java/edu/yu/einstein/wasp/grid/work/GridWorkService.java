@@ -5,7 +5,9 @@ package edu.yu.einstein.wasp.grid.work;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -71,5 +73,9 @@ public interface GridWorkService {
 	public InputStream readResultStdErr(GridResult r) throws IOException;
 	
 	public InputStream readResultStdOut(GridResult r) throws IOException;
+	
+	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException;
+
+	public LinkedHashMap<String,String> getMappedTaskOutput(GridResult r) throws IOException;
 
 }

@@ -2,10 +2,10 @@ package edu.yu.einstein.wasp.exception;
 
 /**
  * Reporting of WASP metadata exceptions
- * @author andymac
+ * @author asmclellan
  *
  */
-public class FileUploadException extends Exception{
+public class FileUploadException extends RuntimeException {
 	
 	/**
 	 * 

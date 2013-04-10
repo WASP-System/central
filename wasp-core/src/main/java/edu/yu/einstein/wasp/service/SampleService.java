@@ -14,11 +14,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
+import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.dao.SampleSourceMetaDao;
+import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
+import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -276,7 +284,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public Map<Integer, Sample> getIndexedCellsOnPlatformUnit(Sample platformUnit) throws SampleTypeException;
 
 	  /**
-	   * Returns Number Of Indexed Cells (lanes) on a platform unit
+	   * Returns Number Of Indexed Cells (cells) on a platform unit
 	   * @param platformUnit
 	   * @return Integer numberOfIndexedCells
 	   * @throws SampleTypeException 
@@ -336,13 +344,13 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * Adds a given library to the given cell
 	   * @param cell
 	   * @param library
-	   * @param libConcInLanePicoM
+	   * @param libConcInCellPicoM
 	   * @throws SampleTypeException
 	   * @throws SampleException
 	   * @throws SampleMultiplexException
 	   * @throws MetadataException
 	   */
-	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInLanePicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
+	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
 
 	  /**
 	   * Clones a sampleDraft object
@@ -501,7 +509,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	  
 	  /**
-	   * Returns an ordered (ascending) List Of Integers of the number of lanes that are available on a particular type of platformunit (flowcell). 
+	   * Returns an ordered (ascending) List Of Integers of the number of cells that are available on a particular type of platformunit (flowcell). 
 	   * If the SampleSubtype is not in the database or is not of type platformunit, throw SampleSubtypeException or SampleTypeException, respectively.
 	   * If the SampleSubtypeMetadata for maxCellNumber is not found throw a SampleSubtypeException.
 	   * If the values for maxCellNumber, and if found multiplicationFactor, are not convertable to numbers, throw NumberFormatException.
@@ -512,26 +520,26 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Integer> getNumberOfCellsListForThisTypeOfPlatformUnit(SampleSubtype sampleSubtype) throws SampleTypeException, SampleSubtypeException;
 
 	  /**
-	   * Returns true if requested reduction in number of cells of a platformunit will lead to loss of lanes containing libraries 
+	   * Returns true if requested reduction in number of cells of a platformunit will lead to loss of cells containing libraries 
 	   * @param Sample sample
-	   * @param Integer numberOfLanesRequested
+	   * @param Integer numberOfCellsRequested
 	   * @return boolean
 	   */
-	  public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfLanesRequested) throws SampleException, SampleTypeException;
+	  public boolean isRequestedReductionInCellNumberProhibited(Sample platformUnitInDatabase, Integer numberOfCellsRequested) throws SampleException, SampleTypeException;
 	 
 	  /**
 	   * Create or update platform unit. If platformUnitId==null or platformUnitId.intVal()<=0, create new platformunit, otherwise update.
 	   * If create/update is unsuccessful, throw exception, else return void. Under transactional control. 
-	   * If this is an update and numberOfLanesRequested > numberOfLanesInDatabase, then add additional lanes.
-	   * If this is an update and  numberOfLanesRequested < numberOfLanesInDatabase, then remove extra lanes ONLY IF THE LANES TO BE REMOVED DO NOT CONTAIN LIBRARIES.
+	   * If this is an update and numberOfCellsRequested > numberOfCellsInDatabase, then add additional cells.
+	   * If this is an update and  numberOfCellsRequested < numberOfCellsInDatabase, then remove extra cells ONLY IF THE LANES TO BE REMOVED DO NOT CONTAIN LIBRARIES.
 	   * @param Sample platformUnit
 	   * @param Sample barcodeName
-	   * @param Integer numberOfLanesRequested
+	   * @param Integer numberOfCellsRequested
 	   * @param List<SampleMeta> sampleMetaList
 	   * @param SampleSubtype sampleSubtype
 	   * @return void
 	   */
-	  public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfLanesRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException;
+	  public void createUpdatePlatformUnit(Sample platformUnit, SampleSubtype sampleSubtype, String barcodeName, Integer numberOfCellsRequested, List<SampleMeta> sampleMetaList) throws SampleException, SampleTypeException, SampleSubtypeException;
 		
 	  /**
 	   * Deletes platform unit 
@@ -574,22 +582,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public Resource getSequencingMachineByResourceId(Integer resourceId) throws ResourceException;
 
-	  /**
-	   * Gets sequence run record from database. If not found or if not massively-parallel sequence run, throw exception
-	   * @param Integer runId
-	   * @return Run run
-	   */
-	  public Run getSequenceRun(Integer runId) throws RunException;
-	   
-	  /**
-	   * Create of update sequence run. Check parameters for compatibility and if problem throw exception
-	   * @param Run runInstance
-	   * @param List<RunMeta> runMetaList
-	   * @param Integer platformUnitId (for a sample)
-	   * @param Integer resourceId (for a resource)
-	   * @return void
-	   */
-	  public void createUpdateSequenceRun(Run runInstance, List<RunMeta> runMetaList, Integer platformUnitId, Integer resourceId)throws Exception;
+	    
+	 
 	  
 	  /**
 	   * Determine whether the samplesubtype of a platformunit (ie.: the type of flowcell) is compatible with a mps sequencing machine
@@ -599,13 +593,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public boolean isPlatformUnitCompatibleWithSequencingMachine(Sample platformUnit, Resource sequencingMachineInstance);
 	  
-	  /**
-	   * Delete sequence run
-	   * @param Run run
-	   * @return void
-	   */
-	  public void deleteSequenceRun(Run run)throws Exception;
-
+	  
 	  /**
 	   * is sampleDraft a DNA or RNA molecule
 	   * @param sampleDraft
@@ -733,7 +721,18 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @throws Exception
 		 */
 	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
-		
+
+	  public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId);
+	  
+	  /**
+		 * save an InAggregateAnalysis comment
+		 * @param Integer sampleSourceId
+		 * @param String comment
+		 * @return void
+		 * @throws Exception
+		 */
+	  public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
+
 		/**
 		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
 		 * @param Integer sampleId
@@ -760,13 +759,22 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 */
 	  public void updateExistingSampleViaSampleWrapper(SampleWrapper sw, List<SampleMeta> sampleMetaList);
+	  
+	  
+	  /**
+	   * Set the concentration of library added to a cell (as SampleSource metadata)
+	   * @param cellLibrary
+	   *  @param valueInPicoM
+	   * @throws MetadataException
+	   */
+	  public void setLibraryOnCellConcentration(SampleSource cellLibrary, Float valueInPicoM) throws MetadataException;
 
 	  /**
 	   * Set the concentration of library added to a cell (as SampleSource metadata)
 	   * @param cell
 	   * @param library
 	   * @param valueInPicoM
-	   * @throws SampleException
+	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
 	  public void setLibraryOnCellConcentration(Sample cell, Sample library, Float valueInPicoM) throws SampleException, MetadataException;
@@ -782,12 +790,20 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  /**
 	   * Record the job associated with the library added to the cell (as SampleSource metadata)
-	   * @param cell
-	   * @param library
-	   * @throws SampleException
+	   * @param cellLibrary
+	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
-	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleException, MetadataException;
+	  public void setJobForLibraryOnCell(SampleSource cellLibrary) throws MetadataException;
+	  
+	  /**
+	   * Record the job associated with the library added to the cell (as SampleSource metadata)
+	   * @param cell
+	   * @param library
+	   * @throws SampleTypeException
+	   * @throws MetadataException
+	   */
+	  public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * get the job of the library on a cell
@@ -847,12 +863,14 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Sample> getControlSamplesForAJobsSample(Job job, Sample sample);
 
 	  /**
-	   * Returns true if cell marked as being sequenced successfully. If not successful or not set, false is returned.
+	   * Returns true if cell marked as being sequenced successfully otherwise false is returned. 
+	   * Throws a MetaAttributeNotFoundException if the value is not set
 	   * @param cell
 	   * @return
 	   * @throws SampleTypeException
+	 * @throws MetaAttributeNotFoundException 
 	   */
-	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException;
+	  public boolean isCellSequencedSuccessfully(Sample cell) throws SampleTypeException, MetaAttributeNotFoundException;
 
 	  /**
 	   * Sets a cell to have been sequenced successfully or not. This value should be set by the facility manager on 
@@ -862,55 +880,139 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleTypeException
 	   * @throws MetadataException 
 	   */
-	  public void setIsCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
+	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
 	   * is cellLibrary pre-processed?
 	   * @param cellLibrary
-	   * @return
+	   * @return boolean
 	   * @throws SampleTypeException
 	   */
 	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
 			
-			
 	  /**
 		 * has cellLibrary passed QC?
-		 * @param cellLibrary
-		 * @param isPreprocessed
+		 * @param SampleSource
 		 * @throws SampleTypeException
-		 * @throws MetadataException
+		 * @throws MetaAttributeNotFoundException
 		 */
-	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException;
+	  public boolean isCellLibraryPassedQC(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
 		
 	  /**
-	   * Sets if cellLibrary has passed QC
+	   * Creates samplesource metadata to record whether cellLibrary has passed QC
 	   * @param cellLibrary
 	   * @param isPassedQC
+	   * @return void
 	   * @throws SampleTypeException
 	   * @throws MetadataException
 	   */
-	  public void setIsCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+	  public void setCellLibraryPassedQC(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 
 	  public SampleSourceDao getSampleSourceDao();
 
-	void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
 
-	Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
+	  public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException;
+	  public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException;
+	  
+	  /**
+		 * has cellLibrary passed QC?
+		 * @param SampleSource
+		 * @throws SampleTypeException
+		 * @throws MetaAttributeNotFoundException
+		 */
+	  public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
 
-	Job getJobBySamplePair(SampleSource samplePair);
+	  public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+		
 
-	Set<SampleSource> getSamplePairsByJob(Job job);
+	  public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
 
-	SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
+	public Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
 
-	Sample getTestSample(SampleSource samplePair);
+	public Job getJobBySamplePair(SampleSource samplePair);
 
-	Sample getControlSample(SampleSource samplePair);
+	public Set<SampleSource> getSamplePairsByJob(Job job);
 
-	Sample getControlSampleByTestSample(Sample testSample);
+	public SampleSource getSamplePair(Sample testSample, Sample controlSample) throws SampleTypeException;
 
-	void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+	public Sample getTestSample(SampleSource samplePair);
+
+	public Sample getControlSample(SampleSource samplePair);
+
+	public List<Sample> getControlSamplesByTestSample(Sample testSample);
+
+	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+
+	public List<SampleSource> getPreprocessedCellLibraries(Job job);
+	
+	/**
+	 * has save both the in_aggregate_analysis meta and a comment meta
+	 * @param SampleSource cell library
+	 * @param String qcStatus (values of INCLUDE OR EXCLUDE only)
+	 * @param String comment
+	 * @throws Runtime exception
+	 */
+	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
+
+	/** 
+	 * Get the index of the cell (the position on it's associated platform unit)
+	 * @param cell
+	 * @return
+	 * @throws SampleTypeException
+	 * @throws SampleParentChildException
+	 */
+	public Integer getCellIndex(Sample cell) throws SampleTypeException, SampleParentChildException;
+
+	/**
+	 * gets the view link for displaying a platformunit view based on resource category.
+	 * @param platformunit
+	 * @param area
+	 * @return
+	 */
+	public String getPlatformunitViewLink(Sample platformunit);
+	
+	public SampleSubtypeDao getSampleSubtypeDao();
+
+	public void setSampleSubtypeDao(SampleSubtypeDao sampleSubtypeDao);
+
+	public SampleTypeDao getSampleTypeDao();
+
+	public void setSampleTypeDao(SampleTypeDao sampleTypeDao);
+	
+	public SampleSourceMetaDao getSampleSourceMetaDao();
+	
+	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao);
 
 	
+	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
+			throws SampleParentChildException;
+
+	public SampleSource getCellLibraryBySampleSourceId(Integer ssid)
+			throws SampleTypeException;
 	  
+	/**
+	 * Find the cell-libraries (type SampleSource) for a given cell instance.  A cell library is the 
+	 * most atomic entity, representing an instance of a library assayed on a given cell.
+	 * 
+	 * @param cell (of type Sample)
+	 * @return List of Cell-libraries
+	 */
+	public List<SampleSource> getCellLibraries(Sample cell);
+
+	public void setSampleMetaDao(SampleMetaDao sampleMetaDao); 
+	
+	public SampleMetaDao getSampleMetaDao();
+	
+	public void setSampleDraftDao(SampleDraftDao sampleDraftDao);
+	
+	public SampleDraftDao getSampleDraftDao();
+	
+	public void setSampleDraftMetaDao(SampleDraftMetaDao sampleDraftMetaDao);
+	
+	public SampleDraftMetaDao getSampleDraftMetaDao();
+
+	public String getNameOfOrganism(Sample sample, String defaultValue);
+
+	public String getNameOfOrganism(Sample sample);
+
 }

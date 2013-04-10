@@ -18,6 +18,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,8 @@ import edu.yu.einstein.wasp.model.MetaBase;
 @Repository
 public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E> implements WaspMetaDao<E> {
 	
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -36,6 +40,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 	public List<E> setMeta(final List<E> metaList, final int modelParentId) throws MetadataException{
 		List<E> returnMetaList = new ArrayList<E>();
 		String parentClassName = StringUtils.substringBefore(entityClass.getSimpleName(), "Meta");
+		logger.debug("setting meta on " + parentClassName + " for id: " + modelParentId);
 		String modelParentIdEntityIdSetterMethodName = null;
 		for (Method method : entityClass.getMethods()){
 			if (StringUtils.equalsIgnoreCase(method.getName(), "set" + parentClassName + "Id")){
@@ -43,6 +48,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 				break;
 			}
 		}
+		logger.debug("using method " + modelParentIdEntityIdSetterMethodName);
 		for (E meta : metaList) {
 			try {
 				entityClass.getMethod(modelParentIdEntityIdSetterMethodName, Integer.class).invoke(meta, modelParentId);
@@ -68,7 +74,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 				break;
 			}
 		}
-		String modelParentIdEntityIdGetterMethodName = null;;
+		String modelParentIdEntityIdGetterMethodName = null;
 		for (Method method : entityClass.getMethods()){
 			if (StringUtils.equalsIgnoreCase(method.getName(), "get" + parentClassName + "Id")){
 				modelParentIdEntityIdGetterMethodName = method.getName();
@@ -86,6 +92,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 		Map<String, Object> m = new HashMap<String, Object>();
 		m.put(modelParentIdEntityName, modelParentId);
 		m.put("k", meta.getK());
+		logger.debug(modelParentIdEntityName + ":" + modelParentId + ":" + meta.getK());
 		List<E> existingMetaList = findByMap(m);
 		if (!existingMetaList.isEmpty()){
 			E existingMeta = existingMetaList.get(0);

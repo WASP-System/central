@@ -18,6 +18,11 @@ import edu.yu.einstein.wasp.load.service.WaspLoadService;
 import edu.yu.einstein.wasp.model.UiField;
 import edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class WaspLoadServiceImpl implements WaspLoadService {

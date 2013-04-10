@@ -25,26 +25,10 @@
 	
 	<script type="text/javascript">
 	
-		function waspTooltip(){
-			$( ".tooltip" ).tooltip({
-		  	      position: {
-		  	        my: "center bottom-20",
-		  	        at: "center top",
-		  	        using: function( position, feedback ) {
-		  	          $( this ).css( position );
-		  	          $( "<div>" )
-		  	            .addClass( "arrow" )
-		  	            .addClass( feedback.vertical )
-		  	            .addClass( feedback.horizontal )
-		  	            .appendTo( this );
-		  	        }
-		  	      }
-		  	    });
-		}
+		
 	
 		$( document ).ready( function(){
-			waspTooltip();
-	  		waspFade("waspErrorMessage");
+			waspFade("waspErrorMessage");
 	  		waspFade("waspMessage");
 	  	});
 	
@@ -169,7 +153,7 @@
 		 
 		<%-- structure to define L&F of "add row" functionality. see JQGrid documentation at http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs for parameter descriptions --%>
 		var _addAttr={
-			serializeEditData: function(data){ return $.param($.extend({}, data, {id:0}));},//pass '0' on add instead of empty string
+			serializeEditData: function(data){ return $.param($.extend({}, data, {id:null}));},//pass 'NULL' on add instead of empty string, this is a new object 
 			closeAfterAdd:true,
 			closeOnEscape:true,
 			errorTextFormat:_errorTextFormat,
@@ -288,7 +272,7 @@
 						dataInit: function(elm){
 							setTimeout(
 								function(){ 
-									jQuery(elm).datepicker({dateFormat:'yy-mm-dd'});
+									jQuery(elm).datepicker({ dateFormat: "yy/mm/dd" });
 									jQuery('.ui-datepicker').css({'font-size':'80%'}); 
 			                	}, 200);
 						}
@@ -610,10 +594,32 @@
 						else {
 						    jQuery("#grid_id").setSelection (userdata.selId, true);
 						}
+						
 					},
+					
+					
+					
 		
 					onPaging : function(which_button) {
 						$("#grid_id").setGridParam({datatype:'json'});
+						
+					},
+					
+					gridComplete : function(){
+						$( ".tooltip" ).tooltip({
+					  	      position: {
+					  	        my: "center bottom-20",
+					  	        at: "center top",
+					  	        using: function( position, feedback ) {
+					  	          $( this ).css( position );
+					  	          $( "<div>" )
+					  	            .addClass( "arrow" )
+					  	            .addClass( feedback.vertical )
+					  	            .addClass( feedback.horizontal )
+					  	            .appendTo( this );
+					  	        }
+					  	      }
+					  	    });
 					},
 		 
 					ondblClickRow: function(rowid) {//enable "edit" on dblClick			
@@ -649,7 +655,7 @@
 	
 	</script>
 	<tiles:insertAttribute name="head-js" />
-	
+	<tiles:insertAttribute name="head-style" />
 </head>
 
 

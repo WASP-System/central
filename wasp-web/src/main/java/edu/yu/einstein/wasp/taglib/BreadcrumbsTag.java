@@ -15,7 +15,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Converts Apache Tiles mapping to page title string and updates breadcrumb trail
  * Expects "pageTitle.definitionName.label" property in uifield database table.
  * @Author ASMclellan
@@ -46,7 +46,7 @@ public class BreadcrumbsTag extends BodyTagSupport {
 			if (!StringUtils.isEmpty(body)) {
 				try {										
 					this.pageContext.getOut().print(body);
-					return EVAL_BODY_INCLUDE;
+					return Tag.EVAL_PAGE;
 				} catch (IOException e) {
 					throw new JspTagException(e.getMessage());
 				}
@@ -95,7 +95,7 @@ public class BreadcrumbsTag extends BodyTagSupport {
 		}
 		
 		
-		return EVAL_BODY_INCLUDE;
+		return Tag.EVAL_PAGE;
 	}
 	
 }

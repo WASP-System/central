@@ -12,1770 +12,2358 @@ flush privileges;
 
 use wasp;
 
---
--- META - for generic drop downs and such
---
-create table meta (
-  metaid int(10)  primary key auto_increment,
 
-  property varchar(250) , 
-  k varchar(250) , -- internal value?
-  v TEXT , -- external label?
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_meta_p_k (property, k)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- USER 
---
-create table user (
-  userid int(10)  primary key auto_increment,
-
-  login varchar(250) , 
-  email varchar(250) , 
-  password varchar(250) , 
-  firstname varchar(250) , 
-  lastname varchar(250) , 
-
-  locale varchar(5)  default 'en_US',
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0, 
-
-  constraint unique index u_user_login (login),
-  constraint unique index u_user_email (email)
-) ENGINE=InnoDB charset=utf8;
-
-
-
--- insert into user values 
--- ( 1, 'admin', 'admin@localhost',  PASSWORD('waspV2'), 'Admin', '-', 1, now(), 1 );
-
-create table usermeta (
-  usermetaid int(10)  primary key auto_increment,
-  userid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_usermeta_userid (userid) references user(userid),
-  constraint unique index u_usermeta_k_uid (k, userid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- forgot password
---
-create table userpasswordauth (
-  userid int(10)  primary key, 
-  authcode varchar(250) ,
-  lastupdts timestamp  default current_timestamp, 
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpasswordauth_userid (userid) references user(userid),
-  constraint unique index u_userpasswordauth (authcode)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-
---
--- ROLE
---
-create table role ( 
-  roleid int(10)  primary key auto_increment, 
-  rolename varchar(250), 
-  name varchar(250),
-  domain varchar(20),
-
-  constraint unique index u_role_rname (rolename),
-  constraint unique index u_role_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-insert into role values
-(1, 'fm', 'Facilities Manager', 'system'),
-(2, 'sa', 'System Administrator', 'system'),
-(3, 'ga', 'General Administrator', 'system'),
-(4, 'da', 'Department Administrator', 'department'), -- departmentuser, implicit
-(5, 'ft', 'Facilities Tech', 'system'), 
-(6, 'pi', 'Primary Investigator', 'lab'), -- labuser, explicit
-(7, 'lm', 'Lab Manager', 'lab'), -- labuser, explicit
-(8, 'lu', 'Lab Member', 'lab'), -- labuser, explicit
-(9, 'js', 'Job Submitter', 'job'),-- jobuser, explicit
-(10, 'jv', 'Job Viewer', 'job'), -- jobuser, explicit
-(11, 'su', 'Super User', 'system'),
-(12, 'lx', 'Lab Member Inactive', 'lab'), -- labuser, explicit
-(13, 'lp', 'Lab Member Pending', 'lab'), -- labuser, explicit
-(14, 'jd', 'Job Drafter', 'jobdraft'), -- labuser, explicit
-(15, 'u', 'User', 'user');
-
-
-create table roleset (
-  rolesetid int(10)  primary key auto_increment, 
-  parentroleid int(10) ,
-  childroleid int(10) ,
-  
-  foreign key fk_roleset_prid (parentroleid) references role(roleid),
-  foreign key fk_roleset_crid (childroleid) references role(roleid),
-
-  constraint unique index u_role_rname (parentroleid, childroleid)
-) ENGINE=InnoDB charset=utf8;
-
-insert into roleset
-(parentroleid, childroleid)
-select 
-roleid, roleid 
-from role;
-
-insert into roleset 
-(parentroleid, childroleid)
-values
-(1, 5),
-(6, 7),
-(6, 8),
-(7, 8),
-(9, 10),
-(11, 1),
-(11, 2),
-(11, 3),
-(11, 5);
-
-
--- USER.ROLE
---
-create table userrole (
-  userroleid int(10)  primary key auto_increment, 
-
-  userid int(10) , 
-  roleid int(10) , 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userrole_rid (roleid) references role(roleid),
-  foreign key fk_userrole_uid (userid) references user(userid),
-
-  constraint unique index userrole_uid_rid (userid, roleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- insert into userrole values (1, 1, 1, now(), 1);
-
---
--- DEPARTMENT
---
-create table department (
-  departmentid int(10)  primary key auto_increment,
-  name varchar(250) ,
-
-  isinternal int(1)  default 1,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_department_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-insert into department values 
-( 1, 'Internal - Default Department', 1, 1, now(), 1 ),
-( 2, 'External - Default Department', 0,  1, now(), 1 );
-
--- LAB.USER
---   - presumably 'Department Admin'
--- 
-create table departmentuser ( 
-  departmentuserid int(10)  primary key auto_increment, 
-
-  departmentid int(10) , 
-  userid int(10) , 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_departmentuser_uid (userid) references user(userid),
-  foreign key fk_departmentuser_did (departmentid) references department(departmentid),
-
-  constraint unique index u_departmentuser_did_uid (departmentid, userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- LAB 
---
-create table lab ( 
-  labid int(10)  primary key auto_increment,
-
-  departmentid int(10) , 
-  name varchar(250) ,
-
-  primaryuserid int(10) , -- primary investigator?
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_lab_did (departmentid) references department(departmentid),
-  foreign key fk_lab_puid (primaryuserid) references user(userid)
---  There is no reason why lab name needs to be unique or why a user cannot have more than one lab
---  constraint unique index u_lab_name (name),
---  constraint unique index u_lab_puid (primaryuserid)
-) ENGINE=InnoDB charset=utf8;
-
--- insert into lab values 
--- ( 1, 1, 'Default Lab',  1, 1, now(), 1 );
-
-create table labmeta (
-  labmetaid int(10)  primary key auto_increment,
-  labid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labmeta_labid (labid) references lab(labid),
-  constraint unique index u_labmeta_k_lid (k, labid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- LAB.USER
---   - presumably 'Lab Member', 'Lab Manager' or 'Primary Investigator'
--- 
-create table labuser ( 
-  labuserid int(10)  primary key auto_increment, 
-
-  labid int(10) , 
-  userid int(10) , 
-
-  roleid int(10) , 
-   
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labuser_lid (labid) references lab(labid),
-  foreign key fk_labuser_uid (userid) references user(userid),
-  foreign key fk_labuser_rid (roleid) references role(roleid),
-
-  constraint unique index u_labuser_lid_uid (labid, userid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- pending user
--- 
-create table userpending (
-  userpendingid int(10)  primary key auto_increment,
-
-  email varchar(250) , 
-  password varchar(250) , 
-  login varchar(250) , 
-  firstname varchar(250) , 
-  lastname varchar(250) , 
-  locale varchar(5)  default 'en_US',
-  labid int(10),
-
-  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
-
-  lastupdts timestamp  default current_timestamp, 
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpending_lid (labid) references lab(labid),
-
-  index i_userpending_status(status, email) 
-) ENGINE=InnoDB charset=utf8;
-
-create table userpendingmeta (
-  userpendingmetaid int(10)  primary key auto_increment,
-  userpendingid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_userpendingmeta_userpendingid (userpendingid) references userpending(userpendingid),
-  constraint unique index u_userpendingmeta_k_lid (k, userpendingid)
-) ENGINE=InnoDB charset=utf8;
-
-create table labpending ( 
-  labpendingid int(10)  primary key auto_increment,
-
-  departmentid int(10) , 
-  name varchar(250) ,
-
-  primaryuserid int(10),
-  userpendingid int(10),
-
-  status varchar(10)  default 'PENDING', -- PENDING, APPROVED, DECLINED
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labpending_did (departmentid) references department(departmentid),
-  foreign key fk_labpending_pruid (primaryuserid) references user(userid),
-  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
-  index (status, name)
-) ENGINE=InnoDB charset=utf8;
-
-create table labpendingmeta (
-  labpendingmetaid int(10)  primary key auto_increment,
-  labpendingid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_labpendingmeta_labpendingid (labpendingid) references labpending(labpendingid),
-  constraint unique index u_labpendingmeta_k_lid (k, labpendingid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- confirm email
---
-create table confirmemailauth (
-  confirmemailauthid  int(10)  primary key auto_increment,
-  userpendingid int(10),
-  userid int(10),
-  authcode varchar(250) ,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default '0',
-  foreign key fk_labpending_uid (userid) references user(userid),
-  foreign key fk_labpending_peuid (userpendingid) references userpending(userpendingid),
-  constraint unique index u_confirmemailauth (authcode)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- type.RESOURCE
--- 
-create table resourcetype (
-  resourcetypeid int(10)  primary key auto_increment, 
-
-  iname varchar(250) ,
-  name varchar(250) ,
-
-  constraint unique index u_resourcetype_iname (iname),
-  constraint unique index u_resourcetype_name (name)
-) ENGINE=InnoDB charset=utf8; 
-
---
--- RESOURCE
--- 
-
-create table resourcecategory (
-  resourcecategoryid int(10)  primary key auto_increment, 
-  resourcetypeid int(10) not null,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourccategory_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
-
-  constraint unique index u_resourcecategory_i(iname),
-  constraint unique index u_resourcecategory_n(name)
-) ENGINE=InnoDB charset=utf8;
-
-create table resourcecategorymeta (
-  resourcecategorymetaid int(10)  primary key auto_increment,
-  resourcecategoryid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourccategoryemeta_resourcecategoryid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_resourcecategorymeta_k_rid (k, resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table resource (
-  resourceid int(10)  primary key auto_increment, 
-  resourcecategoryid int(10) , 
-  resourcetypeid int(10) ,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-  foreign key fk_resource_trid (resourcetypeid) references resourcetype(resourcetypeid),
-  foreign key fk_resource_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_resource_i(iname),
-  constraint unique index u_resource_n(name)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table software (
-  softwareid int(10)  primary key auto_increment, 
-  resourcetypeid int(10) not null,
-  iname varchar(250) ,
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_software_resourcetypeid (resourcetypeid) references resourcetype(resourcetypeid),
-
-  constraint unique index u_software_i(iname)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table softwaremeta (
-  softwaremetaid int(10)  primary key auto_increment,
-  softwareid int(10) ,
-
-  k varchar(250), 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_softwaremeta_sid (softwareid) references software(softwareid),
-  constraint unique index u_softwaremeta_k_rid (k, softwareid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table resourcemeta (
-  resourcemetaid int(10)  primary key auto_increment,
-  resourceid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_resourcemeta_resourceid (resourceid) references resource(resourceid),
-  constraint unique index u_resourcemeta_k_rid (k, resourceid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- 
--- RESOURCE.USER 
---   - presumably 'Facilities Tech', maybe w/ roleid
-  -- create table resourceuser ( 
-  -- resourceuserid int(10)  primary key auto_increment, 
-  -- 
-  -- resourceid int(10) , 
-  -- userid int(10) , 
-  -- 
-  -- lastupdts timestamp  default current_timestamp,
-  -- lastupduser int(10)  default 0,
-  -- 
-  -- foreign key fk_resourceuser_lid (resourceid) references resource(resourceid),
-  -- foreign key fk_resourceuser_uid (userid) references user(userid),
-  -- 
-  -- constraint unique index u_resourceuser_rid_uid (resourceid, userid)
-  -- ) ENGINE=InnoDB charset=utf8;
-
-
-
---
-
-
-create table workflow (
-  workflowid int(10)  primary key auto_increment, 
-
-  iname varchar(250) , 
-  name varchar(250) , 
-  createts datetime ,
-
-  isactive int(1)  default 0,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  constraint unique index u_workflow_iname (iname),
-  constraint unique index u_workflow_name (name)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowmeta (
-  workflowmetaid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_workflowmeta_workflowid (workflowid) references workflow(workflowid),
-  constraint unique index u_workflowmeta_k_wid (k, workflowid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- JOB
---
-create table job (
-  jobid int(10)  primary key auto_increment, 
-
-  labid int(10) ,
-  userid int(10) ,  -- investigator
-  workflowid int(10) ,  
-
-  name varchar(250) , 
-   
-  createts datetime ,
-
-  viewablebylab int(1)  default 0,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_job_lid (labid) references lab(labid),
-  foreign key fk_job_uid (userid) references user(userid),
-  foreign key fk_job_wid (workflowid) references workflow(workflowid),
-
-  constraint unique index u_job_name_lid (name, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobmeta (
-  jobmetaid int(10)  primary key auto_increment,
-  jobid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobmeta_jobid (jobid) references job(jobid),
-
-  constraint unique index u_jobmeta_k_jid (k, jobid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- JOB.USER
---   - presumably 'Job Submitter', 'Job Viewer'
--- 
-
-create table jobuser ( 
-  jobuserid int(10)  primary key auto_increment, 
-
-  jobid int(10) , 
-  userid int(10) , 
-
-  roleid int(10) , 
-   
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobuser_jid (jobid) references job(jobid),
-  foreign key fk_jobuser_uid (userid) references user(userid),
-  foreign key fk_jobuser_rid (roleid) references role(roleid),
-
-  constraint unique index u_jobuser_jid_uid (jobid, userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobresourcecategory (
-  jobresourcecategoryid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  resourcecategoryid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobresourcecategory_jid (jobid) references job(jobid),
-  foreign key fk_jobresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_jobresourcecategory_rcid_jid (resourcecategoryid, jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobsoftware (
-  jobsoftwareid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  softwareid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsoftware_jdid (jobid) references job(jobid),
-  foreign key fk_jobsoftware_sid (softwareid) references software(softwareid),
-  constraint unique index u_jobsoftware_rid_jdid (softwareid, jobid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- job draft
---
-
-create table jobdraft (
-  jobdraftid int(10)  primary key auto_increment, 
-
-  labid int(10) ,
-  userid int(10) ,  -- investigator
-  workflowid int(10) ,  
-
-  name varchar(250) , 
-   
-  createts datetime ,
-  submittedjobid int(10),
-
-  status varchar(50)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraft_lid (labid) references lab(labid),
-  foreign key fk_jobdraft_uid (userid) references user(userid),
-  foreign key fk_jobdraft_wid (workflowid) references workflow(workflowid),
-  foreign key fk_jobdraft_sjid (submittedjobid) references job(jobid)
-
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobdraftmeta (
-  jobdraftmetaid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftmeta_jdid (jobdraftid) references jobdraft(jobdraftid),
-
-  constraint unique index u_jobdraftmeta_k_jdid (k, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftresourcecategory (
-  jobdraftresourcecategoryid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  resourcecategoryid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftresourcecategory_jdid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  constraint unique index u_jobdraftresourcecategory_rcid_jdid (resourcecategoryid, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftsoftware (
-  jobdraftsoftwareid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  softwareid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftsoftware_jdid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftsoftware_sid (softwareid) references software(softwareid),
-  constraint unique index u_jobdraftsoftware_sid_jdid (softwareid, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
--- ---------------------------------------------------
-
---
--- PROJECT
---  user job folders?
-
-create table project (
-  projectid int(10)  primary key auto_increment, 
-  labid int(10) ,
-  userid int(10) ,
- 
-  name varchar(250) ,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_project_lid (labid) references lab(labid),
-
-  constraint unique index u_project_name_lid (name, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
--- BARCODE
---   - physical object tracker
---
-create table barcode ( 
-  barcodeid int(10)  primary key auto_increment, 
-  barcode varchar(250) , 
-
-  barcodefor varchar(250), -- enum sample/resource 
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0
-
-) ENGINE=InnoDB charset=utf8;
-
-create table resourcebarcode (
-  resourcebarcodeid int(10)  primary key auto_increment, 
-
-  resourceid int(10) , 
-  barcodeid int(10) , 
-
-  foreign key fk_resourcebarcode_rid (resourceid) references resource(resourceid),
-  foreign key fk_resourcebarcode_bcid (barcodeid) references barcode(barcodeid),
-
-  constraint unique index u_resourcebarcode_rid (resourceid),
-  constraint unique index u_resourcebarcode_bcid (barcodeid)
-) ENGINE=InnoDB charset=utf8;
-
--- FILE
---   mysql max out at 767 bytes for indexable length
---
-
-
-create table filetype (
-  filetypeid int(10)  primary key auto_increment,
-  iname varchar(250) , 
-  name varchar(250) , 
-  isactive int(1)  default 1,
-  description varchar(250),
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0
-) ENGINE=InnoDB charset=utf8;
-
-create table filetypemeta (
-  filetypemetaid int(10)  primary key auto_increment,
-  filetypeid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_filetypemeta_filetypeid (filetypeid) references filetype(filetypeid),
-  constraint unique index u_filemeta_k_jid (k, filetypeid)
-) ENGINE=InnoDB charset=utf8;
-
-create table file (
-  fileid int(10)  primary key auto_increment,
-  file_uri varchar(2048) , 
-  filetypeid int(10) , 
-  softwaregeneratedbyid int(10),
-  sizek int(10) ,
-  md5hash varchar(250) ,
-  description varchar(250),
-
-  isarchived int(1)  default 0,
-  isactive int(1)  default 1,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0 ,
-  foreign key fk_filefiletypeid_rid (filetypeid) references filetype(filetypeid),
-  foreign key fk_filesoftwaregeneratedby_rid (softwaregeneratedbyid) references software(softwareid)
-  -- constraint unique index u_file_flocation (filelocation)
-) ENGINE=InnoDB charset=utf8;
-
-create table filemeta (
-  filemetaid int(10)  primary key auto_increment,
-  fileid int(10) ,
-
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_filemeta_fileid (fileid) references file(fileid),
-
-  constraint unique index u_filemeta_k_jid (k, fileid)
-) ENGINE=InnoDB charset=utf8;
-
--- 
--- SAMPLE
---
-
-create table sampletypecategory (
-  sampletypecategoryid int(10)  primary key auto_increment,
-  iname varchar(250), 
-  name varchar(250),
-  isactive int(1)  default 1,
-
-  constraint unique index u_sampletypecategory_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table sampletype (
-  sampletypeid int(10)  primary key auto_increment,
-  sampletypecategoryid int(10),
-  isactive int(1)  default 1,
-  iname varchar(250), 
-  name varchar(250),
-  foreign key fk_sampletype_tscid (sampletypecategoryid) references sampletypecategory(sampletypecategoryid),
-  constraint unique index u_sampletype_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table samplesubtype (
-  samplesubtypeid int(10)  primary key auto_increment,
-
-  sampletypeid int(10) ,
-
-  iname varchar(50) , -- meta field prefix
-  name varchar(250) ,
-  isactive int(1)  default 1,
-  arealist varchar(250),
-
-  constraint unique index u_samplesubtype_iname (iname),
-  foreign key fk_samplesubtype_tsid (sampletypeid) references sampletype(sampletypeid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesubtypemeta (
-  samplesubtypemetaid int(10)  primary key auto_increment,
-  samplesubtypeid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesubtypemeta_sampleid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  constraint unique index u_samplesubtypemeta_k_sid (k, samplesubtypeid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesubtyperesourcecategory (
-  samplesubtyperesourcecategoryid int(10)  primary key auto_increment,
-  samplesubtypeid int(10) ,
-  resourcecategoryid int(10) ,
-  foreign key fk_samplesubtyperesourcecategory_stscid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_samplesubtyperesourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftfile ( 
-  jobdraftfileid int(10)  primary key auto_increment,
-  jobdraftid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobdraftfile_jid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_jobdraftfile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_jobdraftfile_iname_jid (iname, jobdraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsamplesubtype (
-  workflowsamplesubtypeid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-  samplesubtypeid int(10) ,
- 
-  constraint unique index u_samplesubtype_wid_stsid (workflowid, samplesubtypeid),
-
-  foreign key fk_workflowsamplesubtype_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_workflowsamplesubtype_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table workflowresourcetype (
-  workflowresourcetypeid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  resourcetypeid int(10) ,
-
-  constraint unique index u_workflowresourcetype_wid_trid (workflowid, resourcetypeid),
-
-  foreign key fk_workflowresourcetype_trid (resourcetypeid) references resourcetype(resourcetypeid),
-  foreign key fk_workflowresourcetype_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowresourcecategory (
-  workflowresourcecategoryid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  resourcecategoryid int(10) ,
-
-  constraint unique index u_workflowresource_wid_rcid (workflowid, resourcecategoryid),
-
-  foreign key fk_workflowresourcecategory_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_workflowresourcecategory_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowresourcecategorymeta (
-  workflowresourcecategorymetaid int(10)  primary key auto_increment, 
-  workflowresourcecategoryid int(10) ,
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_wrometa_workflowresourcecategoryid (workflowresourcecategoryid) references workflowresourcecategory(workflowresourcecategoryid),
-
-  constraint unique index u_wro_wrcid_k (workflowresourcecategoryid, k)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsoftware (
-  workflowsoftwareid int(10)  primary key auto_increment, 
-  workflowid int(10) ,
-  softwareid int(10) ,
-
-  constraint unique index u_workflowsoftware_wid_sid (workflowid, softwareid),
-
-  foreign key fk_workflowsoftware_sid (softwareid) references software(softwareid),
-  foreign key fk_workflowsoftware_wid (workflowid) references workflow(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowsoftwaremeta (
-  workflowsoftwaremetaid int(10)  primary key auto_increment, 
-  workflowsoftwareid int(10) ,
-  k varchar(250) , 
-  v text,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_wrometa_workflowsoftwareid (workflowsoftwareid) references workflowsoftware(workflowsoftwareid),
-
-  constraint unique index u_wro_wrcid_k (workflowsoftwareid, k)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table sample (
-  sampleid int(10)  primary key auto_increment,
-  parentid int(10),
-  sampletypeid int(10) ,
-  samplesubtypeid int(10),
-
-  submitter_labid int(10) ,
-  submitter_userid int(10) ,
-  submitter_jobid int(10) null,
-
-  isreceived int(1)  default 0,
-  receiver_userid int(10),
-  receivedts datetime,
-
-  name varchar(250),
-  isgood int(1),
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sample_sampleid (parentid) references sample(sampleid),
-  foreign key fk_sample_tsid (sampletypeid) references sampletype(sampletypeid),
-  foreign key fk_sample_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_sample_sjid (submitter_jobid) references job(jobid),
-  foreign key fk_sample_slid (submitter_labid) references lab(labid),
-  foreign key fk_sample_suid (submitter_userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplemeta (
-  samplemetaid int(10)  primary key auto_increment,
-  sampleid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplemeta_sampleid (sampleid) references sample(sampleid),
-  constraint unique index u_samplemeta_k_sid (k, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- SAMPLE.SOURCE
---   - if a sample has a parent, what is it. 
-create table samplesource (
-  samplesourceid int(10)  primary key auto_increment, 
-  sampleid int(10) ,
-  indexvalue int(10)  default 0,
-  source_sampleid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesource_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplesource_ssid (source_sampleid) references sample(sampleid),
-
-  constraint unique index u_samplesource_sid (sampleid, indexvalue)
-) ENGINE=InnoDB charset=utf8;
-
-create table samplesourcemeta (
-  samplesourcemetaid int(10)  primary key auto_increment,
-  samplesourceid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplesourcemeta_sampleid (samplesourceid) references samplesource(samplesourceid),
-  constraint unique index u_samplesourcemeta_k_sid (k, samplesourceid)
-) ENGINE=InnoDB charset=utf8;
-
--- SAMPLE.BARCODE 
-create table samplebarcode (
-  samplebarcode int(10)  primary key auto_increment, 
- 
-  sampleid int(10) , 
-  barcodeid int(10) , 
- 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplebarcode_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplebarcode_bid (barcodeid) references barcode(barcodeid),
-
-  constraint unique index u_samplebarcode_sid (sampleid),
-  constraint unique index u_samplebarcode_bcid (barcodeid)
-) ENGINE=InnoDB charset=utf8;
-
--- SAMPLE.LAB
---   - lab share?
-create table samplelab (
-  samplelabid int(10)  primary key auto_increment, 
-  
-  sampleid int(10) ,  
-  labid int(10) ,
-
-  isprimary int(1)  default 0, 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplelab_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplelab_lid (labid) references lab(labid),
-
-  constraint unique index u_samplelab_sid_lid (sampleid, labid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table sampledraft (
-  sampledraftid int(10)  primary key auto_increment,
-  sampletypeid int(10) ,
-  samplesubtypeid int(10) ,
-
-  labid int(10) ,
-  userid int(10) ,
-  jobdraftid int(10) null,
-
-  sourcesampleid int(10) null,
-  fileid int(10) null,
-
-  name varchar(250),
-  status varchar(50), 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sampledraft_tsid (sampletypeid) references sampletype(sampletypeid),
-  foreign key fk_sampledraft_stsid (samplesubtypeid) references samplesubtype(samplesubtypeid),
-  foreign key fk_sampledraft_sjid (jobdraftid) references jobdraft(jobdraftid),
-  foreign key fk_sampledraft_slid (labid) references lab(labid),
-  foreign key fk_sampledraft_suid (userid) references user(userid),
-  foreign key fk_sampledraft_fid (fileid) references file(fileid)
-) ENGINE=InnoDB charset=utf8;
-
-create table sampledraftmeta (
-  sampledraftmetaid int(10)  primary key auto_increment,
-  sampledraftid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_sampledraftmeta_sdid (sampledraftid) references sampledraft(sampledraftid),
-  constraint unique index u_sampledraftmeta_k_sid (k, sampledraftid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobdraftcellselection (
-  jobdraftcellselectionid int(10)  primary key auto_increment,
-  jobdraftid int(10) ,
-  cellindex int(10) ,
-
-  foreign key fk_jobdraft_jid (jobdraftid) references jobdraft(jobdraftid),
-  constraint unique index u_jobdraftcell_jdid_ci (jobdraftid, cellindex)
-);
-
-create table sampledraftjobdraftcellselection (
-  sampledraftjobdraftcellselectionid int(10)  primary key auto_increment,
-  sampledraftid int(10) ,
-  jobdraftcellselectionid int(10) ,
-
-  libraryindex int(10) , 
-
-  foreign key fk_sampledraftcell_sdid (sampledraftid) references sampledraft(sampledraftid),
-  foreign key fk_sampledraftcell_jdcid (jobdraftcellselectionid) references jobdraftcellselection(jobdraftcellselectionid),
-  constraint unique index u_sampledraftcell_jdcid_li (jobdraftcellselectionid, libraryindex)
-);
-
-
---
--- back to the job
---
-
-
--- 
--- JOB.SAMPLE
---   - maps samples used and created to jobs
-create table jobsample ( 
-  jobsampleid int(10)  primary key auto_increment, 
-  jobid int(10) , 
-  sampleid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsample_jid (jobid) references job(jobid),
-  foreign key fk_jobsample_sid (sampleid) references sample(sampleid),
-
-  constraint unique index u_jobsample_jid_sid (jobid, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-create table jobsamplemeta (
-  jobsamplemetaid int(10)  primary key auto_increment,
-  jobsampleid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobsamplemeta_jsid (jobsampleid) references jobsample(jobsampleid),
-  constraint unique index u_jobsamplemeta_k_jsid (k, jobsampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table jobcellselection (
-  jobcellselectionid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  cellindex int(10) ,
-
-  foreign key fk_job_jid (jobid) references job(jobid),
-  constraint unique index u_jobcell_jdid_ci (jobid, cellindex)
-);
-
-create table samplejobcellselection (
-  samplejobcellselectionid int(10)  primary key auto_increment,
-  sampleid int(10) ,
-  jobcellselectionid int(10) ,
-
-  libraryindex int(10) , 
-
-  foreign key fk_samplecell_sdid (sampleid) references sample(sampleid),
-  foreign key fk_samplecell_jdcid (jobcellselectionid) references jobcellselection(jobcellselectionid),
-  constraint unique index u_samplecell_jdcid_li (jobcellselectionid, libraryindex)
-);
-
-
---
--- ACCOUNTING TABLES
---
-create table acct_workflowcost (
-  workflowid int(10)  primary key,
-  basecost float(10,2) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_workflowcost_wfid (workflowid) references job(workflowid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quote (
-  quoteid int(10)  primary key auto_increment,
-  jobid int(10) ,
-  amount float(10,2) ,
-  userid int(10), -- quoter
-  comment varchar(250),
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_quote_jid (jobid) references job(jobid),
-  foreign key fk_acct_quote_uid (userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quotemeta (
-  quotemetaid int(10)  primary key auto_increment,
-  quoteid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_quotemeta_qid (quoteid) references acct_quote(quoteid),
-  constraint unique index u_quotemeta_k_qid (k, quoteid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_jobquotecurrent (
-  currentid int(10)  primary key auto_increment, 
-  jobid int(10) ,
-  quoteid int(10) ,
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_jobquotecurrent_jid (jobid) references job(jobid),
-  constraint unique index u_acct_jobquotecurrent_jid (jobid),
-  foreign key fk_acct_jobquotecurrent_qid (quoteid) references acct_quote(quoteid),
-  constraint unique index u_acct_jobquotecurrent_qid (quoteid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_quoteuser (
-  quoteuserid int(10)  primary key auto_increment, 
-  quoteid int(10) ,
-  userid int(10) ,
-  roleid int(10) , -- PI, DA, FM,  
-  isapproved int(1) ,
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_quote_jid (quoteid) references acct_quote(quoteid),
-  foreign key fk_acct_quote_uid (userid) references user(userid),
-  foreign key fk_acct_quote_rid (roleid) references role(roleid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table acct_invoice (
-  invoiceid int(10)  primary key auto_increment,
-  quoteid int(10) ,
-  jobid int(10) , -- DENORMALIZED
-  amount float(10,2) ,
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_invoice_qid (quoteid) references acct_quote(quoteid),
-  foreign key fk_acct_invoice_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_ledger (
-  ledgerid int(10)  primary key auto_increment,
-  invoiceid int(10) ,
-  jobid int(10) , -- DENORMALIZED
-  amount float(10,2),
-  comment varchar(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_acct_ledger_iid (invoiceid) references acct_invoice(invoiceid),
-  foreign key fk_acct_ledger_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_grant (
-  grantid int(10)  primary key auto_increment,
-  labid int(10) ,
-  name varchar(250) ,
-  code varchar(250) ,
-  expirationdt datetime,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-
-  foreign key fk_grant_lid (labid) references lab(labid)
-) ENGINE=InnoDB charset=utf8;
-
-create table acct_grantjob (
-  jobid int(10)  primary key auto_increment, 
-  grantid int(10) ,
-
-  isactive int(1)  default 1,
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_acct_ledgergrant_jid (jobid) references acct_ledger(jobid),
-  foreign key fk_acct_ledgergrant_gid (grantid) references acct_grant(grantid)
-) ENGINE=InnoDB charset=utf8;
-
-
---
---
--- JOB.FILE
---
-create table jobfile ( 
-  jobfileid int(10)  primary key auto_increment,
-  jobid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_jobfile_jid (jobid) references job(jobid),
-  foreign key fk_jobfile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_jobfile_iname_jid (iname, jobid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-create table samplefile ( 
-  samplefileid int(10)  primary key auto_increment,
-  sampleid int(10) , 
-  fileid int(10) , 
-
-  iname varchar(2048), -- 
-  name varchar(250), 
-  description varchar(2048), 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_samplefile_sid (sampleid) references sample(sampleid),
-  foreign key fk_samplefile_fid (fileid) references file(fileid) -- ,
-
-  -- constraint unique index u_samplefile_iname_jid (iname, sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-
--- adaptors 
-
-create table adaptorset(
-	adaptorsetid int(10) primary key auto_increment,
-	iname varchar(250),
-	name varchar(250),
-	sampletypeid int(10),
-	isactive int(1)  default 1, 
-
-  	foreign key fk_adaptorset_tid (sampletypeid) references sampletype(sampletypeid),
-  	constraint unique index u_adaptorset_k_iid(iname),
-	constraint unique index u_adaptorset_k_nid(name)
-
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptorsetmeta (
-  adaptorsetmetaid int(10)  primary key auto_increment,
-  adaptorsetid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_adaptorsetmeta_runid (adaptorsetid) references adaptorset(adaptorsetid),
-  constraint unique index u_adaptorsetmeta_k_aid (k, adaptorsetid)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptorsetresourcecategory (
-  adaptorsetresourcecategoryid int(10)  primary key auto_increment, 
-  adaptorsetid int(10) ,
-  resourcecategoryid int(10) ,
-
-  foreign key fk_adaptorsetresourcecategory_rid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_adaptorsetresourcecategory_aid (adaptorsetid) references adaptorset(adaptorsetid),
-  constraint unique index u_adaptorsetresourcecategory_aid_rid (adaptorsetid, resourcecategoryid)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptor(
-	adaptorid int(10) primary key auto_increment,
-	adaptorsetid int(10),
-	iname varchar(250),
-	name varchar(250),
-	sequence varchar(250),
-	barcodesequence varchar(250),
-	barcodenumber int(10),
-	isactive int(1)  default 1, 
-
-  	foreign key fk_adaptor_aid (adaptorsetid) references adaptorset(adaptorsetid),
-  	constraint unique index u_adaptor_k_iid(iname),
-	constraint unique index u_adaptor_k_nid(name)
-) ENGINE=InnoDB charset=utf8;
-
-create table adaptormeta (
-  adaptormetaid int(10)  primary key auto_increment,
-  adaptorid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_adaptormeta_runid (adaptorid) references adaptor(adaptorid),
-  constraint unique index u_adaptormeta_k_aid (k, adaptorid)
-) ENGINE=InnoDB charset=utf8;
-
--- ---------------------------------
-
--- resource stuffs
-
---
--- RESOURCELANE LANE
---
-
-create table resourcecell (
-  resourcecellid int(10)  primary key auto_increment,
-  resourceid int(10) ,
-  iname varchar(250),
-  name varchar(250),
-  isactive int(1) default 1, -- need this as we cannot delete a resourcecell if it is referenced 
-
-  foreign key fk_resourcecell_rid (resourceid) references resource(resourceid),
-  constraint unique index u_resourcecell_iname_rid (iname, resourceid),
-  constraint unique index u_resourcecell_name_rid (name, resourceid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- RUN
---
-
-create table run (
-  runid int(10)  primary key auto_increment,
-
-  resourceid int(10) ,
-  resourcecategoryid int(10) ,
-  softwareid  int(10) ,
-  userid int(10) , -- facilities tech
-
-  name varchar(250) , 
-  sampleid int(10) , -- flowcell
-
-  startts datetime, 
-  endts datetime, 
-
-  status varchar(250), -- ????
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_run_rid (resourceid) references resource(resourceid),
-  foreign key fk_run_rcid (resourcecategoryid) references resourcecategory(resourcecategoryid),
-  foreign key fk_run_swid (softwareid) references software(softwareid),
-  foreign key fk_run_sid (sampleid) references sample(sampleid),
-  foreign key fk_run_userid (userid) references user(userid)
-) ENGINE=InnoDB charset=utf8;
-
-create table runmeta (
-  runmetaid int(10)  primary key auto_increment,
-  runid int(10) ,
-
-  k varchar(250) , 
-  v TEXT, 
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_runmeta_runid (runid) references run(runid),
-  constraint unique index u_runmeta_k_rid (k, runid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- RUN.runLANE (LANE)
---
-create table runcell (
-  runcellid int(10)  primary key auto_increment,
-
-  runid int(10) , 
-  resourcecellid int(10) , -- lane 
-  sampleid int(10) , 
-
-  foreign key fk_runcell_rid (runid) references run(runid),
-  foreign key fk_runcell_lid (resourcecellid) references resourcecell(resourcecellid),
-  foreign key fk_runcell_sid (sampleid) references sample(sampleid),
-
-  constraint unique index u_runcell_rid_lid (runid, resourcecellid),
-  constraint unique index u_runcell_sid_rid (sampleid, runid) 
-) ENGINE=InnoDB charset=utf8;
-
---
--- RESOURCE
---
-
-create table runfile (
-  runcellfileid int(10)  primary key auto_increment,
-
-  runid int(10) ,
-  fileid int(10) , 
-
-  iname varchar(2048) , 
-  name varchar(250) , 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_rfile_rid (runid) references run(runid),
-  foreign key fk_rfile_fid (fileid) references file(fileid),
-
-  constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB charset=utf8;
-
-create table runcellfile (
-  runcellfileid int(10)  primary key auto_increment,
-
-  runcellid int(10) ,
-  fileid int(10) , 
-  iname varchar(2048) , 
-  name varchar(250) , 
-
-  isactive int(1)  default 1, 
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_rlfile_rlid (runcellid) references runcell(runcellid),
-  foreign key fk_rlfile_fileid (fileid) references file(fileid),
-
-  constraint unique index u_rlfile_fileid (fileid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
---
--- TASK
--- 
-create table task (
-  taskid int(10)  primary key auto_increment,
-
-  iname varchar(250) ,
-  name varchar(250) ,
-  constraint unique index u_task_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowtask (
-  workflowtaskid int(10)  primary key auto_increment,
-  workflowid int(10) ,
-  taskid int(10) ,
-
-  iname varchar(250) , -- can be multiple task, so this differenciates
-  name varchar(250) ,
-  foreign key fk_workflowtask_wid (workflowid) references workflow(workflowid),
-  foreign key fk_workflowtask_tid (taskid) references task(taskid),
-  constraint unique index u_workflowtask_iname (iname)
-) ENGINE=InnoDB charset=utf8;
-
-create table workflowtasksource (
-  workflowtasksourceid int(10)  primary key auto_increment,
-  workflowtaskid int(10) ,
-  sourceworkflowtaskid int(10),
-  foreign key fk_workflowtasksource_wid (workflowtaskid) references workflowtask(workflowtaskid),
-  foreign key fk_workflowtasksource_sid (sourceworkflowtaskid) references workflowtask(workflowtaskid)
-) ENGINE=InnoDB charset=utf8;
-
-create table state (
-  stateid int(10) not null primary key auto_increment,
-
-  taskid int(10) not null, 
-  name varchar(250) ,
-  status varchar(50), -- 
-  source_stateid int(10) ,
-
-  startts datetime, 
-  endts datetime, 
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_state_tid (taskid) references task(taskid),
-  foreign key fk_state_ssid (source_stateid) references state(stateid)
-) ENGINE=InnoDB charset=utf8;
-
-create table statemeta (
-  statemetaid int(10)  primary key auto_increment,
-  stateid int(10) ,
-
-  k varchar(250) ,
-  v TEXT,
-  position int(10)  default 0,
-  rolevisibility VARCHAR(250),
-
-  lastupdts timestamp  default current_timestamp,
-  lastupduser int(10)  default 0,
-
-  foreign key fk_statemeta_sid (stateid) references state(stateid),
-  constraint unique index u_statemeta_k_pid (k, stateid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table statejob (
-  statejobid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  jobid int(10) , 
-
-  foreign key fk_statejob_sid (stateid) references state(stateid),
-  foreign key fk_statejob_jid (jobid) references job(jobid)
-) ENGINE=InnoDB charset=utf8;
-
-
-create table statesample (
-  statesampleid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  sampleid int(10) , 
-
-  foreign key fk_statesample_sid (stateid) references state(stateid),
-  foreign key fk_statesample_sampleid (sampleid) references sample(sampleid)
-) ENGINE=InnoDB charset=utf8;
-
-create table staterun (
-  staterunid int(10)  primary key auto_increment, 
-
-  stateid int(10) , 
-  runid int(10) , 
-
-  foreign key fk_staterun_sid (stateid) references state(stateid),
-  foreign key fk_staterun_rid (runid) references run(runid)
-) ENGINE=InnoDB charset=utf8;
-
---
--- tie illumina runs back to real tasks
---   [still unsure of this design]
-create table stateruncell (
-  stateruncellid int(10)  primary key auto_increment,
-  
-  stateid int(10) ,
-  runcellid int(10) ,
-
-  foreign key fk_stateruncell_sid (stateid) references state(stateid),
-  foreign key fk_stateruncell_rlid (runcellid) references runcell(runcellid)
-) ENGINE=InnoDB charset=utf8;
-
-
-
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4004
+#
+# http://www.sequelpro.com/
+# http://code.google.com/p/sequel-pro/
+#
+# Host: 127.0.0.1 (MySQL 5.1.66-log)
+# Database: wasp
+# Generation Time: 2013-04-10 20:54:52 +0000
+# ************************************************************
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table acct_grant
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grant`;
+
+CREATE TABLE `acct_grant` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `expirationdt` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKB2AF21F050566623` (`lastupdatebyuser`),
+  KEY `FKB2AF21F08FE41BFE` (`labid`),
+  CONSTRAINT `FKB2AF21F08FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FKB2AF21F050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_grantjob
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grantjob`;
+
+CREATE TABLE `acct_grantjob` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `grantid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAA5FF3CD50566623` (`lastupdatebyuser`),
+  KEY `FKAA5FF3CDF2431449` (`grantid`),
+  KEY `FKAA5FF3CD5E117DCB` (`jobid`),
+  CONSTRAINT `FKAA5FF3CD5E117DCB` FOREIGN KEY (`jobid`) REFERENCES `acct_ledger` (`id`),
+  CONSTRAINT `FKAA5FF3CD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKAA5FF3CDF2431449` FOREIGN KEY (`grantid`) REFERENCES `acct_grant` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_invoice
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_invoice`;
+
+CREATE TABLE `acct_invoice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK278FBF0150566623` (`lastupdatebyuser`),
+  KEY `FK278FBF018FCE445E` (`jobid`),
+  KEY `FK278FBF019B63709` (`quoteid`),
+  CONSTRAINT `FK278FBF019B63709` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`id`),
+  CONSTRAINT `FK278FBF0150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK278FBF018FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_ledger
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_ledger`;
+
+CREATE TABLE `acct_ledger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `invoiceid` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAB07671550566623` (`lastupdatebyuser`),
+  KEY `FKAB0767158FCE445E` (`jobid`),
+  KEY `FKAB076715B2EEB2AB` (`invoiceid`),
+  CONSTRAINT `FKAB076715B2EEB2AB` FOREIGN KEY (`invoiceid`) REFERENCES `acct_invoice` (`id`),
+  CONSTRAINT `FKAB07671550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKAB0767158FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_quote
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quote`;
+
+CREATE TABLE `acct_quote` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKB33D9F5050566623` (`lastupdatebyuser`),
+  KEY `FKB33D9F508FCE445E` (`jobid`),
+  KEY `FKB33D9F507CFE8408` (`userid`),
+  CONSTRAINT `FKB33D9F507CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKB33D9F5050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKB33D9F508FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_quotemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quotemeta`;
+
+CREATE TABLE `acct_quotemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `quoteid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK91F08D5550566623` (`lastupdatebyuser`),
+  KEY `FK91F08D559B63709` (`quoteid`),
+  CONSTRAINT `FK91F08D559B63709` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`id`),
+  CONSTRAINT `FK91F08D5550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_quoteuser
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_quoteuser`;
+
+CREATE TABLE `acct_quoteuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `isapproved` int(11) DEFAULT NULL,
+  `quoteid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK91F4631B50566623` (`lastupdatebyuser`),
+  KEY `FK91F4631B77A92E9E` (`roleid`),
+  KEY `FK91F4631B9B63709` (`quoteid`),
+  KEY `FK91F4631B7CFE8408` (`userid`),
+  CONSTRAINT `FK91F4631B7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK91F4631B50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK91F4631B77A92E9E` FOREIGN KEY (`roleid`) REFERENCES `wrole` (`id`),
+  CONSTRAINT `FK91F4631B9B63709` FOREIGN KEY (`quoteid`) REFERENCES `acct_quote` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_workflowcost
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_workflowcost`;
+
+CREATE TABLE `acct_workflowcost` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `basecost` float DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKC3C958B850566623` (`lastupdatebyuser`),
+  KEY `FKC3C958B8744987E0` (`workflowid`),
+  CONSTRAINT `FKC3C958B8744987E0` FOREIGN KEY (`workflowid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKC3C958B850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table adaptor
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptor`;
+
+CREATE TABLE `adaptor` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  `barcodenumber` int(11) DEFAULT NULL,
+  `barcodesequence` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sequence` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKBB6CA48550566623` (`lastupdatebyuser`),
+  KEY `FKBB6CA485DA18E62C` (`adaptorsetid`),
+  CONSTRAINT `FKBB6CA485DA18E62C` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`id`),
+  CONSTRAINT `FKBB6CA48550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table adaptormeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptormeta`;
+
+CREATE TABLE `adaptormeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `adaptorid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK33FFF00A50566623` (`lastupdatebyuser`),
+  KEY `FK33FFF00AF88E976E` (`adaptorid`),
+  CONSTRAINT `FK33FFF00AF88E976E` FOREIGN KEY (`adaptorid`) REFERENCES `adaptor` (`id`),
+  CONSTRAINT `FK33FFF00A50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table adaptorset
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorset`;
+
+CREATE TABLE `adaptorset` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKC7DF0DBD50566623` (`lastupdatebyuser`),
+  KEY `FKC7DF0DBDDBE90DA` (`sampletypeid`),
+  CONSTRAINT `FKC7DF0DBDDBE90DA` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`id`),
+  CONSTRAINT `FKC7DF0DBD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table adaptorsetmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetmeta`;
+
+CREATE TABLE `adaptorsetmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK822AFD4250566623` (`lastupdatebyuser`),
+  KEY `FK822AFD42DA18E62C` (`adaptorsetid`),
+  CONSTRAINT `FK822AFD42DA18E62C` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`id`),
+  CONSTRAINT `FK822AFD4250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table adaptorsetresourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `adaptorsetresourcecategory`;
+
+CREATE TABLE `adaptorsetresourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `adaptorsetid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKEBF686C950566623` (`lastupdatebyuser`),
+  KEY `FKEBF686C9FBCBFFEA` (`resourcecategoryid`),
+  KEY `FKEBF686C9DA18E62C` (`adaptorsetid`),
+  CONSTRAINT `FKEBF686C9DA18E62C` FOREIGN KEY (`adaptorsetid`) REFERENCES `adaptorset` (`id`),
+  CONSTRAINT `FKEBF686C950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKEBF686C9FBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table barcode
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `barcode`;
+
+CREATE TABLE `barcode` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `barcode` varchar(255) DEFAULT NULL,
+  `barcodefor` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKEC1DE88050566623` (`lastupdatebyuser`),
+  CONSTRAINT `FKEC1DE88050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table confirmemailauth
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `confirmemailauth`;
+
+CREATE TABLE `confirmemailauth` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `authcode` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `userpendingid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK3E6FAC8450566623` (`lastupdatebyuser`),
+  KEY `FK3E6FAC84FF4502DC` (`userpendingid`),
+  KEY `FK3E6FAC847CFE8408` (`userid`),
+  CONSTRAINT `FK3E6FAC847CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK3E6FAC8450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK3E6FAC84FF4502DC` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table department
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `department`;
+
+CREATE TABLE `department` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isinternal` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK328E435250566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK328E435250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table departmentuser
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `departmentuser`;
+
+CREATE TABLE `departmentuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKF06F361D50566623` (`lastupdatebyuser`),
+  KEY `FKF06F361DC0804016` (`departmentid`),
+  KEY `FKF06F361D7CFE8408` (`userid`),
+  CONSTRAINT `FKF06F361D7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKF06F361D50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKF06F361DC0804016` FOREIGN KEY (`departmentid`) REFERENCES `department` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table file
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `file`;
+
+CREATE TABLE `file` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `archived` tinyint(1) DEFAULT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `file_uri` longtext,
+  `md5hash` varchar(255) DEFAULT NULL,
+  `sizek` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `filetypeid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK2FF57C50566623` (`lastupdatebyuser`),
+  KEY `FK2FF57C175EFBBE` (`filetypeid`),
+  CONSTRAINT `FK2FF57C175EFBBE` FOREIGN KEY (`filetypeid`) REFERENCES `filetype` (`id`),
+  CONSTRAINT `FK2FF57C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filegroup
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup`;
+
+CREATE TABLE `filegroup` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `description` longtext,
+  `filetypeid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isarchived` int(11) DEFAULT NULL,
+  `softwaregeneratedbyid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKB1FB0E8350566623` (`lastupdatebyuser`),
+  KEY `FKB1FB0E83175EFBBE` (`filetypeid`),
+  KEY `FKB1FB0E83896543B8` (`softwaregeneratedbyid`),
+  CONSTRAINT `FKB1FB0E83896543B8` FOREIGN KEY (`softwaregeneratedbyid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FKB1FB0E83175EFBBE` FOREIGN KEY (`filetypeid`) REFERENCES `filetype` (`id`),
+  CONSTRAINT `FKB1FB0E8350566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filegroup_rel
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroup_rel`;
+
+CREATE TABLE `filegroup_rel` (
+  `childfilegroupid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  PRIMARY KEY (`filegroupid`,`childfilegroupid`),
+  KEY `FK926FCDD181C758A` (`filegroupid`),
+  KEY `FK926FCDD194B76EE` (`childfilegroupid`),
+  CONSTRAINT `FK926FCDD194B76EE` FOREIGN KEY (`childfilegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FK926FCDD181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filegroupmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filegroupmeta`;
+
+CREATE TABLE `filegroupmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `filegroupid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK92D2B08181C758A` (`filegroupid`),
+  KEY `FK92D2B0850566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK92D2B0850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK92D2B08181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filemeta`;
+
+CREATE TABLE `filemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `fileid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKD433ED8150566623` (`lastupdatebyuser`),
+  KEY `FKD433ED81D1800F32` (`fileid`),
+  CONSTRAINT `FKD433ED81D1800F32` FOREIGN KEY (`fileid`) REFERENCES `file` (`id`),
+  CONSTRAINT `FKD433ED8150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filetype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetype`;
+
+CREATE TABLE `filetype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKD43766B650566623` (`lastupdatebyuser`),
+  CONSTRAINT `FKD43766B650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table filetypemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `filetypemeta`;
+
+CREATE TABLE `filetypemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `filetypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK884C31BB50566623` (`lastupdatebyuser`),
+  KEY `FK884C31BB175EFBBE` (`filetypeid`),
+  CONSTRAINT `FK884C31BB175EFBBE` FOREIGN KEY (`filetypeid`) REFERENCES `filetype` (`id`),
+  CONSTRAINT `FK884C31BB50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table groupfile
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `groupfile`;
+
+CREATE TABLE `groupfile` (
+  `groupid` int(11) NOT NULL,
+  `fileid` int(11) NOT NULL,
+  PRIMARY KEY (`groupid`,`fileid`),
+  KEY `FKA7A3947BA284E86` (`groupid`),
+  KEY `FKA7A3947BD1800F32` (`fileid`),
+  CONSTRAINT `FKA7A3947BD1800F32` FOREIGN KEY (`fileid`) REFERENCES `file` (`id`),
+  CONSTRAINT `FKA7A3947BA284E86` FOREIGN KEY (`groupid`) REFERENCES `filegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table job
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `job`;
+
+CREATE TABLE `job` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `viewablebylab` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `current_quote` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK19BBD50566623` (`lastupdatebyuser`),
+  KEY `FK19BBD8FE41BFE` (`labid`),
+  KEY `FK19BBD7C243AA8` (`current_quote`),
+  KEY `FK19BBD7CFE8408` (`userid`),
+  KEY `FK19BBD8BDE4B70` (`workflowid`),
+  CONSTRAINT `FK19BBD8BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FK19BBD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK19BBD7C243AA8` FOREIGN KEY (`current_quote`) REFERENCES `acct_quote` (`id`),
+  CONSTRAINT `FK19BBD7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK19BBD8FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobcellselection
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobcellselection`;
+
+CREATE TABLE `jobcellselection` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `cellindex` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK926175CD50566623` (`lastupdatebyuser`),
+  KEY `FK926175CD8FCE445E` (`jobid`),
+  CONSTRAINT `FK926175CD8FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FK926175CD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraft
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraft`;
+
+CREATE TABLE `jobdraft` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `submittedjobid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKA001AC0450566623` (`lastupdatebyuser`),
+  KEY `FKA001AC048FE41BFE` (`labid`),
+  KEY `FKA001AC045C574043` (`submittedjobid`),
+  KEY `FKA001AC047CFE8408` (`userid`),
+  KEY `FKA001AC048BDE4B70` (`workflowid`),
+  CONSTRAINT `FKA001AC048BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FKA001AC0450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKA001AC045C574043` FOREIGN KEY (`submittedjobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKA001AC047CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKA001AC048FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraftcellselection
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftcellselection`;
+
+CREATE TABLE `jobdraftcellselection` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `cellindex` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK737E50E650566623` (`lastupdatebyuser`),
+  KEY `FK737E50E6E3C3069A` (`jobdraftid`),
+  CONSTRAINT `FK737E50E6E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`),
+  CONSTRAINT `FK737E50E650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraftfile
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftfile`;
+
+CREATE TABLE `jobdraftfile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK2FB3FF80181C758A` (`filegroupid`),
+  KEY `FK2FB3FF8050566623` (`lastupdatebyuser`),
+  KEY `FK2FB3FF80E3C3069A` (`jobdraftid`),
+  CONSTRAINT `FK2FB3FF80E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`),
+  CONSTRAINT `FK2FB3FF80181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FK2FB3FF8050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraftmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftmeta`;
+
+CREATE TABLE `jobdraftmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK2FB7200950566623` (`lastupdatebyuser`),
+  KEY `FK2FB72009E3C3069A` (`jobdraftid`),
+  CONSTRAINT `FK2FB72009E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`),
+  CONSTRAINT `FK2FB7200950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraftresourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftresourcecategory`;
+
+CREATE TABLE `jobdraftresourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK7639B71050566623` (`lastupdatebyuser`),
+  KEY `FK7639B710E3C3069A` (`jobdraftid`),
+  KEY `FK7639B710FBCBFFEA` (`resourcecategoryid`),
+  CONSTRAINT `FK7639B710FBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
+  CONSTRAINT `FK7639B71050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK7639B710E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobdraftsoftware
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobdraftsoftware`;
+
+CREATE TABLE `jobdraftsoftware` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKA94AC9AB50566623` (`lastupdatebyuser`),
+  KEY `FKA94AC9AB21328540` (`softwareid`),
+  KEY `FKA94AC9ABE3C3069A` (`jobdraftid`),
+  CONSTRAINT `FKA94AC9ABE3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`),
+  CONSTRAINT `FKA94AC9AB21328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FKA94AC9AB50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobfile
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobfile`;
+
+CREATE TABLE `jobfile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAA536AB9181C758A` (`filegroupid`),
+  KEY `FKAA536AB950566623` (`lastupdatebyuser`),
+  KEY `FKAA536AB98FCE445E` (`jobid`),
+  CONSTRAINT `FKAA536AB98FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKAA536AB9181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FKAA536AB950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobmeta`;
+
+CREATE TABLE `jobmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `jobid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAA568B4250566623` (`lastupdatebyuser`),
+  KEY `FKAA568B428FCE445E` (`jobid`),
+  CONSTRAINT `FKAA568B428FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKAA568B4250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobresourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobresourcecategory`;
+
+CREATE TABLE `jobresourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKD93D14C950566623` (`lastupdatebyuser`),
+  KEY `FKD93D14C98FCE445E` (`jobid`),
+  KEY `FKD93D14C9FBCBFFEA` (`resourcecategoryid`),
+  CONSTRAINT `FKD93D14C9FBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
+  CONSTRAINT `FKD93D14C950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKD93D14C98FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobsample
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsample`;
+
+CREATE TABLE `jobsample` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK78E28FA7B8A37246` (`sampleid`),
+  KEY `FK78E28FA750566623` (`lastupdatebyuser`),
+  KEY `FK78E28FA78FCE445E` (`jobid`),
+  CONSTRAINT `FK78E28FA78FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FK78E28FA750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK78E28FA7B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobsamplemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsamplemeta`;
+
+CREATE TABLE `jobsamplemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `jobsampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK20677A2C50566623` (`lastupdatebyuser`),
+  KEY `FK20677A2C55379B12` (`jobsampleid`),
+  CONSTRAINT `FK20677A2C55379B12` FOREIGN KEY (`jobsampleid`) REFERENCES `jobsample` (`id`),
+  CONSTRAINT `FK20677A2C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobsoftware
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobsoftware`;
+
+CREATE TABLE `jobsoftware` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKA35FF06450566623` (`lastupdatebyuser`),
+  KEY `FKA35FF06421328540` (`softwareid`),
+  KEY `FKA35FF0648FCE445E` (`jobid`),
+  CONSTRAINT `FKA35FF0648FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKA35FF06421328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FKA35FF06450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table jobuser
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `jobuser`;
+
+CREATE TABLE `jobuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAA5A610850566623` (`lastupdatebyuser`),
+  KEY `FKAA5A610877A92E9E` (`roleid`),
+  KEY `FKAA5A61088FCE445E` (`jobid`),
+  KEY `FKAA5A61087CFE8408` (`userid`),
+  CONSTRAINT `FKAA5A61087CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKAA5A610850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKAA5A610877A92E9E` FOREIGN KEY (`roleid`) REFERENCES `wrole` (`id`),
+  CONSTRAINT `FKAA5A61088FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table lab
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lab`;
+
+CREATE TABLE `lab` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `primaryuserid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK1A18D50566623` (`lastupdatebyuser`),
+  KEY `FK1A18DC0804016` (`departmentid`),
+  KEY `FK1A18DC985888A` (`primaryuserid`),
+  CONSTRAINT `FK1A18DC985888A` FOREIGN KEY (`primaryuserid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK1A18D50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK1A18DC0804016` FOREIGN KEY (`departmentid`) REFERENCES `department` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table labmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labmeta`;
+
+CREATE TABLE `labmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `labid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKFC3F291250566623` (`lastupdatebyuser`),
+  KEY `FKFC3F29128FE41BFE` (`labid`),
+  CONSTRAINT `FKFC3F29128FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FKFC3F291250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table labpending
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpending`;
+
+CREATE TABLE `labpending` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `departmentid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `primaryuserid` int(11) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  `userpendingid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKD86D7F6A50566623` (`lastupdatebyuser`),
+  KEY `FKD86D7F6AC0804016` (`departmentid`),
+  KEY `FKD86D7F6AFF4502DC` (`userpendingid`),
+  KEY `FKD86D7F6AC985888A` (`primaryuserid`),
+  CONSTRAINT `FKD86D7F6AC985888A` FOREIGN KEY (`primaryuserid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKD86D7F6A50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKD86D7F6AC0804016` FOREIGN KEY (`departmentid`) REFERENCES `department` (`id`),
+  CONSTRAINT `FKD86D7F6AFF4502DC` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table labpendingmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labpendingmeta`;
+
+CREATE TABLE `labpendingmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `labpendingid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKDD9ED06F50566623` (`lastupdatebyuser`),
+  KEY `FKDD9ED06F7498AA26` (`labpendingid`),
+  CONSTRAINT `FKDD9ED06F7498AA26` FOREIGN KEY (`labpendingid`) REFERENCES `labpending` (`id`),
+  CONSTRAINT `FKDD9ED06F50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table labuser
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `labuser`;
+
+CREATE TABLE `labuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKFC42FED850566623` (`lastupdatebyuser`),
+  KEY `FKFC42FED88FE41BFE` (`labid`),
+  KEY `FKFC42FED877A92E9E` (`roleid`),
+  KEY `FKFC42FED87CFE8408` (`userid`),
+  CONSTRAINT `FKFC42FED87CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKFC42FED850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKFC42FED877A92E9E` FOREIGN KEY (`roleid`) REFERENCES `wrole` (`id`),
+  CONSTRAINT `FKFC42FED88FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table meta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `meta`;
+
+CREATE TABLE `meta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK33160550566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK33160550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table project
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `project`;
+
+CREATE TABLE `project` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKED904B1950566623` (`lastupdatebyuser`),
+  KEY `FKED904B198FE41BFE` (`labid`),
+  CONSTRAINT `FKED904B198FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FKED904B1950566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resource
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resource`;
+
+CREATE TABLE `resource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKEBABC40E50566623` (`lastupdatebyuser`),
+  KEY `FKEBABC40E84326E2` (`resourcetypeid`),
+  KEY `FKEBABC40EFBCBFFEA` (`resourcecategoryid`),
+  CONSTRAINT `FKEBABC40EFBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
+  CONSTRAINT `FKEBABC40E50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKEBABC40E84326E2` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcebarcode
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcebarcode`;
+
+CREATE TABLE `resourcebarcode` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `barcodeid` int(11) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKAEBE18B250566623` (`lastupdatebyuser`),
+  KEY `FKAEBE18B2F2B00CA4` (`barcodeid`),
+  KEY `FKAEBE18B23AB44C4E` (`resourceid`),
+  CONSTRAINT `FKAEBE18B23AB44C4E` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`id`),
+  CONSTRAINT `FKAEBE18B250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKAEBE18B2F2B00CA4` FOREIGN KEY (`barcodeid`) REFERENCES `barcode` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategory`;
+
+CREATE TABLE `resourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK9468930C50566623` (`lastupdatebyuser`),
+  KEY `FK9468930C84326E2` (`resourcetypeid`),
+  CONSTRAINT `FK9468930C84326E2` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`id`),
+  CONSTRAINT `FK9468930C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcecategorymeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecategorymeta`;
+
+CREATE TABLE `resourcecategorymeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK38C3431150566623` (`lastupdatebyuser`),
+  KEY `FK38C34311FBCBFFEA` (`resourcecategoryid`),
+  CONSTRAINT `FK38C34311FBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
+  CONSTRAINT `FK38C3431150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcecell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcecell`;
+
+CREATE TABLE `resourcecell` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKE91D967050566623` (`lastupdatebyuser`),
+  KEY `FKE91D96703AB44C4E` (`resourceid`),
+  CONSTRAINT `FKE91D96703AB44C4E` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`id`),
+  CONSTRAINT `FKE91D967050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcemeta`;
+
+CREATE TABLE `resourcemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `resourceid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKE922231350566623` (`lastupdatebyuser`),
+  KEY `FKE92223133AB44C4E` (`resourceid`),
+  CONSTRAINT `FKE92223133AB44C4E` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`id`),
+  CONSTRAINT `FKE922231350566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table resourcetype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resourcetype`;
+
+CREATE TABLE `resourcetype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKE9259C4850566623` (`lastupdatebyuser`),
+  CONSTRAINT `FKE9259C4850566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table roleset
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `roleset`;
+
+CREATE TABLE `roleset` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `childroleid` int(11) DEFAULT NULL,
+  `parentroleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5211E02C50566623` (`lastupdatebyuser`),
+  KEY `FK5211E02C22D18FC8` (`parentroleid`),
+  KEY `FK5211E02C96EFDEBA` (`childroleid`),
+  CONSTRAINT `FK5211E02C96EFDEBA` FOREIGN KEY (`childroleid`) REFERENCES `wrole` (`id`),
+  CONSTRAINT `FK5211E02C22D18FC8` FOREIGN KEY (`parentroleid`) REFERENCES `wrole` (`id`),
+  CONSTRAINT `FK5211E02C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table run
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `run`;
+
+CREATE TABLE `run` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `endts` datetime DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourceCategoryid` int(11) DEFAULT NULL,
+  `resourceid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `startts` datetime DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK1BA8BB8A37246` (`sampleid`),
+  KEY `FK1BA8B50566623` (`lastupdatebyuser`),
+  KEY `FK1BA8B21328540` (`softwareid`),
+  KEY `FK1BA8B3AB44C4E` (`resourceid`),
+  KEY `FK1BA8BFBCBFFEA` (`resourceCategoryid`),
+  KEY `FK1BA8B7CFE8408` (`userid`),
+  CONSTRAINT `FK1BA8B7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK1BA8B21328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FK1BA8B3AB44C4E` FOREIGN KEY (`resourceid`) REFERENCES `resource` (`id`),
+  CONSTRAINT `FK1BA8B50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK1BA8BB8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`),
+  CONSTRAINT `FK1BA8BFBCBFFEA` FOREIGN KEY (`resourceCategoryid`) REFERENCES `resourcecategory` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table runcell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `runcell`;
+
+CREATE TABLE `runcell` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `resourcecellid` int(11) DEFAULT NULL,
+  `runid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5C6A066DB8A37246` (`sampleid`),
+  KEY `FK5C6A066D50566623` (`lastupdatebyuser`),
+  KEY `FK5C6A066D9042067A` (`runid`),
+  KEY `FK5C6A066DEA1D3132` (`resourcecellid`),
+  CONSTRAINT `FK5C6A066DEA1D3132` FOREIGN KEY (`resourcecellid`) REFERENCES `resourcecell` (`id`),
+  CONSTRAINT `FK5C6A066D50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK5C6A066D9042067A` FOREIGN KEY (`runid`) REFERENCES `run` (`id`),
+  CONSTRAINT `FK5C6A066DB8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table runmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `runmeta`;
+
+CREATE TABLE `runmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `runid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5C6E931050566623` (`lastupdatebyuser`),
+  KEY `FK5C6E93109042067A` (`runid`),
+  CONSTRAINT `FK5C6E93109042067A` FOREIGN KEY (`runid`) REFERENCES `run` (`id`),
+  CONSTRAINT `FK5C6E931050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sample
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sample`;
+
+CREATE TABLE `sample` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `isgood` int(11) DEFAULT NULL,
+  `isreceived` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `parentid` int(11) DEFAULT NULL,
+  `receivedts` datetime DEFAULT NULL,
+  `receiver_userid` int(11) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `submitter_jobid` int(11) DEFAULT NULL,
+  `submitter_labid` int(11) DEFAULT NULL,
+  `submitter_userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKC9C775AA50566623` (`lastupdatebyuser`),
+  KEY `FKC9C775AADBE90DA` (`sampletypeid`),
+  KEY `FKC9C775AA39050DE4` (`samplesubtypeid`),
+  KEY `FKC9C775AADB1865A8` (`submitter_jobid`),
+  KEY `FKC9C775AA88EE4546` (`parentid`),
+  KEY `FKC9C775AA9AF88BFE` (`submitter_userid`),
+  KEY `FKC9C775AADB2E3D48` (`submitter_labid`),
+  CONSTRAINT `FKC9C775AADB2E3D48` FOREIGN KEY (`submitter_labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FKC9C775AA39050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
+  CONSTRAINT `FKC9C775AA50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKC9C775AA88EE4546` FOREIGN KEY (`parentid`) REFERENCES `sample` (`id`),
+  CONSTRAINT `FKC9C775AA9AF88BFE` FOREIGN KEY (`submitter_userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKC9C775AADB1865A8` FOREIGN KEY (`submitter_jobid`) REFERENCES `job` (`id`),
+  CONSTRAINT `FKC9C775AADBE90DA` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplebarcode
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplebarcode`;
+
+CREATE TABLE `samplebarcode` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `barcodeid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKC9809F96B8A37246` (`sampleid`),
+  KEY `FKC9809F9650566623` (`lastupdatebyuser`),
+  KEY `FKC9809F96F2B00CA4` (`barcodeid`),
+  CONSTRAINT `FKC9809F96F2B00CA4` FOREIGN KEY (`barcodeid`) REFERENCES `barcode` (`id`),
+  CONSTRAINT `FKC9809F9650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKC9809F96B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sampledraft
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraft`;
+
+CREATE TABLE `sampledraft` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `filegroupid` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `sourcesampleid` int(11) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK967FE37181C758A` (`filegroupid`),
+  KEY `FK967FE3750566623` (`lastupdatebyuser`),
+  KEY `FK967FE37DBE90DA` (`sampletypeid`),
+  KEY `FK967FE378FE41BFE` (`labid`),
+  KEY `FK967FE3739050DE4` (`samplesubtypeid`),
+  KEY `FK967FE37E3C3069A` (`jobdraftid`),
+  KEY `FK967FE377CFE8408` (`userid`),
+  CONSTRAINT `FK967FE377CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK967FE37181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FK967FE3739050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
+  CONSTRAINT `FK967FE3750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK967FE378FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FK967FE37DBE90DA` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`id`),
+  CONSTRAINT `FK967FE37E3C3069A` FOREIGN KEY (`jobdraftid`) REFERENCES `jobdraft` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sampledraftjobdraftcellselection
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraftjobdraftcellselection`;
+
+CREATE TABLE `sampledraftjobdraftcellselection` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobdraftcellselectionid` int(11) DEFAULT NULL,
+  `libraryindex` int(11) DEFAULT NULL,
+  `sampledraftid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKB65C2B0F50566623` (`lastupdatebyuser`),
+  KEY `FKB65C2B0F4E0649B2` (`sampledraftid`),
+  KEY `FKB65C2B0FBB98C410` (`jobdraftcellselectionid`),
+  CONSTRAINT `FKB65C2B0FBB98C410` FOREIGN KEY (`jobdraftcellselectionid`) REFERENCES `jobdraftcellselection` (`id`),
+  CONSTRAINT `FKB65C2B0F4E0649B2` FOREIGN KEY (`sampledraftid`) REFERENCES `sampledraft` (`id`),
+  CONSTRAINT `FKB65C2B0F50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sampledraftmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampledraftmeta`;
+
+CREATE TABLE `sampledraftmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `sampledraftid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKFC7320BC50566623` (`lastupdatebyuser`),
+  KEY `FKFC7320BC4E0649B2` (`sampledraftid`),
+  CONSTRAINT `FKFC7320BC4E0649B2` FOREIGN KEY (`sampledraftid`) REFERENCES `sampledraft` (`id`),
+  CONSTRAINT `FKFC7320BC50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplefilegroup
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplefilegroup`;
+
+CREATE TABLE `samplefilegroup` (
+  `sampleid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  PRIMARY KEY (`sampleid`,`filegroupid`),
+  KEY `FKC18C5819B8A37246` (`sampleid`),
+  KEY `FKC18C5819181C758A` (`filegroupid`),
+  CONSTRAINT `FKC18C5819181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`),
+  CONSTRAINT `FKC18C5819B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplejobcellselection
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplejobcellselection`;
+
+CREATE TABLE `samplejobcellselection` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `jobcellselectionid` int(11) DEFAULT NULL,
+  `libraryindex` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK216C5777B8A37246` (`sampleid`),
+  KEY `FK216C577750566623` (`lastupdatebyuser`),
+  KEY `FK216C57774704CC` (`jobcellselectionid`),
+  CONSTRAINT `FK216C57774704CC` FOREIGN KEY (`jobcellselectionid`) REFERENCES `jobcellselection` (`id`),
+  CONSTRAINT `FK216C577750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK216C5777B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplelab
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplelab`;
+
+CREATE TABLE `samplelab` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `isprimary` int(11) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK425753A3B8A37246` (`sampleid`),
+  KEY `FK425753A350566623` (`lastupdatebyuser`),
+  KEY `FK425753A38FE41BFE` (`labid`),
+  CONSTRAINT `FK425753A38FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FK425753A350566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK425753A3B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplemeta`;
+
+CREATE TABLE `samplemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK893A6AFB8A37246` (`sampleid`),
+  KEY `FK893A6AF50566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK893A6AF50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK893A6AFB8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesource
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesource`;
+
+CREATE TABLE `samplesource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `indexvalue` int(11) DEFAULT NULL,
+  `sampleid` int(11) DEFAULT NULL,
+  `source_sampleid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK3D0F7645B8A37246` (`sampleid`),
+  KEY `FK3D0F764550566623` (`lastupdatebyuser`),
+  KEY `FK3D0F76456F2C29EA` (`source_sampleid`),
+  CONSTRAINT `FK3D0F76456F2C29EA` FOREIGN KEY (`source_sampleid`) REFERENCES `sample` (`id`),
+  CONSTRAINT `FK3D0F764550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK3D0F7645B8A37246` FOREIGN KEY (`sampleid`) REFERENCES `sample` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesourcefilegroup
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcefilegroup`;
+
+CREATE TABLE `samplesourcefilegroup` (
+  `samplesourceid` int(11) NOT NULL,
+  `filegroupid` int(11) NOT NULL,
+  PRIMARY KEY (`samplesourceid`,`filegroupid`),
+  KEY `FK67BBD5DE181C758A` (`filegroupid`),
+  KEY `FK67BBD5DE267BC79C` (`samplesourceid`),
+  CONSTRAINT `FK67BBD5DE267BC79C` FOREIGN KEY (`samplesourceid`) REFERENCES `samplesource` (`id`),
+  CONSTRAINT `FK67BBD5DE181C758A` FOREIGN KEY (`filegroupid`) REFERENCES `filegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesourcemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesourcemeta`;
+
+CREATE TABLE `samplesourcemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `samplesourceid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKA063E1CA50566623` (`lastupdatebyuser`),
+  KEY `FKA063E1CA267BC79C` (`samplesourceid`),
+  CONSTRAINT `FKA063E1CA267BC79C` FOREIGN KEY (`samplesourceid`) REFERENCES `samplesource` (`id`),
+  CONSTRAINT `FKA063E1CA50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesubtype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtype`;
+
+CREATE TABLE `samplesubtype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `arealist` varchar(255) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK6E11E49050566623` (`lastupdatebyuser`),
+  KEY `FK6E11E490DBE90DA` (`sampletypeid`),
+  CONSTRAINT `FK6E11E490DBE90DA` FOREIGN KEY (`sampletypeid`) REFERENCES `sampletype` (`id`),
+  CONSTRAINT `FK6E11E49050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesubtypemeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtypemeta`;
+
+CREATE TABLE `samplesubtypemeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK92A0329550566623` (`lastupdatebyuser`),
+  KEY `FK92A0329539050DE4` (`samplesubtypeid`),
+  CONSTRAINT `FK92A0329539050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
+  CONSTRAINT `FK92A0329550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table samplesubtyperesourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `samplesubtyperesourcecategory`;
+
+CREATE TABLE `samplesubtyperesourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK69BF579C50566623` (`lastupdatebyuser`),
+  KEY `FK69BF579C39050DE4` (`samplesubtypeid`),
+  KEY `FK69BF579CFBCBFFEA` (`resourcecategoryid`),
+  CONSTRAINT `FK69BF579CFBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`),
+  CONSTRAINT `FK69BF579C39050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
+  CONSTRAINT `FK69BF579C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sampletype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletype`;
+
+CREATE TABLE `sampletype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `sampletypecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK8971FE450566623` (`lastupdatebyuser`),
+  KEY `FK8971FE467BEF876` (`sampletypecategoryid`),
+  CONSTRAINT `FK8971FE467BEF876` FOREIGN KEY (`sampletypecategoryid`) REFERENCES `sampletypecategory` (`id`),
+  CONSTRAINT `FK8971FE450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table sampletypecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `sampletypecategory`;
+
+CREATE TABLE `sampletypecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKDAFDB8E250566623` (`lastupdatebyuser`),
+  CONSTRAINT `FKDAFDB8E250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table software
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `software`;
+
+CREATE TABLE `software` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK4EA361A750566623` (`lastupdatebyuser`),
+  KEY `FK4EA361A784326E2` (`resourcetypeid`),
+  CONSTRAINT `FK4EA361A784326E2` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`id`),
+  CONSTRAINT `FK4EA361A750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table softwaremeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `softwaremeta`;
+
+CREATE TABLE `softwaremeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `softwareid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKA56F4C2C50566623` (`lastupdatebyuser`),
+  KEY `FKA56F4C2C21328540` (`softwareid`),
+  CONSTRAINT `FKA56F4C2C21328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FKA56F4C2C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table uifield
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `uifield`;
-CREATE TABLE IF NOT EXISTS `uifield` (
-  `uifieldid` int(10)  AUTO_INCREMENT,
-  `locale` varchar(5) ,
-  `domain` varchar(100) ,
-  `area` varchar(50) ,
-  `name` varchar(100) ,
-  `attrname` varchar(50) ,
-  `attrvalue` text DEFAULT NULL,
-  `lastupdts` datetime DEFAULT NULL,
-  `lastupduser` int(11) DEFAULT NULL,
-  PRIMARY KEY (`uifieldid`),
-  UNIQUE KEY `u_uifield_laaa` (`locale`,`area`,`name`,`attrname`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=537 ;
 
+CREATE TABLE `uifield` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `area` varchar(255) DEFAULT NULL,
+  `attrname` varchar(255) DEFAULT NULL,
+  `attrvalue` longtext,
+  `domain` varchar(255) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKE6348EE650566623` (`lastupdatebyuser`),
+  CONSTRAINT `FKE6348EE650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table usermeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `usermeta`;
+
+CREATE TABLE `usermeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKF029245050566623` (`lastupdatebyuser`),
+  KEY `FKF02924507CFE8408` (`userid`),
+  CONSTRAINT `FKF02924507CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKF029245050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table userpasswordauth
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpasswordauth`;
+
+CREATE TABLE `userpasswordauth` (
+  `id` int(11) NOT NULL,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `authcode` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKE9E7660E50566623` (`lastupdatebyuser`),
+  KEY `FKE9E7660E7CFE8408` (`userid`),
+  CONSTRAINT `FKE9E7660E7CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKE9E7660E50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table userpending
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpending`;
+
+CREATE TABLE `userpending` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `labid` int(11) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT NULL,
+  `login` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK6219D36C50566623` (`lastupdatebyuser`),
+  KEY `FK6219D36C8FE41BFE` (`labid`),
+  CONSTRAINT `FK6219D36C8FE41BFE` FOREIGN KEY (`labid`) REFERENCES `lab` (`id`),
+  CONSTRAINT `FK6219D36C50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table userpendingmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userpendingmeta`;
+
+CREATE TABLE `userpendingmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `userpendingid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK511D537150566623` (`lastupdatebyuser`),
+  KEY `FK511D5371FF4502DC` (`userpendingid`),
+  CONSTRAINT `FK511D5371FF4502DC` FOREIGN KEY (`userpendingid`) REFERENCES `userpending` (`id`),
+  CONSTRAINT `FK511D537150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table userrole
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `userrole`;
+
+CREATE TABLE `userrole` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `roleid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKF02B8EC150566623` (`lastupdatebyuser`),
+  KEY `FKF02B8EC177A92E9E` (`roleid`),
+  KEY `FKF02B8EC17CFE8408` (`userid`),
+  CONSTRAINT `FKF02B8EC17CFE8408` FOREIGN KEY (`userid`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKF02B8EC150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKF02B8EC177A92E9E` FOREIGN KEY (`roleid`) REFERENCES `wrole` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflow
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflow`;
+
+CREATE TABLE `workflow` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `createts` datetime DEFAULT NULL,
+  `iname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK21BD7BF50566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK21BD7BF50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowmeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowmeta`;
+
+CREATE TABLE `workflowmeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5D0EF64450566623` (`lastupdatebyuser`),
+  KEY `FK5D0EF6448BDE4B70` (`workflowid`),
+  CONSTRAINT `FK5D0EF6448BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FK5D0EF64450566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowresourcecategory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategory`;
+
+CREATE TABLE `workflowresourcecategory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `resourcecategoryid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKD8B30CCB50566623` (`lastupdatebyuser`),
+  KEY `FKD8B30CCBFBCBFFEA` (`resourcecategoryid`),
+  KEY `FKD8B30CCB8BDE4B70` (`workflowid`),
+  CONSTRAINT `FKD8B30CCB8BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FKD8B30CCB50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FKD8B30CCBFBCBFFEA` FOREIGN KEY (`resourcecategoryid`) REFERENCES `resourcecategory` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowresourcecategorymeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcecategorymeta`;
+
+CREATE TABLE `workflowresourcecategorymeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `workflowresourcecategoryid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKFBACC55050566623` (`lastupdatebyuser`),
+  KEY `FKFBACC550AD019488` (`workflowresourcecategoryid`),
+  CONSTRAINT `FKFBACC550AD019488` FOREIGN KEY (`workflowresourcecategoryid`) REFERENCES `workflowresourcecategory` (`id`),
+  CONSTRAINT `FKFBACC55050566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowresourcetype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowresourcetype`;
+
+CREATE TABLE `workflowresourcetype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `resourcetypeid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK98F8CD8750566623` (`lastupdatebyuser`),
+  KEY `FK98F8CD8784326E2` (`resourcetypeid`),
+  KEY `FK98F8CD878BDE4B70` (`workflowid`),
+  CONSTRAINT `FK98F8CD878BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FK98F8CD8750566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
+  CONSTRAINT `FK98F8CD8784326E2` FOREIGN KEY (`resourcetypeid`) REFERENCES `resourcetype` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowsamplesubtype
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsamplesubtype`;
+
+CREATE TABLE `workflowsamplesubtype` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `samplesubtypeid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKB8A4DB3150566623` (`lastupdatebyuser`),
+  KEY `FKB8A4DB3139050DE4` (`samplesubtypeid`),
+  KEY `FKB8A4DB318BDE4B70` (`workflowid`),
+  CONSTRAINT `FKB8A4DB318BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FKB8A4DB3139050DE4` FOREIGN KEY (`samplesubtypeid`) REFERENCES `samplesubtype` (`id`),
+  CONSTRAINT `FKB8A4DB3150566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowsoftware
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftware`;
+
+CREATE TABLE `workflowsoftware` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `softwareid` int(11) DEFAULT NULL,
+  `workflowid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK1E070A6650566623` (`lastupdatebyuser`),
+  KEY `FK1E070A6621328540` (`softwareid`),
+  KEY `FK1E070A668BDE4B70` (`workflowid`),
+  CONSTRAINT `FK1E070A668BDE4B70` FOREIGN KEY (`workflowid`) REFERENCES `workflow` (`id`),
+  CONSTRAINT `FK1E070A6621328540` FOREIGN KEY (`softwareid`) REFERENCES `software` (`id`),
+  CONSTRAINT `FK1E070A6650566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table workflowsoftwaremeta
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `workflowsoftwaremeta`;
+
+CREATE TABLE `workflowsoftwaremeta` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `k` varchar(255) DEFAULT NULL,
+  `position` int(11) DEFAULT NULL,
+  `rolevisibility` varchar(255) DEFAULT NULL,
+  `v` longtext,
+  `workflowsoftwareid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK55427D6B50566623` (`lastupdatebyuser`),
+  KEY `FK55427D6B2148801E` (`workflowsoftwareid`),
+  CONSTRAINT `FK55427D6B2148801E` FOREIGN KEY (`workflowsoftwareid`) REFERENCES `workflowsoftware` (`id`),
+  CONSTRAINT `FK55427D6B50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table wrole
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wrole`;
+
+CREATE TABLE `wrole` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `domain` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `rolename` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK6C26D6D50566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK6C26D6D50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table wuser
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wuser`;
+
+CREATE TABLE `wuser` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `locale` varchar(5) DEFAULT NULL,
+  `login` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK6C3D8C250566623` (`lastupdatebyuser`),
+  CONSTRAINT `FK6C3D8C250566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-
--- populate "sample type" <-> "list of meta fields" link tables. 
-
-  
--- truncate table workflowsamplesubtype;
--- truncate table samplesubtype;
-
-insert into samplesubtype(sampletypeid,iname,name)
-select 
-t.sampletypeid, 
-concat(w.iname,t.iname, 'Sample'), 
-concat(w.name, ' ', t.name, ' Sample')
-from sampletype t 
-join workflow w
-where t.sampletypeid in (1, 3);
-
-insert into workflowsamplesubtype(workflowid, samplesubtypeid)
-select w.workflowid, st.samplesubtypeid
-from workflow w
-join sampletype t on t.sampletypeid in (1, 3)
-join samplesubtype st on concat(w.iname, t.iname, 'Sample') = st.iname;
-
-
-insert into user
-values
-(1, 'super', 'super@super.com', SHA1('user'), 'Super', 'User', 'en_US', 1, now(), 1);
-
-insert into userrole values (1, 1, 11, now(), 1);
-insert into lab values (1, 1, 'default lab', 1, 1, now(), 1);
-insert into labuser values (1, 1, 1, 6, now(), 1);

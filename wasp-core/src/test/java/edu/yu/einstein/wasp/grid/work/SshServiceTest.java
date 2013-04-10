@@ -3,8 +3,11 @@ package edu.yu.einstein.wasp.grid.work;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -14,7 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -28,11 +30,13 @@ import edu.yu.einstein.wasp.grid.file.SshFileService;
 public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	
 	@Autowired
-	private GridTransportConnection testGridTransportConnection;
+	private SshTransportConnection testGridTransportConnection;
+	
 	
 	// SshTransportConnection stc;
 	GridFileService gfs;
 	GridWorkService sshws;
+	@Autowired
 	GridWorkService sgews;
 	LocalhostTransportConnection localhost;
 	GridWorkService localhostWork;
@@ -70,7 +74,7 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 	public void instantiate() throws Exception {
 		gfs = new SshFileService(testGridTransportConnection);
 		sshws = new SshWorkService(testGridTransportConnection);
-		sgews = new SgeWorkService(testGridTransportConnection);
+		//sgews = new SgeWorkService(testGridTransportConnection);
 		sgews.setGridFileService(gfs);
 	}
 	
@@ -188,6 +192,7 @@ public class SshServiceTest extends AbstractTestNGSpringContextTests {
 			w.setCommand("hostname -f");
 			w.addCommand("ls -1 /apps1");
 			w.addCommand("sleep 10");
+			GridTransportConnection gridTransportConnection = sgews.getTransportConnection();
 			GridResult result = sgews.execute(w);
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(result.getStdErrStream(), writer, "UTF-8");

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -153,6 +154,18 @@ public class SshWorkService implements GridWorkService {
 	@Override
 	public InputStream readResultStdOut(GridResult r) throws IOException {
 		return r.getStdOutStream();
+	}
+
+	@Override
+	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException {
+		// TODO Fake a task array
+		return null;
+	}
+
+	@Override
+	public LinkedHashMap<String, String> getMappedTaskOutput(GridResult r) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

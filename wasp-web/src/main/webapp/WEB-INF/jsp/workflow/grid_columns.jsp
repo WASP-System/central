@@ -7,7 +7,7 @@
 <wasp:field name="isActive"  type="checkbox" />
 
 <wasp:field name="configure" type="text" showLink="true" baseLinkURL="/wasp/workflow/resource/configure.do" searchable="false" >
-	#field.jq.editrules.edithidden=true;
+	<%-- #field.jq.editrules.edithidden=true;  dubin:3/28/13, this appears to completely disable the grid, so it was commented out --%>
 </wasp:field>
 
 _navAttr={edit:false,view:true,add:false,del:false};

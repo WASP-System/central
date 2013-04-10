@@ -10,7 +10,11 @@ import org.springframework.validation.Errors;
 
 import edu.yu.einstein.wasp.service.AuthenticationService;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Component
 public class PasswordValidator{
 	

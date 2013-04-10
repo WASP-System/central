@@ -2,10 +2,10 @@ package edu.yu.einstein.wasp.exception;
 
 /**
  * Reporting of WASP metadata exceptions
- * @author andymac
+ * @author asmclellan
  *
  */
-public class FileMoveException extends Exception{
+public class FileMoveException extends RuntimeException {
 	
 	/**
 	 * 

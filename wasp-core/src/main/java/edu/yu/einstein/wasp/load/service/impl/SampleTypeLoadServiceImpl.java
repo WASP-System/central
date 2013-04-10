@@ -12,6 +12,11 @@ import edu.yu.einstein.wasp.load.service.SampleTypeLoadService;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 @Service
 @Transactional("entityManager")
 public class SampleTypeLoadServiceImpl extends WaspLoadServiceImpl implements SampleTypeLoadService {

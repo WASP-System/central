@@ -28,7 +28,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 
-/*
+/**
  * Builds jqGrid-compatible JavaScript object to describe a field
  * 
  * @Author Sasha Levchuk
@@ -469,7 +469,7 @@ public class JQFieldTag extends BodyTagSupport {
 			throw new JspTagException(e.getMessage(),e);
 		}
 		
-		return Tag.EVAL_PAGE;
+		return Tag.EVAL_BODY_INCLUDE;
 	}
 	
 	//replace "#field" tokens in tag body with real name 

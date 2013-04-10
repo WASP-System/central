@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,11 +38,11 @@ import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -147,21 +148,19 @@ public class SampleController extends WaspController {
     sampleMetaList.size();
 
     List<JobSample> jobSampleList = sample.getJobSample();
-    jobSampleList.size();
 
-    List<SampleFile> sampleFileList = sample.getSampleFile();
-    sampleFileList.size();
+    Set<FileGroup> sampleFileSet = sample.getFileGroups();
 
     List<SampleSource> parentSampleList = sample.getSampleSource();
-    parentSampleList.size();
 
     List<SampleSource> childSampleList = sample.getSourceSample();
-    childSampleList.size();
 
     m.addAttribute("now", now);
     m.addAttribute("sample", sample);
     m.addAttribute("samplemeta", sampleMetaList);
     m.addAttribute("jobsample", jobSampleList);
+    List<FileGroup> sampleFileList = new ArrayList<FileGroup>();
+    sampleFileList.addAll(sampleFileSet);
     m.addAttribute("samplefile", sampleFileList);
     m.addAttribute("parentsample", parentSampleList);
     m.addAttribute("childsample", childSampleList);

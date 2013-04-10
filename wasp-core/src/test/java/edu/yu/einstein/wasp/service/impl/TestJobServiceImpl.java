@@ -47,7 +47,6 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
@@ -63,7 +62,6 @@ import edu.yu.einstein.wasp.dao.impl.JobUserDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.LabDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.RoleDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleDaoImpl;
-import edu.yu.einstein.wasp.dao.impl.SampleFileDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleJobCellSelectionDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleMetaDaoImpl;
 import edu.yu.einstein.wasp.dao.impl.SampleTypeDaoImpl;
@@ -74,7 +72,6 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -96,7 +93,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleType;
@@ -120,7 +116,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
   SampleJobCellSelectionDao mockSampleJobCellSelectionDao;
   JobDraftDao mockJobDraftDao;
   SampleMetaDao mockSampleMetaDao;
-  SampleFileDao mockSampleFileDao;
   SampleTypeDao mockSampleTypeDao;
 
   WorkflowDao mockWorkflowDao;
@@ -141,15 +136,15 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  List<JobSample> jobSamples = new ArrayList<JobSample>();
 	 
 	  Job job = new Job();
-	  job.setJobId(1);
+	  job.setId(1);
 	  Sample sample = new Sample();
-	  sample.setSampleId(1);
+	  sample.setId(1);
 	  Sample sampleParent  = new Sample();
 	  sample.setParent(sampleParent);
 	  sample.setParentId(2);
 	    
 	  JobSample jobSample = new JobSample();
-	  jobSample.setJobSampleId(0001);
+	  jobSample.setId(0001);
 	  jobSample.setJobId(1);
 	  jobSample.setSampleId(1);
 	  jobSample.setSample(sample);
@@ -473,7 +468,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobExecutions.add(jobExecution);
 	  jobExecutions.add(jobExecution2);
 	  	  
-	  expect(mockJobExplorerWasp.getJobExecutions(parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
+	  expect(mockJobExplorerWasp.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED)).andReturn(jobExecutions);
 	    
 	  try {
 		expect(mockJobExplorerWasp.getJobParameterValueByKey(jobExecution, WaspJobParameters.JOB_ID)).andReturn("123");
@@ -604,7 +599,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
   }
 
-  @Test (description="test when machine, readLength and quote are set")
+  @Test (description="test when machine, readLength, readType and quote are set")
   public void getExtraJobDetails() {
 	  
 	  Job job = new Job();
@@ -618,6 +613,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  resourceType.setResourceTypeId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setIName("IlluminaHiSeq2000");
 	  resourceCategory.setResourceType(resourceType);
 	  jrc.setResourceCategory(resourceCategory);
 	    
@@ -627,26 +623,35 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	  //Job meta
 	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
+	  jobMeta.setId(1);
+	  jobMeta.setK("IlluminaHiSeq2000.readLength");
 	  jobMeta.setV("1");
 	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 	  jobMetaList.add(jobMeta);
+	  
+	//Job meta
+	  JobMeta jobMeta2 = new JobMeta();
+	  jobMeta2.setId(2);
+	  jobMeta2.setK("IlluminaHiSeq2000.readType");
+	  jobMeta2.setV("single");
+	  jobMetaList.add(jobMeta2);
+	  
 	  job.setJobMeta(jobMetaList);
 	  
 	  //Quote
 	  AcctQuote acctQuote = new AcctQuote();
+	  acctQuote.setId(1);
 	  acctQuote.setAmount(new Float(123.45));
-	  
-	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  Set<AcctQuote> quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 
 	  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();	 
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", acctQuote.getAmount()));
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
@@ -657,16 +662,17 @@ public class TestJobServiceImpl extends EasyMockSupport{
   public void getExtraJobDetails2() {
 	  
 	  Job job = new Job();
-	  job.setJobId(1);  
+	  job.setId(1);  
 	  
 	  //Machine (resource category)
 	  JobResourcecategory jrc = new JobResourcecategory();
 	  jrc.setJobResourcecategoryId(1);
 	  ResourceCategory resourceCategory = new ResourceCategory();
 	  ResourceType resourceType = new ResourceType();
-	  resourceType.setResourceTypeId(1);
+	  resourceType.setId(1);
 	  resourceType.setIName("mps");
 	  resourceCategory.setName("Illumina HiSeq 2000");
+	  resourceCategory.setIName("IlluminaHiSeq2000");
 	  resourceCategory.setResourceType(resourceType);
 	  jrc.setResourceCategory(resourceCategory);
 	    
@@ -674,29 +680,40 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobResourceCategoryList.add(jrc);
 	  job.setJobResourcecategory(jobResourceCategoryList);
 	  
-	  //Job meta
+	//Job meta
 	  JobMeta jobMeta = new JobMeta();
-	  jobMeta.setK("readLength");
+	  jobMeta.setId(1);
+	  jobMeta.setK("IlluminaHiSeq2000.readLength");
 	  jobMeta.setV("1");
 	  List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 	  jobMetaList.add(jobMeta);
+	  
+	//Job meta
+	  JobMeta jobMeta2 = new JobMeta();
+	  jobMeta2.setId(2);
+	  jobMeta2.setK("IlluminaHiSeq2000.readType");
+	  jobMeta2.setV("single");
+	  jobMetaList.add(jobMeta2);
+	  
 	  job.setJobMeta(jobMetaList);
 	  	  
 	  AcctQuote acctQuote = new AcctQuote();
-	  AcctJobquotecurrent acctJobQuoteCurrent = new AcctJobquotecurrent();
-	  List <AcctJobquotecurrent> acctJobQuoteCurrentList = new ArrayList <AcctJobquotecurrent>();
+	  acctQuote.setId(1);
+	  Set<AcctQuote> quotes = null;
 
 	  //Test case 1  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 	  Float price = new Float(123.45);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -705,12 +722,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(0);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  acctQuote.setAmount(price);	 
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -719,12 +738,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(123);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  acctQuote.setAmount(price);	
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -733,12 +754,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(123);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  acctQuote.setAmount(price);	
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 	  
@@ -747,12 +770,14 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  price = new Float(9999999999.9999999);
 	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
 	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
+	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
 	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
-	  acctQuote.setAmount(price);	  
-	  acctJobQuoteCurrent.setAcctQuote(acctQuote);
-	  acctJobQuoteCurrentList.add(0, acctJobQuoteCurrent);
-	  job.setAcctJobquotecurrent(acctJobQuoteCurrentList);
+	  acctQuote.setAmount(price);	 
+	  quotes = new HashSet<AcctQuote>();
+	  quotes.add(acctQuote);
+	  job.setAcctQuote(quotes);
+	  job.setCurrentQuote(acctQuote);
 	  	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 
@@ -797,7 +822,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockJobServiceImpl.setJobUserDao(mockJobUserDao);
 	  mockJobServiceImpl.setLabDao(mockLabDao);
 	  mockJobServiceImpl.setJobCellSelectionDao(mockJobCellSelectionDao);
-	  mockJobServiceImpl.setSampleFileDao(mockSampleFileDao);
 	  mockJobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
 	  mockJobServiceImpl.setJobSampleDao(mockJobSampleDao);
 	  mockJobServiceImpl.setSampleJobCellSelectionDao(mockSampleJobCellSelectionDao);
@@ -933,7 +957,7 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  sd.setSampleSubtypeId(1);
 	  sd.setSampleDraftJobDraftCellSelection(sdjdcList);
 	  sd.setSampleDraftId(new Integer(1));
-	  sd.setFileId(1);
+	  // sd.setFileId(1);
 	  
 	  Sample sample = new Sample();
 	  sample.setSampleId(1);
@@ -950,18 +974,17 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  replay(mockSampleDao);
 
 	 // Sample file
-	  SampleFile sampleFile = new SampleFile();
-	  sampleFile.setSampleId(sample.getSampleId());
-	  sampleFile.setFileId(sd.getFileId());
-	  sampleFile.setIsActive(1);
+	  // SampleFile sampleFile = new SampleFile();
+	  // sampleFile.setSampleId(sample.getSampleId());
+	  // sampleFile.setFileId(sd.getFileId());
+	  // sampleFile.setIsActive(1);
 	  
-	  expect(mockSampleFileDao.save(EasyMock.isA(SampleFile.class))).andReturn(sampleFile);
-	  replay(mockSampleFileDao);
+	  //expect(mockSampleFileDao.save(EasyMock.isA(SampleFile.class))).andReturn(sampleFile);
 	  
 	//Sample Draft Meta
 	  SampleDraftMeta  sdm = new SampleDraftMeta();
-	  sdm.setK("genericBiomolecule.species");
-	  sdm.setV("Human");
+	  sdm.setK("genericBiomolecule.organism");
+	  sdm.setV("9606");
 	  sdm.setPosition(1);
 	  
 	  SampleMeta sampleMeta = new SampleMeta();
@@ -1398,10 +1421,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
   @Test
   public void getJobsSubmittedOrViewableByUser2() {
 	  User user = new User();
-	  user.setUserId(1);
+	  user.setId(1);
 	   
 	  Map m = new HashMap();
-	  m.put("UserId", user.getUserId().intValue()); 
+	  m.put("userId", user.getId().intValue()); 
 	  List<String> orderByColumnNames = new ArrayList<String>();
 	  orderByColumnNames.add("jobId");
 	  
@@ -1590,7 +1613,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  jobServiceImpl.setWorkflowDao(mockWorkflowDao);
 	  jobServiceImpl.setJobDraftDao(mockJobDraftDao);
 	  jobServiceImpl.setSampleMetaDao(mockSampleMetaDao);
-	  jobServiceImpl.setSampleFileDao(mockSampleFileDao);
 
 
   }
@@ -1616,7 +1638,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  EasyMock.reset(mockJobDraftDao);
 	  EasyMock.reset(mockSampleMetaDao);
 	  EasyMock.reset(mockSampleService);
-	  EasyMock.reset(mockSampleFileDao);
 	  EasyMock.reset(mockSampleTypeDao);
 
 
@@ -1649,7 +1670,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  mockWorkflowDao = createMockBuilder(WorkflowDaoImpl.class).addMockedMethods(WorkflowDaoImpl.class.getMethods()).createMock();
 	  mockJobDraftDao = createMockBuilder(JobDraftDaoImpl.class).addMockedMethods(JobDraftDaoImpl.class.getMethods()).createMock();
 	  mockSampleMetaDao = createMockBuilder(SampleMetaDaoImpl.class).addMockedMethods(SampleMetaDaoImpl.class.getMethods()).createMock();
-	  mockSampleFileDao = createMockBuilder(SampleFileDaoImpl.class).addMockedMethods(SampleFileDaoImpl.class.getMethods()).createMock();
 	  mockSampleTypeDao = createMockBuilder(SampleTypeDaoImpl.class).addMockedMethods(SampleTypeDaoImpl.class.getMethods()).createMock();
 
 	  mockJobExplorerWasp = EasyMock.createNiceMock(JobExplorerWasp.class);
@@ -1688,7 +1708,6 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  Assert.assertNotNull(mockJobServiceImpl);
 	  Assert.assertNotNull(mockJobDraftDao);
 	  Assert.assertNotNull(mockSampleMetaDao);
-	  Assert.assertNotNull(mockSampleFileDao);
 	  Assert.assertNotNull(mockSampleTypeDao);
 
 

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.mockito.Mock;
@@ -39,6 +38,7 @@ import org.testng.annotations.Test;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
+import edu.yu.einstein.wasp.daemon.service.BatchJobService;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -57,18 +57,17 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-
+/*
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml","/daemon-test-batchJob.xml"})
 
 public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
-	// but MUST be re-mocked here (not @Autowied in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
+	// but MUST be re-mocked here (not @Autowired in) otherwise there is autowiring issues with dependencies such as Entitymanager etc.
 	
 	@Mock private SampleService mockSampleService; 
 	
@@ -95,6 +94,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	void setJobExplorer(JobExplorer jobExplorer){
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
+	
+	@Autowired
+	private BatchJobService batchJobService;
 	
 	@Autowired
 	@Qualifier("wasp.channel.priority.run")
@@ -168,13 +170,13 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		wf.setIName("test_workflow");
 		
 		Sample library = new Sample();
-		library.setSampleId(1);
+		library.setId(1);
 		
 		Sample cell = new Sample();
-		cell.setSampleId(2);
+		cell.setId(2);
 		
 		libraryCell = new SampleSource();
-		libraryCell.setSampleSourceId(Integer.valueOf(CELL_LIBRARY_ID));
+		libraryCell.setId(Integer.valueOf(CELL_LIBRARY_ID));
 		libraryCell.setSample(cell);
 		libraryCell.setSourceSample(library);
 		
@@ -182,8 +184,23 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		libraryCells.add(libraryCell);
 		
 		job = new Job();
-		job.setJobId(1);
+		job.setId(1);
 		job.setWorkflow(wf);
+		
+		// add mocks to runSuccessSplitter (replacing Autowired versions)
+		// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
+		runSuccessSplitter.setRunService(mockRunService);
+		runSuccessSplitter.setWaspPluginRegistry(mockWaspPluginRegistry);
+		runSuccessSplitter.setSampleService(mockSampleService);
+		
+		// add mocks to batchJobService (replacing Autowired versions)
+		batchJobService.setJobService(mockJobService);
+		batchJobService.setWaspPluginRegistry(mockWaspPluginRegistry);
+		
+		// add mocks to waspJobSoftwareLaunchTasklet (replacing Autowired versions)
+		waspJobSoftwareLaunchTasklet.setJobService(mockJobService);
+		waspJobSoftwareLaunchTasklet.setSampleService(mockSampleService);
+		waspJobSoftwareLaunchTasklet.setWaspPluginRegistry(mockWaspPluginRegistry);
 	}
 	
 	@AfterClass
@@ -206,11 +223,8 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		try {
 			// add mocks to runSuccessSplitter (replacing Autowired versions)
 			// could also use ReflectionTestUtils.setField(runSuccessSplitter, "runService", mockRunService) - essential if no setters
-			runSuccessSplitter.setRunService(mockRunService);
-			runSuccessSplitter.setWaspPluginRegistry(mockWaspPluginRegistry);
-			runSuccessSplitter.setSampleService(mockSampleService);
 			Run run = new Run();
-			run.setRunId(1);
+			run.setId(1);
 			
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
@@ -220,6 +234,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			BatchJobProviding plugin = new BatchJobProviding() {
 				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
+				@Override public Set<?> getProvides() { return null;	}
+				@Override public Set<?> getHandles() { return null;	}
+				@Override public String getPluginName() { return null; }
 			};
 			
 			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
@@ -249,17 +266,20 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		BatchJobProviding testPlugin = new BatchJobProviding() {
 			@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
+			@Override public Set<?> getProvides() { return null;	}
+			@Override public Set<?> getHandles() { return null;	}
+			@Override public String getPluginName() { return null; }
 		};
 		
 		List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
 		JobMeta jobMeta1 = new JobMeta();
-		jobMeta1.setJobMetaId(1);
+		jobMeta1.setId(1);
 		jobMeta1.setJobId(1);
 		jobMeta1.setK("testAligner.p1");
 		jobMeta1.setV("p1Val");
 		jobMetaList.add(jobMeta1);
 		JobMeta jobMeta2 = new JobMeta();
-		jobMeta2.setJobMetaId(2);
+		jobMeta2.setId(2);
 		jobMeta2.setJobId(1);
 		jobMeta2.setK("testAligner.p2");
 		jobMeta2.setV("p2Val");
@@ -267,7 +287,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		job.setJobMeta(jobMetaList);
 	
 		Software software = new Software();
-		software.setSoftwareId(1);
+		software.setId(1);
 		software.setIName("testAligner");
 		software.setResourceType(softwareResourceType);
 		JobSoftware jobSoftware = new JobSoftware();
@@ -277,11 +297,8 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		jobSoftwares.add(jobSoftware);
 		job.setJobSoftware(jobSoftwares);
 		
-		// add mocks to waspJobSoftwareLaunchTasklet (replacing Autowired versions)
-		waspJobSoftwareLaunchTasklet.setJobService(mockJobService);
-		waspJobSoftwareLaunchTasklet.setSampleService(mockSampleService);
-		waspJobSoftwareLaunchTasklet.setWaspPluginRegistry(mockWaspPluginRegistry);
-		PowerMockito.when(mockJobService.getJobByJobId(job.getJobId())).thenReturn(job);
+		
+		PowerMockito.when(mockJobService.getJobByJobId(job.getId())).thenReturn(job);
 		PowerMockito.when(mockWaspPluginRegistry.getPlugin(Mockito.anyString(), Mockito.eq(BatchJobProviding.class))).thenReturn(testPlugin);
 		try {
 			Map<String, String> jobParameters = new HashMap<String, String>();
@@ -311,7 +328,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
 			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
 			JobParameters params = je.getJobInstance().getJobParameters();
-			Assert.assertEquals(params.getParameters().size(), 3);
+			Assert.assertEquals(params.getParameters().size(), 4);
 			Assert.assertNotNull(params.getString("libraryCellIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
@@ -329,3 +346,4 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	}
 
 }
+*/

@@ -51,7 +51,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	@Transactional
 	public Job getJobByJobId (final int jobId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobId", jobId);
+		m.put("id", jobId);
 
 		List<Job> results = this.findByMap(m);
 
@@ -92,11 +92,11 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	@Override
 	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
 		   String sql=
-			   "SELECT ws.samplesubtypeId, j.jobId, j.name\n"+
+			   "SELECT ws.samplesubtypeId, j.id, j.name\n"+
 			   "FROM job j\n"+
 			   "JOIN workflowsamplesubtype ws ON ws.workflowId = j.workflowId\n"+
 			   "WHERE j.workflowId = :workflowId\n"+
-			   "ORDER BY j.lastupdts DESC , j.name ASC\n";
+			   "ORDER BY j.updated DESC , j.name ASC\n";
 		   
 		   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
 		   
@@ -115,7 +115,7 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 				   result.put(sampleSubtypeId, listByType);
 			   }
 			   Job job = new Job();
-			   job.setJobId(jobId);
+			   job.setId(jobId);
 			   job.setName(jobName);
 			   
 			   listByType.add(job);

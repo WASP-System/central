@@ -93,7 +93,7 @@ function hideCoverage(e) {
 	                  </c:forEach> 
 	                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(sample) == true}'> 
 					   <div>
-							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a> 							
+							<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToCell.label" /></a> 							
 							<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>			  				
 			  				<div style="display:none">
 								<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
@@ -101,8 +101,8 @@ function hideCoverage(e) {
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}">
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-			  							<fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
-			  						<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
+			  							<fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInCellPicoM"><br>
+			  						<select class="FormElement ui-widget-content ui-corner-all selectCell" name="cellsampleid"></select>
 			  						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">			  						
 								</form>
 							</div>
@@ -124,7 +124,7 @@ function hideCoverage(e) {
 			                  </c:forEach> 
 			                  <c:if test='${assignLibraryToPlatformUnitStatusMap.get(schild) == true}'> 
 		        				<div>
-									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToLane.label" /></a>
+									<a href="javascript:{}" onclick="showAssignForm(this)"><fmt:message key="platformunit_assign.addToCell.label" /></a>
 									<a style="display:none" href="javascript:{}" onclick="hideAssignForm(this)"><fmt:message key="platformunit_assign.close.label" /></a>	
 									<div style="display:none">
 										<form method="POST" action="<c:url value="/facility/platformunit/assignAdd1.do" />">
@@ -132,8 +132,8 @@ function hideCoverage(e) {
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobid" value="${j.jobId}"> 
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="resourceCategoryId" value="${resourceCategoryId}"> 
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobsToWorkWith" value="${jobsToWorkWith}"> 
-			 								 <fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInLanePicoM"><br>
-			  								<select class="FormElement ui-widget-content ui-corner-all selectLane" name="lanesampleid"></select>
+			 								 <fmt:message key="platformunit_assign.finalConc.label"/>(<fmt:message key="platformunit_assign.theConcUnits.label"/>): <input class="FormElement ui-widget-content ui-corner-all" type="text" size="5" maxlength="5" name="libConcInCellPicoM"><br>
+			  								<select class="FormElement ui-widget-content ui-corner-all selectCell" name="cellsampleid"></select>
 			  								<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="assign">
 										</form>
 									</div>
@@ -165,7 +165,7 @@ function hideCoverage(e) {
 			      <c:out value="${pu.name}" /> 
 			      <c:forEach items="${pu.sampleSource}" var="puparent">
 			         <div class="cell">
-			           <label><fmt:message key="platformunit_assign.lane.label"/></label>
+			           <label><fmt:message key="platformunit_assign.cell.label"/></label>
 			      <!--       <c:out value="${puparent.sampleSourceId}" />  -->
 			           <c:out value="${puparent.sourceSample.name}" /> 
 			
@@ -180,7 +180,7 @@ function hideCoverage(e) {
 			                    <div><label><fmt:message key="platformunit_assign.adaptor.label"/></label>: <c:out value="${adaptors[sm.v]}"/></div>
 			                    </c:if> 
 			                  </c:forEach> 
-			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?samplesourceid=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromLane.label"/></a></div>
+			                 <div><a href="<c:url value="/facility/platformunit/assignRemove.do?cellLibraryId=${lib.sampleSourceId}&resourceCategoryId=${resourceCategoryId}&jobsToWorkWith=${jobsToWorkWith}"/>"><fmt:message key="platformunit_assign.removeFromCell.label"/></a></div>
 			              </c:if>
 			             </div>
 			           </c:forEach>
@@ -201,11 +201,11 @@ function hideCoverage(e) {
 
 
 <script>
-  var lanes = $(".selectLane");
+  var cells = $(".selectCell");
     <c:forEach items="${platformUnits}" var="pu">
-	lanes.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
+	cells.append($('<option></option>').val('<c:out value="0" />').html('<b><c:out value="${pu.name}" /></b>'));
       <c:forEach items="${pu.sampleSource}" var="puparent">
-         lanes.append($('<option></option>').val('<c:out value="${puparent.sourceSample.sampleId}" />').html(' - <c:out value="${puparent.sourceSample.name}" />'));
+         cells.append($('<option></option>').val('<c:out value="${puparent.sourceSample.sampleId}" />').html(' - <c:out value="${puparent.sourceSample.name}" />'));
       </c:forEach>
   </c:forEach>
 </script>

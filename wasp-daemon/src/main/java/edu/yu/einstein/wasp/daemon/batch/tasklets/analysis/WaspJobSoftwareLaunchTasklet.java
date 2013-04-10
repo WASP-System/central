@@ -21,6 +21,7 @@ import org.springframework.integration.core.MessagingTemplate;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
+import edu.yu.einstein.wasp.daemon.service.BatchJobService;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -29,7 +30,6 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -41,6 +41,9 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTasklet");
 	
 	private int messageTimeoutInMillis;
+	
+	@Autowired
+	private BatchJobService batchJobService;
 	
 	/**
 	 * Set the timeout when waiting for reply (in millis).  Default 5000 (5s).
@@ -66,6 +69,8 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	
 	private List<Integer> libraryCellIds;
 	
+	private String task;
+	
 	// jobId may be set via setter in which case it overrides any values associated with the libraryCells.
 	// If not set, at initialization step an attempt is made to obtain a unique jobId across the supplied libraryCells.
 	private Integer jobId;
@@ -90,6 +95,13 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	public WaspJobSoftwareLaunchTasklet(List<Integer> libraryCellIds, ResourceType softwareResourceType) {
 		this.libraryCellIds = libraryCellIds;
 		this.softwareResourceType = softwareResourceType;
+		this.task = BatchJobTask.GENERIC; // default
+	}
+	
+	public WaspJobSoftwareLaunchTasklet(List<Integer> libraryCellIds, ResourceType softwareResourceType, String task) {
+		this.libraryCellIds = libraryCellIds;
+		this.softwareResourceType = softwareResourceType;
+		this.task = task;
 	}
 	
 	public WaspJobSoftwareLaunchTasklet(Integer libraryCellId, ResourceType softwareResourceType) {
@@ -99,28 +111,7 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobByJobId(jobId));
-		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);
-		if (softwareConfig == null){
-			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());
-		}
-		Map<String, String> jobParameters = softwareConfig.getParameters();
-		jobParameters.put(WaspSoftwareJobParameters.LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getLibraryCellListAsParameterValue(libraryCellIds));
-		MessagingTemplate messagingTemplate = new MessagingTemplate();
-		messagingTemplate.setReceiveTimeout(messageTimeoutInMillis);
-		BatchJobProviding softwarePlugin = waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), BatchJobProviding.class);
-		String flowName = softwarePlugin.getBatchJobName(BatchJobTask.GENERIC);
-		if (flowName == null)
-			logger.warn("No generic flow found for plugin so cannot launch software : " + softwareConfig.getSoftware().getIName());
-		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
-				new BatchJobLaunchContext(flowName, jobParameters) );
-		try {
-			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.LAUNCH_MESSAGE_CHANNEL + " : " + launchMessage);
-			Message<?> reply = messagingTemplate.sendAndReceive(launchChannel, launchMessage);
-		} catch (WaspMessageBuildingException e) {
-			throw new MessagingException(e.getLocalizedMessage(), e);
-		}
+		Message<?> reply = batchJobService.launchAnalysisJob(jobId, softwareResourceType, libraryCellIds, this.task, messageTimeoutInMillis);
 		return RepeatStatus.FINISHED;
 	}
 
@@ -137,6 +128,10 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		this.jobId = jobId;
 	}
 	
+	public void setTask(String task) {
+		this.task = task;
+	}
+	
 	@PostConstruct
 	public void init(){
 		// if jobId is not set, get it from the first libraryCell in the list and check it is unique across all in the list
@@ -145,10 +140,10 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 			for (Integer libraryCellId: libraryCellIds){
 				if (this.jobId == null){
 					this.jobId = sampleService.getJobOfLibraryOnCell(
-							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId) ).getJobId();
+							sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId) ).getId();
 					continue;
 				}
-				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId)).getJobId()
+				if (!sampleService.getJobOfLibraryOnCell(sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId)).getId()
 						.equals(jobId))
 					throw new RuntimeException("No master Wasp jobId was provided and the libraryCells do not all reference the same job so no master can be determined");
 			}

@@ -6,6 +6,11 @@ import java.util.Set;
 
 import org.springframework.batch.core.repository.dao.JobInstanceDao;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public interface WaspJobInstanceDao extends JobInstanceDao{
 	
 	/**

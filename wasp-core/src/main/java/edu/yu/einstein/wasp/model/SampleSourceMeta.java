@@ -32,12 +32,6 @@ public class SampleSourceMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = -4403841226706030596L;
-	/** 
-	 * sampleSourceMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleSourceMetaId;
 
 	/**
 	 * setSampleSourceMetaId(Integer sampleSourceMetaId)
@@ -45,9 +39,9 @@ public class SampleSourceMeta extends MetaBase {
 	 * @param sampleSourceMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleSourceMetaId (Integer sampleSourceMetaId) {
-		this.sampleSourceMetaId = sampleSourceMetaId;
+		setId(sampleSourceMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class SampleSourceMeta extends MetaBase {
 	 * @return sampleSourceMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleSourceMetaId () {
-		return this.sampleSourceMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class SampleSourceMeta extends MetaBase {
 	 */
 	public void setSample (SampleSource sampleSource) {
 		this.sampleSource = sampleSource;
-		this.sampleSourceId = sampleSource.sampleSourceId;
+		this.sampleSourceId = sampleSource.getId();
 	}
 
 	/**

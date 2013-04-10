@@ -4,7 +4,7 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
-/*
+/**
  * Builds jqGrid-compatible JavaScript to delete selected row on server side
  * 
  * @Author Sasha Levchuk
@@ -31,7 +31,7 @@ public class JQDeleteTag extends BodyTagSupport {
 
 
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 		
 		
 		String buf=

@@ -12,42 +12,51 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
       </classes>
    </test>
+
    <test name="WASP Regression Testing: Submit New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
       </classes>
    </test>
-  <!-- 
-  
+
+   <test name="WASP Regression Testing: Approve New Job" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
+      </classes>
+   </test>
+ <!--
+ 
   <test name="WASP Regression Testing: Login Page" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
       </classes>
    </test>
- 
+
    <test name="WASP Regression Testing: Add New PI" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
          	<methods>
          			<include name="navigateNewPIForm"></include>
-		         	<exclude name="confirmEmailAuth"></exclude>
+		         	<include name="confirmEmailAuth"></include>
 		         	
 	        </methods>
          	</class>
       </classes>
     </test>
 
+
 	<test name="WASP Regression Testing: Pending Lab Approve/Reject" preserve-order="true">
 			<classes>
 	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingLabs">
 	         	<methods>
 		         	<include name="pendingLabApprove"></include>
-		         	<include name="pendingLabReject"></include>
+		         	<exclude name="pendingLabReject"></exclude>
 	         	</methods>
 	         	</class>
 	      </classes>
 	</test>
-
+-->
+<!--
 	<test name="WASP Regression Testing: Add New User" preserve-order="true">
 	<classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelAddNewUser">

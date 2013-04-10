@@ -39,7 +39,7 @@
 							<c:otherwise>New</c:otherwise>
 						</c:choose>
 					</td>
-					<!-- TODO: re-implement lines below when functionality added
+					<%-- TODO: re-implement lines below when functionality added
 		  			<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 					<c:if test="${ not empty sampleDraft.getFile()}">
 						<a href="/wasp/file/downloadFile.do?id=<c:out value="${sampleDraft.getFile().getFileId()}" />">${sampleDraft.getFile().getFileName()}</a>
@@ -48,7 +48,7 @@
 						<fmt:message key="jobDraft.no_file.label"/>
 					</c:if>
 					&nbsp;</td>
-					-->
+					--%>
 					<td class="DataTD value-centered <c:if test="${status.count % 2 == 0}"> td-even-number</c:if>">
 						<a  href="/wasp/jobsubmit/samples/clone/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"><fmt:message key="jobDraft.sample_clone.label"/></a>
 						<a  href="/wasp/jobsubmit/samples/view/<c:out value="${ jobDraft.getJobDraftId() }"/>/<c:out value="${ sampleDraft.getSampleDraftId() }"/>.do"> | <fmt:message key="jobDraft.sample_view.label"/></a>
@@ -89,22 +89,27 @@
 <div class="instructions">
    <fmt:message key="jobDraft.upload_file_description.label"/>
 </div>
-<form method="POST"  enctype="multipart/form-data">
+<form method="POST"  enctype="multipart/form-data" onsubmit='return validate(this)'>
 <table id="fileUploadTbl"  class="EditTable ui-widget ui-widget-content">
 	<tr>
-		<td class="CaptionTD top-heading">File</td><td class="CaptionTD top-heading">Description</td>
+		<td class="CaptionTD top-heading"><fmt:message key="jobDraft.file.label"/></td><td class="CaptionTD top-heading"><fmt:message key="jobDraft.file_description.label"/></td><td class="CaptionTD top-heading"><fmt:message key="jobDraft.file_action.label"/></td>
 	</tr>
-	<c:forEach items="${files}" var="file">
-		<tr>
-			<td class="DataTD value-centered"><c:out value="${file.getFileName()}" /></td><td class="DataTD value-centered"><c:out value="${file.getDescription()}" /></td>
-		</tr>
+	<c:forEach items="${fileGroups}" var="fileGroup">
+	 	<c:set value="${fileGroupFileHandlesMap.get(fileGroup)}" var="fileHandles"/>
+	 	<c:forEach items="${fileHandles}" var="fileHandle" >
+			<tr>
+				<td class="DataTD value-centered"><!--<wasp:url	fileAccessor="${fileHandle}" ></wasp:url>--><c:out value="${fileHandle.getFileName()}" /></td>
+				<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /> </td>
+				<td class="DataTD value-centered"><a  href="/wasp/jobsubmit/file/<c:out value="${ jobDraft.getId() }"/>/<c:out value="${ fileGroup.getId() }"/>/<c:out value="${ fileHandle.getId() }"/>/delete.do"><fmt:message key="jobDraft.file_remove.label"/></a></td>
+			</tr>
+		</c:forEach>
 	</c:forEach>
 	<tr>
-		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered" ><input class="FormElement ui-widget-content ui-corner-all" type="text" name="file_description" /></td>
+		<td class="DataTD value-centered"><input type="file" name="file_upload" onchange="addFileUploadRow()"/></td><td class="DataTD value-centered" ><input class="FormElement ui-widget-content ui-corner-all" type="text" maxlength="30" name="file_description" /></td><td class="DataTD value-centered"><fmt:message key="jobDraft.file_not_applicable.label"/></td>
 	</tr>
 </table>
-<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
 <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
+<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
 </form>
 
 

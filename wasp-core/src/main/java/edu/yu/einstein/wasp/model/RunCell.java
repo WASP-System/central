@@ -36,12 +36,7 @@ public class RunCell extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -3947577906733521450L;
-	/** 
-	 * runCellId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer runCellId;
+	
 
 	/**
 	 * setRunCellId(Integer runCellId)
@@ -49,9 +44,9 @@ public class RunCell extends WaspModel {
 	 * @param runCellId
 	 *
 	 */
-	
+	@Deprecated
 	public void setRunCellId (Integer runCellId) {
-		this.runCellId = runCellId;
+		setId(runCellId);
 	}
 
 	/**
@@ -60,8 +55,9 @@ public class RunCell extends WaspModel {
 	 * @return runCellId
 	 *
 	 */
+	@Deprecated
 	public Integer getRunCellId () {
-		return this.runCellId;
+		return getId();
 	}
 
 
@@ -177,7 +173,7 @@ public class RunCell extends WaspModel {
 	 */
 	public void setRun (Run run) {
 		this.run = run;
-		this.runId = run.runId;
+		this.runId = run.getId();
 	}
 
 	/**
@@ -209,7 +205,7 @@ public class RunCell extends WaspModel {
 	 */
 	public void setResourceCell (ResourceCell resourceCell) {
 		this.resourceCell = resourceCell;
-		this.resourcecellId = resourceCell.resourceCellId;
+		this.resourcecellId = resourceCell.getId();
 	}
 
 	/**
@@ -241,7 +237,7 @@ public class RunCell extends WaspModel {
 	 */
 	public void setSample (Sample sample) {
 		this.sample = sample;
-		this.sampleId = sample.sampleId;
+		this.sampleId = sample.getId();
 	}
 
 	/**
@@ -254,42 +250,6 @@ public class RunCell extends WaspModel {
 	public Sample getSample () {
 		return this.sample;
 	}
-
-
-	/** 
-	 * runCellFile
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="runcellid", insertable=false, updatable=false)
-	protected List<RunCellFile> runCellFile;
-
-
-	/** 
-	 * getRunCellfile()
-	 *
-	 * @return runCellFile
-	 *
-	 */
-	@JsonIgnore
-	public List<RunCellFile> getRunCellFile() {
-		return this.runCellFile;
-	}
-
-
-	/** 
-	 * setRunCellfile
-	 *
-	 * @param runCellFile
-	 *
-	 */
-	public void setRunCellFile (List<RunCellFile> runCellFile) {
-		this.runCellFile = runCellFile;
-	}
-
-
-
 
 
 }

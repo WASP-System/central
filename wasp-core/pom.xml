@@ -154,10 +154,6 @@
 				<groupId>antlr</groupId>
 				<artifactId>antlr</artifactId>
 			</dependency>
-			<dependency>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</dependency>
 			<!--
 			<dependency>
 				<groupId>aopalliance</groupId>
@@ -218,12 +214,6 @@
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 			</dependency>
-			<!--
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-asm</artifactId>
-			</dependency>
-			-->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-aspects</artifactId>
@@ -445,10 +435,6 @@
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
-			</dependency>
-			<dependency>
-			        <groupId>cglib</groupId>
-			        <artifactId>cglib</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.xmlgraphics</groupId>

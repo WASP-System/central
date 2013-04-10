@@ -5,14 +5,34 @@
 <c:set var="jobDraftDb" value="${jobDraft}" />
 <%@ include file="/WEB-INF/jsp/jobsubmit/jobsubmitinfo.jsp" %>
 <div class="instructions"><fmt:message key="jobDraft.verify_instructions.label"/></div>
-<form method="POST">
-  <div class="submit">
-    <input class="fm-button" type="submit" value="<fmt:message key="jobDraft.submit_button.label"/>" />
-    &nbsp;&nbsp;<input class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" /> 
-    
+<div id="hiddenMessage"><br />Processing! Please Wait.....</div>
+<form method="POST" onsubmit="return submitDocument(this)">
+  <div id="buttons" class="submit">
+    <input name="waitButton" class="fm-button" type="button" onClick="location.href='/wasp/dashboard.do';" value="<fmt:message key='jobDraft.submit_later_button.label'/>" /> 
+    &nbsp;&nbsp;<input name="submitButton" class="fm-button" type="submit" value="<fmt:message key="jobDraft.submit_button.label"/>" />
   </div>
 </form>
 <div class="bottomtxt"></div>
+
+<script type="text/javascript">
+function submitDocument(thisForm){
+	
+	document.getElementById('hiddenMessage').style.visibility = "visible";
+	document.getElementById('buttons').style.visibility = "hidden";
+	thisForm.waitButton.disabled = true;
+	thisForm.submitButton.disabled=true;	
+	thisForm.submit(); 
+	return true; 
+}
+</script>
+<style>
+#hiddenMessage{
+	visibility: hidden;	
+	font-size:xx-large;
+	color:red;
+	position: absolute;
+}
+</style>
 
 
 <%-- 

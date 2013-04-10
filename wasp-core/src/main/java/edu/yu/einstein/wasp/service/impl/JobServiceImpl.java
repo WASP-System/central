@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +43,9 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.dao.FileDao;
+import edu.yu.einstein.wasp.dao.AcctQuoteDao;
+import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
+import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.JobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.JobDao;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
@@ -59,7 +62,6 @@ import edu.yu.einstein.wasp.dao.ResourceDao;
 import edu.yu.einstein.wasp.dao.ResourceTypeDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
@@ -70,10 +72,13 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.StatusMetaMessagingException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -81,14 +86,19 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
+import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
+import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -102,7 +112,6 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
-import edu.yu.einstein.wasp.model.SampleFile;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -110,13 +119,16 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.util.WaspJobContext;
@@ -214,12 +226,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public void setSampleService(SampleService sampleService) {
 		this.sampleService = sampleService;	
 	}
-	
-	public void setSampleFileDao(SampleFileDao sampleFileDao) {
-		this.sampleFileDao = sampleFileDao;	
-
-	}
-	
+		
 	public void setSampleTypeDao(SampleTypeDao sampleTypeDao) {
 		this.sampleTypeDao = sampleTypeDao;	
 
@@ -230,6 +237,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		this.logger = logger;
 	}
 	
+	@Autowired
+	private AcctQuoteDao acctQuoteDao;
+
+	@Autowired
+	private AcctQuoteMetaDao acctQuoteMetaDao;
+
 	@Autowired
 	private JobDraftDao jobDraftDao;
 	
@@ -287,9 +300,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	protected SampleDao sampleDao;
 
 	@Autowired
-	protected SampleFileDao sampleFileDao;
-
-	@Autowired
 	protected JobSampleDao jobSampleDao;
 	
 	@Autowired
@@ -302,7 +312,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	protected SampleSubtypeDao subSampleTypeDao;
 
 	@Autowired
-	protected FileDao fileDao;
+	protected FileHandleDao fileDao;
 
 	@Autowired
 	protected JobCellSelectionDao jobCellSelectionDao;
@@ -321,6 +331,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	
 	@Autowired
 	protected WorkflowDao workflowDao;
+
+	@Autowired
+	protected UserService userService;
+
+	@Autowired
+	protected FileService fileService;
 
 	
 	protected JobExplorerWasp batchJobExplorer;
@@ -350,7 +366,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
 		List<Sample> submittedSamplesList = new ArrayList<Sample>();
 		if(job != null && job.getJobId().intValue()>0){
-			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){
+			for(JobSample jobSample : job.getJobSample()){//jobSampleDao.getJobSampleByJobId(job.getJobId())){ 
 				  logger.debug("jobSample: jobSampleId="+jobSample.getJobSampleId()+", jobId="+ jobSample.getJobId() + ", sampleId=" + jobSample.getSampleId());
 				  Sample sample  = sampleDao.getSampleBySampleId(jobSample.getSampleId());//includes submitted samples that are macromolecules, submitted samples that are libraries, and facility-generated libraries generated from a macromolecule
 				  logger.debug("sample: sampleId="+sample.getSampleId()+", parentId=" + sample.getParentId());
@@ -482,7 +498,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		Set<String> jobIdStringSet = new HashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STARTED);
 		logger.debug("getJobExecutions() returned " + jobExecutions.size() + " result(s)");
 		for (JobExecution jobExecution: jobExecutions){
 			try{
@@ -518,6 +534,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			return true;
 		return false;
 	}
+	
+	
 	
 	 /**
 	   * {@inheritDoc}
@@ -801,23 +819,24 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  @Override
 	  public LinkedHashMap<String, String> getExtraJobDetails(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+		  String area = null;
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
 				  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+				  area = jrc.getResourceCategory().getIName();
 				  break;
 			  }
 		  }
-		  for(JobMeta jobMeta : job.getJobMeta()){
-			  if(jobMeta.getK().indexOf("readLength") != -1){
-				  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-			  }
-			  if(jobMeta.getK().indexOf("readType") != -1){
-				  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta.getV().toUpperCase());
-			  }
+		  try {
+			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
+			  extraJobDetailsMap.put("extraJobDetails.readLength.label", readProperties.getReadLength().toString());
+			  extraJobDetailsMap.put("extraJobDetails.readType.label", readProperties.getReadType().toUpperCase());
+		  } catch (MetadataException e) {
+			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 		  }
 		 
 		  /* replaced with code below
@@ -830,12 +849,12 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
 		  }	
 		  */
-		  List<AcctJobquotecurrent> acctJobquotecurrentList = job.getAcctJobquotecurrent();
-		  if(acctJobquotecurrentList == null || acctJobquotecurrentList.isEmpty()){
+		  AcctQuote currentQuote = job.getCurrentQuote();
+		  if(currentQuote == null || currentQuote.getId()==null){
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
 		  }
 		  else{
-			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
+			  Float price = new Float(job.getCurrentQuote().getAmount());
 			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  return extraJobDetailsMap;	  
@@ -847,7 +866,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	  @Override
 	  public LinkedHashMap<String, String> getJobApprovals(Job job){
 		  Assert.assertParameterNotNull(job, "No Job provided");
-		  Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
+		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
 		  
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -967,13 +986,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	  @Override
 	  public Job createJobFromJobDraft(JobDraft jobDraft, User user) throws FileMoveException{
 		  	Assert.assertParameterNotNull(jobDraft, "No JobDraft provided");
-			Assert.assertParameterNotNullNotZero(jobDraft.getJobDraftId(), "Invalid JobDraft Provided");
+			Assert.assertParameterNotNullNotZero(jobDraft.getId(), "Invalid JobDraft Provided");
 			Assert.assertParameterNotNull(user, "No User provided");
-			Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
+			Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
 		  	
 			// Copies JobDraft to a new Job
 			Job job = new Job();
-			job.setUserId(user.getUserId());
+			job.setUserId(user.getId());
 			job.setLabId(jobDraft.getLabId());
 			job.setName(jobDraft.getName());
 			job.setWorkflowId(jobDraft.getWorkflowId());
@@ -994,7 +1013,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					continue; 
 				}
 				JobMeta jobMeta = new JobMeta();
-				jobMeta.setJobId(jobDb.getJobId());
+				jobMeta.setJobId(jobDb.getId());
 				jobMeta.setK(jdm.getK());
 				jobMeta.setV(jdm.getV());
 			
@@ -1004,7 +1023,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// save the software selected
 			for (JobDraftSoftware jdr: jobDraft.getJobDraftSoftware()) {
 				JobSoftware jobSoftware = new JobSoftware();
-				jobSoftware.setJobId(jobDb.getJobId());
+				jobSoftware.setJobId(jobDb.getId());
 				jobSoftware.setSoftwareId(jdr.getSoftwareId());
 			
 				jobSoftwareDao.save(jobSoftware); 
@@ -1013,7 +1032,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// save the resource category selected
 			for (JobDraftresourcecategory jdr: jobDraft.getJobDraftresourcecategory()) {
 				JobResourcecategory jobResourceCategory = new JobResourcecategory();
-				jobResourceCategory.setJobId(jobDb.getJobId());
+				jobResourceCategory.setJobId(jobDb.getId());
 				jobResourceCategory.setResourcecategoryId(jdr.getResourcecategoryId());
 			
 				jobResourcecategoryDao.save(jobResourceCategory); 
@@ -1022,10 +1041,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			
 			// Creates the JobUser Permission
 			JobUser jobUser = new JobUser(); 
-			jobUser.setUserId(user.getUserId());
-			jobUser.setJobId(jobDb.getJobId());
+			jobUser.setUserId(user.getId());
+			jobUser.setJobId(jobDb.getId());
 			Role role = roleDao.getRoleByRoleName("js");
-			jobUser.setRoleId(role.getRoleId());
+			jobUser.setRoleId(role.getId());
 			jobUserDao.save(jobUser);
 			
 			// added 10-20-11 by rob dubin: with job submission, add lab PI as job viewer ("jv")
@@ -1035,9 +1054,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			if (jobUser.getUserId().intValue() != lab.getPrimaryUserId().intValue()) {
 				JobUser jobUser2 = new JobUser();		
 				jobUser2.setUserId(lab.getPrimaryUserId());//the lab PI
-				jobUser2.setJobId(jobDb.getJobId());
+				jobUser2.setJobId(jobDb.getId());
 				Role role2 = roleDao.getRoleByRoleName("jv");
-				jobUser2.setRoleId(role2.getRoleId());
+				jobUser2.setRoleId(role2.getId());
 				jobUserDao.save(jobUser2);
 			}
 			
@@ -1046,12 +1065,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			
 			for (JobDraftCellSelection jdc: jobDraft.getJobDraftCellSelection()) {
 				JobCellSelection jobCellSelection = new JobCellSelection();
-				jobCellSelection.setJobId(jobDb.getJobId());
+				jobCellSelection.setJobId(jobDb.getId());
 				jobCellSelection.setCellIndex(jdc.getCellIndex());
 			
 				JobCellSelection jobCellSelectionDb =	jobCellSelectionDao.save(jobCellSelection);	
 			
-				jobDraftCellMap.put(jdc.getJobDraftCellSelectionId(), jobCellSelectionDb);
+				jobDraftCellMap.put(jdc.getId(), jobCellSelectionDb);
 			}
 			
 			// Create Samples
@@ -1063,33 +1082,34 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				sample.setSampleTypeId(sd.getSampleTypeId()); 
 				sample.setSampleSubtypeId(sd.getSampleSubtypeId()); 
 				sample.setSubmitterLabId(jobDb.getLabId()); 
-				sample.setSubmitterUserId(user.getUserId()); 
-				sample.setSubmitterJobId(jobDb.getJobId()); 
+				sample.setSubmitterUserId(user.getId()); 
+				sample.setSubmitterJobId(jobDb.getId()); 
 				sample.setIsReceived(0);
 				sample.setIsActive(1);
 		
 				Sample sampleDb = sampleDao.save(sample); 
 				samples.add(sampleDb);
-				sampleDraftIDKeyToSampleIDValueMap.put(sd.getSampleDraftId(), sampleDb.getSampleId());
+				sampleDraftIDKeyToSampleIDValueMap.put(sd.getId(), sampleDb.getId());
 		
 				// sample file
-				if (sd.getFileId() != null) {
-					SampleFile sampleFile = new SampleFile();
-					sampleFile.setSampleId(sampleDb.getSampleId());
-					sampleFile.setFileId(sd.getFileId());
-		
-					sampleFile.setIsActive(1);
-		
-					// TODO ADD NAME AND INAME
-		
-					sampleFileDao.save(sampleFile);
-				}
+				// TODO: BOYLE: This seems to never have worked properly
+//				if (sd.getFileId() != null) {
+//					SampleFile sampleFile = new SampleFile();
+//					sampleFile.setSampleId(sampleDb.getSampleId());
+//					sampleFile.setFileId(sd.getFileId());
+//		
+//					sampleFile.setIsActive(1);
+//		
+//					// TODO ADD NAME AND INAME
+//		
+//					sampleFileDao.save(sampleFile);
+//				}
 		
 				// Sample Draft Meta Data
 				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
 					SampleMeta sampleMeta = new SampleMeta();
 		
-					sampleMeta.setSampleId(sampleDb.getSampleId());	
+					sampleMeta.setSampleId(sampleDb.getId());	
 					sampleMeta.setK(sdm.getK());	
 					sampleMeta.setV(sdm.getV());	
 					sampleMeta.setPosition(sdm.getPosition());	
@@ -1099,15 +1119,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			
 				// Job Sample
 				JobSample jobSample = new JobSample();
-				jobSample.setJobId(jobDb.getJobId());
-				jobSample.setSampleId(sampleDb.getSampleId());
+				jobSample.setJobId(jobDb.getId());
+				jobSample.setSampleId(sampleDb.getId());
 			
 				jobSampleDao.save(jobSample);
 			
 				for (SampleDraftJobDraftCellSelection sdc: sd.getSampleDraftJobDraftCellSelection()) {
 					SampleJobCellSelection sampleJobCellSelection = new SampleJobCellSelection();
-					sampleJobCellSelection.setSampleId(sampleDb.getSampleId());
-					sampleJobCellSelection.setJobCellSelectionId(jobDraftCellMap.get(sdc.getJobDraftCellSelectionId()).getJobCellSelectionId());
+					sampleJobCellSelection.setSampleId(sampleDb.getId());
+					sampleJobCellSelection.setJobCellSelectionId(jobDraftCellMap.get(sdc.getJobDraftCellSelectionId()).getId());
 					sampleJobCellSelection.setLibraryIndex(sdc.getLibraryIndex());
 					sampleJobCellSelectionDao.save(sampleJobCellSelection);
 				}
@@ -1152,30 +1172,22 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			
-//			TODO: CLEAN UP THIS HORRIBLE SHITE
-//			// jobDraftFile -> jobFile
-//			for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-//				File file = jdf.getFile();
-//				String folderPath = file.getAbsolutePathToFileFolder();
-//				String absPath = file.getAbsolutePath();
-//				java.io.File folder = new java.io.File(folderPath);
-//				String destPath = folderPath.replaceFirst("/jd_"+jobDraft.getJobDraftId()+"$", "/j_"+jobDb.getJobId());
-//				if (destPath.equals(folderPath)){
-//					throw new FileMoveException("Cannot convert path from '"+destPath+"'");
-//				}
-//				try{
-//					folder.renameTo(new java.io.File(destPath));
-//				} catch (Exception e){
-//					throw new FileMoveException("Cannot rename path '"+folderPath+"' to '"+destPath+"'");
-//				}
-//				String newAbsolutePath = absPath.replaceFirst("/jd_"+jobDraft.getJobDraftId(), "/j_"+jobDb.getJobId());
-//				file.setFileURI(newAbsolutePath);
-//				JobFile jobFile = new JobFile();
-//				jobFile.setJob(jobDb);
-//				jobFile.setFile(file);
-//				jobFileDao.save(jobFile);
-//			}
-//						
+			// jobDraftFile -> jobFile
+		if (jobDraft.getJobDraftFile() != null) {
+			for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
+				FileGroup group = jdf.getFileGroup();
+
+				JobFile jobFile = new JobFile();
+				jobFile.setJob(jobDb);
+				try {
+					jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+				} catch (Exception e) {
+					logger.warn(e.getLocalizedMessage());
+					throw new RuntimeException(e);
+				}
+				jobFileDao.save(jobFile);
+			}
+		}			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
@@ -1308,15 +1320,38 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job){
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
+		
+		List<Sample> puList = new ArrayList<Sample>();
+		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
+			try{
+				puList.add(sampleService.getPlatformUnitForCell(cellLibrary.getSample()));
+			} catch(SampleTypeException e){
+				logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
+			} catch (SampleParentChildException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}						  
+		}
+
+		return puList;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Job> getJobsSubmittedOrViewableByUser(User user){
 		Assert.assertParameterNotNull(user, "No User provided");
-		Assert.assertParameterNotNullNotZero(user.getUserId(), "Invalid User Provided");
+		Assert.assertParameterNotNullNotZero(user.getId(), "Invalid User Provided");
 		
 		List<Job> jobList = new ArrayList<Job>();
 		List<JobUser> jobUserList = new ArrayList<JobUser>();
 		
 		Map<String, Integer> m = new HashMap<String, Integer>();
-		m.put("UserId", user.getUserId().intValue());
+		m.put("userId", user.getId().intValue());
 		List<String> orderByColumnNames = new ArrayList<String>();
 		orderByColumnNames.add("jobId");
 		
@@ -1359,7 +1394,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public void updateJobQuoteStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.QUOTE);
+		updateJobStatus(job, status, WaspJobTask.QUOTE, "", false);
 	}
 	
 	
@@ -1367,16 +1402,16 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException{
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
 		
 		if(jobApproveCode.equals("piApprove")){
-			updateJobPiApprovalStatus(job, status);
+			updateJobPiApprovalStatus(job, status, comment);
 		}
 		else if(jobApproveCode.equals("daApprove")){
-			updateJobDaApprovalStatus(job, status);
+			updateJobDaApprovalStatus(job, status, comment);
 		}
 		else if(jobApproveCode.equals("fmApprove")){
-			updateJobFmApprovalStatus(job, status);
+			updateJobFmApprovalStatus(job, status, comment);
 		}
 		else{
 			throw new WaspMessageBuildingException();
@@ -1388,8 +1423,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.DA_APPROVE);
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.DA_APPROVE, comment, true);
 	}
 
 	
@@ -1397,19 +1432,19 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.PI_APPROVE);
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.PI_APPROVE, comment, true);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException{
-		updateJobStatus(job, status, WaspJobTask.FM_APPROVE);
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException{
+		updateJobStatus(job, status, WaspJobTask.FM_APPROVE, comment, true);
 	}
 	
-	private void updateJobStatus(Job job, WaspStatus status, String task) throws WaspMessageBuildingException{
+	private void updateJobStatus(Job job, WaspStatus status, String task, String comment, boolean checkForJobActive) throws WaspMessageBuildingException{
 		// TODO: Write test!!
 		Assert.assertParameterNotNull(job, "No Job provided");
 		Assert.assertParameterNotNullNotZero(job.getJobId(), "Invalid Job Provided");
@@ -1417,8 +1452,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
 			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
 		Assert.assertParameterNotNull(task, "No Task provided");
-		  
+		if (checkForJobActive && !this.isJobActive(job))
+			throw new WaspMessageBuildingException("Not going to build message because job " + job.getJobId() + " is not active");
 		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getJobId());
+		messageTemplate.setUserCreatingMessageFromSession(userService);
+		messageTemplate.setComment(comment);
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
 		try{
@@ -1479,7 +1517,6 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		  JobUser newJobUser = new JobUser();
 		  newJobUser.setJob(job);
 		  newJobUser.setUser(newViewerToBeAddedToJob);
-		  newJobUser.setLastUpdUser(userPerformingThisAction.getUserId());
 		  newJobUser.setRole(role);
 		  jobUserDao.save(newJobUser);
 	}
@@ -1547,7 +1584,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setFacilityJobComment(Integer jobId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup("facilityJobComments", "Facility Job Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -1616,7 +1653,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception{
 		try{
-			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment, jobId, JobMeta.class, jobMetaDao);
+			metaMessageService.saveToGroup(jobApproveCode + "Comment", "Job Approve Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
 		}catch(Exception e){ throw new Exception(e.getMessage());}
 	}
 	
@@ -1644,48 +1681,310 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return map;
 	}
 
-	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception{
-		
-		Map <String, Object> jobRoot = new HashMap<String, Object>();
-		
-		Job job = getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null){
-			  throw new Exception("listJobSamples.jobNotFound.label");
-		}
-		
-		jobRoot.put("name", job.getName());
-		jobRoot.put("myid", jobId);
-		jobRoot.put("type", "job");
-		
-		List<Map> sampleNodes = new ArrayList<Map>();
 
-		List<JobSample> jobSampleList = job.getJobSample();
-		for (JobSample js : jobSampleList) {
-			Map sampleNode = new HashMap();
-			sampleNode.put("name", js.getSample().getName());
-			sampleNode.put("myid", js.getSampleId());
-			sampleNode.put("type", "sample");
-			
-			List<Map> fileNodes = new ArrayList<Map>();
-			List<SampleFile> sampleFileList = js.getSample().getSampleFile();
-			for (SampleFile sf : sampleFileList) {
-				Map fileNode = new HashMap();
-				fileNode.put("name", sf.getName());
-				fileNode.put("myid", sf.getFileId());
-				fileNode.put("type", "file");
+
+	@Override
+	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException{
+		
+		Map <String, Object> curNode = new HashMap<String, Object>();
+		List<Map> children = new ArrayList<Map>();
+		
+		if (type.equalsIgnoreCase("job")) {
+			Job job = getJobByJobId(id);
+
+			curNode.put("name", "Job: "+job.getName());
+			curNode.put("myid", id);
+			curNode.put("type", "job");
+
+			if (jid==null || jid<1) {  // jid==null/<1 means this is a analysis view
+				List<Sample> sampleList = getSubmittedSamples(job);
+				for (Sample sample : sampleList) {
+					Map childNode = new HashMap();
+
+					if(!sampleService.isLibrary(sample)) {
+						// if it's non-library sample
+						childNode.put("name", "Sample: "+sample.getName());
+						childNode.put("myid", sample.getId());
+						childNode.put("type", "sample");
+						childNode.put("children", "");
+						//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "sample"));
+					} else {
+						// if it's library sample
+						childNode.put("name", "Library: "+sample.getName());
+						childNode.put("myid", sample.getId());
+						childNode.put("type", "library");
+						childNode.put("children", "");
+						//sampleNode.put("children", getChildrenByNodeType(sample.getId(), "library"));
+					}
+
+					children.add(childNode);
+				}
+			} else {  //jid>=1 means this is a job-run view which needs the job id on the fly
+				curNode.put("jid", id);
 				
-				fileNodes.add(fileNode);
+				// get the list of all successful runs for the job
+				List<Sample> puList = this.getPlatformUnitWithLibrariesOnForJob(job);
+				Map<Integer, Run> runMap = new HashMap();
+				for (Sample pu : puList) {
+					List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(pu);
+					for (Run run : runList) {
+						runMap.put(run.getId(), run);
+					}
+				}
+				
+				for (Run run : runMap.values()) {
+					Map childNode = new HashMap();
+
+					childNode.put("name", "Run: "+run.getName());
+					childNode.put("myid", run.getId());
+					childNode.put("type", "run");
+					childNode.put("jid", jid);
+					childNode.put("children", "");
+
+					children.add(childNode);
+				}
+				
+				if (children.isEmpty()) {
+					Map childNode = new HashMap();
+					childNode.put("name", "No completed run yet");
+					childNode.put("myid", -1);
+					childNode.put("type", "dummy");
+					childNode.put("children", "");
+					
+					children.add(childNode);
+				}
 			}
 			
-			sampleNode.put("children", fileNodes);
-			
-			sampleNodes.add(sampleNode);
-		}
-		jobRoot.put("children",sampleNodes);
+			curNode.put("children", children);
+		} /*else if (type.equalsIgnoreCase("job-pu")) {
+			Job job = getJobByJobId(id);
 
-		return jobRoot;
+			curNode.put("name", "Job: "+job.getName());
+			curNode.put("myid", id);
+			curNode.put("type", "job");
+
+			Set<SampleSource> clSet = sampleService.getCellLibrariesForJob(job);
+			HashMap<Integer, Map> puMap = new HashMap();
+			List<Map> puNodeList = new ArrayList<Map>();
+			for (SampleSource cl : clSet) {
+				Sample cell = cl.getSample();
+				
+				Map cellNode = new HashMap();
+				cellNode.put("name", "Cell: "+cell.getName());
+				cellNode.put("myid", cell.getId());
+				cellNode.put("type", "cell");
+				Map libNode = new HashMap();
+				Sample lib = cl.getSourceSample();
+				libNode.put("name", lib.getName());
+				libNode.put("myid", lib.getId());
+				libNode.put("type", "library-pu");
+				libNode.put("children", "");
+				List<Map> cellChildren = new ArrayList<Map>();
+				cellChildren.add(libNode);
+				cellNode.put("_children", cellChildren);
+				
+				Sample pu = sampleService.getPlatformUnitForCell(cell);
+				Map puNode;
+				if (!puMap.containsKey(pu.getId())) {
+					puNode = new HashMap();
+					puNode.put("name", "Platform Unit: "+pu.getName());
+					puNode.put("myid", pu.getId());
+					puNode.put("type", "pu");
+					List<Map> gchildren = new ArrayList<Map>();
+					gchildren.add(cellNode);
+					puNode.put("_children", gchildren);
+				} else {
+					puNode = puMap.get(pu.getId());
+					List<Map> gchildren = (List<Map>) puNode.get("_children");
+					boolean cellExist = false;
+					for (Map cc : gchildren) {
+						if (cc.get("myid").toString().equals(cellNode.get("myid").toString()) ) {
+							List<Map> ccChildren = (List<Map>)cc.get("_children");
+							ccChildren.addAll(cellChildren);
+							cellExist = true;
+							break;
+						}
+					}
+					if (!cellExist)	gchildren.add(cellNode);
+					
+					puNode.put("_children", gchildren);
+				}
+				puMap.put(pu.getId(), puNode);
+			}
+			
+			curNode.put("children", puMap.values());
+		}*/ else if (type.equalsIgnoreCase("sample")) {
+			Sample sample = sampleService.getSampleById(id);
+
+			//curNode.put("name", "Sample: "+sample.getName());
+			//curNode.put("myid", id);
+			//curNode.put("type", "sample");
+			
+			// If the sample has parent facility-made library
+			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
+			for (Sample faclib : faclibList) {
+				Map childNode = new HashMap();
+				
+				childNode.put("name", "Facility-made Library: "+faclib.getName());
+				childNode.put("myid", faclib.getId());
+				childNode.put("type", "library");
+				childNode.put("children", "");
+				//faclibNode.put("children", getChildrenByNodeType(faclib.getId(), "library"));
+				
+				children.add(childNode);
+			}
+			
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("library")) {
+			Sample library = sampleService.getSampleById(id);
+
+			//curNode.put("name", "Library: "+library.getName());
+			//curNode.put("myid", id);
+			//curNode.put("type", "library");
+			
+			//get all cells associated with the library
+			List<Sample> cellList = sampleService.getCellsForLibrary(library);
+			if (!cellList.isEmpty()) {
+				Map childNode = new HashMap();
+				Sample cell = cellList.get(0);	//only one possible cell for one library
+				childNode.put("name", "Cell: "+cell.getName());
+				childNode.put("myid", cell.getId());
+				childNode.put("type", "cell");
+				childNode.put("libid", id);
+				childNode.put("children", "");
+				//cellNode.put("children", getChildrenByNodeType(cell.getId(), "cell"));
+
+				children.add(childNode);
+			}
+
+			// add file type nodes to library
+			children.addAll(getFileNodesByLibrary(library));
+
+			curNode.put("children", children);
+		} else if (type.equalsIgnoreCase("cell")) {
+			// if the sample is a cell
+			Sample cell = sampleService.getSampleById(id);
+			Sample library = sampleService.getSampleById(pid);
+
+			//get platform unit associated with the cell
+//			Sample pu = sampleService.getPlatformUnitForCell(cell);
+//			Map childNode = new HashMap();
+//			childNode.put("name", "Platform Unit: "+pu.getName());
+//			childNode.put("myid", pu.getId());
+//			childNode.put("type", "pu");
+//			childNode.put("children", "");
+			//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
+
+			// add file type nodes to library
+			children.addAll(getFileNodesByCellLibrary(cell, library));
+			
+			curNode.put("children", children);
+		} /*else if (type.equalsIgnoreCase("pu")) {
+			// if the sample is a platform unit
+			Sample pu = sampleService.getSampleById(id);
+
+			//get all seq runs associated with the platform unit
+			try {
+					List<Sample> cellList = sampleService.getPreprocessedCellLibrariesOnPU(job, pu);
+					for (Run run : runList) {
+						Map childNode = new HashMap();
+						childNode.put("name", "Run: "+run.getName());
+						childNode.put("myid", run.getId());
+						childNode.put("type", "run");
+						childNode.put("children", "");
+						//childNode.put("children", getChildrenByNodeType(run.getId(), "run"));
+						
+						children.add(childNode);
+					}
+				} catch (SampleTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			curNode.put("children", children);
+		}*/ else if (type.equalsIgnoreCase("run")) {
+			Run run = runService.getRunById(id);
+			
+			if (jid==null || jid<1) {
+				Set<SampleSource> libcellList = runService.getLibraryCellPairsOnSuccessfulRunCells(run);
+				for (SampleSource libcell : libcellList) {
+					Sample cell = sampleService.getCell(libcell);
+					Map childNode = new HashMap();
+					
+					childNode.put("name", "Cell: "+cell.getName());
+					childNode.put("myid", cell.getId());
+					childNode.put("type", "cell");
+					childNode.put("children", "");
+					
+					children.add(childNode);
+				}
+				
+				curNode.put("children", children);
+			} else {
+				List<Sample> cellList = runService.getCellsOnSuccessfulRunCellsWithoutControlsForJob(run, this.getJobByJobId(jid));
+				for (Sample cell : cellList) {
+					Map childNode = new HashMap();
+					
+					childNode.put("name", "Cell: "+cell.getName());
+					childNode.put("myid", cell.getId());
+					childNode.put("type", "cell");
+					childNode.put("jid", jid);
+					childNode.put("children", "");
+					
+					children.add(childNode);
+				}
+				
+				curNode.put("children", children);
+			}
+		}
+		
+		return curNode;
 	}
 
+	private List<Map> getFileNodesByLibrary(Sample library) {
+		List<Map> fileTypeNodes = new ArrayList<Map>();
+		Set<FileGroup> fgSet = library.getFileGroups();
+		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
+		for (FileGroup fg : fgSet) {
+			ftMap.put(fg.getFileTypeId(), fg.getFileType());
+		}
+		
+		for (FileType ft : ftMap.values()) {
+			Map ftNode = new HashMap();
+
+			ftNode.put("name", "File Type: " + ft.getName());
+			ftNode.put("myid", ft.getId());
+			ftNode.put("type", "filetype-"+ft.getIName());
+			ftNode.put("libid", library.getId());
+			ftNode.put("children", "");
+			
+			fileTypeNodes.add(ftNode);
+		}
+		return fileTypeNodes;
+	}
+
+	private List<Map> getFileNodesByCellLibrary(Sample cell, Sample library) throws SampleTypeException {
+		List<Map> fileTypeNodes = new ArrayList<Map>();
+		Set<FileGroup> fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
+		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
+		for (FileGroup fg : fgSet) {
+			ftMap.put(fg.getFileTypeId(), fg.getFileType());
+		}
+		
+		for (FileType ft : ftMap.values()) {
+			Map ftNode = new HashMap();
+
+			ftNode.put("name", "File Type: " + ft.getName());
+			ftNode.put("myid", ft.getId());
+			ftNode.put("type", "filetype-"+ft.getIName());
+			ftNode.put("libid", library.getId());
+			ftNode.put("cellid", cell.getId());
+			ftNode.put("children", "");
+			
+			fileTypeNodes.add(ftNode);
+		}
+		return fileTypeNodes;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -1747,11 +2046,13 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				continue;
 			List<MetaMessage> jobApprovalCommentsList = this.getJobApprovalComments(jobApproveCode, job.getJobId());		
 			if(jobApprovalCommentsList.size()>0){
-				Format formatter = new SimpleDateFormat("MM/dd/yyyy");
+				
 				MetaMessage mm = jobApprovalCommentsList.get(jobApprovalCommentsList.size()-1);
-				String currentStatusComment = mm.getValue() + " (" + formatter.format(mm.getDate()) + ")";
-				if(currentStatusComment != null && !currentStatusComment.isEmpty())
-					return currentStatusComment;
+				String currentStatusComment = mm.getValue();
+				if(currentStatusComment != null && !currentStatusComment.isEmpty()){
+					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+					return currentStatusComment + " (" + mm.getUser().getNameFstLst() + "; " + dateFormat.format(mm.getDate()) + ")";
+				}
 			}
 		}
 		return null;
@@ -1925,6 +2226,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.debug("job " + job.getJobId() + " not active - returning false");
 			return false;
 		}
+		if (this.isAggregationAnalysisBatchJob(job)){
+			logger.debug("job " + job.getJobId() + " aggregation analysis has been initiated - returning false;");
+			return false;
+		}
+			
 		// if cellLibraries exist check these first (for efficiency)
 		for (SampleSource cellLibrary: sampleService.getCellLibrariesForJob(job)){
 			try{
@@ -1939,17 +2245,22 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						return true; // the library is on an active run
 					}
 				}
-				if (sampleService.isCellLibraryPassedQC(cellLibrary)){
-					if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
-						logger.debug("job " + job.getJobId() + "the library has been run and passed QC but has not been pre-processed yet - returning true");
-						return true; // the library has been run and passed QC but has not been pre-processed yet
+				try{
+					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
+						if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
+							logger.debug("job " + job.getJobId() + "the library has been run and it's cell has passed QC but has not been pre-processed (aligned) yet - returning true");
+							return true; // the library has been run and passed QC but has not been pre-processed yet
+						}
 					}
+				} catch (MetaAttributeNotFoundException e) {
+					logger.debug("job " + job.getJobId() + "the library has been run but has not been QCd yet - returning true");
+					return true; 
 				}
 			} catch(SampleTypeException e){
 				logger.warn("recieved unexpected SampleTypeException: " + e.getLocalizedMessage());
 			} catch (SampleParentChildException e1){
 				logger.warn("recieved unexpected SampleParentChildException: " + e1.getLocalizedMessage());
-			}
+			} 
 		}
 		// no in-process samples on platform units so ...
 		if (this.isJobPendingApprovalOrQuote(job)){
@@ -1980,8 +2291,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void triggerAggregationAnalysisBatchJob(Job job){
+	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
 		Map<String, String> jobParameters = new HashMap<String, String>();
@@ -2004,5 +2318,134 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Job> getActiveJobsWithNoSamplesCurrentlyBeingProcessed(){
+		List<Job> activeJobList = this.getActiveJobs();
+		List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = new ArrayList<Job>();		
+		for(Job job : activeJobList){
+			if(!this.isAnySampleCurrentlyBeingProcessed(job)){
+				activeJobsWithNoSamplesCurrentlyBeingProcessed.add(job);
+			}
+		}
+		return activeJobsWithNoSamplesCurrentlyBeingProcessed;
+	}
+
+	public boolean isAggregationAnalysisBatchJob(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		Set<String> taskSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		taskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		parameterMap.put(WaspJobParameters.BATCH_JOB_TASK, taskSet);
+		if (batchJobExplorer.getJobExecutions(parameterMap, true).size() > 0)
+			return true;
+		return false;
+	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isTerminated(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, BatchStatus.STOPPED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isFinishedSuccessfully(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getJobId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		if (batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true, ExitStatus.COMPLETED).size() > 0)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void terminate(Job job) throws WaspMessageBuildingException{//will need to provide a comment at some time
+		updateJobStatus(job, WaspStatus.ABANDONED, WaspJobTask.NOTIFY_STATUS, "", true);
+
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception{
+		try{			
+			this.setJobApprovalComment(jobApproveCode, job.getId(), comment.trim());//throws Exception
+			this.updateJobApprovalStatus(jobApproveCode, job, status, comment.trim());//perform second, as it kicks off a message; throws WaspMessageBuildingException
+		}catch(Exception e){
+			throw new Exception();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception{
+		Assert.assertParameterNotNullNotZero(jobId, "jobId cannot be null or zero");
+		Job job = jobDao.getById(jobId);
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+jobId+" not found in database");
+		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
+		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
+		Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+		quoteForm.setJobId(jobId);
+		quoteForm.setId(null);//new one; must leave this - problem without it
+		User user = authenticationService.getAuthenticatedUser();
+		quoteForm.setUser(user);
+		acctQuoteDao.save(quoteForm);	//the save has set the new id in quoteForm	
+		Integer quoteId = quoteForm.getId();		
+		if(quoteId==null||quoteId==0){		
+			String str = "acctQuote not properly saved to database - invalid id";
+			logger.warn(str);
+			throw new Exception(str);
+		}
+			
+		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
+		try{	
+			this.acctQuoteMetaDao.setMeta(metaList, quoteId);	
+		} catch (MetadataException e){
+			logger.warn(e.getMessage());
+			throw new Exception(e.getMessage());
+		}
+				
+		if (!job.getAcctQuote().contains(quoteForm)){//it will not contain it, as this is a new quote
+					
+			job.getAcctQuote().add(quoteForm);//no real reason to do this here
+		}
+		job.setCurrentQuote(quoteForm);		
+		this.getJobDao().save(job);		
+				
+		try{	
+			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
+		} catch (WaspMessageBuildingException e){
+			logger.warn(e.getMessage());
+			throw new Exception(e.getMessage());
+		}	
+	}
 }

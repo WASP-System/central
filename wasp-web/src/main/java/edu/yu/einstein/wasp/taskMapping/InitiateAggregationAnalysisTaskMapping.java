@@ -6,7 +6,11 @@ import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.service.JobService;
 
-
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class InitiateAggregationAnalysisTaskMapping extends WaspTaskMapping {
 	
 	private JobService jobService;
@@ -23,7 +27,7 @@ public class InitiateAggregationAnalysisTaskMapping extends WaspTaskMapping {
 	@Override
 	public boolean isRequirementToShowLink() throws WaspException {
 		for(Job job: jobService.getActiveJobs()){
-			if (!jobService.isAnySampleCurrentlyBeingProcessed(job))
+			if (jobService.isJobActive(job) && !jobService.isAggregationAnalysisBatchJob(job) && !jobService.isAnySampleCurrentlyBeingProcessed(job))
 				return true;
 		}
 		return false;

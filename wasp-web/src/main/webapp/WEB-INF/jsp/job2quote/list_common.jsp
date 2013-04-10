@@ -18,7 +18,6 @@
 	}
 </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 
 <script type="text/javascript">
    //http://trirand.com/blog/jqgrid/jqgrid.html version 3.7 toolbar search 
@@ -71,7 +70,7 @@ $(document).ready(function() {
 		sopt:['eq'],
 		searchoptions: {
 			dataInit: function(elem) {	
-				jQuery(elem).datepicker();
+				jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 			}
 		}
 	});
@@ -110,9 +109,9 @@ validate = function(){
 	
 	var submitted_on = $('#gs_submitted_on').val();		 
 	if(typeof(submitted_on) !== 'undefined' && submitted_on != null && submitted_on.length>0){
-		var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+		var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 		if(!dateFormat.test(submitted_on)){
-			alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+			alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
 			return true;//do not perform search 
 		}
 	}
@@ -124,6 +123,8 @@ validate = function(){
 jQuery("#grid_id").jqGrid('filterToolbar', {stringResult:false, searchOnEnter:true, defaultSearch:"eq", beforeSearch: validate }); 
 //add search icon to navgrid and link it's being clicked to filterToolbar (so that filterToolbar search begins when the search icon is pressed (or the default, which is when ENTER is pressed)) 
 jQuery("#grid_id").jqGrid('navButtonAdd','#gridpager',{caption:"",title:"<fmt:message key="grid.icon_search.label" />", buttonicon :'ui-icon-search', onClickButton:function(){ $("#grid_id")[0].triggerToolbar(); } }); 
+
+//waspTooltip();
 
 });//end document.ready() 
   

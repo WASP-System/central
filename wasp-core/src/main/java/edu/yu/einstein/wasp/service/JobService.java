@@ -31,14 +31,17 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
-import edu.yu.einstein.wasp.dao.SampleFileDao;
 import edu.yu.einstein.wasp.dao.SampleJobCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.exception.FileMoveException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.ResourceCategory;
@@ -304,7 +307,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	
 	/**
@@ -314,7 +317,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobDaApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobDaApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	/**
 	 * Updates the Job Pi Approval Status for job
@@ -323,7 +326,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobPiApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobPiApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 	
 	/**
 	 * Updates the Job Facility Manager Approval Status for job
@@ -332,7 +335,7 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @param String status
 	 * @throws WaspMessageBuildingException
 	 */
-	public void updateJobFmApprovalStatus(Job job, WaspStatus status) throws WaspMessageBuildingException;
+	public void updateJobFmApprovalStatus(Job job, WaspStatus status, String comment) throws WaspMessageBuildingException;
 
 	/**
 	 * removeJobViewer() removes a viewer from a specific job. Performs checks to determine if this is a legal option and if not, throw exception 
@@ -459,8 +462,6 @@ public interface JobService extends WaspMessageHandlingService {
 	public void setJobCellSelectionDao(
 			JobCellSelectionDao mockJobCellSelectionDao);
 
-	public void setSampleFileDao(SampleFileDao mockSampleFileDao);
-
 	public void setSampleMetaDao(SampleMetaDao mockSampleMetaDao);
 
 	public void setSampleJobCellSelectionDao(
@@ -488,12 +489,15 @@ public interface JobService extends WaspMessageHandlingService {
 
 
 	/**
-	 * getJobSampleTree() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
-	 * @param int jobId
+	 * getJobViewBranch() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param jid 
+	 * @param int id, String type
 	 * @return Map<String, Object>
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getJobSampleD3Tree(int jobId) throws Exception;
+	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException;
+
+	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job);
 
 	/**
 	 * getJobDetailWithMeta() returns all detail information with meta for a job
@@ -520,10 +524,64 @@ public interface JobService extends WaspMessageHandlingService {
 	 * Send message to wasp-daemon to trigger aggregation analysis for a job
 	 * @param job
 	 */
-	public void triggerAggregationAnalysisBatchJob(Job job);
+	public void initiateAggregationAnalysisBatchJob(Job job);
 
 	public String getJobStatusComment(Job job);
 
+	/**
+	 * return list of active jobs that do NOT have samples in the pipleline (samples either failed or ran sucessfully)
+	 * @return List<Job>
+	 */
+	public List<Job> getActiveJobsWithNoSamplesCurrentlyBeingProcessed();
 	
+	/**
+	 * returns true if an aggregation analysis batch job exists (in any state) for the given wasp job
+	 * @param job
+	 * @return
+	 */
+	public boolean isAggregationAnalysisBatchJob(Job job);
+
+	/**
+	 * returns true if job was stopped (terminated).
+	 * @param job
+	 * @return
+	 */
+	public boolean isTerminated(Job job);
 	
+	/**
+	 * returns true if job finished with a successful status 
+	 * @param job
+	 * @return
+	 */
+	public boolean isFinishedSuccessfully(Job job);
+
+	/**
+	 * Terminate a currently running job
+	 * @param job
+	 * @throws WaspMessageBuildingException
+	 */
+	public void terminate(Job job) throws WaspMessageBuildingException;
+
+	
+	/**
+	 * As the method title states, set the job approval status and the comment that goes along with it in a single transaction.
+	 * Throw exception if problem
+	 * @param String jobApproveCode (fmApprove, daApprove, piApprove)
+	 * @param Job job
+	 * @param WaspStatus status
+	 * @param String comment
+	 * @throws WaspMessageBuildingException
+	 */
+	public void setJobApprovalStatusAndComment(String jobApproveCode, Job job, WaspStatus status, String comment) throws Exception;
+	//public void updateJobApprovalStatus(String jobApproveCode, Job job, WaspStatus status) throws WaspMessageBuildingException;
+	//public void setJobApprovalComment(String jobApproveCode, Integer jobId, String comment) throws Exception;
+	
+	/**
+	 * Adds a new quote for a job
+	 * @param Integer jobId
+	 * @param AcctQuote quoteForm
+	 * @param List<AcctQuoteMeta> metaList (information for storage within AcctQuoteMeta)
+	 * @throws Exception
+	 */
+	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
 }

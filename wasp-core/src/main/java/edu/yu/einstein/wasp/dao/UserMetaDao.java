@@ -18,7 +18,7 @@ public interface UserMetaDao extends WaspMetaDao<UserMeta> {
 
   public UserMeta getUserMetaByUserMetaId (final int userMetaId);
 
-  public UserMeta getUserMetaByKUserId (final String k, final int UserId);
+  public UserMeta getUserMetaByKUserId (final String k, final int userId);
 
 
 

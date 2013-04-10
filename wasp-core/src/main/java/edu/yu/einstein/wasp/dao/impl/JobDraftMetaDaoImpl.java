@@ -47,7 +47,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	@Transactional
 	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobDraftMetaId", jobDraftMetaId);
+		m.put("id", jobDraftMetaId);
 
 		List<JobDraftMeta> results = this.findByMap(m);
 
@@ -100,7 +100,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 
 		for (JobDraftMeta m:metaList) {
 			m.setJobDraftId(jobDraftId);
-			entityManager.persist(m);
+			persist(m);
 		}
 	}
 

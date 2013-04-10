@@ -47,7 +47,7 @@ public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.
 	@Transactional
 	public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("invoiceId", invoiceId);
+		m.put("id", invoiceId);
 
 		List<AcctInvoice> results = this.findByMap(m);
 

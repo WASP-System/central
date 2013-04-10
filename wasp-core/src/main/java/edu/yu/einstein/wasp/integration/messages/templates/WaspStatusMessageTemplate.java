@@ -8,7 +8,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 /**
  * Abstract base class defining common attributes.
- * @author andymac
+ * @author asmclellan
  *
  */
 public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate implements StatusMessageTemplate{

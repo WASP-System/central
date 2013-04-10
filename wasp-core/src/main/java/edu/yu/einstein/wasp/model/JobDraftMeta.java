@@ -32,22 +32,16 @@ public class JobDraftMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 8631916645941369570L;
-	/** 
-	 * jobDraftMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobDraftMetaId;
-
+	
 	/**
 	 * setJobDraftMetaId(Integer jobDraftMetaId)
 	 *
 	 * @param jobDraftMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobDraftMetaId (Integer jobDraftMetaId) {
-		this.jobDraftMetaId = jobDraftMetaId;
+		setId(jobDraftMetaId);
 	}
 
 	/**
@@ -56,8 +50,9 @@ public class JobDraftMeta extends MetaBase {
 	 * @return jobDraftMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobDraftMetaId () {
-		return this.jobDraftMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +106,7 @@ public class JobDraftMeta extends MetaBase {
 	 */
 	public void setJobDraft (JobDraft jobDraft) {
 		this.jobDraft = jobDraft;
-		this.jobDraftId = jobDraft.jobDraftId;
+		this.jobDraftId = jobDraft.getId();
 	}
 
 	/**

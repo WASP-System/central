@@ -8,6 +8,11 @@ import java.util.Map;
 import edu.yu.einstein.wasp.exception.MetaClassNotFoundException;
 import edu.yu.einstein.wasp.model.MetaBase;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class MetaLoadWrapper {
 
 	private String area = "";

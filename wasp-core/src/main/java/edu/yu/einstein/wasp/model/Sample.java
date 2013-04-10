@@ -12,19 +12,25 @@
 package edu.yu.einstein.wasp.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.hibernate.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -38,12 +44,6 @@ public class Sample extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -324610621097231467L;
-	/** 
-	 * sampleId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer sampleId;
 
 	/**
 	 * setSampleId(Integer sampleId)
@@ -51,9 +51,9 @@ public class Sample extends WaspModel {
 	 * @param sampleId
 	 *
 	 */
-	
+	@Deprecated
 	public void setSampleId (Integer sampleId) {
-		this.sampleId = sampleId;
+		setId(sampleId);
 	}
 
 	/**
@@ -62,8 +62,9 @@ public class Sample extends WaspModel {
 	 * @return sampleId
 	 *
 	 */
+	@Deprecated
 	public Integer getSampleId () {
-		return this.sampleId;
+		return getId();
 	}
 
 	/** 
@@ -256,7 +257,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isreceived")
-	protected Integer isReceived;
+	protected Integer isReceived = 0;
 
 	/**
 	 * setIsReceived(Integer isReceived)
@@ -412,7 +413,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -436,70 +437,6 @@ public class Sample extends WaspModel {
 	}
 
 
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * sampleType
 	 *
@@ -517,7 +454,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleType (SampleType sampleType) {
 		this.sampleType = sampleType;
-		this.sampleTypeId = sampleType.sampleTypeId;
+		this.sampleTypeId = sampleType.getId();
 	}
 
 	/**
@@ -549,7 +486,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setSampleSubtype (SampleSubtype sampleSubtype) {
 		this.sampleSubtype = sampleSubtype;
-		this.sampleSubtypeId = sampleSubtype.sampleSubtypeId;
+		this.sampleSubtypeId = sampleSubtype.getId();
 	}
 
 	/**
@@ -569,7 +506,7 @@ public class Sample extends WaspModel {
 	 *
 	 */
 	@NotAudited
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="parentid", insertable=false, updatable=false)
 	protected Sample parent;
 
@@ -581,7 +518,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setParent (Sample parent) {
 		this.parent = parent;
-		this.parentId = parent.sampleId;
+		this.parentId = parent.getId();
 	}
 	
 	/** 
@@ -617,9 +554,11 @@ public class Sample extends WaspModel {
 	
 
 	/**
-	 * getSampleSubtype ()
+	 * getParent()
+	 * 
+	 * If the sample is a library generated from a sample, the parent is that sample.  else null.
 	 *
-	 * @return sampleSubtype
+	 * @return Sample
 	 *
 	 */
 	
@@ -645,7 +584,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.submitterJobId = job.jobId;
+		this.submitterJobId = job.getId();
 	}
 
 	/**
@@ -677,7 +616,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setLab (Lab lab) {
 		this.lab = lab;
-		this.submitterLabId = lab.labId;
+		this.submitterLabId = lab.getId();
 	}
 
 	/**
@@ -709,7 +648,7 @@ public class Sample extends WaspModel {
 	 */
 	public void setUser (User user) {
 		this.user = user;
-		this.submitterUserId = user.UserId;
+		this.submitterUserId = user.getId();
 	}
 
 	/**
@@ -961,41 +900,6 @@ public class Sample extends WaspModel {
 	}
 
 
-
-	/** 
-	 * sampleFile
-	 *
-	 */
-	@NotAudited
-	@OneToMany
-	@JoinColumn(name="sampleid", insertable=false, updatable=false)
-	protected List<SampleFile> sampleFile;
-
-
-	/** 
-	 * getSampleFile()
-	 *
-	 * @return sampleFile
-	 *
-	 */
-	@JsonIgnore
-	public List<SampleFile> getSampleFile() {
-		return this.sampleFile;
-	}
-
-
-	/** 
-	 * setSampleFile
-	 *
-	 * @param sampleFile
-	 *
-	 */
-	public void setSampleFile (List<SampleFile> sampleFile) {
-		this.sampleFile = sampleFile;
-	}
-
-
-
 	/** 
 	 * run
 	 *
@@ -1062,6 +966,27 @@ public class Sample extends WaspModel {
 		this.runCell = runCell;
 	}
 
+
+	/**
+	 * 
+	 */
+	@ManyToMany
+	@JoinTable(name="samplefilegroup", joinColumns={@JoinColumn(name="sampleid")}, inverseJoinColumns={@JoinColumn(name="filegroupid")})
+	private Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+
+	/**
+	 * @return the fileGroups
+	 */
+	public Set<FileGroup> getFileGroups() {
+		return fileGroups;
+	}
+
+	/**
+	 * @param fileGroups the fileGroups to set
+	 */
+	public void setFileGroups(Set<FileGroup> fileGroups) {
+		this.fileGroups = fileGroups;
+	}
 
 
 	

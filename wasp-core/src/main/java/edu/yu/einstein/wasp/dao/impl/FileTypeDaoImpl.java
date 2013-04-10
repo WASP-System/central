@@ -50,7 +50,7 @@ public class FileTypeDaoImpl extends WaspDaoImpl<FileType> implements FileTypeDa
 	@Transactional
 	public FileType getFileTypeByFileTypeId (final Integer fileTypeId) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("fileTypeId", fileTypeId);
+		m.put("id", fileTypeId);
 
 		List<FileType> results = this.findByMap(m);
 

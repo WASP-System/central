@@ -47,7 +47,7 @@ public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> imple
 	@Transactional
 	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("workflowId", workflowId);
+		m.put("id", workflowId);
 
 		List<AcctWorkflowcost> results = this.findByMap(m);
 

@@ -47,7 +47,7 @@ public class JobSampleDaoImpl extends WaspDaoImpl<JobSample> implements edu.yu.e
 	@Transactional
 	public JobSample getJobSampleByJobSampleId (final int jobSampleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("jobSampleId", jobSampleId);
+		m.put("id", jobSampleId);
 
 		List<JobSample> results = this.findByMap(m);
 

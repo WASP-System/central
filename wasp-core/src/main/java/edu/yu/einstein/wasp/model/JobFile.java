@@ -34,12 +34,6 @@ public class JobFile extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -743310016092763973L;
-	/** 
-	 * jobFileId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer jobFileId;
 
 	/**
 	 * setJobFileId(Integer jobFileId)
@@ -47,9 +41,9 @@ public class JobFile extends WaspModel {
 	 * @param jobFileId
 	 *
 	 */
-	
+	@Deprecated
 	public void setJobFileId (Integer jobFileId) {
-		this.jobFileId = jobFileId;
+		setId(jobFileId);
 	}
 
 	/**
@@ -58,8 +52,9 @@ public class JobFile extends WaspModel {
 	 * @return jobFileId
 	 *
 	 */
+	@Deprecated
 	public Integer getJobFileId () {
-		return this.jobFileId;
+		return getId();
 	}
 
 
@@ -92,40 +87,6 @@ public class JobFile extends WaspModel {
 	public Integer getJobId () {
 		return this.jobId;
 	}
-
-
-
-
-	/** 
-	 * fileId
-	 *
-	 */
-	@Column(name="fileid")
-	protected Integer fileId;
-
-	/**
-	 * setFileId(Integer fileId)
-	 *
-	 * @param fileId
-	 *
-	 */
-	
-	public void setFileId (Integer fileId) {
-		this.fileId = fileId;
-	}
-
-	/**
-	 * getFileId()
-	 *
-	 * @return fileId
-	 *
-	 */
-	public Integer getFileId () {
-		return this.fileId;
-	}
-
-
-
 
 	/** 
 	 * iName
@@ -248,71 +209,6 @@ public class JobFile extends WaspModel {
 		return this.isActive;
 	}
 
-
-
-
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
-	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/**
 	 * job
 	 *
@@ -330,7 +226,7 @@ public class JobFile extends WaspModel {
 	 */
 	public void setJob (Job job) {
 		this.job = job;
-		this.jobId = job.jobId;
+		this.jobId = job.getId();
 	}
 
 	/**
@@ -351,18 +247,17 @@ public class JobFile extends WaspModel {
 	 */
 	@NotAudited
 	@ManyToOne
-	@JoinColumn(name="fileid", insertable=false, updatable=false)
-	protected File file;
+	@JoinColumn(name="filegroupid")
+	protected FileGroup fileGroup;
 
 	/**
-	 * setFile (File file)
+	 * setFile (FileHandle file)
 	 *
 	 * @param file
 	 *
 	 */
-	public void setFile (File file) {
-		this.file = file;
-		this.fileId = file.fileId;
+	public void setFileGroup(FileGroup fileGroup) {
+		this.fileGroup = fileGroup;
 	}
 
 	/**
@@ -372,8 +267,27 @@ public class JobFile extends WaspModel {
 	 *
 	 */
 	
-	public File getFile () {
-		return this.file;
+	public FileGroup getFile () {
+		return this.fileGroup;
+	}
+	
+	@Column(name="filegroupid", insertable=false, updatable=false)
+	private Integer fileGroupId;
+	
+	/**
+	 * @return the fileGroupId
+	 */
+	@Deprecated
+	public Integer getFileGroupId() {
+		return fileGroupId;
+	}
+
+	/**
+	 * @param fileGroupId the fileGroupId to set
+	 */
+	@Deprecated
+	public void setFileGroupId(Integer fileGroupId) {
+		this.fileGroupId = fileGroupId;
 	}
 
 

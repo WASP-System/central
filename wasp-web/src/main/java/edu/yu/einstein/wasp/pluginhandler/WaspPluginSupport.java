@@ -33,6 +33,7 @@ import org.springframework.web.context.ServletContextAware;
 /**
  * Allows extraction of contents of a JAR file under the specified resource path and placed within the webapp in the equivalent location. All files matching 
  * a given Ant path pattern under the source path will be copied to the destination path using the same structure.
+ * 
  */
 public class WaspPluginSupport implements ServletContextAware {
 
@@ -118,14 +119,14 @@ public class WaspPluginSupport implements ServletContextAware {
 							String pathMatch = pathMatcher.extractPathWithinPattern(resourceFilePattern, entry.getName());
 							InputStream inputStream = jarFile.getInputStream(entry);
 							File destinationFolder = new File(servletContext.getRealPath(resourceDirectory));
-							File materializedJsp = new File(StringUtils.chomp(destinationFolder.getAbsolutePath(), resourceDirectory) + pathMatch);
-							File path = materializedJsp.getParentFile();
+							File materializedFile = new File(StringUtils.chomp(destinationFolder.getAbsolutePath(), resourceDirectory) + pathMatch);
+							File path = materializedFile.getParentFile();
 							if (!path.exists()){
 								logger.debug("creating incomplete path: " + path.getAbsolutePath());
 								path.mkdirs();
 							}
-							logger.debug("copying: " + entry.getName() + " to  " + materializedJsp.getAbsolutePath());
-							FileOutputStream outputStream = new FileOutputStream(materializedJsp);
+							logger.debug("copying: " + entry.getName() + " to  " + materializedFile.getAbsolutePath());
+							FileOutputStream outputStream = new FileOutputStream(materializedFile);
 							copyAndClose(inputStream, outputStream);
 						}
 					}

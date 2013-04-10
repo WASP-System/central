@@ -47,7 +47,7 @@ public class AdaptorDaoImpl extends WaspDaoImpl<Adaptor> implements edu.yu.einst
 	@Transactional
 	public Adaptor getAdaptorByAdaptorId (final Integer adaptorId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("adaptorId", adaptorId);
+		m.put("id", adaptorId);
 
 		List<Adaptor> results = this.findByMap(m);
 

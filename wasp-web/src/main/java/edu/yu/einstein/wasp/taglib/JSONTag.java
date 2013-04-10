@@ -36,7 +36,7 @@ public class JSONTag extends BodyTagSupport {
 
 
 	@Override
-	public int doStartTag() throws javax.servlet.jsp.JspException {
+	public int doEndTag() throws javax.servlet.jsp.JspException {
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);

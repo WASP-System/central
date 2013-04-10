@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
@@ -43,6 +44,8 @@ public class DashboardController extends WaspController {
 	@Autowired
 	private LabPendingDao labPendingDao;
 
+	@Autowired
+	private EmailService emailService;
 	
 	@Autowired
 	private TaskService taskService;
@@ -115,6 +118,28 @@ public class DashboardController extends WaspController {
 		
 		m.addAttribute("taskHyperlinks",taskMappingHyperlinksToDisplay);
 		m.addAttribute("isTasks", taskMappingHyperlinksToDisplay.size() > 0);
+		
+		
+/*		
+		emailService.sendSubmitterJobStarted(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendPIJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendLabManagerJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendDAJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendFacilityManagerJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		emailService.sendSubmitterWhoIsAlsoThePIJobStartedConfirmRequest(jobDao.findById(47));//for testing by dubin 3-11-13
+		
+		
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("eberko"), "emails/inform_submitter_job_started");
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("jgreally"), "emails/inform_pi_or_lab_manager_job_started");
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("msuzuki"), "emails/inform_pi_or_lab_manager_job_started");
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("smaqbool"), "emails/inform_facility_manager_job_started");
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("smaslova"), "emails/inform_da_job_started");
+		
+		emailService.sendJobStarted(jobDao.findById(47), userDao.getUserByLogin("smaslova"), "emails/rob_test");
+*/		
+		
+
+		
 		return "dashboard";
 	}
 }

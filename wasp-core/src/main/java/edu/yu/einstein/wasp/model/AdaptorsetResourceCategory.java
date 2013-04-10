@@ -32,13 +32,6 @@ public class AdaptorsetResourceCategory extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -6657776351152845874L;
-	/** 
-	 * adaptorsetResourcecategoryId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="adaptorsetresourcecategoryid")
-	protected Integer adaptorsetResourcecategoryId;
 
 	/**
 	 * setAdaptorsetResourcecategoryId(Integer adaptorsetresourcecategoryId)
@@ -46,9 +39,9 @@ public class AdaptorsetResourceCategory extends WaspModel {
 	 * @param adaptorsetresourcecategoryId
 	 *
 	 */
-	
+	@Deprecated
 	public void setAdaptorsetResourcecategoryId (Integer adaptorsetresourcecategoryId) {
-		this.adaptorsetResourcecategoryId = adaptorsetresourcecategoryId;
+		setId(adaptorsetresourcecategoryId);
 	}
 
 	/**
@@ -57,8 +50,9 @@ public class AdaptorsetResourceCategory extends WaspModel {
 	 * @return adaptorsetresourcecategoryId
 	 *
 	 */
+	@Deprecated
 	public Integer getAdaptorsetResourcecategoryId () {
-		return this.adaptorsetResourcecategoryId;
+		return getId();
 	}
 
 
@@ -140,7 +134,7 @@ public class AdaptorsetResourceCategory extends WaspModel {
 	 */
 	public void setResourceCategory (ResourceCategory resourceCategory) {
 		this.resourceCategory = resourceCategory;
-		this.resourcecategoryId = resourceCategory.resourceCategoryId;
+		this.resourcecategoryId = resourceCategory.getId();
 	}
 
 	/**
@@ -172,7 +166,7 @@ public class AdaptorsetResourceCategory extends WaspModel {
 	 */
 	public void setAdaptorset (Adaptorset adaptorset) {
 		this.adaptorset = adaptorset;
-		this.adaptorsetId = adaptorset.adaptorsetId;
+		this.adaptorsetId = adaptorset.getId();
 	}
 
 	/**

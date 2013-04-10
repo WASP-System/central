@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.model.Software;
 
 /**
  * Class to provide easy access to job information including resource and selected software information 
- * @author andymac
+ * @author asmclellan
  *
  */
 public class WaspJobContext {

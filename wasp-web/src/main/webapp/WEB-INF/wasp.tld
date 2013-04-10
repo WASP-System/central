@@ -286,4 +286,16 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>		
 	</tag>
+	<tag>
+        <description>Gets the URL for a given file registered in the database</description>
+		<name>url</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.UrlForFile</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>May be a FileHandle object, fileGroup object, fileHandle Id, or fileHandle UUID</description>
+			<name>fileAccessor</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
 </taglib>

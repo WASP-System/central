@@ -14,11 +14,8 @@
 		<table class="EditTable ui-widget ui-widget-content">
 		  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="createLibrary.primarySampleName.label" />:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.name}" /></td></tr>
 		  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="createLibrary.primarySampleType.label" />:</td><td colspan="2" class="DataTD"><c:out value="${macromoleculeSample.sampleType.name}" /></td></tr>
-		    <c:forEach items="${macromoleculeSample.sampleMeta}" var="msm">
-		    	<c:if test="${fn:substringAfter(msm.k, 'Biomolecule.') == 'species'}">
-		            <tr class="FormData"><td class="CaptionTD"><fmt:message key="createLibrary.primarySampleSpecies.label" />:</td><td colspan="2" class="DataTD"><c:out value="${msm.v}"/></td></tr>
-		        </c:if> 
-		    </c:forEach> 
+		    <tr class="FormData"><td class="CaptionTD"><fmt:message key="createLibrary.primarySampleSpecies.label" />:</td><td colspan="2" class="DataTD"><c:out value="${organism}"/></td></tr>
+		 
 		   	<tr class="FormData"><td colspan="3" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="createLibrary.libraryDetails.label" /></td></tr>
 		  
 		  	 <tr class="FormData">

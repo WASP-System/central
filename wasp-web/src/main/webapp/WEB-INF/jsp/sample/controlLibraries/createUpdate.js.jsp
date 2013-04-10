@@ -161,33 +161,33 @@ function toggleDisplayAddNewControlForm(action, counter){
 		newControlFormDiv.style.display = 'none';
 		var newControlIdName = "newControlId_" + counter;
 		var newControlId = document.getElementById(newControlIdName);
-		var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
-		var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+		var newControlConcInCellPicoMName = "newControlConcInCellPicoM_" + counter;
+		var newControlConcInCellPicoM = document.getElementById(newControlConcInCellPicoMName);
 		newControlId.value="";
-		newControlConcInLanePicoM.value="";
+		newControlConcInCellPicoM.value="";
 	}
 }
-function validateAddNewControlToLaneForm(counter){
+function validateAddNewControlToCellForm(counter){
 	//alert("testing alert in validate add new control. counter=" + counter);
 	var newControlIdName = "newControlId_" + counter;
 	var newControlId = document.getElementById(newControlIdName);
-	var newControlConcInLanePicoMName = "newControlConcInLanePicoM_" + counter;
-	var newControlConcInLanePicoM = document.getElementById(newControlConcInLanePicoMName);
+	var newControlConcInCellPicoMName = "newControlConcInCellPicoM_" + counter;
+	var newControlConcInCellPicoM = document.getElementById(newControlConcInCellPicoMName);
 	if(newControlId.value==""){
 		alert("Please select a control");
 		newControlId.focus();
 		return false;
 	}
-	var trimmed = newControlConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
+	var trimmed = newControlConcInCellPicoM.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){//must trim before testing
 		alert("Please provide a final concentration for this control");
-		newControlConcInLanePicoM.value = "";
-		newControlConcInLanePicoM.focus();
+		newControlConcInCellPicoM.value = "";
+		newControlConcInCellPicoM.focus();
 		return false;
 	}
 	else{
 		//alert("OK to submit, but not doing it");
-		var theFormName = "addNewControlToLaneForm_" + counter;
+		var theFormName = "addNewControlToCellForm_" + counter;
 		var theForm = document.getElementById(theFormName);
 		theForm.submit();
 	}
@@ -207,14 +207,14 @@ function toggleDisplayOfUpdateForm(instruction, idCounter){
 	else if(instruction == 'cancel'){
 		editAnchorDiv.style.display = 'block';
 		formDiv.style.display = 'none';
-		var textInputName = "libConcInLanePicoM_" + idCounter;
+		var textInputName = "libConcInCellPicoM_" + idCounter;
 		var textInputObject = document.getElementById(textInputName);
 		textInputObject.value="";
 	}	
 }
 function validateUpdateForm(idCounter){
 	//alert("validateUpdate; id = " + idCounter);
-	var textInputName = "libConcInLanePicoM_" + idCounter;
+	var textInputName = "libConcInCellPicoM_" + idCounter;
 	var textInputObject = document.getElementById(textInputName);
 	var trimmed = textInputObject.value.replace(/^\s+|\s+$/g, '') ;//trim from both ends
 	if(trimmed == ""){

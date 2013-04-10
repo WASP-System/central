@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * Handling Wasp Analysis Status Messages. If not task is defined the default is WaspTask.NOTIFY_STATUS
- * @author andymac
+ * @author asmclellan
  *
  */
 public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
@@ -62,10 +62,10 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 		super();
 	}
 	
-	public void setLibraryCellId(Integer libraryCellId){
-		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(libraryCellId);
-		this.libraryId = sampleService.getLibrary(libraryCell).getSampleId();
-		this.jobId  = sampleService.getJobOfLibraryOnCell(libraryCell).getJobId();
+	public void setCellLibraryId(Integer cellLibraryId){
+		SampleSource libraryCell = sampleService.getSampleSourceDao().getSampleSourceBySampleSourceId(cellLibraryId);
+		this.libraryId = sampleService.getLibrary(libraryCell).getId();
+		this.jobId  = sampleService.getJobOfLibraryOnCell(libraryCell).getId();
 	}
 	
 	public AnalysisStatusMessageTemplate(Message<WaspStatus> message){
@@ -90,26 +90,17 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 			throw new WaspMessageBuildingException("no status message defined");
 		Message<WaspStatus> message = null;
 		try {
-			if (this.task == null){
-				message = MessageBuilder.withPayload(status)
+			message = MessageBuilder.withPayload(status)
 						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
 						.setHeader(TARGET_KEY, target)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
-						.setHeader(WaspJobParameters.JOB_ID, jobId)
-						.setPriority(status.getPriority())
-						.build();
-			} else {
-				message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.ANALYSIS)
-						.setHeader(TARGET_KEY, target)
+						.setHeader(USER_KEY, userCreatingMessage)
+						.setHeader(COMMENT_KEY, comment)
 						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
 						.setHeader(WaspJobParameters.LIBRARY_ID, libraryId)
 						.setHeader(WaspJobParameters.JOB_ID, jobId)
 						.setHeader(WaspJobTask.HEADER_KEY, task)
 						.setPriority(status.getPriority())
 						.build();
-			}
 		} catch(Exception e){
 			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
 		}

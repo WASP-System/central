@@ -46,10 +46,10 @@ For demonstration purposes only the Chip Seq workflow is currently enabled
   </table>
 
   <div class="submit">
-    <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
     <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
       <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<c:url value="/dashboard.do"/>'" /> 
     </c:if>
+     <input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="jobDraft.continue.label"/>">
   </div>
 
   </form:form>

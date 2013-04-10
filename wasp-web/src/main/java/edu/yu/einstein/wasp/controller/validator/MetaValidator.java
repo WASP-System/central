@@ -6,7 +6,7 @@ import org.springframework.validation.BindingResult;
 
 import edu.yu.einstein.wasp.model.MetaBase;
 
-/*
+/**
  * implements validation of MetaBase children based on uifield.constraint database field.
  * @Author Sasha Levchuk
  */

@@ -47,7 +47,7 @@ public class ResourceBarcodeDaoImpl extends WaspDaoImpl<ResourceBarcode> impleme
 	@Transactional
 	public ResourceBarcode getResourceBarcodeByResourceBarcodeId (final Integer resourceBarcodeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("resourceBarcodeId", resourceBarcodeId);
+		m.put("id", resourceBarcodeId);
 
 		List<ResourceBarcode> results = this.findByMap(m);
 

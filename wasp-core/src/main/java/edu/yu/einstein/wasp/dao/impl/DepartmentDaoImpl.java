@@ -48,7 +48,7 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 	@Transactional
 	public Department getDepartmentByDepartmentId (final int departmentId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("departmentId", departmentId);
+		m.put("id", departmentId);
 
 		List<Department> results = this.findByMap(m);
 

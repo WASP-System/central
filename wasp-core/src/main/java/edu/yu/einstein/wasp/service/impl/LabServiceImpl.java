@@ -12,9 +12,11 @@
 package edu.yu.einstein.wasp.service.impl;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,11 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
+import edu.yu.einstein.wasp.dao.LabPendingDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserroleDao;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Lab;
+import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
@@ -49,6 +53,8 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	private UserroleDao userroleDao;
 	@Autowired
 	private LabDao labDao;
+	@Autowired
+	private LabPendingDao labPendingDao;
 	@Autowired
 	private LabUserDao labUserDao;
 	@Autowired
@@ -110,6 +116,24 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 		  
 		  return labUserDB;
 
+	  }
+	  
+	  /**
+	   * {@inheritDoc}
+	   */
+	  @Override
+	  public boolean isExistingUserPIPending(User user){
+		  if(user.getUserId()==null){
+			  return false;
+		  }
+		  Map queryMap = new HashMap();
+		  queryMap.put("primaryUserId", user.getUserId());
+		  queryMap.put("status", "PENDING");
+		  List<LabPending> labPendingList = labPendingDao.findByMap(queryMap);
+		  if(labPendingList.size()>0){
+			  return true;
+		  }
+		  return false;
 	  }
 }
 

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * Implements a FileUrlResolver where a map of lists can be supplied where the key is  
@@ -43,15 +45,20 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 
 
 	/* (non-Javadoc)
-	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.File)
+	 * @see edu.yu.einstein.wasp.grid.file.FileUrlResolver#getURL(edu.yu.einstein.wasp.model.FileHandle)
 	 */
 	@Override
-	public URL getURL(File file) throws GridUnresolvableHostException {
+	public URL getURL(FileHandle file) throws GridUnresolvableHostException {
+		return getURL(file, "file");
+	}
+	
+	public URL getURL(FileHandle file, String subPath) throws GridUnresolvableHostException {
 		if (! file.getFileURI().toString().startsWith("file://")) {
-			logger.warn("unable to obtain file URL for file " + file.getFileId());
+			logger.warn("unable to obtain file URL for file " + file.getId());
 			throw new GridUnresolvableHostException();
 		}
 		
+		//currently only handles file:// URLs.
 		Matcher hostm = Pattern.compile("^file://(.*?)/").matcher(file.getFileURI().toString());
 		
 		if (! hostm.find()) {
@@ -77,16 +84,20 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		if (!destination.endsWith("/"))
 			destination += "/";
 		
+		if (!subPath.endsWith("/"))
+			subPath += "/";
+		
 		URL retval;
 		
+		String file_uri = destination + subPath + file.getUUID().toString();
 		try {
-			URI uri = new URI(destination + file.getFileId());
+			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();
 		} catch (URISyntaxException e) {
-			logger.debug("unable to coerce " + destination + file.getFileId() + " to URI");
+			logger.warn("unable to coerce " + file_uri + " to URI");
 			throw new GridUnresolvableHostException();
 		} catch (MalformedURLException e) {
-			logger.debug("unable to coerce " + destination + file.getFileId() + " to URL");
+			logger.warn("unable to coerce " + file_uri + " to URL");
 			throw new GridUnresolvableHostException();
 		} finally {
 			
@@ -99,6 +110,16 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 	
 	public LocalMappedRoundRobinFileUrlResolver(Map<String,List<String>> hostMap) {
 		this.hostMap = new HashMap<String,List<String>>(hostMap);
+	}
+
+	@Override
+	public URL getURL(FileGroup group) throws GridUnresolvableHostException {
+		Set<FileHandle> fileHandles = group.getFileHandles();
+		if (fileHandles.size() == 1) {
+			return getURL(fileHandles.iterator().next());
+		}
+		// TODO: Implement concatenation and zipping up of multi-handle file groups
+		return null;
 	}
 
 }

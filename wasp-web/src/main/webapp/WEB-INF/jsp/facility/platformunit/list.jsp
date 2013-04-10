@@ -19,7 +19,6 @@
 	}
 </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 
 
 <script type="text/javascript">
@@ -124,14 +123,14 @@ $(document).ready(function() {
 				}
 			});
 
-	jQuery("#grid_id").jqGrid('setColProp', 'readlength',
+	jQuery("#grid_id").jqGrid('setColProp', 'readLength',
 			{
 				search:true,
 				sopt:['eq'],
 				//searchrules:{integer:true} //won't work in filterToolbar, just a search dialog box 
 			});
 
-	jQuery("#grid_id").jqGrid('setColProp', 'lanecount',
+	jQuery("#grid_id").jqGrid('setColProp', 'cellcount',
 			{
 				search:true,
 				sopt:['eq'],
@@ -145,7 +144,7 @@ $(document).ready(function() {
 				//searchrules:{date:true}, //won't work in filterToolbar, just a search dialog box 
 				searchoptions: {
 					dataInit: function(elem) {	
-						jQuery(elem).datepicker();
+						jQuery(elem).datepicker({ dateFormat: "yy/mm/dd" });
 					}
 				}
 			});
@@ -153,20 +152,20 @@ $(document).ready(function() {
 	//function to validate the user-entered data 
 	validate = function(){
 
-		var readlength = $('#gs_readlength').val();
-		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 
-		var lanecount = $('#gs_lanecount').val();
-		lanecount = lanecount.replace(/^\s+|\s+$/g,'');//trim 
+		var readLength = $('#gs_readLength').val();
+		readLength = readLength.replace(/^\s+|\s+$/g,'');//trim 
+		var cellcount = $('#gs_cellcount').val();
+		cellcount = cellcount.replace(/^\s+|\s+$/g,'');//trim 
 		var numberFormat=new RegExp("^[0-9]+$");
-		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
-			if(!numberFormat.test(readlength)){
+		if(typeof(readLength) !== 'undefined' && readLength != null && readLength.length>0){
+			if(!numberFormat.test(readLength)){
 				alert("<fmt:message key="grid.readLengthInteger.label" />");
 				return true;//do not perform search 
 			}
 		}
-		if(typeof(lanecount) !== 'undefined' && lanecount != null && lanecount.length>0){
-			if(!numberFormat.test(lanecount)){
-				alert("<fmt:message key="grid.lanesInteger.label" />");
+		if(typeof(cellcount) !== 'undefined' && cellcount != null && cellcount.length>0){
+			if(!numberFormat.test(cellcount)){
+				alert("<fmt:message key="grid.cellsInteger.label" />");
 				return true;//do not perform search 
 			}
 		}
@@ -174,7 +173,7 @@ $(document).ready(function() {
 		var date = $('#gs_date').val();	
 		date = date.replace(/^\s+|\s+$/g,'');//trim 
 		if(typeof(date) !== 'undefined' && date != null && date.length>0){
-			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 			if(!dateFormat.test(date)){
 				alert("<fmt:message key="grid.dateFormat.label" />");
 				return true;//do not perform search 

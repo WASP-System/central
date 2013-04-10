@@ -47,7 +47,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	@Transactional
 	public RunCell getRunCellByRunCellId (final int runCellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("runCellId", runCellId);
+		m.put("id", runCellId);
 
 		List<RunCell> results = this.findByMap(m);
 
@@ -61,7 +61,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 
 
 	/**
-	 * getRunCellByRunIdResourcelaneId(final int runId, final int resourcecellId)
+	 * getRunCellByRunIdResourcecellId(final int runId, final int resourcecellId)
 	 *
 	 * @param final int runId, final int resourcecellId
 	 *
@@ -70,7 +70,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 
 	@Override
 	@Transactional
-	public RunCell getRunCellByRunIdResourcelaneId (final int runId, final int resourcecellId) {
+	public RunCell getRunCellByRunIdResourcecellId (final int runId, final int resourcecellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runId", runId);
 		m.put("resourcecellId", resourcecellId);

@@ -32,12 +32,7 @@ public class RunMeta extends MetaBase {
 	 * 
 	 */
 	private static final long serialVersionUID = 3221677859444192982L;
-	/** 
-	 * runMetaId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer runMetaId;
+	
 
 	/**
 	 * setRunMetaId(Integer runMetaId)
@@ -45,9 +40,9 @@ public class RunMeta extends MetaBase {
 	 * @param runMetaId
 	 *
 	 */
-	
+	@Deprecated
 	public void setRunMetaId (Integer runMetaId) {
-		this.runMetaId = runMetaId;
+		setId(runMetaId);
 	}
 
 	/**
@@ -56,8 +51,9 @@ public class RunMeta extends MetaBase {
 	 * @return runMetaId
 	 *
 	 */
+	@Deprecated
 	public Integer getRunMetaId () {
-		return this.runMetaId;
+		return getId();
 	}
 
 
@@ -111,7 +107,7 @@ public class RunMeta extends MetaBase {
 	 */
 	public void setRun (Run run) {
 		this.run = run;
-		this.runId = run.runId;
+		this.runId = run.getId();
 	}
 
 	/**

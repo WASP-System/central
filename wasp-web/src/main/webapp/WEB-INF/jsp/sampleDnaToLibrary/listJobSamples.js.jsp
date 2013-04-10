@@ -42,10 +42,10 @@ function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 		showButton.style.display = 'block';
 		theForm.style.display = 'none';
 		//reset the select and edit box in case they were altered
-		var selectboxName = "lanesampleid_" + idCounter;
+		var selectboxName = "cellsampleid_" + idCounter;
 		var selectbox = document.getElementById(selectboxName);
 		selectbox.selectedIndex = 0;
-		var editboxPicoName = "libConcInLanePicoM_" + idCounter;
+		var editboxPicoName = "libConcInCellPicoM_" + idCounter;
 		var editboxPico = document.getElementById(editboxPicoName);
 		editboxPico.value = "";
 	}	
@@ -76,24 +76,43 @@ function validate(obj){
 	}
 }
 function validate_submit(obj){
-	if(obj.lanesampleid.value==0){
+	if(obj.cellsampleid.value==0){
 		alert("<fmt:message key="listJobSamples.youMustSelectCell_alert.label" />");
-		obj.lanesampleid.focus();
+		obj.cellsampleid.focus();
 		return false;
 	}
-	if(obj.libConcInLanePicoM.value =="" || obj.libConcInLanePicoM.value.replace(/^\s+|\s+$/g, '') ==""){ //trim from both ends
+	if(obj.libConcInCellPicoM.value =="" || obj.libConcInCellPicoM.value.replace(/^\s+|\s+$/g, '') ==""){ //trim from both ends
 		alert("<fmt:message key="listJobSamples.valFinalConc_alert.label" />");
-		obj.libConcInLanePicoM.value = "";
-		obj.libConcInLanePicoM.focus();
+		obj.libConcInCellPicoM.value = "";
+		obj.libConcInCellPicoM.focus();
 		return false;
 	}
 	
 	var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
-    if (!regExpr.test(obj.libConcInLanePicoM.value)) {
+    if (!regExpr.test(obj.libConcInCellPicoM.value)) {
     	alert("<fmt:message key="listJobSamples.numValFinalConc_alert.label" />");
-		obj.libConcInLanePicoM.focus();
+		obj.libConcInCellPicoM.focus();
 		return false;
     }
+	
+	return true;
+}
+function validateFileUploadForm(thisForm){
+	var fileUpload = thisForm.file_upload;
+	var fileDescription = thisForm.file_description;
+	if(fileUpload.value == ""){
+		alert("<fmt:message key="listJobSamples.file_empty.label"/>");
+		fileUpload.focus();
+		return false;
+	}
+	else if(fileDescription.value == ""){ //fileUpload.value != "" 
+		alert("<fmt:message key="listJobSamples.file_description_missing.label"/>");
+		fileDescription.focus();
+		return false;
+	}
+	var submitButton = thisForm.file_upload_submit_button;
+	submitButton.disabled=true;
+	submitButton.value = "<fmt:message key="listJobSamples.processing.label" />";
 	
 	return true;
 }

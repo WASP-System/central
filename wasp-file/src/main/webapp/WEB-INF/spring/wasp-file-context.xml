@@ -7,13 +7,14 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-	<context:component-scan base-package="edu.yu.einstein.wasp.file.web" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.file.web.controller" />
+	<context:component-scan base-package="edu.yu.einstein.wasp.file.web.service.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.dao.impl" />
 	<context:component-scan base-package="edu.yu.einstein.wasp.service.impl" />
 
 	<!-- core has a dependency on messaging -->
 	<import resource="classpath*:META-INF/spring/batch-integration-common-config.xml" />
-	<import resource="classpath*:security-site-context.xml" />
+	<import resource="classpath*:wasp-site-context.xml" />
 	<import resource="web-persistence-config.xml" />
 
 	<mvc:annotation-driven />
@@ -41,6 +42,15 @@
 			</list>
 		</property>
 	</bean>
+	
+	 <!-- load site specific genome configuration -->
+	  <bean id="localGenomesProperties" class="edu.yu.einstein.wasp.util.OrderedPropertiesFactoryBean">
+	    <property name="locations">
+	      <list>
+	        <value>classpath:/genomes.properties</value>
+	      </list>
+	    </property>
+	  </bean>
 
 	<!-- core has a dependency on email -->
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">

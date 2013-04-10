@@ -47,7 +47,7 @@ public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu
 	@Transactional
 	public LabPending getLabPendingByLabPendingId (final int labPendingId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("labPendingId", labPendingId);
+		m.put("id", labPendingId);
 
 		List<LabPending> results = this.findByMap(m);
 

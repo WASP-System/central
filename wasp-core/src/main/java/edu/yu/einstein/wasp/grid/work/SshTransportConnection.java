@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.grid.work;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	private Session session;
 	
 	// TODO: configure
-	private int execTimeout = 30000;
+	private int execTimeout = 300000; // 5m, VERY generous
 	
 		
 	private String identityFileName;
@@ -64,6 +65,10 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 	private boolean userDirIsRoot = true;
 
 	private Properties localProperties;
+	
+	public Map<String, String> getSettings() {
+		return settings;
+	}
 	
 
 	public SshTransportConnection() {
@@ -118,14 +123,21 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			return;
 		}
 		logger.debug("opening session");
-		session = client.startSession();
+		try {
+			session = client.startSession();
+		} catch (ConnectionException e) {
+			logger.warn("session apparently timed out, attempting to recover: " + e.toString());
+			initClient();
+			session = client.startSession();
+		}
 	}
 	
 	private void closeSession() throws TransportException, ConnectionException {
-		logger.debug("no session to close");
+		logger.debug("closing session");
 		if (session != null) {
-			logger.debug("closing session");
 			session.close();
+		} else {
+			logger.debug("no session to close");
 		}
 	}
 
@@ -172,7 +184,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
 			command = "cd " + w.remoteWorkingDirectory + " && " + command;
-			command = "source $HOME/.bash_profile && " + command;
+			// command = "source $HOME/.bash_profile && " + command;
 			logger.debug("sending exec: " + command + " at: " + getHostName());
 
 				final Command exec = session.exec(command);
@@ -184,7 +196,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 				logger.debug("sent command");
 				if (exec.getExitStatus() != 0) {
 					logger.error("exec terminated with non-zero exit status: " + command);
-					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitErrorMessage());
+					throw new GridAccessException("exec terminated with non-zero exit status: " + exec.getExitStatus() + " : " + exec.getOutputStream().toString());
 				}
 				session.close();	
 		} catch (Exception e) {
@@ -192,7 +204,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			logger.error("problem sending command");
 			throw new GridAccessException("problem closing session", e);
 		}
-
+		logger.debug("returning result");
 		return (GridResult) result;
 
 	}

@@ -19,7 +19,6 @@
 	}
 </style>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 
 
 <script type="text/javascript">
@@ -165,11 +164,11 @@ $(document).ready(function() {
 			}
 		}
 /*
-		var readlength = $('#gs_readlength').val();
-		readlength = readlength.replace(/^\s+|\s+$/g,'');//trim 
+		var readLength = $('#gs_readLength').val();
+		readLength = readLength.replace(/^\s+|\s+$/g,'');//trim 
 		var numberFormat=new RegExp("^[0-9]+$");
-		if(typeof(readlength) !== 'undefined' && readlength != null && readlength.length>0){
-			if(!numberFormat.test(readlength)){
+		if(typeof(readLength) !== 'undefined' && readLength != null && readLength.length>0){
+			if(!numberFormat.test(readLength)){
 				alert("Readlength must be an integer");
 				return true;//do not perform search 
 			}
@@ -178,7 +177,7 @@ $(document).ready(function() {
 		var dateRunStarted = $('#gs_dateRunStarted').val();	
 		dateRunStarted = dateRunStarted.replace(/^\s+|\s+$/g,'');//trim 
 		if(typeof(dateRunStarted) !== 'undefined' && dateRunStarted != null && dateRunStarted.length>0){
-			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 			if(!dateFormat.test(dateRunStarted)){
 				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
 				return true;//do not perform search 
@@ -187,9 +186,9 @@ $(document).ready(function() {
 		var dateRunEnded = $('#gs_dateRunEnded').val();	
 		dateRunEnded = dateRunEnded.replace(/^\s+|\s+$/g,'');//trim 
 		if(typeof(dateRunEnded) !== 'undefined' && dateRunEnded != null && dateRunEnded.length>0){
-			var dateFormat=new RegExp("^[0-1][0-9]/[0-3][0-9]/[1-2][0-9][0-9][0-9]$");
+			var dateFormat=new RegExp("^[1-2][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]$");
 			if(!dateFormat.test(dateRunEnded)){
-				alert("Required date format: MM/DD/YYYY. It is best to use calendar to select date.");
+				alert("Required date format: YYYY/MM/DD. It is best to use calendar to select date.");
 				return true;//do not perform search 
 			}
 		}

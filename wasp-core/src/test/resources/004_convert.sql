@@ -5837,7 +5837,7 @@
     insert into user
     (userid, login, password, email, firstname, lastname, isactive)
     values
-    (199, 'cspillane', '', 'charles.spillane@nuigalway.ie', 'Charles', 'Spillane', 1);
+    (199, 'cspilcell', '', 'charles.spilcell@nuigalway.ie', 'Charles', 'Spilcell', 1);
   
       insert into usermeta
       (userid, k, v, position)
@@ -14537,7 +14537,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.contact_name', 'Prof.Charles Spillane', 1);
+      (108, 'lab.billing.contact_name', 'Prof.Charles Spilcell', 1);
     
       insert into labmeta
       (labid, k, v, position)
@@ -14572,7 +14572,7 @@
       insert into labmeta
       (labid, k, v, position)
       values
-      (108, 'lab.billing.email', 'charles.spillane@nuigalway.ie', 8);
+      (108, 'lab.billing.email', 'charles.spilcell@nuigalway.ie', 8);
     
       insert into labmeta
       (labid, k, v, position)
@@ -16750,7 +16750,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10001, 'job.number_of_lanes', '2', 5);
+      (10001, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -16815,7 +16815,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10002, 'job.number_of_lanes', '7', 5);
+      (10002, 'job.number_of_cells', '7', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -16885,7 +16885,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10003, 'job.number_of_lanes', '2', 6);
+      (10003, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -16950,7 +16950,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10004, 'job.number_of_lanes', '2', 5);
+      (10004, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17015,7 +17015,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10005, 'job.number_of_lanes', '2', 5);
+      (10005, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17075,7 +17075,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10006, 'job.number_of_lanes', '2', 5);
+      (10006, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17140,7 +17140,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10007, 'job.number_of_lanes', '2', 5);
+      (10007, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17210,7 +17210,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10008, 'job.number_of_lanes', '1', 6);
+      (10008, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17280,7 +17280,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10009, 'job.number_of_lanes', '4', 6);
+      (10009, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17350,7 +17350,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10010, 'job.number_of_lanes', '3', 6);
+      (10010, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17420,7 +17420,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10011, 'job.number_of_lanes', '4', 6);
+      (10011, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17485,7 +17485,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10012, 'job.number_of_lanes', '2', 5);
+      (10012, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17545,7 +17545,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10013, 'job.number_of_lanes', '8', 6);
+      (10013, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17605,7 +17605,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10014, 'job.number_of_lanes', '1', 5);
+      (10014, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17660,7 +17660,7 @@ where
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10015, 'job.number_of_lanes', '2', 5);
+      (10015, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17739,7 +17739,7 @@ Masako
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10016, 'job.number_of_lanes', '4', 6);
+      (10016, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17810,7 +17810,7 @@ Masako
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10017, 'job.number_of_lanes', '1', 6);
+      (10017, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17865,7 +17865,7 @@ Masako
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10018, 'job.number_of_lanes', '1', 5);
+      (10018, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17920,7 +17920,7 @@ Masako
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10019, 'job.number_of_lanes', '1', 5);
+      (10019, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -17975,7 +17975,7 @@ Masako
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10020, 'job.number_of_lanes', '1', 5);
+      (10020, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18038,7 +18038,7 @@ Sample N: E1183 Ne', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10021, 'job.number_of_lanes', '2', 6);
+      (10021, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18103,7 +18103,7 @@ Sample N: E1183 Ne', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10022, 'job.number_of_lanes', '1', 6);
+      (10022, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18170,7 +18170,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10023, 'job.number_of_lanes', '2', 6);
+      (10023, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18236,7 +18236,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10024, 'job.number_of_lanes', '2', 6);
+      (10024, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18301,7 +18301,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10025, 'job.number_of_lanes', '1', 6);
+      (10025, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18366,7 +18366,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10026, 'job.number_of_lanes', '1', 6);
+      (10026, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18421,7 +18421,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10027, 'job.comments', 'Please see the first two lane in gel picture for Sample Jeko and Mino.', 4);
+      (10027, 'job.comments', 'Please see the first two cell in gel picture for Sample Jeko and Mino.', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18431,7 +18431,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10027, 'job.number_of_lanes', '2', 6);
+      (10027, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18496,7 +18496,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10028, 'job.number_of_lanes', '4', 6);
+      (10028, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18565,7 +18565,7 @@ For Msp sample, i just want to know if you can sequence this sample in your sequ
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10029, 'job.number_of_lanes', '2', 6);
+      (10029, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18630,7 +18630,7 @@ For Msp sample, i just want to know if you can sequence this sample in your sequ
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10030, 'job.number_of_lanes', '3', 5);
+      (10030, 'job.number_of_cells', '3', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18690,7 +18690,7 @@ For Msp sample, i just want to know if you can sequence this sample in your sequ
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10031, 'job.number_of_lanes', '2', 5);
+      (10031, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18756,7 +18756,7 @@ Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10032, 'job.number_of_lanes', '7', 6);
+      (10032, 'job.number_of_cells', '7', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18816,7 +18816,7 @@ Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10033, 'job.number_of_lanes', '4', 5);
+      (10033, 'job.number_of_cells', '4', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18881,7 +18881,7 @@ Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10034, 'job.number_of_lanes', '1', 6);
+      (10034, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -18946,7 +18946,7 @@ Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10035, 'job.number_of_lanes', '5', 6);
+      (10035, 'job.number_of_cells', '5', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19002,7 +19002,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10036, 'job.number_of_lanes', '10', 6);
+      (10036, 'job.number_of_cells', '10', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19057,7 +19057,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10037, 'job.number_of_lanes', '8', 6);
+      (10037, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19107,7 +19107,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10038, 'job.number_of_lanes', '2', 5);
+      (10038, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19167,7 +19167,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10039, 'job.number_of_lanes', '2', 5);
+      (10039, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19232,7 +19232,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10040, 'job.number_of_lanes', '5', 6);
+      (10040, 'job.number_of_cells', '5', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19297,7 +19297,7 @@ Any questions or uncertainty please call.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10041, 'job.number_of_lanes', '10', 6);
+      (10041, 'job.number_of_cells', '10', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19354,7 +19354,7 @@ note: data analysis, specifically the MspI reference, will need to be customized
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10042, 'job.number_of_lanes', '18', 6);
+      (10042, 'job.number_of_cells', '18', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19414,7 +19414,7 @@ note: data analysis, specifically the MspI reference, will need to be customized
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10043, 'job.number_of_lanes', '2', 5);
+      (10043, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19464,7 +19464,7 @@ note: data analysis, specifically the MspI reference, will need to be customized
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10044, 'job.number_of_lanes', '2', 5);
+      (10044, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19514,7 +19514,7 @@ note: data analysis, specifically the MspI reference, will need to be customized
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10045, 'job.number_of_lanes', '2', 5);
+      (10045, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19569,7 +19569,7 @@ note: data analysis, specifically the MspI reference, will need to be customized
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10046, 'job.number_of_lanes', '4', 6);
+      (10046, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19627,7 +19627,7 @@ Also the qPCRs for enrichments and electrophoresis of the libraries are performe
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10047, 'job.number_of_lanes', '2', 6);
+      (10047, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19692,7 +19692,7 @@ Also the qPCRs for enrichments and electrophoresis of the libraries are performe
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10048, 'job.number_of_lanes', '4', 6);
+      (10048, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19749,7 +19749,7 @@ Could you run the sample with bioanalyzer, Please?', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10049, 'job.number_of_lanes', '6', 6);
+      (10049, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19817,7 +19817,7 @@ I did an email to Shahina regarding this sequencing.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10050, 'job.number_of_lanes', '1', 6);
+      (10050, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19878,7 +19878,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10051, 'job.number_of_lanes', '1', 6);
+      (10051, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -19943,7 +19943,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10052, 'job.number_of_lanes', '2', 6);
+      (10052, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20003,7 +20003,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10053, 'job.number_of_lanes', '1', 5);
+      (10053, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20063,7 +20063,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10054, 'job.number_of_lanes', '1', 5);
+      (10054, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20113,7 +20113,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10055, 'job.number_of_lanes', '56', 6);
+      (10055, 'job.number_of_cells', '56', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20178,7 +20178,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10056, 'job.number_of_lanes', '2', 6);
+      (10056, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20243,7 +20243,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10057, 'job.number_of_lanes', '2', 6);
+      (10057, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20308,7 +20308,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10058, 'job.number_of_lanes', '1', 6);
+      (10058, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20373,7 +20373,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10059, 'job.number_of_lanes', '1', 6);
+      (10059, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20433,7 +20433,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10060, 'job.number_of_lanes', '1', 6);
+      (10060, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20498,7 +20498,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10061, 'job.number_of_lanes', '1', 6);
+      (10061, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20558,7 +20558,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10062, 'job.number_of_lanes', '1', 6);
+      (10062, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20625,7 +20625,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10063, 'job.number_of_lanes', '4', 6);
+      (10063, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20690,7 +20690,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10064, 'job.number_of_lanes', '6', 6);
+      (10064, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20755,7 +20755,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10065, 'job.number_of_lanes', '4', 6);
+      (10065, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20820,7 +20820,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10066, 'job.number_of_lanes', '1', 6);
+      (10066, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20885,7 +20885,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10067, 'job.number_of_lanes', '1', 6);
+      (10067, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -20950,7 +20950,7 @@ After Help library preparation, i had two bands (120 and 80 bp), so Masako sugge
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10068, 'job.number_of_lanes', '12', 6);
+      (10068, 'job.number_of_cells', '12', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21016,7 +21016,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10069, 'job.number_of_lanes', '4', 6);
+      (10069, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21076,7 +21076,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10070, 'job.number_of_lanes', '1', 6);
+      (10070, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21141,7 +21141,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10071, 'job.number_of_lanes', '1', 6);
+      (10071, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21196,7 +21196,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10072, 'job.number_of_lanes', '4', 6);
+      (10072, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21261,7 +21261,7 @@ R.Dubin: manually set job to completed as per Shahina (11-4-10)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10073, 'job.number_of_lanes', '1', 6);
+      (10073, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21324,7 +21324,7 @@ We used homemade multiplexing adapter sequence that epigenome facility made.
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10074, 'job.number_of_lanes', '1', 6);
+      (10074, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21381,7 +21381,7 @@ Please test DNA conc by bioanalyzer ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10075, 'job.number_of_lanes', '14', 6);
+      (10075, 'job.number_of_cells', '14', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21456,7 +21456,7 @@ Please test DNA conc by bioanalyzer ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10076, 'job.number_of_lanes', '2', 6);
+      (10076, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21511,7 +21511,7 @@ Please test DNA conc by bioanalyzer ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10077, 'job.number_of_lanes', '2', 6);
+      (10077, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21581,7 +21581,7 @@ Please test DNA conc by bioanalyzer ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10078, 'job.number_of_lanes', '2', 6);
+      (10078, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21647,7 +21647,7 @@ Please test DNA conc by bioanalyzer ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10079, 'job.number_of_lanes', '1', 6);
+      (10079, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21714,7 +21714,7 @@ Will update grant number shortly. ', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10080, 'job.number_of_lanes', '1', 6);
+      (10080, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21784,7 +21784,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10081, 'job.number_of_lanes', '1', 6);
+      (10081, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21849,7 +21849,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10082, 'job.number_of_lanes', '7', 6);
+      (10082, 'job.number_of_cells', '7', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21914,7 +21914,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10083, 'job.number_of_lanes', '1', 6);
+      (10083, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -21979,7 +21979,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10084, 'job.number_of_lanes', '4', 6);
+      (10084, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22044,7 +22044,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10085, 'job.number_of_lanes', '2', 6);
+      (10085, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22109,7 +22109,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10086, 'job.number_of_lanes', '2', 5);
+      (10086, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22164,7 +22164,7 @@ Thanks,', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10087, 'job.number_of_lanes', '4', 6);
+      (10087, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22232,7 +22232,7 @@ E14-B30 E1658', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10088, 'job.number_of_lanes', '4', 6);
+      (10088, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22297,7 +22297,7 @@ E14-B30 E1658', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10089, 'job.number_of_lanes', '4', 6);
+      (10089, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22362,7 +22362,7 @@ E14-B30 E1658', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10090, 'job.number_of_lanes', '2', 6);
+      (10090, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22439,7 +22439,7 @@ SHAHINA: No new library prep or sequencing or charging is required for this job'
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10091, 'job.number_of_lanes', '2', 6);
+      (10091, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22509,7 +22509,7 @@ SHAHINA: No new library prep or sequencing or charging is required for this job'
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10092, 'job.number_of_lanes', '8', 6);
+      (10092, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22571,7 +22571,7 @@ The samples in the gel are 6_control, 12_control, 14_non _tumor and 14_tumor', 4
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10093, 'job.number_of_lanes', '4', 6);
+      (10093, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22636,7 +22636,7 @@ The samples in the gel are 6_control, 12_control, 14_non _tumor and 14_tumor', 4
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10094, 'job.number_of_lanes', '1', 6);
+      (10094, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22692,7 +22692,7 @@ The samples in the gel are 6_control, 12_control, 14_non _tumor and 14_tumor', 4
       (jobid, k, v, position)
       values
       (10095, 'job.comments', 'Please use high-seq for this run.
-It will be 4 HELP-tagging samples in 1 lane.
+It will be 4 HELP-tagging samples in 1 cell.
 
 Those have new HELP-tagging indexing that Brent designed. 
 M1:index1 M2:index2 M3:index3 H4:index4
@@ -22710,7 +22710,7 @@ For the analysis, please combine three MspI reads as my reference.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10095, 'job.number_of_lanes', '1', 6);
+      (10095, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22776,7 +22776,7 @@ Added by Dubin 12-14-10 INFO TAKEN FROM AN EMAIL FROM SHAHINA: Nor is HELP TAG i
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10096, 'job.number_of_lanes', '1', 6);
+      (10096, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22841,7 +22841,7 @@ Added by Dubin 12-14-10 INFO TAKEN FROM AN EMAIL FROM SHAHINA: Nor is HELP TAG i
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10097, 'job.number_of_lanes', '3', 6);
+      (10097, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22906,7 +22906,7 @@ Added by Dubin 12-14-10 INFO TAKEN FROM AN EMAIL FROM SHAHINA: Nor is HELP TAG i
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10098, 'job.number_of_lanes', '6', 6);
+      (10098, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -22987,7 +22987,7 @@ If we click yes for multi-plexing, it shows error message saying the material ca
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10099, 'job.number_of_lanes', '4', 6);
+      (10099, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23053,7 +23053,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10100, 'job.number_of_lanes', '1', 6);
+      (10100, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23123,7 +23123,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10101, 'job.number_of_lanes', '2', 6);
+      (10101, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23188,7 +23188,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10102, 'job.number_of_lanes', '2', 6);
+      (10102, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23253,7 +23253,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10103, 'job.number_of_lanes', '9', 6);
+      (10103, 'job.number_of_cells', '9', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23318,7 +23318,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10104, 'job.number_of_lanes', '1', 6);
+      (10104, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23388,7 +23388,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10105, 'job.number_of_lanes', '7', 6);
+      (10105, 'job.number_of_cells', '7', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23448,7 +23448,7 @@ Amount is 20 micrograms', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10106, 'job.number_of_lanes', '14', 5);
+      (10106, 'job.number_of_cells', '14', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23508,7 +23508,7 @@ previously named 4 is now  named AIDKO2 (and created with index 4)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10107, 'job.number_of_lanes', '1', 6);
+      (10107, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23591,7 +23591,7 @@ Index 4 (GTCATGA) adapter sequences PE Adapter F
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10108, 'job.number_of_lanes', '1', 6);
+      (10108, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23641,7 +23641,7 @@ Index 4 (GTCATGA) adapter sequences PE Adapter F
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10109, 'job.number_of_lanes', '6', 6);
+      (10109, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23706,7 +23706,7 @@ Index 4 (GTCATGA) adapter sequences PE Adapter F
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10110, 'job.number_of_lanes', '8', 6);
+      (10110, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23766,7 +23766,7 @@ Index 4 (GTCATGA) adapter sequences PE Adapter F
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10111, 'job.number_of_lanes', '6', 6);
+      (10111, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23837,7 +23837,7 @@ It will then be processed through WASP when I return from vacation. Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10112, 'job.number_of_lanes', '2', 6);
+      (10112, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23902,7 +23902,7 @@ It will then be processed through WASP when I return from vacation. Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10113, 'job.number_of_lanes', '4', 5);
+      (10113, 'job.number_of_cells', '4', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -23962,7 +23962,7 @@ It will then be processed through WASP when I return from vacation. Thanks', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10114, 'job.number_of_lanes', '3', 5);
+      (10114, 'job.number_of_cells', '3', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24025,9 +24025,9 @@ Index 3 (CGGTACA) : Samples "B2 MG" and "11 MG"
 
 Index 4 (GTCATGA) : Samples "B1 MG" and "12 MG"
 
-Multiplex samples "2 MG", "11 MG", "C1 MG", "B1 MG" in lane 1
+Multiplex samples "2 MG", "11 MG", "C1 MG", "B1 MG" in cell 1
 
-Multiplex samples "3 MG", "12 MG", "C2 MG", "B2 MG" in lane 2', 4);
+Multiplex samples "3 MG", "12 MG", "C2 MG", "B2 MG" in cell 2', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24037,7 +24037,7 @@ Multiplex samples "3 MG", "12 MG", "C2 MG", "B2 MG" in lane 2', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10115, 'job.number_of_lanes', '2', 6);
+      (10115, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24087,7 +24087,7 @@ Multiplex samples "3 MG", "12 MG", "C2 MG", "B2 MG" in lane 2', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10116, 'job.number_of_lanes', '2', 6);
+      (10116, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24150,7 +24150,7 @@ Index 4 (GTCATGA) Samples "B1 MG" and "12 MG"', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10117, 'job.number_of_lanes', '2', 6);
+      (10117, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24205,7 +24205,7 @@ Index 4 (GTCATGA) Samples "B1 MG" and "12 MG"', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10118, 'job.number_of_lanes', '2', 5);
+      (10118, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24265,7 +24265,7 @@ Index 4 (GTCATGA) Samples "B1 MG" and "12 MG"', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10119, 'job.number_of_lanes', '3', 5);
+      (10119, 'job.number_of_cells', '3', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24337,7 +24337,7 @@ Thank you', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10120, 'job.number_of_lanes', '1', 6);
+      (10120, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24408,7 +24408,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10121, 'job.number_of_lanes', '3', 6);
+      (10121, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24463,7 +24463,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10122, 'job.number_of_lanes', '7', 6);
+      (10122, 'job.number_of_cells', '7', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24518,7 +24518,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10123, 'job.number_of_lanes', '8', 4);
+      (10123, 'job.number_of_cells', '8', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24573,7 +24573,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10124, 'job.number_of_lanes', '8', 6);
+      (10124, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24628,10 +24628,10 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10125, 'job.comments', '- We are submitting two lanes for multiplexing.
-- First lane (Index No.1 :2217, Index No.2 : 6217, Index No.3 : 6503, Index No.4 : 6959)
-  Second lane (Index No.1 :2217-CP, Index No.2 : 6217-CP, Index No.3 : 6503-CP, Index No.4 : 6959-CP)
-- We submitted sample No.1 through No.4 separately to Epigenomics facility for multiplexing in one lane.
+      (10125, 'job.comments', '- We are submitting two cells for multiplexing.
+- First cell (Index No.1 :2217, Index No.2 : 6217, Index No.3 : 6503, Index No.4 : 6959)
+  Second cell (Index No.1 :2217-CP, Index No.2 : 6217-CP, Index No.3 : 6503-CP, Index No.4 : 6959-CP)
+- We submitted sample No.1 through No.4 separately to Epigenomics facility for multiplexing in one cell.
 - We submitted sample No.5 through No.8 in one tube to Epigenomics facility which was already a mixture of 4 independent barcoded sample.
 - Index 1~4 are from Epigenomics facility.', 4);
     
@@ -24643,7 +24643,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10125, 'job.number_of_lanes', '2', 6);
+      (10125, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24703,7 +24703,7 @@ Also please include in the HI-seq machine as fold coverage is crucial in this pi
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10126, 'job.number_of_lanes', '2', 5);
+      (10126, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24772,7 +24772,7 @@ Please let me know by doing email to sahax006@umn.edu if there is any issue abou
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10127, 'job.number_of_lanes', '3', 6);
+      (10127, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24822,7 +24822,7 @@ Please let me know by doing email to sahax006@umn.edu if there is any issue abou
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10128, 'job.number_of_lanes', '3', 5);
+      (10128, 'job.number_of_cells', '3', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24887,7 +24887,7 @@ Please let me know by doing email to sahax006@umn.edu if there is any issue abou
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10129, 'job.number_of_lanes', '2', 6);
+      (10129, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -24942,7 +24942,7 @@ Please let me know by doing email to sahax006@umn.edu if there is any issue abou
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10130, 'job.number_of_lanes', '8', 6);
+      (10130, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25012,7 +25012,7 @@ Index 4 (GTCATGA)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10131, 'job.number_of_lanes', '2', 6);
+      (10131, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25087,7 +25087,7 @@ Index 5 (TCGATTC)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10132, 'job.number_of_lanes', '1', 6);
+      (10132, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25152,7 +25152,7 @@ Index 5 (TCGATTC)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10133, 'job.number_of_lanes', '12', 6);
+      (10133, 'job.number_of_cells', '12', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25213,7 +25213,7 @@ Only the data should be processed for HELP tag.Please talk to Shahina if there i
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10134, 'job.number_of_lanes', '1', 6);
+      (10134, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25268,7 +25268,7 @@ Only the data should be processed for HELP tag.Please talk to Shahina if there i
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10135, 'job.number_of_lanes', '8', 6);
+      (10135, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25345,7 +25345,7 @@ Aid-8, Bcell-5, Kid-3 and Lung-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10136, 'job.number_of_lanes', '1', 6);
+      (10136, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25412,7 +25412,7 @@ Adipo-1, Buccal Epi-2, Bcell-3 and Kid-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10137, 'job.number_of_lanes', '1', 6);
+      (10137, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25472,7 +25472,7 @@ Adipo-1, Buccal Epi-2, Bcell-3 and Kid-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10138, 'job.number_of_lanes', '2', 5);
+      (10138, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25538,7 +25538,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10139, 'job.number_of_lanes', '1', 6);
+      (10139, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25603,7 +25603,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10140, 'job.number_of_lanes', '14', 6);
+      (10140, 'job.number_of_cells', '14', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25673,7 +25673,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10141, 'job.number_of_lanes', '1', 6);
+      (10141, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25738,7 +25738,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10142, 'job.number_of_lanes', '3', 6);
+      (10142, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25803,7 +25803,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10143, 'job.number_of_lanes', '3', 6);
+      (10143, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25870,7 +25870,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10144, 'job.number_of_lanes', '7', 6);
+      (10144, 'job.number_of_cells', '7', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25932,7 +25932,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10145, 'job.number_of_lanes', '8', 6);
+      (10145, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -25997,7 +25997,7 @@ E14_10-Index8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10146, 'job.number_of_lanes', '2', 6);
+      (10146, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26065,7 +26065,7 @@ Index 4 (GTCATGA)', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10147, 'job.number_of_lanes', '3', 6);
+      (10147, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26133,7 +26133,7 @@ This samples need bioanalyzer first. thank you.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10148, 'job.number_of_lanes', '8', 6);
+      (10148, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26188,13 +26188,13 @@ This samples need bioanalyzer first. thank you.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10149, 'job.comments', 'Every sample has to be adjusted by real time PCR since it is multiplexing (except lane 2).
-- 1-2217, 1-6217, 1-6503, 1-6959, 1-910, 1-4797, 1-12878, 1-19240 total 8 samples will be run in one lane. (8 multiplexing) 
+      (10149, 'job.comments', 'Every sample has to be adjusted by real time PCR since it is multiplexing (except cell 2).
+- 1-2217, 1-6217, 1-6503, 1-6959, 1-910, 1-4797, 1-12878, 1-19240 total 8 samples will be run in one cell. (8 multiplexing) 
 We used Epigenomic Facility made adapters. Adapter numbers we used are 2217 is 1, 6217 is 2, 6503 is 3, 6959 is 4, 910 is 5, 4797 is 6, 12878 is 7, 19240 is 8.
-- 8 pooing mix is pre-mixed multiplexing sample. it contains same 8 samples with above. this will be run in second lane.
-- 3-2217, 3-6217, 3-6503, 3-6959, 3-910, 3-4797, 3-12878, 3-19240 total 8 samples will be run in one lane. (8 multiplexing) 
+- 8 pooing mix is pre-mixed multiplexing sample. it contains same 8 samples with above. this will be run in second cell.
+- 3-2217, 3-6217, 3-6503, 3-6959, 3-910, 3-4797, 3-12878, 3-19240 total 8 samples will be run in one cell. (8 multiplexing) 
 We used Epigenomic Facility made adapters. Adapter numbers we used are 2217 is 1, 6217 is 2, 6503 is 3, 6959 is 4, 910 is 5, 4797 is 6, 12878 is 7, 19240 is 8.
-3/31/2011 Done by Dubin: Added entries for samples and libraries for 8 pooling mix 2, 3, 4, 5, 6, 7, 8. Also retnamed 8 pooling mix to 8 pooling mix 1. This was to permit Shahina to add these separated to a lane of a flow cell, with their own index. This was necessary since original sample 8 pooling mix was a single sample that had 8 samples already pooled into it, each with their own index.', 4);
+3/31/2011 Done by Dubin: Added entries for samples and libraries for 8 pooling mix 2, 3, 4, 5, 6, 7, 8. Also retnamed 8 pooling mix to 8 pooling mix 1. This was to permit Shahina to add these separated to a cell of a flow cell, with their own index. This was necessary since original sample 8 pooling mix was a single sample that had 8 samples already pooled into it, each with their own index.', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26204,7 +26204,7 @@ We used Epigenomic Facility made adapters. Adapter numbers we used are 2217 is 1
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10149, 'job.number_of_lanes', '3', 6);
+      (10149, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26274,7 +26274,7 @@ We used Epigenomic Facility made adapters. Adapter numbers we used are 2217 is 1
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10150, 'job.number_of_lanes', '8', 6);
+      (10150, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26329,7 +26329,7 @@ We used Epigenomic Facility made adapters. Adapter numbers we used are 2217 is 1
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10151, 'job.number_of_lanes', '2', 5);
+      (10151, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26390,7 +26390,7 @@ Amt and Concentration not to scale.', 3);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10152, 'job.number_of_lanes', '4', 5);
+      (10152, 'job.number_of_cells', '4', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26439,7 +26439,7 @@ Amt and Concentration not to scale.', 3);
 I generated the library with Tru-seq adapter and tru-seq primer. Please use sequencing primer for Tru-seq kit. Since we don''t have adapter without index, I used Tru-seq adapter-2, -4, -5 and -6. However, I would like to have data as a single sample. 
 
 Size ranging is 190-300 bp with adapter. 
-After the first round analysis, we are planing to increase the number of lane. 
+After the first round analysis, we are planing to increase the number of cell. 
 
 If you need more information, please contact me.
 
@@ -26461,7 +26461,7 @@ Shahina informed me that run 110412_SN395_0148_B81NFVABXX has few clustes for Ma
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10153, 'job.number_of_lanes', '1', 6);
+      (10153, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26526,7 +26526,7 @@ Shahina informed me that run 110412_SN395_0148_B81NFVABXX has few clustes for Ma
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10154, 'job.number_of_lanes', '2', 6);
+      (10154, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26591,7 +26591,7 @@ Shahina informed me that run 110412_SN395_0148_B81NFVABXX has few clustes for Ma
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10155, 'job.number_of_lanes', '14', 6);
+      (10155, 'job.number_of_cells', '14', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26647,7 +26647,7 @@ Shahina informed me that run 110412_SN395_0148_B81NFVABXX has few clustes for Ma
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10156, 'job.number_of_lanes', '10', 6);
+      (10156, 'job.number_of_cells', '10', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26796,7 +26796,7 @@ HT Adapter R 5''- pTGTGACTAGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10157, 'job.number_of_lanes', '2', 6);
+      (10157, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26861,7 +26861,7 @@ HT Adapter R 5''- pTGTGACTAGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10158, 'job.number_of_lanes', '1', 5);
+      (10158, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26933,7 +26933,7 @@ A20-AS7, A21-AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10159, 'job.number_of_lanes', '1', 6);
+      (10159, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -26988,7 +26988,7 @@ A20-AS7, A21-AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10160, 'job.number_of_lanes', '4', 4);
+      (10160, 'job.number_of_cells', '4', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27045,7 +27045,7 @@ A20-AS7, A21-AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10161, 'job.number_of_lanes', '3', 6);
+      (10161, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27120,7 +27120,7 @@ Index4: Lung', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10162, 'job.number_of_lanes', '1', 6);
+      (10162, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27193,7 +27193,7 @@ GENOMIC PE DNA: 5'' AGATCGGAAGAGCGGTTCAGC 3''
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10163, 'job.number_of_lanes', '1', 6);
+      (10163, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27248,7 +27248,7 @@ GENOMIC PE DNA: 5'' AGATCGGAAGAGCGGTTCAGC 3''
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10164, 'job.comments', 'Please multiplex all samples in one lane.
+      (10164, 'job.comments', 'Please multiplex all samples in one cell.
 Note that for Hif1a we do not have a primer set for enrichment.', 4);
     
       insert into jobmeta
@@ -27259,7 +27259,7 @@ Note that for Hif1a we do not have a primer set for enrichment.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10164, 'job.number_of_lanes', '1', 6);
+      (10164, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27411,7 +27411,7 @@ HT Adapter R 5''- pCGTCATAAGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10165, 'job.number_of_lanes', '2', 6);
+      (10165, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27482,7 +27482,7 @@ MEN1102-Index-1,MEN1107-Index-2, MEN1112-Index-3, MEN1126-Index-4, MEN1213-Index
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10166, 'job.number_of_lanes', '1', 6);
+      (10166, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27547,7 +27547,7 @@ MEN1102-Index-1,MEN1107-Index-2, MEN1112-Index-3, MEN1126-Index-4, MEN1213-Index
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10167, 'job.number_of_lanes', '1', 6);
+      (10167, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27611,7 +27611,7 @@ OS295M3 -ASa4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10168, 'job.number_of_lanes', '1', 6);
+      (10168, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27683,7 +27683,7 @@ Normal208-Index1, Normal 350-Index2, Adenoma 15-Index3, Adenoma 56-Index4, Adeno
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10169, 'job.number_of_lanes', '2', 6);
+      (10169, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27741,9 +27741,9 @@ Normal208-Index1, Normal 350-Index2, Adenoma 15-Index3, Adenoma 56-Index4, Adeno
       (10170, 'job.comments', 'MSP C2.1 and MspI C2.2 are the same samples which will be sequenced twice. 
 MspI C3.1 and MspI C3.2 are the same samples which will be sequenced twice. In both cases, there is a total volume of 11.5ul (so 5.75ul for duplicates). This makes up for 10 samples to be sequenced from the 8 samples provided. 
 
-Lane 1: MspI C2.1 (ASa1); MspI C3.1 (ASa2); HpaII C1 (ASa3); HpaII Il-6 (C2)(ASa4); HpaII C3 (ASa6).
+Cell 1: MspI C2.1 (ASa1); MspI C3.1 (ASa2); HpaII C1 (ASa3); HpaII Il-6 (C2)(ASa4); HpaII C3 (ASa6).
 
-Lane 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa4); HpaII Il-6 (C3) (ASa6).', 4);
+Cell 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa4); HpaII Il-6 (C3) (ASa6).', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27753,7 +27753,7 @@ Lane 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10170, 'job.number_of_lanes', '2', 6);
+      (10170, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27818,7 +27818,7 @@ Lane 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10171, 'job.number_of_lanes', '2', 5);
+      (10171, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27875,7 +27875,7 @@ Lane 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10172, 'job.number_of_lanes', '4', 6);
+      (10172, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -27941,7 +27941,7 @@ Lane 2: MspI C2.2 (ASa1); MspIC3.2 (ASa2); HpaII Il-6 (C1) (ASa3); HpaII C2 (ASa
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10173, 'job.number_of_lanes', '5', 6);
+      (10173, 'job.number_of_cells', '5', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28014,7 +28014,7 @@ Talked to Shahina about the submission when gave the samples to her.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10174, 'job.number_of_lanes', '5', 6);
+      (10174, 'job.number_of_cells', '5', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28069,7 +28069,7 @@ Talked to Shahina about the submission when gave the samples to her.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10175, 'job.comments', 'Changed by Dubin (4-12-11) from De Novo Seq to SEQ Capture, following discussion with Shahina. Also, changed from 3 to 2 lanes for the multiplexing of the 12 samples (now 6 samples per lane). Finally, added seq capture method as: Nimblegen easy capture (liquid based).', 4);
+      (10175, 'job.comments', 'Changed by Dubin (4-12-11) from De Novo Seq to SEQ Capture, following discussion with Shahina. Also, changed from 3 to 2 cells for the multiplexing of the 12 samples (now 6 samples per cell). Finally, added seq capture method as: Nimblegen easy capture (liquid based).', 4);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28079,7 +28079,7 @@ Talked to Shahina about the submission when gave the samples to her.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10175, 'job.number_of_lanes', '2', 6);
+      (10175, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28144,7 +28144,7 @@ Talked to Shahina about the submission when gave the samples to her.', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10176, 'job.number_of_lanes', '4', 6);
+      (10176, 'job.number_of_cells', '4', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28228,7 +28228,7 @@ MMK S18            PE-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10177, 'job.number_of_lanes', '3', 6);
+      (10177, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28288,7 +28288,7 @@ MMK S18            PE-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10178, 'job.number_of_lanes', '2', 5);
+      (10178, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28343,7 +28343,7 @@ MMK S18            PE-4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10179, 'job.number_of_lanes', '2', 5);
+      (10179, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28409,7 +28409,7 @@ AS adapter index 5 = 21271', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10180, 'job.number_of_lanes', '1', 6);
+      (10180, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28479,7 +28479,7 @@ AS adapter index 5 = 21271', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10181, 'job.number_of_lanes', '3', 6);
+      (10181, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28558,7 +28558,7 @@ HT Adapter R 5''- pCACAATCAGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10182, 'job.number_of_lanes', '3', 6);
+      (10182, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28630,7 +28630,7 @@ Sample 8, sequence tag is as8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10183, 'job.number_of_lanes', '1', 6);
+      (10183, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28693,7 +28693,7 @@ Hpa Sample 4, sequence tag is as4', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10184, 'job.number_of_lanes', '1', 6);
+      (10184, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28761,7 +28761,7 @@ GENOMIC PE DNA: 5'' AGATCGGAAGAGCGGTTCAGC 3''', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10185, 'job.number_of_lanes', '2', 6);
+      (10185, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28835,7 +28835,7 @@ p53: Index 8
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10186, 'job.number_of_lanes', '1', 6);
+      (10186, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28900,7 +28900,7 @@ p53: Index 8
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10187, 'job.number_of_lanes', '1', 5);
+      (10187, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -28950,7 +28950,7 @@ p53: Index 8
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10188, 'job.number_of_lanes', '2', 5);
+      (10188, 'job.number_of_cells', '2', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29005,7 +29005,7 @@ p53: Index 8
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10189, 'job.number_of_lanes', '1', 6);
+      (10189, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29072,7 +29072,7 @@ AS98', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10190, 'job.number_of_lanes', '3', 6);
+      (10190, 'job.number_of_cells', '3', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29132,7 +29132,7 @@ AS98', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10191, 'job.number_of_lanes', '1', 6);
+      (10191, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29207,7 +29207,7 @@ pLEASE USE 4 SAMPLES PER LANE FOR MULTIPLEXING
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10192, 'job.number_of_lanes', '6', 6);
+      (10192, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29267,7 +29267,7 @@ pLEASE USE 4 SAMPLES PER LANE FOR MULTIPLEXING
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10193, 'job.number_of_lanes', '6', 6);
+      (10193, 'job.number_of_cells', '6', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29317,7 +29317,7 @@ pLEASE USE 4 SAMPLES PER LANE FOR MULTIPLEXING
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10194, 'job.number_of_lanes', '1', 5);
+      (10194, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29386,7 +29386,7 @@ BE_1023: Index6', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10195, 'job.number_of_lanes', '1', 6);
+      (10195, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29451,7 +29451,7 @@ BE_1023: Index6', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10196, 'job.number_of_lanes', '2', 6);
+      (10196, 'job.number_of_cells', '2', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29519,7 +29519,7 @@ Dubin (5/31/11): This job consists of samples that are being rerun, at no cost t
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10197, 'job.number_of_lanes', '1', 6);
+      (10197, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29597,7 +29597,7 @@ Dubin (5/31/11): This job is a request by the Epigenomics Shared Facility for th
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10198, 'job.number_of_lanes', '1', 6);
+      (10198, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29670,7 +29670,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10199, 'job.number_of_lanes', '1', 6);
+      (10199, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29725,7 +29725,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10200, 'job.number_of_lanes', '1', 5);
+      (10200, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29775,7 +29775,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10201, 'job.number_of_lanes', '1', 5);
+      (10201, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29825,7 +29825,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10202, 'job.number_of_lanes', '1', 5);
+      (10202, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29875,7 +29875,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10203, 'job.number_of_lanes', '1', 5);
+      (10203, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29925,7 +29925,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10204, 'job.number_of_lanes', '1', 5);
+      (10204, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -29975,7 +29975,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10205, 'job.number_of_lanes', '1', 5);
+      (10205, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30025,7 +30025,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10206, 'job.number_of_lanes', '1', 5);
+      (10206, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30075,7 +30075,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10207, 'job.number_of_lanes', '1', 5);
+      (10207, 'job.number_of_cells', '1', 5);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30130,7 +30130,7 @@ F15_WT: AS8', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10208, 'job.number_of_lanes', '1', 6);
+      (10208, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30230,7 +30230,7 @@ This workflow was as follows:
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10209, 'job.number_of_lanes', '1', 6);
+      (10209, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30290,7 +30290,7 @@ KMT       AS96', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10210, 'job.number_of_lanes', '1', 6);
+      (10210, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30345,7 +30345,7 @@ KMT       AS96', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10211, 'job.number_of_lanes', '8', 6);
+      (10211, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30400,7 +30400,7 @@ KMT       AS96', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10212, 'job.number_of_lanes', '1', 6);
+      (10212, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30455,7 +30455,7 @@ KMT       AS96', 4);
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10213, 'job.number_of_lanes', '8', 6);
+      (10213, 'job.number_of_cells', '8', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -30532,7 +30532,7 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into jobmeta
       (jobid, k, v, position)
       values
-      (10214, 'job.number_of_lanes', '1', 6);
+      (10214, 'job.number_of_cells', '1', 6);
     
       insert into jobmeta
       (jobid, k, v, position)
@@ -103729,22 +103729,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20001, 'sample.lane.lane_number', '1', 0);
+      (20001, 'sample.cell.cell_number', '1', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20001, 'sample.lane.actual_read_length', '68', 1);
+      (20001, 'sample.cell.actual_read_length', '68', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20001, 'sample.lane.lane_success', '1', 2);
+      (20001, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20001, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20001, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103756,22 +103756,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20010, 'sample.lane.flow_cell_id', '5', 0);
+      (20010, 'sample.cell.flow_cell_id', '5', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20010, 'sample.lane.lane_number', '2', 1);
+      (20010, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20010, 'sample.lane.lane_success', '1', 2);
+      (20010, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20010, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20010, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103783,27 +103783,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20100, 'sample.lane.flow_cell_id', '24', 0);
+      (20100, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20100, 'sample.lane.lane_number', '2', 1);
+      (20100, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20100, 'sample.lane.actual_read_length', '35', 2);
+      (20100, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20100, 'sample.lane.lane_success', '1', 3);
+      (20100, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20100, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20100, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103815,27 +103815,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20101, 'sample.lane.flow_cell_id', '24', 0);
+      (20101, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20101, 'sample.lane.lane_number', '3', 1);
+      (20101, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20101, 'sample.lane.actual_read_length', '35', 2);
+      (20101, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20101, 'sample.lane.lane_success', '1', 3);
+      (20101, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20101, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20101, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103847,27 +103847,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20102, 'sample.lane.flow_cell_id', '24', 0);
+      (20102, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20102, 'sample.lane.lane_number', '4', 1);
+      (20102, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20102, 'sample.lane.actual_read_length', '35', 2);
+      (20102, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20102, 'sample.lane.lane_success', '1', 3);
+      (20102, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20102, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20102, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103879,27 +103879,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20103, 'sample.lane.flow_cell_id', '24', 0);
+      (20103, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20103, 'sample.lane.lane_number', '6', 1);
+      (20103, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20103, 'sample.lane.actual_read_length', '35', 2);
+      (20103, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20103, 'sample.lane.lane_success', '1', 3);
+      (20103, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20103, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20103, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103911,27 +103911,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20104, 'sample.lane.flow_cell_id', '24', 0);
+      (20104, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20104, 'sample.lane.lane_number', '7', 1);
+      (20104, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20104, 'sample.lane.actual_read_length', '35', 2);
+      (20104, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20104, 'sample.lane.lane_success', '1', 3);
+      (20104, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20104, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20104, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103943,27 +103943,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20105, 'sample.lane.flow_cell_id', '24', 0);
+      (20105, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20105, 'sample.lane.lane_number', '8', 1);
+      (20105, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20105, 'sample.lane.actual_read_length', '35', 2);
+      (20105, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20105, 'sample.lane.lane_success', '1', 3);
+      (20105, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20105, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20105, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -103975,27 +103975,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20106, 'sample.lane.flow_cell_id', '24', 0);
+      (20106, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20106, 'sample.lane.lane_number', '5', 1);
+      (20106, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20106, 'sample.lane.actual_read_length', '35', 2);
+      (20106, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20106, 'sample.lane.lane_success', '1', 3);
+      (20106, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20106, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20106, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104007,27 +104007,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20107, 'sample.lane.flow_cell_id', '25', 0);
+      (20107, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20107, 'sample.lane.lane_number', '5', 1);
+      (20107, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20107, 'sample.lane.actual_read_length', '35', 2);
+      (20107, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20107, 'sample.lane.lane_success', '1', 3);
+      (20107, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20107, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20107, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104039,27 +104039,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20108, 'sample.lane.flow_cell_id', '25', 0);
+      (20108, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20108, 'sample.lane.lane_number', '1', 1);
+      (20108, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20108, 'sample.lane.actual_read_length', '35', 2);
+      (20108, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20108, 'sample.lane.lane_success', '1', 3);
+      (20108, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20108, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20108, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104071,27 +104071,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20109, 'sample.lane.flow_cell_id', '25', 0);
+      (20109, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20109, 'sample.lane.lane_number', '3', 1);
+      (20109, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20109, 'sample.lane.actual_read_length', '35', 2);
+      (20109, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20109, 'sample.lane.lane_success', '1', 3);
+      (20109, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20109, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20109, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104103,27 +104103,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20011, 'sample.lane.flow_cell_id', '6', 0);
+      (20011, 'sample.cell.flow_cell_id', '6', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20011, 'sample.lane.lane_number', '5', 1);
+      (20011, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20011, 'sample.lane.actual_read_length', '36', 2);
+      (20011, 'sample.cell.actual_read_length', '36', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20011, 'sample.lane.lane_success', '1', 3);
+      (20011, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20011, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20011, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104135,27 +104135,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20110, 'sample.lane.flow_cell_id', '25', 0);
+      (20110, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20110, 'sample.lane.lane_number', '2', 1);
+      (20110, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20110, 'sample.lane.actual_read_length', '35', 2);
+      (20110, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20110, 'sample.lane.lane_success', '1', 3);
+      (20110, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20110, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20110, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104167,27 +104167,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20111, 'sample.lane.flow_cell_id', '25', 0);
+      (20111, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20111, 'sample.lane.lane_number', '6', 1);
+      (20111, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20111, 'sample.lane.actual_read_length', '35', 2);
+      (20111, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20111, 'sample.lane.lane_success', '1', 3);
+      (20111, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20111, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20111, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104199,27 +104199,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20112, 'sample.lane.flow_cell_id', '25', 0);
+      (20112, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20112, 'sample.lane.lane_number', '4', 1);
+      (20112, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20112, 'sample.lane.actual_read_length', '35', 2);
+      (20112, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20112, 'sample.lane.lane_success', '1', 3);
+      (20112, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20112, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20112, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104231,27 +104231,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20113, 'sample.lane.flow_cell_id', '25', 0);
+      (20113, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20113, 'sample.lane.lane_number', '8', 1);
+      (20113, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20113, 'sample.lane.actual_read_length', '35', 2);
+      (20113, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20113, 'sample.lane.lane_success', '1', 3);
+      (20113, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20113, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20113, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104263,27 +104263,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20114, 'sample.lane.flow_cell_id', '25', 0);
+      (20114, 'sample.cell.flow_cell_id', '25', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20114, 'sample.lane.lane_number', '7', 1);
+      (20114, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20114, 'sample.lane.actual_read_length', '35', 2);
+      (20114, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20114, 'sample.lane.lane_success', '1', 3);
+      (20114, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20114, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20114, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104295,27 +104295,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20115, 'sample.lane.flow_cell_id', '26', 0);
+      (20115, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20115, 'sample.lane.lane_number', '1', 1);
+      (20115, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20115, 'sample.lane.actual_read_length', '85', 2);
+      (20115, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20115, 'sample.lane.lane_success', '1', 3);
+      (20115, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20115, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20115, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104327,27 +104327,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20116, 'sample.lane.flow_cell_id', '26', 0);
+      (20116, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20116, 'sample.lane.lane_number', '2', 1);
+      (20116, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20116, 'sample.lane.actual_read_length', '85', 2);
+      (20116, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20116, 'sample.lane.lane_success', '1', 3);
+      (20116, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20116, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20116, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104359,27 +104359,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20117, 'sample.lane.flow_cell_id', '26', 0);
+      (20117, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20117, 'sample.lane.lane_number', '3', 1);
+      (20117, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20117, 'sample.lane.actual_read_length', '85', 2);
+      (20117, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20117, 'sample.lane.lane_success', '1', 3);
+      (20117, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20117, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20117, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104391,27 +104391,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20118, 'sample.lane.flow_cell_id', '26', 0);
+      (20118, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20118, 'sample.lane.lane_number', '6', 1);
+      (20118, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20118, 'sample.lane.actual_read_length', '85', 2);
+      (20118, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20118, 'sample.lane.lane_success', '1', 3);
+      (20118, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20118, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20118, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104423,27 +104423,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20119, 'sample.lane.flow_cell_id', '26', 0);
+      (20119, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20119, 'sample.lane.lane_number', '7', 1);
+      (20119, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20119, 'sample.lane.actual_read_length', '85', 2);
+      (20119, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20119, 'sample.lane.lane_success', '1', 3);
+      (20119, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20119, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20119, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104455,27 +104455,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20012, 'sample.lane.flow_cell_id', '6', 0);
+      (20012, 'sample.cell.flow_cell_id', '6', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20012, 'sample.lane.lane_number', '6', 1);
+      (20012, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20012, 'sample.lane.actual_read_length', '36', 2);
+      (20012, 'sample.cell.actual_read_length', '36', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20012, 'sample.lane.lane_success', '1', 3);
+      (20012, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20012, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20012, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104487,27 +104487,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20120, 'sample.lane.flow_cell_id', '26', 0);
+      (20120, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20120, 'sample.lane.lane_number', '8', 1);
+      (20120, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20120, 'sample.lane.actual_read_length', '85', 2);
+      (20120, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20120, 'sample.lane.lane_success', '1', 3);
+      (20120, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20120, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20120, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104519,27 +104519,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20121, 'sample.lane.flow_cell_id', '26', 0);
+      (20121, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20121, 'sample.lane.lane_number', '4', 1);
+      (20121, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20121, 'sample.lane.actual_read_length', '85', 2);
+      (20121, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20121, 'sample.lane.lane_success', '1', 3);
+      (20121, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20121, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20121, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104551,22 +104551,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20122, 'sample.lane.lane_number', '5', 0);
+      (20122, 'sample.cell.cell_number', '5', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20122, 'sample.lane.actual_read_length', '85', 1);
+      (20122, 'sample.cell.actual_read_length', '85', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20122, 'sample.lane.lane_success', '1', 2);
+      (20122, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20122, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20122, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104578,27 +104578,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20123, 'sample.lane.flow_cell_id', '27', 0);
+      (20123, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20123, 'sample.lane.lane_number', '1', 1);
+      (20123, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20123, 'sample.lane.actual_read_length', '35', 2);
+      (20123, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20123, 'sample.lane.lane_success', '1', 3);
+      (20123, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20123, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20123, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104610,27 +104610,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20124, 'sample.lane.flow_cell_id', '27', 0);
+      (20124, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20124, 'sample.lane.lane_number', '2', 1);
+      (20124, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20124, 'sample.lane.actual_read_length', '35', 2);
+      (20124, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20124, 'sample.lane.lane_success', '1', 3);
+      (20124, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20124, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20124, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104642,27 +104642,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20125, 'sample.lane.flow_cell_id', '27', 0);
+      (20125, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20125, 'sample.lane.lane_number', '3', 1);
+      (20125, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20125, 'sample.lane.actual_read_length', '35', 2);
+      (20125, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20125, 'sample.lane.lane_success', '1', 3);
+      (20125, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20125, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20125, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104674,27 +104674,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20126, 'sample.lane.flow_cell_id', '27', 0);
+      (20126, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20126, 'sample.lane.lane_number', '7', 1);
+      (20126, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20126, 'sample.lane.actual_read_length', '35', 2);
+      (20126, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20126, 'sample.lane.lane_success', '1', 3);
+      (20126, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20126, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20126, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104706,27 +104706,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20127, 'sample.lane.flow_cell_id', '27', 0);
+      (20127, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20127, 'sample.lane.lane_number', '8', 1);
+      (20127, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20127, 'sample.lane.actual_read_length', '35', 2);
+      (20127, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20127, 'sample.lane.lane_success', '1', 3);
+      (20127, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20127, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20127, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104738,27 +104738,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20128, 'sample.lane.flow_cell_id', '27', 0);
+      (20128, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20128, 'sample.lane.lane_number', '6', 1);
+      (20128, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20128, 'sample.lane.actual_read_length', '35', 2);
+      (20128, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20128, 'sample.lane.lane_success', '1', 3);
+      (20128, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20128, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20128, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104770,27 +104770,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20129, 'sample.lane.flow_cell_id', '27', 0);
+      (20129, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20129, 'sample.lane.lane_number', '4', 1);
+      (20129, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20129, 'sample.lane.actual_read_length', '35', 2);
+      (20129, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20129, 'sample.lane.lane_success', '1', 3);
+      (20129, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20129, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20129, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104802,27 +104802,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20013, 'sample.lane.flow_cell_id', '6', 0);
+      (20013, 'sample.cell.flow_cell_id', '6', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20013, 'sample.lane.lane_number', '7', 1);
+      (20013, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20013, 'sample.lane.actual_read_length', '36', 2);
+      (20013, 'sample.cell.actual_read_length', '36', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20013, 'sample.lane.lane_success', '1', 3);
+      (20013, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20013, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20013, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104834,27 +104834,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20130, 'sample.lane.flow_cell_id', '27', 0);
+      (20130, 'sample.cell.flow_cell_id', '27', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20130, 'sample.lane.lane_number', '5', 1);
+      (20130, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20130, 'sample.lane.actual_read_length', '35', 2);
+      (20130, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20130, 'sample.lane.lane_success', '1', 3);
+      (20130, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20130, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20130, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104866,27 +104866,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20131, 'sample.lane.flow_cell_id', '28', 0);
+      (20131, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20131, 'sample.lane.lane_number', '1', 1);
+      (20131, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20131, 'sample.lane.actual_read_length', '35', 2);
+      (20131, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20131, 'sample.lane.lane_success', '1', 3);
+      (20131, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20131, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20131, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104898,27 +104898,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20132, 'sample.lane.flow_cell_id', '28', 0);
+      (20132, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20132, 'sample.lane.lane_number', '2', 1);
+      (20132, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20132, 'sample.lane.actual_read_length', '35', 2);
+      (20132, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20132, 'sample.lane.lane_success', '1', 3);
+      (20132, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20132, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20132, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104930,27 +104930,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20133, 'sample.lane.flow_cell_id', '28', 0);
+      (20133, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20133, 'sample.lane.lane_number', '3', 1);
+      (20133, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20133, 'sample.lane.actual_read_length', '35', 2);
+      (20133, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20133, 'sample.lane.lane_success', '1', 3);
+      (20133, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20133, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20133, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104962,27 +104962,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20134, 'sample.lane.flow_cell_id', '28', 0);
+      (20134, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20134, 'sample.lane.lane_number', '5', 1);
+      (20134, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20134, 'sample.lane.actual_read_length', '35', 2);
+      (20134, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20134, 'sample.lane.lane_success', '1', 3);
+      (20134, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20134, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20134, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -104994,27 +104994,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20135, 'sample.lane.flow_cell_id', '28', 0);
+      (20135, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20135, 'sample.lane.lane_number', '6', 1);
+      (20135, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20135, 'sample.lane.actual_read_length', '35', 2);
+      (20135, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20135, 'sample.lane.lane_success', '1', 3);
+      (20135, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20135, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20135, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105026,27 +105026,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20136, 'sample.lane.flow_cell_id', '28', 0);
+      (20136, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20136, 'sample.lane.lane_number', '7', 1);
+      (20136, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20136, 'sample.lane.actual_read_length', '35', 2);
+      (20136, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20136, 'sample.lane.lane_success', '1', 3);
+      (20136, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20136, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20136, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105058,27 +105058,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20137, 'sample.lane.flow_cell_id', '28', 0);
+      (20137, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20137, 'sample.lane.lane_number', '8', 1);
+      (20137, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20137, 'sample.lane.actual_read_length', '35', 2);
+      (20137, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20137, 'sample.lane.lane_success', '1', 3);
+      (20137, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20137, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20137, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105090,27 +105090,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20138, 'sample.lane.flow_cell_id', '28', 0);
+      (20138, 'sample.cell.flow_cell_id', '28', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20138, 'sample.lane.lane_number', '4', 1);
+      (20138, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20138, 'sample.lane.actual_read_length', '35', 2);
+      (20138, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20138, 'sample.lane.lane_success', '1', 3);
+      (20138, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20138, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20138, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105122,27 +105122,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20139, 'sample.lane.flow_cell_id', '29', 0);
+      (20139, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20139, 'sample.lane.lane_number', '7', 1);
+      (20139, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20139, 'sample.lane.actual_read_length', '35', 2);
+      (20139, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20139, 'sample.lane.lane_success', '1', 3);
+      (20139, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20139, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20139, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105154,27 +105154,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20014, 'sample.lane.flow_cell_id', '6', 0);
+      (20014, 'sample.cell.flow_cell_id', '6', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20014, 'sample.lane.lane_number', '8', 1);
+      (20014, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20014, 'sample.lane.actual_read_length', '36', 2);
+      (20014, 'sample.cell.actual_read_length', '36', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20014, 'sample.lane.lane_success', '1', 3);
+      (20014, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20014, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20014, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105186,27 +105186,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20140, 'sample.lane.flow_cell_id', '29', 0);
+      (20140, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20140, 'sample.lane.lane_number', '8', 1);
+      (20140, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20140, 'sample.lane.actual_read_length', '35', 2);
+      (20140, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20140, 'sample.lane.lane_success', '1', 3);
+      (20140, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20140, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20140, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105218,27 +105218,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20141, 'sample.lane.flow_cell_id', '29', 0);
+      (20141, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20141, 'sample.lane.lane_number', '1', 1);
+      (20141, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20141, 'sample.lane.actual_read_length', '35', 2);
+      (20141, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20141, 'sample.lane.lane_success', '1', 3);
+      (20141, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20141, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20141, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105250,27 +105250,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20142, 'sample.lane.flow_cell_id', '29', 0);
+      (20142, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20142, 'sample.lane.lane_number', '2', 1);
+      (20142, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20142, 'sample.lane.actual_read_length', '35', 2);
+      (20142, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20142, 'sample.lane.lane_success', '1', 3);
+      (20142, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20142, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20142, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105282,27 +105282,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20143, 'sample.lane.flow_cell_id', '29', 0);
+      (20143, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20143, 'sample.lane.lane_number', '3', 1);
+      (20143, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20143, 'sample.lane.actual_read_length', '35', 2);
+      (20143, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20143, 'sample.lane.lane_success', '1', 3);
+      (20143, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20143, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20143, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105314,27 +105314,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20144, 'sample.lane.flow_cell_id', '29', 0);
+      (20144, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20144, 'sample.lane.lane_number', '4', 1);
+      (20144, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20144, 'sample.lane.actual_read_length', '35', 2);
+      (20144, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20144, 'sample.lane.lane_success', '1', 3);
+      (20144, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20144, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20144, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105346,27 +105346,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20145, 'sample.lane.flow_cell_id', '29', 0);
+      (20145, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20145, 'sample.lane.lane_number', '5', 1);
+      (20145, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20145, 'sample.lane.actual_read_length', '35', 2);
+      (20145, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20145, 'sample.lane.lane_success', '1', 3);
+      (20145, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20145, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20145, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105378,27 +105378,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20146, 'sample.lane.flow_cell_id', '29', 0);
+      (20146, 'sample.cell.flow_cell_id', '29', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20146, 'sample.lane.lane_number', '6', 1);
+      (20146, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20146, 'sample.lane.actual_read_length', '35', 2);
+      (20146, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20146, 'sample.lane.lane_success', '1', 3);
+      (20146, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20146, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20146, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105410,27 +105410,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20147, 'sample.lane.flow_cell_id', '30', 0);
+      (20147, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20147, 'sample.lane.lane_number', '1', 1);
+      (20147, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20147, 'sample.lane.actual_read_length', '35', 2);
+      (20147, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20147, 'sample.lane.lane_success', '1', 3);
+      (20147, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20147, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20147, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105442,27 +105442,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20148, 'sample.lane.flow_cell_id', '30', 0);
+      (20148, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20148, 'sample.lane.lane_number', '2', 1);
+      (20148, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20148, 'sample.lane.actual_read_length', '35', 2);
+      (20148, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20148, 'sample.lane.lane_success', '1', 3);
+      (20148, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20148, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20148, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105474,27 +105474,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20149, 'sample.lane.flow_cell_id', '30', 0);
+      (20149, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20149, 'sample.lane.lane_number', '3', 1);
+      (20149, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20149, 'sample.lane.actual_read_length', '35', 2);
+      (20149, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20149, 'sample.lane.lane_success', '1', 3);
+      (20149, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20149, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20149, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105506,27 +105506,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20015, 'sample.lane.flow_cell_id', '8', 0);
+      (20015, 'sample.cell.flow_cell_id', '8', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20015, 'sample.lane.lane_number', '2', 1);
+      (20015, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20015, 'sample.lane.actual_read_length', '85', 2);
+      (20015, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20015, 'sample.lane.lane_success', '1', 3);
+      (20015, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20015, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20015, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105538,27 +105538,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20150, 'sample.lane.flow_cell_id', '30', 0);
+      (20150, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20150, 'sample.lane.lane_number', '5', 1);
+      (20150, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20150, 'sample.lane.actual_read_length', '35', 2);
+      (20150, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20150, 'sample.lane.lane_success', '1', 3);
+      (20150, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20150, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20150, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105570,27 +105570,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20151, 'sample.lane.flow_cell_id', '30', 0);
+      (20151, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20151, 'sample.lane.lane_number', '6', 1);
+      (20151, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20151, 'sample.lane.actual_read_length', '35', 2);
+      (20151, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20151, 'sample.lane.lane_success', '1', 3);
+      (20151, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20151, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20151, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105602,27 +105602,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20152, 'sample.lane.flow_cell_id', '30', 0);
+      (20152, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20152, 'sample.lane.lane_number', '7', 1);
+      (20152, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20152, 'sample.lane.actual_read_length', '35', 2);
+      (20152, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20152, 'sample.lane.lane_success', '1', 3);
+      (20152, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20152, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20152, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105634,27 +105634,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20153, 'sample.lane.flow_cell_id', '30', 0);
+      (20153, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20153, 'sample.lane.lane_number', '8', 1);
+      (20153, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20153, 'sample.lane.actual_read_length', '35', 2);
+      (20153, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20153, 'sample.lane.lane_success', '1', 3);
+      (20153, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20153, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20153, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105666,27 +105666,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20154, 'sample.lane.flow_cell_id', '30', 0);
+      (20154, 'sample.cell.flow_cell_id', '30', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20154, 'sample.lane.lane_number', '4', 1);
+      (20154, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20154, 'sample.lane.actual_read_length', '35', 2);
+      (20154, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20154, 'sample.lane.lane_success', '1', 3);
+      (20154, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20154, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20154, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105698,27 +105698,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20155, 'sample.lane.flow_cell_id', '31', 0);
+      (20155, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20155, 'sample.lane.lane_number', '1', 1);
+      (20155, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20155, 'sample.lane.actual_read_length', '115', 2);
+      (20155, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20155, 'sample.lane.lane_success', '1', 3);
+      (20155, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20155, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20155, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105730,27 +105730,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20156, 'sample.lane.flow_cell_id', '31', 0);
+      (20156, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20156, 'sample.lane.lane_number', '2', 1);
+      (20156, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20156, 'sample.lane.actual_read_length', '115', 2);
+      (20156, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20156, 'sample.lane.lane_success', '1', 3);
+      (20156, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20156, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20156, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105762,27 +105762,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20157, 'sample.lane.flow_cell_id', '31', 0);
+      (20157, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20157, 'sample.lane.lane_number', '7', 1);
+      (20157, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20157, 'sample.lane.actual_read_length', '115', 2);
+      (20157, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20157, 'sample.lane.lane_success', '1', 3);
+      (20157, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20157, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20157, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105794,27 +105794,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20158, 'sample.lane.flow_cell_id', '31', 0);
+      (20158, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20158, 'sample.lane.lane_number', '8', 1);
+      (20158, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20158, 'sample.lane.actual_read_length', '115', 2);
+      (20158, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20158, 'sample.lane.lane_success', '1', 3);
+      (20158, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20158, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20158, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105826,27 +105826,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20159, 'sample.lane.flow_cell_id', '31', 0);
+      (20159, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20159, 'sample.lane.lane_number', '6', 1);
+      (20159, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20159, 'sample.lane.actual_read_length', '115', 2);
+      (20159, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20159, 'sample.lane.lane_success', '1', 3);
+      (20159, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20159, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20159, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105858,27 +105858,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20016, 'sample.lane.flow_cell_id', '7', 0);
+      (20016, 'sample.cell.flow_cell_id', '7', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20016, 'sample.lane.lane_number', '2', 1);
+      (20016, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20016, 'sample.lane.actual_read_length', '85', 2);
+      (20016, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20016, 'sample.lane.lane_success', '1', 3);
+      (20016, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20016, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20016, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105890,27 +105890,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20160, 'sample.lane.flow_cell_id', '32', 0);
+      (20160, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20160, 'sample.lane.lane_number', '1', 1);
+      (20160, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20160, 'sample.lane.actual_read_length', '35', 2);
+      (20160, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20160, 'sample.lane.lane_success', '1', 3);
+      (20160, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20160, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20160, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105922,27 +105922,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20161, 'sample.lane.flow_cell_id', '32', 0);
+      (20161, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20161, 'sample.lane.lane_number', '3', 1);
+      (20161, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20161, 'sample.lane.actual_read_length', '35', 2);
+      (20161, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20161, 'sample.lane.lane_success', '1', 3);
+      (20161, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20161, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20161, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105954,27 +105954,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20162, 'sample.lane.flow_cell_id', '32', 0);
+      (20162, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20162, 'sample.lane.lane_number', '4', 1);
+      (20162, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20162, 'sample.lane.actual_read_length', '35', 2);
+      (20162, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20162, 'sample.lane.lane_success', '1', 3);
+      (20162, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20162, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20162, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -105986,27 +105986,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20163, 'sample.lane.flow_cell_id', '32', 0);
+      (20163, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20163, 'sample.lane.lane_number', '5', 1);
+      (20163, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20163, 'sample.lane.actual_read_length', '35', 2);
+      (20163, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20163, 'sample.lane.lane_success', '1', 3);
+      (20163, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20163, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20163, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106018,27 +106018,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20164, 'sample.lane.flow_cell_id', '32', 0);
+      (20164, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20164, 'sample.lane.lane_number', '6', 1);
+      (20164, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20164, 'sample.lane.actual_read_length', '35', 2);
+      (20164, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20164, 'sample.lane.lane_success', '1', 3);
+      (20164, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20164, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20164, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106050,27 +106050,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20165, 'sample.lane.flow_cell_id', '32', 0);
+      (20165, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20165, 'sample.lane.lane_number', '7', 1);
+      (20165, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20165, 'sample.lane.actual_read_length', '35', 2);
+      (20165, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20165, 'sample.lane.lane_success', '1', 3);
+      (20165, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20165, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20165, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106082,27 +106082,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20166, 'sample.lane.flow_cell_id', '32', 0);
+      (20166, 'sample.cell.flow_cell_id', '32', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20166, 'sample.lane.lane_number', '8', 1);
+      (20166, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20166, 'sample.lane.actual_read_length', '35', 2);
+      (20166, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20166, 'sample.lane.lane_success', '1', 3);
+      (20166, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20166, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20166, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106114,27 +106114,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20167, 'sample.lane.flow_cell_id', '1', 0);
+      (20167, 'sample.cell.flow_cell_id', '1', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20167, 'sample.lane.lane_number', '1', 1);
+      (20167, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20167, 'sample.lane.actual_read_length', '35', 2);
+      (20167, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20167, 'sample.lane.lane_success', '1', 3);
+      (20167, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20167, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20167, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106146,27 +106146,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20168, 'sample.lane.flow_cell_id', '1', 0);
+      (20168, 'sample.cell.flow_cell_id', '1', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20168, 'sample.lane.lane_number', '2', 1);
+      (20168, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20168, 'sample.lane.actual_read_length', '35', 2);
+      (20168, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20168, 'sample.lane.lane_success', '1', 3);
+      (20168, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20168, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20168, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106178,27 +106178,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20169, 'sample.lane.flow_cell_id', '26', 0);
+      (20169, 'sample.cell.flow_cell_id', '26', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20169, 'sample.lane.lane_number', '5', 1);
+      (20169, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20169, 'sample.lane.actual_read_length', '85', 2);
+      (20169, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20169, 'sample.lane.lane_success', '1', 3);
+      (20169, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20169, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20169, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106210,27 +106210,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20017, 'sample.lane.flow_cell_id', '8', 0);
+      (20017, 'sample.cell.flow_cell_id', '8', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20017, 'sample.lane.lane_number', '1', 1);
+      (20017, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20017, 'sample.lane.actual_read_length', '85', 2);
+      (20017, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20017, 'sample.lane.lane_success', '1', 3);
+      (20017, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20017, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20017, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106242,27 +106242,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20170, 'sample.lane.flow_cell_id', '34', 0);
+      (20170, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20170, 'sample.lane.lane_number', '1', 1);
+      (20170, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20170, 'sample.lane.actual_read_length', '85', 2);
+      (20170, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20170, 'sample.lane.lane_success', '1', 3);
+      (20170, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20170, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20170, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106274,27 +106274,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20171, 'sample.lane.flow_cell_id', '34', 0);
+      (20171, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20171, 'sample.lane.lane_number', '2', 1);
+      (20171, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20171, 'sample.lane.actual_read_length', '85', 2);
+      (20171, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20171, 'sample.lane.lane_success', '1', 3);
+      (20171, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20171, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20171, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106306,27 +106306,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20172, 'sample.lane.flow_cell_id', '34', 0);
+      (20172, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20172, 'sample.lane.lane_number', '3', 1);
+      (20172, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20172, 'sample.lane.actual_read_length', '85', 2);
+      (20172, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20172, 'sample.lane.lane_success', '1', 3);
+      (20172, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20172, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20172, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106338,27 +106338,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20173, 'sample.lane.flow_cell_id', '34', 0);
+      (20173, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20173, 'sample.lane.lane_number', '5', 1);
+      (20173, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20173, 'sample.lane.actual_read_length', '85', 2);
+      (20173, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20173, 'sample.lane.lane_success', '1', 3);
+      (20173, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20173, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20173, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106370,27 +106370,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20174, 'sample.lane.flow_cell_id', '34', 0);
+      (20174, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20174, 'sample.lane.lane_number', '6', 1);
+      (20174, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20174, 'sample.lane.actual_read_length', '85', 2);
+      (20174, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20174, 'sample.lane.lane_success', '1', 3);
+      (20174, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20174, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20174, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106402,27 +106402,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20175, 'sample.lane.flow_cell_id', '34', 0);
+      (20175, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20175, 'sample.lane.lane_number', '7', 1);
+      (20175, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20175, 'sample.lane.actual_read_length', '85', 2);
+      (20175, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20175, 'sample.lane.lane_success', '1', 3);
+      (20175, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20175, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20175, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106434,27 +106434,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20176, 'sample.lane.flow_cell_id', '34', 0);
+      (20176, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20176, 'sample.lane.lane_number', '8', 1);
+      (20176, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20176, 'sample.lane.actual_read_length', '85', 2);
+      (20176, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20176, 'sample.lane.lane_success', '1', 3);
+      (20176, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20176, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20176, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106466,27 +106466,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20177, 'sample.lane.flow_cell_id', '34', 0);
+      (20177, 'sample.cell.flow_cell_id', '34', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20177, 'sample.lane.lane_number', '4', 1);
+      (20177, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20177, 'sample.lane.actual_read_length', '85', 2);
+      (20177, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20177, 'sample.lane.lane_success', '1', 3);
+      (20177, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20177, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20177, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106498,27 +106498,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20178, 'sample.lane.flow_cell_id', '35', 0);
+      (20178, 'sample.cell.flow_cell_id', '35', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20178, 'sample.lane.lane_number', '1', 1);
+      (20178, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20178, 'sample.lane.actual_read_length', '99', 2);
+      (20178, 'sample.cell.actual_read_length', '99', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20178, 'sample.lane.lane_success', '1', 3);
+      (20178, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20178, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20178, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106530,27 +106530,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20179, 'sample.lane.flow_cell_id', '35', 0);
+      (20179, 'sample.cell.flow_cell_id', '35', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20179, 'sample.lane.lane_number', '3', 1);
+      (20179, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20179, 'sample.lane.actual_read_length', '99', 2);
+      (20179, 'sample.cell.actual_read_length', '99', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20179, 'sample.lane.lane_success', '1', 3);
+      (20179, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20179, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20179, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106562,27 +106562,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20018, 'sample.lane.flow_cell_id', '7', 0);
+      (20018, 'sample.cell.flow_cell_id', '7', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20018, 'sample.lane.lane_number', '1', 1);
+      (20018, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20018, 'sample.lane.actual_read_length', '85', 2);
+      (20018, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20018, 'sample.lane.lane_success', '1', 3);
+      (20018, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20018, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20018, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106594,17 +106594,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20180, 'sample.lane.flow_cell_id', '35', 0);
+      (20180, 'sample.cell.flow_cell_id', '35', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20180, 'sample.lane.lane_number', '7', 1);
+      (20180, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20180, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20180, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106616,17 +106616,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20181, 'sample.lane.flow_cell_id', '35', 0);
+      (20181, 'sample.cell.flow_cell_id', '35', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20181, 'sample.lane.lane_number', '8', 1);
+      (20181, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20181, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20181, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106638,27 +106638,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20182, 'sample.lane.flow_cell_id', '36', 0);
+      (20182, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20182, 'sample.lane.lane_number', '1', 1);
+      (20182, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20182, 'sample.lane.actual_read_length', '35', 2);
+      (20182, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20182, 'sample.lane.lane_success', '1', 3);
+      (20182, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20182, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20182, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106670,27 +106670,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20183, 'sample.lane.flow_cell_id', '36', 0);
+      (20183, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20183, 'sample.lane.lane_number', '2', 1);
+      (20183, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20183, 'sample.lane.actual_read_length', '35', 2);
+      (20183, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20183, 'sample.lane.lane_success', '1', 3);
+      (20183, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20183, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20183, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106702,27 +106702,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20184, 'sample.lane.flow_cell_id', '36', 0);
+      (20184, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20184, 'sample.lane.lane_number', '3', 1);
+      (20184, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20184, 'sample.lane.actual_read_length', '35', 2);
+      (20184, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20184, 'sample.lane.lane_success', '1', 3);
+      (20184, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20184, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20184, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106734,27 +106734,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20185, 'sample.lane.flow_cell_id', '36', 0);
+      (20185, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20185, 'sample.lane.lane_number', '4', 1);
+      (20185, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20185, 'sample.lane.actual_read_length', '35', 2);
+      (20185, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20185, 'sample.lane.lane_success', '1', 3);
+      (20185, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20185, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20185, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106766,27 +106766,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20186, 'sample.lane.flow_cell_id', '36', 0);
+      (20186, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20186, 'sample.lane.lane_number', '5', 1);
+      (20186, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20186, 'sample.lane.actual_read_length', '35', 2);
+      (20186, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20186, 'sample.lane.lane_success', '1', 3);
+      (20186, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20186, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20186, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106798,27 +106798,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20187, 'sample.lane.flow_cell_id', '36', 0);
+      (20187, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20187, 'sample.lane.lane_number', '6', 1);
+      (20187, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20187, 'sample.lane.actual_read_length', '35', 2);
+      (20187, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20187, 'sample.lane.lane_success', '1', 3);
+      (20187, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20187, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20187, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106830,27 +106830,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20188, 'sample.lane.flow_cell_id', '36', 0);
+      (20188, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20188, 'sample.lane.lane_number', '7', 1);
+      (20188, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20188, 'sample.lane.actual_read_length', '35', 2);
+      (20188, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20188, 'sample.lane.lane_success', '1', 3);
+      (20188, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20188, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20188, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106862,27 +106862,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20189, 'sample.lane.flow_cell_id', '36', 0);
+      (20189, 'sample.cell.flow_cell_id', '36', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20189, 'sample.lane.lane_number', '8', 1);
+      (20189, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20189, 'sample.lane.actual_read_length', '35', 2);
+      (20189, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20189, 'sample.lane.lane_success', '1', 3);
+      (20189, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20189, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20189, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106894,27 +106894,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20019, 'sample.lane.flow_cell_id', '9', 0);
+      (20019, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20019, 'sample.lane.lane_number', '1', 1);
+      (20019, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20019, 'sample.lane.actual_read_length', '85', 2);
+      (20019, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20019, 'sample.lane.lane_success', '1', 3);
+      (20019, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20019, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20019, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106926,27 +106926,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20190, 'sample.lane.flow_cell_id', '35', 0);
+      (20190, 'sample.cell.flow_cell_id', '35', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20190, 'sample.lane.lane_number', '2', 1);
+      (20190, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20190, 'sample.lane.actual_read_length', '99', 2);
+      (20190, 'sample.cell.actual_read_length', '99', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20190, 'sample.lane.lane_success', '1', 3);
+      (20190, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20190, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20190, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106958,27 +106958,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20191, 'sample.lane.flow_cell_id', '37', 0);
+      (20191, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20191, 'sample.lane.lane_number', '1', 1);
+      (20191, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20191, 'sample.lane.actual_read_length', '119', 2);
+      (20191, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20191, 'sample.lane.lane_success', '1', 3);
+      (20191, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20191, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20191, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -106990,27 +106990,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20192, 'sample.lane.flow_cell_id', '37', 0);
+      (20192, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20192, 'sample.lane.lane_number', '2', 1);
+      (20192, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20192, 'sample.lane.actual_read_length', '119', 2);
+      (20192, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20192, 'sample.lane.lane_success', '1', 3);
+      (20192, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20192, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20192, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107022,27 +107022,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20193, 'sample.lane.flow_cell_id', '37', 0);
+      (20193, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20193, 'sample.lane.lane_number', '3', 1);
+      (20193, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20193, 'sample.lane.actual_read_length', '119', 2);
+      (20193, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20193, 'sample.lane.lane_success', '1', 3);
+      (20193, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20193, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20193, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107054,27 +107054,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20194, 'sample.lane.flow_cell_id', '37', 0);
+      (20194, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20194, 'sample.lane.lane_number', '5', 1);
+      (20194, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20194, 'sample.lane.actual_read_length', '119', 2);
+      (20194, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20194, 'sample.lane.lane_success', '1', 3);
+      (20194, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20194, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20194, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107086,27 +107086,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20195, 'sample.lane.flow_cell_id', '37', 0);
+      (20195, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20195, 'sample.lane.lane_number', '6', 1);
+      (20195, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20195, 'sample.lane.actual_read_length', '119', 2);
+      (20195, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20195, 'sample.lane.lane_success', '1', 3);
+      (20195, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20195, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20195, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107118,27 +107118,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20196, 'sample.lane.flow_cell_id', '37', 0);
+      (20196, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20196, 'sample.lane.lane_number', '7', 1);
+      (20196, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20196, 'sample.lane.actual_read_length', '119', 2);
+      (20196, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20196, 'sample.lane.lane_success', '1', 3);
+      (20196, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20196, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20196, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107150,27 +107150,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20197, 'sample.lane.flow_cell_id', '37', 0);
+      (20197, 'sample.cell.flow_cell_id', '37', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20197, 'sample.lane.lane_number', '8', 1);
+      (20197, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20197, 'sample.lane.actual_read_length', '119', 2);
+      (20197, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20197, 'sample.lane.lane_success', '1', 3);
+      (20197, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20197, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20197, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107182,27 +107182,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20198, 'sample.lane.flow_cell_id', '31', 0);
+      (20198, 'sample.cell.flow_cell_id', '31', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20198, 'sample.lane.lane_number', '5', 1);
+      (20198, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20198, 'sample.lane.actual_read_length', '115', 2);
+      (20198, 'sample.cell.actual_read_length', '115', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20198, 'sample.lane.lane_success', '1', 3);
+      (20198, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20198, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20198, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107214,27 +107214,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20199, 'sample.lane.flow_cell_id', '38', 0);
+      (20199, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20199, 'sample.lane.lane_number', '1', 1);
+      (20199, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20199, 'sample.lane.actual_read_length', '104', 2);
+      (20199, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20199, 'sample.lane.lane_success', '1', 3);
+      (20199, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20199, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20199, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107246,22 +107246,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20002, 'sample.lane.lane_number', '2', 0);
+      (20002, 'sample.cell.cell_number', '2', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20002, 'sample.lane.actual_read_length', '68', 1);
+      (20002, 'sample.cell.actual_read_length', '68', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20002, 'sample.lane.lane_success', '1', 2);
+      (20002, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20002, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20002, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107273,27 +107273,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20020, 'sample.lane.flow_cell_id', '9', 0);
+      (20020, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20020, 'sample.lane.lane_number', '2', 1);
+      (20020, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20020, 'sample.lane.actual_read_length', '85', 2);
+      (20020, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20020, 'sample.lane.lane_success', '1', 3);
+      (20020, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20020, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20020, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107305,27 +107305,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20200, 'sample.lane.flow_cell_id', '38', 0);
+      (20200, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20200, 'sample.lane.lane_number', '2', 1);
+      (20200, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20200, 'sample.lane.actual_read_length', '104', 2);
+      (20200, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20200, 'sample.lane.lane_success', '1', 3);
+      (20200, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20200, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20200, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107337,27 +107337,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20201, 'sample.lane.flow_cell_id', '38', 0);
+      (20201, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20201, 'sample.lane.lane_number', '3', 1);
+      (20201, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20201, 'sample.lane.actual_read_length', '104', 2);
+      (20201, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20201, 'sample.lane.lane_success', '1', 3);
+      (20201, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20201, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20201, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107369,27 +107369,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20202, 'sample.lane.flow_cell_id', '38', 0);
+      (20202, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20202, 'sample.lane.lane_number', '5', 1);
+      (20202, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20202, 'sample.lane.actual_read_length', '104', 2);
+      (20202, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20202, 'sample.lane.lane_success', '1', 3);
+      (20202, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20202, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20202, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107401,27 +107401,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20203, 'sample.lane.flow_cell_id', '38', 0);
+      (20203, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20203, 'sample.lane.lane_number', '6', 1);
+      (20203, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20203, 'sample.lane.actual_read_length', '104', 2);
+      (20203, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20203, 'sample.lane.lane_success', '1', 3);
+      (20203, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20203, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20203, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107433,27 +107433,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20204, 'sample.lane.flow_cell_id', '38', 0);
+      (20204, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20204, 'sample.lane.lane_number', '7', 1);
+      (20204, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20204, 'sample.lane.actual_read_length', '104', 2);
+      (20204, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20204, 'sample.lane.lane_success', '1', 3);
+      (20204, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20204, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20204, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107465,27 +107465,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20205, 'sample.lane.flow_cell_id', '38', 0);
+      (20205, 'sample.cell.flow_cell_id', '38', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20205, 'sample.lane.lane_number', '8', 1);
+      (20205, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20205, 'sample.lane.actual_read_length', '104', 2);
+      (20205, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20205, 'sample.lane.lane_success', '1', 3);
+      (20205, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20205, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20205, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107497,27 +107497,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20206, 'sample.lane.flow_cell_id', '39', 0);
+      (20206, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20206, 'sample.lane.lane_number', '1', 1);
+      (20206, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20206, 'sample.lane.actual_read_length', '103', 2);
+      (20206, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20206, 'sample.lane.lane_success', '1', 3);
+      (20206, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20206, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20206, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107529,12 +107529,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20207, 'sample.lane.flow_cell_id', '40', 0);
+      (20207, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20207, 'sample.lane.lane_number', '1', 1);
+      (20207, 'sample.cell.cell_number', '1', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107546,12 +107546,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20208, 'sample.lane.flow_cell_id', '40', 0);
+      (20208, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20208, 'sample.lane.lane_number', '2', 1);
+      (20208, 'sample.cell.cell_number', '2', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107563,27 +107563,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20209, 'sample.lane.flow_cell_id', '39', 0);
+      (20209, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20209, 'sample.lane.lane_number', '2', 1);
+      (20209, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20209, 'sample.lane.actual_read_length', '103', 2);
+      (20209, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20209, 'sample.lane.lane_success', '1', 3);
+      (20209, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20209, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20209, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107595,27 +107595,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20021, 'sample.lane.flow_cell_id', '9', 0);
+      (20021, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20021, 'sample.lane.lane_number', '3', 1);
+      (20021, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20021, 'sample.lane.actual_read_length', '85', 2);
+      (20021, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20021, 'sample.lane.lane_success', '1', 3);
+      (20021, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20021, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20021, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107627,12 +107627,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20210, 'sample.lane.flow_cell_id', '40', 0);
+      (20210, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20210, 'sample.lane.lane_number', '3', 1);
+      (20210, 'sample.cell.cell_number', '3', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107644,27 +107644,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20211, 'sample.lane.flow_cell_id', '39', 0);
+      (20211, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20211, 'sample.lane.lane_number', '3', 1);
+      (20211, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20211, 'sample.lane.actual_read_length', '103', 2);
+      (20211, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20211, 'sample.lane.lane_success', '1', 3);
+      (20211, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20211, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20211, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107676,12 +107676,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20212, 'sample.lane.flow_cell_id', '40', 0);
+      (20212, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20212, 'sample.lane.lane_number', '5', 1);
+      (20212, 'sample.cell.cell_number', '5', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107693,27 +107693,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20213, 'sample.lane.flow_cell_id', '39', 0);
+      (20213, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20213, 'sample.lane.lane_number', '5', 1);
+      (20213, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20213, 'sample.lane.actual_read_length', '103', 2);
+      (20213, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20213, 'sample.lane.lane_success', '1', 3);
+      (20213, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20213, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20213, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107725,12 +107725,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20214, 'sample.lane.flow_cell_id', '40', 0);
+      (20214, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20214, 'sample.lane.lane_number', '6', 1);
+      (20214, 'sample.cell.cell_number', '6', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107742,27 +107742,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20215, 'sample.lane.flow_cell_id', '39', 0);
+      (20215, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20215, 'sample.lane.lane_number', '6', 1);
+      (20215, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20215, 'sample.lane.actual_read_length', '103', 2);
+      (20215, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20215, 'sample.lane.lane_success', '1', 3);
+      (20215, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20215, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20215, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107774,12 +107774,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20216, 'sample.lane.flow_cell_id', '40', 0);
+      (20216, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20216, 'sample.lane.lane_number', '7', 1);
+      (20216, 'sample.cell.cell_number', '7', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107791,27 +107791,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20217, 'sample.lane.flow_cell_id', '39', 0);
+      (20217, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20217, 'sample.lane.lane_number', '7', 1);
+      (20217, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20217, 'sample.lane.actual_read_length', '103', 2);
+      (20217, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20217, 'sample.lane.lane_success', '1', 3);
+      (20217, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20217, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20217, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107823,12 +107823,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20218, 'sample.lane.flow_cell_id', '40', 0);
+      (20218, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20218, 'sample.lane.lane_number', '4', 1);
+      (20218, 'sample.cell.cell_number', '4', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107840,27 +107840,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20219, 'sample.lane.flow_cell_id', '39', 0);
+      (20219, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20219, 'sample.lane.lane_number', '4', 1);
+      (20219, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20219, 'sample.lane.actual_read_length', '103', 2);
+      (20219, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20219, 'sample.lane.lane_success', '1', 3);
+      (20219, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20219, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20219, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107872,27 +107872,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20022, 'sample.lane.flow_cell_id', '9', 0);
+      (20022, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20022, 'sample.lane.lane_number', '5', 1);
+      (20022, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20022, 'sample.lane.actual_read_length', '85', 2);
+      (20022, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20022, 'sample.lane.lane_success', '1', 3);
+      (20022, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20022, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20022, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107904,12 +107904,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20220, 'sample.lane.flow_cell_id', '40', 0);
+      (20220, 'sample.cell.flow_cell_id', '40', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20220, 'sample.lane.lane_number', '8', 1);
+      (20220, 'sample.cell.cell_number', '8', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107921,27 +107921,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20221, 'sample.lane.flow_cell_id', '39', 0);
+      (20221, 'sample.cell.flow_cell_id', '39', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20221, 'sample.lane.lane_number', '8', 1);
+      (20221, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20221, 'sample.lane.actual_read_length', '103', 2);
+      (20221, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20221, 'sample.lane.lane_success', '1', 3);
+      (20221, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20221, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20221, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107953,27 +107953,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20222, 'sample.lane.flow_cell_id', '41', 0);
+      (20222, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20222, 'sample.lane.lane_number', '5', 1);
+      (20222, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20222, 'sample.lane.actual_read_length', '49', 2);
+      (20222, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20222, 'sample.lane.lane_success', '1', 3);
+      (20222, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20222, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20222, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -107985,27 +107985,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20223, 'sample.lane.flow_cell_id', '41', 0);
+      (20223, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20223, 'sample.lane.lane_number', '1', 1);
+      (20223, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20223, 'sample.lane.actual_read_length', '49', 2);
+      (20223, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20223, 'sample.lane.lane_success', '1', 3);
+      (20223, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20223, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20223, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108017,27 +108017,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20224, 'sample.lane.flow_cell_id', '41', 0);
+      (20224, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20224, 'sample.lane.lane_number', '2', 1);
+      (20224, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20224, 'sample.lane.actual_read_length', '49', 2);
+      (20224, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20224, 'sample.lane.lane_success', '1', 3);
+      (20224, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20224, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20224, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108049,27 +108049,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20225, 'sample.lane.flow_cell_id', '41', 0);
+      (20225, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20225, 'sample.lane.lane_number', '3', 1);
+      (20225, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20225, 'sample.lane.actual_read_length', '49', 2);
+      (20225, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20225, 'sample.lane.lane_success', '1', 3);
+      (20225, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20225, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20225, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108081,27 +108081,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20226, 'sample.lane.flow_cell_id', '41', 0);
+      (20226, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20226, 'sample.lane.lane_number', '4', 1);
+      (20226, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20226, 'sample.lane.actual_read_length', '49', 2);
+      (20226, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20226, 'sample.lane.lane_success', '1', 3);
+      (20226, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20226, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20226, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108113,27 +108113,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20227, 'sample.lane.flow_cell_id', '41', 0);
+      (20227, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20227, 'sample.lane.lane_number', '6', 1);
+      (20227, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20227, 'sample.lane.actual_read_length', '49', 2);
+      (20227, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20227, 'sample.lane.lane_success', '1', 3);
+      (20227, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20227, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20227, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108145,27 +108145,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20228, 'sample.lane.flow_cell_id', '41', 0);
+      (20228, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20228, 'sample.lane.lane_number', '7', 1);
+      (20228, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20228, 'sample.lane.actual_read_length', '49', 2);
+      (20228, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20228, 'sample.lane.lane_success', '1', 3);
+      (20228, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20228, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20228, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108177,27 +108177,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20229, 'sample.lane.flow_cell_id', '41', 0);
+      (20229, 'sample.cell.flow_cell_id', '41', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20229, 'sample.lane.lane_number', '8', 1);
+      (20229, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20229, 'sample.lane.actual_read_length', '49', 2);
+      (20229, 'sample.cell.actual_read_length', '49', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20229, 'sample.lane.lane_success', '1', 3);
+      (20229, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20229, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20229, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108209,27 +108209,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20023, 'sample.lane.flow_cell_id', '9', 0);
+      (20023, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20023, 'sample.lane.lane_number', '6', 1);
+      (20023, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20023, 'sample.lane.actual_read_length', '85', 2);
+      (20023, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20023, 'sample.lane.lane_success', '1', 3);
+      (20023, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20023, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20023, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108241,27 +108241,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20230, 'sample.lane.flow_cell_id', '42', 0);
+      (20230, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20230, 'sample.lane.lane_number', '1', 1);
+      (20230, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20230, 'sample.lane.actual_read_length', '119', 2);
+      (20230, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20230, 'sample.lane.lane_success', '1', 3);
+      (20230, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20230, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20230, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108273,17 +108273,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20231, 'sample.lane.flow_cell_id', '42', 0);
+      (20231, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20231, 'sample.lane.lane_number', '2', 1);
+      (20231, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20231, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20231, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108295,27 +108295,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20232, 'sample.lane.flow_cell_id', '42', 0);
+      (20232, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20232, 'sample.lane.lane_number', '3', 1);
+      (20232, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20232, 'sample.lane.actual_read_length', '119', 2);
+      (20232, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20232, 'sample.lane.lane_success', '1', 3);
+      (20232, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20232, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20232, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108327,27 +108327,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20233, 'sample.lane.flow_cell_id', '42', 0);
+      (20233, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20233, 'sample.lane.lane_number', '4', 1);
+      (20233, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20233, 'sample.lane.actual_read_length', '119', 2);
+      (20233, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20233, 'sample.lane.lane_success', '1', 3);
+      (20233, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20233, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20233, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108359,27 +108359,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20234, 'sample.lane.flow_cell_id', '42', 0);
+      (20234, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20234, 'sample.lane.lane_number', '5', 1);
+      (20234, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20234, 'sample.lane.actual_read_length', '119', 2);
+      (20234, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20234, 'sample.lane.lane_success', '1', 3);
+      (20234, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20234, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20234, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108391,27 +108391,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20235, 'sample.lane.flow_cell_id', '42', 0);
+      (20235, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20235, 'sample.lane.lane_number', '6', 1);
+      (20235, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20235, 'sample.lane.actual_read_length', '119', 2);
+      (20235, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20235, 'sample.lane.lane_success', '1', 3);
+      (20235, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20235, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20235, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108423,27 +108423,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20236, 'sample.lane.flow_cell_id', '42', 0);
+      (20236, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20236, 'sample.lane.lane_number', '7', 1);
+      (20236, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20236, 'sample.lane.actual_read_length', '119', 2);
+      (20236, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20236, 'sample.lane.lane_success', '1', 3);
+      (20236, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20236, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20236, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108455,27 +108455,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20237, 'sample.lane.flow_cell_id', '42', 0);
+      (20237, 'sample.cell.flow_cell_id', '42', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20237, 'sample.lane.lane_number', '8', 1);
+      (20237, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20237, 'sample.lane.actual_read_length', '119', 2);
+      (20237, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20237, 'sample.lane.lane_success', '1', 3);
+      (20237, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20237, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20237, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108487,27 +108487,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20238, 'sample.lane.flow_cell_id', '43', 0);
+      (20238, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20238, 'sample.lane.lane_number', '1', 1);
+      (20238, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20238, 'sample.lane.actual_read_length', '104', 2);
+      (20238, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20238, 'sample.lane.lane_success', '1', 3);
+      (20238, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20238, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20238, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108519,27 +108519,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20239, 'sample.lane.flow_cell_id', '43', 0);
+      (20239, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20239, 'sample.lane.lane_number', '2', 1);
+      (20239, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20239, 'sample.lane.actual_read_length', '104', 2);
+      (20239, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20239, 'sample.lane.lane_success', '1', 3);
+      (20239, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20239, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20239, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108551,27 +108551,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20024, 'sample.lane.flow_cell_id', '9', 0);
+      (20024, 'sample.cell.flow_cell_id', '9', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20024, 'sample.lane.lane_number', '7', 1);
+      (20024, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20024, 'sample.lane.actual_read_length', '85', 2);
+      (20024, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20024, 'sample.lane.lane_success', '1', 3);
+      (20024, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20024, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20024, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108583,27 +108583,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20240, 'sample.lane.flow_cell_id', '43', 0);
+      (20240, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20240, 'sample.lane.lane_number', '3', 1);
+      (20240, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20240, 'sample.lane.actual_read_length', '104', 2);
+      (20240, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20240, 'sample.lane.lane_success', '1', 3);
+      (20240, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20240, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20240, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108615,27 +108615,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20241, 'sample.lane.flow_cell_id', '43', 0);
+      (20241, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20241, 'sample.lane.lane_number', '4', 1);
+      (20241, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20241, 'sample.lane.actual_read_length', '104', 2);
+      (20241, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20241, 'sample.lane.lane_success', '1', 3);
+      (20241, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20241, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20241, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108647,27 +108647,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20242, 'sample.lane.flow_cell_id', '43', 0);
+      (20242, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20242, 'sample.lane.lane_number', '5', 1);
+      (20242, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20242, 'sample.lane.actual_read_length', '104', 2);
+      (20242, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20242, 'sample.lane.lane_success', '1', 3);
+      (20242, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20242, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20242, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108679,27 +108679,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20243, 'sample.lane.flow_cell_id', '43', 0);
+      (20243, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20243, 'sample.lane.lane_number', '6', 1);
+      (20243, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20243, 'sample.lane.actual_read_length', '104', 2);
+      (20243, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20243, 'sample.lane.lane_success', '1', 3);
+      (20243, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20243, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20243, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108711,27 +108711,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20244, 'sample.lane.flow_cell_id', '43', 0);
+      (20244, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20244, 'sample.lane.lane_number', '7', 1);
+      (20244, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20244, 'sample.lane.actual_read_length', '104', 2);
+      (20244, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20244, 'sample.lane.lane_success', '1', 3);
+      (20244, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20244, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20244, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108743,27 +108743,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20245, 'sample.lane.flow_cell_id', '43', 0);
+      (20245, 'sample.cell.flow_cell_id', '43', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20245, 'sample.lane.lane_number', '8', 1);
+      (20245, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20245, 'sample.lane.actual_read_length', '104', 2);
+      (20245, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20245, 'sample.lane.lane_success', '1', 3);
+      (20245, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20245, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20245, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108775,27 +108775,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20246, 'sample.lane.flow_cell_id', '44', 0);
+      (20246, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20246, 'sample.lane.lane_number', '1', 1);
+      (20246, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20246, 'sample.lane.actual_read_length', '104', 2);
+      (20246, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20246, 'sample.lane.lane_success', '1', 3);
+      (20246, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20246, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20246, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108807,27 +108807,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20247, 'sample.lane.flow_cell_id', '44', 0);
+      (20247, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20247, 'sample.lane.lane_number', '2', 1);
+      (20247, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20247, 'sample.lane.actual_read_length', '104', 2);
+      (20247, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20247, 'sample.lane.lane_success', '1', 3);
+      (20247, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20247, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20247, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108839,27 +108839,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20248, 'sample.lane.flow_cell_id', '44', 0);
+      (20248, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20248, 'sample.lane.lane_number', '3', 1);
+      (20248, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20248, 'sample.lane.actual_read_length', '104', 2);
+      (20248, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20248, 'sample.lane.lane_success', '1', 3);
+      (20248, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20248, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20248, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108871,27 +108871,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20249, 'sample.lane.flow_cell_id', '44', 0);
+      (20249, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20249, 'sample.lane.lane_number', '4', 1);
+      (20249, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20249, 'sample.lane.actual_read_length', '104', 2);
+      (20249, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20249, 'sample.lane.lane_success', '1', 3);
+      (20249, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20249, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20249, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108903,27 +108903,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20025, 'sample.lane.flow_cell_id', '10', 0);
+      (20025, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20025, 'sample.lane.lane_number', '5', 1);
+      (20025, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20025, 'sample.lane.actual_read_length', '85', 2);
+      (20025, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20025, 'sample.lane.lane_success', '1', 3);
+      (20025, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20025, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20025, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108935,27 +108935,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20250, 'sample.lane.flow_cell_id', '44', 0);
+      (20250, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20250, 'sample.lane.lane_number', '5', 1);
+      (20250, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20250, 'sample.lane.actual_read_length', '104', 2);
+      (20250, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20250, 'sample.lane.lane_success', '1', 3);
+      (20250, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20250, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20250, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108967,27 +108967,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20251, 'sample.lane.flow_cell_id', '44', 0);
+      (20251, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20251, 'sample.lane.lane_number', '8', 1);
+      (20251, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20251, 'sample.lane.actual_read_length', '104', 2);
+      (20251, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20251, 'sample.lane.lane_success', '1', 3);
+      (20251, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20251, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20251, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -108999,27 +108999,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20252, 'sample.lane.flow_cell_id', '45', 0);
+      (20252, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20252, 'sample.lane.lane_number', '1', 1);
+      (20252, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20252, 'sample.lane.actual_read_length', '104', 2);
+      (20252, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20252, 'sample.lane.lane_success', '1', 3);
+      (20252, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20252, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20252, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109031,27 +109031,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20253, 'sample.lane.flow_cell_id', '45', 0);
+      (20253, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20253, 'sample.lane.lane_number', '2', 1);
+      (20253, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20253, 'sample.lane.actual_read_length', '104', 2);
+      (20253, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20253, 'sample.lane.lane_success', '1', 3);
+      (20253, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20253, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20253, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109063,27 +109063,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20254, 'sample.lane.flow_cell_id', '45', 0);
+      (20254, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20254, 'sample.lane.lane_number', '3', 1);
+      (20254, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20254, 'sample.lane.actual_read_length', '104', 2);
+      (20254, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20254, 'sample.lane.lane_success', '1', 3);
+      (20254, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20254, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20254, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109095,27 +109095,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20255, 'sample.lane.flow_cell_id', '45', 0);
+      (20255, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20255, 'sample.lane.lane_number', '4', 1);
+      (20255, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20255, 'sample.lane.actual_read_length', '104', 2);
+      (20255, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20255, 'sample.lane.lane_success', '1', 3);
+      (20255, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20255, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20255, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109127,27 +109127,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20256, 'sample.lane.flow_cell_id', '45', 0);
+      (20256, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20256, 'sample.lane.lane_number', '5', 1);
+      (20256, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20256, 'sample.lane.actual_read_length', '104', 2);
+      (20256, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20256, 'sample.lane.lane_success', '1', 3);
+      (20256, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20256, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20256, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109159,27 +109159,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20257, 'sample.lane.flow_cell_id', '45', 0);
+      (20257, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20257, 'sample.lane.lane_number', '6', 1);
+      (20257, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20257, 'sample.lane.actual_read_length', '104', 2);
+      (20257, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20257, 'sample.lane.lane_success', '1', 3);
+      (20257, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20257, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20257, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109191,27 +109191,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20258, 'sample.lane.flow_cell_id', '45', 0);
+      (20258, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20258, 'sample.lane.lane_number', '7', 1);
+      (20258, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20258, 'sample.lane.actual_read_length', '104', 2);
+      (20258, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20258, 'sample.lane.lane_success', '1', 3);
+      (20258, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20258, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20258, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109223,17 +109223,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20259, 'sample.lane.flow_cell_id', '45', 0);
+      (20259, 'sample.cell.flow_cell_id', '45', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20259, 'sample.lane.lane_number', '8', 1);
+      (20259, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20259, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20259, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109245,27 +109245,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20026, 'sample.lane.flow_cell_id', '10', 0);
+      (20026, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20026, 'sample.lane.lane_number', '6', 1);
+      (20026, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20026, 'sample.lane.actual_read_length', '85', 2);
+      (20026, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20026, 'sample.lane.lane_success', '1', 3);
+      (20026, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20026, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20026, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109277,27 +109277,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20260, 'sample.lane.flow_cell_id', '44', 0);
+      (20260, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20260, 'sample.lane.lane_number', '6', 1);
+      (20260, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20260, 'sample.lane.actual_read_length', '104', 2);
+      (20260, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20260, 'sample.lane.lane_success', '1', 3);
+      (20260, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20260, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20260, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109309,27 +109309,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20261, 'sample.lane.flow_cell_id', '44', 0);
+      (20261, 'sample.cell.flow_cell_id', '44', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20261, 'sample.lane.lane_number', '7', 1);
+      (20261, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20261, 'sample.lane.actual_read_length', '104', 2);
+      (20261, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20261, 'sample.lane.lane_success', '1', 3);
+      (20261, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20261, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20261, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109341,27 +109341,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20262, 'sample.lane.flow_cell_id', '46', 0);
+      (20262, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20262, 'sample.lane.lane_number', '1', 1);
+      (20262, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20262, 'sample.lane.actual_read_length', '35', 2);
+      (20262, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20262, 'sample.lane.lane_success', '1', 3);
+      (20262, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20262, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20262, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109373,27 +109373,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20263, 'sample.lane.flow_cell_id', '46', 0);
+      (20263, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20263, 'sample.lane.lane_number', '2', 1);
+      (20263, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20263, 'sample.lane.actual_read_length', '35', 2);
+      (20263, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20263, 'sample.lane.lane_success', '1', 3);
+      (20263, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20263, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20263, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109405,27 +109405,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20264, 'sample.lane.flow_cell_id', '46', 0);
+      (20264, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20264, 'sample.lane.lane_number', '3', 1);
+      (20264, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20264, 'sample.lane.actual_read_length', '35', 2);
+      (20264, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20264, 'sample.lane.lane_success', '1', 3);
+      (20264, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20264, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20264, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109437,27 +109437,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20265, 'sample.lane.flow_cell_id', '46', 0);
+      (20265, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20265, 'sample.lane.lane_number', '5', 1);
+      (20265, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20265, 'sample.lane.actual_read_length', '35', 2);
+      (20265, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20265, 'sample.lane.lane_success', '1', 3);
+      (20265, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20265, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20265, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109469,27 +109469,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20266, 'sample.lane.flow_cell_id', '46', 0);
+      (20266, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20266, 'sample.lane.lane_number', '6', 1);
+      (20266, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20266, 'sample.lane.actual_read_length', '35', 2);
+      (20266, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20266, 'sample.lane.lane_success', '1', 3);
+      (20266, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20266, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20266, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109501,27 +109501,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20267, 'sample.lane.flow_cell_id', '46', 0);
+      (20267, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20267, 'sample.lane.lane_number', '7', 1);
+      (20267, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20267, 'sample.lane.actual_read_length', '35', 2);
+      (20267, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20267, 'sample.lane.lane_success', '1', 3);
+      (20267, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20267, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20267, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109533,27 +109533,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20268, 'sample.lane.flow_cell_id', '46', 0);
+      (20268, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20268, 'sample.lane.lane_number', '8', 1);
+      (20268, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20268, 'sample.lane.actual_read_length', '35', 2);
+      (20268, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20268, 'sample.lane.lane_success', '1', 3);
+      (20268, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20268, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20268, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109565,27 +109565,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20269, 'sample.lane.flow_cell_id', '46', 0);
+      (20269, 'sample.cell.flow_cell_id', '46', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20269, 'sample.lane.lane_number', '4', 1);
+      (20269, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20269, 'sample.lane.actual_read_length', '35', 2);
+      (20269, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20269, 'sample.lane.lane_success', '1', 3);
+      (20269, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20269, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20269, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109597,27 +109597,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20027, 'sample.lane.flow_cell_id', '10', 0);
+      (20027, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20027, 'sample.lane.lane_number', '7', 1);
+      (20027, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20027, 'sample.lane.actual_read_length', '85', 2);
+      (20027, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20027, 'sample.lane.lane_success', '1', 3);
+      (20027, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20027, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20027, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109629,27 +109629,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20270, 'sample.lane.flow_cell_id', '47', 0);
+      (20270, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20270, 'sample.lane.lane_number', '8', 1);
+      (20270, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20270, 'sample.lane.actual_read_length', '85', 2);
+      (20270, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20270, 'sample.lane.lane_success', '1', 3);
+      (20270, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20270, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20270, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109661,27 +109661,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20271, 'sample.lane.flow_cell_id', '47', 0);
+      (20271, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20271, 'sample.lane.lane_number', '4', 1);
+      (20271, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20271, 'sample.lane.actual_read_length', '85', 2);
+      (20271, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20271, 'sample.lane.lane_success', '1', 3);
+      (20271, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20271, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20271, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109693,27 +109693,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20272, 'sample.lane.flow_cell_id', '47', 0);
+      (20272, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20272, 'sample.lane.lane_number', '5', 1);
+      (20272, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20272, 'sample.lane.actual_read_length', '85', 2);
+      (20272, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20272, 'sample.lane.lane_success', '1', 3);
+      (20272, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20272, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20272, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109725,27 +109725,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20273, 'sample.lane.flow_cell_id', '47', 0);
+      (20273, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20273, 'sample.lane.lane_number', '6', 1);
+      (20273, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20273, 'sample.lane.actual_read_length', '85', 2);
+      (20273, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20273, 'sample.lane.lane_success', '1', 3);
+      (20273, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20273, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20273, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109757,27 +109757,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20274, 'sample.lane.flow_cell_id', '47', 0);
+      (20274, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20274, 'sample.lane.lane_number', '7', 1);
+      (20274, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20274, 'sample.lane.actual_read_length', '85', 2);
+      (20274, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20274, 'sample.lane.lane_success', '1', 3);
+      (20274, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20274, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20274, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109789,27 +109789,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20275, 'sample.lane.flow_cell_id', '47', 0);
+      (20275, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20275, 'sample.lane.lane_number', '1', 1);
+      (20275, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20275, 'sample.lane.actual_read_length', '85', 2);
+      (20275, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20275, 'sample.lane.lane_success', '1', 3);
+      (20275, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20275, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20275, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109821,27 +109821,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20276, 'sample.lane.flow_cell_id', '47', 0);
+      (20276, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20276, 'sample.lane.lane_number', '2', 1);
+      (20276, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20276, 'sample.lane.actual_read_length', '85', 2);
+      (20276, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20276, 'sample.lane.lane_success', '1', 3);
+      (20276, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20276, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20276, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109853,27 +109853,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20277, 'sample.lane.flow_cell_id', '47', 0);
+      (20277, 'sample.cell.flow_cell_id', '47', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20277, 'sample.lane.lane_number', '3', 1);
+      (20277, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20277, 'sample.lane.actual_read_length', '85', 2);
+      (20277, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20277, 'sample.lane.lane_success', '1', 3);
+      (20277, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20277, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20277, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109885,27 +109885,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20278, 'sample.lane.flow_cell_id', '48', 0);
+      (20278, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20278, 'sample.lane.lane_number', '1', 1);
+      (20278, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20278, 'sample.lane.actual_read_length', '45', 2);
+      (20278, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20278, 'sample.lane.lane_success', '1', 3);
+      (20278, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20278, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20278, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109917,27 +109917,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20279, 'sample.lane.flow_cell_id', '48', 0);
+      (20279, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20279, 'sample.lane.lane_number', '2', 1);
+      (20279, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20279, 'sample.lane.actual_read_length', '45', 2);
+      (20279, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20279, 'sample.lane.lane_success', '1', 3);
+      (20279, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20279, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20279, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109949,17 +109949,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20028, 'sample.lane.flow_cell_id', '10', 0);
+      (20028, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20028, 'sample.lane.lane_number', '1', 1);
+      (20028, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20028, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20028, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -109971,27 +109971,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20280, 'sample.lane.flow_cell_id', '48', 0);
+      (20280, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20280, 'sample.lane.lane_number', '3', 1);
+      (20280, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20280, 'sample.lane.actual_read_length', '45', 2);
+      (20280, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20280, 'sample.lane.lane_success', '1', 3);
+      (20280, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20280, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20280, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110003,27 +110003,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20281, 'sample.lane.flow_cell_id', '48', 0);
+      (20281, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20281, 'sample.lane.lane_number', '5', 1);
+      (20281, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20281, 'sample.lane.actual_read_length', '45', 2);
+      (20281, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20281, 'sample.lane.lane_success', '1', 3);
+      (20281, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20281, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20281, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110035,27 +110035,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20282, 'sample.lane.flow_cell_id', '48', 0);
+      (20282, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20282, 'sample.lane.lane_number', '4', 1);
+      (20282, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20282, 'sample.lane.actual_read_length', '45', 2);
+      (20282, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20282, 'sample.lane.lane_success', '1', 3);
+      (20282, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20282, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20282, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110067,27 +110067,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20283, 'sample.lane.flow_cell_id', '48', 0);
+      (20283, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20283, 'sample.lane.lane_number', '6', 1);
+      (20283, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20283, 'sample.lane.actual_read_length', '45', 2);
+      (20283, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20283, 'sample.lane.lane_success', '1', 3);
+      (20283, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20283, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20283, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110099,17 +110099,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20284, 'sample.lane.flow_cell_id', '48', 0);
+      (20284, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20284, 'sample.lane.lane_number', '7', 1);
+      (20284, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20284, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20284, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110121,27 +110121,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20285, 'sample.lane.flow_cell_id', '48', 0);
+      (20285, 'sample.cell.flow_cell_id', '48', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20285, 'sample.lane.lane_number', '8', 1);
+      (20285, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20285, 'sample.lane.actual_read_length', '45', 2);
+      (20285, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20285, 'sample.lane.lane_success', '1', 3);
+      (20285, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20285, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20285, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110153,27 +110153,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20286, 'sample.lane.flow_cell_id', '50', 0);
+      (20286, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20286, 'sample.lane.lane_number', '1', 1);
+      (20286, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20286, 'sample.lane.actual_read_length', '35', 2);
+      (20286, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20286, 'sample.lane.lane_success', '1', 3);
+      (20286, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20286, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20286, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110185,27 +110185,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20287, 'sample.lane.flow_cell_id', '50', 0);
+      (20287, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20287, 'sample.lane.lane_number', '2', 1);
+      (20287, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20287, 'sample.lane.actual_read_length', '35', 2);
+      (20287, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20287, 'sample.lane.lane_success', '1', 3);
+      (20287, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20287, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20287, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110217,27 +110217,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20288, 'sample.lane.flow_cell_id', '50', 0);
+      (20288, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20288, 'sample.lane.lane_number', '3', 1);
+      (20288, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20288, 'sample.lane.actual_read_length', '35', 2);
+      (20288, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20288, 'sample.lane.lane_success', '1', 3);
+      (20288, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20288, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20288, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110249,27 +110249,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20289, 'sample.lane.flow_cell_id', '50', 0);
+      (20289, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20289, 'sample.lane.lane_number', '5', 1);
+      (20289, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20289, 'sample.lane.actual_read_length', '35', 2);
+      (20289, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20289, 'sample.lane.lane_success', '1', 3);
+      (20289, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20289, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20289, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110281,27 +110281,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20029, 'sample.lane.flow_cell_id', '10', 0);
+      (20029, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20029, 'sample.lane.lane_number', '2', 1);
+      (20029, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20029, 'sample.lane.actual_read_length', '85', 2);
+      (20029, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20029, 'sample.lane.lane_success', '1', 3);
+      (20029, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20029, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20029, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110313,27 +110313,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20290, 'sample.lane.flow_cell_id', '50', 0);
+      (20290, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20290, 'sample.lane.lane_number', '6', 1);
+      (20290, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20290, 'sample.lane.actual_read_length', '35', 2);
+      (20290, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20290, 'sample.lane.lane_success', '1', 3);
+      (20290, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20290, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20290, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110345,27 +110345,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20291, 'sample.lane.flow_cell_id', '50', 0);
+      (20291, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20291, 'sample.lane.lane_number', '7', 1);
+      (20291, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20291, 'sample.lane.actual_read_length', '35', 2);
+      (20291, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20291, 'sample.lane.lane_success', '1', 3);
+      (20291, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20291, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20291, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110377,27 +110377,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20292, 'sample.lane.flow_cell_id', '50', 0);
+      (20292, 'sample.cell.flow_cell_id', '50', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20292, 'sample.lane.lane_number', '8', 1);
+      (20292, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20292, 'sample.lane.actual_read_length', '35', 2);
+      (20292, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20292, 'sample.lane.lane_success', '1', 3);
+      (20292, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20292, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20292, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110409,27 +110409,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20293, 'sample.lane.flow_cell_id', '49', 0);
+      (20293, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20293, 'sample.lane.lane_number', '1', 1);
+      (20293, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20293, 'sample.lane.actual_read_length', '45', 2);
+      (20293, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20293, 'sample.lane.lane_success', '1', 3);
+      (20293, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20293, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20293, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110441,27 +110441,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20294, 'sample.lane.flow_cell_id', '49', 0);
+      (20294, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20294, 'sample.lane.lane_number', '2', 1);
+      (20294, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20294, 'sample.lane.actual_read_length', '45', 2);
+      (20294, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20294, 'sample.lane.lane_success', '1', 3);
+      (20294, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20294, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20294, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110473,27 +110473,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20295, 'sample.lane.flow_cell_id', '49', 0);
+      (20295, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20295, 'sample.lane.lane_number', '3', 1);
+      (20295, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20295, 'sample.lane.actual_read_length', '45', 2);
+      (20295, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20295, 'sample.lane.lane_success', '1', 3);
+      (20295, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20295, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20295, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110505,37 +110505,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.flow_cell_id', '49', 0);
+      (20296, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.lane_number', '4', 1);
+      (20296, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.control_name', 'phi X', 2);
+      (20296, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20296, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.actual_read_length', '45', 4);
+      (20296, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.lane_success', '1', 5);
+      (20296, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20296, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20296, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110547,17 +110547,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20297, 'sample.lane.flow_cell_id', '49', 0);
+      (20297, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20297, 'sample.lane.lane_number', '7', 1);
+      (20297, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20297, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20297, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110569,27 +110569,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20298, 'sample.lane.flow_cell_id', '49', 0);
+      (20298, 'sample.cell.flow_cell_id', '49', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20298, 'sample.lane.lane_number', '8', 1);
+      (20298, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20298, 'sample.lane.actual_read_length', '45', 2);
+      (20298, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20298, 'sample.lane.lane_success', '1', 3);
+      (20298, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20298, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20298, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110601,27 +110601,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20003, 'sample.lane.flow_cell_id', '2', 0);
+      (20003, 'sample.cell.flow_cell_id', '2', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20003, 'sample.lane.lane_number', '7', 1);
+      (20003, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20003, 'sample.lane.actual_read_length', '34', 2);
+      (20003, 'sample.cell.actual_read_length', '34', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20003, 'sample.lane.lane_success', '1', 3);
+      (20003, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20003, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20003, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110633,27 +110633,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20030, 'sample.lane.flow_cell_id', '10', 0);
+      (20030, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20030, 'sample.lane.lane_number', '3', 1);
+      (20030, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20030, 'sample.lane.actual_read_length', '85', 2);
+      (20030, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20030, 'sample.lane.lane_success', '1', 3);
+      (20030, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20030, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20030, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110665,27 +110665,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20300, 'sample.lane.flow_cell_id', '51', 0);
+      (20300, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20300, 'sample.lane.lane_number', '1', 1);
+      (20300, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20300, 'sample.lane.actual_read_length', '119', 2);
+      (20300, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20300, 'sample.lane.lane_success', '1', 3);
+      (20300, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20300, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20300, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110697,17 +110697,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20301, 'sample.lane.flow_cell_id', '51', 0);
+      (20301, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20301, 'sample.lane.lane_number', '2', 1);
+      (20301, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20301, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20301, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110719,27 +110719,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20302, 'sample.lane.flow_cell_id', '51', 0);
+      (20302, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20302, 'sample.lane.lane_number', '3', 1);
+      (20302, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20302, 'sample.lane.actual_read_length', '119', 2);
+      (20302, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20302, 'sample.lane.lane_success', '1', 3);
+      (20302, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20302, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20302, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110751,27 +110751,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20303, 'sample.lane.flow_cell_id', '51', 0);
+      (20303, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20303, 'sample.lane.lane_number', '4', 1);
+      (20303, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20303, 'sample.lane.actual_read_length', '119', 2);
+      (20303, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20303, 'sample.lane.lane_success', '1', 3);
+      (20303, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20303, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20303, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110783,27 +110783,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20304, 'sample.lane.flow_cell_id', '51', 0);
+      (20304, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20304, 'sample.lane.lane_number', '5', 1);
+      (20304, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20304, 'sample.lane.actual_read_length', '119', 2);
+      (20304, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20304, 'sample.lane.lane_success', '1', 3);
+      (20304, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20304, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20304, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110815,27 +110815,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20305, 'sample.lane.flow_cell_id', '51', 0);
+      (20305, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20305, 'sample.lane.lane_number', '6', 1);
+      (20305, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20305, 'sample.lane.actual_read_length', '119', 2);
+      (20305, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20305, 'sample.lane.lane_success', '1', 3);
+      (20305, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20305, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20305, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110847,27 +110847,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20306, 'sample.lane.flow_cell_id', '51', 0);
+      (20306, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20306, 'sample.lane.lane_number', '7', 1);
+      (20306, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20306, 'sample.lane.actual_read_length', '119', 2);
+      (20306, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20306, 'sample.lane.lane_success', '1', 3);
+      (20306, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20306, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20306, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110879,27 +110879,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20307, 'sample.lane.flow_cell_id', '51', 0);
+      (20307, 'sample.cell.flow_cell_id', '51', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20307, 'sample.lane.lane_number', '8', 1);
+      (20307, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20307, 'sample.lane.actual_read_length', '119', 2);
+      (20307, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20307, 'sample.lane.lane_success', '1', 3);
+      (20307, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20307, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20307, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110911,17 +110911,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20308, 'sample.lane.flow_cell_id', '53', 0);
+      (20308, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20308, 'sample.lane.lane_number', '1', 1);
+      (20308, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20308, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20308, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110933,27 +110933,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20309, 'sample.lane.flow_cell_id', '53', 0);
+      (20309, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20309, 'sample.lane.lane_number', '2', 1);
+      (20309, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20309, 'sample.lane.actual_read_length', '35', 2);
+      (20309, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20309, 'sample.lane.lane_success', '1', 3);
+      (20309, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20309, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20309, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110965,27 +110965,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20031, 'sample.lane.flow_cell_id', '10', 0);
+      (20031, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20031, 'sample.lane.lane_number', '8', 1);
+      (20031, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20031, 'sample.lane.actual_read_length', '85', 2);
+      (20031, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20031, 'sample.lane.lane_success', '1', 3);
+      (20031, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20031, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20031, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -110997,27 +110997,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20310, 'sample.lane.flow_cell_id', '53', 0);
+      (20310, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20310, 'sample.lane.lane_number', '3', 1);
+      (20310, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20310, 'sample.lane.actual_read_length', '35', 2);
+      (20310, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20310, 'sample.lane.lane_success', '1', 3);
+      (20310, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20310, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20310, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111029,27 +111029,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20311, 'sample.lane.flow_cell_id', '53', 0);
+      (20311, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20311, 'sample.lane.lane_number', '5', 1);
+      (20311, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20311, 'sample.lane.actual_read_length', '35', 2);
+      (20311, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20311, 'sample.lane.lane_success', '1', 3);
+      (20311, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20311, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20311, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111061,27 +111061,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20312, 'sample.lane.flow_cell_id', '53', 0);
+      (20312, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20312, 'sample.lane.lane_number', '6', 1);
+      (20312, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20312, 'sample.lane.actual_read_length', '35', 2);
+      (20312, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20312, 'sample.lane.lane_success', '1', 3);
+      (20312, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20312, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20312, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111093,27 +111093,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20313, 'sample.lane.flow_cell_id', '53', 0);
+      (20313, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20313, 'sample.lane.lane_number', '7', 1);
+      (20313, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20313, 'sample.lane.actual_read_length', '35', 2);
+      (20313, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20313, 'sample.lane.lane_success', '1', 3);
+      (20313, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20313, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20313, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111125,27 +111125,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20314, 'sample.lane.flow_cell_id', '53', 0);
+      (20314, 'sample.cell.flow_cell_id', '53', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20314, 'sample.lane.lane_number', '8', 1);
+      (20314, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20314, 'sample.lane.actual_read_length', '35', 2);
+      (20314, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20314, 'sample.lane.lane_success', '1', 3);
+      (20314, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20314, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20314, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111157,12 +111157,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20315, 'sample.lane.flow_cell_id', '52', 0);
+      (20315, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20315, 'sample.lane.lane_number', '1', 1);
+      (20315, 'sample.cell.cell_number', '1', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111174,12 +111174,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20316, 'sample.lane.flow_cell_id', '52', 0);
+      (20316, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20316, 'sample.lane.lane_number', '2', 1);
+      (20316, 'sample.cell.cell_number', '2', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111191,12 +111191,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20317, 'sample.lane.flow_cell_id', '52', 0);
+      (20317, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20317, 'sample.lane.lane_number', '3', 1);
+      (20317, 'sample.cell.cell_number', '3', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111208,12 +111208,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20318, 'sample.lane.flow_cell_id', '52', 0);
+      (20318, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20318, 'sample.lane.lane_number', '4', 1);
+      (20318, 'sample.cell.cell_number', '4', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111225,12 +111225,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20319, 'sample.lane.flow_cell_id', '52', 0);
+      (20319, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20319, 'sample.lane.lane_number', '5', 1);
+      (20319, 'sample.cell.cell_number', '5', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111242,27 +111242,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20032, 'sample.lane.flow_cell_id', '10', 0);
+      (20032, 'sample.cell.flow_cell_id', '10', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20032, 'sample.lane.lane_number', '4', 1);
+      (20032, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20032, 'sample.lane.actual_read_length', '85', 2);
+      (20032, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20032, 'sample.lane.lane_success', '1', 3);
+      (20032, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20032, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20032, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111274,12 +111274,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20320, 'sample.lane.flow_cell_id', '52', 0);
+      (20320, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20320, 'sample.lane.lane_number', '6', 1);
+      (20320, 'sample.cell.cell_number', '6', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111291,12 +111291,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20321, 'sample.lane.flow_cell_id', '52', 0);
+      (20321, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20321, 'sample.lane.lane_number', '7', 1);
+      (20321, 'sample.cell.cell_number', '7', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111308,12 +111308,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20322, 'sample.lane.flow_cell_id', '52', 0);
+      (20322, 'sample.cell.flow_cell_id', '52', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20322, 'sample.lane.lane_number', '8', 1);
+      (20322, 'sample.cell.cell_number', '8', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111325,27 +111325,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20323, 'sample.lane.flow_cell_id', '54', 0);
+      (20323, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20323, 'sample.lane.lane_number', '1', 1);
+      (20323, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20323, 'sample.lane.actual_read_length', '35', 2);
+      (20323, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20323, 'sample.lane.lane_success', '1', 3);
+      (20323, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20323, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20323, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111357,27 +111357,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20324, 'sample.lane.flow_cell_id', '54', 0);
+      (20324, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20324, 'sample.lane.lane_number', '2', 1);
+      (20324, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20324, 'sample.lane.actual_read_length', '35', 2);
+      (20324, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20324, 'sample.lane.lane_success', '1', 3);
+      (20324, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20324, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20324, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111389,27 +111389,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20325, 'sample.lane.flow_cell_id', '54', 0);
+      (20325, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20325, 'sample.lane.lane_number', '3', 1);
+      (20325, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20325, 'sample.lane.actual_read_length', '35', 2);
+      (20325, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20325, 'sample.lane.lane_success', '1', 3);
+      (20325, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20325, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20325, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111421,27 +111421,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20326, 'sample.lane.flow_cell_id', '54', 0);
+      (20326, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20326, 'sample.lane.lane_number', '5', 1);
+      (20326, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20326, 'sample.lane.actual_read_length', '35', 2);
+      (20326, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20326, 'sample.lane.lane_success', '1', 3);
+      (20326, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20326, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20326, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111453,27 +111453,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20327, 'sample.lane.flow_cell_id', '54', 0);
+      (20327, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20327, 'sample.lane.lane_number', '6', 1);
+      (20327, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20327, 'sample.lane.actual_read_length', '35', 2);
+      (20327, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20327, 'sample.lane.lane_success', '1', 3);
+      (20327, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20327, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20327, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111485,27 +111485,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20328, 'sample.lane.flow_cell_id', '54', 0);
+      (20328, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20328, 'sample.lane.lane_number', '7', 1);
+      (20328, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20328, 'sample.lane.actual_read_length', '35', 2);
+      (20328, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20328, 'sample.lane.lane_success', '1', 3);
+      (20328, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20328, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20328, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111517,27 +111517,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20329, 'sample.lane.flow_cell_id', '54', 0);
+      (20329, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20329, 'sample.lane.lane_number', '8', 1);
+      (20329, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20329, 'sample.lane.actual_read_length', '35', 2);
+      (20329, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20329, 'sample.lane.lane_success', '1', 3);
+      (20329, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20329, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20329, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111549,27 +111549,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20033, 'sample.lane.flow_cell_id', '11', 0);
+      (20033, 'sample.cell.flow_cell_id', '11', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20033, 'sample.lane.lane_number', '8', 1);
+      (20033, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20033, 'sample.lane.actual_read_length', '82', 2);
+      (20033, 'sample.cell.actual_read_length', '82', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20033, 'sample.lane.lane_success', '1', 3);
+      (20033, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20033, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20033, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111581,22 +111581,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20330, 'sample.lane.flow_cell_id', '54', 0);
+      (20330, 'sample.cell.flow_cell_id', '54', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20330, 'sample.lane.lane_number', '4', 1);
+      (20330, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20330, 'sample.lane.control_name', 'phi X', 2);
+      (20330, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20330, 'sample.lane.control_pmol_applied', '6', 3);
+      (20330, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111608,27 +111608,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20331, 'sample.lane.flow_cell_id', '55', 0);
+      (20331, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20331, 'sample.lane.lane_number', '1', 1);
+      (20331, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20331, 'sample.lane.actual_read_length', '119', 2);
+      (20331, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20331, 'sample.lane.lane_success', '1', 3);
+      (20331, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20331, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20331, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111640,27 +111640,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20332, 'sample.lane.flow_cell_id', '55', 0);
+      (20332, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20332, 'sample.lane.lane_number', '4', 1);
+      (20332, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20332, 'sample.lane.actual_read_length', '119', 2);
+      (20332, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20332, 'sample.lane.lane_success', '1', 3);
+      (20332, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20332, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20332, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111672,27 +111672,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20333, 'sample.lane.flow_cell_id', '55', 0);
+      (20333, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20333, 'sample.lane.lane_number', '2', 1);
+      (20333, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20333, 'sample.lane.actual_read_length', '119', 2);
+      (20333, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20333, 'sample.lane.lane_success', '1', 3);
+      (20333, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20333, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20333, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111704,27 +111704,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20334, 'sample.lane.flow_cell_id', '55', 0);
+      (20334, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20334, 'sample.lane.lane_number', '3', 1);
+      (20334, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20334, 'sample.lane.actual_read_length', '119', 2);
+      (20334, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20334, 'sample.lane.lane_success', '1', 3);
+      (20334, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20334, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20334, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111736,27 +111736,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20335, 'sample.lane.flow_cell_id', '55', 0);
+      (20335, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20335, 'sample.lane.lane_number', '5', 1);
+      (20335, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20335, 'sample.lane.actual_read_length', '119', 2);
+      (20335, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20335, 'sample.lane.lane_success', '1', 3);
+      (20335, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20335, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20335, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111768,27 +111768,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20336, 'sample.lane.flow_cell_id', '55', 0);
+      (20336, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20336, 'sample.lane.lane_number', '6', 1);
+      (20336, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20336, 'sample.lane.actual_read_length', '119', 2);
+      (20336, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20336, 'sample.lane.lane_success', '1', 3);
+      (20336, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20336, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20336, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111800,27 +111800,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20337, 'sample.lane.flow_cell_id', '55', 0);
+      (20337, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20337, 'sample.lane.lane_number', '7', 1);
+      (20337, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20337, 'sample.lane.actual_read_length', '119', 2);
+      (20337, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20337, 'sample.lane.lane_success', '1', 3);
+      (20337, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20337, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20337, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111832,27 +111832,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20338, 'sample.lane.flow_cell_id', '55', 0);
+      (20338, 'sample.cell.flow_cell_id', '55', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20338, 'sample.lane.lane_number', '8', 1);
+      (20338, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20338, 'sample.lane.actual_read_length', '119', 2);
+      (20338, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20338, 'sample.lane.lane_success', '1', 3);
+      (20338, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20338, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20338, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111864,27 +111864,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20339, 'sample.lane.flow_cell_id', '56', 0);
+      (20339, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20339, 'sample.lane.lane_number', '1', 1);
+      (20339, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20339, 'sample.lane.actual_read_length', '45', 2);
+      (20339, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20339, 'sample.lane.lane_success', '1', 3);
+      (20339, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20339, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20339, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111896,27 +111896,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20034, 'sample.lane.flow_cell_id', '12', 0);
+      (20034, 'sample.cell.flow_cell_id', '12', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20034, 'sample.lane.lane_number', '2', 1);
+      (20034, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20034, 'sample.lane.actual_read_length', '85', 2);
+      (20034, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20034, 'sample.lane.lane_success', '1', 3);
+      (20034, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20034, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20034, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111928,27 +111928,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20340, 'sample.lane.flow_cell_id', '56', 0);
+      (20340, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20340, 'sample.lane.lane_number', '2', 1);
+      (20340, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20340, 'sample.lane.actual_read_length', '45', 2);
+      (20340, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20340, 'sample.lane.lane_success', '1', 3);
+      (20340, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20340, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20340, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111960,27 +111960,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20341, 'sample.lane.flow_cell_id', '56', 0);
+      (20341, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20341, 'sample.lane.lane_number', '3', 1);
+      (20341, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20341, 'sample.lane.actual_read_length', '45', 2);
+      (20341, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20341, 'sample.lane.lane_success', '1', 3);
+      (20341, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20341, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20341, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -111992,27 +111992,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20342, 'sample.lane.flow_cell_id', '56', 0);
+      (20342, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20342, 'sample.lane.lane_number', '5', 1);
+      (20342, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20342, 'sample.lane.actual_read_length', '45', 2);
+      (20342, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20342, 'sample.lane.lane_success', '1', 3);
+      (20342, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20342, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20342, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112024,27 +112024,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20343, 'sample.lane.flow_cell_id', '56', 0);
+      (20343, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20343, 'sample.lane.lane_number', '6', 1);
+      (20343, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20343, 'sample.lane.actual_read_length', '45', 2);
+      (20343, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20343, 'sample.lane.lane_success', '1', 3);
+      (20343, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20343, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20343, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112056,27 +112056,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20344, 'sample.lane.flow_cell_id', '56', 0);
+      (20344, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20344, 'sample.lane.lane_number', '7', 1);
+      (20344, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20344, 'sample.lane.actual_read_length', '45', 2);
+      (20344, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20344, 'sample.lane.lane_success', '1', 3);
+      (20344, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20344, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20344, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112088,27 +112088,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20345, 'sample.lane.flow_cell_id', '56', 0);
+      (20345, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20345, 'sample.lane.lane_number', '8', 1);
+      (20345, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20345, 'sample.lane.actual_read_length', '45', 2);
+      (20345, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20345, 'sample.lane.lane_success', '1', 3);
+      (20345, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20345, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20345, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112120,22 +112120,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20346, 'sample.lane.flow_cell_id', '56', 0);
+      (20346, 'sample.cell.flow_cell_id', '56', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20346, 'sample.lane.lane_number', '4', 1);
+      (20346, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20346, 'sample.lane.control_name', 'phi X', 2);
+      (20346, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20346, 'sample.lane.control_pmol_applied', '6', 3);
+      (20346, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112147,27 +112147,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20347, 'sample.lane.flow_cell_id', '57', 0);
+      (20347, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20347, 'sample.lane.lane_number', '1', 1);
+      (20347, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20347, 'sample.lane.actual_read_length', '35', 2);
+      (20347, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20347, 'sample.lane.lane_success', '1', 3);
+      (20347, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20347, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20347, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112179,27 +112179,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20348, 'sample.lane.flow_cell_id', '57', 0);
+      (20348, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20348, 'sample.lane.lane_number', '2', 1);
+      (20348, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20348, 'sample.lane.actual_read_length', '35', 2);
+      (20348, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20348, 'sample.lane.lane_success', '1', 3);
+      (20348, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20348, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20348, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112211,27 +112211,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20349, 'sample.lane.flow_cell_id', '57', 0);
+      (20349, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20349, 'sample.lane.lane_number', '3', 1);
+      (20349, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20349, 'sample.lane.actual_read_length', '35', 2);
+      (20349, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20349, 'sample.lane.lane_success', '1', 3);
+      (20349, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20349, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20349, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112243,27 +112243,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20035, 'sample.lane.flow_cell_id', '12', 0);
+      (20035, 'sample.cell.flow_cell_id', '12', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20035, 'sample.lane.lane_number', '3', 1);
+      (20035, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20035, 'sample.lane.actual_read_length', '85', 2);
+      (20035, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20035, 'sample.lane.lane_success', '1', 3);
+      (20035, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20035, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20035, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112275,27 +112275,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20350, 'sample.lane.flow_cell_id', '57', 0);
+      (20350, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20350, 'sample.lane.lane_number', '5', 1);
+      (20350, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20350, 'sample.lane.actual_read_length', '35', 2);
+      (20350, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20350, 'sample.lane.lane_success', '1', 3);
+      (20350, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20350, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20350, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112307,27 +112307,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20351, 'sample.lane.flow_cell_id', '57', 0);
+      (20351, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20351, 'sample.lane.lane_number', '6', 1);
+      (20351, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20351, 'sample.lane.actual_read_length', '35', 2);
+      (20351, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20351, 'sample.lane.lane_success', '1', 3);
+      (20351, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20351, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20351, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112339,27 +112339,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20352, 'sample.lane.flow_cell_id', '57', 0);
+      (20352, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20352, 'sample.lane.lane_number', '7', 1);
+      (20352, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20352, 'sample.lane.actual_read_length', '35', 2);
+      (20352, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20352, 'sample.lane.lane_success', '1', 3);
+      (20352, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20352, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20352, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112371,27 +112371,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20353, 'sample.lane.flow_cell_id', '57', 0);
+      (20353, 'sample.cell.flow_cell_id', '57', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20353, 'sample.lane.lane_number', '8', 1);
+      (20353, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20353, 'sample.lane.actual_read_length', '35', 2);
+      (20353, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20353, 'sample.lane.lane_success', '1', 3);
+      (20353, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20353, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20353, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112403,27 +112403,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20354, 'sample.lane.flow_cell_id', '58', 0);
+      (20354, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20354, 'sample.lane.lane_number', '1', 1);
+      (20354, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20354, 'sample.lane.actual_read_length', '35', 2);
+      (20354, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20354, 'sample.lane.lane_success', '1', 3);
+      (20354, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20354, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20354, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112435,27 +112435,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20355, 'sample.lane.flow_cell_id', '58', 0);
+      (20355, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20355, 'sample.lane.lane_number', '2', 1);
+      (20355, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20355, 'sample.lane.actual_read_length', '35', 2);
+      (20355, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20355, 'sample.lane.lane_success', '1', 3);
+      (20355, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20355, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20355, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112467,27 +112467,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20356, 'sample.lane.flow_cell_id', '58', 0);
+      (20356, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20356, 'sample.lane.lane_number', '3', 1);
+      (20356, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20356, 'sample.lane.actual_read_length', '35', 2);
+      (20356, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20356, 'sample.lane.lane_success', '1', 3);
+      (20356, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20356, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20356, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112499,27 +112499,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20357, 'sample.lane.flow_cell_id', '58', 0);
+      (20357, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20357, 'sample.lane.lane_number', '5', 1);
+      (20357, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20357, 'sample.lane.actual_read_length', '35', 2);
+      (20357, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20357, 'sample.lane.lane_success', '1', 3);
+      (20357, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20357, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20357, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112531,27 +112531,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20358, 'sample.lane.flow_cell_id', '58', 0);
+      (20358, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20358, 'sample.lane.lane_number', '6', 1);
+      (20358, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20358, 'sample.lane.actual_read_length', '35', 2);
+      (20358, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20358, 'sample.lane.lane_success', '1', 3);
+      (20358, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20358, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20358, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112563,27 +112563,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20359, 'sample.lane.flow_cell_id', '58', 0);
+      (20359, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20359, 'sample.lane.lane_number', '7', 1);
+      (20359, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20359, 'sample.lane.actual_read_length', '35', 2);
+      (20359, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20359, 'sample.lane.lane_success', '1', 3);
+      (20359, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20359, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20359, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112595,27 +112595,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20036, 'sample.lane.flow_cell_id', '12', 0);
+      (20036, 'sample.cell.flow_cell_id', '12', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20036, 'sample.lane.lane_number', '1', 1);
+      (20036, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20036, 'sample.lane.actual_read_length', '85', 2);
+      (20036, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20036, 'sample.lane.lane_success', '1', 3);
+      (20036, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20036, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20036, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112627,27 +112627,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20360, 'sample.lane.flow_cell_id', '58', 0);
+      (20360, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20360, 'sample.lane.lane_number', '8', 1);
+      (20360, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20360, 'sample.lane.actual_read_length', '35', 2);
+      (20360, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20360, 'sample.lane.lane_success', '1', 3);
+      (20360, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20360, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20360, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112659,22 +112659,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20361, 'sample.lane.flow_cell_id', '58', 0);
+      (20361, 'sample.cell.flow_cell_id', '58', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20361, 'sample.lane.lane_number', '4', 1);
+      (20361, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20361, 'sample.lane.control_name', 'phi X', 2);
+      (20361, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20361, 'sample.lane.control_pmol_applied', '6', 3);
+      (20361, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112686,27 +112686,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20362, 'sample.lane.flow_cell_id', '60', 0);
+      (20362, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20362, 'sample.lane.lane_number', '1', 1);
+      (20362, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20362, 'sample.lane.actual_read_length', '100', 2);
+      (20362, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20362, 'sample.lane.lane_success', '1', 3);
+      (20362, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20362, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20362, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112718,27 +112718,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20363, 'sample.lane.flow_cell_id', '60', 0);
+      (20363, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20363, 'sample.lane.lane_number', '2', 1);
+      (20363, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20363, 'sample.lane.actual_read_length', '100', 2);
+      (20363, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20363, 'sample.lane.lane_success', '1', 3);
+      (20363, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20363, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20363, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112750,27 +112750,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20364, 'sample.lane.flow_cell_id', '60', 0);
+      (20364, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20364, 'sample.lane.lane_number', '3', 1);
+      (20364, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20364, 'sample.lane.actual_read_length', '100', 2);
+      (20364, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20364, 'sample.lane.lane_success', '1', 3);
+      (20364, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20364, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20364, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112782,27 +112782,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20365, 'sample.lane.flow_cell_id', '60', 0);
+      (20365, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20365, 'sample.lane.lane_number', '4', 1);
+      (20365, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20365, 'sample.lane.actual_read_length', '100', 2);
+      (20365, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20365, 'sample.lane.lane_success', '1', 3);
+      (20365, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20365, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20365, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112814,27 +112814,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20366, 'sample.lane.flow_cell_id', '60', 0);
+      (20366, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20366, 'sample.lane.lane_number', '5', 1);
+      (20366, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20366, 'sample.lane.actual_read_length', '100', 2);
+      (20366, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20366, 'sample.lane.lane_success', '1', 3);
+      (20366, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20366, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20366, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112846,27 +112846,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20367, 'sample.lane.flow_cell_id', '60', 0);
+      (20367, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20367, 'sample.lane.lane_number', '6', 1);
+      (20367, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20367, 'sample.lane.actual_read_length', '100', 2);
+      (20367, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20367, 'sample.lane.lane_success', '1', 3);
+      (20367, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20367, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20367, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112878,27 +112878,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20368, 'sample.lane.flow_cell_id', '60', 0);
+      (20368, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20368, 'sample.lane.lane_number', '7', 1);
+      (20368, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20368, 'sample.lane.actual_read_length', '100', 2);
+      (20368, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20368, 'sample.lane.lane_success', '1', 3);
+      (20368, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20368, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20368, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112910,27 +112910,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20369, 'sample.lane.flow_cell_id', '60', 0);
+      (20369, 'sample.cell.flow_cell_id', '60', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20369, 'sample.lane.lane_number', '8', 1);
+      (20369, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20369, 'sample.lane.actual_read_length', '100', 2);
+      (20369, 'sample.cell.actual_read_length', '100', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20369, 'sample.lane.lane_success', '1', 3);
+      (20369, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20369, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20369, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112942,27 +112942,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20037, 'sample.lane.flow_cell_id', '14', 0);
+      (20037, 'sample.cell.flow_cell_id', '14', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20037, 'sample.lane.lane_number', '7', 1);
+      (20037, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20037, 'sample.lane.actual_read_length', '85', 2);
+      (20037, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20037, 'sample.lane.lane_success', '1', 3);
+      (20037, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20037, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20037, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112974,12 +112974,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20370, 'sample.lane.flow_cell_id', '59', 0);
+      (20370, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20370, 'sample.lane.lane_number', '6', 1);
+      (20370, 'sample.cell.cell_number', '6', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -112991,12 +112991,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20371, 'sample.lane.flow_cell_id', '59', 0);
+      (20371, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20371, 'sample.lane.lane_number', '3', 1);
+      (20371, 'sample.cell.cell_number', '3', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113008,12 +113008,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20372, 'sample.lane.flow_cell_id', '59', 0);
+      (20372, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20372, 'sample.lane.lane_number', '4', 1);
+      (20372, 'sample.cell.cell_number', '4', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113025,12 +113025,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20373, 'sample.lane.flow_cell_id', '59', 0);
+      (20373, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20373, 'sample.lane.lane_number', '5', 1);
+      (20373, 'sample.cell.cell_number', '5', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113042,12 +113042,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20374, 'sample.lane.flow_cell_id', '59', 0);
+      (20374, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20374, 'sample.lane.lane_number', '1', 1);
+      (20374, 'sample.cell.cell_number', '1', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113059,12 +113059,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20375, 'sample.lane.flow_cell_id', '59', 0);
+      (20375, 'sample.cell.flow_cell_id', '59', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20375, 'sample.lane.lane_number', '2', 1);
+      (20375, 'sample.cell.cell_number', '2', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113076,27 +113076,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20376, 'sample.lane.flow_cell_id', '61', 0);
+      (20376, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20376, 'sample.lane.lane_number', '2', 1);
+      (20376, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20376, 'sample.lane.actual_read_length', '44', 2);
+      (20376, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20376, 'sample.lane.lane_success', '1', 3);
+      (20376, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20376, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20376, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113108,27 +113108,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20377, 'sample.lane.flow_cell_id', '61', 0);
+      (20377, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20377, 'sample.lane.lane_number', '1', 1);
+      (20377, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20377, 'sample.lane.actual_read_length', '44', 2);
+      (20377, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20377, 'sample.lane.lane_success', '1', 3);
+      (20377, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20377, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20377, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113140,27 +113140,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20378, 'sample.lane.flow_cell_id', '61', 0);
+      (20378, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20378, 'sample.lane.lane_number', '3', 1);
+      (20378, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20378, 'sample.lane.actual_read_length', '44', 2);
+      (20378, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20378, 'sample.lane.lane_success', '1', 3);
+      (20378, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20378, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20378, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113172,27 +113172,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20379, 'sample.lane.flow_cell_id', '61', 0);
+      (20379, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20379, 'sample.lane.lane_number', '5', 1);
+      (20379, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20379, 'sample.lane.actual_read_length', '44', 2);
+      (20379, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20379, 'sample.lane.lane_success', '1', 3);
+      (20379, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20379, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20379, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113204,27 +113204,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20038, 'sample.lane.flow_cell_id', '14', 0);
+      (20038, 'sample.cell.flow_cell_id', '14', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20038, 'sample.lane.lane_number', '8', 1);
+      (20038, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20038, 'sample.lane.actual_read_length', '85', 2);
+      (20038, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20038, 'sample.lane.lane_success', '1', 3);
+      (20038, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20038, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20038, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113236,27 +113236,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20380, 'sample.lane.flow_cell_id', '61', 0);
+      (20380, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20380, 'sample.lane.lane_number', '6', 1);
+      (20380, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20380, 'sample.lane.actual_read_length', '44', 2);
+      (20380, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20380, 'sample.lane.lane_success', '1', 3);
+      (20380, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20380, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20380, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113268,27 +113268,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20381, 'sample.lane.flow_cell_id', '61', 0);
+      (20381, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20381, 'sample.lane.lane_number', '7', 1);
+      (20381, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20381, 'sample.lane.actual_read_length', '44', 2);
+      (20381, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20381, 'sample.lane.lane_success', '1', 3);
+      (20381, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20381, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20381, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113300,27 +113300,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20382, 'sample.lane.flow_cell_id', '61', 0);
+      (20382, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20382, 'sample.lane.lane_number', '8', 1);
+      (20382, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20382, 'sample.lane.actual_read_length', '44', 2);
+      (20382, 'sample.cell.actual_read_length', '44', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20382, 'sample.lane.lane_success', '1', 3);
+      (20382, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20382, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20382, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113332,22 +113332,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20383, 'sample.lane.flow_cell_id', '61', 0);
+      (20383, 'sample.cell.flow_cell_id', '61', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20383, 'sample.lane.lane_number', '4', 1);
+      (20383, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20383, 'sample.lane.control_name', 'phi X', 2);
+      (20383, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20383, 'sample.lane.control_pmol_applied', '6', 3);
+      (20383, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113359,27 +113359,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20384, 'sample.lane.flow_cell_id', '62', 0);
+      (20384, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20384, 'sample.lane.lane_number', '1', 1);
+      (20384, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20384, 'sample.lane.actual_read_length', '45', 2);
+      (20384, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20384, 'sample.lane.lane_success', '1', 3);
+      (20384, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20384, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20384, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113391,27 +113391,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20385, 'sample.lane.flow_cell_id', '62', 0);
+      (20385, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20385, 'sample.lane.lane_number', '3', 1);
+      (20385, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20385, 'sample.lane.actual_read_length', '45', 2);
+      (20385, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20385, 'sample.lane.lane_success', '1', 3);
+      (20385, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20385, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20385, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113423,27 +113423,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20386, 'sample.lane.flow_cell_id', '62', 0);
+      (20386, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20386, 'sample.lane.lane_number', '4', 1);
+      (20386, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20386, 'sample.lane.actual_read_length', '45', 2);
+      (20386, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20386, 'sample.lane.lane_success', '1', 3);
+      (20386, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20386, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20386, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113455,27 +113455,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20387, 'sample.lane.flow_cell_id', '62', 0);
+      (20387, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20387, 'sample.lane.lane_number', '5', 1);
+      (20387, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20387, 'sample.lane.actual_read_length', '45', 2);
+      (20387, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20387, 'sample.lane.lane_success', '1', 3);
+      (20387, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20387, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20387, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113487,27 +113487,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20388, 'sample.lane.flow_cell_id', '62', 0);
+      (20388, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20388, 'sample.lane.lane_number', '6', 1);
+      (20388, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20388, 'sample.lane.actual_read_length', '45', 2);
+      (20388, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20388, 'sample.lane.lane_success', '1', 3);
+      (20388, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20388, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20388, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113519,27 +113519,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20389, 'sample.lane.flow_cell_id', '62', 0);
+      (20389, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20389, 'sample.lane.lane_number', '7', 1);
+      (20389, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20389, 'sample.lane.actual_read_length', '45', 2);
+      (20389, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20389, 'sample.lane.lane_success', '1', 3);
+      (20389, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20389, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20389, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113551,27 +113551,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20039, 'sample.lane.flow_cell_id', '14', 0);
+      (20039, 'sample.cell.flow_cell_id', '14', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20039, 'sample.lane.lane_number', '4', 1);
+      (20039, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20039, 'sample.lane.actual_read_length', '85', 2);
+      (20039, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20039, 'sample.lane.lane_success', '1', 3);
+      (20039, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20039, 'sample.lane.comments', 'clusters pass filter >= -1%', 4);
+      (20039, 'sample.cell.comments', 'clusters pass filter >= -1%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113583,27 +113583,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20390, 'sample.lane.flow_cell_id', '62', 0);
+      (20390, 'sample.cell.flow_cell_id', '62', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20390, 'sample.lane.lane_number', '8', 1);
+      (20390, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20390, 'sample.lane.actual_read_length', '45', 2);
+      (20390, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20390, 'sample.lane.lane_success', '1', 3);
+      (20390, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20390, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20390, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113615,27 +113615,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20391, 'sample.lane.flow_cell_id', '63', 0);
+      (20391, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20391, 'sample.lane.lane_number', '1', 1);
+      (20391, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20391, 'sample.lane.actual_read_length', '119', 2);
+      (20391, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20391, 'sample.lane.lane_success', '1', 3);
+      (20391, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20391, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20391, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113647,27 +113647,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20392, 'sample.lane.flow_cell_id', '63', 0);
+      (20392, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20392, 'sample.lane.lane_number', '2', 1);
+      (20392, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20392, 'sample.lane.actual_read_length', '119', 2);
+      (20392, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20392, 'sample.lane.lane_success', '1', 3);
+      (20392, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20392, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20392, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113679,27 +113679,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20393, 'sample.lane.flow_cell_id', '63', 0);
+      (20393, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20393, 'sample.lane.lane_number', '3', 1);
+      (20393, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20393, 'sample.lane.actual_read_length', '119', 2);
+      (20393, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20393, 'sample.lane.lane_success', '1', 3);
+      (20393, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20393, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20393, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113711,27 +113711,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20394, 'sample.lane.flow_cell_id', '63', 0);
+      (20394, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20394, 'sample.lane.lane_number', '5', 1);
+      (20394, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20394, 'sample.lane.actual_read_length', '119', 2);
+      (20394, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20394, 'sample.lane.lane_success', '1', 3);
+      (20394, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20394, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20394, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113743,27 +113743,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20396, 'sample.lane.flow_cell_id', '63', 0);
+      (20396, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20396, 'sample.lane.lane_number', '6', 1);
+      (20396, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20396, 'sample.lane.actual_read_length', '119', 2);
+      (20396, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20396, 'sample.lane.lane_success', '1', 3);
+      (20396, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20396, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20396, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113775,27 +113775,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20397, 'sample.lane.flow_cell_id', '63', 0);
+      (20397, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20397, 'sample.lane.lane_number', '7', 1);
+      (20397, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20397, 'sample.lane.actual_read_length', '119', 2);
+      (20397, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20397, 'sample.lane.lane_success', '1', 3);
+      (20397, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20397, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20397, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113807,27 +113807,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20398, 'sample.lane.flow_cell_id', '63', 0);
+      (20398, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20398, 'sample.lane.lane_number', '8', 1);
+      (20398, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20398, 'sample.lane.actual_read_length', '119', 2);
+      (20398, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20398, 'sample.lane.lane_success', '1', 3);
+      (20398, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20398, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20398, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113839,22 +113839,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20399, 'sample.lane.flow_cell_id', '63', 0);
+      (20399, 'sample.cell.flow_cell_id', '63', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20399, 'sample.lane.lane_number', '4', 1);
+      (20399, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20399, 'sample.lane.control_name', 'phi X', 2);
+      (20399, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20399, 'sample.lane.control_pmol_applied', '6', 3);
+      (20399, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113866,27 +113866,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20004, 'sample.lane.flow_cell_id', '2', 0);
+      (20004, 'sample.cell.flow_cell_id', '2', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20004, 'sample.lane.lane_number', '6', 1);
+      (20004, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20004, 'sample.lane.actual_read_length', '34', 2);
+      (20004, 'sample.cell.actual_read_length', '34', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20004, 'sample.lane.lane_success', '1', 3);
+      (20004, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20004, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20004, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113898,27 +113898,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20040, 'sample.lane.flow_cell_id', '15', 0);
+      (20040, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20040, 'sample.lane.lane_number', '8', 1);
+      (20040, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20040, 'sample.lane.actual_read_length', '85', 2);
+      (20040, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20040, 'sample.lane.lane_success', '1', 3);
+      (20040, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20040, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20040, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113930,27 +113930,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20400, 'sample.lane.flow_cell_id', '65', 0);
+      (20400, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20400, 'sample.lane.lane_number', '1', 1);
+      (20400, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20400, 'sample.lane.actual_read_length', '45', 2);
+      (20400, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20400, 'sample.lane.lane_success', '1', 3);
+      (20400, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20400, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20400, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113962,27 +113962,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20401, 'sample.lane.flow_cell_id', '65', 0);
+      (20401, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20401, 'sample.lane.lane_number', '2', 1);
+      (20401, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20401, 'sample.lane.actual_read_length', '45', 2);
+      (20401, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20401, 'sample.lane.lane_success', '1', 3);
+      (20401, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20401, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20401, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -113994,27 +113994,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20402, 'sample.lane.flow_cell_id', '65', 0);
+      (20402, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20402, 'sample.lane.lane_number', '3', 1);
+      (20402, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20402, 'sample.lane.actual_read_length', '45', 2);
+      (20402, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20402, 'sample.lane.lane_success', '1', 3);
+      (20402, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20402, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20402, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114026,27 +114026,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20403, 'sample.lane.flow_cell_id', '65', 0);
+      (20403, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20403, 'sample.lane.lane_number', '4', 1);
+      (20403, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20403, 'sample.lane.actual_read_length', '45', 2);
+      (20403, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20403, 'sample.lane.lane_success', '1', 3);
+      (20403, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20403, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20403, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114058,27 +114058,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20404, 'sample.lane.flow_cell_id', '65', 0);
+      (20404, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20404, 'sample.lane.lane_number', '5', 1);
+      (20404, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20404, 'sample.lane.actual_read_length', '45', 2);
+      (20404, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20404, 'sample.lane.lane_success', '1', 3);
+      (20404, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20404, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20404, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114090,27 +114090,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20405, 'sample.lane.flow_cell_id', '65', 0);
+      (20405, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20405, 'sample.lane.lane_number', '6', 1);
+      (20405, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20405, 'sample.lane.actual_read_length', '45', 2);
+      (20405, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20405, 'sample.lane.lane_success', '1', 3);
+      (20405, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20405, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20405, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114122,27 +114122,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20406, 'sample.lane.flow_cell_id', '65', 0);
+      (20406, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20406, 'sample.lane.lane_number', '7', 1);
+      (20406, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20406, 'sample.lane.actual_read_length', '45', 2);
+      (20406, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20406, 'sample.lane.lane_success', '1', 3);
+      (20406, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20406, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20406, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114154,27 +114154,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20407, 'sample.lane.flow_cell_id', '65', 0);
+      (20407, 'sample.cell.flow_cell_id', '65', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20407, 'sample.lane.lane_number', '8', 1);
+      (20407, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20407, 'sample.lane.actual_read_length', '45', 2);
+      (20407, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20407, 'sample.lane.lane_success', '1', 3);
+      (20407, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20407, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20407, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114186,27 +114186,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20408, 'sample.lane.flow_cell_id', '64', 0);
+      (20408, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20408, 'sample.lane.lane_number', '7', 1);
+      (20408, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20408, 'sample.lane.actual_read_length', '105', 2);
+      (20408, 'sample.cell.actual_read_length', '105', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20408, 'sample.lane.lane_success', '1', 3);
+      (20408, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20408, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20408, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114218,27 +114218,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20409, 'sample.lane.flow_cell_id', '64', 0);
+      (20409, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20409, 'sample.lane.lane_number', '8', 1);
+      (20409, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20409, 'sample.lane.actual_read_length', '105', 2);
+      (20409, 'sample.cell.actual_read_length', '105', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20409, 'sample.lane.lane_success', '1', 3);
+      (20409, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20409, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20409, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114250,27 +114250,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20041, 'sample.lane.flow_cell_id', '15', 0);
+      (20041, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20041, 'sample.lane.lane_number', '7', 1);
+      (20041, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20041, 'sample.lane.actual_read_length', '85', 2);
+      (20041, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20041, 'sample.lane.lane_success', '1', 3);
+      (20041, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20041, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20041, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114282,27 +114282,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20410, 'sample.lane.flow_cell_id', '64', 0);
+      (20410, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20410, 'sample.lane.lane_number', '5', 1);
+      (20410, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20410, 'sample.lane.actual_read_length', '104', 2);
+      (20410, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20410, 'sample.lane.lane_success', '1', 3);
+      (20410, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20410, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20410, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114314,27 +114314,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20411, 'sample.lane.flow_cell_id', '64', 0);
+      (20411, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20411, 'sample.lane.lane_number', '1', 1);
+      (20411, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20411, 'sample.lane.actual_read_length', '104', 2);
+      (20411, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20411, 'sample.lane.lane_success', '1', 3);
+      (20411, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20411, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20411, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114346,27 +114346,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20412, 'sample.lane.flow_cell_id', '64', 0);
+      (20412, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20412, 'sample.lane.lane_number', '6', 1);
+      (20412, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20412, 'sample.lane.actual_read_length', '104', 2);
+      (20412, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20412, 'sample.lane.lane_success', '1', 3);
+      (20412, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20412, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20412, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114378,17 +114378,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20413, 'sample.lane.flow_cell_id', '64', 0);
+      (20413, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20413, 'sample.lane.lane_number', '2', 1);
+      (20413, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20413, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20413, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114400,27 +114400,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20414, 'sample.lane.flow_cell_id', '64', 0);
+      (20414, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20414, 'sample.lane.lane_number', '4', 1);
+      (20414, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20414, 'sample.lane.actual_read_length', '105', 2);
+      (20414, 'sample.cell.actual_read_length', '105', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20414, 'sample.lane.lane_success', '1', 3);
+      (20414, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20414, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20414, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114432,27 +114432,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20415, 'sample.lane.flow_cell_id', '64', 0);
+      (20415, 'sample.cell.flow_cell_id', '64', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20415, 'sample.lane.lane_number', '3', 1);
+      (20415, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20415, 'sample.lane.actual_read_length', '105', 2);
+      (20415, 'sample.cell.actual_read_length', '105', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20415, 'sample.lane.lane_success', '1', 3);
+      (20415, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20415, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20415, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114464,27 +114464,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20416, 'sample.lane.flow_cell_id', '66', 0);
+      (20416, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20416, 'sample.lane.lane_number', '1', 1);
+      (20416, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20416, 'sample.lane.actual_read_length', '45', 2);
+      (20416, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20416, 'sample.lane.lane_success', '1', 3);
+      (20416, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20416, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20416, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114496,27 +114496,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20417, 'sample.lane.flow_cell_id', '66', 0);
+      (20417, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20417, 'sample.lane.lane_number', '2', 1);
+      (20417, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20417, 'sample.lane.actual_read_length', '45', 2);
+      (20417, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20417, 'sample.lane.lane_success', '1', 3);
+      (20417, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20417, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20417, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114528,27 +114528,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20418, 'sample.lane.flow_cell_id', '66', 0);
+      (20418, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20418, 'sample.lane.lane_number', '3', 1);
+      (20418, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20418, 'sample.lane.actual_read_length', '45', 2);
+      (20418, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20418, 'sample.lane.lane_success', '1', 3);
+      (20418, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20418, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20418, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114560,27 +114560,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20419, 'sample.lane.flow_cell_id', '66', 0);
+      (20419, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20419, 'sample.lane.lane_number', '4', 1);
+      (20419, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20419, 'sample.lane.actual_read_length', '45', 2);
+      (20419, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20419, 'sample.lane.lane_success', '1', 3);
+      (20419, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20419, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20419, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114592,27 +114592,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20042, 'sample.lane.flow_cell_id', '15', 0);
+      (20042, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20042, 'sample.lane.lane_number', '5', 1);
+      (20042, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20042, 'sample.lane.actual_read_length', '85', 2);
+      (20042, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20042, 'sample.lane.lane_success', '1', 3);
+      (20042, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20042, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20042, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114624,27 +114624,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20420, 'sample.lane.flow_cell_id', '66', 0);
+      (20420, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20420, 'sample.lane.lane_number', '5', 1);
+      (20420, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20420, 'sample.lane.actual_read_length', '45', 2);
+      (20420, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20420, 'sample.lane.lane_success', '1', 3);
+      (20420, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20420, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20420, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114656,27 +114656,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20421, 'sample.lane.flow_cell_id', '66', 0);
+      (20421, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20421, 'sample.lane.lane_number', '6', 1);
+      (20421, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20421, 'sample.lane.actual_read_length', '45', 2);
+      (20421, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20421, 'sample.lane.lane_success', '1', 3);
+      (20421, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20421, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20421, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114688,27 +114688,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20422, 'sample.lane.flow_cell_id', '66', 0);
+      (20422, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20422, 'sample.lane.lane_number', '7', 1);
+      (20422, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20422, 'sample.lane.actual_read_length', '45', 2);
+      (20422, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20422, 'sample.lane.lane_success', '1', 3);
+      (20422, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20422, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20422, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114720,27 +114720,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20423, 'sample.lane.flow_cell_id', '66', 0);
+      (20423, 'sample.cell.flow_cell_id', '66', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20423, 'sample.lane.lane_number', '8', 1);
+      (20423, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20423, 'sample.lane.actual_read_length', '45', 2);
+      (20423, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20423, 'sample.lane.lane_success', '1', 3);
+      (20423, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20423, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20423, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114752,27 +114752,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20424, 'sample.lane.flow_cell_id', '67', 0);
+      (20424, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20424, 'sample.lane.lane_number', '1', 1);
+      (20424, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20424, 'sample.lane.actual_read_length', '104', 2);
+      (20424, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20424, 'sample.lane.lane_success', '1', 3);
+      (20424, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20424, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20424, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114784,27 +114784,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20425, 'sample.lane.flow_cell_id', '67', 0);
+      (20425, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20425, 'sample.lane.lane_number', '6', 1);
+      (20425, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20425, 'sample.lane.actual_read_length', '104', 2);
+      (20425, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20425, 'sample.lane.lane_success', '1', 3);
+      (20425, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20425, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20425, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114816,27 +114816,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20426, 'sample.lane.flow_cell_id', '67', 0);
+      (20426, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20426, 'sample.lane.lane_number', '7', 1);
+      (20426, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20426, 'sample.lane.actual_read_length', '104', 2);
+      (20426, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20426, 'sample.lane.lane_success', '1', 3);
+      (20426, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20426, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20426, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114848,27 +114848,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20427, 'sample.lane.flow_cell_id', '67', 0);
+      (20427, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20427, 'sample.lane.lane_number', '8', 1);
+      (20427, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20427, 'sample.lane.actual_read_length', '104', 2);
+      (20427, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20427, 'sample.lane.lane_success', '1', 3);
+      (20427, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20427, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20427, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114880,27 +114880,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20428, 'sample.lane.flow_cell_id', '67', 0);
+      (20428, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20428, 'sample.lane.lane_number', '2', 1);
+      (20428, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20428, 'sample.lane.actual_read_length', '104', 2);
+      (20428, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20428, 'sample.lane.lane_success', '1', 3);
+      (20428, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20428, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20428, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114912,27 +114912,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20429, 'sample.lane.flow_cell_id', '67', 0);
+      (20429, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20429, 'sample.lane.lane_number', '3', 1);
+      (20429, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20429, 'sample.lane.actual_read_length', '104', 2);
+      (20429, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20429, 'sample.lane.lane_success', '1', 3);
+      (20429, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20429, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20429, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114944,27 +114944,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20043, 'sample.lane.flow_cell_id', '15', 0);
+      (20043, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20043, 'sample.lane.lane_number', '6', 1);
+      (20043, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20043, 'sample.lane.actual_read_length', '85', 2);
+      (20043, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20043, 'sample.lane.lane_success', '1', 3);
+      (20043, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20043, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20043, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -114976,27 +114976,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20430, 'sample.lane.flow_cell_id', '67', 0);
+      (20430, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20430, 'sample.lane.lane_number', '4', 1);
+      (20430, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20430, 'sample.lane.actual_read_length', '104', 2);
+      (20430, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20430, 'sample.lane.lane_success', '1', 3);
+      (20430, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20430, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20430, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115008,27 +115008,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20431, 'sample.lane.flow_cell_id', '67', 0);
+      (20431, 'sample.cell.flow_cell_id', '67', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20431, 'sample.lane.lane_number', '5', 1);
+      (20431, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20431, 'sample.lane.actual_read_length', '104', 2);
+      (20431, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20431, 'sample.lane.lane_success', '1', 3);
+      (20431, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20431, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20431, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115040,27 +115040,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20432, 'sample.lane.flow_cell_id', '68', 0);
+      (20432, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20432, 'sample.lane.lane_number', '1', 1);
+      (20432, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20432, 'sample.lane.actual_read_length', '119', 2);
+      (20432, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20432, 'sample.lane.lane_success', '1', 3);
+      (20432, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20432, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20432, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115072,27 +115072,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20433, 'sample.lane.flow_cell_id', '68', 0);
+      (20433, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20433, 'sample.lane.lane_number', '2', 1);
+      (20433, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20433, 'sample.lane.actual_read_length', '119', 2);
+      (20433, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20433, 'sample.lane.lane_success', '1', 3);
+      (20433, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20433, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20433, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115104,27 +115104,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20434, 'sample.lane.flow_cell_id', '68', 0);
+      (20434, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20434, 'sample.lane.lane_number', '3', 1);
+      (20434, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20434, 'sample.lane.actual_read_length', '119', 2);
+      (20434, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20434, 'sample.lane.lane_success', '1', 3);
+      (20434, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20434, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20434, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115136,27 +115136,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20435, 'sample.lane.flow_cell_id', '68', 0);
+      (20435, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20435, 'sample.lane.lane_number', '5', 1);
+      (20435, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20435, 'sample.lane.actual_read_length', '119', 2);
+      (20435, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20435, 'sample.lane.lane_success', '1', 3);
+      (20435, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20435, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20435, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115168,22 +115168,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20436, 'sample.lane.flow_cell_id', '69', 0);
+      (20436, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20436, 'sample.lane.lane_number', '5', 1);
+      (20436, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20436, 'sample.lane.control_name', 'phi X', 2);
+      (20436, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20436, 'sample.lane.control_pmol_applied', '6', 3);
+      (20436, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115195,27 +115195,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20044, 'sample.lane.flow_cell_id', '15', 0);
+      (20044, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20044, 'sample.lane.lane_number', '1', 1);
+      (20044, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20044, 'sample.lane.actual_read_length', '85', 2);
+      (20044, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20044, 'sample.lane.lane_success', '1', 3);
+      (20044, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20044, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20044, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115227,27 +115227,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20445, 'sample.lane.flow_cell_id', '68', 0);
+      (20445, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20445, 'sample.lane.lane_number', '4', 1);
+      (20445, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20445, 'sample.lane.actual_read_length', '119', 2);
+      (20445, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20445, 'sample.lane.lane_success', '1', 3);
+      (20445, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20445, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20445, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115259,27 +115259,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20446, 'sample.lane.flow_cell_id', '68', 0);
+      (20446, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20446, 'sample.lane.lane_number', '6', 1);
+      (20446, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20446, 'sample.lane.actual_read_length', '119', 2);
+      (20446, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20446, 'sample.lane.lane_success', '1', 3);
+      (20446, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20446, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20446, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115291,27 +115291,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20447, 'sample.lane.flow_cell_id', '68', 0);
+      (20447, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20447, 'sample.lane.lane_number', '7', 1);
+      (20447, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20447, 'sample.lane.actual_read_length', '119', 2);
+      (20447, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20447, 'sample.lane.lane_success', '1', 3);
+      (20447, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20447, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20447, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115323,27 +115323,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20448, 'sample.lane.flow_cell_id', '68', 0);
+      (20448, 'sample.cell.flow_cell_id', '68', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20448, 'sample.lane.lane_number', '8', 1);
+      (20448, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20448, 'sample.lane.actual_read_length', '119', 2);
+      (20448, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20448, 'sample.lane.lane_success', '1', 3);
+      (20448, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20448, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20448, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115355,27 +115355,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20045, 'sample.lane.flow_cell_id', '15', 0);
+      (20045, 'sample.cell.flow_cell_id', '15', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20045, 'sample.lane.lane_number', '2', 1);
+      (20045, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20045, 'sample.lane.actual_read_length', '85', 2);
+      (20045, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20045, 'sample.lane.lane_success', '1', 3);
+      (20045, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20045, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20045, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115387,27 +115387,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20450, 'sample.lane.flow_cell_id', '70', 0);
+      (20450, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20450, 'sample.lane.lane_number', '7', 1);
+      (20450, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20450, 'sample.lane.actual_read_length', '45', 2);
+      (20450, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20450, 'sample.lane.lane_success', '1', 3);
+      (20450, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20450, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20450, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115419,27 +115419,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20451, 'sample.lane.flow_cell_id', '70', 0);
+      (20451, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20451, 'sample.lane.lane_number', '1', 1);
+      (20451, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20451, 'sample.lane.actual_read_length', '45', 2);
+      (20451, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20451, 'sample.lane.lane_success', '1', 3);
+      (20451, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20451, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20451, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115451,27 +115451,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20452, 'sample.lane.flow_cell_id', '70', 0);
+      (20452, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20452, 'sample.lane.lane_number', '8', 1);
+      (20452, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20452, 'sample.lane.actual_read_length', '45', 2);
+      (20452, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20452, 'sample.lane.lane_success', '1', 3);
+      (20452, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20452, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20452, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115483,27 +115483,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20453, 'sample.lane.flow_cell_id', '70', 0);
+      (20453, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20453, 'sample.lane.lane_number', '4', 1);
+      (20453, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20453, 'sample.lane.actual_read_length', '45', 2);
+      (20453, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20453, 'sample.lane.lane_success', '1', 3);
+      (20453, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20453, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20453, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115515,27 +115515,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20454, 'sample.lane.flow_cell_id', '70', 0);
+      (20454, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20454, 'sample.lane.lane_number', '5', 1);
+      (20454, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20454, 'sample.lane.actual_read_length', '45', 2);
+      (20454, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20454, 'sample.lane.lane_success', '1', 3);
+      (20454, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20454, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20454, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115547,27 +115547,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20455, 'sample.lane.flow_cell_id', '70', 0);
+      (20455, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20455, 'sample.lane.lane_number', '6', 1);
+      (20455, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20455, 'sample.lane.actual_read_length', '45', 2);
+      (20455, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20455, 'sample.lane.lane_success', '1', 3);
+      (20455, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20455, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20455, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115579,27 +115579,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20456, 'sample.lane.flow_cell_id', '70', 0);
+      (20456, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20456, 'sample.lane.lane_number', '2', 1);
+      (20456, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20456, 'sample.lane.actual_read_length', '45', 2);
+      (20456, 'sample.cell.actual_read_length', '45', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20456, 'sample.lane.lane_success', '1', 3);
+      (20456, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20456, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20456, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115611,17 +115611,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20457, 'sample.lane.flow_cell_id', '70', 0);
+      (20457, 'sample.cell.flow_cell_id', '70', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20457, 'sample.lane.lane_number', '3', 1);
+      (20457, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20457, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20457, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115633,22 +115633,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20458, 'sample.lane.flow_cell_id', '69', 0);
+      (20458, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20458, 'sample.lane.lane_number', '2', 1);
+      (20458, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20458, 'sample.lane.lane_success', '1', 2);
+      (20458, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20458, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20458, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115660,22 +115660,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20459, 'sample.lane.flow_cell_id', '69', 0);
+      (20459, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20459, 'sample.lane.lane_number', '1', 1);
+      (20459, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20459, 'sample.lane.lane_success', '1', 2);
+      (20459, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20459, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20459, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115687,27 +115687,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20046, 'sample.lane.flow_cell_id', '16', 0);
+      (20046, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20046, 'sample.lane.lane_number', '1', 1);
+      (20046, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20046, 'sample.lane.actual_read_length', '85', 2);
+      (20046, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20046, 'sample.lane.lane_success', '1', 3);
+      (20046, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20046, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20046, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115719,22 +115719,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20460, 'sample.lane.flow_cell_id', '69', 0);
+      (20460, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20460, 'sample.lane.lane_number', '3', 1);
+      (20460, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20460, 'sample.lane.lane_success', '1', 2);
+      (20460, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20460, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20460, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115746,27 +115746,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20461, 'sample.lane.flow_cell_id', '69', 0);
+      (20461, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20461, 'sample.lane.lane_number', '4', 1);
+      (20461, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20461, 'sample.lane.actual_read_length', '101', 2);
+      (20461, 'sample.cell.actual_read_length', '101', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20461, 'sample.lane.lane_success', '1', 3);
+      (20461, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20461, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20461, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115778,22 +115778,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20462, 'sample.lane.flow_cell_id', '69', 0);
+      (20462, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20462, 'sample.lane.lane_number', '7', 1);
+      (20462, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20462, 'sample.lane.lane_success', '1', 2);
+      (20462, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20462, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20462, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115805,27 +115805,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20463, 'sample.lane.flow_cell_id', '69', 0);
+      (20463, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20463, 'sample.lane.lane_number', '6', 1);
+      (20463, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20463, 'sample.lane.actual_read_length', '101', 2);
+      (20463, 'sample.cell.actual_read_length', '101', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20463, 'sample.lane.lane_success', '1', 3);
+      (20463, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20463, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20463, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115837,27 +115837,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20464, 'sample.lane.flow_cell_id', '69', 0);
+      (20464, 'sample.cell.flow_cell_id', '69', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20464, 'sample.lane.lane_number', '8', 1);
+      (20464, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20464, 'sample.lane.actual_read_length', '101', 2);
+      (20464, 'sample.cell.actual_read_length', '101', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20464, 'sample.lane.lane_success', '1', 3);
+      (20464, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20464, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20464, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115869,27 +115869,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20465, 'sample.lane.flow_cell_id', '72', 0);
+      (20465, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20465, 'sample.lane.lane_number', '1', 1);
+      (20465, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20465, 'sample.lane.actual_read_length', '103', 2);
+      (20465, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20465, 'sample.lane.lane_success', '1', 3);
+      (20465, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20465, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20465, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115901,27 +115901,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20467, 'sample.lane.flow_cell_id', '72', 0);
+      (20467, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20467, 'sample.lane.lane_number', '2', 1);
+      (20467, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20467, 'sample.lane.actual_read_length', '103', 2);
+      (20467, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20467, 'sample.lane.lane_success', '1', 3);
+      (20467, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20467, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20467, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115933,27 +115933,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20468, 'sample.lane.flow_cell_id', '72', 0);
+      (20468, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20468, 'sample.lane.lane_number', '3', 1);
+      (20468, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20468, 'sample.lane.actual_read_length', '103', 2);
+      (20468, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20468, 'sample.lane.lane_success', '1', 3);
+      (20468, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20468, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20468, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115965,27 +115965,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20469, 'sample.lane.flow_cell_id', '72', 0);
+      (20469, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20469, 'sample.lane.lane_number', '5', 1);
+      (20469, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20469, 'sample.lane.actual_read_length', '103', 2);
+      (20469, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20469, 'sample.lane.lane_success', '1', 3);
+      (20469, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20469, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20469, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -115997,27 +115997,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20047, 'sample.lane.flow_cell_id', '16', 0);
+      (20047, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20047, 'sample.lane.lane_number', '2', 1);
+      (20047, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20047, 'sample.lane.actual_read_length', '85', 2);
+      (20047, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20047, 'sample.lane.lane_success', '1', 3);
+      (20047, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20047, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20047, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116029,27 +116029,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20470, 'sample.lane.flow_cell_id', '72', 0);
+      (20470, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20470, 'sample.lane.lane_number', '6', 1);
+      (20470, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20470, 'sample.lane.actual_read_length', '103', 2);
+      (20470, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20470, 'sample.lane.lane_success', '1', 3);
+      (20470, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20470, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20470, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116061,27 +116061,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20471, 'sample.lane.flow_cell_id', '72', 0);
+      (20471, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20471, 'sample.lane.lane_number', '7', 1);
+      (20471, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20471, 'sample.lane.actual_read_length', '103', 2);
+      (20471, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20471, 'sample.lane.lane_success', '1', 3);
+      (20471, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20471, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20471, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116093,27 +116093,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20472, 'sample.lane.flow_cell_id', '72', 0);
+      (20472, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20472, 'sample.lane.lane_number', '8', 1);
+      (20472, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20472, 'sample.lane.actual_read_length', '103', 2);
+      (20472, 'sample.cell.actual_read_length', '103', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20472, 'sample.lane.lane_success', '1', 3);
+      (20472, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20472, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20472, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116125,22 +116125,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20473, 'sample.lane.flow_cell_id', '72', 0);
+      (20473, 'sample.cell.flow_cell_id', '72', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20473, 'sample.lane.lane_number', '4', 1);
+      (20473, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20473, 'sample.lane.control_name', 'phi X', 2);
+      (20473, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20473, 'sample.lane.control_pmol_applied', '8', 3);
+      (20473, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116152,37 +116152,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.flow_cell_id', '71', 0);
+      (20474, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.lane_number', '6', 1);
+      (20474, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.control_name', 'phi X', 2);
+      (20474, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20474, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.actual_read_length', '101', 4);
+      (20474, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.lane_success', '1', 5);
+      (20474, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20474, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20474, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116194,37 +116194,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.flow_cell_id', '71', 0);
+      (20475, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.lane_number', '7', 1);
+      (20475, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.control_name', 'phi X', 2);
+      (20475, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20475, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.actual_read_length', '101', 4);
+      (20475, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.lane_success', '1', 5);
+      (20475, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20475, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20475, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116236,22 +116236,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20476, 'sample.lane.flow_cell_id', '71', 0);
+      (20476, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20476, 'sample.lane.lane_number', '4', 1);
+      (20476, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20476, 'sample.lane.control_name', 'phi X', 2);
+      (20476, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20476, 'sample.lane.control_pmol_applied', '8', 3);
+      (20476, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116263,37 +116263,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.flow_cell_id', '71', 0);
+      (20477, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.lane_number', '1', 1);
+      (20477, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.control_name', 'phi X', 2);
+      (20477, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20477, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.actual_read_length', '101', 4);
+      (20477, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.lane_success', '1', 5);
+      (20477, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20477, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20477, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116305,37 +116305,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.flow_cell_id', '71', 0);
+      (20478, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.lane_number', '2', 1);
+      (20478, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.control_name', 'phi X', 2);
+      (20478, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20478, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.actual_read_length', '101', 4);
+      (20478, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.lane_success', '1', 5);
+      (20478, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20478, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20478, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116347,37 +116347,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.flow_cell_id', '71', 0);
+      (20479, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.lane_number', '3', 1);
+      (20479, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.control_name', 'phi X', 2);
+      (20479, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20479, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.actual_read_length', '101', 4);
+      (20479, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.lane_success', '1', 5);
+      (20479, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20479, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20479, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116389,27 +116389,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20048, 'sample.lane.flow_cell_id', '16', 0);
+      (20048, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20048, 'sample.lane.lane_number', '3', 1);
+      (20048, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20048, 'sample.lane.actual_read_length', '85', 2);
+      (20048, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20048, 'sample.lane.lane_success', '1', 3);
+      (20048, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20048, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20048, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116421,37 +116421,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.flow_cell_id', '71', 0);
+      (20480, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.lane_number', '5', 1);
+      (20480, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.control_name', 'phi X', 2);
+      (20480, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20480, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.actual_read_length', '101', 4);
+      (20480, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.lane_success', '1', 5);
+      (20480, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20480, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20480, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116463,37 +116463,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.flow_cell_id', '71', 0);
+      (20481, 'sample.cell.flow_cell_id', '71', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.lane_number', '8', 1);
+      (20481, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.control_name', 'phi X', 2);
+      (20481, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20481, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.actual_read_length', '101', 4);
+      (20481, 'sample.cell.actual_read_length', '101', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.lane_success', '1', 5);
+      (20481, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20481, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20481, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116505,37 +116505,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.flow_cell_id', '73', 0);
+      (20482, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.lane_number', '3', 1);
+      (20482, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.control_name', 'phi X', 2);
+      (20482, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20482, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.actual_read_length', '119', 4);
+      (20482, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.lane_success', '1', 5);
+      (20482, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20482, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20482, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116547,37 +116547,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.flow_cell_id', '73', 0);
+      (20483, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.lane_number', '4', 1);
+      (20483, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.control_name', 'phi X', 2);
+      (20483, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20483, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.actual_read_length', '119', 4);
+      (20483, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.lane_success', '1', 5);
+      (20483, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20483, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20483, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116589,37 +116589,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.flow_cell_id', '73', 0);
+      (20484, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.lane_number', '1', 1);
+      (20484, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.control_name', 'phi X', 2);
+      (20484, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20484, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.actual_read_length', '119', 4);
+      (20484, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.lane_success', '1', 5);
+      (20484, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20484, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20484, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116631,37 +116631,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.flow_cell_id', '73', 0);
+      (20485, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.lane_number', '2', 1);
+      (20485, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.control_name', 'phi X', 2);
+      (20485, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20485, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.actual_read_length', '119', 4);
+      (20485, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.lane_success', '1', 5);
+      (20485, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20485, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20485, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116673,37 +116673,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.flow_cell_id', '73', 0);
+      (20486, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.lane_number', '5', 1);
+      (20486, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.control_name', 'phi X', 2);
+      (20486, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20486, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.actual_read_length', '119', 4);
+      (20486, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.lane_success', '1', 5);
+      (20486, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20486, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20486, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116715,37 +116715,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.flow_cell_id', '73', 0);
+      (20487, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.lane_number', '6', 1);
+      (20487, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.control_name', 'phi X', 2);
+      (20487, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20487, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.actual_read_length', '119', 4);
+      (20487, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.lane_success', '1', 5);
+      (20487, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20487, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20487, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116757,37 +116757,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.flow_cell_id', '73', 0);
+      (20488, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.lane_number', '7', 1);
+      (20488, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.control_name', 'phi X', 2);
+      (20488, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20488, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.actual_read_length', '119', 4);
+      (20488, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.lane_success', '1', 5);
+      (20488, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20488, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20488, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116799,37 +116799,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.flow_cell_id', '73', 0);
+      (20489, 'sample.cell.flow_cell_id', '73', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.lane_number', '8', 1);
+      (20489, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.control_name', 'phi X', 2);
+      (20489, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20489, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.actual_read_length', '119', 4);
+      (20489, 'sample.cell.actual_read_length', '119', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.lane_success', '1', 5);
+      (20489, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20489, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20489, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116841,27 +116841,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20049, 'sample.lane.flow_cell_id', '16', 0);
+      (20049, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20049, 'sample.lane.lane_number', '6', 1);
+      (20049, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20049, 'sample.lane.actual_read_length', '85', 2);
+      (20049, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20049, 'sample.lane.lane_success', '1', 3);
+      (20049, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20049, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20049, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116873,27 +116873,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20490, 'sample.lane.flow_cell_id', '74', 0);
+      (20490, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20490, 'sample.lane.lane_number', '1', 1);
+      (20490, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20490, 'sample.lane.actual_read_length', '119', 2);
+      (20490, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20490, 'sample.lane.lane_success', '1', 3);
+      (20490, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20490, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20490, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116905,27 +116905,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20491, 'sample.lane.flow_cell_id', '74', 0);
+      (20491, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20491, 'sample.lane.lane_number', '2', 1);
+      (20491, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20491, 'sample.lane.actual_read_length', '119', 2);
+      (20491, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20491, 'sample.lane.lane_success', '1', 3);
+      (20491, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20491, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20491, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116937,27 +116937,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20492, 'sample.lane.flow_cell_id', '74', 0);
+      (20492, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20492, 'sample.lane.lane_number', '3', 1);
+      (20492, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20492, 'sample.lane.actual_read_length', '119', 2);
+      (20492, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20492, 'sample.lane.lane_success', '1', 3);
+      (20492, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20492, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20492, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -116969,27 +116969,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20493, 'sample.lane.flow_cell_id', '74', 0);
+      (20493, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20493, 'sample.lane.lane_number', '5', 1);
+      (20493, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20493, 'sample.lane.actual_read_length', '119', 2);
+      (20493, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20493, 'sample.lane.lane_success', '1', 3);
+      (20493, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20493, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20493, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117001,27 +117001,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20494, 'sample.lane.flow_cell_id', '74', 0);
+      (20494, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20494, 'sample.lane.lane_number', '6', 1);
+      (20494, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20494, 'sample.lane.actual_read_length', '119', 2);
+      (20494, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20494, 'sample.lane.lane_success', '1', 3);
+      (20494, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20494, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20494, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117033,27 +117033,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20495, 'sample.lane.flow_cell_id', '74', 0);
+      (20495, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20495, 'sample.lane.lane_number', '7', 1);
+      (20495, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20495, 'sample.lane.actual_read_length', '119', 2);
+      (20495, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20495, 'sample.lane.lane_success', '1', 3);
+      (20495, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20495, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20495, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117065,27 +117065,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20496, 'sample.lane.flow_cell_id', '74', 0);
+      (20496, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20496, 'sample.lane.lane_number', '8', 1);
+      (20496, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20496, 'sample.lane.actual_read_length', '119', 2);
+      (20496, 'sample.cell.actual_read_length', '119', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20496, 'sample.lane.lane_success', '1', 3);
+      (20496, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20496, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20496, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117097,22 +117097,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20497, 'sample.lane.flow_cell_id', '74', 0);
+      (20497, 'sample.cell.flow_cell_id', '74', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20497, 'sample.lane.lane_number', '4', 1);
+      (20497, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20497, 'sample.lane.control_name', 'phi X', 2);
+      (20497, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20497, 'sample.lane.control_pmol_applied', '8', 3);
+      (20497, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117124,37 +117124,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.flow_cell_id', '75', 0);
+      (20498, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.lane_number', '1', 1);
+      (20498, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.control_name', 'phi X', 2);
+      (20498, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20498, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.actual_read_length', '45', 4);
+      (20498, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.lane_success', '1', 5);
+      (20498, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20498, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20498, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117166,37 +117166,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.flow_cell_id', '75', 0);
+      (20499, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.lane_number', '2', 1);
+      (20499, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.control_name', 'phi X', 2);
+      (20499, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20499, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.actual_read_length', '45', 4);
+      (20499, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.lane_success', '1', 5);
+      (20499, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20499, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20499, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117208,22 +117208,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20005, 'sample.lane.flow_cell_id', '3', 0);
+      (20005, 'sample.cell.flow_cell_id', '3', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20005, 'sample.lane.lane_number', '1', 1);
+      (20005, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20005, 'sample.lane.lane_success', '1', 2);
+      (20005, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20005, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20005, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117235,27 +117235,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20050, 'sample.lane.flow_cell_id', '16', 0);
+      (20050, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20050, 'sample.lane.lane_number', '7', 1);
+      (20050, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20050, 'sample.lane.actual_read_length', '85', 2);
+      (20050, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20050, 'sample.lane.lane_success', '1', 3);
+      (20050, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20050, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20050, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117267,37 +117267,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.flow_cell_id', '75', 0);
+      (20500, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.lane_number', '3', 1);
+      (20500, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.control_name', 'phi X', 2);
+      (20500, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20500, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.actual_read_length', '45', 4);
+      (20500, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.lane_success', '1', 5);
+      (20500, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20500, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20500, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117309,37 +117309,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.flow_cell_id', '75', 0);
+      (20501, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.lane_number', '4', 1);
+      (20501, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.control_name', 'phi X', 2);
+      (20501, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20501, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.actual_read_length', '45', 4);
+      (20501, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.lane_success', '1', 5);
+      (20501, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20501, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20501, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117351,37 +117351,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.flow_cell_id', '75', 0);
+      (20502, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.lane_number', '5', 1);
+      (20502, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.control_name', 'phi X', 2);
+      (20502, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20502, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.actual_read_length', '45', 4);
+      (20502, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.lane_success', '1', 5);
+      (20502, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20502, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20502, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117393,37 +117393,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.flow_cell_id', '75', 0);
+      (20503, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.lane_number', '6', 1);
+      (20503, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.control_name', 'phi X', 2);
+      (20503, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20503, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.actual_read_length', '45', 4);
+      (20503, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.lane_success', '1', 5);
+      (20503, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20503, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20503, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117435,37 +117435,37 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.flow_cell_id', '75', 0);
+      (20504, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.lane_number', '7', 1);
+      (20504, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.control_name', 'phi X', 2);
+      (20504, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20504, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.actual_read_length', '45', 4);
+      (20504, 'sample.cell.actual_read_length', '45', 4);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.lane_success', '1', 5);
+      (20504, 'sample.cell.cell_success', '1', 5);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20504, 'sample.lane.comments', 'clusters pass filter >= 20%', 6);
+      (20504, 'sample.cell.comments', 'clusters pass filter >= 20%', 6);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117477,27 +117477,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20505, 'sample.lane.flow_cell_id', '75', 0);
+      (20505, 'sample.cell.flow_cell_id', '75', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20505, 'sample.lane.lane_number', '8', 1);
+      (20505, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20505, 'sample.lane.control_name', 'phi X', 2);
+      (20505, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20505, 'sample.lane.control_pmol_applied', '0.2', 3);
+      (20505, 'sample.cell.control_pmol_applied', '0.2', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20505, 'sample.lane.comments', 'clusters pass filter < 20%', 4);
+      (20505, 'sample.cell.comments', 'clusters pass filter < 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117509,27 +117509,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20506, 'sample.lane.flow_cell_id', '76', 0);
+      (20506, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20506, 'sample.lane.lane_number', '1', 1);
+      (20506, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20506, 'sample.lane.actual_read_length', '120', 2);
+      (20506, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20506, 'sample.lane.lane_success', '1', 3);
+      (20506, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20506, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20506, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117541,27 +117541,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20507, 'sample.lane.flow_cell_id', '76', 0);
+      (20507, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20507, 'sample.lane.lane_number', '2', 1);
+      (20507, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20507, 'sample.lane.actual_read_length', '120', 2);
+      (20507, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20507, 'sample.lane.lane_success', '1', 3);
+      (20507, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20507, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20507, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117573,27 +117573,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20508, 'sample.lane.flow_cell_id', '76', 0);
+      (20508, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20508, 'sample.lane.lane_number', '3', 1);
+      (20508, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20508, 'sample.lane.actual_read_length', '120', 2);
+      (20508, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20508, 'sample.lane.lane_success', '1', 3);
+      (20508, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20508, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20508, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117605,27 +117605,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20509, 'sample.lane.flow_cell_id', '76', 0);
+      (20509, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20509, 'sample.lane.lane_number', '5', 1);
+      (20509, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20509, 'sample.lane.actual_read_length', '120', 2);
+      (20509, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20509, 'sample.lane.lane_success', '1', 3);
+      (20509, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20509, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20509, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117637,27 +117637,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20051, 'sample.lane.flow_cell_id', '16', 0);
+      (20051, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20051, 'sample.lane.lane_number', '8', 1);
+      (20051, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20051, 'sample.lane.actual_read_length', '85', 2);
+      (20051, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20051, 'sample.lane.lane_success', '1', 3);
+      (20051, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20051, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20051, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117669,27 +117669,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20510, 'sample.lane.flow_cell_id', '76', 0);
+      (20510, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20510, 'sample.lane.lane_number', '6', 1);
+      (20510, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20510, 'sample.lane.actual_read_length', '120', 2);
+      (20510, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20510, 'sample.lane.lane_success', '1', 3);
+      (20510, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20510, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20510, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117701,27 +117701,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20511, 'sample.lane.flow_cell_id', '76', 0);
+      (20511, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20511, 'sample.lane.lane_number', '7', 1);
+      (20511, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20511, 'sample.lane.actual_read_length', '120', 2);
+      (20511, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20511, 'sample.lane.lane_success', '1', 3);
+      (20511, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20511, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20511, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117733,27 +117733,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20512, 'sample.lane.flow_cell_id', '76', 0);
+      (20512, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20512, 'sample.lane.lane_number', '8', 1);
+      (20512, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20512, 'sample.lane.actual_read_length', '120', 2);
+      (20512, 'sample.cell.actual_read_length', '120', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20512, 'sample.lane.lane_success', '1', 3);
+      (20512, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20512, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20512, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117765,22 +117765,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20513, 'sample.lane.flow_cell_id', '76', 0);
+      (20513, 'sample.cell.flow_cell_id', '76', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20513, 'sample.lane.lane_number', '4', 1);
+      (20513, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20513, 'sample.lane.control_name', 'phi X', 2);
+      (20513, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20513, 'sample.lane.control_pmol_applied', '8', 3);
+      (20513, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117792,27 +117792,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20514, 'sample.lane.flow_cell_id', '77', 0);
+      (20514, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20514, 'sample.lane.lane_number', '8', 1);
+      (20514, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20514, 'sample.lane.actual_read_length', '104', 2);
+      (20514, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20514, 'sample.lane.lane_success', '1', 3);
+      (20514, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20514, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20514, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117824,27 +117824,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20515, 'sample.lane.flow_cell_id', '77', 0);
+      (20515, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20515, 'sample.lane.lane_number', '1', 1);
+      (20515, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20515, 'sample.lane.actual_read_length', '20', 2);
+      (20515, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20515, 'sample.lane.lane_success', '1', 3);
+      (20515, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20515, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20515, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117856,27 +117856,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20516, 'sample.lane.flow_cell_id', '77', 0);
+      (20516, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20516, 'sample.lane.lane_number', '2', 1);
+      (20516, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20516, 'sample.lane.actual_read_length', '20', 2);
+      (20516, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20516, 'sample.lane.lane_success', '1', 3);
+      (20516, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20516, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20516, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117888,27 +117888,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20517, 'sample.lane.flow_cell_id', '77', 0);
+      (20517, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20517, 'sample.lane.lane_number', '3', 1);
+      (20517, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20517, 'sample.lane.actual_read_length', '20', 2);
+      (20517, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20517, 'sample.lane.lane_success', '1', 3);
+      (20517, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20517, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20517, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117920,27 +117920,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20518, 'sample.lane.flow_cell_id', '77', 0);
+      (20518, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20518, 'sample.lane.lane_number', '5', 1);
+      (20518, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20518, 'sample.lane.actual_read_length', '20', 2);
+      (20518, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20518, 'sample.lane.lane_success', '1', 3);
+      (20518, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20518, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20518, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117952,27 +117952,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20519, 'sample.lane.flow_cell_id', '77', 0);
+      (20519, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20519, 'sample.lane.lane_number', '6', 1);
+      (20519, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20519, 'sample.lane.actual_read_length', '20', 2);
+      (20519, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20519, 'sample.lane.lane_success', '1', 3);
+      (20519, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20519, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20519, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -117984,27 +117984,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20052, 'sample.lane.flow_cell_id', '16', 0);
+      (20052, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20052, 'sample.lane.lane_number', '4', 1);
+      (20052, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20052, 'sample.lane.actual_read_length', '85', 2);
+      (20052, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20052, 'sample.lane.lane_success', '1', 3);
+      (20052, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20052, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20052, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118016,27 +118016,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20520, 'sample.lane.flow_cell_id', '77', 0);
+      (20520, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20520, 'sample.lane.lane_number', '7', 1);
+      (20520, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20520, 'sample.lane.actual_read_length', '20', 2);
+      (20520, 'sample.cell.actual_read_length', '20', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20520, 'sample.lane.lane_success', '1', 3);
+      (20520, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20520, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20520, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118048,22 +118048,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20521, 'sample.lane.flow_cell_id', '77', 0);
+      (20521, 'sample.cell.flow_cell_id', '77', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20521, 'sample.lane.lane_number', '4', 1);
+      (20521, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20521, 'sample.lane.control_name', 'phi X', 2);
+      (20521, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20521, 'sample.lane.control_pmol_applied', '8', 3);
+      (20521, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118075,27 +118075,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20522, 'sample.lane.flow_cell_id', '78', 0);
+      (20522, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20522, 'sample.lane.lane_number', '1', 1);
+      (20522, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20522, 'sample.lane.actual_read_length', '46', 2);
+      (20522, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20522, 'sample.lane.lane_success', '1', 3);
+      (20522, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20522, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20522, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118107,27 +118107,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20523, 'sample.lane.flow_cell_id', '78', 0);
+      (20523, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20523, 'sample.lane.lane_number', '2', 1);
+      (20523, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20523, 'sample.lane.actual_read_length', '46', 2);
+      (20523, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20523, 'sample.lane.lane_success', '1', 3);
+      (20523, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20523, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20523, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118139,17 +118139,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20524, 'sample.lane.flow_cell_id', '78', 0);
+      (20524, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20524, 'sample.lane.lane_number', '3', 1);
+      (20524, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20524, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20524, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118161,27 +118161,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20525, 'sample.lane.flow_cell_id', '78', 0);
+      (20525, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20525, 'sample.lane.lane_number', '5', 1);
+      (20525, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20525, 'sample.lane.actual_read_length', '46', 2);
+      (20525, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20525, 'sample.lane.lane_success', '1', 3);
+      (20525, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20525, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20525, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118193,27 +118193,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20526, 'sample.lane.flow_cell_id', '78', 0);
+      (20526, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20526, 'sample.lane.lane_number', '6', 1);
+      (20526, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20526, 'sample.lane.actual_read_length', '46', 2);
+      (20526, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20526, 'sample.lane.lane_success', '1', 3);
+      (20526, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20526, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20526, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118225,17 +118225,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20527, 'sample.lane.flow_cell_id', '78', 0);
+      (20527, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20527, 'sample.lane.lane_number', '8', 1);
+      (20527, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20527, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20527, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118247,22 +118247,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20528, 'sample.lane.flow_cell_id', '78', 0);
+      (20528, 'sample.cell.flow_cell_id', '78', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20528, 'sample.lane.lane_number', '4', 1);
+      (20528, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20528, 'sample.lane.control_name', 'phi X', 2);
+      (20528, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20528, 'sample.lane.control_pmol_applied', '8', 3);
+      (20528, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118274,27 +118274,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20529, 'sample.lane.flow_cell_id', '79', 0);
+      (20529, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20529, 'sample.lane.lane_number', '1', 1);
+      (20529, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20529, 'sample.lane.actual_read_length', '104', 2);
+      (20529, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20529, 'sample.lane.lane_success', '1', 3);
+      (20529, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20529, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20529, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118306,27 +118306,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20053, 'sample.lane.flow_cell_id', '16', 0);
+      (20053, 'sample.cell.flow_cell_id', '16', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20053, 'sample.lane.lane_number', '5', 1);
+      (20053, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20053, 'sample.lane.actual_read_length', '85', 2);
+      (20053, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20053, 'sample.lane.lane_success', '1', 3);
+      (20053, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20053, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20053, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118338,27 +118338,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20530, 'sample.lane.flow_cell_id', '79', 0);
+      (20530, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20530, 'sample.lane.lane_number', '2', 1);
+      (20530, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20530, 'sample.lane.actual_read_length', '104', 2);
+      (20530, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20530, 'sample.lane.lane_success', '1', 3);
+      (20530, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20530, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20530, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118370,27 +118370,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20531, 'sample.lane.flow_cell_id', '79', 0);
+      (20531, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20531, 'sample.lane.lane_number', '3', 1);
+      (20531, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20531, 'sample.lane.actual_read_length', '104', 2);
+      (20531, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20531, 'sample.lane.lane_success', '1', 3);
+      (20531, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20531, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20531, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118402,27 +118402,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20532, 'sample.lane.flow_cell_id', '79', 0);
+      (20532, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20532, 'sample.lane.lane_number', '5', 1);
+      (20532, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20532, 'sample.lane.actual_read_length', '104', 2);
+      (20532, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20532, 'sample.lane.lane_success', '1', 3);
+      (20532, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20532, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20532, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118434,27 +118434,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20533, 'sample.lane.flow_cell_id', '79', 0);
+      (20533, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20533, 'sample.lane.lane_number', '6', 1);
+      (20533, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20533, 'sample.lane.actual_read_length', '104', 2);
+      (20533, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20533, 'sample.lane.lane_success', '1', 3);
+      (20533, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20533, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20533, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118466,27 +118466,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20534, 'sample.lane.flow_cell_id', '79', 0);
+      (20534, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20534, 'sample.lane.lane_number', '7', 1);
+      (20534, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20534, 'sample.lane.actual_read_length', '104', 2);
+      (20534, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20534, 'sample.lane.lane_success', '1', 3);
+      (20534, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20534, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20534, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118498,27 +118498,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20535, 'sample.lane.flow_cell_id', '79', 0);
+      (20535, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20535, 'sample.lane.lane_number', '8', 1);
+      (20535, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20535, 'sample.lane.actual_read_length', '104', 2);
+      (20535, 'sample.cell.actual_read_length', '104', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20535, 'sample.lane.lane_success', '1', 3);
+      (20535, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20535, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20535, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118530,22 +118530,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20536, 'sample.lane.flow_cell_id', '79', 0);
+      (20536, 'sample.cell.flow_cell_id', '79', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20536, 'sample.lane.lane_number', '4', 1);
+      (20536, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20536, 'sample.lane.control_name', 'phi X', 2);
+      (20536, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20536, 'sample.lane.control_pmol_applied', '8', 3);
+      (20536, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118557,27 +118557,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20537, 'sample.lane.flow_cell_id', '80', 0);
+      (20537, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20537, 'sample.lane.lane_number', '1', 1);
+      (20537, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20537, 'sample.lane.actual_read_length', '46', 2);
+      (20537, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20537, 'sample.lane.lane_success', '1', 3);
+      (20537, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20537, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20537, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118589,27 +118589,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20538, 'sample.lane.flow_cell_id', '80', 0);
+      (20538, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20538, 'sample.lane.lane_number', '2', 1);
+      (20538, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20538, 'sample.lane.actual_read_length', '46', 2);
+      (20538, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20538, 'sample.lane.lane_success', '1', 3);
+      (20538, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20538, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20538, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118621,27 +118621,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20539, 'sample.lane.flow_cell_id', '80', 0);
+      (20539, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20539, 'sample.lane.lane_number', '3', 1);
+      (20539, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20539, 'sample.lane.actual_read_length', '46', 2);
+      (20539, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20539, 'sample.lane.lane_success', '1', 3);
+      (20539, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20539, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20539, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118653,27 +118653,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20054, 'sample.lane.flow_cell_id', '17', 0);
+      (20054, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20054, 'sample.lane.lane_number', '1', 1);
+      (20054, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20054, 'sample.lane.actual_read_length', '85', 2);
+      (20054, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20054, 'sample.lane.lane_success', '1', 3);
+      (20054, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20054, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20054, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118685,27 +118685,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20540, 'sample.lane.flow_cell_id', '80', 0);
+      (20540, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20540, 'sample.lane.lane_number', '5', 1);
+      (20540, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20540, 'sample.lane.actual_read_length', '46', 2);
+      (20540, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20540, 'sample.lane.lane_success', '1', 3);
+      (20540, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20540, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20540, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118717,27 +118717,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20541, 'sample.lane.flow_cell_id', '80', 0);
+      (20541, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20541, 'sample.lane.lane_number', '6', 1);
+      (20541, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20541, 'sample.lane.actual_read_length', '46', 2);
+      (20541, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20541, 'sample.lane.lane_success', '1', 3);
+      (20541, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20541, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20541, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118749,27 +118749,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20542, 'sample.lane.flow_cell_id', '80', 0);
+      (20542, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20542, 'sample.lane.lane_number', '7', 1);
+      (20542, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20542, 'sample.lane.actual_read_length', '46', 2);
+      (20542, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20542, 'sample.lane.lane_success', '1', 3);
+      (20542, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20542, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20542, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118781,22 +118781,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20543, 'sample.lane.flow_cell_id', '80', 0);
+      (20543, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20543, 'sample.lane.lane_number', '4', 1);
+      (20543, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20543, 'sample.lane.control_name', 'phi X', 2);
+      (20543, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20543, 'sample.lane.control_pmol_applied', '6', 3);
+      (20543, 'sample.cell.control_pmol_applied', '6', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118808,17 +118808,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20544, 'sample.lane.flow_cell_id', '80', 0);
+      (20544, 'sample.cell.flow_cell_id', '80', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20544, 'sample.lane.lane_number', '8', 1);
+      (20544, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20544, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20544, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118830,27 +118830,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20545, 'sample.lane.flow_cell_id', '81', 0);
+      (20545, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20545, 'sample.lane.lane_number', '1', 1);
+      (20545, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20545, 'sample.lane.actual_read_length', '46', 2);
+      (20545, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20545, 'sample.lane.lane_success', '1', 3);
+      (20545, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20545, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20545, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118862,27 +118862,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20546, 'sample.lane.flow_cell_id', '81', 0);
+      (20546, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20546, 'sample.lane.lane_number', '2', 1);
+      (20546, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20546, 'sample.lane.actual_read_length', '46', 2);
+      (20546, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20546, 'sample.lane.lane_success', '1', 3);
+      (20546, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20546, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20546, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118894,27 +118894,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20547, 'sample.lane.flow_cell_id', '81', 0);
+      (20547, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20547, 'sample.lane.lane_number', '3', 1);
+      (20547, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20547, 'sample.lane.actual_read_length', '46', 2);
+      (20547, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20547, 'sample.lane.lane_success', '1', 3);
+      (20547, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20547, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20547, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118926,17 +118926,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20548, 'sample.lane.flow_cell_id', '81', 0);
+      (20548, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20548, 'sample.lane.lane_number', '5', 1);
+      (20548, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20548, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20548, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118948,27 +118948,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20055, 'sample.lane.flow_cell_id', '17', 0);
+      (20055, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20055, 'sample.lane.lane_number', '4', 1);
+      (20055, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20055, 'sample.lane.actual_read_length', '85', 2);
+      (20055, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20055, 'sample.lane.lane_success', '1', 3);
+      (20055, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20055, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20055, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -118980,27 +118980,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20550, 'sample.lane.flow_cell_id', '81', 0);
+      (20550, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20550, 'sample.lane.lane_number', '6', 1);
+      (20550, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20550, 'sample.lane.actual_read_length', '46', 2);
+      (20550, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20550, 'sample.lane.lane_success', '1', 3);
+      (20550, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20550, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20550, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119012,27 +119012,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20551, 'sample.lane.flow_cell_id', '81', 0);
+      (20551, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20551, 'sample.lane.lane_number', '8', 1);
+      (20551, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20551, 'sample.lane.actual_read_length', '46', 2);
+      (20551, 'sample.cell.actual_read_length', '46', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20551, 'sample.lane.lane_success', '1', 3);
+      (20551, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20551, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20551, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119044,17 +119044,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20552, 'sample.lane.flow_cell_id', '81', 0);
+      (20552, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20552, 'sample.lane.lane_number', '7', 1);
+      (20552, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20552, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20552, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119066,22 +119066,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20553, 'sample.lane.flow_cell_id', '81', 0);
+      (20553, 'sample.cell.flow_cell_id', '81', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20553, 'sample.lane.lane_number', '4', 1);
+      (20553, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20553, 'sample.lane.control_name', 'phi X', 2);
+      (20553, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20553, 'sample.lane.control_pmol_applied', '8', 3);
+      (20553, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119093,12 +119093,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20554, 'sample.lane.flow_cell_id', '82', 0);
+      (20554, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20554, 'sample.lane.lane_number', '1', 1);
+      (20554, 'sample.cell.cell_number', '1', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119110,12 +119110,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20555, 'sample.lane.flow_cell_id', '82', 0);
+      (20555, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20555, 'sample.lane.lane_number', '2', 1);
+      (20555, 'sample.cell.cell_number', '2', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119127,12 +119127,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20556, 'sample.lane.flow_cell_id', '82', 0);
+      (20556, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20556, 'sample.lane.lane_number', '3', 1);
+      (20556, 'sample.cell.cell_number', '3', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119144,12 +119144,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20559, 'sample.lane.flow_cell_id', '82', 0);
+      (20559, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20559, 'sample.lane.lane_number', '7', 1);
+      (20559, 'sample.cell.cell_number', '7', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119161,27 +119161,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20056, 'sample.lane.flow_cell_id', '17', 0);
+      (20056, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20056, 'sample.lane.lane_number', '5', 1);
+      (20056, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20056, 'sample.lane.actual_read_length', '85', 2);
+      (20056, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20056, 'sample.lane.lane_success', '1', 3);
+      (20056, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20056, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20056, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119193,12 +119193,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20560, 'sample.lane.flow_cell_id', '82', 0);
+      (20560, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20560, 'sample.lane.lane_number', '5', 1);
+      (20560, 'sample.cell.cell_number', '5', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119210,12 +119210,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20561, 'sample.lane.flow_cell_id', '82', 0);
+      (20561, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20561, 'sample.lane.lane_number', '6', 1);
+      (20561, 'sample.cell.cell_number', '6', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119227,12 +119227,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20562, 'sample.lane.flow_cell_id', '82', 0);
+      (20562, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20562, 'sample.lane.lane_number', '8', 1);
+      (20562, 'sample.cell.cell_number', '8', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119244,22 +119244,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20563, 'sample.lane.flow_cell_id', '82', 0);
+      (20563, 'sample.cell.flow_cell_id', '82', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20563, 'sample.lane.lane_number', '4', 1);
+      (20563, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20563, 'sample.lane.control_name', 'phi X', 2);
+      (20563, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20563, 'sample.lane.control_pmol_applied', '10', 3);
+      (20563, 'sample.cell.control_pmol_applied', '10', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119271,12 +119271,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20564, 'sample.lane.flow_cell_id', '83', 0);
+      (20564, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20564, 'sample.lane.lane_number', '1', 1);
+      (20564, 'sample.cell.cell_number', '1', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119288,12 +119288,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20565, 'sample.lane.flow_cell_id', '83', 0);
+      (20565, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20565, 'sample.lane.lane_number', '2', 1);
+      (20565, 'sample.cell.cell_number', '2', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119305,12 +119305,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20566, 'sample.lane.flow_cell_id', '83', 0);
+      (20566, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20566, 'sample.lane.lane_number', '3', 1);
+      (20566, 'sample.cell.cell_number', '3', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119322,12 +119322,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20567, 'sample.lane.flow_cell_id', '83', 0);
+      (20567, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20567, 'sample.lane.lane_number', '5', 1);
+      (20567, 'sample.cell.cell_number', '5', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119339,12 +119339,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20568, 'sample.lane.flow_cell_id', '83', 0);
+      (20568, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20568, 'sample.lane.lane_number', '6', 1);
+      (20568, 'sample.cell.cell_number', '6', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119356,12 +119356,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20569, 'sample.lane.flow_cell_id', '83', 0);
+      (20569, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20569, 'sample.lane.lane_number', '7', 1);
+      (20569, 'sample.cell.cell_number', '7', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119373,27 +119373,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20057, 'sample.lane.flow_cell_id', '17', 0);
+      (20057, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20057, 'sample.lane.lane_number', '6', 1);
+      (20057, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20057, 'sample.lane.actual_read_length', '85', 2);
+      (20057, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20057, 'sample.lane.lane_success', '1', 3);
+      (20057, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20057, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20057, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119405,12 +119405,12 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20570, 'sample.lane.flow_cell_id', '83', 0);
+      (20570, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20570, 'sample.lane.lane_number', '8', 1);
+      (20570, 'sample.cell.cell_number', '8', 1);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119422,22 +119422,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20571, 'sample.lane.flow_cell_id', '83', 0);
+      (20571, 'sample.cell.flow_cell_id', '83', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20571, 'sample.lane.lane_number', '4', 1);
+      (20571, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20571, 'sample.lane.control_name', 'phi X', 2);
+      (20571, 'sample.cell.control_name', 'phi X', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20571, 'sample.lane.control_pmol_applied', '8', 3);
+      (20571, 'sample.cell.control_pmol_applied', '8', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119449,27 +119449,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20058, 'sample.lane.flow_cell_id', '17', 0);
+      (20058, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20058, 'sample.lane.lane_number', '7', 1);
+      (20058, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20058, 'sample.lane.actual_read_length', '85', 2);
+      (20058, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20058, 'sample.lane.lane_success', '1', 3);
+      (20058, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20058, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20058, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119481,27 +119481,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20059, 'sample.lane.flow_cell_id', '17', 0);
+      (20059, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20059, 'sample.lane.lane_number', '3', 1);
+      (20059, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20059, 'sample.lane.actual_read_length', '85', 2);
+      (20059, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20059, 'sample.lane.lane_success', '1', 3);
+      (20059, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20059, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20059, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119513,22 +119513,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20006, 'sample.lane.flow_cell_id', '3', 0);
+      (20006, 'sample.cell.flow_cell_id', '3', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20006, 'sample.lane.lane_number', '2', 1);
+      (20006, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20006, 'sample.lane.lane_success', '1', 2);
+      (20006, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20006, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20006, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119540,27 +119540,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20060, 'sample.lane.flow_cell_id', '17', 0);
+      (20060, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20060, 'sample.lane.lane_number', '2', 1);
+      (20060, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20060, 'sample.lane.actual_read_length', '85', 2);
+      (20060, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20060, 'sample.lane.lane_success', '1', 3);
+      (20060, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20060, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20060, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119572,27 +119572,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20061, 'sample.lane.flow_cell_id', '17', 0);
+      (20061, 'sample.cell.flow_cell_id', '17', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20061, 'sample.lane.lane_number', '8', 1);
+      (20061, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20061, 'sample.lane.actual_read_length', '85', 2);
+      (20061, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20061, 'sample.lane.lane_success', '1', 3);
+      (20061, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20061, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20061, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119604,27 +119604,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20062, 'sample.lane.flow_cell_id', '18', 0);
+      (20062, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20062, 'sample.lane.lane_number', '3', 1);
+      (20062, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20062, 'sample.lane.actual_read_length', '39', 2);
+      (20062, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20062, 'sample.lane.lane_success', '1', 3);
+      (20062, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20062, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20062, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119636,27 +119636,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20063, 'sample.lane.flow_cell_id', '18', 0);
+      (20063, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20063, 'sample.lane.lane_number', '5', 1);
+      (20063, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20063, 'sample.lane.actual_read_length', '39', 2);
+      (20063, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20063, 'sample.lane.lane_success', '1', 3);
+      (20063, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20063, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20063, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119668,27 +119668,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20064, 'sample.lane.flow_cell_id', '18', 0);
+      (20064, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20064, 'sample.lane.lane_number', '6', 1);
+      (20064, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20064, 'sample.lane.actual_read_length', '39', 2);
+      (20064, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20064, 'sample.lane.lane_success', '1', 3);
+      (20064, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20064, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20064, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119700,27 +119700,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20065, 'sample.lane.flow_cell_id', '18', 0);
+      (20065, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20065, 'sample.lane.lane_number', '7', 1);
+      (20065, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20065, 'sample.lane.actual_read_length', '39', 2);
+      (20065, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20065, 'sample.lane.lane_success', '1', 3);
+      (20065, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20065, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20065, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119732,27 +119732,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20066, 'sample.lane.flow_cell_id', '18', 0);
+      (20066, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20066, 'sample.lane.lane_number', '8', 1);
+      (20066, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20066, 'sample.lane.actual_read_length', '39', 2);
+      (20066, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20066, 'sample.lane.lane_success', '1', 3);
+      (20066, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20066, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20066, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119764,27 +119764,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20067, 'sample.lane.flow_cell_id', '18', 0);
+      (20067, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20067, 'sample.lane.lane_number', '1', 1);
+      (20067, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20067, 'sample.lane.actual_read_length', '39', 2);
+      (20067, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20067, 'sample.lane.lane_success', '1', 3);
+      (20067, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20067, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20067, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119796,27 +119796,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20068, 'sample.lane.flow_cell_id', '18', 0);
+      (20068, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20068, 'sample.lane.lane_number', '2', 1);
+      (20068, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20068, 'sample.lane.actual_read_length', '39', 2);
+      (20068, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20068, 'sample.lane.lane_success', '1', 3);
+      (20068, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20068, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20068, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119828,27 +119828,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20069, 'sample.lane.flow_cell_id', '18', 0);
+      (20069, 'sample.cell.flow_cell_id', '18', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20069, 'sample.lane.lane_number', '4', 1);
+      (20069, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20069, 'sample.lane.actual_read_length', '39', 2);
+      (20069, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20069, 'sample.lane.lane_success', '1', 3);
+      (20069, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20069, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20069, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119860,27 +119860,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20007, 'sample.lane.flow_cell_id', '4', 0);
+      (20007, 'sample.cell.flow_cell_id', '4', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20007, 'sample.lane.lane_number', '2', 1);
+      (20007, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20007, 'sample.lane.actual_read_length', '34', 2);
+      (20007, 'sample.cell.actual_read_length', '34', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20007, 'sample.lane.lane_success', '1', 3);
+      (20007, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20007, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20007, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119892,27 +119892,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20070, 'sample.lane.flow_cell_id', '19', 0);
+      (20070, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20070, 'sample.lane.lane_number', '3', 1);
+      (20070, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20070, 'sample.lane.actual_read_length', '39', 2);
+      (20070, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20070, 'sample.lane.lane_success', '1', 3);
+      (20070, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20070, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20070, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119924,27 +119924,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20071, 'sample.lane.flow_cell_id', '19', 0);
+      (20071, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20071, 'sample.lane.lane_number', '1', 1);
+      (20071, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20071, 'sample.lane.actual_read_length', '39', 2);
+      (20071, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20071, 'sample.lane.lane_success', '1', 3);
+      (20071, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20071, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20071, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119956,27 +119956,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20072, 'sample.lane.flow_cell_id', '19', 0);
+      (20072, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20072, 'sample.lane.lane_number', '2', 1);
+      (20072, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20072, 'sample.lane.actual_read_length', '39', 2);
+      (20072, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20072, 'sample.lane.lane_success', '1', 3);
+      (20072, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20072, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20072, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -119988,27 +119988,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20073, 'sample.lane.flow_cell_id', '19', 0);
+      (20073, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20073, 'sample.lane.lane_number', '4', 1);
+      (20073, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20073, 'sample.lane.actual_read_length', '39', 2);
+      (20073, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20073, 'sample.lane.lane_success', '1', 3);
+      (20073, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20073, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20073, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120020,27 +120020,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20074, 'sample.lane.flow_cell_id', '19', 0);
+      (20074, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20074, 'sample.lane.lane_number', '5', 1);
+      (20074, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20074, 'sample.lane.actual_read_length', '39', 2);
+      (20074, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20074, 'sample.lane.lane_success', '1', 3);
+      (20074, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20074, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20074, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120052,27 +120052,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20075, 'sample.lane.flow_cell_id', '19', 0);
+      (20075, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20075, 'sample.lane.lane_number', '6', 1);
+      (20075, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20075, 'sample.lane.actual_read_length', '39', 2);
+      (20075, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20075, 'sample.lane.lane_success', '1', 3);
+      (20075, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20075, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20075, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120084,27 +120084,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20076, 'sample.lane.flow_cell_id', '19', 0);
+      (20076, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20076, 'sample.lane.lane_number', '7', 1);
+      (20076, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20076, 'sample.lane.actual_read_length', '39', 2);
+      (20076, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20076, 'sample.lane.lane_success', '1', 3);
+      (20076, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20076, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20076, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120116,27 +120116,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20077, 'sample.lane.flow_cell_id', '19', 0);
+      (20077, 'sample.cell.flow_cell_id', '19', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20077, 'sample.lane.lane_number', '8', 1);
+      (20077, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20077, 'sample.lane.actual_read_length', '39', 2);
+      (20077, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20077, 'sample.lane.lane_success', '1', 3);
+      (20077, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20077, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20077, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120148,17 +120148,17 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20078, 'sample.lane.flow_cell_id', '20', 0);
+      (20078, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20078, 'sample.lane.lane_number', '4', 1);
+      (20078, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20078, 'sample.lane.comments', 'clusters pass filter < 20%', 2);
+      (20078, 'sample.cell.comments', 'clusters pass filter < 20%', 2);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120170,27 +120170,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20079, 'sample.lane.flow_cell_id', '20', 0);
+      (20079, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20079, 'sample.lane.lane_number', '3', 1);
+      (20079, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20079, 'sample.lane.actual_read_length', '85', 2);
+      (20079, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20079, 'sample.lane.lane_success', '1', 3);
+      (20079, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20079, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20079, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120202,27 +120202,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20008, 'sample.lane.flow_cell_id', '4', 0);
+      (20008, 'sample.cell.flow_cell_id', '4', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20008, 'sample.lane.lane_number', '1', 1);
+      (20008, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20008, 'sample.lane.actual_read_length', '34', 2);
+      (20008, 'sample.cell.actual_read_length', '34', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20008, 'sample.lane.lane_success', '1', 3);
+      (20008, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20008, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20008, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120234,27 +120234,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20080, 'sample.lane.flow_cell_id', '20', 0);
+      (20080, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20080, 'sample.lane.lane_number', '7', 1);
+      (20080, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20080, 'sample.lane.actual_read_length', '85', 2);
+      (20080, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20080, 'sample.lane.lane_success', '1', 3);
+      (20080, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20080, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20080, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120266,27 +120266,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20081, 'sample.lane.flow_cell_id', '20', 0);
+      (20081, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20081, 'sample.lane.lane_number', '8', 1);
+      (20081, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20081, 'sample.lane.actual_read_length', '85', 2);
+      (20081, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20081, 'sample.lane.lane_success', '1', 3);
+      (20081, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20081, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20081, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120298,27 +120298,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20082, 'sample.lane.flow_cell_id', '20', 0);
+      (20082, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20082, 'sample.lane.lane_number', '5', 1);
+      (20082, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20082, 'sample.lane.actual_read_length', '85', 2);
+      (20082, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20082, 'sample.lane.lane_success', '1', 3);
+      (20082, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20082, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20082, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120330,27 +120330,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20083, 'sample.lane.flow_cell_id', '20', 0);
+      (20083, 'sample.cell.flow_cell_id', '20', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20083, 'sample.lane.lane_number', '6', 1);
+      (20083, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20083, 'sample.lane.actual_read_length', '85', 2);
+      (20083, 'sample.cell.actual_read_length', '85', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20083, 'sample.lane.lane_success', '1', 3);
+      (20083, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20083, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20083, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120362,27 +120362,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20084, 'sample.lane.flow_cell_id', '21', 0);
+      (20084, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20084, 'sample.lane.lane_number', '1', 1);
+      (20084, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20084, 'sample.lane.actual_read_length', '39', 2);
+      (20084, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20084, 'sample.lane.lane_success', '1', 3);
+      (20084, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20084, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20084, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120394,27 +120394,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20085, 'sample.lane.flow_cell_id', '21', 0);
+      (20085, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20085, 'sample.lane.lane_number', '2', 1);
+      (20085, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20085, 'sample.lane.actual_read_length', '39', 2);
+      (20085, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20085, 'sample.lane.lane_success', '1', 3);
+      (20085, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20085, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20085, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120426,27 +120426,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20086, 'sample.lane.flow_cell_id', '21', 0);
+      (20086, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20086, 'sample.lane.lane_number', '3', 1);
+      (20086, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20086, 'sample.lane.actual_read_length', '39', 2);
+      (20086, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20086, 'sample.lane.lane_success', '1', 3);
+      (20086, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20086, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20086, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120458,27 +120458,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20087, 'sample.lane.flow_cell_id', '21', 0);
+      (20087, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20087, 'sample.lane.lane_number', '4', 1);
+      (20087, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20087, 'sample.lane.actual_read_length', '39', 2);
+      (20087, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20087, 'sample.lane.lane_success', '1', 3);
+      (20087, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20087, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20087, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120490,27 +120490,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20088, 'sample.lane.flow_cell_id', '21', 0);
+      (20088, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20088, 'sample.lane.lane_number', '5', 1);
+      (20088, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20088, 'sample.lane.actual_read_length', '39', 2);
+      (20088, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20088, 'sample.lane.lane_success', '1', 3);
+      (20088, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20088, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20088, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120522,27 +120522,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20089, 'sample.lane.flow_cell_id', '21', 0);
+      (20089, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20089, 'sample.lane.lane_number', '6', 1);
+      (20089, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20089, 'sample.lane.actual_read_length', '39', 2);
+      (20089, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20089, 'sample.lane.lane_success', '1', 3);
+      (20089, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20089, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20089, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120554,22 +120554,22 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20009, 'sample.lane.flow_cell_id', '5', 0);
+      (20009, 'sample.cell.flow_cell_id', '5', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20009, 'sample.lane.lane_number', '1', 1);
+      (20009, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20009, 'sample.lane.lane_success', '1', 2);
+      (20009, 'sample.cell.cell_success', '1', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20009, 'sample.lane.comments', 'clusters pass filter >= 20%', 3);
+      (20009, 'sample.cell.comments', 'clusters pass filter >= 20%', 3);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120581,27 +120581,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20090, 'sample.lane.flow_cell_id', '21', 0);
+      (20090, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20090, 'sample.lane.lane_number', '7', 1);
+      (20090, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20090, 'sample.lane.actual_read_length', '39', 2);
+      (20090, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20090, 'sample.lane.lane_success', '1', 3);
+      (20090, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20090, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20090, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120613,27 +120613,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20091, 'sample.lane.flow_cell_id', '21', 0);
+      (20091, 'sample.cell.flow_cell_id', '21', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20091, 'sample.lane.lane_number', '8', 1);
+      (20091, 'sample.cell.cell_number', '8', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20091, 'sample.lane.actual_read_length', '39', 2);
+      (20091, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20091, 'sample.lane.lane_success', '1', 3);
+      (20091, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20091, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20091, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120645,27 +120645,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20092, 'sample.lane.flow_cell_id', '22', 0);
+      (20092, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20092, 'sample.lane.lane_number', '1', 1);
+      (20092, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20092, 'sample.lane.actual_read_length', '39', 2);
+      (20092, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20092, 'sample.lane.lane_success', '1', 3);
+      (20092, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20092, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20092, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120677,27 +120677,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20093, 'sample.lane.flow_cell_id', '22', 0);
+      (20093, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20093, 'sample.lane.lane_number', '2', 1);
+      (20093, 'sample.cell.cell_number', '2', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20093, 'sample.lane.actual_read_length', '39', 2);
+      (20093, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20093, 'sample.lane.lane_success', '1', 3);
+      (20093, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20093, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20093, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120709,27 +120709,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20094, 'sample.lane.flow_cell_id', '22', 0);
+      (20094, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20094, 'sample.lane.lane_number', '3', 1);
+      (20094, 'sample.cell.cell_number', '3', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20094, 'sample.lane.actual_read_length', '39', 2);
+      (20094, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20094, 'sample.lane.lane_success', '1', 3);
+      (20094, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20094, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20094, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120741,27 +120741,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20095, 'sample.lane.flow_cell_id', '22', 0);
+      (20095, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20095, 'sample.lane.lane_number', '4', 1);
+      (20095, 'sample.cell.cell_number', '4', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20095, 'sample.lane.actual_read_length', '39', 2);
+      (20095, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20095, 'sample.lane.lane_success', '1', 3);
+      (20095, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20095, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20095, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120773,27 +120773,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20096, 'sample.lane.flow_cell_id', '22', 0);
+      (20096, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20096, 'sample.lane.lane_number', '5', 1);
+      (20096, 'sample.cell.cell_number', '5', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20096, 'sample.lane.actual_read_length', '39', 2);
+      (20096, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20096, 'sample.lane.lane_success', '1', 3);
+      (20096, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20096, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20096, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120805,27 +120805,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20097, 'sample.lane.flow_cell_id', '22', 0);
+      (20097, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20097, 'sample.lane.lane_number', '6', 1);
+      (20097, 'sample.cell.cell_number', '6', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20097, 'sample.lane.actual_read_length', '39', 2);
+      (20097, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20097, 'sample.lane.lane_success', '1', 3);
+      (20097, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20097, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20097, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120837,27 +120837,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20098, 'sample.lane.flow_cell_id', '22', 0);
+      (20098, 'sample.cell.flow_cell_id', '22', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20098, 'sample.lane.lane_number', '7', 1);
+      (20098, 'sample.cell.cell_number', '7', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20098, 'sample.lane.actual_read_length', '39', 2);
+      (20098, 'sample.cell.actual_read_length', '39', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20098, 'sample.lane.lane_success', '1', 3);
+      (20098, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20098, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20098, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into sample
     ( sampleid, sampletypeid, submitter_labid, submitter_userid, submitter_jobid, 
@@ -120869,27 +120869,27 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20099, 'sample.lane.flow_cell_id', '24', 0);
+      (20099, 'sample.cell.flow_cell_id', '24', 0);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20099, 'sample.lane.lane_number', '1', 1);
+      (20099, 'sample.cell.cell_number', '1', 1);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20099, 'sample.lane.actual_read_length', '35', 2);
+      (20099, 'sample.cell.actual_read_length', '35', 2);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20099, 'sample.lane.lane_success', '1', 3);
+      (20099, 'sample.cell.cell_success', '1', 3);
     
       insert into samplemeta
       (sampleid, k, v, position)
       values
-      (20099, 'sample.lane.comments', 'clusters pass filter >= 20%', 4);
+      (20099, 'sample.cell.comments', 'clusters pass filter >= 20%', 4);
     
     insert into jobsample
     (jobsampleid, jobid, sampleid)
@@ -146365,9 +146365,9 @@ PE Adapter R 5''- pTGTGACTAGATCGGAAGAGCGGTTCAGCAGGAATGCCGAG
   from    
     sample s    
     inner join samplemeta sm      
-      on (sm.k = 'sample.lane.flow_cell_id' and s.sampleid = 30000 + sm.v) 
+      on (sm.k = 'sample.cell.flow_cell_id' and s.sampleid = 30000 + sm.v) 
     inner join samplemeta sm2 
-      on (sm2.k = 'sample.lane.lane_number' and sm.sampleid = sm2.sampleid) 
+      on (sm2.k = 'sample.cell.cell_number' and sm.sampleid = sm2.sampleid) 
     where 
       sampletypeid = 5;
 

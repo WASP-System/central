@@ -47,7 +47,7 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	@Transactional
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetresourcecategoryId (final Integer adaptorsetresourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("adaptorsetresourcecategoryId", adaptorsetresourcecategoryId);
+		m.put("id", adaptorsetresourcecategoryId);
 
 		List<AdaptorsetResourceCategory> results = this.findByMap(m);
 
@@ -73,7 +73,7 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId (final Integer adaptorsetId, final Integer resourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetId", adaptorsetId);
-		m.put("resourcecategoryId", resourcecategoryId);
+		m.put("resourceCategoryId", resourcecategoryId);
 
 		List<AdaptorsetResourceCategory> results = this.findByMap(m);
 

@@ -36,12 +36,6 @@ public class Barcode extends WaspModel {
 	 * 
 	 */
 	private static final long serialVersionUID = -4750981400438838305L;
-	/** 
-	 * barcodeId
-	 *
-	 */
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-	protected Integer barcodeId;
 
 	/**
 	 * setBarcodeId(Integer barcodeId)
@@ -49,9 +43,9 @@ public class Barcode extends WaspModel {
 	 * @param barcodeId
 	 *
 	 */
-	
+	@Deprecated
 	public void setBarcodeId (Integer barcodeId) {
-		this.barcodeId = barcodeId;
+		setId(barcodeId);
 	}
 
 	/**
@@ -60,8 +54,9 @@ public class Barcode extends WaspModel {
 	 * @return barcodeId
 	 *
 	 */
+	@Deprecated
 	public Integer getBarcodeId () {
-		return this.barcodeId;
+		return getId();
 	}
 
 
@@ -134,7 +129,7 @@ public class Barcode extends WaspModel {
 	 *
 	 */
 	@Column(name="isactive")
-	protected Integer isActive;
+	protected Integer isActive = 1;
 
 	/**
 	 * setIsActive(Integer isActive)
@@ -160,68 +155,7 @@ public class Barcode extends WaspModel {
 
 
 
-	/** 
-	 * lastUpdTs
-	 *
-	 */
-	@Column(name="lastupdts")
-	protected Date lastUpdTs;
-
-	/**
-	 * setLastUpdTs(Date lastUpdTs)
-	 *
-	 * @param lastUpdTs
-	 *
-	 */
 	
-	public void setLastUpdTs (Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	/**
-	 * getLastUpdTs()
-	 *
-	 * @return lastUpdTs
-	 *
-	 */
-	public Date getLastUpdTs () {
-		return this.lastUpdTs;
-	}
-
-
-
-
-	/** 
-	 * lastUpdUser
-	 *
-	 */
-	@Column(name="lastupduser")
-	protected Integer lastUpdUser;
-
-	/**
-	 * setLastUpdUser(Integer lastUpdUser)
-	 *
-	 * @param lastUpdUser
-	 *
-	 */
-	
-	public void setLastUpdUser (Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	/**
-	 * getLastUpdUser()
-	 *
-	 * @return lastUpdUser
-	 *
-	 */
-	public Integer getLastUpdUser () {
-		return this.lastUpdUser;
-	}
-
-
-
-
 	/** 
 	 * resourceBarcode
 	 *

@@ -13,7 +13,12 @@ package edu.yu.einstein.wasp.model;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @MappedSuperclass
@@ -33,7 +38,6 @@ public class MetaBase extends WaspModel {
 		this.position = pos==null?-1:pos;
 	}
 
-
 	@Column(name = "k")
 	private String k;
 
@@ -45,7 +49,8 @@ public class MetaBase extends WaspModel {
 		return this.k;
 	}
 
-	@Column(name = "v", columnDefinition="TEXT")
+	@Lob
+	@Column(name = "v")
 	private String v;
 
 	public void setV(String v) {
@@ -77,28 +82,6 @@ public class MetaBase extends WaspModel {
 	public String getRoleVisibility() {
 		return this.roleVisibility;
 	}
-	
-	@Column(name = "lastupdts")
-	private Date lastUpdTs;
-
-	public void setLastUpdTs(Date lastUpdTs) {
-		this.lastUpdTs = lastUpdTs;
-	}
-
-	public Date getLastUpdTs() {
-		return this.lastUpdTs;
-	}
-
-	@Column(name = "lastupduser")
-	private Integer lastUpdUser;
-
-	public void setLastUpdUser(Integer lastUpdUser) {
-		this.lastUpdUser = lastUpdUser;
-	}
-
-	public Integer getLastUpdUser() {
-		return this.lastUpdUser;
-	}
 
 	@Transient
 	private MetaAttribute property;
@@ -114,10 +97,15 @@ public class MetaBase extends WaspModel {
 
 	@Override
 	public String toString() {
-		return "MetaBase ["
+		String message = "MetaBase ["
 				+ "k=" + k + ", v=" + v + ", position=" + position
-				+ ", lastUpdTs=" + lastUpdTs + ", lastUpdUser=" + lastUpdUser
-				+ ", property=" + property + "]";
+				+ ", lastUpdTs=" + updated + ", lastUpdUser=";
+		if (lastUpdatedByUser == null || lastUpdatedByUser.getId()==null ) 
+			message += "{not set}";
+		else 
+			message += lastUpdatedByUser.getId();
+		message += ", property=" + property + "]";
+		return message;
 	}
 
 	@Override

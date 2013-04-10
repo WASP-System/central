@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.batch.core.extension.WaspBatchJobExplorer;
 
 /**
  * Re-launches all batch jobs in state STARTED or STARTING 
- * @author andymac
+ * @author asmclellan
  *
  */
 public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunningJobsOnStartup{

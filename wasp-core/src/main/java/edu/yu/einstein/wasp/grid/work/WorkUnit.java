@@ -4,8 +4,10 @@
 package edu.yu.einstein.wasp.grid.work;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,7 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
-import edu.yu.einstein.wasp.model.File;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -27,10 +30,24 @@ public class WorkUnit {
 	
 	public static final String SCRATCH_DIR_PLACEHOLDER = "<<<SCRATCH_DIR>>>";
 	public static final String RESULTS_DIR_PLACEHOLDER = "<<<RESULTS_DIR>>>";
+	
+	public static final String PROCESSING_INCOMPLETE_FILENAME = "wasp_processing_incomplete.txt";
+	public static final String OUTPUT_FILE_PREFIX = "wasp-output";
+	
+	public static final String JOB_NAME = "WASPNAME";
+	public static final String WORKING_DIRECTORY = "WASP_WORK_DIR";
+	public static final String RESULTS_DIRECTORY = "WASP_RESULT_DIR";
+	public static final String TASK_ARRAY_ID = "WASP_TASK_ID"; 
+	public static final String TASK_OUTPUT_FILE = "WASP_TASK_OUTPUT";
+	public static final String TASK_END_FILE = "WASP_TASK_END";
+	public static final String INPUT_FILE = "WASPFILE";
+	public static final String OUTPUT_FILE = "WASPOUTPUT";
 
 	private boolean isRegistering;
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private Map<String,String> environmentVars = new LinkedHashMap<String,String>();
 	
 	/**
 	 * Unique ID for the job
@@ -45,7 +62,7 @@ public class WorkUnit {
 	/**
 	 * Newline (\n) terminated list of commands to be executed.
 	 */
-	private String command;
+	private String command = "";
 	/**
 	 * When implementations need to generate a command to execute a command (e.g. qsub a SGE job), that command
 	 * is stored here.
@@ -59,11 +76,11 @@ public class WorkUnit {
 	/**
 	 * Amount of memory required in GB.
 	 */
-	private Integer memoryRequirements;
+	private Integer memoryRequirements = 1;
 	/**
 	 * number of processors required.
 	 */
-	private Integer processors;
+	private Integer processors = 1;
 	/**
 	 * Execution mode, currently only as a process.
 	 */
@@ -91,13 +108,13 @@ public class WorkUnit {
 	/**
 	 * WASP files, will be available or provisioned to working directory on remote host
 	 */
-	private LinkedHashSet<File> requiredFiles = new LinkedHashSet<File>();
+	private List<FileHandle> requiredFiles = new ArrayList<FileHandle>();
 	
 	/**
-	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link File} objects
+	 * Set of expected output files.  These files will be returned to WASP host and entered as WASP {@link FileHandle} objects
 	 * upon successful completion of the WorkUnit.
 	 */
-	private LinkedHashSet<String> resultFiles = new LinkedHashSet<String>();
+	private LinkedHashSet<FileGroup> resultFiles = new LinkedHashSet<FileGroup>();
 	
 	/**
 	 * List of software packages that need to be configured by a {@link SoftwareManager}.
@@ -107,21 +124,42 @@ public class WorkUnit {
 	/**
 	 * Set of plugins that this workunit is dependent upon, useful for GridHostResolver to determine target system.
 	 */
-	@SuppressWarnings("unused")
 	private Set<String> pluginDependencies = new LinkedHashSet<String>();
 	
 	/**
 	 * whether or not to delete the remote working directory after successful completion.
 	 */
-	@SuppressWarnings("unused")
 	private boolean clean = true;
 	
 	/**
-	 * whether or not to copy results files to the remote archive upon completion.  Execution of subsequent steps on the 
-	 * same host will greatly benefit by setting this to true.
+	 * If the WorkUnit has been configured with results files, this value indicates whether or not the files should be copied to 
+	 * the results folder.  If this value is set to false, a placeholder file will be placed in the working directory
+	 * to indicate to the remote system that the files should not be swept up yet.  This file will be deleted when a 
+	 * WorkUnit of secureResults = true is run in the folder.  Failure of the WorkUnit will cause the file to be removed.
 	 */
-	@SuppressWarnings("unused")
-	private boolean provisionResults = false;
+	private boolean secureResults = true;
+	
+	/**
+	 * If the WorkUnit has been configured with results files, this value indicates whether or not the files should be copied to 
+	 * the results folder.  If this value is set to false, a placeholder file will be placed in the working directory
+	 * to indicate to the remote system that the files should not be swept up yet.  This file will be deleted when a 
+	 * WorkUnit of secureResults = true is run in the folder.  Failure of the WorkUnit will cause the file to be removed.
+	 * @param secure
+	 */
+	public void setSecureResults(boolean secure) {
+		this.secureResults = secure;
+	}
+	
+	/**
+	 * If the WorkUnit has been configured with results files, this value indicates whether or not the files should be copied to 
+	 * the results folder.  If this value is set to false, a placeholder file will be placed in the working directory
+	 * to indicate to the remote system that the files should not be swept up yet.  This file will be deleted when a 
+	 * WorkUnit of secureResults = true is run in the folder.  Failure of the WorkUnit will cause the file to be removed.
+	 * @return
+	 */
+	public boolean isSecureResults() {
+		return this.secureResults;
+	}
 	
 	/**
 	 * String representation of the user requesting the unit of work
@@ -132,7 +170,7 @@ public class WorkUnit {
 	/**
 	 * Method for determining how many processors are necessary to execute this task.
 	 */
-	private ProcessMode processMode = ProcessMode.MAX;
+	private ProcessMode processMode = ProcessMode.SINGLE;
 	
 	/**
 	 * get the ProcessMode
@@ -149,6 +187,27 @@ public class WorkUnit {
 		this.processMode = mode;
 	}
 	
+	private Integer numberOfTasks;
+	
+	/**
+	 * 
+	 * @return the numberOfTasks
+	 */
+	public Integer getNumberOfTasks() {
+		return numberOfTasks;
+	}
+	/**
+	 * When the WorkUnit is run in ExecutionMode.TASK_ARRAY, this is the number of tasks that will be requested.
+	 * all files will be numbered prefix:$TASK.  Where $TASK is zero based.
+	 * 
+	 * @param numberOfTasks the numberOfTasks to set
+	 */
+	public void setNumberOfTasks(Integer numberOfTasks) {
+		this.numberOfTasks = numberOfTasks;
+	}
+	
+	
+	
 	/**
 	 * ExecutionMode is the method by which jobs are executed, is handled by the underlying WorkService implementation,
 	 * and is not guaranteed to have any additional effects.  Future implementation may include ARRAY, MPI.
@@ -160,7 +219,7 @@ public class WorkUnit {
 		/**
 		 * Handle processing at the process level.  Default.
 		 */
-		PROCESS, MPI;
+		PROCESS, MPI, TASK_ARRAY;
 	}
 	
 	/**
@@ -336,40 +395,40 @@ public class WorkUnit {
 	}
 	
 	protected void prepare() throws MisconfiguredWorkUnitException {
-		for (File f : getRequiredFiles()) {
-			if (f == null || f.getIsActive().equals(0)) {
+		for (FileHandle f : getRequiredFiles()) {
+			if (f == null) {
 				if (!isRegistering()) {
-					String message = "File has not been registered " + f.getFileURI();
+					String message = "FileHandle has not been registered " + f.getFileURI();
 					logger.warn(message);
 					throw new MisconfiguredWorkUnitException(message);
 				}
 			}
-			if (f.getIsArchived().equals(1)) {
+			if (f.isArchived()) {
 				// TODO: implement wait for de-archive step.
-				String message = "File is archived " + f.getFileURI();
+				String message = "FileHandle is archived " + f.getFileURI();
 				logger.warn(message);
 				throw new MisconfiguredWorkUnitException(message);
 			}
 		}
 	}
 	/**
-	 * File objects available to the remote host.  Grid host resolver may use these files to determine
+	 * FileHandle objects available to the remote host.  Grid host resolver may use these files to determine
 	 * which host to go to and the GridWorkService should provision them if they are not present.
 	 * Accessible through the WASPFILE bash array.  
 	 * @return the requiredFiles
 	 */
-	public Set<File> getRequiredFiles() {
+	public List<FileHandle> getRequiredFiles() {
 		return requiredFiles;
 	}
 	
 	/**
 	 * @param requiredFiles the requiredFiles to set
 	 */
-	public void setRequiredFiles(LinkedHashSet<File> requiredFiles) {
+	public void setRequiredFiles(List<FileHandle> requiredFiles) {
 		this.requiredFiles = requiredFiles;
 	}
 	
-	public void addRequiredFile(File file) {
+	public void addRequiredFile(FileHandle file) {
 		this.requiredFiles.add(file);
 	}
 	
@@ -379,18 +438,18 @@ public class WorkUnit {
 	 * the WASPOUTPUT bash array.
 	 * @return the resultFiles
 	 */
-	public Set<String> getResultFiles() {
+	public LinkedHashSet<FileGroup> getResultFiles() {
 		return resultFiles;
 	}
 	
 	/**
 	 * @param resultFiles the resultFiles to set
 	 */
-	public void setResultFiles(LinkedHashSet<String> resultFiles) {
+	public void setResultFiles(LinkedHashSet<FileGroup> resultFiles) {
 		this.resultFiles = resultFiles;
 	}
 	
-	public void addRequiredFiles(String file) {
+	public void addRequiredFiles(FileGroup file) {
 		this.resultFiles.add(file);
 	}
 	/**
@@ -408,6 +467,34 @@ public class WorkUnit {
 	 */
 	public void setRegistering(boolean isRegistering) {
 		this.isRegistering = isRegistering;
+	}
+	
+	/**
+	 * Automatically configured environment variables formatted as key=value.  
+	 * These are typically set via AOP, users may set them here if they take
+	 * care to generate unique names.
+	 * 
+	 * @return the environmentVars
+	 */
+	public Map<String,String> getEnvironmentVars() {
+		return environmentVars;
+	}
+	
+	/**
+	 * environment variable setting, generally automatically set.
+	 * @param name ENVIRONMENT_VAR
+	 * @param value host-specific setting
+	 */
+	public void putEnvironmentVariable(String name, String value) {
+		environmentVars.put(name, value);
+	}
+	
+	/**
+	 * Variables processed by the {@link GridWorkService}.
+	 * @param environmentVars the environmentVars to set
+	 */
+	public void setEnvironmentVars(Map<String,String> environmentVars) {
+		this.environmentVars = environmentVars;
 	}
 	
 

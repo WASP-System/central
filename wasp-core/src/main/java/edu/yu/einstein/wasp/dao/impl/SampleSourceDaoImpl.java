@@ -12,11 +12,16 @@
 package edu.yu.einstein.wasp.dao.impl;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 
 
@@ -47,7 +52,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	@Transactional
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
-		m.put("sampleSourceId", sampleSourceId);
+		m.put("id", sampleSourceId);
 
 		List<SampleSource> results = this.findByMap(m);
 
@@ -82,6 +87,14 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 			return rt;
 		}
 		return results.get(0);
+	}
+
+
+	@Override
+	public List<SampleSource> getCellLibraries(Sample cell) {
+		TypedQuery<SampleSource> query = this.entityManager.createQuery("select s from SampleSource s where s.sample = :cell order by s.id", SampleSource.class);
+		query.setParameter("cell", cell);
+		return query.getResultList();
 	}
 
 }

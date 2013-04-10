@@ -15,7 +15,6 @@
   <context:component-scan base-package="edu.yu.einstein.wasp.service.impl" /> 
   <context:component-scan base-package="edu.yu.einstein.wasp.messaging" />
   <context:component-scan base-package="edu.yu.einstein.wasp.load.service.impl" />
-  <context:component-scan base-package="edu.yu.einstein.wasp.resourcebundle" />
   
   <context:annotation-config/>
   
@@ -76,7 +75,7 @@
   </bean> 
 
   <!-- load site specific genome configuration -->
-  <bean id="localGenomesProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+  <bean id="localGenomesProperties" class="edu.yu.einstein.wasp.util.OrderedPropertiesFactoryBean">
     <property name="locations">
       <list>
         <value>classpath:/genomes.properties</value>
@@ -94,7 +93,7 @@
   <import resource="classpath*:/wasp-site-context.xml" />
   
   <!-- load universal file type service beans -->
-  <bean id="fastqService" class="edu.yu.einstein.wasp.service.filetype.impl.FastqServiceImpl" />
+  <bean id="fastqService" class="edu.yu.einstein.wasp.filetype.service.impl.FastqServiceImpl" />
 
 
 

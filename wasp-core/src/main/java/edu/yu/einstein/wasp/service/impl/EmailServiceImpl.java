@@ -2,7 +2,10 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -12,6 +15,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailPreparationException;
@@ -25,6 +30,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import edu.yu.einstein.wasp.dao.ConfirmEmailAuthDao;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
+import edu.yu.einstein.wasp.dao.DepartmentUserDao;
 import edu.yu.einstein.wasp.dao.LabUserDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
@@ -33,13 +39,18 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
 import edu.yu.einstein.wasp.service.EmailService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.util.AuthCode;
 import edu.yu.einstein.wasp.util.DemoEmail;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -65,6 +76,12 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Autowired
 	private VelocityEngine velocityEngine;
+	
+	@Autowired
+	private JobService jobService;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private LabUserDao labUserDao;
@@ -80,15 +97,22 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Autowired
 	private DepartmentDao departmentDao;
-	
+
+	@Autowired
+	private DepartmentUserDao departmentUserDao;
+
 	@Autowired
 	private ConfirmEmailAuthDao confirmEmailAuthDao;
 	
 	@Value("${wasp.host.baseurl}")
 	private String baseUrl;
 	
+
 	@Autowired
 	private DemoEmail demoEmail;
+
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	/**
 	 * {@inheritDoc} 
@@ -213,7 +237,7 @@ public class EmailServiceImpl implements EmailService{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void sendPendingLabNotifyRejected(final LabPending labPending) throws MailPreparationException{
+	public void sendPendingLabNotifyRejected(final LabPending labPending, final String comment) throws MailPreparationException{
 		User user = new User();
 		if (labPending.getUserpendingId() != null ) {
 			// this PI is currently a pending user. 
@@ -228,11 +252,12 @@ public class EmailServiceImpl implements EmailService{
 		}
 		else{
 			// shouldn't get here 
-			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getLabPendingId() + "'");
+			throw new MailPreparationException("No user referenced to whom email should be sent for labPending with id '" + labPending.getId() + "'");
 		}
 		Map model = new HashMap();
 		model.put("user", user);
 		model.put("labpending", labPending);
+		model.put("reasonForRejection", comment.trim());
 		prepareAndSend(user, "emails/pending_lab_notify_rejected", model);
 	}
 	
@@ -249,7 +274,7 @@ public class EmailServiceImpl implements EmailService{
 		try{
 			primaryUser = userDao.getUserByLogin(userPendingMetaHelper.getMetaByName("primaryuserid").getV());
 		} catch(MetadataException e){
-			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getUserPendingId()), e); 
+			throw new MailPreparationException("Cannot get principal user for pending user with id '" + Integer.toString(userPending.getId()), e); 
 		}
 		Map model = new HashMap();
 		model.put("pendinguser", userPending);
@@ -520,6 +545,101 @@ public class EmailServiceImpl implements EmailService{
 			model.put("administrator", administrator);
 			prepareAndSend(administrator, "emails/existing_user_pending_pi_request_confirm", model); 
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobStarted(final Job job, User recipient, String emailTemplate){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		prepareAndSend(recipient, emailTemplate, model);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobAbandoned(final Job job, User recipient, String emailTemplate, String whoAbandonedJob, String reasonForAbandoned){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		model.put("whoAbandonedJob", whoAbandonedJob);
+		model.put("reasonForAbandoned", reasonForAbandoned);
+		prepareAndSend(recipient, emailTemplate, model);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobAccepted(final Job job, User recipient, String emailTemplate){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		prepareAndSend(recipient, emailTemplate, model);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void sendJobCompleted(final Job job, User recipient, String emailTemplate){
+		Map model = getJobSummaryMapForEmailDisplay(job);
+		model.put("addressedTo", recipient);
+		prepareAndSend(recipient, emailTemplate, model);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Map getJobSummaryMapForEmailDisplay(final Job job){
+		
+		Map model = new HashMap();
+		
+		model.put("job", job);
+		
+		User jobSubmitter = job.getUser();
+		model.put("jobSubmitter", jobSubmitter);
+		
+		Lab lab = job.getLab();
+		User pi = lab.getUser();
+		model.put("pi", pi);
+		
+		String machine = null;
+		String readType = null;
+		String readLength = null;
+		
+		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		for(String key : extraJobDetailsMap.keySet()){
+			if(key.contains("machine")){
+				machine = new String(extraJobDetailsMap.get(key));
+			}
+			else if(key.contains("readType")){
+				readType = new String(extraJobDetailsMap.get(key));
+			}
+			else if(key.contains("readLength")){
+				readLength = new String(extraJobDetailsMap.get(key));
+			}
+		}
+		if(machine==null){machine = new String("");}
+		if(readType==null){readType = new String("");}
+		if(readLength==null){readLength = new String("");}
+		model.put("machine", machine);
+		model.put("readType", readType);
+		model.put("readLength", readLength);
+		
+		List<Sample> submittedSampleList = new ArrayList<Sample>();
+		for(Sample s : job.getSample()){
+			if(s.getParentId()==null){
+				submittedSampleList.add(s);
+			}
+		}
+		model.put("submittedSampleList", submittedSampleList);
+
+		return model;
 	}
 }
 

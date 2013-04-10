@@ -84,6 +84,7 @@ public class ModulesManager extends HashMap<String, String> implements
 		result += "module list" + "\n\n";
 		
 		// configure the number of processes that will be used.
+		// TODO: clean up this logic
 		int procs = 0;
 		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
 			if (w.getProcessMode().equals(ProcessMode.SINGLE)) {

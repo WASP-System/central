@@ -1,30 +1,20 @@
 package edu.yu.einstein.wasp.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -35,38 +25,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import edu.yu.einstein.wasp.controller.WaspController;
-import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
-import edu.yu.einstein.wasp.dao.AcctJobquotecurrentDao;
-import edu.yu.einstein.wasp.dao.AcctQuoteDao;
-import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
-import edu.yu.einstein.wasp.dao.LabDao;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.grid.file.DummyFileUrlResolver;
+import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
-import edu.yu.einstein.wasp.integration.messages.WaspStatus;
-import edu.yu.einstein.wasp.model.AcctJobquotecurrent;
-import edu.yu.einstein.wasp.model.AcctQuote;
-import edu.yu.einstein.wasp.model.AcctQuoteMeta;
-import edu.yu.einstein.wasp.model.File;
-import edu.yu.einstein.wasp.model.FileMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
-import edu.yu.einstein.wasp.model.JobSample;
-import edu.yu.einstein.wasp.model.Lab;
-import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.taglib.JQFieldTag;
-import edu.yu.einstein.wasp.util.StringHelper;
 
 @Controller
 @Transactional
@@ -88,10 +62,11 @@ public class ResultViewController extends WaspController {
 	private SampleService sampleService;
 	
 	@Autowired
-	private DummyFileUrlResolver fileUrlResolver;
+	private FileUrlResolver fileUrlResolver;
 
 	@Autowired
 	private FileService fileService;
+
 
 	//get locale-specific message
 	protected String getMessage(String key, String defaultMessage) {
@@ -129,167 +104,158 @@ public class ResultViewController extends WaspController {
 
 	// get the JSON data to construct the tree 
 	@RequestMapping(value="/getTreeJson", method = RequestMethod.GET)
-	public @ResponseBody String getTreeJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
+	public @ResponseBody String getTreeJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
 		
 		try {
-			Map <String, Object> jsTree = null;
+/*			Map <String, Object> jsTree = null;
 			if(type.equalsIgnoreCase("job")) {
 				jsTree = this.jobService.getJobSampleD3Tree(id);
 			} else if(type.equalsIgnoreCase("sample")) {
 				;
 			}
-			return outputJSON(jsTree, response); 	
+*/			
+			JSONObject node = new JSONObject(nodeJSON);
+			Integer id = node.getInt("myid");
+			String type = node.getString("type");
+			Integer pid = node.getInt("pid");
+			Integer jid = node.getInt("jid");
+			
+			return outputJSON(jobService.getTreeViewBranch(id, pid, type, jid), response); 	
 		} 
 		catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
+			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
-	public @ResponseBody String getDetailsJson(@RequestParam("id") Integer id, @RequestParam("type") String type, HttpServletResponse response) {
-		//Map <String, Object> jsTree = new HashMap<String, Object>();
+	public @ResponseBody String getDetailsJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
+
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
 		try {
-			if(type.equalsIgnoreCase("job")) {
+			JSONObject node = new JSONObject(nodeJSON);
+			Integer id = node.getInt("myid");
+			String type = node.getString("type");
+			Integer pid = node.getInt("pid");
+			Integer jid = node.getInt("jid");
+			
+			if(type.startsWith("job")) {
 				Integer jobId = id;
 				Job job = this.jobService.getJobDao().getById(jobId);
-				if(job==null || job.getJobId()==null){
+				if(job==null || job.getId()==null){
 					  waspErrorMessage("listJobSamples.jobNotFound.label");
 					  return null;
 				}
 				
 				jsDetails.put(getMessage("job.name.label"), job.getName());
 				
+				// add job extra detail info
 				HashMap<String, String> extraJobDetails = jobService.getExtraJobDetails(job);
 				for (String lblEJD : extraJobDetails.keySet()) {
 					try {
 						String msg = getMessage(lblEJD);
-						jsDetails.put(msg, extraJobDetails.get(lblEJD));
+						if (!msg.equals(lblEJD))
+							jsDetails.put(msg, extraJobDetails.get(lblEJD));
 					}
 					catch (NoSuchMessageException e) {
 						;
 					}
 				}
 			
+				// add job meta info
 				List<JobMeta> metaList = job.getJobMeta();
-/*				Map <String, Map<String, String>> metaListMap = new HashMap();
-				for (JobMeta mt : metaList) {
-					String key = mt.getK();
-					//logger.debug(Arrays.deepToString(metaNameSplit));
-					
-					try {
-						String msg = getMessage("job."+key+".label");
-						jsDetails.put(msg, mt.getV());
-					} 
-					catch (NoSuchMessageException e) {
-						String[] metaKeySplit = key.split("\\.");
-						//logger.debug(Arrays.deepToString(metaNameSplit));
-						if(metaKeySplit.length == 1) {
-							jsDetails.put(key, mt.getV());
-						} else if (metaKeySplit.length == 2) {
-							Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
-							if(subKeyMap == null) {
-								subKeyMap = new HashMap();
-								metaListMap.put(metaKeySplit[0], subKeyMap);
-							}
-							subKeyMap.put(metaKeySplit[1], mt.getV());
-						}
-					}
-				}
-				jsDetails.putAll(metaListMap);
-*/
-				//jsDetails = jobService.getJobDetailWithMeta(id);
-
 				for (JobMeta mt : metaList) {
 					String mKey = mt.getK();
 					try {
 						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
+						if (!msg.equals(mKey+".label"))
+							jsDetails.put(msg, mt.getV());
 					}
 					catch (NoSuchMessageException e) {
 						;
 					}
 				}
+				
+				// add job status message info
+				List<MetaMessage> msgList = jobService.getUserSubmittedJobComment(jobId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
+				}
+				msgList = jobService.getAllFacilityJobComments(jobId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
+				}
 
-			} else if(type.equalsIgnoreCase("sample")) {
+			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
 				Integer sampleId = id;
 				Sample sample = this.sampleService.getSampleById(sampleId);
-				if(sample==null || sample.getSampleId()==null){
+				if(sample==null || sample.getId()==null){
 					  waspErrorMessage("sampleDetail.sampleNotFound.error");
 					  return null;
 				}
 				
 				jsDetails.put(getMessage("sample.name.label"), sample.getName());
-			
+				
+				// add sample meta info
 				List<SampleMeta> metaList = sample.getSampleMeta();
-				
-/*				Map <String, Map<String, String>> metaListMap = new HashMap();
 				for (SampleMeta mt : metaList) {
-					String key = mt.getK();
-					//logger.debug(Arrays.deepToString(metaNameSplit));
+					String mKey = mt.getK();
+					try {
+						String msg = getMessage(mKey+".label");
+						if (!msg.equals(mKey+".label"))
+							jsDetails.put(msg, mt.getV());
+					}
+					catch (NoSuchMessageException e) {
+						;
+					}
+				}
+				
+				// add sample status message info
+				List<MetaMessage> msgList = sampleService.getSampleQCComments(sampleId);
+				for (MetaMessage msg : msgList) {
+					jsDetails.put(msg.getName(), msg.getValue());
+				}
+
+			} else if(type.startsWith("filetype-")) {
+				FileType ft = fileService.getFileType(id);
+				Set<FileGroup> fgSet = new HashSet<FileGroup>();
+				if (node.has("libid")) {
+					Sample library = sampleService.getSampleById(node.getInt("libid"));
+					if (node.has("cellid")) {
+						Sample cell = sampleService.getSampleById(node.getInt("cellid"));
+						fgSet.addAll(fileService.getFilesForCellLibraryByType(cell, library, ft));
+					} else {
+						fgSet.addAll(fileService.getFilesForLibraryByType(library, ft));
+					}
+				}
+
+				for (FileGroup fg : fgSet) {
+					jsDetails.putAll(fileService.getFileDetailsByFileType(fg));
+					
+//					jsDetails.put(getMessage("file.name.label"), fg.getDescription());
+//					jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(fg)+"\">Download All Files Here</a>");
 	
-					try {
-						String msg = getMessage("sample."+key+".label");
-						jsDetails.put(msg, mt.getV());
-					} 
-					catch (NoSuchMessageException e) {
-						String[] metaKeySplit = key.split("\\.");
-						//logger.debug(Arrays.deepToString(metaNameSplit));
-						if(metaKeySplit.length == 1) {
-							jsDetails.put(key, mt.getV());
-						} else if (metaKeySplit.length == 2) {
-							Map <String, String> subKeyMap = metaListMap.get(metaKeySplit[0]);
-							if(subKeyMap == null) {
-								subKeyMap = new HashMap();
-								metaListMap.put(metaKeySplit[0], subKeyMap);
-							}
-							subKeyMap.put(metaKeySplit[1], mt.getV());
-						}
-					}
-				}
-				jsDetails.putAll(metaListMap);
-*/				
-				for (SampleMeta mt : metaList) {
-					String mKey = mt.getK();
-					try {
-						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
-					}
-					catch (NoSuchMessageException e) {
-						;
-					}
-				}
-			} else if(type.equalsIgnoreCase("file")) {
-				Integer fileId = id;
-				File file = this.fileService.getFileByFileId(fileId);
-				if(file==null || file.getFileId()==null){
-					  waspErrorMessage("file.not_found.error");
-					  return null;
-				}
 				
-				jsDetails.put(getMessage("file.name.label"), file.getDescription());
-				jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(file)+"\">Click Here</a>");
-			
-				List<FileMeta> metaList = file.getFileMeta();
-				
-				for (FileMeta mt : metaList) {
-					String mKey = mt.getK();
-					try {
-						String msg = getMessage(mKey+".label");
-						jsDetails.put(msg, mt.getV());
-					}
-					catch (NoSuchMessageException e) {
-						;
-					}
+//					Set<FileHandle> fhSet = fg.getFileHandles();
+//					
+//					for (FileHandle fh : fhSet) {
+//						String mKey = mt.getK();
+//						try {
+//							String msg = getMessage(mKey+".label");
+//							if (!msg.equals(mKey+".label"))
+//								jsDetails.put(msg, mt.getV());
+//						}
+//						catch (NoSuchMessageException e) {
+//							;
+//						}
+//					}
 				}
 			}
 			
-			//return outputJSON(jsTree, response);
 			return outputJSON(jsDetails, response);
 		} 
 		catch (Throwable e) {
-			throw new IllegalStateException("Can't marshall to JSON for " + type + " id: " + id, e);
+			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
 		}	
 	}
 }
