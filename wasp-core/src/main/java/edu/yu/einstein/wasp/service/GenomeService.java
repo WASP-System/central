@@ -61,10 +61,25 @@ public interface GenomeService extends WaspService {
 	
 	public void setBuild(Sample sample, Build build) throws MetadataException;
 	
+	/**
+	 * applies build to all samples in the supplied set
+	 * @param sampleDraftSet
+	 * @param build
+	 */
+	public void setBuildToAllSamples(Set<Sample> sampleSet, Build build);
+	
 	public void setBuild(SampleDraft sampleDraft, Build build) throws MetadataException;
+	
+	/**
+	 * applies build to all sampleDrafts in the supplied set
+	 * @param sampleDraftSet
+	 * @param build
+	 */
+	public void setBuildToAllSampleDrafts(Set<SampleDraft> sampleDraftSet, Build build);
 	
 	public Build getBuild(SampleDraft sampleDraft) throws ParameterValueRetrievalException;
 	
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException;
+
 	  
 }

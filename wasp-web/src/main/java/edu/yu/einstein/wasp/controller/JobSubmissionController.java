@@ -1619,15 +1619,7 @@ public class JobSubmissionController extends WaspController {
 		}
 	}
 	
-	public static final String ORGANISM_META_AREA = "genericBiomolecule";
-	public static final String ORGANISM_META_KEY = "organism";
-	
-	@RequestMapping(value="/genomes/{jobDraftId}", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String selectGenomesGet(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
+	private void setModelParametersForGenomeSelection(JobDraft jobDraft, ModelMap m){
 		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
 		Map<Organism, List<SampleDraft>> sampleDraftsByOrganism = new HashMap<Organism, List<SampleDraft>>();
 		Map<Organism, Build> currentBuildByOrganism = new HashMap<Organism, Build>();
@@ -1657,6 +1649,19 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("sampleDraftsByOrganism", sampleDraftsByOrganism);
 		m.addAttribute("currentBuildByOrganism", currentBuildByOrganism);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+	}
+	
+	public static final String ORGANISM_META_AREA = "genericBiomolecule";
+	public static final String ORGANISM_META_KEY = "organism";
+	
+	@RequestMapping(value="/genomes/{jobDraftId}", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String selectGenomesGet(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft))
+			return "redirect:/dashboard.do";
+		setModelParametersForGenomeSelection(jobDraft, m);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		return "jobsubmit/genomes";
 	}
 	
@@ -1664,11 +1669,55 @@ public class JobSubmissionController extends WaspController {
 	@RequestMapping(value="/genomes/{jobDraftId}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String selectGenomesPost(
-			@PathVariable("jobDraftId") Integer jobDraftId) {
+			@PathVariable("jobDraftId") Integer jobDraftId,
+			ModelMap m) {
 		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
-		
+		setModelParametersForGenomeSelection(jobDraft, m);
+		Map<Organism, List<SampleDraft>> sampleDraftsByOrganism = (Map<Organism, List<SampleDraft>>) m.get("sampleDraftsByOrganism");
+		Map<Organism, String> genomeError = new HashMap<Organism, String>();
+		Map<Organism, String> genomesByOrganism = new HashMap<Organism, String>();
+		Map<Organism, String> buildsByOrganism = new HashMap<Organism, String>();
+		boolean isErrors = false;
+		for (Organism organism : sampleDraftsByOrganism.keySet()){
+			String buildName = (String) request.getParameter("buildSelect_" + organism.getNcbiID());
+			String genomeSelection = (String) request.getParameter("genomeSelect_" + organism.getNcbiID());
+			if (buildName == null || buildName.isEmpty() || genomeSelection == null || genomeSelection.isEmpty()){
+				genomeError.put(organism, messageService.getMessage("jobDraft.sample_genome_select.error"));
+				isErrors = true;
+			} else{
+				genomesByOrganism.put(organism, genomeSelection.substring( genomeSelection.lastIndexOf("/") + 1 ));
+				buildsByOrganism.put(organism, buildName);
+			}
+			if (isErrors){
+				m.addAttribute("genomeError", genomeError);
+				return "jobsubmit/genomes";
+			}
+		}
+		for (Organism organism : sampleDraftsByOrganism.keySet()){
+			String genomeName = genomesByOrganism.get(organism);
+			String buildName = buildsByOrganism.get(organism);
+			logger.debug("genomes: " + organism.getNcbiID() + ":" + genomeName + ":" + buildName);
+			Build build = null;
+			try {
+				build = genomeService.getBuild(organism.getNcbiID(), genomeName, buildName);
+			} catch (ParameterValueRetrievalException e) {
+				logger.warn(e.getLocalizedMessage());
+				waspErrorMessage("jobDraft.sample_genome_retrieval.error");
+				return "jobsubmit/genomes";
+			}
+			Set<SampleDraft> sampleDraftSet = new HashSet<SampleDraft>();
+			sampleDraftSet.addAll(sampleDraftsByOrganism.get(organism));
+			try{
+				genomeService.setBuildToAllSampleDrafts(sampleDraftSet, build);
+			} catch (Exception e){
+				logger.warn(e.getLocalizedMessage());
+				waspErrorMessage("jobDraft.sample_genome_save.error");
+				return "jobsubmit/genomes";
+			}
+			
+		}
 		return nextPage(jobDraft);
 	}
 

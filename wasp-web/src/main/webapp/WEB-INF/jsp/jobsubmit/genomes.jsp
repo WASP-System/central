@@ -22,7 +22,7 @@
 		<c:set var="currentGenomeName" value="" />
 		<c:if test="not empty(${currentBuildByOrganism.get(organism)})">
 			<c:set var="currentBuildName" value="${currentBuildByOrganism.get(organism).getName()}" />
-			<c:set var="currentGenomeName" value="${currentBuildByOrganism.get(organism).genGenome().getName()}" />
+			<c:set var="currentGenomeName" value="${currentBuildByOrganism.get(organism).getGenome().getName()}" />
 		</c:if>
 		<c:forEach items="${sampleDraftsByOrganism.get(organism)}" var="sampleDraft" varStatus="statusSD">
 			<tr <c:if test="${statusSD.count == 1}">class="top-heading"</c:if> >
@@ -51,7 +51,7 @@
 									</select>
 									<span class="requiredField">*</span>
 								</td>
-								<td class="error"><c:out value="${genomeError.get(organism.getNcbiID())}" /> </td>
+								<td class="error"><c:out value="${genomeError.get(organism)}" /> </td>
 							</tr>
 						</table>
 						<table>

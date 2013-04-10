@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.MetadataException;
@@ -192,6 +193,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						logger.debug("creating genome build " + name);
 						Build b = new Build(name);
 						Genome g = genomes.get(genomeName);
+						b.setGenome(g);
 						g.getBuilds().put(name, b);
 						builds.put(buildName, b);
 					} else if (fields.length == 5 && fields[4].equals("default")){
@@ -308,6 +310,23 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	 * 
 	 */
 	@Override
+	@Transactional("entityManager")
+	public void setBuildToAllSampleDrafts(Set<SampleDraft> sampleDraftSet, Build build){
+		Assert.assertParameterNotNull(sampleDraftSet, "sampleDraftSet cannot be null");
+		try{
+			for (SampleDraft sampleDraft : sampleDraftSet){
+				setBuild(sampleDraft, build);
+			}
+		} catch (MetadataException e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
 	public void setBuild(Sample sample, Build build) throws MetadataException {
 		Assert.assertParameterNotNull(sample, "sample cannot be null");
 		Assert.assertParameterNotNull(sample.getId(), "sample must be a valid entity");
@@ -317,6 +336,23 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		sampleMeta.setV(getDelimitedParameterString(build));
 		sampleMeta.setSampleId(sample.getId());
 		sampleService.getSampleMetaDao().setMeta(sampleMeta);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void setBuildToAllSamples(Set<Sample> sampleSet, Build build){
+		Assert.assertParameterNotNull(sampleSet, "sampleSet cannot be null");
+		try{
+			for (Sample sample : sampleSet){
+				setBuild(sample, build);
+			}
+		} catch (MetadataException e){
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
