@@ -1,7 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
 import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
@@ -49,6 +51,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -58,6 +61,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
@@ -104,6 +108,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private SampleService sampleService;
   @Autowired
   private JobService jobService;
+  @Autowired
+  private FileService fileService;
   @Autowired
   private AuthenticationService authenticationService;
   @Autowired
@@ -442,16 +448,16 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
 		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());
 
-		// get files associated with this job
-		List<FileGroup> files = new ArrayList<FileGroup>();
-		Map<FileGroup, URL> fileUrlMap = new HashMap<FileGroup, URL>();
-		for (JobFile jf: job.getJobFile()){
-			files.add(jf.getFile());
-			try{
-				URL url = fileUrlResolver.getURL(jf.getFile());			
-				fileUrlMap.put(jf.getFile(), url);
-			}catch(Exception e){
-				logger.warn("Unable to resolve URL for fileId " + jf.getFile().getFileGroupId().intValue());}
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 		}
 		
 		m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap);
@@ -468,8 +474,8 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		m.addAttribute("availableAndCompatibleFlowCells", availableAndCompatibleFlowCells);
 		m.addAttribute("cellsByLibrary", cellsByLibrary);
-		m.addAttribute("files", files);
-		m.addAttribute("fileUrlMap", fileUrlMap);
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
@@ -965,6 +971,45 @@ public class SampleDnaToLibraryController extends WaspController {
 		return defaultReturnString;
   }
   
+  /**
+   * Upload a file associated with this job
+   */
+  @RequestMapping(value="/uploadJobFile/{jobId}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jv-' + #jobId) or hasRole('su') or hasRole('ft')")
+	public String uploadJobFile(
+			@PathVariable("jobId") Integer jobId, 
+			@RequestParam("file_description") String fileDescription,
+			@RequestParam("file_upload") MultipartFile mpFile) {
+
+	  	String referer = request.getHeader("Referer");
+	  	Job job = jobService.getJobByJobId(jobId);
+		if (job==null || job.getId() == null){
+			waspErrorMessage("listJobSamples.jobNotFound.error");
+			return "redirect:/dashboard.do";
+		}
+		else if(mpFile.isEmpty()){
+			waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+			return "redirect:"+ referer;
+		}
+		else if("".equals(fileDescription)){
+			waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			return "redirect:"+ referer;
+		}
+		
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		try{
+			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+			//FileGroup group = fileService.processUploadedJobFile(mpFile, job, fileDescription, randomNumberGenerator);
+			//fileService.linkFileGroupWithJob(group, job);
+		} catch(FileUploadException e){
+			logger.warn(e.getMessage());
+			waspErrorMessage("listJobSamples.fileUploadFailed.error");
+			return "redirect:"+ referer;
+		}
+
+		waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
+		return "redirect:"+ referer;		
+	}
 }
 
 

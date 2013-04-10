@@ -2449,6 +2449,21 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 *  {@inheritDoc}
 	 */
 	@Override
+	public SampleSource getCellLibraryBySampleSourceId(Integer ssid) throws SampleTypeException{
+		SampleSource cellLibrary = sampleSourceDao.getById(ssid);
+		Sample cell = this.getCell(cellLibrary);
+		if (!isCell(cell))
+			throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+		Sample library = this.getLibrary(cellLibrary);
+		if (!isLibrary(library))
+			throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+		return cellLibrary;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
 	public Sample getCell(SampleSource cellLibrary){
 		Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be empty");
 		Assert.assertParameterNotNull(cellLibrary.getId(), "cellLibrary must have a valid id");

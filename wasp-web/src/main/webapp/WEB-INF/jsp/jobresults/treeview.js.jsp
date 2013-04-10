@@ -26,10 +26,10 @@ function showhide(btn,layer_ref) {
 }
 
 function toggleview() {
-	if (root.type == 'job') {
-		root.type = 'job-pu';
+	if (root.jid == undefined || root.jid < 1) {
+		root.jid = root.id;
 	} else {
-		root.type = 'job';
+		root.jid = -1;
 	}
 	root.children = '';
 	click(root);
@@ -44,7 +44,7 @@ var margin = {top: 20, right: 80, bottom: 20, left: 20},
     duration = 500,
     branch_length = 100,
     min_branch_int = 40,
-    root;
+    root=new Object();
     
 var barHeight = 20,
 	barWidth = width * .6;
@@ -82,12 +82,26 @@ function collapse(d) {
   }
 }
 
+root.myid=${myid};
+root.type="${type}";
+root.jid=${myid};
+root.pid=-1;
+var seen = [];
+var rootstr = JSON.stringify(root, function(key, val) {
+   if (typeof val == "object") {
+        if (seen.indexOf(val) >= 0)
+            return undefined;
+        seen.push(val);
+    }
+    return val; });
+
 
 //d3.json("../data/flare.json", function(json) {
 //d3.json("../data/flare100.json", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${jobId}", function(json) {
 //d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {
-d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {	
+//d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}&jid=${myid}&pid=-1", function(json) {	
+d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 /*   if (height < json.children.length * min_branch_int) {
 	  height = json.children.length * min_branch_int;
   }
@@ -241,6 +255,14 @@ function update(source) {
 	d.y0 = d.y;
 	});
 
+	// store the parent's id in everynode
+	nodes.forEach(function(d) {
+		if (d!=root)
+			d.pid = d.parent.myid;
+		else
+			d.pid = -1;
+	});
+
 /*
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
@@ -387,24 +409,69 @@ function toggle(d) {
 }
 	
 function click(d) {
-//  toggle(d);
+	if (d.jid==undefined) {
+	 d.jid = -1;
+	}/*  else {
+	 jid = d.jid;
+	} */
 	
+	// parent node's id
+/* 	var pid = -1;
+	if (d!=root)
+		d.pid = d.parent.myid; */
+
+	var seen = [];
+	var dstr = JSON.stringify(d, function(key, val) {
+	   if (typeof val == "object") {
+	        if (seen.indexOf(val) >= 0)
+	            return undefined;
+	        seen.push(val);
+	    }
+	    return val; });
+  
   $.ajax({
-      url: '/wasp/jobresults/getDetailsJson.do?type='+d.type+'&id='+d.myid,
+      url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
       type: 'GET',
       dataType: 'json',
       success: function (result) {
+    	if (d.type=='dummy') return;  
+      
       	d3.select('#detailview').select("h3").remove();
       	d3.select('#detailview').select("tbody").remove();
       	
-      	d3.select('#detailview').append("h3").html((d.type.split('-'))[0].toUpperCase()+" Details");
-      	var table = d3.select('#detailview').append("tbody");
-          $.each(result, function (index, item) {
-         		var row = table.append("tr");
-         		row.append("td").html(index);
+      	//remove all tabs first
+      	/*for (var i = $("div#tabs ul li").length  - 1; i >= 0; i--) {
+			$('div#tabs').tabs('remove', i);
+		} */
+      	
+/*      	$.each(result, function (index, item) {
+			var num_tabs = $("div#tabs ul li").length + 1;
 
-         		if (typeof item == 'string' || item instanceof String) {
+             $("div#tabs ul").append(
+                 "<li><a href='#tab" + num_tabs + "'>" + index + "</a></li>"
+             );
+			$("div#tabs").append(
+                 "<div id='tab" + num_tabs + "'>" + item + "</div>"
+             );
+             $("div#tabs").tabs("refresh");
+      	});
+*/      
+		var headStr;
+		if ((d.type.split('-'))[0]=="filetype") {
+			headStr = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+		} else {
+			headStr = d.type.toUpperCase()+" Details";
+		}
+     	d3.select('#detailview').append("h3").html(headStr);
+      	var table = d3.select('#detailview').append("tbody");
+        $.each(result, function (index, item) {
+         	var row = table.append("tr");
+         	row.append("td").html(index);
+
+         	if (typeof item == 'string' || item instanceof String) {
           		row.append("td").html(item);
+         	} else if (item.targetLink != undefined) {
+         		row.append("td").html('<a href="'+item.targetLink+'">'+item.label+'</a>');
           	} else {
           		var td = row.append("td");
           		$.each(item, function (index2, item2) {
@@ -413,13 +480,15 @@ function click(d) {
               		row2.append("td").html(item2);
           		});
           	}
-          });
+        });
+
       }
   });
   
   if (d.children == '') {
+	  
 	  $.ajax({
-	      url: '/wasp/jobresults/getTreeJson.do?type='+d.type+'&id='+d.myid,
+	      url: '/wasp/jobresults/getTreeJson.do?node='+dstr,
 	      type: 'GET',
 	      dataType: 'json',
 	      success: function (result) {
@@ -430,6 +499,8 @@ function click(d) {
       	}
       });
   }
+
+  toggle(d);
 }
 
 function color(d) {

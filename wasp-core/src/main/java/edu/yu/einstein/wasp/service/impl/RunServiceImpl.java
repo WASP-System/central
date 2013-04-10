@@ -138,7 +138,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			
 			for (int x = 1; x <= l.size(); x++) {
 				Run r = l.get(x);
-				if (r.getRunId() > result.getRunId()) result = r;
+				if (r.getId() > result.getId()) result = r;
 			}
 		} else {
 			result = l.get(0);
@@ -150,14 +150,32 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public List<Run> getRunsForPlatformUnit(Sample pu) throws SampleTypeException{
 		Assert.assertParameterNotNull(pu, "no platform unit provided (is null)");
-		Assert.assertParameterNotNullNotZero(pu.getSampleId(), "pu is not a valid sample");
+		Assert.assertParameterNotNullNotZero(pu.getId(), "pu is not a valid sample");
 		if (!sampleService.isPlatformUnit(pu))
 			throw new SampleTypeException("Sample is not of type platformunit");
 		Map<String, Integer> searchMap = new HashMap<String, Integer>();
-		searchMap.put("sampleId", pu.getSampleId());
+		searchMap.put("sampleId", pu.getId());
 		return runDao.findByMap(searchMap);
 	}
 	
+
+	@Override
+	public List<Run> getSuccessfullyCompletedRunsForPlatformUnit(Sample pu) throws SampleTypeException{
+		Assert.assertParameterNotNull(pu, "no platform unit provided (is null)");
+		Assert.assertParameterNotNullNotZero(pu.getId(), "pu is not a valid sample");
+		if (!sampleService.isPlatformUnit(pu))
+			throw new SampleTypeException("Sample is not of type platformunit");
+		Map<String, Integer> searchMap = new HashMap<String, Integer>();
+		searchMap.put("sampleId", pu.getId());
+		List<Run> runList = new ArrayList<Run>();
+		for (Run run : runDao.findByMap(searchMap)) {
+			if (this.isRunSuccessfullyCompleted(run)) {
+				runList.add(run);
+			}
+		}
+		
+		return runList;
+	}
 	
 	@Override
 	public void initiateRun(Run run) {
@@ -248,10 +266,10 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 */
 	@Override	public boolean isRunActive(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
-		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Assert.assertParameterNotNull(run.getId(), "run must be defined");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
-		runIdStringSet.add(run.getRunId().toString());
+		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		if (! batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED).isEmpty())
 			return true;
@@ -286,10 +304,10 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public boolean isRunSuccessfullyCompleted(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
-		Assert.assertParameterNotNull(run.getRunId(), "run must be defined");
+		Assert.assertParameterNotNull(run.getId(), "run must be defined");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
-		runIdStringSet.add(run.getRunId().toString());
+		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED).isEmpty())
 			return true;
@@ -339,8 +357,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCellsWithoutControls(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
@@ -370,8 +388,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Map<Sample, Job> getLibraryJobPairsOnSuccessfulRunCells(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		Map<Sample, Job> libraryJob = new HashMap<Sample, Job>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
@@ -401,8 +419,8 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
@@ -430,10 +448,28 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 *  {@inheritDoc}
 	 */
 	@Override
+	public List<Sample> getCellsOnSuccessfulRunCellsWithoutControlsForJob(Run run, Job job){
+		Assert.assertParameterNotNull(run, "a run must be provided");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
+		List<Sample> cellList = new ArrayList<Sample>();
+		Set<SampleSource> libraryCellSet = this.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
+		for (SampleSource lc : libraryCellSet) {
+			if (sampleService.getJobOfLibraryOnCell(lc).getId()==job.getId()) {
+				cellList.add(sampleService.getCell(lc));
+			}
+		}
+		return cellList;
+	}
+	
+	/**
+	 *  {@inheritDoc}
+	 */
+	@Override
 	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
-		Assert.assertParameterNotNull(run.getRunId(), "a runId must be have a valid database entry");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		Set<SampleSource> libraryCell = new LinkedHashSet<SampleSource>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
@@ -463,7 +499,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Set<Sample> getLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Set<Sample> librariesOnRun = new LinkedHashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){
@@ -487,7 +523,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Set<Sample> getLibrariesOnSuccessfulRunCells(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
-		Assert.assertParameterNotNullNotZero(run.getRunId(), "run provided is invalid or not in the database");
+		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Set<Sample> librariesOnRun = new LinkedHashSet<Sample>();
 		try {
 			for (Sample cell: sampleService.getIndexedCellsOnPlatformUnit(run.getPlatformUnit()).values()){

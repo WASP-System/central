@@ -437,7 +437,8 @@ public class ResourceController extends WaspController {
 			for (Run run : runs) {
 
 				text = run.getId() == null ? "No Runs"
-						: "<a href=/wasp/run/detail/" + run.getId() + ".do>"
+						//old, no longer used      : "<a href=/wasp/run/detail/" + run.getId() + ".do>"
+						: "<a href=/wasp/wasp-illumina/flowcell/" + run.getId() + "/show.do>"
 								+ run.getName() + "</a>";
 				mtrx[j] = text;
 

@@ -986,6 +986,9 @@ public interface SampleService extends WaspMessageHandlingService {
 	
 	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
 			throws SampleParentChildException;
+
+	public SampleSource getCellLibraryBySampleSourceId(Integer ssid)
+			throws SampleTypeException;
 	  
 	/**
 	 * Find the cell-libraries (type SampleSource) for a given cell instance.  A cell library is the 
