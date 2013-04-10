@@ -18,12 +18,14 @@
 			var selectedGenomePathStr=$('select#genomeSelect_' + id + ' option:selected').val();
 			var options = '';
 			var url = "/wasp/jobsubmit/" + selectedGenomePathStr + "/getBuilds.do";
+			var genomeName = selectedGenomePathStr.substring( selectedGenomePathStr.lastIndexOf("/") + 1 );
 			var itemCount = 0;
 			var currentlySelectedBuild= "";
 			if (!selectedGenomePathStr) {
 				$('tr#buildSelectTr_' + id).hide();
 				$('tr#buildDescriptionTr_' + id).hide();
 				$('select#buildSelect_' + id).children().remove().end();   
+				$('select#buildSelect_' + id).html('<option value=""><fmt:message key="wasp.default_select.label" /></option>');
 				buildDescriptions = new Array();
 				return;
 			}
@@ -36,24 +38,24 @@
 			    	$.each(data, function (displayValue, description) {    
 			    		isDefaultBuild = false;
 			    		selected = '';
-			    		genomeName = '';
+			    		buildName = '';
 			    		if (displayValue.indexOf(" (default)") != -1){
 			    			isDefaultBuild = true;
-			    			genomeName = displayValue.replace(" (default)", "");
+			    			buildName = displayValue.replace(" (default)", "");
 			    		} else {
-			    			genomeName = displayValue;
+			    			buildName = displayValue;
 			    		}
-			    		if (currentlySelectedBuild == ""){
+			    		if (currentlySelectedBuild.length == 0){
 			    			if (currentlySelectedBuildByGenomeName[genomeName] != null && currentlySelectedBuildByGenomeName[genomeName] != "")
 			    				currentlySelectedBuild = currentlySelectedBuildByGenomeName[genomeName];
 			    			else if (isDefaultBuild == true)
-			    				currentlySelectedBuild = genomeName;
+			    				currentlySelectedBuild = buildName;
 			    		}
-			    		if (genomeName == currentlySelectedBuild)
+			    		if (buildName == currentlySelectedBuild)
 			    			selected = " selected='selected'";
 
-			    		buildDescriptions[genomeName] = description;
-						options += '<option value="' + genomeName + '" ' + selected + '>' + displayValue + '</option>\n';
+			    		buildDescriptions[buildName] = description;
+						options += '<option value="' + buildName + '" ' + selected + '>' + displayValue + '</option>\n';
 						itemCount++;
 					});
 			    }

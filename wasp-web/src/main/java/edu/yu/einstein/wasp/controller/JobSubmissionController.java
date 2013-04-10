@@ -1649,6 +1649,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("sampleDraftsByOrganism", sampleDraftsByOrganism);
 		m.addAttribute("currentBuildByOrganism", currentBuildByOrganism);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.put("jobDraft", jobDraft);
 	}
 	
 	public static final String ORGANISM_META_AREA = "genericBiomolecule";
@@ -1685,10 +1686,21 @@ public class JobSubmissionController extends WaspController {
 			String genomeSelection = (String) request.getParameter("genomeSelect_" + organism.getNcbiID());
 			if (buildName == null || buildName.isEmpty() || genomeSelection == null || genomeSelection.isEmpty()){
 				genomeError.put(organism, messageService.getMessage("jobDraft.sample_genome_select.error"));
+				((Map<Organism, Build>) m.get("currentBuildByOrganism")).remove(organism);
 				isErrors = true;
 			} else{
-				genomesByOrganism.put(organism, genomeSelection.substring( genomeSelection.lastIndexOf("/") + 1 ));
+				String genomeName = genomeSelection.substring( genomeSelection.lastIndexOf("/") + 1 );
+				genomesByOrganism.put(organism, genomeName);
 				buildsByOrganism.put(organism, buildName);
+				Build build = null;
+				try {
+					build = genomeService.getBuild(organism.getNcbiID(), genomeName, buildName);
+				} catch (ParameterValueRetrievalException e) {
+					logger.warn(e.getLocalizedMessage());
+					waspErrorMessage("jobDraft.sample_genome_retrieval.error");
+					return "jobsubmit/genomes";
+				}
+				((Map<Organism, Build>) m.get("currentBuildByOrganism")).put(organism, build);
 			}
 			if (isErrors){
 				m.addAttribute("genomeError", genomeError);
