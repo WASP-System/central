@@ -28,6 +28,7 @@
 		<value>/jobsubmit/helpTag/pair/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/software/#{helptagPipelineResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
 		<value>/jobsubmit/ok</value>
@@ -81,12 +82,16 @@
           <property name="label" value="HpaII vs MspI Pairings" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/aligner" />
+          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
           <property name="label" value="Aligner Selection" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/software/helptagPipeline" />
           <property name="label" value="HELP-tag Pipeline Selection" />
+        </bean>
+        <bean parent="helpTagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="Comments" />
         </bean>
         <bean parent="helpTagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/verify" />
