@@ -481,7 +481,7 @@ public class TaskController extends WaspController {
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
 		m.addAttribute("jobApprovalsMap", jobApprovalsMap);
 		m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
-		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);  
+		m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
   }
   
   @RequestMapping(value = "/fmapprove/list", method = RequestMethod.GET)

@@ -77,8 +77,20 @@ public interface GenomeService extends WaspService {
 	 */
 	public void setBuildToAllSampleDrafts(Set<SampleDraft> sampleDraftSet, Build build);
 	
+	/**
+	 * gets the genome build set for the sampleDraft or null if not set
+	 * @param sampleDraft
+	 * @return
+	 * @throws ParameterValueRetrievalException
+	 */
 	public Build getBuild(SampleDraft sampleDraft) throws ParameterValueRetrievalException;
 	
+	/**
+	 * gets the genome build set for the sample or null if not set
+	 * @param sample
+	 * @return
+	 * @throws ParameterValueRetrievalException
+	 */
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException;
 
 	public Map<Integer, Organism> getOrganismMap();

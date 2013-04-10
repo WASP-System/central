@@ -367,8 +367,9 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 			sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
 		try{
 			genomeString = (String) MetaHelper.getMetaValue(GENOME_AREA, GENOME_STRING_META_KEY, sampleDraftMetaList);
-		} catch(Exception e) {
-			throw new ParameterValueRetrievalException(e);
+		} catch(MetadataException e) {
+			// not found
+			return null;
 		}
 		return getBuild(genomeString);
 	}

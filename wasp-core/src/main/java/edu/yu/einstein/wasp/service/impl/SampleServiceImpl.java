@@ -2949,7 +2949,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		
 		@Override
 		public String getNameOfOrganism(Sample sample){
-			return getNameOfOrganism(sample, "Unknown");
+			return getNameOfOrganism(sample, "Unknown Organism");
 		}
 		
 		@Override
@@ -2964,7 +2964,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				organismName = genomeService.getOrganismMap().get(genomeId).getName();
 			}
 			catch(Exception me){
-				logger.warn("Unable to identify organism for sampleId " + sample.getId());
+				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
 			}
 			return organismName;
 		}

@@ -368,7 +368,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 			}
-			organismMap.put(sample, sampleService.getNameOfOrganism(sample));
+			organismMap.put(sample, sampleService.getNameOfOrganism(sample, "Other"));
 			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
@@ -568,7 +568,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  m.put("macromoleculeSample", macromoleculeSample);
 	  m.put("job", job);
-	  m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample));
+	  m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample, "Other"));
 
 	   
 	  String[] roles = {"ft"};
@@ -620,7 +620,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
 	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample));
-	  m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule));
+	  m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule, "Other"));
 	  
 	  libraryForm.setName(libraryForm.getName().trim());
 	  SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());
