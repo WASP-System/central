@@ -20,7 +20,7 @@
 		<c:set var="sdCount" value="${sampleDraftsByOrganism.get(organism).size()}" />
 		<c:set var="currentBuildName" value="" />
 		<c:set var="currentGenomeName" value="" />
-		<c:if test="not empty(${currentBuildByOrganism.get(organism)})">
+		<c:if test="${currentBuildByOrganism.get(organism) != null}">
 			<c:set var="currentBuildName" value="${currentBuildByOrganism.get(organism).getName()}" />
 			<c:set var="currentGenomeName" value="${currentBuildByOrganism.get(organism).getGenome().getName()}" />
 		</c:if>
@@ -36,16 +36,18 @@
 								<td class="DataTD value-centered">
 									<select name="genomeSelect_${organism.getNcbiID()}" id="genomeSelect_${organism.getNcbiID()}">
 										<option value=""><fmt:message key="wasp.default_select.label" /></option>
-										<c:set var="defaultValue" value="" />
-										<c:set var="genomeSelectedStatus" value="" />
 										<c:forEach items="${organism.getGenomes().keySet()}" var="genomeName" varStatus="statusGenome" >
+											<c:set var="genomeSelectedStatus" value="" />
+											<c:set var="defaultValue" value="" />
 											<c:if test="${organism.getGenomes().get(genomeName).isDefault() == true}">
 												<c:set var="defaultValue" value=" (default)" />
-												<c:if test="${empty(currentGenomeName)}" >
+												<c:if test='${currentGenomeName == ""}' >
 													<c:set var="currentGenomeName" value="${genomeName}" />
 												</c:if>
 											</c:if>
-											<c:if test="${genomeName == currentGenomeName}"><c:set var="genomeSelectedStatus" value="selected='selected'" /></c:if>
+											<c:if test="${genomeName == currentGenomeName}">
+												<c:set var="genomeSelectedStatus" value="selected='selected'" />
+											</c:if>
 											<option value="organism/${organism.getNcbiID()}/genome/${genomeName}" <c:out value="${genomeSelectedStatus}" />><c:out value="${genomeName}${defaultValue}" /></option>
 										</c:forEach>
 									</select>

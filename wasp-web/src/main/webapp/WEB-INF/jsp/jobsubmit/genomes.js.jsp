@@ -7,7 +7,7 @@
 	
 	<c:forEach items="${sampleDraftsByOrganism.keySet()}" var="organism" varStatus="statusOrg">
 		<c:set var="build" value="${currentBuildByOrganism.get(organism)}" />
-		<c:if test="not empty(${build})">
+		<c:if test="${build != null}">
 			currentlySelectedBuildByGenomeName['<c:out value="${build.getGenome().getName()}" />'] = "<c:out value="${build.getName()}" />";
 		</c:if>
 	</c:forEach>
