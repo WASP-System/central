@@ -12,7 +12,6 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
@@ -59,6 +60,7 @@ import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
@@ -77,9 +79,11 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.model.SampleSource;
 
 @Service
 @Transactional("entityManager")
@@ -96,6 +100,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	protected WaspPluginRegistry pluginRegistry;
 
 	@Autowired
 	private SampleDao sampleDao;
@@ -388,6 +395,53 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		return filesByType;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException {
+		Assert.assertParameterNotNull(cell, "must provide a cell");
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("sample is not of type cell");
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		Assert.assertParameterNotNull(fileType, "must provide a fileType");
+		Assert.assertParameterNotNull(fileType.getId(), "fileType has no valid fileTypeId");
+		
+		Map<FileType, Set<FileGroup>> filesByType = getFilesForCellLibraryMappedToFileType(cell, library);
+		if (!filesByType.containsKey(fileType))
+			return new HashSet<FileGroup>();
+		return filesByType.get(fileType);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @throws SampleTypeException
+	 */
+	@Override
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException {
+		Assert.assertParameterNotNull(cell, "must provide a cell");
+		if (!sampleService.isCell(cell))
+			throw new SampleTypeException("sample is not of type cell");
+		Assert.assertParameterNotNull(library, "must provide a library");
+		if (!sampleService.isLibrary(library))
+			throw new SampleTypeException("sample is not of type library");
+		
+		SampleSource ss = sampleService.getCellLibrary(cell, library);
+		Map<FileType, Set<FileGroup>> filesByType = new HashMap<FileType, Set<FileGroup>>();
+		for (FileGroup fg : ss.getFileGroups()) {
+			FileType ft = fg.getFileType();
+			if (!filesByType.containsKey(ft))
+				filesByType.put(ft, new HashSet<FileGroup>());
+			filesByType.get(ft).add(fg);
+		}
+		return filesByType;
+	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -460,6 +514,11 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	@Override
 	public FileType getFileType(String iname) {
 		return fileTypeDao.getFileTypeByIName(iname);
+	}
+
+	@Override
+	public FileType getFileType(Integer id) {
+		return fileTypeDao.getById(id);
 	}
 
 	/**
@@ -737,6 +796,19 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (fh == null)
 			throw new FileNotFoundException("File represented by " + uuid.toString() + " was not found.");
 		return fh;
+	}
+	
+	@Override
+	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup) {
+		FileType ft = filegroup.getFileType();
+		String area = ft.getIName();
+		List<FileTypeViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, FileTypeViewProviding.class);
+		// we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
+		if (plugins.size() == 0)
+			throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
+		if (plugins.size() > 1)
+			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
+		return plugins.get(0).getFileDetails(filegroup.getId());
 	}
 
 	@Override
