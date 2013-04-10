@@ -12,6 +12,8 @@ fi
 echo "Attempting to clean, package and deploy WASP Swarm"
 cd $PROJECT_HOME
 mvn -Dcatalina.home=$CATALINA_HOME -DskipTests=true clean install
+cd $PLUGINS_HOME/mps-tools
+mvn -Dcatalina.home=$CATALINA_HOME -DskipTests=true clean install
 cd $PLUGINS_HOME
 for x in *
 do

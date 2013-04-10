@@ -35,6 +35,8 @@ echo "Updating demo branch from git repository..."
 cd $PROJECT_HOME
 git pull origin demo
 echo "Updating plugins..."
+cd $PLUGINS_HOME/mps-tools
+git pull origin master
 cd $PLUGINS_HOME
 for x in *
 do
@@ -52,14 +54,14 @@ done
 echo "Restoring wasp database to demo default..."
 cd $PROJECT_HOME/db
 mysql -u wasp --password=waspV2 -D wasp < $PROJECT_HOME/db/waspDemoDb.sql
-
 echo Updating and re-deploying WASP System...
 $WASP_HOME/bin/deployWasp.sh
 
 echo Starting wasp-daemon...
-cd $PROJECT_HOME/wasp-exec
+cd $PROJECT_HOME/wasp-daemon
 rm nohup.out
-nohup java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon &
+
+nohup java -Xms128m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME -cp "target/wasp-daemon-0.1.0-SNAPSHOT-release/wasp-daemon-0.1.0-SNAPSHOT/wasp-daemon-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon &
 
 echo Re-building and deploying documentation..
 $WASP_HOME/bin/deployDocumentation.sh
