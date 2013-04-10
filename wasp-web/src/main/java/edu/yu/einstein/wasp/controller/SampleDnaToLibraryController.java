@@ -123,8 +123,6 @@ public class SampleDnaToLibraryController extends WaspController {
     return new MetaHelperWebapp(SampleMeta.class, request.getSession());
   }
 
-  public static final String ORGANISM_META_AREA = "genericBiomolecule";
-  public static final String ORGANISM_META_KEY = "organism";
 
   final public String defaultPageFlow = "/sampleDnaToLibrary/detail/{n};/sampleDnaToLibrary/addLibraryMeta/{n};/sampleDnaToLibrary/verify/{n}";
 
@@ -370,15 +368,7 @@ public class SampleDnaToLibraryController extends WaspController {
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 			}
-			String organismName = "Organism Not Found"; // default
-			try{	
-				Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
-				organismName = genomeService.getOrganismMap().get(genomeId).getName();
-			}
-			catch(Exception me){
-				logger.warn("Unable to identify organism for sampleId " + sample.getId());
-			}
-			organismMap.put(sample, organismName);
+			organismMap.put(sample, sampleService.getNameOfOrganism(sample));
 			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
@@ -573,17 +563,16 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
 	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
-	  m.addAttribute("organisms", genomeService.getOrganisms());
-
 	  
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
 
 	  m.put("macromoleculeSample", macromoleculeSample);
 	  m.put("job", job);
+	  m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample));
 
 	   
 	  String[] roles = {"ft"};
-	  List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getWorkflowId(), roles, "library");
+	  List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getId(), roles, "library");
 	  if(librarySampleSubtypes.isEmpty()){
 		  waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
 		  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do"; // no workflowsubtype sample
@@ -631,8 +620,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
 	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample));
-	  m.addAttribute("organisms", genomeService.getOrganismMap());
-
+	  m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule));
 	  
 	  libraryForm.setName(libraryForm.getName().trim());
 	  SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());

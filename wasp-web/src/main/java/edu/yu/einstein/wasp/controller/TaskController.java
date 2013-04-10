@@ -463,9 +463,6 @@ public class TaskController extends WaspController {
   
   private void getJobApproveInfo(List<Job> jobList, ModelMap m){
 	  
-	  final String ORGANISM_META_AREA = "genericBiomolecule";
-	  final String ORGANISM_META_KEY = "organism";
-	  
 	  //used by pendingFMApprove(), pendingDaApprove(), pendingPiApprove()
 	    Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
 		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
@@ -478,17 +475,8 @@ public class TaskController extends WaspController {
 			List<Sample> sampleList = jobService.getSubmittedSamples(job);
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
-			for(Sample sample : sampleList){
-				String organismName = messageService.getMessage("jobapprovetask.unknown.label"); // default
-				try{	
-					Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
-					organismName = genomeService.getOrganismMap().get(genomeId).getName();
-				}
-				catch(Exception me){
-					logger.warn("Unable to identify organism for sampleId " + sample.getId());
-				}
-				sampleSpeciesMap.put(sample, organismName);
-			}
+			for(Sample sample : sampleList)
+				sampleSpeciesMap.put(sample, sampleService.getNameOfOrganism(sample));
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
 		m.addAttribute("jobApprovalsMap", jobApprovalsMap);

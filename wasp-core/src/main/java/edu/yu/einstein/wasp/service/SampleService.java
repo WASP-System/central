@@ -1011,4 +1011,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	
 	public SampleDraftMetaDao getSampleDraftMetaDao();
 
+	public String getNameOfOrganism(Sample sample, String defaultValue);
+
+	public String getNameOfOrganism(Sample sample);
+
 }

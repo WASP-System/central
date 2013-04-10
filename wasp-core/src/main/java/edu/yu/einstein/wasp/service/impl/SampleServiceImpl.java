@@ -103,6 +103,7 @@ import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -240,7 +241,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected RunService runService;
 		
-	
+	@Autowired
+	GenomeService genomeService;
 	
 	@Autowired
 	protected RunMetaDao runMetaDao;
@@ -2943,6 +2945,28 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public List<SampleSource> getCellLibraries(Sample cell) {
 			Assert.assertTrue(this.isCell(cell));
 			return sampleSourceDao.getCellLibraries(cell);
+		}
+		
+		@Override
+		public String getNameOfOrganism(Sample sample){
+			return getNameOfOrganism(sample, "Unknown");
+		}
+		
+		@Override
+		public String getNameOfOrganism(Sample sample, String defaultValue){
+			final String ORGANISM_META_AREA = "genericBiomolecule";
+			final String ORGANISM_META_KEY = "organism";
+			Assert.assertParameterNotNull(sample, "sample cannot be null");
+			Assert.assertParameterNotNull(defaultValue, "defaultValue cannot be null");
+			String organismName = defaultValue; // default
+			try{	
+				Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+				organismName = genomeService.getOrganismMap().get(genomeId).getName();
+			}
+			catch(Exception me){
+				logger.warn("Unable to identify organism for sampleId " + sample.getId());
+			}
+			return organismName;
 		}
 
 }
