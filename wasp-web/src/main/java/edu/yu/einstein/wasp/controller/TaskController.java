@@ -33,13 +33,16 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.UserPending;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
+import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
@@ -67,6 +70,9 @@ public class TaskController extends WaspController {
   
   @Autowired
   private TaskMappingRegistry taskMappingRegistry;
+  
+  @Autowired
+  private GenomeService genomeService;
 
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
@@ -457,6 +463,9 @@ public class TaskController extends WaspController {
   
   private void getJobApproveInfo(List<Job> jobList, ModelMap m){
 	  
+	  final String ORGANISM_META_AREA = "genericBiomolecule";
+	  final String ORGANISM_META_KEY = "organism";
+	  
 	  //used by pendingFMApprove(), pendingDaApprove(), pendingPiApprove()
 	    Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
 		Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
@@ -470,17 +479,15 @@ public class TaskController extends WaspController {
 			sampleService.sortSamplesBySampleName(sampleList);
 			jobSubmittedSamplesMap.put(job, sampleList);
 			for(Sample sample : sampleList){
-				int speciesFound = 0;
-				for(SampleMeta sampleMeta : sample.getSampleMeta()){
-					if(sampleMeta.getK().indexOf("organism") > -1){
-						sampleSpeciesMap.put(sample, sampleMeta.getV());
-						speciesFound = 1;
-						break;
-					}
+				String organismName = messageService.getMessage("jobapprovetask.unknown.label"); // default
+				try{	
+					Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+					organismName = genomeService.getOrganismMap().get(genomeId).getName();
 				}
-				if(speciesFound == 0){
-					sampleSpeciesMap.put(sample, messageService.getMessage("jobapprovetask.unknown.label"));
+				catch(Exception me){
+					logger.warn("Unable to identify organism for sampleId " + sample.getId());
 				}
+				sampleSpeciesMap.put(sample, organismName);
 			}
 		}
 		m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);

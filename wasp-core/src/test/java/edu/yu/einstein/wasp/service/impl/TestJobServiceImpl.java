@@ -983,8 +983,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  
 	//Sample Draft Meta
 	  SampleDraftMeta  sdm = new SampleDraftMeta();
-	  sdm.setK("genericBiomolecule.species");
-	  sdm.setV("Human");
+	  sdm.setK("genericBiomolecule.organism");
+	  sdm.setV("9606");
 	  sdm.setPosition(1);
 	  
 	  SampleMeta sampleMeta = new SampleMeta();

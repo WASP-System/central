@@ -81,5 +81,7 @@ public interface GenomeService extends WaspService {
 	
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException;
 
+	public Map<Integer, Organism> getOrganismMap();
+
 	  
 }

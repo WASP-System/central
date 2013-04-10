@@ -58,6 +58,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -107,6 +108,8 @@ public class SampleDnaToLibraryController extends WaspController {
   private AuthenticationService authenticationService;
   @Autowired
   private FileUrlResolver fileUrlResolver;
+  @Autowired
+  private GenomeService genomeService;
   
 
   
@@ -361,13 +364,15 @@ public class SampleDnaToLibraryController extends WaspController {
 				qcStatusMap.put(sample, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(sample)));
 				qcStatusCommentsMap.put(sample, sampleService.getSampleQCComments(sample.getId()));
 			}
-			try{		
-				organismMap.put(sample, MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+			String organismName = "Organism Not Found"; // default
+			try{	
+				Integer genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+				organismName = genomeService.getOrganismMap().get(genomeId).getName();
 			}
-			catch(MetadataException me){
-				organismMap.put(sample, "Organism Not Found");
+			catch(Exception me){
 				logger.warn("Unable to identify organism for sampleId " + sample.getId());
 			}
+			organismMap.put(sample, organismName);
 			receivedStatusMap.put(sample, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(sample)));
 			
 			receiveSampleStatusMap.put(sample, sampleService.isSampleReceived(sample));
@@ -562,6 +567,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
 	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
+	  m.addAttribute("organisms", genomeService.getOrganisms());
 
 	  
 	  Sample macromoleculeSample = sampleDao.getSampleBySampleId(macromolSampleId);
@@ -619,6 +625,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	  //get the current jobStatus
 	  m.addAttribute("jobStatus", jobService.getJobStatus(jobForThisSample));
+	  m.addAttribute("organisms", genomeService.getOrganismMap());
 
 	  
 	  libraryForm.setName(libraryForm.getName().trim());

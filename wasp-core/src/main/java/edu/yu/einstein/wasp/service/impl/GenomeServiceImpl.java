@@ -407,5 +407,10 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public Build getBuild(Integer organism, String genome, String build) throws ParameterValueRetrievalException {
 		return this.getBuilds(organism, genome).get(build);
 	}
+	
+	@Override
+	public Map<Integer, Organism> getOrganismMap(){
+		return organisms;
+	}
 
 }
