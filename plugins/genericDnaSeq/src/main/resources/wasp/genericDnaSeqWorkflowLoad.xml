@@ -21,6 +21,7 @@
 				<value>/jobsubmit/modifymeta/{n}</value>
 				<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
 				<value>/jobsubmit/samples/{n}</value>
+				<value>/jobsubmit/genomes/{n}</value>
 				<value>/jobsubmit/cells/{n}</value>
 				<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
 				<value>/jobsubmit/comment/{n}</value>
@@ -65,6 +66,10 @@
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/samples" />
 					<property name="label" value="Samples" />
+				</bean>
+				<bean parent="genericDnaSeqUiFieldWrapper">
+					<property name="baseName" value="jobsubmit/genomes" />
+					<property name="label" value="Select Genomes" />
 				</bean>
 				<bean parent="genericDnaSeqUiFieldWrapper">
 					<property name="baseName" value="jobsubmit/cells" />
