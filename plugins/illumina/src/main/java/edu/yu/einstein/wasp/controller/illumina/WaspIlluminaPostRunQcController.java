@@ -149,7 +149,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		illuminaQcService.updateQc(qcContextList, metaKey);
 	}
 	
-	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.GET)
+	@RequestMapping(value="/run/{runId}/displayFocusQualityCharts", method=RequestMethod.GET)
 	public String displayFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -167,7 +167,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "wasp-illumina/postrunqc/displayfocusqualitycharts";
 	}
 	
-	@RequestMapping(value="/displayFocusQualityCharts/{runId}", method=RequestMethod.POST)
+	@RequestMapping(value="/run/{runId}/displayFocusQualityCharts", method=RequestMethod.POST)
 	public String processFocusQualityCharts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -192,7 +192,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "redirect:/wasp-illumina/postRunQC/displayIntensityCharts/" + runId + ".do";
 	}
 	
-	@RequestMapping(value="/displayIntensityCharts/{runId}", method=RequestMethod.GET)
+	@RequestMapping(value="/run/{runId}/displayIntensityCharts", method=RequestMethod.GET)
 	public String displayIntensityCharts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -210,7 +210,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "wasp-illumina/postrunqc/displayinstensitycharts";
 	}
 	
-	@RequestMapping(value="/displayIntensityCharts/{runId}", method=RequestMethod.POST)
+	@RequestMapping(value="/run/{runId}/displayIntensityCharts", method=RequestMethod.POST)
 	public String processIntensityCharts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -232,7 +232,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/displayNumGT30Charts/{runId}", method=RequestMethod.GET)
+	@RequestMapping(value="/run/{runId}/displayNumGT30Charts", method=RequestMethod.GET)
 	public String displayNumGT30Charts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -259,7 +259,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	}
 	
 	
-	@RequestMapping(value="/displayNumGT30Charts/{runId}", method=RequestMethod.POST)
+	@RequestMapping(value="/run/{runId}/displayNumGT30Charts", method=RequestMethod.POST)
 	public String processNumGT30Charts(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -284,7 +284,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "redirect:/wasp-illumina/postRunQC/displayClusterDensityChart/" + runId + ".do";
 	}
 	
-	@RequestMapping(value="/displayClusterDensityChart/{runId}", method=RequestMethod.GET)
+	@RequestMapping(value="/run/{runId}/displayClusterDensityChart", method=RequestMethod.GET)
 	public String displayClusterDensityChart(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -304,7 +304,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "wasp-illumina/postrunqc/displayclusterdensitychart";
 	}
 	
-	@RequestMapping(value="/displayClusterDensityChart/{runId}", method=RequestMethod.POST)
+	@RequestMapping(value="/run/{runId}/displayClusterDensityChart", method=RequestMethod.POST)
 	public String processClusterDensityChart(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -329,7 +329,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "redirect:/wasp-illumina/postRunQC/updateQualityReport/1.do";
 	}
 	
-	@RequestMapping(value="/updateQualityReport/{runId}", method=RequestMethod.GET)
+	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.GET)
 	public String updateQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
 		Map<String, Map<Integer, IlluminaQcContext>> qcDataMap = new HashMap<String, Map<Integer,IlluminaQcContext>>();
 		Run run = runService.getRunById(runId);
@@ -373,7 +373,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		return "wasp-illumina/postrunqc/updatequalityreport";
 	}
 	
-	@RequestMapping(value="/updateQualityReport/{runId}", method=RequestMethod.POST)
+	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.POST)
 	public String processQualityReport(@PathVariable("runId") Integer runId, ModelMap m){
 		Run run = runService.getRunById(runId);
 		if (run.getId() == null){
@@ -404,7 +404,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	public String listRunsRequiringQc(ModelMap m){
 		List<Hyperlink> hyperlinks = new ArrayList<Hyperlink>();
 		for (Run run: runService.getRunsAwaitingQc())
-			hyperlinks.add(new Hyperlink(run.getName(), "/wasp-illumina/postRunQC/displayFocusQualityCharts/" + run.getId() + ".do"));
+			hyperlinks.add(new Hyperlink(run.getName(), "/wasp-illumina/postRunQC/run/" + run.getId() + "/displayFocusQualityCharts.do"));
 		m.addAttribute("taskHyperlinks", hyperlinks);
 		m.addAttribute("isTasks", (hyperlinks.isEmpty()) ? false : true);
 		return "wasp-illumina/postrunqc/list";

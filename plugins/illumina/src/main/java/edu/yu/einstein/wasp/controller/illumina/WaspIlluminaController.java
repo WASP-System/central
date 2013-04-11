@@ -94,11 +94,6 @@ public class WaspIlluminaController extends WaspController {
 		return "waspillumina/description";
 	}
 	
-	@RequestMapping(value="/task/qc/list", method=RequestMethod.GET)
-	public String display(ModelMap m){
-		return "waspillumina/task/qc/list";
-	}
-	
 	@RequestMapping(value = "/flowcell/{platformUnitId}/show.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String showPlatformUnit(@PathVariable("platformUnitId") Integer platformUnitId, ModelMap m){
