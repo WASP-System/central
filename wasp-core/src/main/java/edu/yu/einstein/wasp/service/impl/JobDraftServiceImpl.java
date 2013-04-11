@@ -349,8 +349,8 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		
 		String samplePairsKey = jobDraft.getWorkflow().getIName()+"."+SAMPLE_PAIR_META_KEY;
 		
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getJobDraftId());
-		if (samplePairsTvsC.getJobDraftMetaId() != null){
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getId());
+		if (samplePairsTvsC.getId() != null){
 			for(String pair: samplePairsTvsC.getV().split(";")){
 				String[] pairList = pair.split(":");
 				
@@ -373,10 +373,10 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 	public void setSampleDraftPairsByJobDraft(JobDraft jobDraft, Set<Map<SampleDraft,SampleDraft>> sampleDraftPairSet){
 		
 	    String samplePairsKey = jobDraft.getWorkflow().getIName()+"."+SAMPLE_PAIR_META_KEY;
-		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getJobDraftId());
+		JobDraftMeta samplePairsTvsC = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(samplePairsKey, jobDraft.getId());
 		
 		// remove old paired sample for jobdraft
-		if (samplePairsTvsC.getJobDraftMetaId() != null){
+		if (samplePairsTvsC.getId() != null){
 			jobDraftMetaDao.remove(samplePairsTvsC);
 			jobDraftMetaDao.flush(samplePairsTvsC);
 		}

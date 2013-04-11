@@ -23,6 +23,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
@@ -189,7 +190,18 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
+
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
+
+	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+
+	public FileType getFileType(Integer id);
+
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
+			Sample cell, Sample library) throws SampleTypeException;
+
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
+			FileType fileType) throws SampleTypeException;
 
 	/**
 	 * @param group
@@ -197,6 +209,7 @@ public interface FileService extends WaspService {
 	 * @throws GridException
 	 */
 	void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException;
+
 
 	/**
 	 * 
@@ -208,6 +221,7 @@ public interface FileService extends WaspService {
 	 */
 	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
+
 	/**
 	 * 
 	 */
@@ -217,6 +231,7 @@ public interface FileService extends WaspService {
 	 * 
 	 */
 	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
+
 
 }
 

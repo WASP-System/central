@@ -11,7 +11,7 @@
 </div>
 
 <form name="jobDraft" method="POST">
-<div class= "greyback">
+<div >
 	<table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData">
 	<td  class="CaptionTD">

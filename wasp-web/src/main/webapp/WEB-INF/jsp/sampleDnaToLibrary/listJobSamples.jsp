@@ -163,7 +163,7 @@
 			<td rowspan="${rowSpan}">
 				<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
-				<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
+				<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedMacromolecule)}"/><br />
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				&nbsp;
@@ -321,7 +321,7 @@
 		<td colspan="2">
 			<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${userSubmittedLibrary.getSampleId()}.do" />"><c:out value="${userSubmittedLibrary.getName()}"/></a><br />
 			<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />
-			<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedLibrary)}"/><br />
+			<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedLibrary)}"/><br />
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />

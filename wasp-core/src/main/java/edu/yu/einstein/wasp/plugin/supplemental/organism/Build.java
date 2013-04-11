@@ -24,6 +24,7 @@ public class Build implements Comparable<Build> {
 	private String version;
 	private String versionstring;
 	private String description;
+	private boolean isDefaultBuild;
 	private URL site;
 	private URL url;
 	private Date buildDate;
@@ -44,6 +45,18 @@ public class Build implements Comparable<Build> {
 	 */
 	public void setGenome(Genome genome) {
 		this.genome = genome;
+	}
+	/**
+	 * @return the default status
+	 */
+	public boolean isDefault() {
+		return isDefaultBuild;
+	}
+	/**
+	 * @param isDefaultBuild
+	 */
+	public void setDefault(boolean isDefaultBuild) {
+		this.isDefaultBuild = isDefaultBuild;
 	}
 	/**
 	 * @return the name
