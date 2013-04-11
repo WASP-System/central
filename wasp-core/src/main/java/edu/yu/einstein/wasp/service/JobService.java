@@ -490,11 +490,12 @@ public interface JobService extends WaspMessageHandlingService {
 
 	/**
 	 * getJobViewBranch() returns a data structure to resemble a job-sample tree for showing with D3 JScript library.
+	 * @param jid 
 	 * @param int id, String type
 	 * @return Map<String, Object>
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getJobViewBranch(int id, String type) throws SampleTypeException, SampleParentChildException;
+	public Map<String, Object> getTreeViewBranch(Integer id, Integer pid, String type, Integer jid) throws SampleTypeException, SampleParentChildException;
 
 	public List<Sample> getPlatformUnitWithLibrariesOnForJob(Job job);
 

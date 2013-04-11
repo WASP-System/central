@@ -21,6 +21,7 @@ public class Genome implements Comparable<Genome> {
 	private String name;
 	private String description;
 	private String alias;
+	private boolean isGenomeBuild;
 	
 	private Map<String,Build> builds = new TreeMap<String,Build>();
 	
@@ -46,6 +47,12 @@ public class Genome implements Comparable<Genome> {
 	}
 	public void setAlias(String alias) {
 		this.alias = alias;
+	}
+	public boolean isDefault() {
+		return isGenomeBuild;
+	}
+	public void setDefault(boolean isGenomeBuild) {
+		this.isGenomeBuild = isGenomeBuild;
 	}
 	
 	/**

@@ -13,14 +13,15 @@ package edu.yu.einstein.wasp.service;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
@@ -74,10 +75,11 @@ public interface FileService extends WaspService {
 	 * @param mpFile
 	 * @param destPath
 	 * @param description
+	 * @param Random randomNumberGenerator
 	 * @return entity-managed file object
 	 * @throws FileUploadException
 	 */
-	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description);
+	public FileGroup processUploadedFile(MultipartFile mpFile, JobDraft jobDraft, String description, Random randomNumberGenerator) throws FileUploadException;
 	
 	public FileGroup promoteJobDraftFileGroupToJob(Job job, FileGroup filegroup) throws GridUnresolvableHostException, IOException;
 
@@ -185,6 +187,19 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
+
+	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
+
+	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+
+	public FileType getFileType(Integer id);
+
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
+			Sample cell, Sample library) throws SampleTypeException;
+
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
+			FileType fileType) throws SampleTypeException;
+
 	/**
 	 * @param group
 	 * @throws FileNotFoundException
@@ -192,7 +207,16 @@ public interface FileService extends WaspService {
 	 */
 	void registerWithoutMD5(FileGroup group) throws FileNotFoundException, GridException;
 
-	
+
+	/**
+	 * 
+	 */
+	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
+
+	/**
+	 * 
+	 */
+	public void uploadJobDraftFile(MultipartFile mpFile, JobDraft jobDraft, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 }
 

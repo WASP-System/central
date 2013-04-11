@@ -14,6 +14,7 @@ function addFileUploadRow(){
 	var newRow = table.insertRow(rowNum);
 	
 	var td1 = newRow.insertCell(0);
+	td1.className = "DataTD value-centered";
 	var fileInput = document.createElement("input");
 	fileInput.type="file";
 	fileInput.name="file_upload";
@@ -21,10 +22,28 @@ function addFileUploadRow(){
 	td1.appendChild(fileInput);
 	
 	var td2 = newRow.insertCell(1);
+	td2.className = "DataTD value-centered";
 	var textInput = document.createElement("input");
 	textInput.type="text";
 	textInput.name="file_description";
+	textInput.className = "FormElement ui-widget-content ui-corner-all";
 	td2.appendChild(textInput);
+	
+	var td3 = newRow.insertCell(2);
+	td3.className = "DataTD value-centered";
+	td3.innerHTML = '<fmt:message key="jobDraft.file_not_applicable.label"/>';
 }
 
+function validate(thisForm){
+	var fileUploads = thisForm.file_upload;
+	var fileDescriptions = thisForm.file_description;
+	for(var i = 0; i < fileUploads.length; i++){
+		if(fileUploads[i].value != "" && fileDescriptions[i].value == ""){ 
+			alert("<fmt:message key="jobDraft.file_description_missing.label"/>");
+			fileDescriptions[i].focus();
+			return false;
+		} 
+	}
+	return true;
+}
 </script>

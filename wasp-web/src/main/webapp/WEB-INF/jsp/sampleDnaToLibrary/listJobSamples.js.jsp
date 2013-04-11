@@ -97,4 +97,23 @@ function validate_submit(obj){
 	
 	return true;
 }
+function validateFileUploadForm(thisForm){
+	var fileUpload = thisForm.file_upload;
+	var fileDescription = thisForm.file_description;
+	if(fileUpload.value == ""){
+		alert("<fmt:message key="listJobSamples.file_empty.label"/>");
+		fileUpload.focus();
+		return false;
+	}
+	else if(fileDescription.value == ""){ //fileUpload.value != "" 
+		alert("<fmt:message key="listJobSamples.file_description_missing.label"/>");
+		fileDescription.focus();
+		return false;
+	}
+	var submitButton = thisForm.file_upload_submit_button;
+	submitButton.disabled=true;
+	submitButton.value = "<fmt:message key="listJobSamples.processing.label" />";
+	
+	return true;
+}
 </script>

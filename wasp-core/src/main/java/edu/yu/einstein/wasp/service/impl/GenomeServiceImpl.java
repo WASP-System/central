@@ -4,8 +4,10 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -20,14 +22,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Genome;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 /**
  * @author calder
@@ -45,6 +56,10 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 
 	@Autowired
 	private GridHostResolver hostResolver;
+
+	
+	@Autowired
+	private SampleService sampleService;
 
 	public GenomeServiceImpl() {
 		logger.debug("CREATED GENOME SERVICE");
@@ -99,6 +114,8 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public void initGenomes(Map<Integer, Organism> organisms) {
 		Map<String, Genome> genomes = new HashMap<String, Genome>();
 		Map<String, Build> builds = new HashMap<String, Build>();
+		Set<String> genomesWithADefaultBuild = new HashSet<String>();
+		Set<Integer> organismsWithADefaultGenome = new HashSet<Integer>();
 		Set<Object> keys = localGenomesProperties.keySet();
 		for (Object k : keys) {
 			String key = (String) k;
@@ -135,6 +152,14 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 							o.getGenomes().put(name, g);
 							genomes.put(name, g);
 						}
+					} else if (attrib.equals("default")){
+						boolean defaultValue = Boolean.parseBoolean((String) localGenomesProperties.get(k));
+						if (defaultValue == true){
+							if (organismsWithADefaultGenome.contains(orgId))
+								throw new RuntimeException("More than one default genome specified for organism " + orgId.toString());
+							organismsWithADefaultGenome.add(orgId);
+						}
+						genomes.get(genomeName).setDefault(defaultValue);
 					} else {
 						Genome g = genomes.get(genomeName);
 						try {
@@ -168,8 +193,17 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 						logger.debug("creating genome build " + name);
 						Build b = new Build(name);
 						Genome g = genomes.get(genomeName);
+						b.setGenome(g);
 						g.getBuilds().put(name, b);
 						builds.put(buildName, b);
+					} else if (fields.length == 5 && fields[4].equals("default")){
+						boolean defaultValue = Boolean.parseBoolean((String) localGenomesProperties.get(k));
+						if (defaultValue == true){
+							if (genomesWithADefaultBuild.contains(genomeName))
+								throw new RuntimeException("More than one default build specified for genome " + genomeName);
+							genomesWithADefaultBuild.add(genomeName);
+						}
+						builds.get(buildName).setDefault(defaultValue);
 					} else {
 						Build b = builds.get(buildName);
 
@@ -198,22 +232,25 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see edu.yu.einstein.wasp.service.GenomeService#getOrganisms()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Set<Organism> getOrganisms() {
 		return new TreeSet<Organism>(this.organisms.values());
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Organism getOrganismById(Integer organismId) {
+		return this.organisms.get(organismId);
+	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * edu.yu.einstein.wasp.service.GenomeService#exists(edu.yu.einstein.wasp
-	 * .plugin.supplemental.organism.Build, java.lang.String)
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean exists(GridWorkService workService, Build build, String index) {
@@ -221,15 +258,160 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		// this is to get through at the moment
 		return true;
 	}
+	
+	public static final String GENOME_AREA="genome";
+	
+	public static final String GENOME_STRING_META_KEY="genomeString";
+	
+	public static final String DELIMITER = "::";
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Build getBuild(String delimitedParameterString) throws ParameterValueRetrievalException{
+		Assert.assertParameterNotNull(delimitedParameterString, "jobParameterString cannot be null");
+		String[] valueComponents = delimitedParameterString.split(DELIMITER, 3);
+		if (valueComponents == null || valueComponents.length != 3)
+			throw new ParameterValueRetrievalException("Did not get expected 3 components for genome string");
+		Integer organismId = Integer.parseInt(valueComponents[0]);
+		String genome = valueComponents[1];
+		String build = valueComponents[2];
+		return getBuild(organismId, genome, build);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDelimitedParameterString(Build build) {
+		Assert.assertParameterNotNull(build, "build cannot be null");
+		return build.getGenome().getOrganism().getNcbiID().toString() + DELIMITER +  build.getGenome().getName() + DELIMITER + build.getName();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public void setBuild(SampleDraft sampleDraft, Build build) throws MetadataException {
+		Assert.assertParameterNotNull(sampleDraft, "sampleDraft cannot be null");
+		Assert.assertParameterNotNull(sampleDraft.getId(), "sampleDraft must be a valid entity");
+		Assert.assertParameterNotNull(build, "build cannot be null");
+		SampleDraftMeta sampleDraftMeta = new SampleDraftMeta();
+		sampleDraftMeta.setK(GENOME_AREA + "." + GENOME_STRING_META_KEY);
+		sampleDraftMeta.setV(getDelimitedParameterString(build));
+		sampleDraftMeta.setSampleDraftId(sampleDraft.getId());
+		sampleService.getSampleDraftMetaDao().setMeta(sampleDraftMeta);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void setBuildToAllSampleDrafts(Set<SampleDraft> sampleDraftSet, Build build){
+		Assert.assertParameterNotNull(sampleDraftSet, "sampleDraftSet cannot be null");
+		try{
+			for (SampleDraft sampleDraft : sampleDraftSet){
+				setBuild(sampleDraft, build);
+			}
+		} catch (MetadataException e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public void setBuild(Sample sample, Build build) throws MetadataException {
+		Assert.assertParameterNotNull(sample, "sample cannot be null");
+		Assert.assertParameterNotNull(sample.getId(), "sample must be a valid entity");
+		Assert.assertParameterNotNull(build, "build cannot be null");
+		SampleMeta sampleMeta = new SampleMeta();
+		sampleMeta.setK(GENOME_AREA + "." + GENOME_STRING_META_KEY);
+		sampleMeta.setV(getDelimitedParameterString(build));
+		sampleMeta.setSampleId(sample.getId());
+		sampleService.getSampleMetaDao().setMeta(sampleMeta);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void setBuildToAllSamples(Set<Sample> sampleSet, Build build){
+		Assert.assertParameterNotNull(sampleSet, "sampleSet cannot be null");
+		try{
+			for (Sample sample : sampleSet){
+				setBuild(sample, build);
+			}
+		} catch (MetadataException e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Build getBuild(SampleDraft sampleDraft) throws ParameterValueRetrievalException{
+		Assert.assertParameterNotNull(sampleDraft, "sampleDraft cannot be null");
+		String genomeString = null;
+		List<SampleDraftMeta> sampleDraftMetaList = sampleDraft.getSampleDraftMeta();
+		if (sampleDraftMetaList == null)
+			sampleDraftMetaList = new ArrayList<SampleDraftMeta>();
+		try{
+			genomeString = (String) MetaHelper.getMetaValue(GENOME_AREA, GENOME_STRING_META_KEY, sampleDraftMetaList);
+		} catch(MetadataException e) {
+			// not found
+			return null;
+		}
+		return getBuild(genomeString);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Build getBuild(Sample sample) throws ParameterValueRetrievalException{
+		Assert.assertParameterNotNull(sample, "sample cannot be null");
+		String genomeString = null;
+		List<SampleMeta> sampleMetaList = sample.getSampleMeta();
+		if (sampleMetaList == null)
+			sampleMetaList = new ArrayList<SampleMeta>();
+		try{
+			genomeString = (String) MetaHelper.getMetaValue(GENOME_AREA, GENOME_STRING_META_KEY, sampleMetaList);
+		} catch(Exception e) {
+			throw new ParameterValueRetrievalException(e);
+		}
+		return getBuild(genomeString);
+	}
+
+	
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		initialize();
 	}
+	
+	@Override
+	public Map<String, Build> getBuilds(Integer organism, String genome) throws ParameterValueRetrievalException {
+		return organisms.get(organism).getGenomes().get(genome).getBuilds();
+	}
 
 	@Override
 	public Build getBuild(Integer organism, String genome, String build) throws ParameterValueRetrievalException {
-		return organisms.get(organism).getGenomes().get(genome).getBuilds().get(build);
+		return this.getBuilds(organism, genome).get(build);
+	}
+	
+	@Override
+	public Map<Integer, Organism> getOrganismMap(){
+		return organisms;
 	}
 
 }

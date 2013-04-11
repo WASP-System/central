@@ -22,11 +22,12 @@
 
 		<c:forEach items="${additionalJobViewers}" var="additionalJobViewer">
 			<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
-			<td>
-				<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
-					<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'><fmt:message key="listJobSamples.remove.label" /></a>
-				</c:if>
-			</td>
+				<td>
+					<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
+						<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){location.href="<c:url value="/sampleDnaToLibrary/removeViewerFromJob/${job.jobId}/${additionalJobViewer.getUserId()}.do" />";}'><fmt:message key="listJobSamples.remove.label" /></a>
+					</c:if>
+				</td>
+			</tr>
 		</c:forEach>
 		
 		<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true}'>
@@ -34,12 +35,36 @@
 			<tr ><th colspan="2"  class="label" nowrap><fmt:message key="listJobSamples.addNewViewer.label" /></th></tr>
  			<tr><td ><fmt:message key="listJobSamples.newViewerEmailAddress.label" />: </td><td ><input type='text' name='newViewerEmailAddress' id="newViewerEmailAddress" size='20' maxlength='50'></td></tr>
 			<tr><td colspan="2" align="center"><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/></td></tr>
-			
-		</c:if>
-		
+		</c:if>		
 		</table>
 		</form>
 		
+		<!--<input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
+  		<div id="jobFiles" style="display:none">	-->	
+		<form action="<c:url value="/sampleDnaToLibrary/uploadJobFile/${job.getId()}.do" />" method="POST"  enctype="multipart/form-data" onsubmit="return validateFileUploadForm(this);">
+		<table class="data">
+			<tr class="FormData">
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_name.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
+				
+			</tr>
+			<c:forEach items="${fileGroups}" var="fileGroup">
+			 	<c:set value="${fileGroupFileHandlesMap.get(fileGroup)}" var="fileHandles"/>
+			 	<c:forEach items="${fileHandles}" var="fileHandle" >
+					<tr>
+						<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>				
+						<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
+						<td class="DataTD value-centered"><a href="<wasp:url fileAccessor="${fileHandle}" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+					</tr>
+				</c:forEach>
+			</c:forEach>
+			<tr>
+				<td class="DataTD value-centered"><input type="file" name="file_upload" /></td><td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td><td align="center"><input type="submit" name="file_upload_submit_button" value="<fmt:message key="listJobSamples.file_upload.label"/>" /></td>
+			</tr>
+		</table>
+		</form>
+		<!--  </div>	--> 
 	</div>
 
 </div>
@@ -73,29 +98,37 @@
 
 <br />
 
-<c:if test="${not empty files}">
 
-<input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
-<div id="jobFiles" style="display:none">		
+<!-- this was moved up: <input  class="button" type="button" id="jobFiles_show_hide_button" value="<fmt:message key="listJobSamples.showJobFiles.label" />"  />
+  <div id="jobFiles" style="display:none">	
+	<form action="<c:url value="/sampleDnaToLibrary/uploadJobFile/${job.getId()}.do" />" method="POST"  enctype="multipart/form-data" onsubmit="return validateFileUploadForm(this);">
 	<table class="data">
 	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">File Name</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Description</td>
+		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_name.label"/></td>
+		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
+		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
+		
 	</tr>
-	<c:forEach items="${files}" var="file">
-		<tr class="FormData">
-			<td class="value-centered"  >
-				<a href="<c:out value="${fileUrlMap.get(file).getPath()}" />"><c:out value="${file.getFileURI()}" /></a>
-			</td>
-			<td class="value-centered"  >
-				<c:out value="${file.getDescription()}" />
-			</td>
-		</tr>
+	<c:forEach items="${fileGroups}" var="fileGroup">
+	 	<c:set value="${fileGroupFileHandlesMap.get(fileGroup)}" var="fileHandles"/>
+	 	<c:forEach items="${fileHandles}" var="fileHandle" >
+			<tr>
+				<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>				
+				<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
+				<td class="DataTD value-centered"><a href="<wasp:url fileAccessor="${fileHandle}" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+			</tr>
+		</c:forEach>
 	</c:forEach>
+	<tr>
+		<td class="DataTD value-centered"><input type="file" name="file_upload" /></td><td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td><td align="center"><input type="submit" value="<fmt:message key="listJobSamples.file_upload.label"/>" /></td>
+	</tr>
+	
+	
 	</table>
-</div>	
+	</form>
+    </div>	-->
 <br />
-</c:if>
+
 
 
 
@@ -120,7 +153,7 @@
 			<td rowspan="${rowSpan}">
 				<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/sampledetail_ro/${job.jobId}/${userSubmittedMacromolecule.getSampleId()}.do" />"><c:out value="${userSubmittedMacromolecule.getName()}"/></a><br />
 				<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedMacromolecule.getSampleType().getName()}"/><br />
-				<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedMacromolecule)}"/><br />
+				<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedMacromolecule)}"/><br />
 				<fmt:message key="listJobSamples.arrivalStatus.label" />: <c:out value="${receivedStatusMap.get(userSubmittedMacromolecule)}"/>
 				<sec:authorize access="hasRole('su') or hasRole('ft')">
 				&nbsp;
@@ -278,7 +311,7 @@
 		<td colspan="2">
 			<fmt:message key="listJobSamples.name.label" />: <a href="<c:url value="/sampleDnaToLibrary/librarydetail_ro/${job.jobId}/${userSubmittedLibrary.getSampleId()}.do" />"><c:out value="${userSubmittedLibrary.getName()}"/></a><br />
 			<fmt:message key="listJobSamples.type.label" />: <c:out value="${userSubmittedLibrary.getSampleType().getName()}"/><br />
-			<fmt:message key="listJobSamples.species.label" />: <c:out value="${speciesMap.get(userSubmittedLibrary)}"/><br />
+			<fmt:message key="listJobSamples.organism.label" />: <c:out value="${organismMap.get(userSubmittedLibrary)}"/><br />
 			<c:set var="adaptor" value="${libraryAdaptorMap.get(userSubmittedLibrary)}" scope="page" />
 			<fmt:message key="listJobSamples.adaptor.label" />: <c:out value="${adaptor.getAdaptorset().getName()}"/><br />
 			<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/> [<c:out value="${adaptor.getBarcodesequence()}"/>]<br />
