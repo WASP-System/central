@@ -108,6 +108,8 @@ public class FileController extends WaspController{
 	//@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public void downloadFileHandle(@PathVariable("fileHandleId") Integer fileHandleId, ModelMap m, HttpServletResponse response)  {        
 
+  		String referer = request.getHeader("Referer");
+  		
   		//these were very helpful
   		//http://www.mkyong.com/java/how-to-download-file-from-website-java-jsp/
   		//http://stackoverflow.com/questions/5673260/downloading-a-file-from-spring-controllers
@@ -115,7 +117,9 @@ public class FileController extends WaspController{
   		if(fileHandle==null || fileHandle.getId()==null){
   			String mess = "FileHandle with id = "+fileHandleId+" not found in database";
   			logger.debug(mess);
-  			return;
+  			waspErrorMessage("file.not_found.error");
+  			try{response.sendRedirect(referer);}catch(Exception e){}
+			return;
   		}
   		//found this helpful hint on web: Once you start writing data to the output stream, you can no longer set any headers, so it's possible that's why your filename is getting lost
   		try{
@@ -125,22 +129,30 @@ public class FileController extends WaspController{
  			response.flushBuffer();
  		}catch(Exception e){
  			logger.debug("Error downloading fileHandleId = " + fileHandleId + ". "+ e.getLocalizedMessage());
- 		}  
+ 			waspErrorMessage("file.unable_to_download.error");
+  			try{response.sendRedirect(referer);}catch(Exception e2){}
+			return;
+ 		}
   	}
 	
 	@RequestMapping(value = "/fileGroup/{fileGroupId}/download", method = RequestMethod.GET)
 	//@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public void downloadFileGroup(@PathVariable("fileGroupId") Integer fileGroupId, ModelMap m, HttpServletResponse response)  {        
 
+		String referer = request.getHeader("Referer");
  		
   		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
   		if(fileGroup==null || fileGroup.getId()==null){
   			String mess = "FileGroup with Id = "+fileGroupId+" not found in database";
   			logger.debug(mess);
+  			waspErrorMessage("file.not_found.error");
+  			try{response.sendRedirect(referer);}catch(Exception e){}
   			return;
   		}
   		Set<FileHandle> fileHandleSet = fileGroup.getFileHandles();
   		if(fileHandleSet.size()==0){
+  			waspErrorMessage("file.not_found.error");
+  			try{response.sendRedirect(referer);}catch(Exception e){}
   			return;
   		}
   		else if(fileHandleSet.size()==1){
@@ -153,6 +165,8 @@ public class FileController extends WaspController{
   	  	 			return;
   	  	 		}catch(Exception e){
   	  	 			logger.debug("Error downloading the single file in fileGroupId = " + fileGroupId + ". "+ e.getLocalizedMessage());
+  	  	 			waspErrorMessage("file.unable_to_download.error");
+  	  	 			try{response.sendRedirect(referer);}catch(Exception e2){}
   	  	 		} 
   			}
   		}
@@ -164,6 +178,8 @@ public class FileController extends WaspController{
   	 			response.flushBuffer();
   	 		}catch(Exception e){
   	 			logger.debug("Error zipping up and downloading fileGroupId = " + fileGroupId + ". "+ e.getLocalizedMessage());
+  	 			waspErrorMessage("file.unable_to_download.error");
+  	  			try{response.sendRedirect(referer);}catch(Exception e2){}
   	 		} 
   		}
    	}
