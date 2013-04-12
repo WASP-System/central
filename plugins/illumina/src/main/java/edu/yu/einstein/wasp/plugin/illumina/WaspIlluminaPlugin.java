@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WebInterfacing;
@@ -36,7 +37,7 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  * 
  */
-public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, BatchJobProviding, SequencingViewProviding {
+public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, RunQcProviding, SequencingViewProviding {
 
 	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaPlugin.class);
 
@@ -233,6 +234,11 @@ public class WaspIlluminaPlugin extends WaspPlugin implements ClientMessageI, Ba
 	 */
 	public void setCasava(IlluminaSequenceRunProcessor casava) {
 		this.casava = casava;
+	}
+
+	@Override
+	public String getRunQcStepName() {
+		return STEP_LISTEN_FOR_QC;
 	}
 
 }
