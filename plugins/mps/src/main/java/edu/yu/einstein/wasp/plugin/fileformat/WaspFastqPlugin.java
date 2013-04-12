@@ -95,16 +95,16 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 		return details;
 	}
 
-	@Override
-	public String getDownloadPageForCellLibraryByFileType(Integer cellLibraryId, Integer fileTypeId) {
-		try {
-			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-			FileType fileType = fileService.getFileType(fileTypeId);
-		} catch (SampleTypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return "<div>Here is a test!</div>";
-	}
+//	@Override
+//	public String getDownloadPageForCellLibraryByFileType(Integer cellLibraryId, Integer fileTypeId) {
+//		try {
+//			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+//			FileType fileType = fileService.getFileType(fileTypeId);
+//		} catch (SampleTypeException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		return "<div>Here is a test!</div>";
+//	}
 }
