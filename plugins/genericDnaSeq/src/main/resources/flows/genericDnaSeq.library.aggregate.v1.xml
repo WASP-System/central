@@ -6,7 +6,7 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
 	<!-- Define genericDnaSeq analysis pre-processing flow -->
-	<batch:flow id="genericDnaSeq.library.aggregate.flow.v1" >
+	<batch:job id="genericDnaSeq.library.aggregate.jobflow.v1" restartable="true" >
 		<batch:step id="genericDnaSeq.library.aggregate.step.notifyStarted" next="genericDnaSeq.library.aggregate.step.notifyComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
@@ -14,7 +14,7 @@
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{BatchJobTasks.ANALYSIS_AGGREGATE}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
 							<property name="status" value="CREATED" />
 						</bean>
 					</constructor-arg>
@@ -30,7 +30,7 @@
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
 							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{BatchJobTasks.ANALYSIS_AGGREGATE}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
@@ -38,42 +38,6 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	</batch:flow>
-	
-	
-	<batch:flow id="genericDnaSeq.library.aggregate.exitCondition">
-		<!-- will receive message of COMPLETED if the 'genericDnaSeq.library.aggregate.flow.v1' flow is finished -->
-		<!-- or if the job is aborted with an ABANDONED message at time e.g. via a message from the web layer -->
-		<batch:step id="genericDnaSeq.library.aggregate.step.listenForExitCondition">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForExitConditionTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
-					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
-					<constructor-arg name="messageTemplates">
-						<set>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-								<property name="status" value="COMPLETED" />
-							</bean>
-							<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
-								<constructor-arg name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-								<property name="task" value="#{BatchJobTasks.ANALYSIS_AGGREGATE}"/>
-								<property name="status" value="COMPLETED" />
-							</bean>
-						</set>
-					</constructor-arg>
-					<property name="name" value="waspJobExitCondition" />
-				</bean>	
-			</batch:tasklet>
-		</batch:step>
-	</batch:flow>
-	
-	<!-- for dispatching job, call with parameter 'jobId' -->
-	<batch:job id="genericDnaSeq.library.aggregate.jobflow.v1" restartable="true" >
-		<batch:split id="default.waspJob.jobFlow.split" task-executor="taskExecutor">
-			<batch:flow parent="genericDnaSeq.library.aggregate.flow.v1" />
-			<batch:flow parent="genericDnaSeq.library.aggregate.exitCondition" />
-		</batch:split>
 	</batch:job>
 
 </beans>
