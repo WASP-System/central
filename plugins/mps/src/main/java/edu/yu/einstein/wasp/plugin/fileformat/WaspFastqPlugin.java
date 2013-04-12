@@ -15,14 +15,18 @@ import org.springframework.integration.MessageChannel;
 
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * @author asmclellan
@@ -39,6 +43,9 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 	@Autowired
 	private FileUrlResolver fileUrlResolver;
 	
+	@Autowired
+	protected SampleService sampleService;
+
 	private static Logger logger = LoggerFactory.getLogger(WaspFastqPlugin.class);
 
 	/**
@@ -69,9 +76,7 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 	}
 	
 	@Override
-	public Map<String, Hyperlink> getFileDetails(Integer fileGroupId)	{
-		logger.debug("fastq plugin - filegroupid: "+fileGroupId);
-		
+	public Map<String, Hyperlink> getFileDetails(Integer fileGroupId) {
 		FileGroup fg = fileGroupDao.getById(fileGroupId);
 		Set<FileHandle> fhSet = fg.getFileHandles();
 		
@@ -90,4 +95,16 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 		return details;
 	}
 
+	@Override
+	public String getDownloadPageForCellLibraryByFileType(Integer cellLibraryId, Integer fileTypeId) {
+		try {
+			SampleSource cellLibrary = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+			FileType fileType = fileService.getFileType(fileTypeId);
+		} catch (SampleTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "<div>Here is a test!</div>";
+	}
 }
