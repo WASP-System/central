@@ -1,10 +1,12 @@
 package edu.yu.einstein.wasp.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.model.Job;
@@ -12,6 +14,7 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.service.JobService;
 
 /**
  * Class to provide easy access to job information including resource and selected software information 
@@ -22,6 +25,9 @@ public class WaspJobContext {
 	
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	@Autowired
+	private JobService jobService;
+	
 	private Job job; // contains userid. labid, workflowid
 	
 	private Map<ResourceType, SoftwareConfiguration> configuredSoftwareByType;
@@ -30,7 +36,9 @@ public class WaspJobContext {
 		this.job = job;
 		try{
 			configuredSoftwareByType = new HashMap<ResourceType, SoftwareConfiguration>();
-			for (JobSoftware js: job.getJobSoftware()){
+			List<JobSoftware> swl = job.getJobSoftware();
+			logger.debug("software length: " + swl.size());
+			for (JobSoftware js: swl){
 				Software software = js.getSoftware();
 				ResourceType softwareType = software.getResourceType();
 				Map<String, String> parameters = MetaHelper.getMap(software.getIName(), job.getJobMeta());

@@ -816,7 +816,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		TypedQuery<FileGroup> fgq = fileGroupDao.getEntityManager()
 				.createQuery("SELECT DISTINCT fg from FileGroup fg " +
 						"JOIN fg.sampleSources cl " +
-						"WHERE cl = :cellLibrary AND cl = fg.fileType = :fileType", FileGroup.class)
+						"WHERE cl = :cellLibrary AND fg.fileType = :fileType", FileGroup.class)
 				.setParameter("cellLibrary", cellLibrary)
 				.setParameter("fileType", fileType);
 		HashSet<FileGroup> result = new HashSet<FileGroup>();
