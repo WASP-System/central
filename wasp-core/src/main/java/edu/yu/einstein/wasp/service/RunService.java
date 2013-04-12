@@ -204,4 +204,6 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public Run updateAndInitiateRun(Run run);
+
+	public void updateRunQcStatusSetComplete(Run run) throws WaspMessageBuildingException;
 }

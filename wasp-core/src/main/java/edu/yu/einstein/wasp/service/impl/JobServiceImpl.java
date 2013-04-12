@@ -873,64 +873,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  Set<String> jobIdStringSet = new HashSet<String>();
 		  jobIdStringSet.add(job.getJobId().toString());
 		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		  // when getting stepExecutions from batch job explorer, get status from the most recently started one
-		  // in case job was re-run. This is defensive programming as theoretically this shouldn't happen and there
-		  // should only be one entry returned anyway.
-		  //Did the PI or the designated lab manager (or some facility personnel acting on their behalf) approve this job?
-		  //Only two possibilities: approved and rejected, which correspond to ExistStatus.Completed and ExitStatus.Stopped, respectively
-		  
-		  /*
-		  List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
-		  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
-		  String piStatusLabel = "status.piApproval.label";
-		  if (stepExecution == null){
-			  jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
-		  }
-		  else {
-			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
-				  jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-				  jobApprovalsMap.put(piStatusLabel, "status.approved.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
-				  jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
-				  jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
-			  }
-			  else{
-				  jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
-			  }
-		  }
-		  
-		  String daStatusLabel = "status.daApproval.label";
-		  stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(
-				  batchJobExplorer.getStepExecutions("step.daApprove", parameterMap, true)
-				);
-		  if (stepExecution == null){
-			  jobApprovalsMap.put(daStatusLabel, "status.notYetSet.label");
-		  }
-		  else {
-			  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
-			  if(adminApprovalStatus.getExitCode().equals(ExitStatus.EXECUTING.getExitCode())){
-				  jobApprovalsMap.put(daStatusLabel, "status.awaitingResponse.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-				  jobApprovalsMap.put(daStatusLabel, "status.approved.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())){
-				  jobApprovalsMap.put(daStatusLabel, "status.rejected.label");
-			  }
-			  else if(adminApprovalStatus.getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
-				  jobApprovalsMap.put(daStatusLabel, "status.abandoned.label");
-			  }
-			  else{
-				  jobApprovalsMap.put(daStatusLabel, "status.unknown.label");
-			  }
-		  }
-		  */
 		  
 		  List<String> jobApproveList = new ArrayList<String>();
 		  for(int i = 0; i < this.jobApproveArray.length; i++){
@@ -1091,19 +1033,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				samples.add(sampleDb);
 				sampleDraftIDKeyToSampleIDValueMap.put(sd.getId(), sampleDb.getId());
 		
-				// sample file
-				// TODO: BOYLE: This seems to never have worked properly
-//				if (sd.getFileId() != null) {
-//					SampleFile sampleFile = new SampleFile();
-//					sampleFile.setSampleId(sampleDb.getSampleId());
-//					sampleFile.setFileId(sd.getFileId());
-//		
-//					sampleFile.setIsActive(1);
-//		
-//					// TODO ADD NAME AND INAME
-//		
-//					sampleFileDao.save(sampleFile);
-//				}
+				
 		
 				// Sample Draft Meta Data
 				for (SampleDraftMeta sdm: sd.getSampleDraftMeta()) {
@@ -1162,13 +1092,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						e.printStackTrace();
 					}
 				}
-//				String samplePairs = new String(samplePairsSB);
-//				//save the samplePair metadata
-//				JobMeta jobMeta = new JobMeta();
-//				jobMeta.setJobId(jobDb.getJobId());
-//				jobMeta.setK(sampleDraftPairsKey);
-//				jobMeta.setV(samplePairs);			
-//				jobMetaDao.save(jobMeta);
+
 			}
 			
 			
@@ -1756,69 +1680,9 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			curNode.put("children", children);
-		} /*else if (type.equalsIgnoreCase("job-pu")) {
-			Job job = getJobByJobId(id);
-
-			curNode.put("name", "Job: "+job.getName());
-			curNode.put("myid", id);
-			curNode.put("type", "job");
-
-			Set<SampleSource> clSet = sampleService.getCellLibrariesForJob(job);
-			HashMap<Integer, Map> puMap = new HashMap();
-			List<Map> puNodeList = new ArrayList<Map>();
-			for (SampleSource cl : clSet) {
-				Sample cell = cl.getSample();
-				
-				Map cellNode = new HashMap();
-				cellNode.put("name", "Cell: "+cell.getName());
-				cellNode.put("myid", cell.getId());
-				cellNode.put("type", "cell");
-				Map libNode = new HashMap();
-				Sample lib = cl.getSourceSample();
-				libNode.put("name", lib.getName());
-				libNode.put("myid", lib.getId());
-				libNode.put("type", "library-pu");
-				libNode.put("children", "");
-				List<Map> cellChildren = new ArrayList<Map>();
-				cellChildren.add(libNode);
-				cellNode.put("_children", cellChildren);
-				
-				Sample pu = sampleService.getPlatformUnitForCell(cell);
-				Map puNode;
-				if (!puMap.containsKey(pu.getId())) {
-					puNode = new HashMap();
-					puNode.put("name", "Platform Unit: "+pu.getName());
-					puNode.put("myid", pu.getId());
-					puNode.put("type", "pu");
-					List<Map> gchildren = new ArrayList<Map>();
-					gchildren.add(cellNode);
-					puNode.put("_children", gchildren);
-				} else {
-					puNode = puMap.get(pu.getId());
-					List<Map> gchildren = (List<Map>) puNode.get("_children");
-					boolean cellExist = false;
-					for (Map cc : gchildren) {
-						if (cc.get("myid").toString().equals(cellNode.get("myid").toString()) ) {
-							List<Map> ccChildren = (List<Map>)cc.get("_children");
-							ccChildren.addAll(cellChildren);
-							cellExist = true;
-							break;
-						}
-					}
-					if (!cellExist)	gchildren.add(cellNode);
-					
-					puNode.put("_children", gchildren);
-				}
-				puMap.put(pu.getId(), puNode);
-			}
-			
-			curNode.put("children", puMap.values());
-		}*/ else if (type.equalsIgnoreCase("sample")) {
+		} else if (type.equalsIgnoreCase("sample")) {
 			Sample sample = sampleService.getSampleById(id);
 
-			//curNode.put("name", "Sample: "+sample.getName());
-			//curNode.put("myid", id);
-			//curNode.put("type", "sample");
 			
 			// If the sample has parent facility-made library
 			List<Sample> faclibList = sampleService.getFacilityGeneratedLibraries(sample);
@@ -1866,43 +1730,10 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			Sample cell = sampleService.getSampleById(id);
 			Sample library = sampleService.getSampleById(pid);
 
-			//get platform unit associated with the cell
-//			Sample pu = sampleService.getPlatformUnitForCell(cell);
-//			Map childNode = new HashMap();
-//			childNode.put("name", "Platform Unit: "+pu.getName());
-//			childNode.put("myid", pu.getId());
-//			childNode.put("type", "pu");
-//			childNode.put("children", "");
-			//childNode.put("children", getChildrenByNodeType(pu.getId(), "pu"));
-
-			// add file type nodes to library
 			children.addAll(getFileNodesByCellLibrary(cell, library));
 			
 			curNode.put("children", children);
-		} /*else if (type.equalsIgnoreCase("pu")) {
-			// if the sample is a platform unit
-			Sample pu = sampleService.getSampleById(id);
-
-			//get all seq runs associated with the platform unit
-			try {
-					List<Sample> cellList = sampleService.getPreprocessedCellLibrariesOnPU(job, pu);
-					for (Run run : runList) {
-						Map childNode = new HashMap();
-						childNode.put("name", "Run: "+run.getName());
-						childNode.put("myid", run.getId());
-						childNode.put("type", "run");
-						childNode.put("children", "");
-						//childNode.put("children", getChildrenByNodeType(run.getId(), "run"));
-						
-						children.add(childNode);
-					}
-				} catch (SampleTypeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-			curNode.put("children", children);
-		}*/ else if (type.equalsIgnoreCase("run")) {
+		} else if (type.equalsIgnoreCase("run")) {
 			Run run = runService.getRunById(id);
 			
 			if (jid==null || jid<1) {
