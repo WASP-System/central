@@ -2720,18 +2720,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
 			String isPreprocessedString = b.toString();
-			SampleSourceMeta sampleSourceMeta = null;
 			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
-			if (metaList == null || metaList.isEmpty()){
-				sampleSourceMeta = new SampleSourceMeta();
-			}
-			else{
-				sampleSourceMeta = MetaHelper.getMetaObjectFromList(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
-			}
-			sampleSourceMeta.setK(CellLibraryMeta.AREA + "." + CellLibraryMeta.IN_AGGREGATE_ANALYSIS);
-			sampleSourceMeta.setV(isPreprocessedString);
-			sampleSourceMeta.setSampleSourceId(cellLibrary.getId());
-			sampleSourceMetaDao.setMeta(sampleSourceMeta);
+			if (metaList == null || metaList.isEmpty())
+				metaList = new ArrayList<SampleSourceMeta>();
+			MetaHelper metaHelper = new MetaHelper(CellLibraryMeta.AREA, SampleSourceMeta.class);
+			metaHelper.setMetaList(metaList);
+			metaHelper.setMetaValueByName(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, isPreprocessedString);
+			sampleSourceMetaDao.setMeta((List<SampleSourceMeta>) metaHelper.getMetaList(), cellLibrary.getId());
 		}
 		
 		/**
