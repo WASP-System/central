@@ -12,6 +12,7 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,6 +60,7 @@ import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftFileDao;
 import edu.yu.einstein.wasp.dao.JobFileDao;
 import edu.yu.einstein.wasp.dao.SampleDao;
+import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.PluginException;
@@ -84,6 +87,11 @@ import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipOutputStream;
+
 
 @Service
 @Transactional("entityManager")
@@ -1031,7 +1039,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		String remoteFile = remoteDir + "/" + taggedNoSpacesFileName;
 
 		FileHandle file = new FileHandle();
-		file.setFileName(mpFile.getOriginalFilename());
+		file.setFileName(taggedNoSpacesFileName);
 		file.setFileURI(gfs.remoteFileRepresentationToLocalURI(remoteFile));
 		file = fileHandleDao.save(file);
 		FileGroup retGroup = new FileGroup();
@@ -1072,5 +1080,298 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		jobFile.setJob(job);
 		return jobFileDao.save(jobFile);
 	}
+
+	@Override
+	public void copyFileHandleToOutputStream(FileHandle fileHandle, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+		
+		if(tempDir == null){
+			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileDownloadException(mess);
+		}
+
+  		URI uri = fileHandle.getFileURI();
+  		if(uri==null){
+  			String mess = "FileHandle's URI is null for fileHandleId = " + fileHandle.getId();
+  			logger.debug(mess);
+  			throw new FileDownloadException(mess);
+  		}
+  		
+		GridWorkService gws;
+		GridFileService gfs;
+		try {
+			gws = hostResolver.getGridWorkService(uri.getHost());
+			gfs = gws.getGridFileService();
+		} catch (GridUnresolvableHostException e) {
+			String mess = "Unable to resolve remote host";
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new GridException(mess);
+		}
+
+		try{
+			if(!gfs.exists(uri.getPath())){
+				String mess = "File not found on remote host";
+				logger.warn(mess);
+				throw new FileNotFoundException(mess);
+			}
+		}catch(Exception e){
+			String mess = "Unable to query remote location regarding existence of file existence on remote host";
+			logger.warn(mess);
+			throw new FileNotFoundException(mess);
+		}
+		
+		File temporaryDirectory = new File(tempDir);
+
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				String mess = "FileHandle download failure trying to create '" + tempDir + "': " + e.getMessage();
+				logger.warn(mess);
+				throw new FileUploadException(mess);
+			}
+		}
+		
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+		try {
+			gfs.get(uri.getPath(), localFile);//should maybe check md5??
+		}catch (IOException e) {
+			String mess = "Unable to copy remote file to local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			localFile.delete();
+			throw new FileDownloadException(mess);
+		}
+  		
+  		try {
+    	      // get your file as InputStream
+    	      InputStream is = new FileInputStream(localFile);
+    	      // copy it to response's OutputStream
+    	      IOUtils.copy(is, os);
+    	      is.close();
+    	} catch (Exception ex) {
+    	      logger.debug("Error writing file to output stream. FileHandleId = '" + fileHandle.getId() + "'");
+    	}finally{
+    		localFile.delete();
+    	}
+	}
+	
+	@Override
+	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException{
+		
+		if(tempDir == null){
+			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileDownloadException(mess);
+		}
+
+		Set<FileHandle> fileHandleSet = fileGroup.getFileHandles();
+
+		if(fileHandleSet.size()==0){
+			String mess = "FileGroup with Id of " +fileGroup.getId()+ " contains no file handles.";
+			logger.warn(mess);
+			throw new FileDownloadException(mess);
+		}
+		
+		List<File> copiedTemporaryFileList = new ArrayList<File>();
+		List<FileHandle> fileHandlesOfCopiedFilesList = new ArrayList<FileHandle>();
+
+		GridWorkService gws = null;
+		GridFileService gfs = null;
+		String currentHost = null;
+		File temporaryDirectory = null;
+
+		for(FileHandle fileHandle : fileHandleSet){
+			
+	  		URI uri = fileHandle.getFileURI();
+	  		if(uri==null){
+	  			String mess = "FileHandle's URI is null for fileHandleId = " + fileHandle.getId();
+	  			logger.debug(mess);
+	  			throw new FileDownloadException(mess);
+	  		}
+	  		
+	  		if(gws == null || gfs == null || (gws != null && gfs != null && currentHost != null && !currentHost.equals(uri.getHost()))){
+				try {
+					gws = hostResolver.getGridWorkService(uri.getHost());
+					gfs = gws.getGridFileService();
+					currentHost = uri.getHost();
+				} catch (GridUnresolvableHostException e) {
+					String mess = "Unable to resolve remote host";
+					logger.warn(mess);
+					e.printStackTrace();
+					throw new GridException(mess);
+				}
+	  		}
+	  		
+			try{
+				if(!gfs.exists(uri.getPath())){
+					String mess = "File not found on remote host";
+					logger.warn(mess);
+					throw new FileNotFoundException(mess);
+				}
+			}catch(Exception e){
+				String mess = "Unable to query remote location regarding existence of file existence on remote host";
+				logger.warn(mess);
+				throw new FileNotFoundException(mess);
+			}
+			
+			temporaryDirectory = new File(tempDir);
+	
+			if (!temporaryDirectory.exists()) {
+				try {
+					temporaryDirectory.mkdir();
+				} catch (Exception e) {
+					String mess = "FileHandle download failure trying to create '" + tempDir + "': " + e.getMessage();
+					logger.warn(mess);
+					throw new FileUploadException(mess);
+				}
+			}
+			
+			File localFile;
+			try {
+				localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);//guaranteed to have unique name
+			} catch (IOException e) {
+				String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+				logger.warn(mess);
+				e.printStackTrace();
+				for(File f : copiedTemporaryFileList){
+	    			f.delete();
+	    		}
+				throw new FileUploadException(mess);
+			}
+	
+			try {//copy the remote file to tmp location
+				gfs.get(uri.getPath(), localFile);//should maybe check md5??
+				copiedTemporaryFileList.add(localFile);
+				fileHandlesOfCopiedFilesList.add(fileHandle);
+			}catch (IOException e) {
+				String mess = "Unable to copy remote file to local temporary file: " + e.getLocalizedMessage();
+				logger.warn(mess);
+				for(File f : copiedTemporaryFileList){
+	    			f.delete();
+	    		}
+				throw new FileDownloadException(mess);
+			}
+		}//end of the for(FileHandle fh: Set	) end of copying the remote files to tmp location on server and captured those file's fileHandles
+
+		if(copiedTemporaryFileList.size()!=fileHandlesOfCopiedFilesList.size() || copiedTemporaryFileList.size()!=fileHandleSet.size()){
+			for(File f : copiedTemporaryFileList){
+				f.delete();
+			}
+			throw new FileDownloadException("file number mismatch");
+		}
+
+		if(copiedTemporaryFileList.size()==1){		
+			try {
+			      // get your file as InputStream
+			      InputStream is = new FileInputStream(copiedTemporaryFileList.get(0));
+			      // copy it to response's OutputStream
+			      IOUtils.copy(is, os);
+			      is.close();
+			} catch (Exception e) {
+				String mess = "Error writing file to output stream. FileHandleId = '" + fileHandlesOfCopiedFilesList.get(0).getId() + "': " + e.getLocalizedMessage();
+				logger.warn(mess);
+				throw new FileDownloadException(mess);
+			}finally{//delete files either way
+				for(File f : copiedTemporaryFileList){
+					f.delete();
+				}
+			}
+		}
+		else{
+			//more than one file in FileGroup, so zip them up and pump zipped file through the response.os stream
+			//code based on (from web):  http://www.java-examples.com/create-zip-file-multiple-files-using-zipoutputstream-example
+
+			File zipTempFile;
+			try {//create the empty zipTempFile
+				zipTempFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+			} catch (IOException e) {
+				String mess = "Unable to create local temporary zip file: " + e.getLocalizedMessage();
+				logger.warn(mess);
+				e.printStackTrace();
+				for(File f : copiedTemporaryFileList){
+					f.delete();
+				}
+				throw new FileUploadException(mess);
+			}
+			
+			 //create object of FileOutputStream
+	        FileOutputStream fout = new FileOutputStream(zipTempFile);        
+	        //create object of ZipOutputStream from FileOutputStream
+	        ZipOutputStream zout = new ZipOutputStream(fout);
+			
+	        for(int i = 0; i < copiedTemporaryFileList.size(); i++){
+	        	
+	        	//create object of FileInputStream for source file
+	            FileInputStream fin = new FileInputStream(copiedTemporaryFileList.get(i));
+	            /*
+	             * To begin writing ZipEntry in the zip file, use
+	             *
+	             * void putNextEntry(ZipEntry entry)
+	             * method of ZipOutputStream class.
+	             *
+	             * This method begins writing a new Zip entry to
+	             * the zip file and positions the stream to the start
+	             * of the entry data.
+	             */
+	
+	            try{
+	            	zout.putNextEntry(new ZipEntry(fileHandlesOfCopiedFilesList.get(i).getFileName()));
+	            	IOUtils.copy(fin, zout);
+	            	fin.close();
+	  		      	zout.closeEntry();
+	            }catch(Exception e){
+	            	String mess = "Unable to create or copy or close zip entry " + i + ": " + e.getLocalizedMessage();
+	    			logger.warn(mess);
+	    			e.printStackTrace();
+	    			for(File f : copiedTemporaryFileList){
+	    				f.delete();
+	    			}
+	    			zipTempFile.delete();
+	    			throw new FileUploadException(mess);
+	            }
+	        }//end of for(int i = 0; i < copiedTemporaryFileList.size(); i++)
+	        
+	        try{
+	        	zout.close();
+	        }catch(Exception e){
+	        	String mess = "Unable to close zout: " + e.getLocalizedMessage();
+				logger.warn(mess);
+				e.printStackTrace();
+				zipTempFile.delete();
+				throw new FileUploadException(mess);
+	        }finally{
+	        	for(File f : copiedTemporaryFileList){
+					f.delete();//these can now be deleted
+				}
+	        }
+	        
+	        
+	        try{
+	        	FileInputStream zin = new FileInputStream(zipTempFile);
+	        	IOUtils.copy(zin, os);
+			    zin.close();
+	        }catch(Exception e){
+	        	String mess = "Error copying zip to os: " + e.getLocalizedMessage();
+				logger.warn(mess);
+				throw new FileDownloadException(mess);
+	        }
+	        finally{
+	        	//temp files in copiedTemporaryFileList were already deleted in previous finally block
+				zipTempFile.delete();
+	        }
+
+		}//end of if(copiedTemporaryFileList.size()==1) and else
+
+	}//end of method
 
 }
