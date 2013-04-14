@@ -28,6 +28,12 @@ import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 @Service
 @Transactional("entityManager")
 public interface GenomeService extends WaspService {
+	
+	public static final String GENOME_AREA="genome";
+	
+	public static final String GENOME_STRING_META_KEY="genomeString";
+	
+	public static final String DELIMITER = "::";
 
 	public Set<Organism> getOrganisms();
 	
@@ -94,6 +100,13 @@ public interface GenomeService extends WaspService {
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException;
 
 	public Map<Integer, Organism> getOrganismMap();
+
+	/**
+	 * Get remote host formatted representation of metadata directory housing this build
+	 * @param build
+	 * @return
+	 */
+	String getRemoteBuildPath(Build build);
 
 	  
 }

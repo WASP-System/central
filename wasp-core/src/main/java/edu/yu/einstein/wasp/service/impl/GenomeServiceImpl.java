@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
+import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
@@ -56,7 +57,6 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 
 	@Autowired
 	private GridHostResolver hostResolver;
-
 	
 	@Autowired
 	private SampleService sampleService;
@@ -259,12 +259,6 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		return true;
 	}
 	
-	public static final String GENOME_AREA="genome";
-	
-	public static final String GENOME_STRING_META_KEY="genomeString";
-	
-	public static final String DELIMITER = "::";
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -381,6 +375,7 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	public Build getBuild(Sample sample) throws ParameterValueRetrievalException{
 		Assert.assertParameterNotNull(sample, "sample cannot be null");
 		String genomeString = null;
+		sample = sampleService.getSampleDao().merge(sample);
 		List<SampleMeta> sampleMetaList = sample.getSampleMeta();
 		if (sampleMetaList == null)
 			sampleMetaList = new ArrayList<SampleMeta>();
@@ -391,8 +386,6 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 		}
 		return getBuild(genomeString);
 	}
-
-	
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -412,6 +405,18 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 	@Override
 	public Map<Integer, Organism> getOrganismMap(){
 		return organisms;
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getRemoteBuildPath(Build build) {
+		String path = "${" + WorkUnit.METADATA_ROOT + "}/" + 
+				build.getGenome().getOrganism().getNcbiID() +"/"+
+				build.getGenome().getName() + "/" + 
+				build.getName() + "/";
+		return path;
 	}
 
 }

@@ -268,7 +268,7 @@ public class FileHandle extends WaspModel {
 		return this.md5hash;
 	}
 
-	@ManyToMany(mappedBy="filehandles")
+	@ManyToMany(mappedBy="fileHandles")
 	protected Set<FileGroup> fileGroup;
 
 	/**

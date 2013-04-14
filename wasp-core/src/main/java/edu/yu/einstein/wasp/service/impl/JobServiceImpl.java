@@ -26,6 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -74,6 +76,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -2281,5 +2284,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
 		}	
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Job getJobAndSoftware(Job job) {
+		job=jobDao.findById(job.getId());
+		List<JobSoftware> jsl = job.getJobSoftware();
+		logger.debug("job has " + jsl.size() + " software" );
+		job.getJobMeta().size();
+		return job;
 	}
 }

@@ -50,6 +50,7 @@ import org.xml.sax.SAXException;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
@@ -209,7 +210,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 	private Document getQstat(GridResult g, String jobname) throws GridException, SAXException, IOException {
 		WorkUnit w = new WorkUnit();
 		w.setWorkingDirectory(g.getWorkingDirectory());
-		w.setCommand("qstat -xml -j " + jobname + " 2>&1 | sed 's/<\\([/]\\)*>/<\\1a>/g'");
+		w.setCommand("qstat -xml -j " + jobname + " 2>&1 | sed 's/<\\([/]\\)*>/<\\1a>/g' | sed 's/  xmlns.*>/>/g'");
 		GridResult result;
 		try {
 			result = transportConnection.sendExecToRemote(w);
@@ -597,10 +598,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				sss.setProject(w.getProject());
 			if(getQueue() != null)
 				sss.setQueue(getQueue());
-			if (w.getMemoryRequirements()!= null) 
-				sss.setMemory(w.getMemoryRequirements());
-			if (w.getProcessorRequirements() != null)
-				sss.setProcs(w.getProcessorRequirements());
 			scriptHandle.write(sss.toString());
 			scriptHandle.close();
 		} catch (IOException e) {
@@ -620,10 +617,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			script.delete();
 		}
 		
-		String submit = "cd " +  w.remoteWorkingDirectory + " && qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
+		//String submit = "cd " +  w.remoteWorkingDirectory + " && qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
+		String submit = "qsub " + jobNamePrefix + w.getId() + ".sh 2>&1";
 		w.setWrapperCommand(submit);
 		GridResultImpl result = (GridResultImpl) transportConnection.sendExecToRemote(w);
 		result.setUuid(UUID.fromString(w.getId()));
+		result.setId(jobNamePrefix + w.getId());
 		result.setWorkingDirectory(w.getWorkingDirectory());
 		result.setResultsDirectory(w.getResultsDirectory());
 		result.setHostname(transportConnection.getHostName());
@@ -636,8 +635,11 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			
 		}
 			
-		if (w.getMode().equals(ExecutionMode.TASK_ARRAY))
+		if (w.getMode().equals(ExecutionMode.TASK_ARRAY)) {
+			if (w.getNumberOfTasks() == null)
+				throw new MisconfiguredWorkUnitException("Task arrays need to set numberOfTasks (cannot be null)");
 			result.setNumberOfTasks(w.getNumberOfTasks());
+		}
 		return (GridResult) result;
 	}
 	
@@ -683,8 +685,6 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		private String project = "";
 		private String mailRecipient = "";
 		private String mailCircumstances = "";
-		private String memory = "";
-		private String procs = "";
 
 		private SgeSubmissionScript(WorkUnit w) throws GridException, MisconfiguredWorkUnitException {
 			this.w = w;
@@ -715,6 +715,12 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 						WorkUnit.TASK_OUTPUT_FILE + "=$WASPNAME:${WASP_TASK_ID}.out\n" +
 						WorkUnit.TASK_END_FILE + "=$WASPNAME:${WASP_TASK_ID}.end\n";
 			}
+			
+			String metadata = transportConnection.getConfiguredSetting("metadata.root");
+			if (!PropertyHelper.isSet(metadata)) {
+				throw new NullResourceException("metadata folder not configured!");
+			}
+			preamble += WorkUnit.METADATA_ROOT + "=" + transportConnection.prefixRemoteFile(metadata) + "\n";
 			
 			int fi = 0;
 			for (edu.yu.einstein.wasp.model.FileHandle f : w.getRequiredFiles()) {
@@ -753,20 +759,24 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 			// If the ProcessMode is set to MAX, get the configuration for this host and set processor reqs
 			String pmodeMax = transportConnection.getConfiguredSetting("processmode.max");
 			if (!PropertyHelper.isSet(pmodeMax)) {
-				pmodeMax = "2";
+				pmodeMax = "1";
 			}
+			logger.debug("WorkUnit was confifured to use " + w.getProcessorRequirements() + " threads");
 			if (w.getProcessMode().equals(ProcessMode.MAX)) {
 				w.setProcessorRequirements(new Integer(pmodeMax));
+				logger.debug("WorkUnit reconfifured to use " + w.getProcessorRequirements() + " threads (using ProcessMode.MAX)");
 			}
 			// If the ProcessMode is set to FIXED, make sure it does not exceed the max setting for this host.
 			String pmodeMaximum = transportConnection.getConfiguredSetting("processmode.absolutemaximum");
 			if (!PropertyHelper.isSet(pmodeMaximum)) {
-				pmodeMax = "2";
+				pmodeMaximum = "1";
 			}
-			Integer pmm = new Integer(pmodeMaximum);
-			if (w.getProcessorRequirements() > pmm) 
-				w.setProcessorRequirements(pmm);
 			
+			Integer pmm = new Integer(pmodeMaximum);
+			if (w.getProcessorRequirements() > pmm) {
+				w.setProcessorRequirements(pmm);
+				logger.debug("WorkUnit is reconfifured to use " + w.getProcessorRequirements() + " (absolute maximum) threads");
+			}
 			if (transportConnection.getSoftwareManager() != null) {
 				String config = transportConnection.getSoftwareManager().getConfiguration(w);
 				if (config != null) {
@@ -790,30 +800,19 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		}
 		
 		public String getMemory() {
-			return this.memory;
-		}
-
-		public void setMemory(int memInGB) {
-			this.memory = "#$ -l mem_free=" + memInGB + "G\n" +
-					"memory=" + memInGB + "\n";
+			return "#$ -l mem_free=" + w.getMemoryRequirements().toString() + "G\n" +
+					WorkUnit.REQUESTED_GB_MEMORY + "=" + w.getMemoryRequirements().toString() + "\n";
 		}
 		
 		public String getProcs() {
-			return this.procs;
-		}
-
-		public void setProcs(Integer threads) {
-			this.procs = "#$ -l p=" + threads.toString() + "\n" +
-					"threads=" + threads + "\n";
+			return "#$ -l p=" + w.getProcessorRequirements().toString() + "\n" +
+					WorkUnit.NUMBER_OF_THREADS + "=" + w.getProcessorRequirements().toString() + "\n";
 		}
 
 		public String toString() {
 			String pe = "";
 			if (w.getMode() == ExecutionMode.MPI)
 				pe = getParallelEnvironment();
-			String numProcs = "";
-			if (w.getMode() != ExecutionMode.MPI)
-				numProcs = getProcs();
 			
 			return header + 
 					"\n\n##### resource requests\n\n" +
@@ -824,7 +823,7 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 					getProject() + 
 					getMailRecipient() +
 					getMailCircumstances() +
-					numProcs +
+					getProcs() +
 					getMemory() + 
 					"\n\n##### preamble \n\n" +
 					preamble + 
