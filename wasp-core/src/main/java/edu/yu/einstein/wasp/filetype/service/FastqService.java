@@ -5,6 +5,7 @@ import java.util.UUID;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.WaspService;
@@ -75,5 +76,7 @@ public interface FastqService extends WaspService {
 	public Sample getLibraryFromFASTQ(FileHandle file);
 	
 	public Integer getNumberOfReadSegments(FileGroup filegroup);
+	
+	public FileType getFastqFileType();
 
 }

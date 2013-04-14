@@ -4,6 +4,8 @@
 package edu.yu.einstein.wasp.filetype;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -33,22 +35,26 @@ import edu.yu.einstein.wasp.service.FileService;
  */
 public class FastqComparator extends FileHandleComparator {
 	
-	@Autowired
-	private FileType fastqFileType;
+	private FileType fq = null;
 	
-	@Autowired
-	private FileService fileService;
-	
-	@Autowired
 	private FastqService fastqService;
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	public FastqComparator(FastqService fastqService) {
+		this.fastqService = fastqService;
+	}
+	
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.filetype.FileHandleComparator#compare(edu.yu.einstein.wasp.model.FileHandle, edu.yu.einstein.wasp.model.FileHandle)
 	 */
 	@Override
 	public int compare(FileHandle arg0, FileHandle arg1) {
-		Assert.isTrue(arg0.getFileType().equals(fastqFileType));
-		Assert.isTrue(arg1.getFileType().equals(fastqFileType));
+		
+		if (fq == null)
+			fq = fastqService.getFastqFileType();
+		Assert.isTrue(arg0.getFileType().equals(fq));
+		Assert.isTrue(arg1.getFileType().equals(fq));
 		
 		return new CompareToBuilder()
 			.append(fastqService.getLibraryFromFASTQ(arg0).getId(), fastqService.getLibraryFromFASTQ(arg1).getId())

@@ -184,7 +184,7 @@ public class SshTransportConnection implements GridTransportConnection, Initiali
 			if (w.getWrapperCommand() != null)
 				command = w.getWrapperCommand();
 			command = "cd " + w.remoteWorkingDirectory + " && " + command;
-			// command = "source $HOME/.bash_profile && " + command;
+			command = "if [ -e /etc/profile ]; then source /etc/profile > /dev/null 2>&1; fi && " + command;
 			logger.debug("sending exec: " + command + " at: " + getHostName());
 
 				final Command exec = session.exec(command);

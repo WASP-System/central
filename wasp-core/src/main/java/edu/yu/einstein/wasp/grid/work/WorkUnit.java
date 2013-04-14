@@ -42,6 +42,9 @@ public class WorkUnit {
 	public static final String TASK_END_FILE = "WASP_TASK_END";
 	public static final String INPUT_FILE = "WASPFILE";
 	public static final String OUTPUT_FILE = "WASPOUTPUT";
+	public static final String METADATA_ROOT = "WASP_META";
+	public static final String NUMBER_OF_THREADS = "NTHREADS";
+	public static final String REQUESTED_GB_MEMORY = "MEMORYGB";
 
 	private boolean isRegistering;
 	
