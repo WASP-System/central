@@ -38,10 +38,10 @@ public class WaspIlluminaServiceImpl extends WaspServiceImpl implements WaspIllu
 		w.setProcessMode(ProcessMode.SINGLE);
 		GridWorkService workService = hostResolver.getGridWorkService(w);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
-		String stageDir = transportConnection.getConfiguredSetting("illumina.data.stage");
-		if (!PropertyHelper.isSet(stageDir))
-			throw new GridException("illumina.data.stage is not defined!");
-		w.setWorkingDirectory(stageDir);
+		String dataDir = transportConnection.getConfiguredSetting("illumina.data.dir");
+		if (!PropertyHelper.isSet(dataDir))
+			throw new GridException("illumina.data.dir is not defined!");
+		w.setWorkingDirectory(dataDir);
 		w.addCommand("ls -1t");
 		try {
 			GridResult r = transportConnection.sendExecToRemote(w);
