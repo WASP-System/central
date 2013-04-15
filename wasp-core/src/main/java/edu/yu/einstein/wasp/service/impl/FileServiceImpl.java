@@ -74,6 +74,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -503,13 +504,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 
 	@Override
-	public void addFile(FileHandle file) {
-		fileHandleDao.save(file);
+	public FileHandle addFile(FileHandle file) {
+		return fileHandleDao.save(file);
 	}
 
 	@Override
-	public void addFileGroup(FileGroup group) {
-		fileGroupDao.save(group);
+	public FileGroup addFileGroup(FileGroup group) {
+		return fileGroupDao.save(group);
 	}
 
 	@Override
@@ -1373,5 +1374,37 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		}//end of if(copiedTemporaryFileList.size()==1) and else
 
 	}//end of method
+
+	/** 
+	 * This needs to be improved
+	 * TODO: add proper read segment handling
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String generateUniqueBaseFileName(SampleSource cellLibrary) {
+
+		final String DELIM = ".";
+		final String SEP = "_";
+
+		try {
+			Sample cell = sampleService.getCell(cellLibrary);
+			Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+			Sample library = sampleService.getLibrary(cellLibrary);
+			Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+
+			return new StringBuilder()
+					.append(library.getName()).append(DELIM)
+					.append(platformUnit.getName()).append(DELIM)
+					.append("C" + sampleService.getCellIndex(cell)).append(SEP)
+					.append("S" + "A").append(SEP)
+					.append("I" + adaptor.getBarcodesequence()).append(DELIM)
+					.toString();
+		} catch (Exception e) {
+			String mess = "problem creating unique file base name";
+			logger.error(mess);
+			throw new RuntimeException(mess);
+		}
+
+	}
 
 }

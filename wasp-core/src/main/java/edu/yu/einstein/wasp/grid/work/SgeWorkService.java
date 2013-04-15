@@ -501,12 +501,14 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 				w.addCommand("COPY[" + files + "]=\""+ WorkUnit.OUTPUT_FILE_PREFIX + "_" + fg.getId() + "." + f.getId() + 
 						" " + f.getFileName() + "\"");
 				files++;
+				f.setFileURI(this.gridFileService.remoteFileRepresentationToLocalURI(w.getResultsDirectory() + "/" + f.getFileName()));
+				fileService.addFile(f);
 			}
 		}
-		w.setNumberOfTasks(files-1);
+		w.setNumberOfTasks(files);
 		w.addCommand("THIS=${COPY[WASP_TASK_ID]}");
 		w.addCommand("read -ra FILE <<< \"$THIS\"");
-		w.addCommand("cp ${THIS[0]} " + WorkUnit.RESULTS_DIRECTORY + "${THIS[1]}");
+		w.addCommand("cp -f ${FILE[0]} ${" + WorkUnit.RESULTS_DIRECTORY + "}${FILE[1]}");
 		w.addCommand("rm -f " + WorkUnit.PROCESSING_INCOMPLETE_FILENAME);
 		GridResult r = execute(w);
 		logger.debug("waiting for results file copy");
