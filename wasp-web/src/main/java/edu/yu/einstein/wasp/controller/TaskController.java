@@ -13,7 +13,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +29,8 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.UserPending;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
@@ -42,11 +39,9 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.taskMapping.TaskMappingRegistry;
 import edu.yu.einstein.wasp.taskMapping.WaspTaskMapping;
-import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.web.WebHyperlink;
 
 @Controller
-@Transactional
 @RequestMapping("/task")
 public class TaskController extends WaspController {
 
@@ -946,6 +941,7 @@ public class TaskController extends WaspController {
 			  if("EXCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
 			  else if("INCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
 		  }catch(Exception e){
+			  logger.warn(e.getLocalizedMessage());
 			  errorMessages.add("task.cellLibraryqc_message.error");
 		  }		  
 	  }
@@ -965,8 +961,14 @@ public class TaskController extends WaspController {
 		  if(maxNumCellLibrariesThatCanBeRecorded.intValue()==numCellLibrariesRecordedAsInclude + numCellLibrariesRecordedAsExclude 
 				  && numCellLibrariesRecordedAsInclude > 0){
 			  //kick off analysis
-			  jobService.initiateAggregationAnalysisBatchJob(job);
-			  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisBegun.label");
+			  try{
+				  jobService.initiateAggregationAnalysisBatchJob(job);
+				  waspMessage("task.cellLibraryqc_updateSuccessfulAndAnalysisBegun.label");
+			  } catch (Exception e){
+				  logger.warn(e.getLocalizedMessage());
+				  waspErrorMessage("task.cellLibraryqc_startAnalysisNotPossibleNow.error");
+				  return "redirect:/task/cellLibraryQC/list.do";
+			  }
 		  }
 		  else{
 			  waspErrorMessage("task.cellLibraryqc_startAnalysisNotPossibleNow.error");
@@ -982,6 +984,7 @@ public class TaskController extends WaspController {
 				  waspMessage("task.cellLibraryqc_updateSuccessfulAndJobTerminated.label");
 			  }
 			  catch(WaspMessageBuildingException e){
+				  logger.warn(e.getLocalizedMessage());
 				  waspErrorMessage("task.cellLibraryqc_terminateJobUnexpectedlyFailed.error");
 				  return "redirect:/task/cellLibraryQC/list.do";
 			  }

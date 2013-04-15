@@ -61,7 +61,7 @@ import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
-/*
+
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml","/daemon-test-batchJob.xml"})
 
 public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
@@ -94,9 +94,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	void setJobExplorer(JobExplorer jobExplorer){
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
 	}
-	
-	@Autowired
-	private BatchJobService batchJobService;
 	
 	@Autowired
 	@Qualifier("wasp.channel.priority.run")
@@ -192,10 +189,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		runSuccessSplitter.setRunService(mockRunService);
 		runSuccessSplitter.setWaspPluginRegistry(mockWaspPluginRegistry);
 		runSuccessSplitter.setSampleService(mockSampleService);
-		
-		// add mocks to batchJobService (replacing Autowired versions)
-		batchJobService.setJobService(mockJobService);
-		batchJobService.setWaspPluginRegistry(mockWaspPluginRegistry);
 		
 		// add mocks to waspJobSoftwareLaunchTasklet (replacing Autowired versions)
 		waspJobSoftwareLaunchTasklet.setJobService(mockJobService);
@@ -328,7 +321,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
 			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
 			JobParameters params = je.getJobInstance().getJobParameters();
-			Assert.assertEquals(params.getParameters().size(), 4);
+			Assert.assertEquals(params.getParameters().size(), 3);
 			Assert.assertNotNull(params.getString("libraryCellIdList"));
 			Assert.assertNotNull(params.getString("p1"));
 			Assert.assertNotNull(params.getString("p2"));
@@ -346,4 +339,3 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 	}
 
 }
-*/

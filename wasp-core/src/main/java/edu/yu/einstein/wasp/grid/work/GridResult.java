@@ -105,5 +105,12 @@ public interface GridResult {
 	 * @return
 	 */
 	public Set<Integer> getFileGroupIds();
+	
+	/**
+	 * Unique ID of the job.  Useful for constructing path to output of previous result.
+	 * 
+	 * @return
+	 */
+	public String getId();
 
 }

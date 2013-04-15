@@ -15,6 +15,12 @@ public class WaspSoftwareJobParameters extends WaspJobParameters {
 	public static final String LIBRARY_CELL_ID_LIST = "libraryCellIdList"; // Sample Source reference
 	
 	/**
+	 * ID for a string representation of a genome in the format: TaxonID:Genome Name:Build ID
+	 * eg "10090:GRCm38:70" 
+	 */
+	public static final String GENOME = "genome";  
+	
+	/**
 	 * Returns a set of libraryCell (SourceSample) ids from a comma delimited list provided (typically a batch job parameter associated with key
 	 * LIBRARY_CELL_ID)
 	 * @param parameterValue

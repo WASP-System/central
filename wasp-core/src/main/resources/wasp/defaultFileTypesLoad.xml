@@ -5,12 +5,6 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
    
-  <bean id="fastqFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
-    <property name="name" value="FASTQ" />
-    <property name="area" value="fastq" />
-    <property name="description" value="A human-readable text based file format for storing DNA sequences alongside their quality scores" />
-  </bean>
-  
   <bean id="bamFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
     <property name="name" value="BAM" />
     <property name="area" value="bam" />
