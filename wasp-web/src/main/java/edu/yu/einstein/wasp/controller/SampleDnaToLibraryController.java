@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.controller;
 
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -998,6 +1000,42 @@ public class SampleDnaToLibraryController extends WaspController {
 		waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
 		return "redirect:"+ referer;		
 	}
+  
+  @RequestMapping(value="/resultsView/{jobId}", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String resultsView(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  
+	  return "sampleDnaToLibrary/resultsView";
+  }
+
+  @RequestMapping(value="/showplay", method=RequestMethod.GET)
+  //@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public void showPlay(ModelMap m, HttpServletResponse response) throws SampleTypeException {
+	  try{
+	  FileHandle fileHandle = fileService.getFileHandleById(27);//this is an html file
+	  //return this.listJobSamples(88, m);//this worked!
+	  response.setContentType("text/html");
+	  //response.setHeader("Content-Disposition","attachment; filename="+fileHandle.getFileName());
+	  fileService.copyFileHandleToOutputStream(fileHandle, response.getOutputStream());
+	  /*PrintWriter out = response.getWriter();
+	    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 " +
+	                                        "Transitional//EN\">\n" +
+	                "<HTML>\n" +
+	                "<HEAD><TITLE>Hello WWW</TITLE></HEAD>\n" +
+	                "<BODY>\n" +
+	                "<H1>Hello WWW</H1>\n" +
+	                "</BODY></HTML>");
+	  //response.flushBuffer();*/
+	  }catch(Exception e){System.out.println("ROB______major problem");}
+	  System.out.println("ROB______after major problem");
+	  //return "redirect:/dashboard.do";
+	  //try{response.sendRedirect("/dashboard.do");}catch(Exception e){}
+	  //try{response.encodeRedirectURL("http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html");
+		  //response.sendRedirect("http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html");
+		//  response.flushBuffer();
+	  //}catch(Exception e){}
+	  //return "redirect: http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html";
+  }
 }
 
 
