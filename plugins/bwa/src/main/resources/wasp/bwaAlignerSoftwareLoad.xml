@@ -8,20 +8,17 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
-    
-   <bean id="bwaAlignerArea" class="java.lang.String">
-  	<constructor-arg><value>bwaAligner</value></constructor-arg>
-  </bean>
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="bwaAlignerUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="#{bwaAlignerArea}" />
   </bean>
 
-  <bean id="bwaAlignerSoftware" class="edu.yu.einstein.wasp.mps.bwa.BWASoftwareComponent">
+  <bean id="bwa" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.bwa.BWASoftwareComponent</value></property>
     <property name="name" value="BWA" />
     <property name="area" value="#{bwaAlignerArea}" />
-    <property name="resourceTypeByIName" value="aligner" />
+    <property name="resourceType" ref="referenceBasedAlignerResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
@@ -43,10 +40,10 @@
            <property name="label" value="Maximum edit distance/fraction of missing alignments. (aln -n)" />
            <property name="type" value="NUMBER" />
            <property name="range" value="0:10" />
-           <property name="default" value="0.4" />
+           <property name="default" value="0.04" />
            <property name="constraint" value="NotEmpty" />
            <property name="error" value="A value for max edit distance must be specified" />
-           <property name="description" value="Maximum edit distance if the value is INT, or the fraction of missing alignments given 2% uniform base error rate if FLOAT. In the latter case, the maximum edit distance is automatically chosen for different read lengths. [0.04]" />
+           <property name="tooltip" value="Maximum edit distance if the value is INT, or the fraction of missing alignments given 2% uniform base error rate if FLOAT. In the latter case, the maximum edit distance is automatically chosen for different read lengths. [0.04]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -58,7 +55,7 @@
           <property name="default" value="1" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for gap openings must be specified" />
-          <property name="description" value="Maximum number of gap opens [1]" />
+          <property name="tooltip" value="Maximum number of gap opens [1]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -70,7 +67,7 @@
           <property name="default" value="-1" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for max number of gap extensions must be specified" />
-          <property name="description" value="Maximum number of gap extensions, -1 for k-difference mode (disallowing long gaps) [-1]" />
+          <property name="tooltip" value="Maximum number of gap extensions, -1 for k-difference mode (disallowing long gaps) [-1]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -82,7 +79,7 @@
           <property name="default" value="16" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the disallow long deletion must be specified" />
-          <property name="description" value="Disallow a long deletion within INT bp towards the 3’-end [16]" />
+          <property name="tooltip" value="Disallow a long deletion within INT bp towards the 3’-end [16]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -94,7 +91,7 @@
           <property name="default" value="5" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the disallow indel must be specified" />
-          <property name="description" value="Disallow an indel within INT bp towards the ends [5]" />
+          <property name="tooltip" value="Disallow an indel within INT bp towards the ends [5]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -106,7 +103,7 @@
           <property name="default" value="32" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the seed must be specified" />
-          <property name="description" value="Take the first INT subsequence as seed. If INT is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for ‘-k 2’. [32]" />
+          <property name="tooltip" value="Take the first INT subsequence as seed. If INT is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for ‘-k 2’. [32]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -118,7 +115,7 @@
           <property name="default" value="2" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the seed edit distance must be specified" />
-          <property name="description" value="Maximum edit distance in the seed [2]" />
+          <property name="tooltip" value="Maximum edit distance in the seed [2]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -130,7 +127,7 @@
           <property name="default" value="3" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the mismatch penalty must be specified" />
-          <property name="description" value="Mismatch penalty. BWA will not search for suboptimal hits with a score lower than (bestScore-misMsc). [3]" />
+          <property name="tooltip" value="Mismatch penalty. BWA will not search for suboptimal hits with a score lower than (bestScore-misMsc). [3]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -142,7 +139,7 @@
           <property name="default" value="11" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the gap open penalty must be specified" />
-          <property name="description" value="Gap open penalty [11]" />
+          <property name="tooltip" value="Gap open penalty [11]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -154,7 +151,7 @@
           <property name="default" value="4" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the gap extension penalty must be specified" />
-          <property name="description" value="Gap extension penalty [4]" />
+          <property name="tooltip" value="Gap extension penalty [4]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -166,7 +163,7 @@
           <property name="default" value="30" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for the suboptimal alignments must be specified" />
-          <property name="description" value="Proceed with suboptimal alignments if there are no more than INT equally best hits. This option only affects paired-end mapping. Increasing this threshold helps to improve the pairing accuracy at the cost of speed, especially for short reads (~32bp). [30]" />
+          <property name="tooltip" value="Proceed with suboptimal alignments if there are no more than INT equally best hits. This option only affects paired-end mapping. Increasing this threshold helps to improve the pairing accuracy at the cost of speed, especially for short reads (~32bp). [30]" />
         </bean>
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -177,7 +174,7 @@
           <property name="default" value="no" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for disable iterative search must be specified" />
-          <property name="description" value="Disable iterative search. All hits with no more than maxDiff differences will be found. This mode is much slower than the default. [no]" />
+          <property name="tooltip" value="Disable iterative search. All hits with no more than maxDiff differences will be found. This mode is much slower than the default. [no]" />
         </bean>     
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -189,7 +186,7 @@
           <property name="default" value="0" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for read trimming must be specified" />
-          <property name="description" value="Parameter for read trimming. BWA trims a read down to argmax_x{sum_{i=x+1}^l(INT-q_i)} if q_l&lt;INT where l is the original read length. [0]" />
+          <property name="tooltip" value="Parameter for read trimming. BWA trims a read down to argmax_x{sum_{i=x+1}^l(INT-q_i)} if q_l&lt;INT where l is the original read length. [0]" />
         </bean> 
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -201,7 +198,7 @@
           <property name="default" value="500" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for max insert size must be specified" />
-          <property name="description" value="Maximum insert size for a read pair to be considered being mapped properly. Since 0.4.5, this option is only used when there are not enough good alignment to infer the distribution of insert sizes. [500]" />
+          <property name="tooltip" value="Maximum insert size for a read pair to be considered being mapped properly. Since 0.4.5, this option is only used when there are not enough good alignment to infer the distribution of insert sizes. [500]" />
         </bean> 
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -213,7 +210,7 @@
           <property name="default" value="100000" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for max occurences must be specified" />
-          <property name="description" value="Maximum occurrences of a read for pairing. A read with more occurrneces will be treated as a single-end read. Reducing this parameter helps faster pairing. [100000]" />
+          <property name="tooltip" value="Maximum occurrences of a read for pairing. A read with more occurrneces will be treated as a single-end read. Reducing this parameter helps faster pairing. [100000]" />
         </bean> 
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -225,7 +222,7 @@
           <property name="default" value="3" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for max insert size must be specified" />
-          <property name="description" value="Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than INT hits, the XA tag will not be written. [3]" />
+          <property name="tooltip" value="Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than INT hits, the XA tag will not be written. [3]" />
         </bean> 
         
         <bean parent="bwaAlignerUiFieldWrapper">
@@ -237,7 +234,7 @@
           <property name="default" value="10" />
           <property name="constraint" value="NotEmpty" />
           <property name="error" value="A value for max insert size must be specified" />
-          <property name="description" value="Maximum number of alignments to output in the XA tag for disconcordant read pairs (excluding singletons). If a read has more than INT hits, the XA tag will not be written. [10]" />
+          <property name="tooltip" value="Maximum number of alignments to output in the XA tag for disconcordant read pairs (excluding singletons). If a read has more than INT hits, the XA tag will not be written. [10]" />
         </bean> 
         
       </list>
