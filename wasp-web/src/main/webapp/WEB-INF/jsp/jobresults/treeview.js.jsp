@@ -459,6 +459,14 @@ function click(d) {
 		var headStr;
 		if ((d.type.split('-'))[0]=="filetype") {
 			headStr = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+			
+			//var tablist = d3.select('#detailview').append("div").attr("id", "mytabs").append("ul");
+			$("#mytabs").tabs();
+
+	      	$.each(result, function (index, item) {
+	      		$("#mytabs").tabs('add',item,index);;
+	      	});
+	        return;
 		} else {
 			headStr = d.type.toUpperCase()+" Details";
 		}

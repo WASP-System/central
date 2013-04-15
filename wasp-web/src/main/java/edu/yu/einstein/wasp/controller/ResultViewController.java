@@ -232,10 +232,6 @@ public class ResultViewController extends WaspController {
 				for (FileGroup fg : fgSet) {
 					jsDetails.putAll(fileService.getFileDetailsByFileType(fg));
 					
-//					jsDetails.put(getMessage("file.name.label"), fg.getDescription());
-//					jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(fg)+"\">Download All Files Here</a>");
-	
-				
 //					Set<FileHandle> fhSet = fg.getFileHandles();
 //					
 //					for (FileHandle fh : fhSet) {
@@ -250,6 +246,11 @@ public class ResultViewController extends WaspController {
 //						}
 //					}
 				}
+				
+				// TODO: for testing only
+				jsDetails.clear();
+				jsDetails.put("tab1", "tab1 content");
+				jsDetails.put("tab2", "tab2 content");
 			}
 			
 			return outputJSON(jsDetails, response);

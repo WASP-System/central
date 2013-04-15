@@ -22,12 +22,12 @@
 
 <div id="right-container">
 	<div id="detailview">
-<!-- 		<div id="tabs">
+		<div id="mytabs">
     		<ul>
 				<li><a href='#tab1'>#1</a></li>
 			</ul>
 			<div id='tab1'>tab 1 content</div>
-    	</div> -->
+    	</div>
 	</div>
 </div>
 
