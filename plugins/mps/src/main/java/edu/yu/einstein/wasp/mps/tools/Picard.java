@@ -17,6 +17,7 @@ public class Picard extends BAMProcessor {
 	private static final long serialVersionUID = -2501043398244995595L;
 	
 	private String softwareName = "picard";
+	private String version = "1.78";
 
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.software.SoftwarePackage#getSoftwareVersion()
