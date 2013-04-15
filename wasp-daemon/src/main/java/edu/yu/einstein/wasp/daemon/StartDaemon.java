@@ -20,7 +20,7 @@ public class StartDaemon {
 	
 	public static void main(final String[] args) throws Exception {
 		AbstractApplicationContext ctx = new ClassPathXmlApplicationContext("META-INF/spring/daemon-launch-context.xml");
-		ctx.registerShutdownHook();
+		//ctx.registerShutdownHook();
 		BatchRelaunchRunningJobsOnStartup batchRelaunchRunningJobsOnStartup = ctx.getBean(WaspBatchRelaunchRunningJobsOnStartup.class);
 		logger.info("\n\nGoing to restart any batch jobs that might have been running before last shutdown...\n\n");
 		batchRelaunchRunningJobsOnStartup.doLaunchAllRunningJobs();
