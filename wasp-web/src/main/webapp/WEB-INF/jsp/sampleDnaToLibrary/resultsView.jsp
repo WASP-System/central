@@ -27,7 +27,15 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         height: 800,
-        width: 1000
+        width: 1200,
+        position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
+    });
+	$("#modalessDialog").dialog({
+        autoOpen: false,
+        modal: false,
+        height: 800,
+        width: 1200,
+        position: { my: "right top", at: "right top", of: window }
     });
 	
  // $("#robanchor").click(function (e) {
@@ -83,20 +91,28 @@ function showModalDialog(url){
 	$("#modalIframeId").attr("src", url);
 	$( "#modalDialog" ).dialog("open");
 }
+function showModalessDialog(url){
+	$("#modalessIframeId").attr("src", url);
+	$( "#modalessDialog" ).dialog("open");
+}
 </script>
 
 <style>
-.container {width:100%; overflow:hidden;}
+.pageContainer {width:100%; overflow:hidden;}
 
 .selectionLeft {float:left; width:15%; }
 .viewerRight {float:left; width:80%; padding-left:0.3cm; overflow:hidden;};
 </style>
 
-<div class="container">
+<div class="pageContainer">
 	<div class="selectionLeft">
 	   <div id="modalDialog" <%--style="display: none;"--%>>
 	   		<%-- this is my dialog box saying --%>
 	   			<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
+	   	</div>
+	   	<div id="modalessDialog" <%--style="display: none;"--%>>
+	   		<%-- this is my dialog box saying --%>
+	   			<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 	   	</div>
 		<br />
 		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
@@ -115,10 +131,10 @@ function showModalDialog(url){
 		</p>		
 		<br />
 		<p>		
-		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" title=""  onclick="window.open('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: Wasp job 87's home page</a>
 		</p>
 		<p>		
-		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" title=""  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: view a FILE stored on Chiam</a>
 		</p>
 		<br />
 <%--		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
@@ -141,10 +157,21 @@ function showModalDialog(url){
 		<a href="javascript:void(0);" onclick='showModalDialog("http://www.wqxr.org/#!/");' >Modal Dialog: WQXR</a>
 		</p>		
 		<p>
-		<a href="javascript:void(0);" onclick='showModalDialog"<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
 		</p>
 		<p>
-		<a href="javascript:void(0);" onclick='showModalDialog"<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
+		</p>
+		<br />
+		
+		<p>
+		<a href="javascript:void(0);" onclick='showModalessDialog("http://www.wqxr.org/#!/");' >Modaless Dialog: WQXR</a>
+		</p>		
+		<p>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
+		</p>
+		<p>
+		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
 		</p>
 		<br />
 		
