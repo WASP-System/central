@@ -30,11 +30,11 @@ $(document).ready(function() {
         width: 1000
     });
 	
-  $("#robanchor").click(function (e) {
+ // $("#robanchor").click(function (e) {
 	  //$("#modalIframeId").attr("src","http://www.w3schools.com/"); 
 	  //$("#modalIframeId").attr("src","<c:url value="/sampleDnaToLibrary/showplay.do" />"); 
-	  $( "#robdiv" ).dialog("open");
-	  return false;
+	//  $( "#robdiv" ).dialog("open");
+	  //return false;
 	 /* 
 	  $( "#robdiv" ).dialog({
 		  
@@ -55,8 +55,8 @@ $(document).ready(function() {
     //$.get("http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt", function(resp){
     //    var data = $('#robdiv').append(resp);
     //    data.modal();
-   // });
-  });
+   // }); 
+  //}); 
  
   /*
   $("#robanchor").click(function (e) {
@@ -102,41 +102,41 @@ function anchorClick(url){
 		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br /><br /> <br />
 		<p>
-		When you click <a href="http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt" target="myIframe">this link</a> it will open a new document inside the above window.
+		Use frame to left: When you click <a href="http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt" target="myIframe">this link</a> it will open a new document inside the above window.
 		</p>
 		<p>
-		But by clicking on <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">this link</a> it will open a new document inside the above window.
+		Use frame to left: But by clicking on <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">this link</a> it will open a new document inside the above window.
 		</p>
 		<p>
-		However, When you click here <a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">this link</a> be ready for a big surprise.
-		</p>
-		
+		Use frame to left: However, When you click here <a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">this link</a> be ready for a big surprise.
+		</p>		
 		<p>
-		However, When you click <a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">showplay</a> you're gonna smile.
+		Use frame to left: However, When you click <a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">showplay</a> you're gonna smile.
 		</p>
 		
 		<br /><br />
 		
-		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">  Click here to open the child window</a>
+		Use A child window: <a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">  Click here to open the child window</a>
 		<br />
 		<br /><br />
-		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
+<%--		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
 		<br />
-		
+ 		
 		<p>
-		Change the modal to w3schools.com <a href="http://www.w3schools.com/" target="modalIframeId" > by clicking this link</a>
+		w3schools.com as model but must click other<a href="http://www.w3schools.com/" target="modalIframeId" > by clicking this link</a>
 		</p>
 		<p>
-		Change the modal to Circular RNAs <a href="http://www.nature.com/news/circular-rnas-throw-genetics-for-a-loop-1.12513" target="modalIframeId" > by clicking this link</a>
+		Circular RNAs as model<a href="http://www.nature.com/news/circular-rnas-throw-genetics-for-a-loop-1.12513" target="modalIframeId" > by clicking this link</a>
+		</p>
+--%>
+		<p>
+		Andromeda as model<a href="javascript:void(0);" onclick='anchorClick("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' > by clicking this link</a>
 		</p>
 		<p>
-		Change the modal to Andromeda <a href="javascript:void(0);" onclick='anchorClick("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' > by clicking this link</a>
+		Museum of Natural History as model<a href="javascript:void(0);" onclick='anchorClick("http://www.amnh.org/");' > by clicking this link</a>
 		</p>
 		<p>
-		Change the modal to Museum of Natural History <a href="javascript:void(0);" onclick='anchorClick("http://www.amnh.org/");' > by clicking this link</a>
-		</p>
-		<p>
-		Change the modal to WQXR <a href="javascript:void(0);" onclick='anchorClick("http://www.wqxr.org/#!/");' > by clicking this link</a>
+		WQXR as model<a href="javascript:void(0);" onclick='anchorClick("http://www.wqxr.org/#!/");' > by clicking this link</a>
 		</p>
 		
  	</div>
