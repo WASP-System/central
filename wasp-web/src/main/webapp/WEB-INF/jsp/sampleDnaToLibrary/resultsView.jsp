@@ -1,12 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<head>
 
-    <link type="text/css" href="../../themes/base/ui.all.css" rel="stylesheet" />
-
-    <script type="text/javascript" src="../../jquery-1.3.2.js"></script>
-    <script type="text/javascript" src="../../ui/ui.core.js"></script>
-    <script type="text/javascript" src="../../ui/ui.dialog.js"></script>
- </head>
 <br />
 <br />
 
