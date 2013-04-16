@@ -23,7 +23,7 @@ function toggleViewerFrame(toggleButton){
 	}	
 }
 $(document).ready(function() {
-	$("#robdiv").dialog({
+	$("#modalDialog").dialog({
         autoOpen: false,
         modal: true,
         height: 800,
@@ -77,11 +77,11 @@ $(document).ready(function() {
 	});
  */
 });
-function anchorClick(url){
+function showModalDialog(url){
 	//alert("robert's test alert");
 	//var iframe = document.getElementById("modalIframeId");
 	$("#modalIframeId").attr("src", url);
-	$( "#robdiv" ).dialog("open");
+	$( "#modalDialog" ).dialog("open");
 }
 </script>
 
@@ -94,11 +94,11 @@ function anchorClick(url){
 
 <div class="container">
 	<div class="selectionLeft">
-	   <div id="robdiv" <%--style="display: none;"--%>>
+	   <div id="modalDialog" <%--style="display: none;"--%>>
 	   		<%-- this is my dialog box saying --%>
 	   			<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 	   	</div>
-		<br /><br /> <br />
+		<br />
 		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br /><br /> <br />
 		<p>
@@ -113,14 +113,14 @@ function anchorClick(url){
 		<p>
 		<a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
 		</p>		
-		<br /><br /><br />
+		<br />
 		<p>		
 		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: Wasp job 87's home page</a>
 		</p>
 		<p>		
 		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: view a FILE stored on Chiam</a>
 		</p>
-		<br /><br /><br />
+		<br />
 <%--		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
 		<br />
  		
@@ -132,21 +132,21 @@ function anchorClick(url){
 		</p>
 --%>
 		<p>
-		<a href="javascript:void(0);" onclick='anchorClick("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' >Model Dialog: Andromeda</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' >Modal Dialog: Andromeda</a>
 		</p>
 		<p>
-		<a href="javascript:void(0);" onclick='anchorClick("http://www.amnh.org/");' >Model Dialog: AMNH</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("http://www.amnh.org/");' >Modal Dialog: AMNH</a>
 		</p>
 		<p>
-		<a href="javascript:void(0);" onclick='anchorClick("http://www.wqxr.org/#!/");' >Model Dialog: WQXR</a>
+		<a href="javascript:void(0);" onclick='showModalDialog("http://www.wqxr.org/#!/");' >Modal Dialog: WQXR</a>
 		</p>		
 		<p>
-		<a href="javascript:void(0);" onclick='anchorClick("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Model Dialog: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" onclick='showModalDialog"<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modal Dialog: Wasp job 87's home page</a>
 		</p>
 		<p>
-		<a href="javascript:void(0);" onclick='anchorClick("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Model Dialog: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" onclick='showModalDialog"<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modal Dialog: view a FILE stored on Chiam</a>
 		</p>
-		<br /><br /><br />
+		<br />
 		
  	</div>
 	<div class="viewerRight">
