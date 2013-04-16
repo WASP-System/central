@@ -58,8 +58,10 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -67,6 +69,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.CellWrapper;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -106,6 +109,8 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @Autowired
   private RoleService roleService; 
+  @Autowired
+  private RunService runService; 
   @Autowired
   private SampleService sampleService;
   @Autowired
@@ -1005,6 +1010,124 @@ public class SampleDnaToLibraryController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
   public String resultsView(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 	  
+	  Job job = jobService.getJobByJobId(jobId);
+
+	  //really need !!!!:   jobService.getSuccessfullyCompletedRuns(job)	  
+	  
+	  
+	  ///THIS IS NOT GOOD, THE RESULT SHOULD BE A SET!!!!!!
+	  List<Sample> platformUnitList = jobService.getPlatformUnitWithLibrariesOnForJob(job);	  
+	  System.out.println("platformUnits from the one with the List: " + platformUnitList.size());
+	  
+	  Set<Sample> platformUnitSet = new HashSet<Sample>();
+	  Set<Run> runSet = new HashSet<Run>();
+	  List<Sample> platformUnitsSuccessfullyRun = new ArrayList<Sample>();
+	  Set<SampleSource> cellLibrariesForJob =  sampleService.getCellLibrariesForJob(job);
+	  Map<Run,Sample> runPlatformUnitMap = new HashMap<Run, Sample>();
+	  Map<Sample, Set<Sample>> platformUnitCellSetMap = new HashMap<Sample, Set<Sample>>();
+	  Map<Sample, List<Sample>> platformUnitOrderedCellListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
+	  
+	  for(SampleSource cellLibrary : cellLibrariesForJob){
+		  try{
+			  Sample cell = sampleService.getCell(cellLibrary);//cellLibrary.getSample();
+			  Sample library = sampleService.getLibrary(cellLibrary);//cellLibrary.getSourceSample();
+			  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);//sampleService.getPlatformUnitForCell(cellLibrary.getSample());
+			  platformUnitSet.add(platformUnit);
+			  if(platformUnitCellSetMap.containsKey(platformUnit)){
+				  platformUnitCellSetMap.get(platformUnit).add(cell);
+			  }
+			  else{
+				  Set<Sample> cellSet = new HashSet<Sample>();
+				  cellSet.add(cell);
+				  platformUnitCellSetMap.put(platformUnit, cellSet);
+			  }
+			  
+			  if(cellLibraryListMap.containsKey(cell)){
+				  cellLibraryListMap.get(cell).add(library);
+			  }
+			  else{
+				  List<Sample> libraryList = new ArrayList<Sample>();
+				  libraryList.add(library);
+				  cellLibraryListMap.put(cell, libraryList);
+			  }
+			
+			  Sample macromolecule = library.getParent();
+			  if(macromolecule != null && macromolecule.getId()!=null){
+				  libraryMacromoleculeMap.put(library, macromolecule);
+			  }
+			  
+			  
+			  /*forget the run for now
+			  
+			  //WHY DOES THIS RETURN A LIST????????? runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);
+			  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+			  for(Run run : runList){
+				  //if( true runService.isRunSuccessfullyCompleted(run)  ){//fake it for now
+					  runSet.add(run);
+					  runPlatformUnitMap.put(run, platformUnit);
+					  Sample cell = sampleService.getCell(cellLibrary);
+					  platformUnitCellMap.put(platformUnit, cell);
+					  List<Sample> librariessampleService.getLibrariesOnCellWithoutControls(cell);
+					  
+					  
+					  
+					  
+					  break;//needed because if statement is faking it
+					  
+				  }
+			  }
+			   */
+			  
+		  }catch(Exception e){logger.debug("Unable to properly gather run info: " + e.getMessage());}
+	  } 
+	  System.out.println("platformUnits from the one with the SET: " + platformUnitSet.size());
+	  for(Sample platformUnit : platformUnitSet){
+		  
+		  Set<Sample> set = platformUnitCellSetMap.get(platformUnit);
+		  List<Sample> orderedCellList = new ArrayList<Sample>(set);
+		  
+		  //ORDER BY INDEX
+		  class CellIndexComparator implements Comparator<Sample> {
+			    @Override
+			    public int compare(Sample cell0, Sample cell1) {
+			    	try{
+			    		return sampleService.getCellIndex(cell0).compareTo(sampleService.getCellIndex(cell1));
+			    	}catch(Exception e){logger.debug("Unable to sort orderedCellList: " + e.getMessage()); return 0;}
+			    }
+			}
+			Collections.sort(orderedCellList, new CellIndexComparator());//sort by cell's index
+
+			platformUnitOrderedCellListMap.put(platformUnit, orderedCellList);		  
+	  }
+	 
+	//MUST GET THE RUN (if any)
+	  //MUST get the adaptors/index
+	  
+	  //check out the data:
+	  /*
+	    Map<Sample, List<Sample>> platformUnitOrderedCellListMap = new HashMap<Sample, List<Sample>>();
+	  	Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  	Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
+	   */
+	  for (Sample platformUnit : platformUnitSet){
+		  System.out.println("Platform Unit: " + platformUnit.getName());
+		  List<Sample> cells = platformUnitOrderedCellListMap.get(platformUnit);
+		  for(Sample cell : cells){
+			  System.out.println("--Cell: " + cell.getName());
+			  List<Sample> libraries = cellLibraryListMap.get(cell);
+			  for(Sample library : libraries){
+				  System.out.print("----Libraries: " + library.getName());
+				  Sample macromolecule = libraryMacromoleculeMap.get(library);
+				  if(macromolecule != null && macromolecule.getId()!=null){
+					  System.out.println(" (Parent Sample: " + macromolecule.getName() + ")");
+				  }
+				  else{System.out.println("");}
+			  }
+		  }
+	  }
+	  
 	  return "sampleDnaToLibrary/resultsView";
   }
 
@@ -1013,28 +1136,10 @@ public class SampleDnaToLibraryController extends WaspController {
   public void showPlay(ModelMap m, HttpServletResponse response) throws SampleTypeException {
 	  try{
 	  FileHandle fileHandle = fileService.getFileHandleById(27);//this is an html file
-	  //return this.listJobSamples(88, m);//this worked!
 	  response.setContentType("text/html");
-	  //response.setHeader("Content-Disposition","attachment; filename="+fileHandle.getFileName());
 	  fileService.copyFileHandleToOutputStream(fileHandle, response.getOutputStream());
-	  /*PrintWriter out = response.getWriter();
-	    out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 " +
-	                                        "Transitional//EN\">\n" +
-	                "<HTML>\n" +
-	                "<HEAD><TITLE>Hello WWW</TITLE></HEAD>\n" +
-	                "<BODY>\n" +
-	                "<H1>Hello WWW</H1>\n" +
-	                "</BODY></HTML>");
-	  //response.flushBuffer();*/
-	  }catch(Exception e){System.out.println("ROB______major problem");}
-	  System.out.println("ROB______after major problem");
-	  //return "redirect:/dashboard.do";
-	  //try{response.sendRedirect("/dashboard.do");}catch(Exception e){}
-	  //try{response.encodeRedirectURL("http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html");
-		  //response.sendRedirect("http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html");
-		//  response.flushBuffer();
-	  //}catch(Exception e){}
-	  //return "redirect: http://wasp.einstein.yu.edu/results/production_wiki/GAtzmon/LBenard/P395/J10734/stats/stats_J10734.BC1G0RACXX.lane_6_P0_I0.fastq.html";
+	  //do not flush, it's not needed and it screws things up
+	  }catch(Exception e){logger.debug("unable to get file for display");}
   }
 }
 
