@@ -29,7 +29,7 @@ $(document).ready(function() {
         height: 800,
         width: 1200,
         position: { my: "right top", at: "right top", of: window }
-    });
+    }); 
 	
  // $("#robanchor").click(function (e) {
 	  //$("#modalIframeId").attr("src","http://www.w3schools.com/"); 
@@ -88,6 +88,25 @@ function showModalessDialog(url){
 	$("#modalessIframeId").attr("src", url);
 	$( "#modalessDialog" ).dialog("open");
 }
+function showPopupWindow(url) 
+{
+ var width  = 1200;
+ var height = 800;
+ var left   = screen.width - width;
+ var top    = 0;
+ var params = 'width='+width+', height='+height;
+ params += ', top='+top+', left='+left;
+ params += ', directories=no';
+ params += ', location=no';
+ params += ', menubar=no';
+ params += ', resizable=no';
+ params += ', scrollbars=yes';
+ params += ', status=no';
+ params += ', toolbar=no';
+ newwin=window.open(url,'customWindow', params);
+ if (window.focus) {newwin.focus();}
+ return false;
+}
 </script>
 
 <style>
@@ -124,10 +143,13 @@ function showModalessDialog(url){
 		</p>		
 		<br />
 		<p>		
-		<a href="javascript:void(0);" title=""  onclick="window.open('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: Wasp job 87's home page</a>
+		<a href="javascript:void(0);" title=""  onclick="showPopupWindow('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />');">Aligned Popup WINDOW: Wasp job 87's home page</a>
 		</p>
 		<p>		
-		<a href="javascript:void(0);" title=""  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: view a FILE stored on Chiam</a>
+		<a href="javascript:void(0);" title=""  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=1200,height=800,left=0,top=0,scrollbars=1,status=0,');">Popup WINDOW: view a FILE stored on Chiam</a>
+		</p>
+		<p>		
+		<a href="javascript:void(0);" title=""  onclick="showPopupWindow('<c:url value="/sampleDnaToLibrary/showplay.do" />');">Aligned Popup WINDOW: File on Chiam</a>
 		</p>
 		<br />
 <%--		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
