@@ -102,23 +102,25 @@ function anchorClick(url){
 		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br /><br /> <br />
 		<p>
-		Use frame to left: When you click <a href="http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt" target="myIframe">this link</a> it will open a new document inside the above window.
+		<a href="http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt" target="myIframe">Right Frame: View A Web-design Page</a>
 		</p>
 		<p>
-		Use frame to left: But by clicking on <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">this link</a> it will open a new document inside the above window.
+		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		</p>
 		<p>
-		Use frame to left: However, When you click here <a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">this link</a> be ready for a big surprise.
+		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
 		</p>		
 		<p>
-		Use frame to left: However, When you click <a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">showplay</a> you're gonna smile.
+		<a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">Right Frame: view a FILE stored on Chiam</a>
+		</p>		
+		<br /><br /><br />
+		<p>		
+		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: Wasp job 87's home page</a>
 		</p>
-		
-		<br /><br />
-		
-		Use A child window: <a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">  Click here to open the child window</a>
-		<br />
-		<br /><br />
+		<p>		
+		<a href="javascript:void(0);" title="My title here"  onclick="window.open('<c:url value="/sampleDnaToLibrary/showplay.do" />', 'Child Window','width=700,height=700,left=0,top=0,scrollbars=1,status=0,');">CHILD WINDOW: view a FILE stored on Chiam</a>
+		</p>
+		<br /><br /><br />
 <%--		<a id="robanchor" href="javascript:void(0);"  >  Click here to open model dialog with html</a>
 		<br />
  		
@@ -130,14 +132,21 @@ function anchorClick(url){
 		</p>
 --%>
 		<p>
-		Andromeda as model<a href="javascript:void(0);" onclick='anchorClick("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' > by clicking this link</a>
+		<a href="javascript:void(0);" onclick='anchorClick("http://en.wikipedia.org/wiki/Andromeda_Galaxy");' >Model Dialog: Andromeda</a>
 		</p>
 		<p>
-		Museum of Natural History as model<a href="javascript:void(0);" onclick='anchorClick("http://www.amnh.org/");' > by clicking this link</a>
+		<a href="javascript:void(0);" onclick='anchorClick("http://www.amnh.org/");' >Model Dialog: AMNH</a>
 		</p>
 		<p>
-		WQXR as model<a href="javascript:void(0);" onclick='anchorClick("http://www.wqxr.org/#!/");' > by clicking this link</a>
+		<a href="javascript:void(0);" onclick='anchorClick("http://www.wqxr.org/#!/");' >Model Dialog: WQXR</a>
+		</p>		
+		<p>
+		<a href="javascript:void(0);" onclick='anchorClick("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Model Dialog: Wasp job 87's home page</a>
 		</p>
+		<p>
+		<a href="javascript:void(0);" onclick='anchorClick("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Model Dialog: view a FILE stored on Chiam</a>
+		</p>
+		<br /><br /><br />
 		
  	</div>
 	<div class="viewerRight">
@@ -151,46 +160,3 @@ function anchorClick(url){
 </div>
 
 
-
-
-
-<%-- 
-<div style="float:right;">
-  <div id="viewerFrame" style="display:block;">
-  	<iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" height="600" width="800"><p>iframes not supported</p></iframe>
-  </div>
-</div>
-  
-<br /><br /> <br />
-<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
-<br /><br /> <br />
-<p>
-When you click <a href="http://webdesign.about.com/od/iframes/a/aaiframe.htm#abt" target="myIframe">this link</a> it will open a new document inside the above window.
-</p>
-<p>
-But by clicking on <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">this link</a> it will open a new document inside the above window.
-</p>
-<p>
-However, When you click here <a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">this link</a> be ready for a big surprise.
-</p>
-
-<p>
-However, When you click <a href="<c:url value="/sampleDnaToLibrary/showplay.do" />" target="myIframe">showplay</a> you're gonna smile.
-</p>
-
-<br />
-
-<script type="text/javascript">
-function toggleViewerFrame(toggleButton){
-	var viewerFrame = document.getElementById('viewerFrame');
-	if(toggleButton.value == "Show Window"){
-		toggleButton.value = "Hide Window";
-		viewerFrame.style.display = "block";
-	}
-	else if(toggleButton.value == "Hide Window"){
-		toggleButton.value = "Show Window";
-		viewerFrame.style.display = "none";		
-	}	
-}
-</script>
---%>
