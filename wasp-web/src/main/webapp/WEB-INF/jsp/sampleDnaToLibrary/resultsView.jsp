@@ -72,11 +72,11 @@ function showPopupWindow(url)
 <div class="pageContainer">
 	<div class="selectionLeft">
 	   <div id="modalDialog" <%--style="display: none;"--%>>
-	   		<%-- this is my dialog box saying --%>
+	   		<%-- this is my modal dialog box saying --%>
 	   			<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 	   	</div>
 	   	<div id="modalessDialog" <%--style="display: none;"--%>>
-	   		<%-- this is my dialog box saying --%>
+	   		<%-- this is my modaless dialog box saying --%>
 	   			<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 	   	</div>
 		
