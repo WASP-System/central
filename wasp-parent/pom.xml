@@ -1087,4 +1087,13 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		</repository>
 	</distributionManagement>
 
+	<profiles>
+		<profile>
+			<id>eclipse</id>
+			<modules>
+				<module>eclipse</module>
+			</modules>
+		</profile>
+	</profiles>
+
 </project>

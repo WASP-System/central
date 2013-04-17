@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/edu.yu.einstein.wasp.eclipsefeature_1.0.0.qualifier.jar" id="edu.yu.einstein.wasp.eclipsefeature" version="1.0.0.qualifier"/>
+</site>
