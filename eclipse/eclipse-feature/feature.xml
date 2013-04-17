@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.yu.einstein.wasp.eclipsefeature"
-      label="WASP eclipse feature"
+      id="edu.yu.einstein.wasp.eclipse.plugin"
+      label="WASP eclipse plugin feature"
       version="0.1.0.qualifier"
       provider-name="waspsystem.org">
 
