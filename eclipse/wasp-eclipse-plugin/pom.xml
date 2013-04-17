@@ -6,7 +6,7 @@
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-eclipse</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../wasp-eclipse/pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<groupId>edu.yu.einstein.wasp</groupId>

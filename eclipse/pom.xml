@@ -8,16 +8,16 @@
 	<name>WASP Eclipse project</name>
 	
 	<parent>
-		<relativePath>../../wasp-parent/pom.xml</relativePath>
+		<relativePath>../wasp-parent/pom.xml</relativePath>
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<modules>
-		<module>../wasp-eclipse-plugin</module>
-		<module>../wasp-eclipse-feature</module>
-		<module>../wasp-update-site</module>
+		<module>wasp-eclipse-plugin</module>
+		<module>wasp-eclipse-feature</module>
+		<module>wasp-update-site</module>
 	</modules>
 
 	<properties>
