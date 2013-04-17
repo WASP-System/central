@@ -4,9 +4,12 @@
 package edu.yu.einstein.wasp.eclipse.internal.wizards;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.eclipse.internal.Messages;
 
@@ -215,7 +218,7 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		String loc = projPath.toOSString();
 
 		if (projName.getText().length() > 0) {
-			if (!projName.getText().matches("\\w+")) {
+			if ( (!projName.getText().matches("[a-zA-Z]+")) || javaKeywords.contains(projName.getText().toLowerCase()) ) {
 				setPageComplete(false);
 				setErrorMessage(Messages.WizardConfigurationPage_enterValidProjName);
 				return;
@@ -231,7 +234,19 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		}
 
 		if (projNamespace.getText().length() > 0) {
-			if (!projNamespace.getText().matches("[0-9a-z_\\.]+")) {
+			String[] elements = projNamespace.getText().split(".");
+			boolean ok = true;
+			for (String e : elements) {
+				if (javaKeywords.contains(e.toLowerCase())) {
+					ok = false;
+					break;
+				}
+				if (e.substring(0, 1).matches("[0-9]+")) {
+					ok = false;
+					break;
+				}
+			}
+			if (!projNamespace.getText().matches("[0-9a-z_\\.]+") || !ok ) {
 				setPageComplete(false);
 				setErrorMessage(Messages.WizardConfigurationPage_enterValidProjNamespace);
 				return;
@@ -310,5 +325,13 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		return (IPath) (isDefaultWorkspace() ? root.getLocation() : new Path(locCombo.getText()));
 	}
+	
+	private static final Set<String> javaKeywords = new HashSet<String>(Arrays.asList(new String[] {
+			"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+			"default", "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
+			"if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "null", "package",
+			"private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch", "synchronized",
+			"this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while"
+	}));
 
 }

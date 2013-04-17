@@ -92,7 +92,7 @@ public class WaspProjectCreator {
 	}
 
 	public static void copyAndRewriteFiles(String name, String namespace, IPath location, IProject project, IPath projectRoot) {
-		Bundle bundle = Platform.getBundle("wasp-eclipse");
+		Bundle bundle = Platform.getBundle("wasp-eclipse-plugin");
 		Enumeration<URL> files = bundle.findEntries("include", "*", true);
 		String ns = namespace.replaceAll("\\.", "/").toLowerCase();
 		String cname = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
