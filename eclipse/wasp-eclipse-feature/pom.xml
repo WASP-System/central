@@ -9,7 +9,7 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>edu.yu.einstein.wasp.eclipse.plugin</artifactId>
+	<artifactId>wasp-eclipse-feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 </project>

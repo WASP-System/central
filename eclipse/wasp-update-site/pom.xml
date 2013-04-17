@@ -9,7 +9,7 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>updatesite</artifactId>
+	<artifactId>wasp-update-site</artifactId>
 	<packaging>eclipse-repository</packaging>
 
 </project> 

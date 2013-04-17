@@ -16,8 +16,8 @@
 
 	<modules>
 		<module>wasp-eclipse</module>
-		<module>eclipse-feature</module>
-		<module>updatesite</module>
+		<module>wasp-eclipse-feature</module>
+		<module>wasp-update-site</module>
 	</modules>
 
 	<properties>
