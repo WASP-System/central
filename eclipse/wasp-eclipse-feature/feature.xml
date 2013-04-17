@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="wasp-eclipse-feature"
-      label="WASP eclipse plugin feature"
+      label="WASP Eclipse Plugin Feature"
       version="0.1.0.qualifier"
       provider-name="waspsystem.org">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description url="http://waspsystem.org">
+      http://waspsystem.org
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright url="http://www.einstein.yu.edu/">
+      (C) 2012-2013 Albert Einstein College of Medicine
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="http://www.gnu.org/licenses/agpl-3.0.html">
+      GNU AFFERO GENERAL PUBLIC LICENSE
    </license>
 
    <plugin
-         id="wasp-eclipse"
+         id="wasp-eclipse-plugin"
          download-size="0"
          install-size="0"
-         version="0.1.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

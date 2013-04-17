@@ -1091,7 +1091,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<profile>
 			<id>eclipse</id>
 			<modules>
-				<module>eclipse</module>
+				<module>eclipse/wasp-eclipse</module>
 			</modules>
 		</profile>
 	</profiles>
