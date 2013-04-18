@@ -200,39 +200,10 @@ public class FileController extends WaspController{
 			return;
   		}
   		try{
-  			//TODO really need to get this from the filetype, but until then:
-  			//FYI java7: I know this is solved, but just a heads up that in Java 7 you can now just use Files.probeContentType(path).
-  			String fileName = fileHandle.getFileName();
-  			String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
-  			String mimeType = null;
-  			if(fileExtension.equalsIgnoreCase("pdf")){
-  				mimeType = "application/pdf";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("htm") || fileExtension.equalsIgnoreCase("html")){
-  				mimeType = "text/html";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("text")){
-  				mimeType = "text/plain";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("bmp")){
-  				mimeType = "image/bmp";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("csv")){
-  				mimeType = "text/csv";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("gif")){
-  				mimeType = "image/gif";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")){
-  				mimeType = "image/jpeg";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("png")){
-  				mimeType = "image/png";
-  			}
-  			else if(fileExtension.equalsIgnoreCase("tif")){
-  				mimeType = "image/tiff";
-  			}
-  			if(mimeType==null){
+   			String fileName = fileHandle.getFileName();
+  			String mimeType = fileService.getMimeType(fileName);//TODO this service method can be updated with Java7
+ 
+  			if(mimeType==null || mimeType.isEmpty() || !mimeType.contains("/")){
   				String mess = "Unable to download file: mime type unknown";
   				logger.debug(mess);
   				response.setContentType("text/html");  				

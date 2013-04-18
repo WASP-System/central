@@ -1374,4 +1374,41 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	}//end of method
 
+	@Override
+	public String getMimeType(String fileName){
+		
+		//TODO FYI java7: heads up that in Java 7 you can now just use Files.probeContentType(path).
+			
+		String mimeType = "";
+		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+		
+		if(fileExtension.equalsIgnoreCase("pdf")){
+			mimeType = "application/pdf";
+		}
+		else if(fileExtension.equalsIgnoreCase("htm") || fileExtension.equalsIgnoreCase("html")){
+			mimeType = "text/html";
+		}
+		else if(fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("text")){
+			mimeType = "text/plain";
+		}
+		else if(fileExtension.equalsIgnoreCase("bmp")){
+			mimeType = "image/bmp";
+		}
+		else if(fileExtension.equalsIgnoreCase("csv")){
+			mimeType = "text/csv";
+		}
+		else if(fileExtension.equalsIgnoreCase("gif")){
+			mimeType = "image/gif";
+		}
+		else if(fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")){
+			mimeType = "image/jpeg";
+		}
+		else if(fileExtension.equalsIgnoreCase("png")){
+			mimeType = "image/png";
+		}
+		else if(fileExtension.equalsIgnoreCase("tif")){
+			mimeType = "image/tiff";
+		}
+		return mimeType;
+	}
 }
