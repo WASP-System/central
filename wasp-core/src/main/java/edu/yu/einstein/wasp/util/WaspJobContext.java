@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.model.Job;
@@ -25,18 +24,26 @@ public class WaspJobContext {
 	
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	@Autowired
-	private JobService jobService;
-	
 	private Job job; // contains userid. labid, workflowid
 	
 	private Map<ResourceType, SoftwareConfiguration> configuredSoftwareByType;
 	
+	public WaspJobContext() {}
+	
 	public WaspJobContext(Job job) throws JobContextInitializationException {
-		this.job = job;
+		setJob(job);
+		setContext();
+	}
+	
+	public WaspJobContext(Integer jobId, JobService jobService) throws JobContextInitializationException {
+		setJob(jobId, jobService);
+		setContext();
+	}
+	
+	private void setContext() throws JobContextInitializationException{
 		try{
 			configuredSoftwareByType = new HashMap<ResourceType, SoftwareConfiguration>();
-			List<JobSoftware> swl = job.getJobSoftware();
+			List<JobSoftware> swl = this.job.getJobSoftware();
 			logger.debug("software length: " + swl.size());
 			for (JobSoftware js: swl){
 				Software software = js.getSoftware();
@@ -49,9 +56,6 @@ public class WaspJobContext {
 		}
 	}
 	
-	public Job getJob(){
-		return this.job;
-	}
 	
 	public ResourceCategory getResourceCategory(){
 		return job.getJobResourcecategory().get(0).getResourceCategory(); // should only be one
@@ -82,6 +86,18 @@ public class WaspJobContext {
 	 */
 	public Map<ResourceType, SoftwareConfiguration> getConfiguredSoftware(){
 		return configuredSoftwareByType;
+	}
+
+	public void setJob(Integer jobId, JobService jobService) {
+		this.job = jobService.getJobByJobId(jobId);
+	}
+	
+	public void setJob(Job job) {
+		this.job = job;
+	}
+	
+	public Job getJob(){
+		return this.job;
 	}
 	
 
