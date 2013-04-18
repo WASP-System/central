@@ -10,14 +10,14 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         height: 800,
-        width: 1200,
+        width: 800,
         position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
     });
 	$("#modalessDialog").dialog({
         autoOpen: false,
         modal: false,
         height: 800,
-        width: 1200,
+        width: 800,
         position: { my: "right top", at: "right top", of: window }
     }); 
 });
@@ -85,13 +85,14 @@ function showPopupWindow(url)
 	.rob div {margin:5px 0px 5px 10px;}
 </style>
 --%>
-<%--these dialogs are not displayed until called; don't know where is best to put them--%>
+<%--these dialogs are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
 <div id="modalessDialog">
 	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
+
 
 <h1><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">Job J<c:out value="${job.jobId}" /></a></h1>		
 		
@@ -158,9 +159,9 @@ function showPopupWindow(url)
 		<div id="viewerFrame" style="display:block;">
   			<%-- <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="600" width="99%"><p>iframes not supported</p></iframe>--%>
   			<%-- <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="100%" width="100%" ><p>iframes not supported</p></iframe>--%>
-  			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="99%" width="99%" ><p>iframes not supported</p></iframe> --%>
+  			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
   			
-  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500" ><p>iframes not supported</p></iframe>
+  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="1000" ><p>iframes not supported</p></iframe>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	

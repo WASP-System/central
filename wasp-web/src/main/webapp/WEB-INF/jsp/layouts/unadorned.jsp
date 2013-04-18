@@ -14,10 +14,6 @@
    
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-  <%--
-  <link rel="stylesheet" type="text/css" href="/wasp/css/tree-interactive.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/menu.css" />
-  --%>
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script> 
@@ -76,7 +72,12 @@
   <tiles:insertAttribute name="head-js" />
   <tiles:insertAttribute name="head-style" />
 </head>
-
+<body>
+<div style="background-color: #FFFFE6;">
+<tiles:insertAttribute name="body-content" />
+</div>
+</body>
+<%-- 
 <body style="background-color: #FFFFE6;">
 
 	<div id="container" style="background-color: #FFFFE6;">  		
@@ -88,6 +89,7 @@
 	</div>
 
 </body>
+--%>
 </html>
 
 

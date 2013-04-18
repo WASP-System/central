@@ -206,7 +206,6 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/resultsView.jsp" />
 	</definition>
 	<definition name="sampleDnaToLibrary/jobDetails" extends="template-unadorned">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/jobDetails.jsp" />
 	</definition>
 	
