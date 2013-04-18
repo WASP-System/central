@@ -102,6 +102,9 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 						IProject project = root.getProject(configPage.getProjectName());
 						
 						boolean web = configPage.createForms();
+						boolean resource = configPage.createResource();
+						boolean pipeline = configPage.createPipeline();
+						boolean viz = configPage.createViz();
 						
 						String name = configPage.getProjectName();
 						String namespace = configPage.getProjectNamespace();
@@ -111,15 +114,8 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 								configPage.getProjectName(),
 								configPage.getProjectNamespace(), loc, web);
 						// copy files and rewrite placeholders
-						WaspProjectCreator.copyAndRewriteFiles(name, namespace, loc, project, projectRoot);
-						if (web)
-							WaspProjectCreator.populateFlow(name, namespace, loc, project);
-						if (configPage.createResource())
-							WaspProjectCreator.populateResource(name, namespace, loc);
-						if (configPage.createPipeline())
-							WaspProjectCreator.populatePipeline(name, namespace, loc);
-						if (configPage.createViz())
-							System.out.println("TODO"); // TODO: viz
+						WaspProjectCreator.copyAndRewriteFiles(name, namespace, loc, project, projectRoot, web, resource, pipeline, viz);
+
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(),
 								NLS.bind(Messages.WizardFailed, projectName),

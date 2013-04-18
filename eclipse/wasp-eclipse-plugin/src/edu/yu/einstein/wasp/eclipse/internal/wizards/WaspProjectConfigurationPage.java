@@ -236,14 +236,18 @@ public class WaspProjectConfigurationPage extends WizardPage {
 		if (projNamespace.getText().length() > 0) {
 			String[] elements = projNamespace.getText().split(".");
 			boolean ok = true;
-			for (String e : elements) {
-				if (javaKeywords.contains(e.toLowerCase())) {
-					ok = false;
-					break;
-				}
-				if (e.substring(0, 1).matches("[0-9]+")) {
-					ok = false;
-					break;
+			if (projNamespace.getText().matches("\\.\\.")) {
+				ok = false;
+			} else {
+				for (String e : elements) {
+					if (javaKeywords.contains(e.toLowerCase())) {
+						ok = false;
+						break;
+					}
+					if (e.substring(0, 1).matches("[0-9]+")) {
+						ok = false;
+						break;
+					}
 				}
 			}
 			if (!projNamespace.getText().matches("[0-9a-z_\\.]+") || !ok ) {

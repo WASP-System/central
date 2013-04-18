@@ -91,7 +91,8 @@ public class WaspProjectCreator {
 
 	}
 
-	public static void copyAndRewriteFiles(String name, String namespace, IPath location, IProject project, IPath projectRoot) {
+	public static void copyAndRewriteFiles(String name, String namespace, IPath location, IProject project, IPath projectRoot,
+			boolean web, boolean resource, boolean pipeline, boolean viz) {
 		Bundle bundle = Platform.getBundle("wasp-eclipse-plugin");
 		Enumeration<URL> files = bundle.findEntries("include", "*", true);
 		String ns = namespace.replaceAll("\\.", "/").toLowerCase();
@@ -101,10 +102,41 @@ public class WaspProjectCreator {
 		while (files.hasMoreElements()) {
 			URL f = files.nextElement();
 			String opath = f.getFile().replaceFirst("/", "");
-			if (!opath.endsWith(".java") && !opath.endsWith(".xml") && !opath.endsWith(".properties"))
+			
+			// must be a file (must contain a period)
+			if (!opath.contains("."))
 				continue;
+
 			IPath path = new Path(opath);
 			String dpath = opath;
+			
+			// copy optional files
+			
+			String[] types = { "FORM", "RES", "PIP", "VIZ" };
+			List<String> seen = new ArrayList<String>();
+			
+			for (String type : types) {
+				if (opath.contains(type)) {
+					seen.add(type);
+					dpath = dpath.replaceAll(type, "");
+				}
+			}
+			
+			boolean keep = false;
+			if (seen.size() == 0)
+				keep = true;
+			if (web && seen.contains("FORM"))
+				keep = true;
+			if (resource && seen.contains("RES"))
+				keep = true;
+			if (pipeline && seen.contains("PIP"))
+				keep = true;
+			if (viz && seen.contains("VIZ"))
+				keep = true;
+			
+			if (keep == false)
+				continue;
+			
 			dpath = dpath.replaceFirst("include/", "");
 			dpath = dpath.replaceFirst("src/main/java/", "src/main/java/" + ns + "/" + lname + "/");
 			dpath = dpath.replaceFirst("src/test/java/", "src/test/java/" + ns + "/" + lname + "/");
@@ -114,6 +146,8 @@ public class WaspProjectCreator {
 			IPath dest = new Path(dpath);
 
 			IFile file = project.getFile(dest);
+			
+			System.out.println("copying " + opath + ":"+ dpath);
 
 			InputStream stream = null;
 			try {
@@ -129,13 +163,15 @@ public class WaspProjectCreator {
 				e.printStackTrace();
 			}
 
-			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace);
+			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace,
+					web, resource, pipeline, viz);
 
 		}
 
 	}
 
-	private static void rewrite(File file, String name, String pkg) {
+	private static void rewrite(File file, String name, String pkg, 
+			boolean web, boolean resource, boolean pipeline, boolean viz) {
 
 		String cname = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
 
@@ -145,9 +181,32 @@ public class WaspProjectCreator {
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String line = in.readLine();
 			while (line != null) {
+				
 				line = line.replaceAll("___pluginname___", name);
 				line = line.replaceAll("___Pluginname___", cname);
 				line = line.replaceAll("___package___", pkg);
+				
+				// marked for possible removal
+				if (line.contains("/////")) {
+					boolean keep = false;
+					int pos = line.indexOf("/////");
+					String rem = line.substring(pos+5);
+					line = line.substring(0, pos-1);
+					if (web && rem.contains("FORM"))
+						keep = true;
+					if (resource && rem.contains("RES"))
+						keep = true;
+					if (pipeline && rem.contains("PIP"))
+						keep = true;
+					if (viz && rem.contains("VIZ"))
+						keep = true;
+					if (!keep) {
+						line = in.readLine();
+						continue;
+					}
+						
+				}
+				
 				lines.add(line);
 				line = in.readLine();
 			}
@@ -161,48 +220,6 @@ public class WaspProjectCreator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-	}
-
-	public static void populateFlow(String name, String namespace,
-			IPath location, IProject project) {
-
-		String ns = namespace.replaceAll("\\.", "/");
-
-		IPath path = new Path("src/main/java/" + ns + "/" + name.toLowerCase()
-				+ "/WaspFormController.java");
-		// project path is relative
-		IFile file = project.getFile(path);
-
-		InputStream inputStream = null;
-		try {
-			String pageSource = Messages.Project_webFormControllerSource;
-			pageSource = pageSource.replace("PACKAGEPLACEHOLDER", namespace
-					+ "." + name.toLowerCase());
-			pageSource = pageSource.replace("CLASSNAMEPLACEHOLDER",
-					"WaspFormController");
-			inputStream = new ByteArrayInputStream(pageSource.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			file.create(inputStream, false, null);
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	public static void populateResource(String name, String namespace,
-			IPath location) {
-
-	}
-
-	public static void populatePipeline(String name, String namespace,
-			IPath location) {
 
 	}
 
@@ -333,10 +350,15 @@ public class WaspProjectCreator {
 		ProjectImportConfiguration config = new ProjectImportConfiguration();
 
 		String ns = namespace.replaceAll("\\.", "/");
+		
+		// put all folders to be created here...
+		
+		String javaPackage = "src/main/java/" + ns + "/" + name.toLowerCase();
+		String javaRes = "src/main/resources";
 
-		String[] folders = { "src/main/java", "src/main/java/" + ns + "/" + name.toLowerCase() + "/plugin", "src/main/resources/batch",
-				"src/main/resources/wasp", "src/main/resources/META-INF/spring", "src/main/resources/META-INF/tiles", "src/main/resources/flows",
-				"src/main/resources/i18n/en_US", "src/main/resources/images", "src/main/webapp/WEB-INF/jsp/" + name.toLowerCase(),
+		String[] folders = { "src/main/java",  javaPackage + "/plugin", javaPackage + "/controller", "src/main/resources/batch",
+				javaPackage + "/service/impl", javaRes + "/wasp", javaRes + "/META-INF/spring", javaRes + "/META-INF/tiles", javaRes + "/flows",
+				javaRes + "/i18n/en_US", javaRes + "/images/" + name.toLowerCase() , "src/main/webapp/WEB-INF/jsp/" + name.toLowerCase(),
 				"src/test/java", "src/test/resources", "target/classes", "target/test-classes" };
 
 		IProjectConfigurationManager mavenConfig = MavenPlugin.getProjectConfigurationManager();
