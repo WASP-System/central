@@ -1128,6 +1128,12 @@ public class SampleDnaToLibraryController extends WaspController {
 		  }
 	  }
 	  
+	  m.addAttribute("job", job);
+	  m.addAttribute("platformUnitSet", platformUnitSet);
+	  m.addAttribute("platformUnitOrderedCellListMap", platformUnitOrderedCellListMap);
+	  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
+	  m.addAttribute("libraryMacromoleculeMap", libraryMacromoleculeMap);
+	  
 	  return "sampleDnaToLibrary/resultsView";
   }
 
@@ -1145,6 +1151,14 @@ public class SampleDnaToLibraryController extends WaspController {
 	  fileService.copyFileHandleToOutputStream(fileHandle, response.getOutputStream());
 	  //do not flush, it's not needed and it screws things up
 	  }catch(Exception e){logger.debug("unable to get file for display");}
+  }
+  @RequestMapping(value="/jobDetails/{jobId}", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String jobDetails(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  
+	  Job job = jobService.getJobByJobId(jobId);
+	  m.addAttribute("job", job);
+	  return "sampleDnaToLibrary/jobDetails";
   }
 }
 

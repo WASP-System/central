@@ -27,6 +27,12 @@
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
 
+	<definition name="template-unadorned" template="/WEB-INF/jsp/layouts/unadorned.jsp">
+		<put-attribute name="head-style" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="body-content" value="" />
+	</definition>
+	
 	<definition name="auth/accessdenied" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
 	</definition>
@@ -199,7 +205,10 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/resultsView.jsp" />
 	</definition>
-
+	<definition name="sampleDnaToLibrary/jobDetails" extends="template-unadorned">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/jobDetails.jsp" />
+	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />
