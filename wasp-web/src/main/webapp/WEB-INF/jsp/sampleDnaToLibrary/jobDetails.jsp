@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<%-- see this for inheriting javascript from parent. basically precede with parent.    http://stackoverflow.com/questions/4612374/iframe-inherit-from-parent --%>
 This is a test of the new jobDetails view<br />
 this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
 This is a test of the new jobDetails view<br />
@@ -37,3 +37,36 @@ this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
 <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
 <br />
 <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
+
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
+This is a test of the new jobDetails view<br />
+this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />

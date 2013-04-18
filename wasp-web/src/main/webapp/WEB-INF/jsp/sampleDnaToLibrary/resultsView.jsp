@@ -6,6 +6,7 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
+	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
         autoOpen: false,
         modal: true,
@@ -18,7 +19,7 @@ $(document).ready(function() {
         modal: false,
         height: 800,
         width: 800,
-        position: { my: "right top", at: "right top", of: window }
+        position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
     }); 
 });
 function toggleViewerFrame(toggleButton){
@@ -33,6 +34,7 @@ function toggleViewerFrame(toggleButton){
 	}	
 }
 function showModalDialog(url){
+	//http://clarkupdike.blogspot.com/2009/03/basic-example-of-jquerys-uidialog.html
 	//alert("robert's test alert");
 	//var iframe = document.getElementById("modalIframeId");
 	$("#modalIframeId").attr("src", url);
@@ -44,6 +46,7 @@ function showModalessDialog(url){
 }
 function showPopupWindow(url) 
 {//from http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
+	//also could see http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
  var width  = 1200;
  var height = 800;
  var left   = screen.width - width;
@@ -161,7 +164,7 @@ function showPopupWindow(url)
   			<%-- <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="100%" width="100%" ><p>iframes not supported</p></iframe>--%>
   			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
   			
-  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="1000" ><p>iframes not supported</p></iframe>
+  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="800px" ><p>iframes not supported</p></iframe>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
