@@ -74,6 +74,7 @@
 </head>
 <body>
 <div style="background-color: #FFFFE6;">
+<wasp:errorMessage />
 <tiles:insertAttribute name="body-content" />
 </div>
 </body>

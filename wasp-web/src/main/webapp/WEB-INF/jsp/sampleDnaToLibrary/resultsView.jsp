@@ -76,7 +76,7 @@ function showPopupWindow(url)
 	.pageContainer {width:100%; overflow:hidden;}
 	.selectionLeft {float:left; width:35%; }
 	.viewerRight {float:left; width:55%; padding-left:0.3cm; border-left:2px solid black; overflow:hidden;}
-	.selectionLeft div {margin:5px 0px 5px 10px;}
+	.selectionLeft div {margin:5px 0px 5px 20px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
 <%--
@@ -102,28 +102,31 @@ function showPopupWindow(url)
 
 <div class="pageContainer">
 	<div class="selectionLeft">	  
-		
-		<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >Job J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></a>		
+		<label><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >Job J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></a></label>		
 		<br />		
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<div>
-				FlowCell: <c:out value="${platformUnit.getName()}" />
-				<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
-				<c:forEach items="${cellList}" var="cell">
-					<div>
-						Cell: <c:out value="${cell.getName()}" />
-						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
-						<c:forEach items="${libraryList}" var="library">
-							<div>
-								Library: <c:out value="${library.getName()}" />
-								<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
-								<c:if test="${not empty parentMacromolecule }">
-									(Parent: <c:out value="${parentMacromolecule.getName()}" />)
-								</c:if>
-							</div>
-						</c:forEach>
-					</div>
-				</c:forEach>
+				<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
+				<label>Sequence Run:</label> <c:out value="${run.getName()}" />
+				<div>
+					<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />
+					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
+					<c:forEach items="${cellList}" var="cell">
+						<div>
+							<label>Cell:</label> <c:out value="${cell.getName()}" />
+							<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
+							<c:forEach items="${libraryList}" var="library">
+								<div>
+									<label>Library:</label> <c:out value="${library.getName()}" />
+									<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
+									<c:if test="${not empty parentMacromolecule }">
+										(<label>Parent Sample:</label> <c:out value="${parentMacromolecule.getName()}" />)
+									</c:if>
+								</div>
+							</c:forEach>
+						</div>
+					</c:forEach>
+				</div>
 			</div>
 			
 		</c:forEach>

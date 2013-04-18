@@ -2,6 +2,9 @@ package edu.yu.einstein.wasp.controller;
 
 
 import java.io.PrintWriter;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1024,6 +1027,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  List<Sample> platformUnitsSuccessfullyRun = new ArrayList<Sample>();
 	  Set<SampleSource> cellLibrariesForJob =  sampleService.getCellLibrariesForJob(job);
 	  Map<Run,Sample> runPlatformUnitMap = new HashMap<Run, Sample>();
+	  Map<Sample, Run> platformUnitRunMap = new HashMap<Sample, Run>();
 	  Map<Sample, Set<Sample>> platformUnitCellSetMap = new HashMap<Sample, Set<Sample>>();
 	  Map<Sample, List<Sample>> platformUnitOrderedCellListMap = new HashMap<Sample, List<Sample>>();
 	  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
@@ -1034,6 +1038,32 @@ public class SampleDnaToLibraryController extends WaspController {
 			  Sample cell = sampleService.getCell(cellLibrary);//cellLibrary.getSample();
 			  Sample library = sampleService.getLibrary(cellLibrary);//cellLibrary.getSourceSample();
 			  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);//sampleService.getPlatformUnitForCell(cellLibrary.getSample());
+			  List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST????
+			  //really need runService.getSuccessfullyCompletedRuns(job)
+			  
+			  //TODO MUST FIX THIS*************!!!!!!!!!!!!!***************
+			  //if(runList.isEmpty()){
+				//  continue;
+			  //}
+			  
+			  if(runList.isEmpty()){//really just want to do a CONTINUE HERE, but for test, show somehting
+				  List<Run> otherRunList = runService.getRunsForPlatformUnit(platformUnit);//more fake it
+				  if(!otherRunList.isEmpty()){
+					  platformUnitRunMap.put(platformUnit, otherRunList.get(0));//for testing only
+				  }
+				  else{
+					  Run run = new Run();				  
+					  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+					  Date date = new Date();			  
+					  run.setName("FAKE_name_"+dateFormat.format(date)+"_"+platformUnit.getName());
+					  platformUnitRunMap.put(platformUnit, run);
+				  }
+			  }
+			  else{
+				  platformUnitRunMap.put(platformUnit, runList.get(0));//THIS LIST SHOULD ONLY HAVE ONE ENTRY. WHY IS IT A LIST??
+			  }
+			  
+			  
 			  platformUnitSet.add(platformUnit);
 			  if(platformUnitCellSetMap.containsKey(platformUnit)){
 				  platformUnitCellSetMap.get(platformUnit).add(cell);
@@ -1129,6 +1159,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  }
 	  
 	  m.addAttribute("job", job);
+	  m.addAttribute("platformUnitRunMap", platformUnitRunMap);
 	  m.addAttribute("platformUnitSet", platformUnitSet);
 	  m.addAttribute("platformUnitOrderedCellListMap", platformUnitOrderedCellListMap);
 	  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
@@ -1158,6 +1189,31 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  Job job = jobService.getJobByJobId(jobId);
 	  m.addAttribute("job", job);
+	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
+	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+	 
+	  m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+	  //get the jobApprovals Comments (if any)
+	  HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+	  m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	  //get the current jobStatus
+	  m.addAttribute("jobStatus", jobService.getJobStatus(job));
+
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+
 	  return "sampleDnaToLibrary/jobDetails";
   }
 }
