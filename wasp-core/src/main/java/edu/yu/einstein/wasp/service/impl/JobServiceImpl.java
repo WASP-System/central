@@ -26,6 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.slf4j.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -74,6 +76,7 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.ModelDetachException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
@@ -2128,17 +2131,20 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	@Override
 	public void initiateAggregationAnalysisBatchJob(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job must be valid");
+		Assert.assertParameterNotNull(job.getId(), "job must be valid");
 		Map<String, String> jobParameters = new HashMap<String, String>();
-		jobParameters.put(WaspJobParameters.JOB_ID, job.getJobId().toString());
+		jobParameters.put(WaspJobParameters.JOB_ID, job.getId().toString());
 		jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, BatchJobTask.ANALYSIS_AGGREGATE);
 		String workflowIname = job.getWorkflow().getIName();
-		for (BatchJobProviding plugin : waspPluginRegistry.getPluginsHandlingArea(workflowIname, BatchJobProviding.class)) {
+		List<BatchJobProviding> plugins =  waspPluginRegistry.getPluginsHandlingArea(workflowIname, BatchJobProviding.class);
+		logger.debug("Found " +  plugins.size()  + " plugins that handle area '" + workflowIname + "'");
+		for (BatchJobProviding plugin : plugins) {
 			String flowName = plugin.getBatchJobName(BatchJobTask.ANALYSIS_AGGREGATE);
 			if (flowName == null){
-				logger.warn("No generic flow found for plugin handling " + workflowIname + " with batch job task " + BatchJobTask.ANALYSIS_AGGREGATE);
+				logger.warn("No " + BatchJobTask.ANALYSIS_AGGREGATE + " flow found for plugin handling " + workflowIname);
 				continue;
 			}
+			logger.debug("Launching batch job '" + flowName + "' with parameters " + jobParameters.toString());
 			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
 					new BatchJobLaunchContext(flowName, jobParameters) );
 			try {
@@ -2278,5 +2284,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
 		}	
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Job getJobAndSoftware(Job job) {
+		job=jobDao.findById(job.getId());
+		List<JobSoftware> jsl = job.getJobSoftware();
+		logger.debug("job has " + jsl.size() + " software" );
+		job.getJobMeta().size();
+		return job;
 	}
 }

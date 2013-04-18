@@ -62,7 +62,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		setEditorId(entity);
 		logEntityFieldDetailsOnCRUD(entity, "saving");
 		if (entityManager.contains(entity)) {
-			entityManager.merge(entity);
+			entity = entityManager.merge(entity);
 		} else {
 			entityManager.persist(entity);
 		}

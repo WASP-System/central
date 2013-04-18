@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
@@ -584,4 +585,6 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws Exception
 	 */
 	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
+	
+	public Job getJobAndSoftware(Job job);
 }

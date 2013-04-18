@@ -63,10 +63,11 @@ public class ModulesManager extends HashMap<String, String> implements
 		for (SoftwarePackage sw : w.getSoftwareDependencies()) {
 
 			String name = sw.getSoftwareName();
+			String remoteName = name;
 			// if the name is configured on the host, override the software
 			// package's name
 			if (this.containsKey(name + ".name"))
-				name = this.get(name + ".name");
+				remoteName = this.get(name + ".name");
 
 			String version = sw.getSoftwareVersion();
 			// if the version is configured on the host, force that version.
@@ -79,7 +80,7 @@ public class ModulesManager extends HashMap<String, String> implements
 			}
 
 			result += new StringBuilder().append(
-					"module load " + name + "/" + version + "\n").toString();
+					"module load " + remoteName + "/" + version + "\n").toString();
 		}
 		result += "module list" + "\n\n";
 		
@@ -91,20 +92,17 @@ public class ModulesManager extends HashMap<String, String> implements
 				procs++;
 				break;
 			}
-			if (w.getProcessMode().equals(ProcessMode.FIXED)) {
+			if (w.getProcessMode().equals(ProcessMode.FIXED) || w.getProcessMode().equals(ProcessMode.MAX)) {
 				procs = w.getProcessorRequirements().intValue();
 				break;
 			}
+			
 			String pkey = sw.getSoftwareName() + ".env.processors";
-			if (w.getProcessMode().equals(ProcessMode.MAX)) {
-				if (this.containsKey(pkey)) {
-					Integer p = new Integer(this.get(pkey));
-					if (p > procs) procs = p.intValue();
-				}
-			}
-			
-			
 			if (w.getProcessMode().equals(ProcessMode.SUM)) {
+				
+				// With this logic, SUM could exceed absolute maxiumum
+				// this application is made after setting by GridWorkService
+				
 				if (this.containsKey(pkey)) {
 					Integer p = new Integer(this.get(pkey));
 					procs += p.intValue();

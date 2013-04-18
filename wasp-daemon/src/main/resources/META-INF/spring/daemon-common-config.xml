@@ -8,6 +8,7 @@
 	
 	<!-- create beans for classes containing constants -->
 	<bean id="waspJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspJobParameters" />
+	<bean id="waspSoftwareJobParameters" class="edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters" />
 	<bean id='jobTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask" />
 	<bean id='sampleTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspSampleTask" />
 	<bean id='libraryTasks' class="edu.yu.einstein.wasp.integration.messages.tasks.WaspLibraryTask" />
