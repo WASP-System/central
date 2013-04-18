@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets.analysis;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
@@ -35,6 +37,8 @@ import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 
+
+@Transactional("entityManager")
 public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger("WaspJobSoftwareLaunchTasklet");
@@ -88,6 +92,8 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		this.sampleService = sampleService;
 	}
 	
+	public WaspJobSoftwareLaunchTasklet() {}
+	
 	public WaspJobSoftwareLaunchTasklet(List<Integer> libraryCellIds, ResourceType softwareResourceType) {
 		this.libraryCellIds = libraryCellIds;
 		this.softwareResourceType = softwareResourceType;
@@ -104,10 +110,16 @@ public class WaspJobSoftwareLaunchTasklet extends WaspTasklet {
 		setLibraryCellId(libraryCellId);
 		this.softwareResourceType = softwareResourceType;
 	}
+	
+	public WaspJobSoftwareLaunchTasklet(Integer libraryCellId, ResourceType softwareResourceType, String task) {
+		setLibraryCellId(libraryCellId);
+		this.softwareResourceType = softwareResourceType;
+		this.task = task;
+	}
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobByJobId(jobId));
+		WaspJobContext waspJobContext = new WaspJobContext(jobId, jobService);
 		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(softwareResourceType);
 		if (softwareConfig == null){
 			throw new SoftwareConfigurationException("No software could be configured for jobId=" + jobId + " with resourceType iname=" + softwareResourceType.getIName());

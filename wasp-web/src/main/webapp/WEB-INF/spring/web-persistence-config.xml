@@ -8,7 +8,12 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-
+	<bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"><value>${batchdb.jdbc.driver}</value></property>
+		<property name="url"><value>${batchdb.jdbc.url}</value></property>
+		<property name="username"><value>${batchdb.jdbc.username}</value></property>
+		<property name="password"><value>${batchdb.jdbc.password}</value></property>
+	</bean>
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName"><value>${db.jdbc.driver}</value></property>
