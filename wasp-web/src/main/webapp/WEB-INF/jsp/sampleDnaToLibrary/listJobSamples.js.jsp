@@ -24,8 +24,20 @@ $(document).ready(function() {
     	  if($(this).prop("value")=="<fmt:message key="listJobSamples.showJobFiles.label" />"){$(this).prop("value", "<fmt:message key="listJobSamples.hideJobFiles.label" />");}
     	  else{$(this).prop("value", "<fmt:message key="listJobSamples.showJobFiles.label" />");}
     	}); 
+  	
+  	$("#modalessDialog").dialog({
+        autoOpen: false,
+        modal: false,
+        height: 800,
+        width: 800,
+        position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
+    }); 
 });
 
+function showModalessDialog(url){
+	$("#modalessIframeId").attr("src", url);
+	$( "#modalessDialog" ).dialog("open");
+}
 
 function toggleDisplayOfAddLibraryForm(instruction, idCounter){
 	

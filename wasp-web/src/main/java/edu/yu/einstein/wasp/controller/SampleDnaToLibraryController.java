@@ -450,12 +450,17 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
 				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
 			}
 			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 		}
@@ -476,6 +481,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("cellsByLibrary", cellsByLibrary);
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
