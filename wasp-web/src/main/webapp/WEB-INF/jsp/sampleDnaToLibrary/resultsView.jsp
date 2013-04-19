@@ -118,12 +118,11 @@ function toggleNextDivVisibility(anchor, nextDivId){
 <div class="pageContainer">
 	<div class="selectionLeft">	  
 		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >details</a>]		
-		<br />	
+		<div>
+			<label>Aggregate Analysis</label> [<a href="javascript:void(0);" onclick='alert("Not yet implemented");'>details</a>] 
+		</div>	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
-			<div>
-			<label>Aggregate Analysis</label> [<a href="javascript:void(0);" onclick='alert("Not yet implemented");'>details</a>] 
-			</div>
 			<div>
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" >details </a> | <a href="javascript:void(0);" onclick='toggleNextDivVisibility(this, "run${run.getId()}");'> expand</a>] 
 				<div id="run${run.getId()}" style="display:none;">					

@@ -1255,6 +1255,11 @@ public class SampleDnaToLibraryController extends WaspController {
 		
 	  return "sampleDnaToLibrary/jobDetails";
   }
+  @RequestMapping(value="/runDetails/{runId}", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String runDetails(@PathVariable("runId") Integer runId, ModelMap m) throws SampleTypeException {
+	  return "sampleDnaToLibrary/runDetails";
+  }
 }
 
 
