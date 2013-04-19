@@ -2,9 +2,12 @@
 
 NAME="wheezy-wasp"
 GITHEAD=`git rev-parse --verify HEAD`
-OVA="${NAME}-${GITHEAD:0:6}.ova"
+DATE=`date +%s`
+#OVA="${NAME}-${GITHEAD:0:6}.ova"
+OVA="${NAME}-${DATE}.ova"
+IMGLOC="$HOME/VirtualBox VMs"
 
-VBoxManage modifyhd --compact wasp.vdi
+VBoxManage modifyhd --compact "${IMGLOC}/${NAME}/wasp.vdi"
 
 VBoxManage export $NAME \
   --output $OVA \
@@ -12,4 +15,4 @@ VBoxManage export $NAME \
   --product "Wasp System Example Image" \
   --vendor "Wasp System" \
   --vendorurl "http://waspsystem.org/" \
-  --version "$GITHEAD"
+  --version "${DATE}"

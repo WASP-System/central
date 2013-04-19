@@ -1,15 +1,22 @@
 #!/bin/bash
 
-# the first time that the root user logs in, Oracle java should be installed.
-echo "
+#will need to automate this to get specific tags (most recent? git describe --abbrev=0 --tags )
 
-#Automate java install
-ORACLE_JAVA=`dpkg --get-selections | grep -c oracle`
-if [ \"$ORACLE_JAVA\" -lt 1 ]; then
-	apt-get update
-	apt-get --yes install oracle-java7-installer oracle-java7-set-default
-fi
-" >> /root/.profile
+WASP=( 'central|master' 'wasp-config|image' 'wasp-illumina|master' 'mps-tools|master' \
+	'wasp-genericDnaSeq|master' 'wasp-chipseq|master' 'wasp-bisulfite|master' \
+	'wasp-helptag|master' )
+
+mkdir -p /home/wasp/src
+cd /home/wasp/src
+
+for W in "${WASP[@]}"; do 
+	w=(${W//|/ })	
+	git clone https://github.com/WASP-System/${w[0]}.git
+	cd ${w[0]}
+	git checkout ${w[1]}
+	#switch tag
+	cd ..
+done
 
 
 
