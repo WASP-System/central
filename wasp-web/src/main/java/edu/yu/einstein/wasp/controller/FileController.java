@@ -195,7 +195,6 @@ public class FileController extends WaspController{
   			String mess = "FileHandle with id = "+fileHandleId+" not found in database";
   			logger.debug(mess);
   			////waspErrorMessage("file.not_found.error");
-  			////try{response.sendRedirect(referer);}catch(Exception e){}
   			try{response.setContentType("text/html"); response.getOutputStream().print(mess);}catch(Exception e){}
 			return;
   		}
@@ -217,7 +216,6 @@ public class FileController extends WaspController{
  			String mess = "Error downloading fileHandleId = " + fileHandleId + ". "+ e.getLocalizedMessage();
  			logger.debug(mess);
  			////waspErrorMessage("file.unable_to_download.error");
-  			////try{response.sendRedirect(referer);}catch(Exception e2){}
  			try{response.setContentType("text/html"); response.getOutputStream().print(mess);}catch(Exception e2){}
 			return;
  		}

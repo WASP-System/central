@@ -1378,7 +1378,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	public String getMimeType(String fileName){
 		
 		//TODO FYI java7: heads up that in Java 7 you can now just use Files.probeContentType(path).
-			
+		//list at http://www.freeformatter.com/mime-types-list.html	
 		String mimeType = "";
 		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
 		
@@ -1409,6 +1409,26 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		else if(fileExtension.equalsIgnoreCase("tif")){
 			mimeType = "image/tiff";
 		}
+		/* these types of files download instead of being visible - do not use these here
+		else if(fileExtension.equalsIgnoreCase("docx")){
+			mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+		}
+		else if(fileExtension.equalsIgnoreCase("doc")){
+			mimeType = "application/msword";
+		}
+		else if(fileExtension.equalsIgnoreCase("ppt")){
+			mimeType = "application/vnd.ms-powerpoint";
+		}
+		else if(fileExtension.equalsIgnoreCase("pptx")){
+			mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+		}
+		else if(fileExtension.equalsIgnoreCase("xls")){
+			mimeType = "application/vnd.ms-excel";
+		}
+		else if(fileExtension.equalsIgnoreCase("xlsx")){
+			mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		}
+		*/
 		return mimeType;
 	}
 }
