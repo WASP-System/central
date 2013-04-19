@@ -44,3 +44,11 @@ VBoxManage storageattach $NAME \
 
 VBoxManage storagectl $NAME --name "IDE Controller" --add ide
 VBoxManage storageattach $NAME --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium $IMAGE_NAME
+
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/Protocol" TCP
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/GuestPort" 22
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/HostPort" 2222
+
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/Protocol" TCP
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/GuestPort" 8080
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/HostPort" 8888
