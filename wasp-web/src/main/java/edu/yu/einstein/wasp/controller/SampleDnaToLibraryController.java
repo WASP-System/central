@@ -1023,10 +1023,11 @@ public class SampleDnaToLibraryController extends WaspController {
 
 	  //really need !!!!:   jobService.getSuccessfullyCompletedRuns(job)	  
 	  
-	  
+	  /***** NOT USED - instead we're going through sampleService.getCellLibrariesForJob(job); 
 	  ///THIS IS NOT GOOD, THE RESULT SHOULD BE A SET!!!!!!
 	  List<Sample> platformUnitList = jobService.getPlatformUnitWithLibrariesOnForJob(job);	  
 	  System.out.println("platformUnits from the one with the List: " + platformUnitList.size());
+	  *******/
 	  
 	  Set<Sample> platformUnitSet = new HashSet<Sample>();
 	  Set<Run> runSet = new HashSet<Run>();
@@ -1037,12 +1038,16 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, Set<Sample>> platformUnitCellSetMap = new HashMap<Sample, Set<Sample>>();
 	  Map<Sample, List<Sample>> platformUnitOrderedCellListMap = new HashMap<Sample, List<Sample>>();
 	  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, List<Sample>> cellControlLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
+	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
 	  
 	  for(SampleSource cellLibrary : cellLibrariesForJob){
 		  try{
 			  Sample cell = sampleService.getCell(cellLibrary);//cellLibrary.getSample();
 			  Sample library = sampleService.getLibrary(cellLibrary);//cellLibrary.getSourceSample();
+			  Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);//sampleService.getPlatformUnitForCell(cellLibrary.getSample());
 			  List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST????
 			  //really need runService.getSuccessfullyCompletedRuns(job)
@@ -1094,6 +1099,11 @@ public class SampleDnaToLibraryController extends WaspController {
 				  libraryMacromoleculeMap.put(library, macromolecule);
 			  }
 			  
+			  if(adaptor != null && adaptor.getId()!=null){
+				  libraryAdaptorMap.put(library, adaptor);
+			  }
+			  
+			  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
 			  
 			  /*forget the run for now
 			  
@@ -1135,7 +1145,21 @@ public class SampleDnaToLibraryController extends WaspController {
 			}
 			Collections.sort(orderedCellList, new CellIndexComparator());//sort by cell's index
 
-			platformUnitOrderedCellListMap.put(platformUnit, orderedCellList);		  
+			platformUnitOrderedCellListMap.put(platformUnit, orderedCellList);	
+			
+			//while we have a set of cells for each platform unit, use it to retrieve each cell's list of control libraries, if any
+			for(Sample cell : orderedCellList){
+				List<Sample> controlLibraryList = sampleService.getControlLibrariesOnCell(cell);
+				if(!controlLibraryList.isEmpty()){
+					cellControlLibraryListMap.put(cell, controlLibraryList);
+					for(Sample controlLibrary : controlLibraryList){
+						Adaptor adaptor = sampleService.getLibraryAdaptor(controlLibrary);
+						if(adaptor != null && adaptor.getId()!=null){
+							  libraryAdaptorMap.put(controlLibrary, adaptor);
+						}					
+					}
+				}
+			}
 	  }
 	 
 	//MUST GET THE RUN (if any)
@@ -1169,7 +1193,10 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("platformUnitSet", platformUnitSet);
 	  m.addAttribute("platformUnitOrderedCellListMap", platformUnitOrderedCellListMap);
 	  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
+	  m.addAttribute("cellIndexMap", cellIndexMap);
 	  m.addAttribute("libraryMacromoleculeMap", libraryMacromoleculeMap);
+	  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+	  m.addAttribute("cellControlLibraryListMap", cellControlLibraryListMap);
 	  
 	  return "sampleDnaToLibrary/resultsView";
   }

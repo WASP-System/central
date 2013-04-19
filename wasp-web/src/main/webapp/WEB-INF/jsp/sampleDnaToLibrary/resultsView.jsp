@@ -74,9 +74,9 @@ function showPopupWindow(url)
  
 <style>
 	.pageContainer {width:100%; overflow:hidden;}
-	.selectionLeft {float:left; width:35%; }
+	.selectionLeft {float:left; width:40%; }
 	.viewerRight {float:left; width:55%; padding-left:0.3cm; border-left:2px solid black; overflow:hidden;}
-	.selectionLeft div {margin:5px 0px 5px 20px;}
+	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
 <%--
@@ -103,30 +103,62 @@ function showPopupWindow(url)
 <div class="pageContainer">
 	<div class="selectionLeft">	  
 		<label><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >Job J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></a></label>		
-		<br />		
+		<br /><br />	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
-			<div>
-				<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
-				<label>Sequence Run:</label> <c:out value="${run.getName()}" />
-				<div>
-					<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />
-					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
-					<c:forEach items="${cellList}" var="cell">
-						<div>
-							<label>Cell:</label> <c:out value="${cell.getName()}" />
-							<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
-							<c:forEach items="${libraryList}" var="library">
+			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
+			
+			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)
+			<div>					
+				<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
+				<c:forEach items="${cellList}" var="cell">
+					<div>
+						<c:set value="${cellIndexMap.get(cell)}" var="index"/>
+						<c:choose>
+							<c:when test="${not empty index }">							
+								<label>Lane <c:out value="${index}" /></label>
+							</c:when>
+							<c:otherwise>
+								<label>Lane <c:out value="${cell.getName()}" /></label>
+							</c:otherwise>
+						</c:choose>													
+						<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
+						<c:if test="${not empty controlLibraryList }">
+							<c:forEach items="${controlLibraryList}" var="controlLibrary">
+							  <div>									
+								<label>Control:</label> <c:out value="${controlLibrary.getName()}" />
+								<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
+								<c:if test="${not empty adaptor }">
+									[<c:out value="${adaptor.getName()}" />]
+								</c:if>
+							  </div>									
+							</c:forEach>
+						</c:if>						
+						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
+						<c:forEach items="${libraryList}" var="library">
+							<div>
+								<label>Library:</label> <c:out value="${library.getName()}" />
+								 
+								<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
+								<c:if test="${not empty adaptor }">
+									[<c:out value="${adaptor.getName()}" />]
+								</c:if>
+								
+								<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
+								<c:if test="${not empty parentMacromolecule }">
+									(<label>Parent:</label> <c:out value="${parentMacromolecule.getName()}" />)
+								</c:if>
+								<%--
 								<div>
-									<label>Library:</label> <c:out value="${library.getName()}" />
-									<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
-									<c:if test="${not empty parentMacromolecule }">
-										(<label>Parent Sample:</label> <c:out value="${parentMacromolecule.getName()}" />)
+									<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
+									<c:if test="${not empty adaptor }">
+										<label>Adaptor:</label> <c:out value="${adaptor.getName()}" />
 									</c:if>
 								</div>
-							</c:forEach>
-						</div>
-					</c:forEach>
-				</div>
+								--%>
+							</div>
+						</c:forEach>
+					</div>
+				</c:forEach>
 			</div>
 			
 		</c:forEach>
@@ -167,7 +199,7 @@ function showPopupWindow(url)
   			<%-- <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="100%" width="100%" ><p>iframes not supported</p></iframe>--%>
   			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
   			
-  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="800px" ><p>iframes not supported</p></iframe>
+  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
