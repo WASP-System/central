@@ -64,6 +64,21 @@ function showPopupWindow(url)
  if (window.focus) {newwin.focus();}
  return false;
 }
+function toggleNextDivVisibility(anchor, nextDivId){
+
+	var nextDivToToggle = document.getElementById(nextDivId);
+	var parentDiv = anchor.parentNode;
+	if(nextDivToToggle.style.display == "none"){
+		nextDivToToggle.style.display = "block";
+		parentDiv.style.border= "2px solid red";
+		anchor.innerHTML = "hide";
+	}
+	else{
+		nextDivToToggle.style.display = "none";
+		parentDiv.style.border= "";
+		anchor.innerHTML = "expand";
+	}
+}
 </script>
 
 
@@ -97,73 +112,78 @@ function showPopupWindow(url)
 </div>
 
 
-<h1><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">Job J<c:out value="${job.jobId}" /></a></h1>		
+<h1><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a></h1>		
 		
 
 <div class="pageContainer">
 	<div class="selectionLeft">	  
-		<label><a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >Job J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" /></a></label>		
-		<br /><br />	
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >details</a>]		
+		<br />	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
-			
-			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)
-			<div>					
-				<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
-				<c:forEach items="${cellList}" var="cell">
-					<div>
-						<c:set value="${cellIndexMap.get(cell)}" var="index"/>
-						<c:choose>
-							<c:when test="${not empty index }">							
-								<label>Lane <c:out value="${index}" /></label>
-							</c:when>
-							<c:otherwise>
-								<label>Lane <c:out value="${cell.getName()}" /></label>
-							</c:otherwise>
-						</c:choose>													
-						<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
-						<c:if test="${not empty controlLibraryList }">
-							<c:forEach items="${controlLibraryList}" var="controlLibrary">
-							  <div>									
-								<label>Control:</label> <c:out value="${controlLibrary.getName()}" />
-								<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
-								<c:if test="${not empty adaptor }">
-									[<c:out value="${adaptor.getName()}" />]
-								</c:if>
-							  </div>									
-							</c:forEach>
-						</c:if>						
-						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
-						<c:forEach items="${libraryList}" var="library">
-							<div>
-								<label>Library:</label> <c:out value="${library.getName()}" />
-								 
-								<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-								<c:if test="${not empty adaptor }">
-									[<c:out value="${adaptor.getName()}" />]
-								</c:if>
-								
-								<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
-								<c:if test="${not empty parentMacromolecule }">
-									(<label>Parent:</label> <c:out value="${parentMacromolecule.getName()}" />)
-								</c:if>
-								<%--
+			<div>
+			<label>Aggregate Analysis</label> [<a href="javascript:void(0);" onclick='alert("Not yet implemented");'>details </a>] 
+			</div>
+			<div>
+			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> [<a href="javascript:void(0);" onclick='alert("test DeTAILS");'>details </a> | <a href="javascript:void(0);" onclick='toggleNextDivVisibility(this, "run${run.getId()}");'> expand</a>] 
+				<div id="run${run.getId()}" style="display:none;">					
+					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
+					<c:forEach items="${cellList}" var="cell">
+						<div>
+							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
+							<c:choose>
+								<c:when test="${not empty index }">							
+									<label>Lane <c:out value="${index}" /></label>
+								</c:when>
+								<c:otherwise>
+									<label>Lane <c:out value="${cell.getName()}" /></label>
+								</c:otherwise>
+							</c:choose>													
+							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
+							<c:if test="${not empty controlLibraryList }">
+								<c:forEach items="${controlLibraryList}" var="controlLibrary">
+								  <div>									
+									<label>Control:</label> <c:out value="${controlLibrary.getName()}" />
+									<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
+									<c:if test="${not empty adaptor }">
+										<%-- [<c:out value="${adaptor.getName()}" />]--%>
+										[Index <c:out value="${adaptor.getBarcodenumber()}" />; <c:out value="${adaptor.getBarcodesequence()}" />]
+									</c:if>
+								  </div>									
+								</c:forEach>
+							</c:if>						
+							<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
+							<c:forEach items="${libraryList}" var="library">
 								<div>
+									<label>Library:</label> <c:out value="${library.getName()}" />
+									 
 									<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 									<c:if test="${not empty adaptor }">
-										<label>Adaptor:</label> <c:out value="${adaptor.getName()}" />
+										<%--[<c:out value="${adaptor.getName()}" />]--%>
+										[Index <c:out value="${adaptor.getBarcodenumber()}" />; <c:out value="${adaptor.getBarcodesequence()}" />]
 									</c:if>
+									
+									<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
+									<c:if test="${not empty parentMacromolecule }">
+										(<label>Parent:</label> <c:out value="${parentMacromolecule.getName()}" />)
+									</c:if>
+									<%--
+									<div>
+										<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
+										<c:if test="${not empty adaptor }">
+											<label>Adaptor:</label> <c:out value="${adaptor.getName()}" />
+										</c:if>
+									</div>
+									--%>
 								</div>
-								--%>
-							</div>
-						</c:forEach>
-					</div>
-				</c:forEach>
-			</div>
-			
+							</c:forEach>
+						</div>
+					</c:forEach>
+				</div>
+		  	</div>
 		</c:forEach>
 	
-	 		
+	 	<br /><br />more stuff:<br/>	
 		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br />
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
