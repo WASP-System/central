@@ -11,7 +11,7 @@ fi
 
 VBoxManage createvm --name $NAME --ostype Debian --register
 VBoxManage modifyvm $NAME \
-		   --memory 1024 \
+		   --memory 1536 \
 		   --vram 1 \
 		   --acpi on \
 		   --ioapic off \
@@ -52,3 +52,8 @@ VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/ssh/Hos
 VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/Protocol" TCP
 VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/GuestPort" 8080
 VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/http-alt/HostPort" 8888
+
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/wasp/Protocol" TCP
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/wasp/GuestPort" 23532
+VBoxManage setextradata $NAME "VBoxInternal/Devices/e1000/0/LUN#0/Config/wasp/HostPort" 23532
+

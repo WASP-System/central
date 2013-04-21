@@ -1,6 +1,12 @@
 #!/bin/bash
 # modified from http://wiki.debian.org/DebianInstaller/Preseed/EditIso
 # run on linux as root
+
+if [ ! -e ./preseed.cfg ]; then
+  echo "can not proceed without preseed.cfg";
+  exit 1
+fi
+
 mkdir -p loopdir
 mount -o loop $1 loopdir
 rm -rf cd
