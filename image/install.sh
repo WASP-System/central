@@ -3,12 +3,13 @@ setup_mysql(){
 }
 
 install_db(){
-  mysql -f -uroot -pwaspsystem < $HOME/src/central/db/InitializeWaspDb.sql
-  mysql -f -uroot -pwaspsystem wasp < $HOME/src/central/db/createSpringBatchTables.sql
+  mysql -f -uroot -pwaspsystem < $HOME/wasp/db/InitializeWaspDb.sql
+  mysql -f -uroot -pwaspsystem wasp < $HOME/wasp/db/createSpringBatchTables.sql
+  mysql -f -uroot -pwaspsystem wasp < $HOME/wasp/db/minimalDataLoad.sql
 }
 
 deploy_tomcat(){
-  cd $HOME/src/central/wasp-web
+  cd $HOME/wasp/wasp-web
   mvn tomcat:redeploy
 }
 
@@ -26,6 +27,12 @@ su wasp -c "bash -c install_db"
 
 echo "deploying to tomcat"
 su wasp -c "bash -c deploy_tomcat"
+
+echo "registering daemon"
+update-rc.d wasp-daemon defaults
+
+echo "starting daemon"
+/etc/init.d/wasp-daemon start
 
 echo "unregistering setup task"
 sed -i 's|bash /root/install.sh|exit 0|' /etc/rc.local

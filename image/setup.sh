@@ -88,7 +88,8 @@ fi
 WASP_PID="/var/run/wasp-daemon.pid"
 
 wasp_start(){
-  $JAVA_HOME/bin/java $JAVA_OPTS -cp "/home/wasp/wasp-daemon.jar:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon
+  wasp=/home/wasp/wasp/wasp-daemon/target/*[!s].jar
+  $JAVA_HOME/bin/java $JAVA_OPTS -cp "`readlink -f $wasp`:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon >/dev/null 2>&1 &
 }
 
 case "$1" in
@@ -201,7 +202,7 @@ export CATALINA_HOME=$CATALINA_HOME" >> /home/wasp/.profile
   WASP_HOST=http://frankfurt.aecom.yu.edu/git/wasp/
   #WASP_HOST=https://github.com/WASP-System/
 
-  WASP=( "${WASP_MAIN}|master" 'wasp-config|image' 'wasp-illumina|master' 'mps-tools|master' \
+  WASP=( "${WASP_MAIN}|master" 'wasp-config|image' 'wasp-illumina|master' 'wasp-fastq|master' 'mps-tools|master' \
 	'wasp-genericDnaSeq|master' 'wasp-chipseq|master' 'wasp-bisulfite|master' \
 	'wasp-helptag|master' )
 
@@ -249,8 +250,9 @@ export CATALINA_HOME=$CATALINA_HOME" >> /home/wasp/.profile
 EOF
   
   cd ~
-  ln -s src/$WASP_MAIN/wasp-daemon/target/*[^s].jar .
   ln -s src/$WASP_MAIN/ wasp
+  cat .ssh/id_rsa.pub > .ssh/authorized_keys
+  ssh localhost -i .ssh/id_rsa -oStrictHostKeyChecking=no /bin/true
 
 }
 
@@ -273,7 +275,6 @@ su wasp -c "bash -c build_wasp"
 setup_daemon
 
 chmod +x /etc/init.d/wasp-daemon
-update-rc.d wasp-daemon defaults
 
 on_first_boot
 
