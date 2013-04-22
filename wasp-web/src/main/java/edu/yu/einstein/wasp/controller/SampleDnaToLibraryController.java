@@ -62,6 +62,7 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -1256,8 +1257,49 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return "sampleDnaToLibrary/jobDetails";
   }
   @RequestMapping(value="/runDetails/{runId}", method=RequestMethod.GET)
-  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  //@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
   public String runDetails(@PathVariable("runId") Integer runId, ModelMap m) throws SampleTypeException {
+	  
+	  Run run = runService.getRunById(runId);
+	  List<RunMeta> runMetaList = run.getRunMeta();
+	  String runReadLength = "???";
+	  String runReadType = "???";
+	  String runStartDate = "???";
+	  String runEndDate = "???";
+	  
+	  for(RunMeta runMeta : runMetaList){
+		  if(runMeta.getK().contains("readLength")){
+			  runReadLength = runMeta.getV();
+		  }
+		  else if (runMeta.getK().contains("readType")){
+			  runReadType = runMeta.getV();			  
+		  }
+	  }	  
+	  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	  if(run.getStarted()!=null){
+		  runStartDate= dateFormat.format(run.getStarted());
+	  }
+	  if(run.getFinished()!=null){
+		  runEndDate= dateFormat.format(run.getFinished());
+	  }
+	  	  
+	  Sample platformUnit = run.getPlatformUnit();
+	  List<SampleMeta> platformUnitMetaList = platformUnit.getSampleMeta();
+	  String totalLanesOnPlatformUnit = "???";
+	  for(SampleMeta platformUnitMeta : platformUnitMetaList){
+		  if(platformUnitMeta.getK().contains("lanecount")){
+			  totalLanesOnPlatformUnit = platformUnitMeta.getV();
+		  }
+	  }
+	  m.addAttribute("run", run);
+	  m.addAttribute("runReadLength", runReadLength);//actual on run
+	  m.addAttribute("runReadType", runReadType);//actual on run
+	  m.addAttribute("runStartDate", runStartDate);
+	  m.addAttribute("runEndDate", runEndDate);
+	  
+	  m.addAttribute("platformUnit", platformUnit);
+	  m.addAttribute("totalLanesOnPlatformUnit", totalLanesOnPlatformUnit);
+	  
 	  return "sampleDnaToLibrary/runDetails";
   }
 }

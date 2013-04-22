@@ -88,9 +88,9 @@ function toggleNextDivVisibility(anchor, nextDivId){
 
  
 <style>
-	.pageContainer {width:100%; overflow:hidden;}
-	.selectionLeft {float:left; width:40%; }
-	.viewerRight {float:left; width:55%; padding-left:0.3cm; border-left:2px solid black; overflow:hidden;}
+	.pageContainer {width:100%; overflow:hidden; border-right:2px solid blue;}
+	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
+	.viewerRight {float:left; width:55%; padding-left:0.2cm; border-left:2px solid black; border-right:2px solid green; overflow:hidden;}
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
