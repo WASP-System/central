@@ -168,9 +168,9 @@ public interface FileService extends WaspService {
 	
 	
 	
-	public void addFile(FileHandle file);
+	public FileHandle addFile(FileHandle file);
 	
-	public void addFileGroup(FileGroup group);
+	public FileGroup addFileGroup(FileGroup group);
 	
 	public void setSampleFile(FileGroup file, Sample sample);
 
@@ -232,6 +232,7 @@ public interface FileService extends WaspService {
 	 */
 	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
 
+
 	/**
 	 * in Java7 this will be a lot easier, but for now, fake it
 	 * @param String fileName
@@ -239,5 +240,9 @@ public interface FileService extends WaspService {
 	 */
 	public String getMimeType(String fileName);
 	
+
+	public String generateUniqueBaseFileName(SampleSource cellLibrary);
+
+
 }
 
