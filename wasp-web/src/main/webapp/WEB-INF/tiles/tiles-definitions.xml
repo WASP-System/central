@@ -211,6 +211,9 @@
 	<definition name="sampleDnaToLibrary/runDetails" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/runDetails.jsp" />
 	</definition>
+	<definition name="sampleDnaToLibrary/cellDetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/runDetails.jsp" />
+	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />

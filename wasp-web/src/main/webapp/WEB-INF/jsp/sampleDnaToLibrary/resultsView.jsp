@@ -88,9 +88,9 @@ function toggleNextDivVisibility(anchor, nextDivId){
 
  
 <style>
-	.pageContainer {width:100%; overflow:hidden; border-right:2px solid blue;}
+	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
-	.viewerRight {float:left; width:55%; padding-left:0.2cm; border-left:2px solid black; border-right:2px solid green; overflow:hidden;}
+	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:2px solid black;  overflow:hidden;}
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
@@ -132,10 +132,10 @@ function toggleNextDivVisibility(anchor, nextDivId){
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<label>Lane <c:out value="${index}" /></label>
+									<label>Lane <c:out value="${index}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane <c:out value="${cell.getName()}" /></label>
+									<label>Lane <c:out value="${cell.getName()}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>

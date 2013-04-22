@@ -1302,6 +1302,52 @@ public class SampleDnaToLibraryController extends WaspController {
 	  
 	  return "sampleDnaToLibrary/runDetails";
   }
+  @RequestMapping(value="/cellDetails/{cellId}", method=RequestMethod.GET)
+  //@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String cellDetails(@PathVariable("cellId") Integer cellId, @RequestParam("runId") Integer runId, ModelMap m) throws SampleTypeException {
+	  
+	  Run run = runService.getRunById(runId);
+	  List<RunMeta> runMetaList = run.getRunMeta();
+	  String runReadLength = "???";
+	  String runReadType = "???";
+	  String runStartDate = "???";
+	  String runEndDate = "???";
+	  
+	  for(RunMeta runMeta : runMetaList){
+		  if(runMeta.getK().contains("readLength")){
+			  runReadLength = runMeta.getV();
+		  }
+		  else if (runMeta.getK().contains("readType")){
+			  runReadType = runMeta.getV();			  
+		  }
+	  }	  
+	  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	  if(run.getStarted()!=null){
+		  runStartDate= dateFormat.format(run.getStarted());
+	  }
+	  if(run.getFinished()!=null){
+		  runEndDate= dateFormat.format(run.getFinished());
+	  }
+	  	  
+	  Sample platformUnit = run.getPlatformUnit();
+	  List<SampleMeta> platformUnitMetaList = platformUnit.getSampleMeta();
+	  String totalLanesOnPlatformUnit = "???";
+	  for(SampleMeta platformUnitMeta : platformUnitMetaList){
+		  if(platformUnitMeta.getK().contains("lanecount")){
+			  totalLanesOnPlatformUnit = platformUnitMeta.getV();
+		  }
+	  }
+	  m.addAttribute("run", run);
+	  m.addAttribute("runReadLength", runReadLength);//actual on run
+	  m.addAttribute("runReadType", runReadType);//actual on run
+	  m.addAttribute("runStartDate", runStartDate);
+	  m.addAttribute("runEndDate", runEndDate);
+	  
+	  m.addAttribute("platformUnit", platformUnit);
+	  m.addAttribute("totalLanesOnPlatformUnit", totalLanesOnPlatformUnit);
+	  
+	  return "sampleDnaToLibrary/cellDetails";
+  }
 }
 
 
