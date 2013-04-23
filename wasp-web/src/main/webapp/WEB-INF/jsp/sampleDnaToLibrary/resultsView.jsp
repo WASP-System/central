@@ -140,7 +140,75 @@ function toggleNextDivVisibility(anchor, nextDivId){
 			}
 		}
 	}
+
+}
+
+function toggleView(thisAnchorObject, url1, url2){
+	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
+	var temp = "runDivToToggle_" + runIdNumberToHighlight;
+	var runDivToToggle = document.getElementById(temp);
+	if(runDivToToggle.style.display == "none"){//selected region is closed, so open it up and populate the iframe with run info
+		runDivToToggle.style.display = "block";
+		thisAnchorObject.innerHTML = "hide";
+		populateIFrameAndHighlightThisRun(thisAnchorObject, url1);
+	}
+	else{
+		runDivToToggle.style.display = "none";
+		var parentDiv = thisAnchorObject.parentNode;
+		parentDiv.style.border= "";
+		thisAnchorObject.innerHTML = "expand";
+		unhighlightOtherRuns(runIdNumberToHighlight);
+		thisAnchorObject.href=url2;
+	}
 	
+}
+function populateIFrameAndHighlightThisRun(thisAnchorObject, url){
+
+	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
+	highlightThisRunAndUnhighlightOtherRuns(runIdNumberToHighlight);
+	
+	//alert("runIdNumber = " + runIdNumber);
+	//var temp = "runDivToHighlight_" + runIdNumber;
+	//var runDivToHighlight = document.getElementById(temp);
+	//runDivToHighlight.style.border = "2px solid red";
+	thisAnchorObject.href=url;	
+}
+function highlightThisRunAndUnhighlightOtherRuns(runIdNumberToHighlight){
+	
+	var allRunDivsToHighlight = document.querySelectorAll('*[id^="runDivToHighlight_"]');
+	for(var i = 0; i < allRunDivsToHighlight.length; i++){
+		var runDivToHighlight = allRunDivsToHighlight[i];
+		if(runDivToHighlight.id.split("_").pop() == runIdNumberToHighlight){
+			runDivToHighlight.style.border = "2px solid red";
+		}
+		else{
+			var temp = "runDivToToggle_" + runDivToHighlight.id.split("_").pop();
+			var runDivToToggle = document.getElementById(temp);
+			if(runDivToToggle.style.display == "block"){//it's already open 
+				runDivToHighlight.style.border = "1px dashed gray";
+			}
+			else{
+				runDivToHighlight.style.border = "";
+			}
+		}		
+	}
+}
+function unhighlightOtherRuns(runIdNumberToHighlight){
+	
+	var allRunDivsToHighlight = document.querySelectorAll('*[id^="runDivToHighlight_"]');
+	for(var i = 0; i < allRunDivsToHighlight.length; i++){
+		var runDivToHighlight = allRunDivsToHighlight[i];
+		if(runDivToHighlight.id.split("_").pop() != runIdNumberToHighlight){
+			var temp = "runDivToToggle_" + runDivToHighlight.id.split("_").pop();
+			var runDivToToggle = document.getElementById(temp);
+			if(runDivToToggle.style.display == "block"){//it's already open 
+				runDivToHighlight.style.border = "1px dashed gray";
+			}
+			else{
+				runDivToHighlight.style.border = "";
+			}
+		}		
+	}
 }
 </script>
 
@@ -180,25 +248,29 @@ function toggleNextDivVisibility(anchor, nextDivId){
 
 <div class="pageContainer">
 	<div class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.jobId}.do" />" target="myIframe" >details</a>]		
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" target="myIframe" >details</a>]		
 		<div>
 			<label>Aggregate Analysis</label> [<a href="javascript:void(0);" onclick='alert("Not yet implemented");'>details</a>] 
 		</div>	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
-			<div>
-			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" >details</a> | <a id="expandAnchor${run.getId()}" href="javascript:void(0);" onclick='toggleNextDivVisibility(this, "run${run.getId()}");'>expand</a>] 
-				<div id="run${run.getId()}" style="display:none;">					
+			<div id="runDivToHighlight_${run.getId()}">
+			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> 
+			<%-- [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" onclick='alert("in this anchor alert")";' >idetails</a> --%>
+			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
+			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
+				<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
 						<div>
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<label>Lane <c:out value="${index}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
+									<%-- <label>Lane <c:out value="${index}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>]--%> 
+									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane <c:out value="${cell.getName()}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a>] 
+									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>

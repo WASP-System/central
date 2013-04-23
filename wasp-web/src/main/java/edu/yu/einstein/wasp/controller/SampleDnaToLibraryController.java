@@ -1043,6 +1043,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
+	  Random randomInt = new Random(System.currentTimeMillis());//for FAKE_name_
 	  
 	  for(SampleSource cellLibrary : cellLibrariesForJob){
 		  try{
@@ -1068,6 +1069,7 @@ public class SampleDnaToLibraryController extends WaspController {
 					  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 					  Date date = new Date();			  
 					  run.setName("FAKE_name_"+dateFormat.format(date)+"_"+platformUnit.getName());
+					  run.setId(randomInt.nextInt(500) + 500);
 					  platformUnitRunMap.put(platformUnit, run);
 				  }
 			  }
