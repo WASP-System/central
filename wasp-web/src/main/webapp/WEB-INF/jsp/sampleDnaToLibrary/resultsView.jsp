@@ -65,7 +65,7 @@ function showPopupWindow(url)
  return false;
 }
 function toggleNextDivVisibility(anchor, nextDivId){
-
+/*
 	var nextDivToToggle = document.getElementById(nextDivId);
 	var parentDiv = anchor.parentNode;
 	if(nextDivToToggle.style.display == "none"){
@@ -78,6 +78,69 @@ function toggleNextDivVisibility(anchor, nextDivId){
 		parentDiv.style.border= "";
 		anchor.innerHTML = "expand";
 	}
+*/
+
+/*	var nextDivToToggle = document.getElementById(nextDivId);
+	var parentDiv = anchor.parentNode;
+	
+	//http://stackoverflow.com/questions/4378784/how-to-find-all-siblings-of-currently-selected-object 
+	var sibs = [];
+    elem = anchor.parentNode.parentNode.firstChild;
+    do {
+        sibs.push(elem);
+    } while (elem = elem.nextSibling);
+    alert("number of sib div's here (2 ?) is: " + sibs.length);
+    for(var i = 0; i < sibs.length; i++){
+    	
+    }
+ */
+ 	//Stipuate:  Only one can be expanded at a time 
+ 	
+	//expandAnchor10, expandAnchor23, etc. (where 10 and 23 represent a unique runId) 	
+	var allExpandAnchors = document.querySelectorAll('*[id^="expandAnchor"]');
+ 
+	//var allRuns = document.querySelectorAll('*[id^="run"]');//must remove this 
+	//alert("number of expandAnchors are: " + allExpandAnchors.length);
+	//alert("number of run div's are: " + allRuns.length);
+	
+	for(var i = 0; i < allExpandAnchors.length; i++){
+		
+		var runId = allExpandAnchors[i].id.substring("expandAnchor".length);//capture the number from expandAnchor10 or expandAnchor23
+		//alert("runId = " + runId);		
+		//alert("runId length = " + runId.length);
+		var tempName = "run" + runId;
+		//alert("tempName = " + tempName);		
+		//alert("tempName length = " + tempName.length);
+		var runDiv = document.getElementById(tempName);
+		
+		var parentDiv = allExpandAnchors[i].parentNode;
+		
+		//var runDiv = allRuns[i];
+		if (allExpandAnchors[i].id == anchor.id){
+			//alert("one");
+			////var parentDiv = anchor.parentNode;
+			//alert("two");
+			
+			if(runDiv.style.display == "none"){
+				runDiv.style.display = "block";
+				parentDiv.style.border= "2px solid red";
+				allExpandAnchors[i].innerHTML = "hide";
+			}
+			else{
+				runDiv.style.display = "none";
+				parentDiv.style.border= "";
+				allExpandAnchors[i].innerHTML = "expand";
+			}
+		}
+		else{//close up any other expanded divs if they are NOT associated with the selected anchor 
+			if(runDiv.style.display == "block"){
+				runDiv.style.display = "none";
+				parentDiv.style.border= "";
+				allExpandAnchors[i].innerHTML = "expand";				
+			}
+		}
+	}
+	
 }
 </script>
 
@@ -124,7 +187,7 @@ function toggleNextDivVisibility(anchor, nextDivId){
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div>
-			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" >details </a> | <a href="javascript:void(0);" onclick='toggleNextDivVisibility(this, "run${run.getId()}");'> expand</a>] 
+			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" >details</a> | <a id="expandAnchor${run.getId()}" href="javascript:void(0);" onclick='toggleNextDivVisibility(this, "run${run.getId()}");'>expand</a>] 
 				<div id="run${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
