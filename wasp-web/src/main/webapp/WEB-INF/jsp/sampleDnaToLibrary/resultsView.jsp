@@ -298,9 +298,14 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 									</c:if>
 									
 									<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
-									<c:if test="${not empty parentMacromolecule }">
+									<c:choose>
+									<c:when test="${not empty parentMacromolecule }">
 										(<label>Parent:</label> <c:out value="${parentMacromolecule.getName()}" />)
-									</c:if>
+									</c:when>
+									<c:otherwise>
+										(<label>Parent:</label> None Submitted)
+									</c:otherwise>
+									</c:choose>
 									<%--
 									<div>
 										<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
