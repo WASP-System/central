@@ -22,6 +22,10 @@ $(document).ready(function() {
         position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
     }); 
 });
+
+
+
+
 function toggleViewerFrame(toggleButton){
 	var viewerFrame = document.getElementById('viewerFrame');
 	if(toggleButton.value == "Show Window"){
@@ -64,84 +68,6 @@ function showPopupWindow(url)
  if (window.focus) {newwin.focus();}
  return false;
 }
-function toggleNextDivVisibility(anchor, nextDivId){
-/*
-	var nextDivToToggle = document.getElementById(nextDivId);
-	var parentDiv = anchor.parentNode;
-	if(nextDivToToggle.style.display == "none"){
-		nextDivToToggle.style.display = "block";
-		parentDiv.style.border= "2px solid red";
-		anchor.innerHTML = "hide";
-	}
-	else{
-		nextDivToToggle.style.display = "none";
-		parentDiv.style.border= "";
-		anchor.innerHTML = "expand";
-	}
-*/
-
-/*	var nextDivToToggle = document.getElementById(nextDivId);
-	var parentDiv = anchor.parentNode;
-	
-	//http://stackoverflow.com/questions/4378784/how-to-find-all-siblings-of-currently-selected-object 
-	var sibs = [];
-    elem = anchor.parentNode.parentNode.firstChild;
-    do {
-        sibs.push(elem);
-    } while (elem = elem.nextSibling);
-    alert("number of sib div's here (2 ?) is: " + sibs.length);
-    for(var i = 0; i < sibs.length; i++){
-    	
-    }
- */
- 	//Stipuate:  Only one can be expanded at a time 
- 	
-	//expandAnchor10, expandAnchor23, etc. (where 10 and 23 represent a unique runId) 	
-	var allExpandAnchors = document.querySelectorAll('*[id^="expandAnchor"]');
- 
-	//var allRuns = document.querySelectorAll('*[id^="run"]');//must remove this 
-	//alert("number of expandAnchors are: " + allExpandAnchors.length);
-	//alert("number of run div's are: " + allRuns.length);
-	
-	for(var i = 0; i < allExpandAnchors.length; i++){
-		
-		var runId = allExpandAnchors[i].id.substring("expandAnchor".length);//capture the number from expandAnchor10 or expandAnchor23
-		//alert("runId = " + runId);		
-		//alert("runId length = " + runId.length);
-		var tempName = "run" + runId;
-		//alert("tempName = " + tempName);		
-		//alert("tempName length = " + tempName.length);
-		var runDiv = document.getElementById(tempName);
-		
-		var parentDiv = allExpandAnchors[i].parentNode;
-		
-		//var runDiv = allRuns[i];
-		if (allExpandAnchors[i].id == anchor.id){
-			//alert("one");
-			////var parentDiv = anchor.parentNode;
-			//alert("two");
-			
-			if(runDiv.style.display == "none"){
-				runDiv.style.display = "block";
-				parentDiv.style.border= "2px solid red";
-				allExpandAnchors[i].innerHTML = "hide";
-			}
-			else{
-				runDiv.style.display = "none";
-				parentDiv.style.border= "";
-				allExpandAnchors[i].innerHTML = "expand";
-			}
-		}
-		else{//close up any other expanded divs if they are NOT associated with the selected anchor 
-			if(runDiv.style.display == "block"){
-				runDiv.style.display = "none";
-				parentDiv.style.border= "";
-				allExpandAnchors[i].innerHTML = "expand";				
-			}
-		}
-	}
-
-}
 
 function toggleView(thisAnchorObject, url1, url2){
 	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
@@ -158,9 +84,70 @@ function toggleView(thisAnchorObject, url1, url2){
 		parentDiv.style.border= "";
 		thisAnchorObject.innerHTML = "expand";
 		unhighlightOtherRuns(runIdNumberToHighlight);
-		thisAnchorObject.href=url2;
+		populateIFrame(thisAnchorObject, url2); ///thisAnchorObject.href=url2;
+	}	
+}
+
+function populateIFrame(thisAnchorObject, url){
+	var targetId = thisAnchorObject.target;
+	if(targetId == ""){
+		return false;
+	}
+	//var myIframeObj = document.getElementById("myIframe"); 
+	var myIframeObj = document.getElementById(targetId);
+//	alert("requested url = " + url);
+//	alert("myIframeObj.src = " + myIframeObj.src);
+//	alert("myIframeObj.src.indexOf(url) = " + myIframeObj.src.indexOf(url));
+	//alert("myIframeObj.src.indexOf(url) ===-1 is " + myIframeObj.src.indexOf(url)===-1);
+	if(myIframeObj.src.indexOf(url)===-1){//they are different, so execute 
+//		alert("we are within the exeutable part");
+		myIframeObj.src = url;//simply changes the src information stored in myIframe object (save for next time); actually has no effect on making the http call 
+		thisAnchorObject.href=url;//makes the http call 
+	}
+	else{
+		thisAnchorObject.href = "javascript:void(0);";
+		alert("The viewport is currently displaying this information");
+		return false;
+	}
+}
+
+//globals 
+unhighlightedAnchorColor = "";
+unhighlightedAnchorBackground = "";
+unhighlightedAnchorFontWeight = "";
+highlightedAnchorColor = "red";
+highlightedAnchorBackground = "white";
+highlightedAnchorFontWeight = "bold";
+
+function toggleAnchors(thisAnchorObject){
+	
+	//save original anchor color in global variable 
+	if( unhighlightedAnchorColor == "" ){//global 
+		unhighlightedAnchorColor = thisAnchorObject.style.color;
 	}
 	
+	//anchor is already the currently highlighted anchor, so nothing needed to be done 
+	if(thisAnchorObject.style.color == highlightedAnchorColor){
+		return;
+	}
+	
+	//change this anchor to highlighted attributes 
+	thisAnchorObject.style.color = highlightedAnchorColor;// for example "blue" 
+	thisAnchorObject.style.background = highlightedAnchorBackground;
+	thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
+	
+	//for all other anchors (in div with id selectionLeftDiv), change back to the original, unhilighted attributes 
+	var selectionLeftDiv = document.getElementById("selectionLeft");
+	var allAnchors = selectionLeftDiv.getElementsByTagName("a");
+	for(var i = 0; i < allAnchors.length; i++){
+		if(thisAnchorObject.id != allAnchors[i].id){
+			allAnchors[i].style.color = unhighlightedAnchorColor;
+			allAnchors[i].style.background = unhighlightedAnchorBackground; 
+			allAnchors[i].style.fontWeight = unhighlightedAnchorFontWeight;			
+		}
+	}
+	
+
 }
 function populateIFrameAndHighlightThisRun(thisAnchorObject, url){
 
@@ -171,7 +158,8 @@ function populateIFrameAndHighlightThisRun(thisAnchorObject, url){
 	//var temp = "runDivToHighlight_" + runIdNumber;
 	//var runDivToHighlight = document.getElementById(temp);
 	//runDivToHighlight.style.border = "2px solid red";
-	thisAnchorObject.href=url;	
+	//////thisAnchorObject.href=url;
+	populateIFrame(thisAnchorObject, url);// thisAnchorObject.href=url; 
 }
 function highlightThisRunAndUnhighlightOtherRuns(runIdNumberToHighlight){
 	
@@ -210,6 +198,7 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 		}		
 	}
 }
+
 </script>
 
 
@@ -247,18 +236,20 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 		
 
 <div class="pageContainer">
-	<div class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" target="myIframe" >details</a>]		
+	<div id="selectionLeft" class="selectionLeft">	  
+		<%-- <label>Job Name: <c:out value="${job.getName()}" /></label>	[<a id="jobDetailsAnchor" style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" target="myIframe" >details</a>]	--%>	
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a id="jobDetailsAnchor" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >details</a>]
 		<div>
-			<label>Aggregate Analysis</label> [<a href="javascript:void(0);" onclick='alert("Not yet implemented");'>details</a>] 
+			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='toggleAnchors(this); alert("Not yet implemented");'>details</a>] 
 		</div>	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> 
 			<%-- [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" onclick='alert("in this anchor alert")";' >idetails</a> --%>
-			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
-			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
+			<%-- [<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> --%>
+			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
+			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
 				<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
@@ -267,10 +258,10 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 							<c:choose>
 								<c:when test="${not empty index }">							
 									<%-- <label>Lane <c:out value="${index}" /></label> [<a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>]--%> 
-									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
+									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a>] 
+									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${run.getId()}" style="color: #801A00;" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
