@@ -66,6 +66,7 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -1033,6 +1034,8 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Set<Sample> platformUnitSet = new HashSet<Sample>();
 	  Set<Run> runSet = new HashSet<Run>();
 	  List<Sample> platformUnitsSuccessfullyRun = new ArrayList<Sample>();
+	  //TODO ***********!!!!!!!!!!************really want to use 	  
+	  //List<SampleSource> getCellLibrariesThatPassedQCForJobList =  sampleService.getCellLibrariesThatPassedQCForJob(jobService.getJobByJobId(jobId));
 	  Set<SampleSource> cellLibrariesForJob =  sampleService.getCellLibrariesForJob(job);
 	  Map<Run,Sample> runPlatformUnitMap = new HashMap<Run, Sample>();
 	  Map<Sample, Run> platformUnitRunMap = new HashMap<Sample, Run>();
@@ -1305,8 +1308,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  return "sampleDnaToLibrary/runDetails";
   }
   @RequestMapping(value="/cellDetails/{cellId}", method=RequestMethod.GET)
-  //@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-  public String cellDetails(@PathVariable("cellId") Integer cellId, @RequestParam("runId") Integer runId, ModelMap m) throws SampleTypeException {
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String cellDetails(@PathVariable("cellId") Integer cellId, 
+		  @RequestParam("runId") Integer runId, @RequestParam("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 	  
 	  Run run = runService.getRunById(runId);
 	  List<RunMeta> runMetaList = run.getRunMeta();
@@ -1348,6 +1352,55 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("platformUnit", platformUnit);
 	  m.addAttribute("totalLanesOnPlatformUnit", totalLanesOnPlatformUnit);
 	  
+	  Sample cell = sampleService.getSampleById(cellId);
+	  try{
+		  m.addAttribute("cellIndex", sampleService.getCellIndex(cell));
+	  }catch(Exception e){}
+	  
+	  //TODO !!!!****$$$$****MUST MUST REALLY SHOULD BE: sampleService.getCellLibrariesThatPassedQCForJob(jobService.getJobByJobId(jobId));
+	  Set<SampleSource> cellLibrariesForJobSet = sampleService.getCellLibrariesForJob(jobService.getJobByJobId(jobId));
+	  List<Sample> librariesThatPassedQCForThisCellList = new ArrayList<Sample>();
+	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample,Adaptor>();
+	  Map<Sample, String> libraryAdaptorSetShortNameMap = new HashMap<Sample,String>();
+	  Map<Sample, String> librarypMAddedMap = new HashMap<Sample,String>();
+	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample,Sample>();
+	  
+	  for(SampleSource ss : cellLibrariesForJobSet){
+		  if(sampleService.getCell(ss) == cell){
+			  Sample library = sampleService.getLibrary(ss);
+			  librariesThatPassedQCForThisCellList.add(library);
+			  Adaptor adaptor = sampleService.getLibraryAdaptor(library);
+			  libraryAdaptorMap.put(library, adaptor);
+			  libraryAdaptorSetShortNameMap.put(library, adaptor.getAdaptorset().getName().split("\\s+")[0]);
+			  List<SampleSourceMeta> sampleSourceMetaList = ss.getSampleSourceMeta();
+			  String pMApplied = "???";
+			  for(SampleSourceMeta ssm : sampleSourceMetaList){
+				  if(ssm.getK().contains("libConcInCellPicoM")){
+					  pMApplied = ssm.getV();
+				  }
+			  }
+			  librarypMAddedMap.put(library, pMApplied);
+			  Sample parentMacromolecule = library.getParent();
+			  if(parentMacromolecule!=null && parentMacromolecule.getId()!=null){
+				  libraryMacromoleculeMap.put(library, parentMacromolecule);
+			  }
+		  }
+	  }
+	  
+	  for(Sample library : librariesThatPassedQCForThisCellList){
+		  if(libraryMacromoleculeMap.get(library)!=null){
+			  System.out.println("Parent: "+ libraryMacromoleculeMap.get(library).getName());
+		  }else {System.out.println("Parent: N/A");}		  
+		  System.out.println("Lib: "+ library.getName());		  
+		  System.out.println("AdaptorSetShortname: "+ libraryAdaptorSetShortNameMap.get(library));
+		  System.out.println("Adaptor Index: "+ libraryAdaptorMap.get(library).getBarcodenumber());
+		  System.out.println("AdaptorTag: "+ libraryAdaptorMap.get(library).getBarcodesequence());
+		  System.out.println("pM applied: "+ librarypMAddedMap.get(library));
+		  System.out.println("");
+		  
+	  }
+	  //should order libraries by adaptor index
+	  //must get the controls for this lane
 	  return "sampleDnaToLibrary/cellDetails";
   }
 }
