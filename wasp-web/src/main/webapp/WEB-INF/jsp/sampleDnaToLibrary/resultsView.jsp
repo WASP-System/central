@@ -147,56 +147,6 @@ function toggleAnchors(thisAnchorObject){
 	}
 }
 
-function populateIFrameAndHighlightThisRun(thisAnchorObject, url){
-
-	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
-	highlightThisRunAndUnhighlightOtherRuns(runIdNumberToHighlight);
-	
-	//alert("runIdNumber = " + runIdNumber);
-	//var temp = "runDivToHighlight_" + runIdNumber;
-	//var runDivToHighlight = document.getElementById(temp);
-	//runDivToHighlight.style.border = "2px solid red";
-	//////thisAnchorObject.href=url;
-	populateIFrame(thisAnchorObject, url);// thisAnchorObject.href=url; 
-}
-function highlightThisRunAndUnhighlightOtherRuns(runIdNumberToHighlight){
-	
-	var allRunDivsToHighlight = document.querySelectorAll('*[id^="runDivToHighlight_"]');
-	for(var i = 0; i < allRunDivsToHighlight.length; i++){
-		var runDivToHighlight = allRunDivsToHighlight[i];
-		if(runDivToHighlight.id.split("_").pop() == runIdNumberToHighlight){
-			runDivToHighlight.style.border = "2px solid red";
-		}
-		else{
-			var temp = "runDivToToggle_" + runDivToHighlight.id.split("_").pop();
-			var runDivToToggle = document.getElementById(temp);
-			if(runDivToToggle.style.display == "block"){//it's already open 
-				runDivToHighlight.style.border = "1px dashed gray";
-			}
-			else{
-				runDivToHighlight.style.border = "";
-			}
-		}		
-	}
-}
-function unhighlightOtherRuns(runIdNumberToHighlight){
-	
-	var allRunDivsToHighlight = document.querySelectorAll('*[id^="runDivToHighlight_"]');
-	for(var i = 0; i < allRunDivsToHighlight.length; i++){
-		var runDivToHighlight = allRunDivsToHighlight[i];
-		if(runDivToHighlight.id.split("_").pop() != runIdNumberToHighlight){
-			var temp = "runDivToToggle_" + runDivToHighlight.id.split("_").pop();
-			var runDivToToggle = document.getElementById(temp);
-			if(runDivToToggle.style.display == "block"){//it's already open 
-				runDivToHighlight.style.border = "1px dashed gray";
-			}
-			else{
-				runDivToHighlight.style.border = "";
-			}
-		}		
-	}
-}
-
 function toggleViewerFrame(toggleButton){
 	var viewerFrame = document.getElementById('viewerFrame');
 	if(toggleButton.value == "Show Window"){
@@ -268,10 +218,10 @@ function toggleViewerFrame(toggleButton){
 							<c:choose>
 								<c:when test="${not empty index }">							
 									<%-- <label>Lane <c:out value="${index}" /></label> [<a  href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>]--%> 
-									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
+									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a>] 
+									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
