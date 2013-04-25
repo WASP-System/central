@@ -69,6 +69,65 @@ function showPopupWindow(url)
  return false;
 }
 
+function toggleExpandHide(thisAnchorObject, url1, url2){
+	
+	//when expand, show url1 and hilight it's details
+	//when close, ID any of it's details are highlighed, close, unhiglhigh, and show url2 
+	
+	
+	var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
+	var temp = "runDivToToggle_" + runIdNumberToToggle;
+	var runDivToToggle = document.getElementById(temp);
+	var parentDiv = thisAnchorObject.parentNode;
+	
+	if(runDivToToggle.style.display == "none"){//selected region is closed, so open it 
+		runDivToToggle.style.display = "block";
+		//"1px dashed gray";
+		thisAnchorObject.innerHTML = "hide";
+		parentDiv.style.border= "1px dashed gray";
+		//populateIFrameAndHighlightThisRun(thisAnchorObject, url1);
+		
+		//in case this expand/hide anchor is highlighted (see below in this method, unhighlight it) 
+		thisAnchorObject.style.color = unhighlightedAnchorColor;
+		thisAnchorObject.style.background = unhighlightedAnchorBackground; 
+		thisAnchorObject.style.fontWeight = unhighlightedAnchorFontWeight;
+		thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toLowerCase();
+	}
+	else{//it's open, so close it 
+		runDivToToggle.style.display = "none";
+		thisAnchorObject.innerHTML = "expand";		
+		parentDiv.style.border= "";
+		
+		//unhighlightOtherRuns(runIdNumberToHighlight);
+		//populateIFrame(thisAnchorObject, url2); ///thisAnchorObject.href=url2;
+		
+		/*  on second thought, don't do this
+		//also unhighlight any highlighted anchors within this region)
+		var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
+		for(var i = 0; i < allAnchorsInRunDivToToggle.length; i++){
+				allAnchorsInRunDivToToggle[i].style.color = unhighlightedAnchorColor;
+				allAnchorsInRunDivToToggle[i].style.background = unhighlightedAnchorBackground; 
+				allAnchorsInRunDivToToggle[i].style.fontWeight = unhighlightedAnchorFontWeight;	
+				allAnchorsInRunDivToToggle[i].innerHTML = allAnchorsInRunDivToToggle[i].innerHTML.toLowerCase();
+		}
+		*/
+		//when closing (hiding) this area 
+		//if any of the anchors within this area are highlighted, 
+		//then leave them highlighted and also highlight the hide anchor (to indicate that some details anchor now hidden is currently hightlighted) 
+		var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
+		for(var i = 0; i < allAnchorsInRunDivToToggle.length; i++){
+			if(allAnchorsInRunDivToToggle[i].style.color == highlightedAnchorColor){
+				thisAnchorObject.style.color = highlightedAnchorColor;
+				thisAnchorObject.style.background = highlightedAnchorBackground; 
+				thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
+				thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();				
+				break;
+			}
+		}
+		
+	}
+}
+
 function toggleView(thisAnchorObject, url1, url2){
 	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
 	var temp = "runDivToToggle_" + runIdNumberToHighlight;
@@ -235,7 +294,7 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
 		<%-- <label>Job Name: <c:out value="${job.getName()}" /></label>	[<a id="jobDetailsAnchor"  href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" target="myIframe" >details</a>]	--%>	
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >details</a>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a>]
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
 		</div>	
@@ -246,8 +305,9 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 			<%-- [<a  href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" onclick='alert("in this anchor alert")";' >idetails</a> --%>
 			<%-- [<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> --%>
 			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
-			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
-				<div id="runDivToToggle_${run.getId()}" style="display:none;">					
+			<%-- | <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] --%>
+			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleExpandHide(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
+					<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
 						<div>
