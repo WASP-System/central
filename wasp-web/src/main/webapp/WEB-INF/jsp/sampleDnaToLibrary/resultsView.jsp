@@ -155,6 +155,66 @@ function toggleViewerFrame(toggleButton){
 		viewerFrame.style.display = "none";		
 	}	
 }
+function openAllRuns(){
+	
+	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
+	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
+	alert("size of runExpandAnchorArray = " + runExpandAnchorArray.length);
+	for(var i = 0; i < runExpandAnchorArray.length; i++){
+		thisAnchorObject = runExpandAnchorArray[i];
+		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
+		var temp = "runDivToToggle_" + runIdNumberToToggle;
+		var runDivToToggle = document.getElementById(temp);
+		var parentDiv = thisAnchorObject.parentNode;
+		
+		if(runDivToToggle.style.display == "none"){//selected region is closed, so open it. If it's open, then do nothing 
+			runDivToToggle.style.display = "block";
+			thisAnchorObject.innerHTML = "hide";
+			parentDiv.style.border= "1px dashed gray";
+			
+			//in case this expand/hide anchor (the thisAnchorObject object) happens to be highlighted, then unhighlight it 
+			//(note: it can become highlighted in certain situations. See function toggleExpandHide() above) 
+			thisAnchorObject.style.color = unhighlightedAnchorColor;
+			thisAnchorObject.style.background = unhighlightedAnchorBackground; 
+			thisAnchorObject.style.fontWeight = unhighlightedAnchorFontWeight;
+			thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toLowerCase();
+		}
+	}
+}
+function closeAllRuns(){
+	alert("in CLOSE all runs");
+	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
+	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
+	alert("size of runExpandAnchorArray = " + runExpandAnchorArray.length);
+	for(var i = 0; i < runExpandAnchorArray.length; i++){
+		thisAnchorObject = runExpandAnchorArray[i];
+		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
+		var temp = "runDivToToggle_" + runIdNumberToToggle;
+		var runDivToToggle = document.getElementById(temp);
+		var parentDiv = thisAnchorObject.parentNode;
+		
+		if(runDivToToggle.style.display == "block"){//selected region is open, so close it. If it's closed, then do nothing 
+			runDivToToggle.style.display = "none";
+			thisAnchorObject.innerHTML = "expand";		
+			parentDiv.style.border= "";
+					
+			//when closing (hiding) this area, 
+			//if ANY of its internal anchors (within this area) are highlighted, 
+			//then leave them highlighted and ALSO highlight the hide/expand anchor (to indicate that some detail anchor, now hidden, is currently hightlighted) 
+			var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
+			for(var z = 0; z < allAnchorsInRunDivToToggle.length; z++){
+				if(allAnchorsInRunDivToToggle[z].style.color == highlightedAnchorColor){
+					thisAnchorObject.style.color = highlightedAnchorColor;
+					thisAnchorObject.style.background = highlightedAnchorBackground; 
+					thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
+					thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();				
+					break;
+				}
+			}
+		}
+	}
+	
+}
 </script>
  
 <style>
@@ -189,7 +249,7 @@ function toggleViewerFrame(toggleButton){
 
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a>]
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
 		</div>	
