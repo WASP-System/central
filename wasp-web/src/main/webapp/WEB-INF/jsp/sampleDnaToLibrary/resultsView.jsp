@@ -1,8 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<br />
-<br />
-
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -149,22 +146,16 @@ function toggleAnchors(thisAnchorObject){
 
 function toggleViewerFrame(toggleButton){
 	var viewerFrame = document.getElementById('viewerFrame');
-	if(toggleButton.value == "Show Window"){
-		toggleButton.value = "Hide Window";
+	if(toggleButton.value == "Show Viewport"){
+		toggleButton.value = "Hide Viewport";
 		viewerFrame.style.display = "block";
 	}
-	else if(toggleButton.value == "Hide Window"){
-		toggleButton.value = "Show Window";
+	else if(toggleButton.value == "Hide Viewport"){
+		toggleButton.value = "Show Viewport";
 		viewerFrame.style.display = "none";		
 	}	
 }
 </script>
-
-
-
-
-
-
  
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
@@ -182,6 +173,7 @@ function toggleViewerFrame(toggleButton){
 	.rob div {margin:5px 0px 5px 10px;}
 </style>
 --%>
+
 <%--these dialogs are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
@@ -190,13 +182,13 @@ function toggleViewerFrame(toggleButton){
 	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
 
+<br /><br />
+<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a></h1>	
 
-<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a></h1>		
-		
+<input id="toggleButton" class="fm-button" type="button" value="Hide Viewport"  onClick="toggleViewerFrame(this)" />	
 
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<%-- <label>Job Name: <c:out value="${job.getName()}" /></label>	[<a id="jobDetailsAnchor"  href="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" target="myIframe" >details</a>]	--%>	
 		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a>]
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
@@ -205,10 +197,7 @@ function toggleViewerFrame(toggleButton){
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> 
-			<%-- [<a  href="<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />" target="myIframe" onclick='alert("in this anchor alert")";' >idetails</a> --%>
-			<%-- [<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> --%>
 			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
-			<%-- | <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] --%>
 			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleExpandHide(this);' >expand</a>] 
 					<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
@@ -217,7 +206,6 @@ function toggleViewerFrame(toggleButton){
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<%-- <label>Lane <c:out value="${index}" /></label> [<a  href="<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />" target="myIframe" >details</a> | <a href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>]--%> 
 									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
 								</c:when>
 								<c:otherwise>
@@ -257,14 +245,6 @@ function toggleViewerFrame(toggleButton){
 										(<label>Parent:</label> None Submitted)
 									</c:otherwise>
 									</c:choose>
-									<%--
-									<div>
-										<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-										<c:if test="${not empty adaptor }">
-											<label>Adaptor:</label> <c:out value="${adaptor.getName()}" />
-										</c:if>
-									</div>
-									--%>
 								</div>
 							</c:forEach>
 						</div>
@@ -272,10 +252,13 @@ function toggleViewerFrame(toggleButton){
 				</div>
 		  	</div>
 		</c:forEach>
-	
+
+		<br /><br />
+		________________________________	
 	 	<br /><br />more stuff:<br/>	
-		<input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
+		<%-- <input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br />
+		--%>
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		<br />
 		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
