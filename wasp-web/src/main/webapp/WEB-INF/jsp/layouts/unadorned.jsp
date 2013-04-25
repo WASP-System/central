@@ -72,8 +72,8 @@
   <tiles:insertAttribute name="head-js" />
   <tiles:insertAttribute name="head-style" />
 </head>
-<body>
-<div style="background-color: #FFFFE6;">
+<body style="background-image:url(''); background-color: #FFFFE6; ">
+<div>
 <wasp:errorMessage />
 <tiles:insertAttribute name="body-content" />
 </div>

@@ -266,7 +266,7 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:2px solid black;  overflow:hidden;}
+	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:hidden;}
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
