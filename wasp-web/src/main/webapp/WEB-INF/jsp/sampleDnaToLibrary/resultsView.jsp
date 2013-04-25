@@ -23,24 +23,16 @@ $(document).ready(function() {
     }); 
 });
 
+//globals 
+unhighlightedAnchorColor = "";
+unhighlightedAnchorBackground = "";
+unhighlightedAnchorFontWeight = "";
+highlightedAnchorColor = "red";
+highlightedAnchorBackground = "white";
+highlightedAnchorFontWeight = "bold";
 
-
-
-function toggleViewerFrame(toggleButton){
-	var viewerFrame = document.getElementById('viewerFrame');
-	if(toggleButton.value == "Show Window"){
-		toggleButton.value = "Hide Window";
-		viewerFrame.style.display = "block";
-	}
-	else if(toggleButton.value == "Hide Window"){
-		toggleButton.value = "Show Window";
-		viewerFrame.style.display = "none";		
-	}	
-}
 function showModalDialog(url){
 	//http://clarkupdike.blogspot.com/2009/03/basic-example-of-jquerys-uidialog.html
-	//alert("robert's test alert");
-	//var iframe = document.getElementById("modalIframeId");
 	$("#modalIframeId").attr("src", url);
 	$( "#modalDialog" ).dialog("open");
 }
@@ -49,32 +41,29 @@ function showModalessDialog(url){
 	$( "#modalessDialog" ).dialog("open");
 }
 function showPopupWindow(url) 
-{//from http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
+{	
+	//from http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
 	//also could see http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
- var width  = 1200;
- var height = 800;
- var left   = screen.width - width;
- var top    = 0;
- var params = 'width='+width+', height='+height;
- params += ', top='+top+', left='+left;
- params += ', directories=no';
- params += ', location=no';
- params += ', menubar=no';
- params += ', resizable=no';
- params += ', scrollbars=yes';
- params += ', status=no';
- params += ', toolbar=no';
- newwin=window.open(url,'customWindow', params);
- if (window.focus) {newwin.focus();}
- return false;
+	 var width  = 1200;
+	 var height = 800;
+	 var left   = screen.width - width;
+	 var top    = 0;
+	 var params = 'width='+width+', height='+height;
+	 params += ', top='+top+', left='+left;
+	 params += ', directories=no';
+	 params += ', location=no';
+	 params += ', menubar=no';
+	 params += ', resizable=no';
+	 params += ', scrollbars=yes';
+	 params += ', status=no';
+	 params += ', toolbar=no';
+	 newwin=window.open(url,'customWindow', params);
+	 if (window.focus) {newwin.focus();}
+	 return false;
 }
 
-function toggleExpandHide(thisAnchorObject, url1, url2){
-	
-	//when expand, show url1 and hilight it's details
-	//when close, ID any of it's details are highlighed, close, unhiglhigh, and show url2 
-	
-	
+function toggleExpandHide(thisAnchorObject){
+
 	var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
 	var temp = "runDivToToggle_" + runIdNumberToToggle;
 	var runDivToToggle = document.getElementById(temp);
@@ -82,12 +71,11 @@ function toggleExpandHide(thisAnchorObject, url1, url2){
 	
 	if(runDivToToggle.style.display == "none"){//selected region is closed, so open it 
 		runDivToToggle.style.display = "block";
-		//"1px dashed gray";
 		thisAnchorObject.innerHTML = "hide";
 		parentDiv.style.border= "1px dashed gray";
-		//populateIFrameAndHighlightThisRun(thisAnchorObject, url1);
 		
-		//in case this expand/hide anchor is highlighted (see below in this method, unhighlight it) 
+		//in case this expand/hide anchor (the thisAnchorObject object) happens to be highlighted, then unhighlight it 
+		//(note: it can become highlighted in certain situations; see this method, below) 
 		thisAnchorObject.style.color = unhighlightedAnchorColor;
 		thisAnchorObject.style.background = unhighlightedAnchorBackground; 
 		thisAnchorObject.style.fontWeight = unhighlightedAnchorFontWeight;
@@ -97,23 +85,10 @@ function toggleExpandHide(thisAnchorObject, url1, url2){
 		runDivToToggle.style.display = "none";
 		thisAnchorObject.innerHTML = "expand";		
 		parentDiv.style.border= "";
-		
-		//unhighlightOtherRuns(runIdNumberToHighlight);
-		//populateIFrame(thisAnchorObject, url2); ///thisAnchorObject.href=url2;
-		
-		/*  on second thought, don't do this
-		//also unhighlight any highlighted anchors within this region)
-		var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
-		for(var i = 0; i < allAnchorsInRunDivToToggle.length; i++){
-				allAnchorsInRunDivToToggle[i].style.color = unhighlightedAnchorColor;
-				allAnchorsInRunDivToToggle[i].style.background = unhighlightedAnchorBackground; 
-				allAnchorsInRunDivToToggle[i].style.fontWeight = unhighlightedAnchorFontWeight;	
-				allAnchorsInRunDivToToggle[i].innerHTML = allAnchorsInRunDivToToggle[i].innerHTML.toLowerCase();
-		}
-		*/
-		//when closing (hiding) this area 
-		//if any of the anchors within this area are highlighted, 
-		//then leave them highlighted and also highlight the hide anchor (to indicate that some details anchor now hidden is currently hightlighted) 
+				
+		//when closing (hiding) this area, 
+		//if ANY of its internal anchors (within this area) are highlighted, 
+		//then leave them highlighted and ALSO highlight the hide/expand anchor (to indicate that some detail anchor, now hidden, is currently hightlighted) 
 		var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
 		for(var i = 0; i < allAnchorsInRunDivToToggle.length; i++){
 			if(allAnchorsInRunDivToToggle[i].style.color == highlightedAnchorColor){
@@ -123,60 +98,28 @@ function toggleExpandHide(thisAnchorObject, url1, url2){
 				thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();				
 				break;
 			}
-		}
-		
+		}		
 	}
-}
-
-function toggleView(thisAnchorObject, url1, url2){
-	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
-	var temp = "runDivToToggle_" + runIdNumberToHighlight;
-	var runDivToToggle = document.getElementById(temp);
-	if(runDivToToggle.style.display == "none"){//selected region is closed, so open it up and populate the iframe with run info
-		runDivToToggle.style.display = "block";
-		thisAnchorObject.innerHTML = "hide";
-		populateIFrameAndHighlightThisRun(thisAnchorObject, url1);
-	}
-	else{
-		runDivToToggle.style.display = "none";
-		var parentDiv = thisAnchorObject.parentNode;
-		parentDiv.style.border= "";
-		thisAnchorObject.innerHTML = "expand";
-		unhighlightOtherRuns(runIdNumberToHighlight);
-		populateIFrame(thisAnchorObject, url2); ///thisAnchorObject.href=url2;
-	}	
 }
 
 function populateIFrame(thisAnchorObject, url){
+
 	var targetId = thisAnchorObject.target;
 	if(targetId == ""){
 		return false;
 	}
-	//var myIframeObj = document.getElementById("myIframe"); 
+	// no longer needed: var myIframeObj = document.getElementById("myIframe"); 
 	var myIframeObj = document.getElementById(targetId);
-//	alert("requested url = " + url);
-//	alert("myIframeObj.src = " + myIframeObj.src);
-//	alert("myIframeObj.src.indexOf(url) = " + myIframeObj.src.indexOf(url));
-	//alert("myIframeObj.src.indexOf(url) ===-1 is " + myIframeObj.src.indexOf(url)===-1);
 	if(myIframeObj.src.indexOf(url)===-1){//they are different, so execute 
-//		alert("we are within the exeutable part");
-		myIframeObj.src = url;//simply changes the src information stored in myIframe object (save for next time); actually has no effect on making the http call 
-		thisAnchorObject.href=url;//makes the http call 
+		myIframeObj.src = url;//simply changes the src information stored in myIframe object (save for next time); this actually has no effect on making the http call 
+		thisAnchorObject.href=url;//it is this line that actually makes the http call 
 	}
 	else{
 		thisAnchorObject.href = "javascript:void(0);";
-		alert("The viewport is currently displaying this information");
+		alert("The viewport on the right is currently displaying this information");
 		return false;
 	}
 }
-
-//globals 
-unhighlightedAnchorColor = "";
-unhighlightedAnchorBackground = "";
-unhighlightedAnchorFontWeight = "";
-highlightedAnchorColor = "red";
-highlightedAnchorBackground = "white";
-highlightedAnchorFontWeight = "bold";
 
 function toggleAnchors(thisAnchorObject){
 	
@@ -202,9 +145,8 @@ function toggleAnchors(thisAnchorObject){
 			allAnchors[i].innerHTML = allAnchors[i].innerHTML.toLowerCase();
 		}
 	}
-	
-
 }
+
 function populateIFrameAndHighlightThisRun(thisAnchorObject, url){
 
 	var runIdNumberToHighlight = thisAnchorObject.id.split("_").pop();
@@ -255,6 +197,17 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 	}
 }
 
+function toggleViewerFrame(toggleButton){
+	var viewerFrame = document.getElementById('viewerFrame');
+	if(toggleButton.value == "Show Window"){
+		toggleButton.value = "Hide Window";
+		viewerFrame.style.display = "block";
+	}
+	else if(toggleButton.value == "Hide Window"){
+		toggleButton.value = "Show Window";
+		viewerFrame.style.display = "none";		
+	}	
+}
 </script>
 
 
@@ -306,7 +259,7 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 			<%-- [<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrameAndHighlightThisRun(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> --%>
 			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
 			<%-- | <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); toggleView(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] --%>
-			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleExpandHide(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />", "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >expand</a>] 
+			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleExpandHide(this);' >expand</a>] 
 					<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
@@ -415,7 +368,7 @@ function unhighlightOtherRuns(runIdNumberToHighlight){
 
 
 
- <%-- 
+ <%-- original experimental section
 <style>
 	.pageContainer {width:100%; overflow:hidden;}
 	.selectionLeft {float:left; width:15%; }

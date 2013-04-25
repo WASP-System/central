@@ -74,23 +74,10 @@
 </head>
 <body style="background-image:url(''); background-color: #FFFFE6; ">
 <div>
-<wasp:errorMessage />
+<%-- <wasp:errorMessage /> --%>
 <tiles:insertAttribute name="body-content" />
 </div>
 </body>
-<%-- 
-<body style="background-color: #FFFFE6;">
-
-	<div id="container" style="background-color: #FFFFE6;">  		
-		<sec:authorize access="isAuthenticated()">		
-  		<div id="content" style="background-color: #FFFFE6;"> 
-			<tiles:insertAttribute name="body-content" />
-		</div>
-  		</sec:authorize>
-	</div>
-
-</body>
---%>
 </html>
 
 
