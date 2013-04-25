@@ -105,6 +105,7 @@ function populateIFrame(thisAnchorObject, url){
 	if(targetId == ""){
 		return false;
 	}
+	
 	// no longer needed: var myIframeObj = document.getElementById("myIframe"); 
 	var myIframeObj = document.getElementById(targetId);
 	if(myIframeObj.src.indexOf(url)===-1){//they are different, so execute 
@@ -159,7 +160,6 @@ function openAllRuns(){
 	
 	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
 	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
-	alert("size of runExpandAnchorArray = " + runExpandAnchorArray.length);
 	for(var i = 0; i < runExpandAnchorArray.length; i++){
 		thisAnchorObject = runExpandAnchorArray[i];
 		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
@@ -182,10 +182,8 @@ function openAllRuns(){
 	}
 }
 function closeAllRuns(){
-	alert("in CLOSE all runs");
 	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
 	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
-	alert("size of runExpandAnchorArray = " + runExpandAnchorArray.length);
 	for(var i = 0; i < runExpandAnchorArray.length; i++){
 		thisAnchorObject = runExpandAnchorArray[i];
 		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
@@ -244,8 +242,6 @@ function closeAllRuns(){
 
 <br /><br />
 <h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a></h1>	
-
-<input id="toggleButton" class="fm-button" type="button" value="Hide Viewport"  onClick="toggleViewerFrame(this)" />	
 
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
@@ -316,9 +312,9 @@ function closeAllRuns(){
 		<br /><br />
 		________________________________	
 	 	<br /><br />more stuff:<br/>	
-		<%-- <input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
+		 <input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
 		<br />
-		--%>
+		
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		<br />
 		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
