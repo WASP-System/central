@@ -1357,6 +1357,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.addAttribute("cellIndex", sampleService.getCellIndex(cell));
 	  }catch(Exception e){}
 	  
+	  
 	  //TODO !!!!****$$$$****MUST MUST REALLY SHOULD BE: sampleService.getCellLibrariesThatPassedQCForJob(jobService.getJobByJobId(jobId));
 	  Set<SampleSource> cellLibrariesForJobSet = sampleService.getCellLibrariesForJob(jobService.getJobByJobId(jobId));
 	  List<Sample> librariesThatPassedQCForThisCellList = new ArrayList<Sample>();
@@ -1364,11 +1365,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  Map<Sample, String> libraryAdaptorSetShortNameMap = new HashMap<Sample,String>();
 	  Map<Sample, String> librarypMAddedMap = new HashMap<Sample,String>();
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample,Sample>();
-	  
+	  Map<Sample, String> libraryOrganismMap = new HashMap<Sample,String>();//if a parent macromoleucle was submitted, species is stored with it's meta; if only a library was submitted, species stored with the library's mete
+	  List<Sample> contolLibrariesForThisCell = new ArrayList<Sample>();
+
 	  for(SampleSource ss : cellLibrariesForJobSet){
 		  if(sampleService.getCell(ss) == cell){
 			  Sample library = sampleService.getLibrary(ss);
-			  librariesThatPassedQCForThisCellList.add(library);
+			  librariesThatPassedQCForThisCellList.add(library);//this is just a fix to display anything now!
 			  Adaptor adaptor = sampleService.getLibraryAdaptor(library);
 			  libraryAdaptorMap.put(library, adaptor);
 			  libraryAdaptorSetShortNameMap.put(library, adaptor.getAdaptorset().getName().split("\\s+")[0]);
@@ -1383,19 +1386,59 @@ public class SampleDnaToLibraryController extends WaspController {
 			  Sample parentMacromolecule = library.getParent();
 			  if(parentMacromolecule!=null && parentMacromolecule.getId()!=null){
 				  libraryMacromoleculeMap.put(library, parentMacromolecule);
+				  libraryOrganismMap.put(library, sampleService.getNameOfOrganism(parentMacromolecule, "???"));
 			  }
+			  else{
+				  libraryOrganismMap.put(library, sampleService.getNameOfOrganism(library, "???"));
+			  }
+			  //will also require (from samplesource) the passfilter reads
 		  }
 	  }
 	  
+	  //any controls on this lane?
+	  List<Sample> controlLibrariesForThisCellList = sampleService.getControlLibrariesOnCell(cell);
+	  if(!controlLibrariesForThisCellList.isEmpty()){
+		  for(Sample controlLibrary : controlLibrariesForThisCellList){
+			  Adaptor adaptor = sampleService.getLibraryAdaptor(controlLibrary);
+			  if(adaptor != null && adaptor.getId()!=null){
+				  libraryAdaptorMap.put(controlLibrary, adaptor);
+				  libraryAdaptorSetShortNameMap.put(controlLibrary, adaptor.getAdaptorset().getName().split("\\s+")[0]);
+			  }
+			  SampleSource ss = sampleService.getCellLibrary(cell, controlLibrary);
+			  List<SampleSourceMeta> sampleSourceMetaList = ss.getSampleSourceMeta();
+			  String pMApplied = "???";
+			  for(SampleSourceMeta ssm : sampleSourceMetaList){
+				  if(ssm.getK().contains("libConcInCellPicoM")){
+					  pMApplied = ssm.getV();
+				  }
+			  }
+			  librarypMAddedMap.put(controlLibrary, pMApplied);
+			  libraryOrganismMap.put(controlLibrary, sampleService.getNameOfOrganism(controlLibrary, "???"));
+			  //will also require (from samplesource) the passfilter reads
+		  }
+	  }
+
+	  m.addAttribute("controlLibrariesForThisCellList", controlLibrariesForThisCellList);
+	  m.addAttribute("librariesThatPassedQCForThisCellList", librariesThatPassedQCForThisCellList);
+	  m.addAttribute("libraryMacromoleculeMap", libraryMacromoleculeMap);
+	  m.addAttribute("libraryOrganismMap", libraryOrganismMap);
+	  m.addAttribute("libraryAdaptorSetShortNameMap", libraryAdaptorSetShortNameMap);
+	  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+	  m.addAttribute("librarypMAddedMap", librarypMAddedMap);
+	  
+	  //m.addAttribute("", );passfilter reads
+		 	 	 	 	 	 
 	  for(Sample library : librariesThatPassedQCForThisCellList){
 		  if(libraryMacromoleculeMap.get(library)!=null){
 			  System.out.println("Parent: "+ libraryMacromoleculeMap.get(library).getName());
 		  }else {System.out.println("Parent: N/A");}		  
-		  System.out.println("Lib: "+ library.getName());		  
+		  System.out.println("Lib: "+ library.getName());
+		  System.out.println("Species: "+ libraryOrganismMap.get(library));
 		  System.out.println("AdaptorSetShortname: "+ libraryAdaptorSetShortNameMap.get(library));
 		  System.out.println("Adaptor Index: "+ libraryAdaptorMap.get(library).getBarcodenumber());
 		  System.out.println("AdaptorTag: "+ libraryAdaptorMap.get(library).getBarcodesequence());
 		  System.out.println("pM applied: "+ librarypMAddedMap.get(library));
+		  
 		  System.out.println("");
 		  
 	  }

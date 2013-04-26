@@ -3,10 +3,10 @@
 <br />
 <table style="border:1px solid black;">
 <tr><td class="CaptionTD" style="text-decoration:underline; text-align:center" colspan="2">Lane ${cellIndex} </td></tr>
-<tr><td class="CaptionTD">Raw Reads: </td><td class="DataTD"><c:out value="100000" /></td></tr>
-<tr><td class="CaptionTD">Pass Filter (PF) Reads: </td><td class="DataTD"><c:out value="50000" /> (50% of Raw Reads)</td></tr>
-<tr><td class="CaptionTD">PF Reads (Expected Indexes): </td><td class="DataTD"><c:out value="49000" /> (49% of Raw Reads)</td></tr>
-<tr><td class="CaptionTD">PF Reads (Unexpected Indexes): </td><td class="DataTD"><c:out value="1000" /> (1% of Raw Reads)</td></tr>
+<tr><td class="CaptionTD">Raw Reads (RR): </td><td class="DataTD"><c:out value="100000" /></td></tr>
+<tr><td class="CaptionTD">Pass Filter Reads (PF): </td><td class="DataTD"><c:out value="50000" /> (50% of RR)</td></tr>
+<tr><td class="CaptionTD">PF Reads (Expected Indexes): </td><td class="DataTD"><c:out value="49000" /> (98% of PF)</td></tr>
+<tr><td class="CaptionTD">PF Reads (Unexpected Indexes): </td><td class="DataTD"><c:out value="1000" /> (2% of PF)</td></tr>
 </table>
 <%-- 
 <br />
@@ -36,46 +36,107 @@
 --%>
 <br />
 <table class="data">
-<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Control Libraries </td></tr>
-<tr class="FormData">
-	<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Library</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Index</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
-	<td class="label-centered" style="background-color:#FAF2D6">pM</td>
-	<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>
-	
-</tr>
-<tr>
-	<td class="DataTD" style="text-align:center;">N/A</td>
-	<td class="DataTD" style="text-align:center;">phiX</td>
-	<td class="DataTD" style="text-align:center;">TruSeq</td>
-	<td class="DataTD" style="text-align:center;">1</td>
-	<td class="DataTD" style="text-align:center;">ATCACG</td>
-	<td class="DataTD" style="text-align:center;">1</td>
-	<td class="DataTD" style="text-align:center;">1000 (2%)</td>
-	
-</tr>
-<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Data Libraries </td></tr>
-<tr class="FormData">
-	<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Library</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Index</td>
-	<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
-	<td class="label-centered" style="background-color:#FAF2D6">pM</td>
-	<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>
-	
-</tr>
-<tr>
-	<td class="DataTD" style="text-align:center;">abc123-robdiv</td>
-	<td class="DataTD" style="text-align:center;">abc123-robdiv_facLib_1_2_13</td>
-	<td class="DataTD" style="text-align:center;">TruSeq</td>
-	<td class="DataTD" style="text-align:center;">1</td>
-	<td class="DataTD" style="text-align:center;">ATCACG</td>
-	<td class="DataTD" style="text-align:center;">1</td>
-	<td class="DataTD" style="text-align:center;">1000 (2%)</td>
-	
-</tr>
+<c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
+	<c:if test="${status.first}">
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Control Libraries </td></tr>
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Index</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
+			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
+			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
+		</tr>
+	</c:if>
+	<tr>
+		<td class="DataTD" style="text-align:center;">
+			<c:set value="${libraryMacromoleculeMap.get(controlLibrary)}" var="parentMacromolecule"/>
+			<c:choose>
+			<c:when test="${not empty parentMacromolecule }">
+				<c:out value="${parentMacromolecule.getName()}" />
+			</c:when>
+			<c:otherwise>
+				N/A
+			</c:otherwise>
+			</c:choose>	
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${controlLibrary.getName()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" />
+		</td>
+		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>		
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${adaptor.getBarcodenumber()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${adaptor.getBarcodesequence()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${librarypMAddedMap.get(controlLibrary)}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="???" />
+		</td>
+	</tr>
+</c:forEach>
+
+<c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
+	<c:if test="${status2.first}">
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Experimental Libraries </td></tr>
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Index</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
+			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
+			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>			
+		</tr>
+	</c:if>
+	<tr>
+		<td class="DataTD" style="text-align:center;">
+			<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
+			<c:choose>
+			<c:when test="${not empty parentMacromolecule }">
+				<c:out value="${parentMacromolecule.getName()}" />
+			</c:when>
+			<c:otherwise>
+				N/A
+			</c:otherwise>
+			</c:choose>	
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${library.getName()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryOrganismMap.get(library)}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryAdaptorSetShortNameMap.get(library)}" />
+		</td>
+		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>		
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${adaptor.getBarcodenumber()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${adaptor.getBarcodesequence()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${librarypMAddedMap.get(library)}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="???" />
+		</td>
+	</tr>
+</c:forEach>
+
+
 </table>

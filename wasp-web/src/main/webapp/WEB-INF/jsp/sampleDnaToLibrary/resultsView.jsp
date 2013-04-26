@@ -298,7 +298,7 @@ function closeAllRuns(){
 										(<label>Parent:</label> <c:out value="${parentMacromolecule.getName()}" />)
 									</c:when>
 									<c:otherwise>
-										(<label>Parent:</label> None Submitted)
+										(<label>Parent:</label> N/A)
 									</c:otherwise>
 									</c:choose>
 								</div>
