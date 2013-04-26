@@ -245,10 +245,12 @@ function closeAllRuns(){
 
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
+		<c:if test="${fn:length(platformUnitSet) > 0}">
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
-		</div>	
+		</div>
+		</c:if>	
 		<c:forEach items="${platformUnitSet}" var="platformUnit">
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
@@ -262,10 +264,10 @@ function closeAllRuns(){
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<label>Lane <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >Fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >Graphical Stats</a>] 
+									<label>Lane: <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >graphical Stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a>] 
+									<label>Lane: <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
