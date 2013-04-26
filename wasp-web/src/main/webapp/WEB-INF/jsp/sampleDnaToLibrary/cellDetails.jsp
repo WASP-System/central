@@ -38,13 +38,12 @@
 <table class="data">
 <c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
 	<c:if test="${status.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Control Libraries </td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Control Libraries </td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Index</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Adaptor : Index</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
 			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
@@ -68,12 +67,9 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
 		</td>
+		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>	
 		<td class="DataTD" style="text-align:center;">
-			<c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" />
-		</td>
-		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>		
-		<td class="DataTD" style="text-align:center;">
-			<c:out value="${adaptor.getBarcodenumber()}" />
+			<c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> : <c:out value="${adaptor.getBarcodenumber()}" />
 		</td>
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${adaptor.getBarcodesequence()}" />
@@ -89,13 +85,12 @@
 
 <c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
 	<c:if test="${status2.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="8">Experimental Libraries </td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Experimental Libraries </td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Adaptor</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Index</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Adaptor : Index</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Tag</td>
 			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>			
@@ -119,12 +114,9 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${libraryOrganismMap.get(library)}" />
 		</td>
+		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 		<td class="DataTD" style="text-align:center;">
-			<c:out value="${libraryAdaptorSetShortNameMap.get(library)}" />
-		</td>
-		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>		
-		<td class="DataTD" style="text-align:center;">
-			<c:out value="${adaptor.getBarcodenumber()}" />
+			<c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> : <c:out value="${adaptor.getBarcodenumber()}" />
 		</td>
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${adaptor.getBarcodesequence()}" />
