@@ -3,6 +3,9 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
+	
+	//////$("#viewerFrame").load('<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
+	
 	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
         autoOpen: false,
@@ -18,7 +21,9 @@ $(document).ready(function() {
         width: 800,
         position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
     }); 
+	
 });
+
 
 //globals 
 unhighlightedAnchorColor = "";
@@ -27,6 +32,7 @@ unhighlightedAnchorFontWeight = "";
 highlightedAnchorColor = "red";
 highlightedAnchorBackground = "white";
 highlightedAnchorFontWeight = "bold";
+urlDisplayedOnRight = "";
 
 function showModalDialog(url){
 	//http://clarkupdike.blogspot.com/2009/03/basic-example-of-jquerys-uidialog.html
@@ -119,6 +125,25 @@ function populateIFrame(thisAnchorObject, url){
 	}
 }
 
+function loadNewPage(thisAnchorObject, urlToDisplay) {
+	
+	//from http://bytes.com/topic/javascript/answers/658337-loading-html-pages-inside-div-id-x-div 
+	if(urlDisplayedOnRight == urlToDisplay){//urlDisplayedOnRight is a javascript global variable 
+		alert("The viewport on the right is currently displaying this information");
+		return false;
+	}
+	
+	var req = new XMLHttpRequest();
+	req.open("GET", urlToDisplay, false);
+	req.send(null);
+	var page = req.responseText;
+	if(req.status == 404 || req.status == 500){
+		page = "Error! Unable to load data. Please try again.";
+	}
+	document.getElementById("viewerFrame").innerHTML = page;
+	urlDisplayedOnRight = urlToDisplay;
+}
+	
 function toggleAnchors(thisAnchorObject){
 	
 	//anchor is already the currently highlighted anchor, so nothing needed to be done 
@@ -153,7 +178,7 @@ function toggleViewerFrame(toggleButton){
 	}
 	else if(toggleButton.value == "Hide Viewport"){
 		toggleButton.value = "Show Viewport";
-		viewerFrame.style.display = "none";		
+		viewerFrame.style.display = "none";	
 	}	
 }
 function openAllRuns(){
@@ -210,19 +235,23 @@ function closeAllRuns(){
 				}
 			}
 		}
-	}
-	
+	}	
 }
+
+window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />'); }
+
 </script>
  
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:hidden;}
+	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow-y:auto; overflow-x:hidden;}
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
-<%--
+<%--  .viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:hidden;}
+	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow-x:scroll; overflow-y:hidden;}
+
 <style>
 	.pageContainer {width:850px; overflow:hidden;}
 	.selectionLeft {float:left; width:400px; border-right:2px solid black;}
@@ -245,7 +274,7 @@ function closeAllRuns(){
 
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
-		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
+		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
 		<c:if test="${fn:length(platformUnitSet) > 0}">
 		<div>
 			<label>Aggregate Analysis</label> [<a id="aggregateAnalysis" href="javascript:void(0);" onclick='<%--toggleAnchors(this);--%> alert("Not yet implemented");'>details</a>] 
@@ -255,8 +284,8 @@ function closeAllRuns(){
 			<c:set value="${platformUnitRunMap.get(platformUnit)}" var="run"/>
 			<div id="runDivToHighlight_${run.getId()}">
 			<label>Sequence Run:</label> <c:out value="${run.getName()}" /> <%-- (<label>FlowCell:</label> <c:out value="${platformUnit.getName()}" />)--%> 
-			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
-			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" target="myIframe" onclick='toggleExpandHide(this);' >expand</a>] 
+			[<a id="runDetailsAnchor_${run.getId()}" href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/runDetails/${run.getId()}.do" />");' >details</a> 
+			| <a id="runExpandAnchor_${run.getId()}" href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleExpandHide(this);' >expand</a>] 
 					<div id="runDivToToggle_${run.getId()}" style="display:none;">					
 					<c:set value="${platformUnitOrderedCellListMap.get(platformUnit)}" var="cellList"/>
 					<c:forEach items="${cellList}" var="cell">
@@ -264,17 +293,17 @@ function closeAllRuns(){
 							<c:set value="${cellIndexMap.get(cell)}" var="index"/>
 							<c:choose>
 								<c:when test="${not empty index }">							
-									<label>Lane: <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >graphical Stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
+									<label>Lane: <c:out value="${index}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >graphical Stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
 								</c:when>
 								<c:otherwise>
-									<label>Lane: <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" target="myIframe" onclick='toggleAnchors(this); populateIFrame(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a>] 
+									<label>Lane: <c:out value="${cell.getName()}" /></label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >details</a>] 
 								</c:otherwise>
 							</c:choose>													
 							<c:set value="${cellControlLibraryListMap.get(cell)}" var="controlLibraryList"/>
 							<c:if test="${not empty controlLibraryList }">
 								<c:forEach items="${controlLibraryList}" var="controlLibrary">
 								  <div>									
-									<label>Control:</label> <c:out value="${controlLibrary.getName()}" />
+									<label>Control:</label> 
 									<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
 									<c:if test="${not empty adaptor }">
 										<%-- [<c:out value="${adaptor.getName()}" />]--%>
@@ -314,9 +343,8 @@ function closeAllRuns(){
 		<br /><br />
 		________________________________	
 	 	<br /><br />more stuff:<br/>	
-		 <input id="toggleButton" class="fm-button" type="button" value="Hide Window"  onClick="toggleViewerFrame(this)" />
+		 <input id="toggleButton" class="fm-button" type="button" value="Hide Viewport"  onClick="toggleViewerFrame(this)" />
 		<br />
-		
 		<a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 		<br />
 		<a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
@@ -350,7 +378,7 @@ function closeAllRuns(){
   			<%-- <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="100%" width="100%" ><p>iframes not supported</p></iframe>--%>
   			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
   			
-  			 <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>
+  			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
