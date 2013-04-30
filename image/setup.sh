@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# called by the debian preseed at the last phase of installation,
+# this script installs wasp and configures dependencies.  Any steps
+# that require a running system should be performed in install.sh.
+
 setup_tomcat(){
   cat > /var/lib/tomcat7/conf/tomcat-users.xml << EOF
 <?xml version='1.0' encoding='utf-8'?>
@@ -34,7 +38,11 @@ EOF
   chmod 775 ${CATALINA_HOME}/waspPlugins/
   chown tomcat7:tomcat7 /usr/share/tomcat7/lib
   chmod 775 /usr/share/tomcat7/lib
-  ln -s /usr/share/tomcat7/lib ${CATALINA_HOME}/lib
+  chown tomcat7:tomcat7 /var/log/tomcat7
+  chmod 775 /var/log/tomcat7
+  mkdir /var/log/wasp-daemon
+  chown wasp:tomcat7 /var/log/wasp-daemon
+  chmod 775 /var/log/wasp-daemon
 
 }
 
@@ -77,9 +85,9 @@ if [ -r /etc/default/rcS ]; then
 fi
 
 USER=wasp
-GROUP=wasp
+GROUP=tomcat7
 JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
-CATALINA_HOME=/var/lib/tomcat7/
+CATALINA_HOME=/usr/share/tomcat7/
 
 if [ -z "$JAVA_OPTS" ]; then
   JAVA_OPTS="-Djava.awt.headless=true -Xms128m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m -Dcatalina.home=$CATALINA_HOME"
@@ -89,7 +97,7 @@ WASP_PID="/var/run/wasp-daemon.pid"
 
 wasp_start(){
   wasp=/home/wasp/wasp/wasp-daemon/target/*[!s].jar
-  $JAVA_HOME/bin/java $JAVA_OPTS -cp "`readlink -f $wasp`:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon >/dev/null 2>&1 &
+  start-stop-daemon --start -c $USER -g $GROUP -m --background --pidfile "$WASP_PID" --user $USER --exec "$JAVA_HOME/bin/java" --  $JAVA_OPTS -cp "`readlink -f $wasp`:$CATALINA_HOME/waspPlugins/*" edu.yu.einstein.wasp.daemon.StartDaemon
 }
 
 case "$1" in
@@ -104,7 +112,7 @@ case "$1" in
 	fi
 	log_end_msg 1
       else
-	log_end_mesg 0
+	log_end_msg 0
       fi
     else
       log_progress_msg "previously started"
@@ -115,15 +123,15 @@ case "$1" in
     log_daemon_msg "Stopping $DESC" "$NAME"
     set +e
     if [ -f "$WASP_PID" ]; then
-      start-stop-daemon --stop --pidfile "$WASP_PID" --user "$TOMCAT7_USER" --retry=TERM/20/KILL/5 >/dev/null
+      start-stop-daemon --stop --pidfile "$WASP_PID" --user "$USER" --retry=TERM/20/KILL/5 >/dev/null
       if [ $? -eq 1 ]; then
         log_progress_msg "$DESC is not running but pid file exists"
       elif [ $? -eq 3 ]; then
-        PID="`cat $CATALINA_PID`"
+        PID="`cat $WASP_PID`"
         log_failure_msg "Failed to stop $NAME (pid $PID)"
         exit 1
       fi
-      rm -f "$CATALINA_PID"
+      rm -f "$WASP_PID"
       rm -rf "$JVM_TMP"
     else
       log_progress_msg "not running"
@@ -136,7 +144,7 @@ case "$1" in
     set +e
     start-stop-daemon --test --start --pidfile "$WASP_PID" --user $USER --exec "$JAVA_HOME/bin/java" >/dev/null 2>&1
     if [ "$?" = "0" ]; then
-      if [ -f "$CATALINA_PID" ]; then
+      if [ -f "$WASP_PID" ]; then
         log_success_msg "$DESC is not running, but pid file exists."
         exit 1
       else
@@ -144,13 +152,13 @@ case "$1" in
         exit 3
       fi
     else
-      log_success_msg "$DESC is running with pid `cat $CATALINA_PID`"
+      log_success_msg "$DESC is running with pid `cat $WASP_PID`"
     fi
     set -e
   ;;
  
   restart|force-reload)
-    if [ -f "$CATALINA_PID" ]; then
+    if [ -f "$WASP_PID" ]; then
       $0 stop
       sleep 1
     fi
@@ -259,10 +267,10 @@ EOF
 on_first_boot() {
 	cd /root
 	wget http://waspsystem.org/install.sh
-	sed -i 's|exit 0|bash /root/install.sh|' /etc/rc.local
+	sed -i 's:exit 0:bash /root/install.sh 2>\&1 | tee /home/wasp/install.log:' /etc/rc.local
 }
 
-export CATALINA_HOME=/var/lib/tomcat7/
+export CATALINA_HOME=/usr/share/tomcat7/
 echo '
 export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")' >> /etc/profile
 
