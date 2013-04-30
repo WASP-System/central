@@ -226,7 +226,7 @@ export CATALINA_HOME=$CATALINA_HOME" >> /home/wasp/.profile
     fi
     #switch tag
     PROFILE=""
-    if [ "${w[0]}" == "wasp-config" ]; then
+    if [ "${w[0]}" == "wasp-config" || "${w[0]}" == "wasp-web" ]; then
       PROFILE="-Pdeploy"
     fi
     mvn clean install ${PROFILE} -Dcatalina.home=$CATALINA_HOME -DskipTests=true
@@ -261,6 +261,10 @@ EOF
   ln -s src/$WASP_MAIN/ wasp
   cat .ssh/id_rsa.pub > .ssh/authorized_keys
   ssh localhost -i .ssh/id_rsa -oStrictHostKeyChecking=no /bin/true
+
+  mkdir /home/wasp/bin
+  cd /home/wasp/bin && ln -s /home/wasp/wasp/wasp-cli/target/wasp .
+  echo 'export PATH=/home/wasp/bin:$PATH' >> /home/wasp/.bash_profile
 
 }
 
