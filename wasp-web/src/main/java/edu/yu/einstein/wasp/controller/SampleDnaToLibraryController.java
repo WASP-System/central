@@ -1211,12 +1211,14 @@ public class SampleDnaToLibraryController extends WaspController {
   //@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
   public void showPlay(ModelMap m, HttpServletResponse response) throws SampleTypeException {
 	  try{
+		//FileHandle fileHandle = fileService.getFileHandleById(1);//this is an text file
+		  //response.setContentType("text/html");
 	  //FileHandle fileHandle = fileService.getFileHandleById(27);//this is an html file
 	  //response.setContentType("text/html");
-	  //FileHandle fileHandle = fileService.getFileHandleById(28);//this is a pdf file
-	  //response.setContentType("application/pdf");
-	  FileHandle fileHandle = fileService.getFileHandleById(29);//this is a png file
-	  response.setContentType("image/png");
+	  FileHandle fileHandle = fileService.getFileHandleById(28);//this is a pdf file
+	  response.setContentType("application/pdf");
+	  //FileHandle fileHandle = fileService.getFileHandleById(29);//this is a png file
+	  //response.setContentType("image/png");
 	  
 	  fileService.copyFileHandleToOutputStream(fileHandle, response.getOutputStream());
 	  //do not flush, it's not needed and it screws things up

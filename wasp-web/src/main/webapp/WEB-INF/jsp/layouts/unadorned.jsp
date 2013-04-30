@@ -11,7 +11,7 @@
   <title> 	 	
     <wasp:pageTitle/> 
   </title>
-   
+ <%--   if these pages are displayed in a div of a wasp page, the next 5 lines are not needed, but if displayed in an iframe, they are needed --%>
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
   <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>

@@ -245,7 +245,7 @@ window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/sampleDnaT
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow-y:auto; overflow-x:hidden;}
+	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:auto; }
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
 </style>
@@ -370,7 +370,8 @@ window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/sampleDnaT
 		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
 		<br />
 		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
-		
+		<br /><br />
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='loadNewPage(this, "<c:url value="/sampleDnaToLibrary/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
  	</div>
 	<div class="viewerRight">
 		<div id="viewerFrame" style="display:block;">
