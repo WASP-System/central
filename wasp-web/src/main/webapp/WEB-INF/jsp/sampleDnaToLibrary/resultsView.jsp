@@ -303,7 +303,7 @@ window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/sampleDnaT
 							<c:if test="${not empty controlLibraryList }">
 								<c:forEach items="${controlLibraryList}" var="controlLibrary">
 								  <div>									
-									<label>Control:</label> 
+									<label>Control:</label> <c:out value="${controlLibrary.getName()}" />
 									<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
 									<c:if test="${not empty adaptor }">
 										<%-- [<c:out value="${adaptor.getName()}" />]--%>
