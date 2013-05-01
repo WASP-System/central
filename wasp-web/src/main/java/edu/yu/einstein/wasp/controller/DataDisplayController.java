@@ -1458,5 +1458,29 @@ public class DataDisplayController extends WaspController {
 	  //must get the controls for this lane
 	  return "datadisplay/mps/jobs/celldetails";
   }
+  
+  @RequestMapping(value="/mps/jobs/{jobId}/libraries/{libraryId}/librarydetails", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String mpsLibraryDetailsByJob(@PathVariable("jobId") Integer jobId, @PathVariable("libraryId") Integer libraryId, 
+		  ModelMap m) throws SampleTypeException {
+	  
+	  Job job = jobService.getJobByJobId(jobId);
+	  List<Sample> jobSamples = job.getSample();//list of samples in this job; should be submitted macromolecules, submitted libraries, and facility-generated libraries
+	  Sample library = sampleService.getSampleById(libraryId);
+	  Sample parentMacromolecule = library.getParent();//could be null, if user submitted a user-generated library
+	  boolean libraryBelongsToJob = true;
+	  if(!jobSamples.contains(library)){
+		  libraryBelongsToJob = false;
+		  logger.debug("Library with id " + libraryId + " does not appear to belong to job with id " + jobId);
+		  System.out.println("Library with id " + libraryId + " does not appear to belong to job with id " + jobId);
+	  }
+	  
+	  m.addAttribute("libraryBelongsToJob", libraryBelongsToJob);
+	  m.addAttribute("library", library);
+	  m.addAttribute("parentMacromolecule", parentMacromolecule);
+	  
+	  return "datadisplay/mps/jobs/librarydetails";
+  }
+
 }
 
