@@ -46,7 +46,9 @@ EOF
 
   #logging
   rm /etc/tomcat7/logging.properties
-  cat > ${CATALINA_HOME}/lib/logback.xml << "EOF"
+  rm ${CATALINA_HOME}bin/tomcat-juli.jar
+  ln -s ${CATALINA_HOME}lib/tomcat-extras-juli.jar ${CATALINA_HOME}bin/tomcat-juli.jar
+  cat > ${CATALINA_HOME}lib/logback.xml << "EOF"
 <configuration debug="false">
  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
