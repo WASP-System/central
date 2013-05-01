@@ -44,7 +44,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Adaptor Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
+			<td class="label-centered" style="background-color:#FAF2D6">pM Loaded <sup>*</sup></td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
 		</tr>
 	</c:if>
@@ -87,7 +87,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Adaptor Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6">pM</td>
+			<td class="label-centered" style="background-color:#FAF2D6">pM Loaded <sup>*</sup></td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>			
 		</tr>
 	</c:if>
@@ -121,6 +121,5 @@
 		</td>
 	</tr>
 </c:forEach>
-
-
 </table>
+*<span style="font-size:x-small"> pM Loaded: concentration (picoMolar) of library loaded on lane</span>
