@@ -44,6 +44,30 @@ EOF
   chown wasp:tomcat7 /var/log/wasp-daemon
   chmod 775 /var/log/wasp-daemon
 
+  #logging
+  rm /etc/tomcat7/logging.properties
+  cat > ${CATALINA_HOME}/lib/logback.xml << "EOF"
+<configuration debug="false">
+ <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+ <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+  <encoder>
+   <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+  </encoder>
+ </appender>
+ <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
+  <file>${catalina.base}/logs/tomcat.log</file>
+  <encoder>
+   <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+  </encoder>
+ </appender>
+
+ <root level="INFO">
+  <appender-ref ref="STDOUT" />
+  <appender-ref ref="LOGFILE" />
+ </root>
+</configuration>
+EOF
+  chown -R tomcat7:tomcat7 ${CATALINA_HOME}/lib/logback.xml 
 }
 
 setup_daemon(){
@@ -264,7 +288,7 @@ EOF
 
   mkdir /home/wasp/bin
   cd /home/wasp/bin && ln -s /home/wasp/wasp/wasp-cli/target/wasp .
-  echo 'export PATH=/home/wasp/bin:$PATH' >> /home/wasp/.bash_profile
+  echo 'export PATH=/home/wasp/bin:$PATH' >> /home/wasp/.profile
 
 }
 
