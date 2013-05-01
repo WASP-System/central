@@ -64,7 +64,7 @@
 						<artifactId>tomcat-extras-juli</artifactId>
 						<version>${tomcat.version}</version>
 						<type>jar</type>
-						<outputDirectory>${catalina.home}/bin</outputDirectory> 
+						<outputDirectory>${catalina.home}/lib</outputDirectory> 
 					</artifactItem>
 					<artifactItem>
 						<groupId>org.apache.tomcat.extras</groupId>
