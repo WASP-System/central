@@ -215,7 +215,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/cellDetails.jsp" />
 	</definition>
 	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
 	</definition>
 	<definition name="datadisplay/mps/jobs/jobdetails" extends="template-unadorned">

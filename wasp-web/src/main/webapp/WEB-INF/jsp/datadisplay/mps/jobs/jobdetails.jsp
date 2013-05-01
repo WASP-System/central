@@ -67,51 +67,12 @@
 
 </div>
 
-<br />
-<div >
-<table class="EditTable ui-widget ui-widget-content">
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobId.label" />:</td><td class="DataTD">J<c:out value="${job.jobId}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobName.label" />:</td><td class="DataTD"><c:out value="${job.name}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmitter.label" />:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmissionDate.label" />:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobWorkflow.label" />:</td><td class="DataTD"><c:out value="${job.workflow.name}" /></td></tr>
-<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
-	<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>
-</c:forEach>
-
-<c:if test="${not empty jobStatus}"> 
-	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobStatus.label" />:</td><td class="DataTD"><c:out value="${jobStatus}" /></td></tr>
-</c:if>
-<c:forEach items="${jobApprovalsMap.keySet()}" var="jobApproveCode">
-	<tr class="FormData">
-		<td class="CaptionTD"><fmt:message key="status.${jobApproveCode}.label" />:</td>
-		<td class="DataTD"><fmt:message key="status.${jobApprovalsMap.get(jobApproveCode)}.label" />		
-		  <c:if test="${not empty jobApprovalsCommentsMap.get(jobApproveCode)}"> 
-		    <fmt:formatDate value="${jobApprovalsCommentsMap.get(jobApproveCode).getDate()}" pattern="yyyy-MM-dd" var="date" />
-		  	<wasp:comment value="${jobApprovalsCommentsMap.get(jobApproveCode).getValue()} (${jobApprovalsCommentsMap.get(jobApproveCode).getUser().getNameFstLst()}; ${date})" />
-		  </c:if>
-		</td>
-	</tr>
-</c:forEach> 
-</table>
-</div>
-
 
 
 <%-- see this for inheriting javascript from parent. basically precede with parent.    http://stackoverflow.com/questions/4612374/iframe-inherit-from-parent --%>
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-<br />
-<a href="/wasp/file/fileHandle/28/download.do" >Download</a>
-<br />
 
+<br />
+These are here for demo purpose. Will eventually remove. Please do not remove now.
 <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
 <br />
 <a href="<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />" target="myIframe">Right Frame: Wasp job 87's home page</a>
@@ -138,35 +99,3 @@ this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
 <br />
 <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
 
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
-This is a test of the new jobDetails view<br />
-this job is J<c:out value="${job.jobId}" />: <c:out value="${job.getName()}" />
