@@ -19,7 +19,7 @@ VBoxManage modifyvm $NAME \
 		   --vram 1 \
 		   --acpi on \
 		   --ioapic off \
-		   --cpus 1 \
+		   --cpus 2 \
 		   --rtcuseutc on \
 		   --cpuhotplug off \
 		   --pae off \

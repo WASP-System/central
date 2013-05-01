@@ -44,6 +44,8 @@ EOF
   chown wasp:tomcat7 /var/log/wasp-daemon
   chmod 775 /var/log/wasp-daemon
 
+  sed -i 's/-Djava.awt.headless=true -Xmx128M/-Djava.awt.headless=true -Xmx512M/g' /etc/init.d/tomcat7
+
   #logging
   rm /etc/tomcat7/logging.properties
   rm ${CATALINA_HOME}bin/tomcat-juli.jar
@@ -295,6 +297,7 @@ EOF
 }
 
 on_first_boot() {
+	sed -i 's/127.0.1.1/#127.0.1.1/' /etc/hosts
 	cd /root
 	wget http://waspsystem.org/install.sh
 	sed -i 's:exit 0:bash /root/install.sh 2>\&1 | tee /home/wasp/install.log:' /etc/rc.local
