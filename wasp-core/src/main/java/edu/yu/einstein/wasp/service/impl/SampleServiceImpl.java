@@ -2964,5 +2964,19 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			return organismName;
 		}
 
+		@Override
+		public Integer getIdOfOrganism(Sample sample){
+			final String ORGANISM_META_AREA = "genericBiomolecule";
+			final String ORGANISM_META_KEY = "organism";
+			Assert.assertParameterNotNull(sample, "sample cannot be null");
+			Integer genomeId = new Integer(0);
+			try{	
+				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+			}
+			catch(Exception me){
+				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
+			}
+			return genomeId;
+		}
 }
 

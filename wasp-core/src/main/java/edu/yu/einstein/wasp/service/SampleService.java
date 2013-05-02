@@ -1014,5 +1014,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	public String getNameOfOrganism(Sample sample, String defaultValue);
 
 	public String getNameOfOrganism(Sample sample);
+	
+	public Integer getIdOfOrganism(Sample sample);
 
 }

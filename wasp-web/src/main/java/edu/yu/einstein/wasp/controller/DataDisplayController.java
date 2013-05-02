@@ -69,6 +69,8 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -128,6 +130,8 @@ public class DataDisplayController extends WaspController {
   private FileUrlResolver fileUrlResolver;
   @Autowired
   private GenomeService genomeService;
+  @Autowired
+  private AdaptorService adaptorService;
   
 
   /*
@@ -1468,17 +1472,53 @@ public class DataDisplayController extends WaspController {
 	  List<Sample> jobSamples = job.getSample();//list of samples in this job; should be submitted macromolecules, submitted libraries, and facility-generated libraries
 	  Sample library = sampleService.getSampleById(libraryId);
 	  Sample parentMacromolecule = library.getParent();//could be null, if user submitted a user-generated library
+
 	  boolean libraryBelongsToJob = true;
-	  if(!jobSamples.contains(library)){
+	  if(!jobSamples.contains(library)){//unexpected error
 		  libraryBelongsToJob = false;
 		  logger.debug("Library with id " + libraryId + " does not appear to belong to job with id " + jobId);
 		  System.out.println("Library with id " + libraryId + " does not appear to belong to job with id " + jobId);
+		  m.addAttribute("libraryBelongsToJob", libraryBelongsToJob);
+		  return "datadisplay/mps/jobs/librarydetails";
 	  }
-	  
+
 	  m.addAttribute("libraryBelongsToJob", libraryBelongsToJob);
 	  m.addAttribute("library", library);
 	  m.addAttribute("parentMacromolecule", parentMacromolecule);
+
+	  //metadata for parent macromolecule
+	  if(parentMacromolecule!=null){
+		  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(parentMacromolecule);
+		  List<SampleMeta> normalizedMacromoleculeMetaList = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(parentMacromolecule.getSampleSubtype(), sampleManaged.getAllSampleMeta());
+		  m.addAttribute("normalizedMacromoleculeMeta", normalizedMacromoleculeMetaList);
+	  }  
 	  
+	  //metadata for library
+	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(library);	  
+	  List<SampleMeta> normalizedLibraryMetaList = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(library.getSampleSubtype(), sampleManaged.getAllSampleMeta());
+	  m.addAttribute("normalizedLibraryMeta", normalizedLibraryMetaList );
+	  
+	  //this is needed for the adaptor and adaptorset meta to be interpreted properly during metadata display
+	  List<Adaptorset> adaptorsets = new ArrayList<Adaptorset>();
+	  List<Adaptor> adaptors = new ArrayList<Adaptor>();
+	  Adaptor adaptor;
+	  try{ 
+		  adaptor = adaptorService.getAdaptor(library);
+		  adaptors.add(adaptor);
+		  adaptorsets.add(adaptor.getAdaptorset());
+	  }catch(Exception e){}
+	  m.addAttribute("adaptorsets", adaptorsets);
+	  m.addAttribute("adaptors", adaptors);
+	  
+	  //this is needed for the organism meta to be interpreted properly during metadata display
+	  Set<Organism> organisms = genomeService.getOrganisms();
+	  Organism newOrganism = new Organism(0);
+	  newOrganism.setCommonName("Other");
+	  newOrganism.setName("Other");
+	  newOrganism.setAlias("Other");
+	  organisms.add(newOrganism);
+	  m.addAttribute("organisms", organisms);
+
 	  return "datadisplay/mps/jobs/librarydetails";
   }
 
