@@ -102,6 +102,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -2977,6 +2978,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
 			}
 			return genomeId;
+		}
+		
+		@Override
+		public Set<Organism> getOrganismsPlusOther(){
+			Set<Organism> organisms = genomeService.getOrganisms();
+			Organism other = new Organism(0);
+			other.setCommonName("Other");
+			other.setName("Other");
+			other.setAlias("Other");
+			organisms.add(other);
+			return organisms;
 		}
 }
 

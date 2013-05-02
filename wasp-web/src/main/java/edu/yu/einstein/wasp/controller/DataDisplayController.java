@@ -1511,13 +1511,7 @@ public class DataDisplayController extends WaspController {
 	  m.addAttribute("adaptors", adaptors);
 	  
 	  //this is needed for the organism meta to be interpreted properly during metadata display
-	  Set<Organism> organisms = genomeService.getOrganisms();
-	  Organism newOrganism = new Organism(0);
-	  newOrganism.setCommonName("Other");
-	  newOrganism.setName("Other");
-	  newOrganism.setAlias("Other");
-	  organisms.add(newOrganism);
-	  m.addAttribute("organisms", organisms);
+	  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
 
 	  return "datadisplay/mps/jobs/librarydetails";
   }

@@ -69,6 +69,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -802,6 +803,11 @@ public class SampleDnaToLibraryController extends WaspController {
 			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
 		prepareAdaptorsetsAndAdaptors(job, libraryIn.getSampleMeta(), m);
+		  
+		//this is needed for the organism meta to be interpreted properly during metadata display (added by Rob; 5-2-13)
+		//TODO do not want organism for facility-generated library: 
+		m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		if (libraryIn.getId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
@@ -861,6 +867,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.put("job", job);
 	  m.put("sample", sample); 
 	  
+	  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
+	  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+	  
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
   }
 
@@ -904,6 +913,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  m.put("sample", sampleForm); 
 		  m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
+
+		  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
+		  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
 	  sample.setName(sampleForm.getName());
