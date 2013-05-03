@@ -2,7 +2,7 @@
 
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
-	.selectionLeft {float:left; width:40%; margin-right:0.2cm; }
+	.selectionLeft {float:left; width:40%; margin-right:0.2cm; overflow:auto;}
 	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:auto; }
 	.selectionLeft div {margin:5px 0px 5px 10px;}
 	.rob div {margin:5px 0px 5px 20px;}
@@ -96,6 +96,7 @@ function toggleExpandHide(thisAnchorObject){
 		runDivToToggle.style.display = "block";
 		thisAnchorObject.innerHTML = "hide";
 		parentDiv.style.border= "1px dashed gray";
+		//parentDiv.style.borderRight="";//in case of overflow and need for horizontal scrollbar 
 		
 		//in case this expand/hide anchor (the thisAnchorObject object) happens to be highlighted, then unhighlight it 
 		//(note: it can become highlighted in certain situations; see this method, below) 

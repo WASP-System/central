@@ -43,7 +43,7 @@
 						| <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/sequencedetails.do" />");' >sequences</a>
 						| <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a> 
 						| <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a>
-						| <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>]
+						| <a id="statsDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>]
 						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
 						<div>
 							<table class="data">
@@ -61,7 +61,7 @@
 									<c:forEach items="${controlLibraryList}" var="controlLibrary">
 								  		<tr class="FormData">
 								  			<td class="DataTD" style="text-align:center;">N/A</td>
-								 			<td class="DataTD" style="text-align:center;"><c:out value="${controlLibrary.getName()}" /></td>
+								 			<td class="DataTD" style="text-align:center; white-space:nowrap;"><c:out value="${controlLibrary.getName()}" /></td>
 											<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>
 												<c:choose>
 													<c:when test="${not empty adaptor }">
@@ -78,23 +78,23 @@
 										<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
 										<c:choose>
 											<c:when test="${not empty parentMacromolecule }">
-												<td class="DataTD" style="text-align:center;"><c:out value="${parentMacromolecule.getName()}" /></td>
+												<td class="DataTD" style="text-align:center; white-space:nowrap;" title="<c:out value="${parentMacromolecule.getName()}" />"><c:out value="${parentMacromolecule.getName()}" /></td>
 											</c:when>
 											<c:otherwise>
-												<td class="DataTD" style="text-align:center;">N/A</td>
+												<td class="DataTD" style="text-align:center; white-space:nowrap;">N/A</td>
 											</c:otherwise>
 										</c:choose>										
-										<td class="DataTD" style="text-align:center;"><c:out value="${library.getName()}" /></td>										
+										<td class="DataTD" style="text-align:center; white-space:nowrap;" title="<c:out value="${library.getName()}" />"><c:out value="${library.getName()}" /></td>										
 										<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 										<c:choose>
 										<c:when test="${not empty adaptor }">
-											<td class="DataTD" style="text-align:center;"><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)</td>
+											<td class="DataTD" style="text-align:center; white-space:nowrap;"><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)</td>
 										</c:when>
 										<c:otherwise>
-											<td class="DataTD" style="text-align:center;">&nbsp;</td>
+											<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 										</c:otherwise>
 										</c:choose>
-										<td class="DataTD" style="text-align:center;">
+										<td class="DataTD" style="text-align:center; white-space:nowrap;">
 										
 											[<a id="libraryDetailsAnchor_${cell.getId()}${library.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/libraries/${library.getId()}/librarydetails.do" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a>] <%-- | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] --%>
 						
