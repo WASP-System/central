@@ -227,6 +227,9 @@
 	<definition name="datadisplay/mps/jobs/celldetails" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/celldetails.jsp" />
 	</definition>
+	<definition name="datadisplay/mps/jobs/sequencedetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/sequencedetails.jsp" />
+	</definition>
 	<definition name="datadisplay/mps/jobs/librarydetails" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/librarydetails.jsp" />
 	</definition>

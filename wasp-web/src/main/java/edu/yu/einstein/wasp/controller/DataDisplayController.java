@@ -1383,7 +1383,9 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample,Sample>();
 	  Map<Sample, String> libraryOrganismMap = new HashMap<Sample,String>();//if a parent macromoleucle was submitted, species is stored with it's meta; if only a library was submitted, species stored with the library's mete
 	  List<Sample> contolLibrariesForThisCell = new ArrayList<Sample>();
-
+	  Map<Sample, List<FileHandle>> librarySequenceFileMap = new HashMap<Sample, List<FileHandle>>();
+	  Random randomGenerator = new Random();
+	  
 	  for(SampleSource ss : cellLibrariesForJobSet){
 		  if(sampleService.getCell(ss) == cell){
 			  Sample library = sampleService.getLibrary(ss);
@@ -1408,6 +1410,17 @@ public class DataDisplayController extends WaspController {
 				  libraryOrganismMap.put(library, sampleService.getNameOfOrganism(library, "???"));
 			  }
 			  //will also require (from samplesource) the passfilter reads
+			  
+			  //sequence files
+			  //MUST KNOW WHICH IS pair1 and pair2 if this is a paired end read
+			  List<FileHandle> sequenceFileList = new ArrayList<FileHandle>();			  
+			  FileHandle fileHandle = fileService.getFileHandleById(randomGenerator.nextInt(30) + 1);
+			  sequenceFileList.add(fileHandle);
+			  if("paired".equalsIgnoreCase(runReadType)){
+				  FileHandle fileHandle2 = fileService.getFileHandleById(26);//(randomGenerator.nextInt(30) + 1);
+				  sequenceFileList.add(fileHandle2);
+			  }
+			  librarySequenceFileMap.put(library, sequenceFileList);
 		  }
 	  }
 	  
@@ -1460,7 +1473,21 @@ public class DataDisplayController extends WaspController {
 	  }
 	  //should order libraries by adaptor index
 	  //must get the controls for this lane
+	  
+	  //must get the sequence files for these lanes
+	  m.addAttribute("librarySequenceFileMap", librarySequenceFileMap);
+	  
 	  return "datadisplay/mps/jobs/celldetails";
+  }
+  
+  @RequestMapping(value="/mps/jobs/{jobId}/runs/{runId}/cells/{cellId}/sequencedetails", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String mpsSequenceDetailsByJobByRun(@PathVariable("jobId") Integer jobId, @PathVariable("runId") Integer runId, 
+		  @PathVariable("cellId") Integer cellId, ModelMap m) throws SampleTypeException {
+	  
+	  mpsCellDetailsByJobByRun(jobId, runId, cellId, m);
+	  return "datadisplay/mps/jobs/sequencedetails";
+	  
   }
   
   @RequestMapping(value="/mps/jobs/{jobId}/libraries/{libraryId}/librarydetails", method=RequestMethod.GET)

@@ -39,7 +39,7 @@
 									<c:out value="${cell.getName()}" /> 
 								</c:otherwise>
 							</c:choose>	
-						</label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellSequencesDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
+						</label> [<a id="cellDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/celldetails.do" />");' >details</a> | <a id="fastQCDetailsAnchor_${run.getId()}" href="javascript:void(0);" onclick='showModalessDialog("http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html");' >fastqc</a> | <a id="statsDetailsAnchor_${run.getId()}"href="javascript:void(0);" onclick='showPopupWindow("http://wasp.einstein.yu.edu/results/production_wiki/JLocker/JTian/P520/J10728/stats/stats_TrueSeqUnknown.BC1G0RACXX.lane_5_P0_I0.fastq.html");' >stats</a> | <a id="cellSequencesDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs/${run.getId()}/cells/${cell.getId()}/sequencedetails.do" />");' >sequences</a> | <a id="cellAlignmentsDetailsAnchor_${cell.getId()}"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/sampleDnaToLibrary/cellAlignmentsDetails/${cell.getId()}.do?jobId=${job.getId()}&runId=${run.getId()}" />");' >alignments</a>] 
 						<c:set value="${cellLibraryListMap.get(cell)}" var="libraryList"/>
 						<div>
 							<table class="data">
@@ -112,7 +112,10 @@
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
-</div><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+</div>
+
+	<%-- do not remove without speaking to rob
+	
 	 	<br />more stuff: FOR DEMO ONLY; DO NOT NOW REMOVE PLEASE<br/>	
 		 <input id="toggleButton" class="fm-button" type="button" value="Hide Viewport"  onClick="toggleViewerFrame(this)" />
 		<br />
@@ -142,8 +145,10 @@
 		<br />
 		<a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
 		<br /><br />
-		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='loadNewPage(this, "<c:url value="/sampleDnaToLibrary/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
-
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/sampleDnaToLibrary/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
+		<br /><br />
+		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" target="myIframe" onclick='loadNewPage(this, "<c:url value="/sampleDnaToLibrary/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
+--%>
 <%--NO INNER TABLES, just 
 job
 	run

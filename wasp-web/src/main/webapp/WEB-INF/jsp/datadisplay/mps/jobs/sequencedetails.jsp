@@ -34,11 +34,13 @@
 </tr>
 </table>
 --%>
+
+<%-- taken from celldetails, and includes the download of sequence files (view on small screen not good!)
 <br />
 <table class="data">
 <c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
 	<c:if test="${status.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Control Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Control Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
@@ -46,7 +48,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6">Adaptor Index (Tag)</td>
 			<td class="label-centered" style="background-color:#FAF2D6">pM <sup>*</sup></td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
-			<%-- <td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>--%>
+			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>
 		</tr>
 	</c:if>
 	<tr>
@@ -77,17 +79,15 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="????????? (??%)" />
 		</td>
-		<%-- 
 		<td class="DataTD" style="text-align:center;">
 			Download
 		</td>
-		--%>
 	</tr>
 </c:forEach>
 
 <c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
 	<c:if test="${status2.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
@@ -95,7 +95,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6">Adaptor Index (Tag)</td>
 			<td class="label-centered" style="background-color:#FAF2D6">pM <sup>*</sup></td>
 			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
-			<%-- <td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>		--%>	
+			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>			
 		</tr>
 	</c:if>
 	<tr>
@@ -126,7 +126,6 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="????????? (??%)" />
 		</td>
-		<%-- 
 		<td class="DataTD" style="text-align:center;">
 			<c:set value="${librarySequenceFileMap.get(library)}" var="sequenceFileList"/>
 			<c:choose>
@@ -142,8 +141,110 @@
 				</c:when>
 			</c:choose>					
 		</td>
-		--%>
 	</tr>
 </c:forEach>
 </table>
 *<span style="font-size:x-small"> pM: concentration (picoMolar) of library loaded on lane</span>
+--%>
+
+
+<br />
+<table class="data">
+<c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
+	<c:if test="${status.first}">
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Control Libraries</td></tr>
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Index (Tag)</td>
+			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>
+		</tr>
+	</c:if>
+	<tr>
+		<td class="DataTD" style="text-align:center;">
+			<c:set value="${libraryMacromoleculeMap.get(controlLibrary)}" var="parentMacromolecule"/>
+			<c:choose>
+			<c:when test="${not empty parentMacromolecule }">
+				<c:out value="${parentMacromolecule.getName()}" />
+			</c:when>
+			<c:otherwise>
+				N/A
+			</c:otherwise>
+			</c:choose>	
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${controlLibrary.getName()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
+		</td>
+		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>	
+		<td class="DataTD" style="text-align:center;">
+			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="????????? (??%)" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			Download
+		</td>
+	</tr>
+</c:forEach>
+
+<c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
+	<c:if test="${status2.first}">
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Libraries</td></tr>
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6">Index (Tag)</td>
+			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>			
+		</tr>
+	</c:if>
+	<tr>
+		<td class="DataTD" style="text-align:center;">
+			<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
+			<c:choose>
+			<c:when test="${not empty parentMacromolecule }">
+				<c:out value="${parentMacromolecule.getName()}" />
+			</c:when>
+			<c:otherwise>
+				N/A
+			</c:otherwise>
+			</c:choose>	
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${library.getName()}" />
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="${libraryOrganismMap.get(library)}" />
+		</td>
+		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
+		<td class="DataTD" style="text-align:center;">
+			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+		</td>
+		<td class="DataTD" style="text-align:center;">
+			<c:out value="????????? (??%)" />
+		</td>
+		<td class="DataTD" style="text-align:center;"> 
+			<c:set value="${librarySequenceFileMap.get(library)}" var="sequenceFileList"/>
+			<c:choose>
+				<c:when test="${fn:length(sequenceFileList)==1}">
+					<c:forEach items="${sequenceFileList}" var="fileHandle" >
+						<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+					</c:forEach>
+				</c:when>
+				<c:when test="${fn:length(sequenceFileList)>1}">
+					<c:forEach items="${sequenceFileList}" var="fileHandle" varStatus="counter">
+						<c:if test="${counter.count > 1}"><br /></c:if>Pair ${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+					</c:forEach>
+				</c:when>
+			</c:choose>					
+		</td>
+	</tr>
+</c:forEach>
+</table>

@@ -70,7 +70,7 @@
 
 
 <%-- see this for inheriting javascript from parent. basically precede with parent.    http://stackoverflow.com/questions/4612374/iframe-inherit-from-parent --%>
-
+<%--do not remove with speaking to rob 
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 These are here for demo purpose. Will eventually remove. Please do not remove now.
 <a href="http://wasp.einstein.yu.edu/results/production_wiki/TestPI/TestPI/P498/J10740/stats/TrueSeqUnknown.BC1G0RACXX.lane_8_P0_I0.hg19.sequence.fastq.passFilter_fastqc/fastqc_report.html" target="myIframe">Right Frame: View Fastqc report from /results/production_wiki</a>
@@ -98,4 +98,4 @@ These are here for demo purpose. Will eventually remove. Please do not remove no
 <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/sampleDnaToLibrary/listJobSamples/87.do" />");' >Modaless Dialog: Wasp job 87's home page</a>
 <br />
 <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/sampleDnaToLibrary/showplay.do" />");' >Modaless Dialog: view a FILE stored on Chiam</a>
-
+--%>
