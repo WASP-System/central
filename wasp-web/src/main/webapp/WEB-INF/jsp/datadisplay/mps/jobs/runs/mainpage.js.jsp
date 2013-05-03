@@ -2,23 +2,10 @@
 
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
-	.selectionLeft {float:left; width:40%; margin-right:0.2cm; overflow:auto;}
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:auto; }
-	.selectionLeft div {margin:5px 0px 5px 10px;}
-	.rob div {margin:5px 0px 5px 20px;}
+	.selectionLeft {float:left; width:44%; margin-right:0.2cm; overflow:auto;}
+	.viewerRight {float:left; width:54%; padding-left:0.2cm; border-left:3px solid black; overflow:auto; }
+	.selectionLeft div {margin:5px 0px 5px 6px;}
 </style>
-<%-- WAS FOR INITIAL TESTING ONLY 
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow:hidden;}
-	.viewerRight {float:left; width:50%; padding-left:0.2cm; border-left:3px solid black; overflow-x:scroll; overflow-y:hidden;}
-
-<style>
-	.pageContainer {width:850px; overflow:hidden;}
-	.selectionLeft {float:left; width:400px; border-right:2px solid black;}
-	.viewerRight {float:left; width:400px; padding-left:0.3cm; overflow:hidden;}
-	.selectionLeft div {margin:5px 0px 5px 10px;}
-	.rob div {margin:5px 0px 5px 10px;}
-</style>
---%>
 
 <script type="text/javascript">
 
@@ -50,7 +37,7 @@ unhighlightedAnchorColor = "";
 unhighlightedAnchorBackground = "";
 unhighlightedAnchorFontWeight = "";
 highlightedAnchorColor = "red";
-highlightedAnchorBackground = "white";
+highlightedAnchorBackground = "Aqua";
 highlightedAnchorFontWeight = "bold";
 urlDisplayedOnRight = "";
 
