@@ -91,7 +91,7 @@
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
+			<%-- <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>--%>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Adaptor Index (Tag)</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">pM <sup>*</sup></td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF (%)</td>	
@@ -99,7 +99,7 @@
 		</tr>
 	</c:if>
 	<tr>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
 			<c:choose>
 			<c:when test="${not empty parentMacromolecule }">
@@ -110,12 +110,14 @@
 			</c:otherwise>
 			</c:choose>	
 		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:out value="${library.getName()}" />
 		</td>
+		<%-- 
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryOrganismMap.get(library)}" />
 		</td>
+		--%>
 		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> <c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)

@@ -154,12 +154,12 @@
 	<c:if test="${status.first}">
 		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Control Libraries</td></tr>
 		<tr class="FormData">
-			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
+			<%-- <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>--%>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Index-Tag</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF Reads (.fastq)</td>
 		</tr>
 	</c:if>
 	<tr>
@@ -177,15 +177,17 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${controlLibrary.getName()}" />
 		</td>
+		<%-- 
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
 		</td>
+		--%>
 		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>	
-		<td class="DataTD" style="text-align:center;">
-			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" />-<c:out value="${adaptor.getBarcodesequence()}" />
 		</td>
 		<td class="DataTD" style="text-align:center;">
-			<c:out value="????????? (??%)" />
+			<c:out value="?????????" />
 		</td>
 		<td class="DataTD" style="text-align:center;">
 			Download
@@ -197,12 +199,12 @@
 	<c:if test="${status2.first}">
 		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Libraries</td></tr>
 		<tr class="FormData">
-			<td class="label-centered" style="background-color:#FAF2D6">Parent</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6">PF (%)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
+			<%-- <td class="label-centered" style="background-color:#FAF2D6">Species</td>--%>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Index-Tag</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF (.fastq)</td>			
 		</tr>
 	</c:if>
 	<tr>
@@ -220,15 +222,17 @@
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${library.getName()}" />
 		</td>
+		<%-- 
 		<td class="DataTD" style="text-align:center;">
 			<c:out value="${libraryOrganismMap.get(library)}" />
 		</td>
+		--%>
 		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-		<td class="DataTD" style="text-align:center;">
-			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" />-<c:out value="${adaptor.getBarcodesequence()}" />
 		</td>
 		<td class="DataTD" style="text-align:center;">
-			<c:out value="????????? (??%)" />
+			<c:out value="?????????" />
 		</td>
 		<td class="DataTD" style="text-align:center;"> 
 			<c:set value="${librarySequenceFileMap.get(library)}" var="sequenceFileList"/>
@@ -240,7 +244,7 @@
 				</c:when>
 				<c:when test="${fn:length(sequenceFileList)>1}">
 					<c:forEach items="${sequenceFileList}" var="fileHandle" varStatus="counter">
-						<c:if test="${counter.count > 1}"><br /></c:if>Pair ${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
+						<c:if test="${counter.count > 1}"><br /></c:if>P${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
 					</c:forEach>
 				</c:when>
 			</c:choose>					
