@@ -25,7 +25,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index<br />Aligned (%PF for Index)</td>	
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Sample's Species<br />Aligner<br />Ref.Genome<br />Ref.Genome Species</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignments</td>	
 		</tr>
 	</c:if>
 	<tr>
@@ -66,7 +66,7 @@
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index<br />Aligned (%PF for Index)</td>	
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Sample's Species<br />Aligner<br />Ref.Genome<br />Ref.Genome Species</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignments</td>	
 		</tr>
 	</c:if>
 	<tr>

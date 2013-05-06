@@ -38,7 +38,7 @@
 <table class="data">
 <c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
 	<c:if test="${status.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Control Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="5">Control Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
@@ -50,7 +50,7 @@
 		</tr>
 	</c:if>
 	<tr>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:set value="${libraryMacromoleculeMap.get(controlLibrary)}" var="parentMacromolecule"/>
 			<c:choose>
 			<c:when test="${not empty parentMacromolecule }">
@@ -61,7 +61,7 @@
 			</c:otherwise>
 			</c:choose>	
 		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:out value="${controlLibrary.getName()}" />
 		</td>
 		<%-- 
@@ -89,7 +89,7 @@
 
 <c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
 	<c:if test="${status2.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="5">Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
