@@ -1325,7 +1325,7 @@ public class DataDisplayController extends WaspController {
   
   @RequestMapping(value="/mps/jobs/{jobId}/runs/{runId}/cells/{cellId}/celldetails", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-  public String mpsCellDetailsByJobByRun(@PathVariable("jobId") Integer jobId, @PathVariable("runId") Integer runId, 
+  public String mpsCellDetailsByJobByRunByCell(@PathVariable("jobId") Integer jobId, @PathVariable("runId") Integer runId, 
 		  @PathVariable("cellId") Integer cellId, ModelMap m) throws SampleTypeException {
 	  
 	  Run run = runService.getRunById(runId);
@@ -1485,8 +1485,18 @@ public class DataDisplayController extends WaspController {
   public String mpsSequenceDetailsByJobByRun(@PathVariable("jobId") Integer jobId, @PathVariable("runId") Integer runId, 
 		  @PathVariable("cellId") Integer cellId, ModelMap m) throws SampleTypeException {
 	  
-	  mpsCellDetailsByJobByRun(jobId, runId, cellId, m);
+	  mpsCellDetailsByJobByRunByCell(jobId, runId, cellId, m);
 	  return "datadisplay/mps/jobs/sequencedetails";
+	  
+  }
+  
+  @RequestMapping(value="/mps/jobs/{jobId}/runs/{runId}/cells/{cellId}/alignmentdetails", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String mpsAlignmentDetailsByJobByRunByCell(@PathVariable("jobId") Integer jobId, @PathVariable("runId") Integer runId, 
+		  @PathVariable("cellId") Integer cellId, ModelMap m) throws SampleTypeException {
+	  
+	  mpsCellDetailsByJobByRunByCell(jobId, runId, cellId, m);
+	  return "datadisplay/mps/jobs/alignmentdetails";
 	  
   }
   

@@ -42,10 +42,10 @@
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
+			<%-- <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>--%>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Adaptor Index (Tag)</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">pM <sup>*</sup></td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF (%)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index (%PF)</td>	
 			<%-- <td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>--%>
 		</tr>
 	</c:if>
@@ -64,9 +64,11 @@
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${controlLibrary.getName()}" />
 		</td>
+		<%-- 
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
 		</td>
+		--%>
 		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>	
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> <c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
@@ -94,7 +96,7 @@
 			<%-- <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>--%>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Adaptor Index (Tag)</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">pM <sup>*</sup></td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF (%)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index (%PF)</td>	
 			<%-- <td class="label-centered" style="background-color:#FAF2D6">PF Reads (.fastq)</td>		--%>	
 		</tr>
 	</c:if>

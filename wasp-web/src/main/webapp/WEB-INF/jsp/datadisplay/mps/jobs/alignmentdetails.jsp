@@ -13,18 +13,21 @@
 	</td>
 </tr>
 </table>
+
+
 <br />
 <table class="data">
 <c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
 	<c:if test="${status.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Control Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Control Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<%-- <td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>--%>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index (%PF)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF Sequences (.fastq)</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for this Index</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Aligned (%PF for Index)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Ref.Genome<br />Ref.Species<br />Aligner</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
 		</tr>
 	</c:if>
 	<tr>
@@ -42,34 +45,36 @@
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${controlLibrary.getName()}" />
 		</td>
-		<%-- 
+		 
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
 		</td>
-		--%>
-		<c:set value="${libraryAdaptorMap.get(controlLibrary)}" var="adaptor"/>	
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(controlLibrary)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+			<c:out value="??????? (11)" />
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="????????? (??)" />
+			<c:out value="??????? (11)" />
+		</td>
+		<td class="DataTD" style="text-align:center; white-space:nowrap; ">
+			mm9<br /><c:out value="${libraryOrganismMap.get(controlLibrary)}" /><br />Bowtie
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			Download
+			Download (bam)<br />Download (bam index)<br />Download (sam)<br />GenomeBrowser View
 		</td>
 	</tr>
 </c:forEach>
 
 <c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
 	<c:if test="${status2.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="6">Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<%-- <td class="label-centered" style="background-color:#FAF2D6">Species</td>--%>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Index (Tag)</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index (%PF)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF Sequences (.fastq)</td>			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Aligned (%PF for Index)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Ref.Genome<br />Ref.Species<br />Aligner</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
 		</tr>
 	</c:if>
 	<tr>
@@ -86,33 +91,21 @@
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${library.getName()}" />
-		</td>
-		<%-- 
+		</td> 
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			<c:out value="${libraryOrganismMap.get(library)}" />
 		</td>
-		--%>
-		<c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<%-- <c:out value="${libraryAdaptorSetShortNameMap.get(library)}" /> --%><c:out value="${adaptor.getBarcodenumber()}" /> (<c:out value="${adaptor.getBarcodesequence()}" />)
+			<c:out value="?????????" />
 		</td>
-		<td class="DataTD" style="text-align:center;">
-			<c:out value="????????? (??)" />
+		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+			<c:out value="??????? (11)" />
+		</td>
+		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+			mm9<br /><c:out value="${libraryOrganismMap.get(library)}" /><br />Bowtie
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;"> 
-			<c:set value="${librarySequenceFileMap.get(library)}" var="sequenceFileList"/>
-			<c:choose>
-				<c:when test="${fn:length(sequenceFileList)==1}">
-					<c:forEach items="${sequenceFileList}" var="fileHandle" >
-						<a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
-					</c:forEach>
-				</c:when>
-				<c:when test="${fn:length(sequenceFileList)>1}">
-					<c:forEach items="${sequenceFileList}" var="fileHandle" varStatus="counter">
-						<c:if test="${counter.count > 1}"><br /></c:if>P${counter.count}: <a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" >Download</a>
-					</c:forEach>
-				</c:when>
-			</c:choose>					
+			Download (bam)<br />Download (bam index)<br />Download (sam)<br />GenomeBrowser View
 		</td>
 	</tr>
 </c:forEach>
