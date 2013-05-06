@@ -19,19 +19,17 @@
 <table class="data">
 <c:forEach items="${controlLibrariesForThisCellList}" var="controlLibrary" varStatus="status">
 	<c:if test="${status.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Control Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="5">Control Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for this Index</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Aligned (%PF for Index)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Ref.Genome<br />Ref.Species<br />Aligner</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index<br />Aligned (%PF for Index)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Sample's Species<br />Aligner<br />Ref.Genome<br />Ref.Genome Species</td>	
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
 		</tr>
 	</c:if>
 	<tr>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:set value="${libraryMacromoleculeMap.get(controlLibrary)}" var="parentMacromolecule"/>
 			<c:choose>
 			<c:when test="${not empty parentMacromolecule }">
@@ -42,21 +40,17 @@
 			</c:otherwise>
 			</c:choose>	
 		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:out value="${controlLibrary.getName()}" />
 		</td>
 		 
+		
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="${libraryOrganismMap.get(controlLibrary)}" />
+			<c:out value="???????" /><br /><c:out value="??????? (75)" />
 		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="??????? (11)" />
-		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="??????? (11)" />
-		</td>
+		
 		<td class="DataTD" style="text-align:center; white-space:nowrap; ">
-			mm9<br /><c:out value="${libraryOrganismMap.get(controlLibrary)}" /><br />Bowtie
+			<c:out value="${libraryOrganismMap.get(controlLibrary)}" /><br />Bowtie<br />mm9<br /><c:out value="${libraryOrganismMap.get(controlLibrary)}" />
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
 			Download (bam)<br />Download (bam index)<br />Download (sam)<br />GenomeBrowser View
@@ -66,19 +60,17 @@
 
 <c:forEach items="${librariesThatPassedQCForThisCellList}" var="library" varStatus="status2">
 	<c:if test="${status2.first}">
-		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="7">Libraries</td></tr>
+		<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6" colspan="5">Libraries</td></tr>
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Parent</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Species</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Aligned (%PF for Index)</td>	
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Ref.Genome<br />Ref.Species<br />Aligner</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF for Index<br />Aligned (%PF for Index)</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Sample's Species<br />Aligner<br />Ref.Genome<br />Ref.Genome Species</td>	
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Alignment Files</td>	
 		</tr>
 	</c:if>
 	<tr>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:set value="${libraryMacromoleculeMap.get(library)}" var="parentMacromolecule"/>
 			<c:choose>
 			<c:when test="${not empty parentMacromolecule }">
@@ -89,20 +81,16 @@
 			</c:otherwise>
 			</c:choose>	
 		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		<td class="DataTD" style="text-align:center; ">
 			<c:out value="${library.getName()}" />
 		</td> 
+		
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="${libraryOrganismMap.get(library)}" />
+			<c:out value="?????????" /><br /><c:out value="??????? (90)" />
 		</td>
+		
 		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="?????????" />
-		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			<c:out value="??????? (11)" />
-		</td>
-		<td class="DataTD" style="text-align:center; white-space:nowrap;">
-			mm9<br /><c:out value="${libraryOrganismMap.get(library)}" /><br />Bowtie
+			<c:out value="${libraryOrganismMap.get(library)}" /><br />Bowtie<br />mm9<br /><c:out value="${libraryOrganismMap.get(library)}" />
 		</td>
 		<td class="DataTD" style="text-align:center; white-space:nowrap;"> 
 			Download (bam)<br />Download (bam index)<br />Download (sam)<br />GenomeBrowser View
