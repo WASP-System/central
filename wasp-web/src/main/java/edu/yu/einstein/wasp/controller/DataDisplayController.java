@@ -1553,5 +1553,13 @@ public class DataDisplayController extends WaspController {
 	  return "datadisplay/mps/jobs/librarydetails";
   }
 
+  @RequestMapping(value="/mps/jobs/{jobId}/samples", method=RequestMethod.GET)
+  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+  public String mpsSampleSummaryByJob(@PathVariable("jobId") Integer jobId, 
+		  ModelMap m) throws SampleTypeException {
+	  mpsMainPageByJob(jobId, m);
+	  return "datadisplay/mps/jobs/samples/mainpage";
+  }
+  
 }
 

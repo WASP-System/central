@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <br /><br />
-<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a></h1>	
+<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a>: Sequence Run View</h1>	
 
 <%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
 <div id="modalDialog">
