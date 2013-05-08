@@ -27,7 +27,7 @@ group_name @allhosts
 hostlist NONE
 EOF
   qconf -aattr hostgroup hostlist localhost @allhosts
-  qconf -Aq main.q /dev/stdin << EOF
+  qconf -Aq /dev/stdin << EOF
 qname                 main.q
 hostlist              NONE
 seq_no                0
@@ -142,8 +142,6 @@ EOF
 EOF
   qconf -aattr queue slots "4, [localhost=1]" main.q
 
-  echo "-l h_vmem=1g" >> /var/lib/gridengine/default/common/sge_request 
-
 }
 
 export -f setup_ssh
@@ -172,6 +170,7 @@ echo "starting daemon"
 echo "configuring SGE"
 sudo -u sgeadmin qconf -am wasp
 su wasp -c "bash -c setup_gridengine"
+echo "-l h_vmem=1g" >> /var/lib/gridengine/default/common/sge_request
 
 echo "unregistering setup task"
 sed -i 's:bash /root/install.sh 2>\&1 | tee /home/wasp/install.log:exit 0:' /etc/rc.local

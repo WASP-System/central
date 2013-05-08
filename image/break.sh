@@ -2,6 +2,8 @@
 # modified from http://wiki.debian.org/DebianInstaller/Preseed/EditIso
 # run on linux as root
 
+outname=wheezy-wasp.iso
+
 if [ ! -e ./preseed.cfg ]; then
   echo "can not proceed without preseed.cfg";
   exit 1
@@ -16,11 +18,13 @@ umount loopdir
 
 mkdir irmod
 cd irmod
-gzip -d < ../cd/install.386/initrd.gz | \
+instdir=../cd/install.386/
+if [ ! -e $instdir ]; then instdir=../cd/install.amd/; outname=${outname/.iso/-64.iso}; fi
+gzip -d < $instdir/initrd.gz | \
         cpio --extract --verbose --make-directories --no-absolute-filenames
 cp ../preseed.cfg preseed.cfg
 find . | cpio -H newc --create --verbose | \
-        gzip -9 > ../cd/install.386/initrd.gz
+        gzip -9 > $instdir/initrd.gz
 cd ../
 rm -fr irmod/
 
@@ -41,7 +45,7 @@ sed -i 's/timeout 0/timeout 10/g' isolinux/isolinux.cfg
 md5sum `find -follow -type f` > md5sum.txt
 cd ..
 
-mkisofs -o wheezy-wasp.iso -r -J -no-emul-boot -boot-load-size 4 \
+mkisofs -o ${outname} -r -J -no-emul-boot -boot-load-size 4 \
  -boot-info-table -b isolinux/isolinux.bin -c isolinux/boot.cat ./cd
 
 rm -rf cd loopdir

@@ -15,7 +15,7 @@ fi
 
 VBoxManage createvm --name $NAME --ostype Debian --register
 VBoxManage modifyvm $NAME \
-		   --memory 1536 \
+		   --memory 2048 \
 		   --vram 1 \
 		   --acpi on \
 		   --ioapic off \
@@ -23,9 +23,9 @@ VBoxManage modifyvm $NAME \
 		   --rtcuseutc on \
 		   --cpuhotplug off \
 		   --pae off \
-		   --hwvirtex on \
-		   --hwvirtexexcl on \
-		   --nestedpaging on \
+		   --hwvirtex off \
+		   --hwvirtexexcl off \
+		   --nestedpaging off \
 		   --largepages off \
 		   --accelerate3d off \
 		   --nic1 nat \
