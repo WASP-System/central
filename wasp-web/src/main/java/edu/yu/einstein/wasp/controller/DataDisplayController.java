@@ -1557,7 +1557,86 @@ public class DataDisplayController extends WaspController {
   @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
   public String mpsSampleSummaryByJob(@PathVariable("jobId") Integer jobId, 
 		  ModelMap m) throws SampleTypeException {
-	  mpsMainPageByJob(jobId, m);
+	  
+	  String referer = request.getHeader("Referer");
+
+	  //mpsMainPageByJob(jobId, m);
+	  Job job = jobService.getJobByJobId(jobId);
+	  if(job.getId()==null){		  
+		  logger.warn("Unable to find job in db: " + referer);		  		
+		  waspErrorMessage("");
+	  }
+	  m.addAttribute("job",job);
+	  
+	  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+	  List<Sample> allJobLibraries = new ArrayList<Sample>();
+	  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+	  List<Sample> submittedLibraryList = new ArrayList<Sample>();
+	  List<Sample> facilityLibraryList = new ArrayList<Sample>();
+	  
+	  List<Sample> submittedObjectList = new ArrayList<Sample>();
+	  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
+	  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
+	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+	  
+	  ////Map<Sample, List<Sample>> userSubmittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
+
+	  for(Sample s : allJobSamples){
+		  if(s.getParent()==null){
+			  submittedObjectList.add(s);
+			  if(s.getSampleType().getIName().toLowerCase().contains("library")){
+				  submittedLibraryList.add(s);
+			  }
+			  else{
+				  submittedMacromoleculeList.add(s);
+			  }
+		  }
+		  else{
+			  facilityLibraryList.add(s);
+		  }
+	  }
+	  allJobLibraries.addAll(submittedLibraryList);
+	  allJobLibraries.addAll(facilityLibraryList);
+	  
+	  for(Sample macromolecule : submittedMacromoleculeList){
+		  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());
+	  }
+	  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
+		  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
+		  tempUserSubmittedLibraryList.add(userSubmittedLibrary);
+		  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
+	  }
+	  for(Sample submittedObject : submittedObjectList){
+		  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+	  }
+	  for(Sample library : allJobLibraries){
+		  Adaptor adaptor;
+		  try{ 
+			  adaptor = adaptorService.getAdaptor(library);
+			  libraryAdaptorMap.put(library, adaptor);
+			  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
+		  }catch(Exception e){}		  
+	  }
+	  
+	  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);
+	  m.addAttribute("submittedLibraryList", submittedLibraryList);
+	  m.addAttribute("facilityLibraryList", facilityLibraryList);
+	  m.addAttribute("submittedObjectList", submittedObjectList);	  
+	  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
+	  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
+	  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
+	  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+	  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+	  
+	  
+	  
+	  for(Sample library : allJobLibraries){
+		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
+	  }
+	  
+	  
 	  return "datadisplay/mps/jobs/samples/mainpage";
   }
   
