@@ -24,6 +24,14 @@
 	</bean>
 	
 	
+	<!-- need to use qualifier 'entityManager' for WaspJobSoftwareLanuchTasklet  -->
+	<!-- to make test work simply use the 'batchDataSource' even though this is a bit of a hack  -->
+	<bean id="transactionManagerEM" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+		<property name="dataSource" ref="batchDataSource" />
+		<qualifier value="entityManager" />
+	</bean>
+	
+	
 	
 	<!-- Enable @Transactional support -->
 	<tx:annotation-driven />
