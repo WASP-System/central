@@ -50,12 +50,37 @@ import org.osgi.framework.Bundle;
 
 import edu.yu.einstein.wasp.eclipse.internal.Messages;
 
+/**
+ * Eclipse Plugin Creator to generate a template WASP System plugin with working example
+ * defaults.  Java, Spring and Maven project natures are configured by default.
+ * Template files are stored in the "include" folder at the root of this
+ * project.  Files that contain the strings "Xxxxx" or "xxxxx" will have the string
+ * replaced with the capitalized or uncapitalized form of the users project name.  If the file name
+ * is preceeded with the string 
+ * 
+ * "FORM" - user selected to create submission forms
+ * "RES" - user selected software or metedata resource
+ * "PIP" - user selected pipelines
+ * "VIZ" - user selected visualization
+ * 
+ * then the text will be removed from the file name and the file will be included.
+ * 
+ * Additional placeholders for content within the files include "___pluginname___" (uncapitalized 
+ * plugin name), "___Pluginname___" (capitalized plugin name), and "___package___" (full java
+ * package name).  
+ * 
+ * A special comment using 5 slashes (/////) at the end of a line preceeding the FORM, RES, PIP, 
+ * and VIZ strings will include that line based on the user's selection. 
+ * 
+ * @author calder
+ *
+ */
 public class WaspProjectCreator {
 
 	/**
 	 * Creates a WASP plugin project with some sensible defaults
 	 * 
-	 * @param name
+	 * @param name 
 	 *            name of the project [a-zA-z0-9_]
 	 * @param namespace
 	 *            java-style namespace for the project
