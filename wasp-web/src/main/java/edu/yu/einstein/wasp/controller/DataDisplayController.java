@@ -1581,6 +1581,9 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
 	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 	  
+	  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();
+	  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();
+	  
 	  ////Map<Sample, List<Sample>> userSubmittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
 
 	  for(Sample s : allJobSamples){
@@ -1601,7 +1604,7 @@ public class DataDisplayController extends WaspController {
 	  allJobLibraries.addAll(facilityLibraryList);
 	  
 	  for(Sample macromolecule : submittedMacromoleculeList){
-		  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());
+		  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
 	  }
 	  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
 		  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
@@ -1619,6 +1622,83 @@ public class DataDisplayController extends WaspController {
 			  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
 		  }catch(Exception e){}		  
 	  }
+	  /* testing only
+	  for(Sample library : allJobLibraries){
+		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
+	  }
+		*/
+	  
+	  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
+	  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
+	  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
+	  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
+	  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();
+	 
+
+	  for(Sample library : allJobLibraries){
+		  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library);
+		  libraryCellListMap.put(library, cellsForLibrary);
+		  for(Sample cell : cellsForLibrary){			  
+			  try{
+				  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
+				  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+				  cellPUMap.put(cell, platformUnit);
+				  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+				  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+				  if(!runList.isEmpty()){
+					  Run run = runList.get(0);
+					  cellRunMap.put(cell, run);
+					  
+				  }
+			  }catch(Exception e){}
+		  }
+	  }
+	  
+	  for(Sample library : allJobLibraries){
+		  List<Sample>  cellsForLibrary = libraryCellListMap.get(library);
+		  System.out.println("Library: " + library.getName());
+		  for(Sample cell : cellsForLibrary){
+			  System.out.println("---Cell: " + cell.getName() + " (index number: " + cellIndexMap.get(cell) + ") ");
+			  System.out.println("------PU: " + cellPUMap.get(cell).getName());
+			  if(cellRunMap.containsKey(cell)){
+				  System.out.println("---------Run: " + cellRunMap.get(cell).getName());
+			  }
+			  else{
+				  System.out.println("---------Run: none");
+			  }
+		  }
+	  }
+	  
+	  for(Sample submittedObject : submittedObjectList){
+		  
+		  int numLibraries = 0;
+		  int numCells = 0;
+		  List<Sample> facilityLibraryList2 = submittedMacromoleculeFacilityLibraryListMap.get(submittedObject);
+		  List<Sample> submittedLibraryList2 = submittedLibrarySubmittedLibraryListMap.get(submittedObject);
+		  numLibraries = (facilityLibraryList2==null?0:facilityLibraryList2.size()) + (submittedLibraryList2==null?0:submittedLibraryList2.size());
+		  if(numLibraries==0){
+			  submittedObjectLibraryRowspan.put(submittedObject, 1);
+		  }
+		  else{
+			  submittedObjectLibraryRowspan.put(submittedObject, numLibraries);
+		  }
+		  if(facilityLibraryList2!=null){
+			  for(Sample library : facilityLibraryList2){
+				  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+			  }
+		  }
+		  if(submittedLibraryList2!=null){
+			  for(Sample library : submittedLibraryList2){
+				  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+			  }
+		  }
+		  if(numCells==0){
+			  submittedObjectCellRowspan.put(submittedObject, 1);
+		  }
+		  else{
+			  submittedObjectCellRowspan.put(submittedObject, numCells);
+		  }
+	  }
 	  
 	  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);
 	  m.addAttribute("submittedLibraryList", submittedLibraryList);
@@ -1629,12 +1709,17 @@ public class DataDisplayController extends WaspController {
 	  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
 	  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 	  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+
+	  m.addAttribute("libraryCellListMap", libraryCellListMap);
+	  m.addAttribute("cellIndexMap", cellIndexMap);
+	  m.addAttribute("cellPUMap", cellPUMap);
+	  m.addAttribute("cellRunMap", cellRunMap);
+	  
+	  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
+	  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);
+
 	  
 	  
-	  
-	  for(Sample library : allJobLibraries){
-		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
-	  }
 	  
 	  
 	  return "datadisplay/mps/jobs/samples/mainpage";
