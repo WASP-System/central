@@ -96,6 +96,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<excluded.groups>integration-tests,db-tests,a,ssh,schema</excluded.groups>
 		<json.version>20080701</json.version>
 		<bouncycastle.version>1.48</bouncycastle.version>
+		<tomcat.version>7.0.39</tomcat.version>
 	</properties>
 
 	<modules>
@@ -1086,5 +1087,14 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<url>scpexe://wasp@frankfurt.aecom.yu.edu/var/www_default/repository/</url>
 		</repository>
 	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>eclipse</id>
+			<modules>
+				<module>../eclipse</module>
+			</modules>
+		</profile>
+	</profiles>
 
 </project>

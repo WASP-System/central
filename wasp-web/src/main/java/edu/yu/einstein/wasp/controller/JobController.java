@@ -410,7 +410,7 @@ public class JobController extends WaspController {
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
 		if(sidx!=null && !"".equals(sidx)){//sord is apparently never null; default is desc
 			if(sidx.equals("jobId")){
-				orderByColumnAndDirection.add("jobId " + sord);
+				orderByColumnAndDirection.add("id " + sord);
 			}
 			else if(sidx.equals("name")){//job.name
 				orderByColumnAndDirection.add("name " + sord);

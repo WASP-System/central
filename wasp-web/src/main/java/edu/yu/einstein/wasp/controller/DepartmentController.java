@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.yu.einstein.wasp.controller.DashboardController.DashboardEntityRolename;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.dao.DepartmentDao;
 import edu.yu.einstein.wasp.dao.DepartmentUserDao;
@@ -112,10 +111,12 @@ public class DepartmentController extends WaspController {
 		m.addAttribute("pusers", userDao.getActiveUsers());
 		super.prepareSelectListData(m);
 	}
-
+	
 	@RequestMapping("/list")
 	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*') or hasRole('ft') or hasRole('fm')")
 	public String list(ModelMap m) {
+		
+		
 
 		List<Department> departmentList;
 		if (authenticationService.isSuperUser() || authenticationService.hasRole("ga")) {
@@ -132,29 +133,11 @@ public class DepartmentController extends WaspController {
 					continue;
 				}
 
-				DashboardEntityRolename entityRolename;
-				int roleObjectId = 0;
-
-				try {
-					entityRolename = DashboardEntityRolename.valueOf(splitRole[0]);
-					roleObjectId = Integer.parseInt(splitRole[1]);
-				} catch (Exception e) {
-					continue;
-				}
-
-				// adds the role object to the proper bucket
-				switch (entityRolename) {
-				case da:
-					departmentList.add(departmentDao.getDepartmentByDepartmentId(roleObjectId));
-					break;
-				default:
-					break;
-				}
+				if (splitRole[0].equals("da"))
+					departmentList.add(departmentDao.getDepartmentByDepartmentId(Integer.parseInt(splitRole[1])));
 			}
 		}
 		m.addAttribute("department", departmentList);
-		//////////departmentAdminPendingTasks = taskService.getDepartmentAdminPendingTasks();// number of da pending tasks (if su or ga, then department not considered)
-		//////////m.addAttribute("departmentAdminPendingTasks", departmentAdminPendingTasks);
 		return "department/list";
 	}
 
