@@ -1020,4 +1020,13 @@ public interface SampleService extends WaspMessageHandlingService {
 	
 	public Set<Organism> getOrganismsPlusOther();
 
+	  /**
+	   * Get cells onto which the current library is placed, restricted by job
+	   * @param Sample library
+	   * @param Job job
+	   * @return List<Sample>
+	   * @throws SampleTypeException 
+	   */
+	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
+
 }

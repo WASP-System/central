@@ -1639,7 +1639,7 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
 
 	  for(Sample library : allJobLibraries){
-		  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library);
+		  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
 		  libraryCellListMap.put(library, cellsForLibrary);
 		  for(Sample cell : cellsForLibrary){			  
 			  try{

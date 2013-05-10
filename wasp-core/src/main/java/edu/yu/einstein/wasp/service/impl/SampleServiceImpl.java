@@ -2990,5 +2990,22 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			organisms.add(other);
 			return organisms;
 		}
+		
+		  /**
+		   * {@inheritDoc}
+		   */
+		  @Override
+		  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException{
+			  
+			  List<Sample> cellsForLibraryAndJob = new ArrayList<Sample>();		  
+			  Set<SampleSource> sampleSourceList = this.getCellLibrariesForJob(job);
+			  for(SampleSource ss : sampleSourceList){
+				  if(ss.getSourceSample()==library){//here, sourcesample is library; sample is cell
+					  cellsForLibraryAndJob.add(ss.getSample());//add cell to list
+				  }
+			  }			  
+			  return cellsForLibraryAndJob;
+		  }
+
 }
 

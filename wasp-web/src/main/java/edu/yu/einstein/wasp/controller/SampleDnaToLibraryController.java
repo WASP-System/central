@@ -402,25 +402,25 @@ public class SampleDnaToLibraryController extends WaspController {
 				//message and get out of here
 			}
 			libraryAdaptorMap.put(library, adaptor);	
-			List<Sample> cells = sampleService.getCellsForLibrary(library);
+			List<Sample> cells = sampleService.getCellsForLibrary(library, job);//5-10-13, added expanded this service to include library,job. Without job, this could be a disaster!
 			for (Sample cell : cells){
+				System.out.println("---cell: " + cell.getName());
 				if (cellsByLibrary.get(library) == null){
 					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
-					try {
-						CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
-						Sample platformunit = cellWrapper.getPlatformUnit();
-						if (platformunit != null)
-							showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
-						cellsByLibrary.get(library).add(cellWrapper);
-					} catch (SampleParentChildException e) {
-						logger.warn(e.getLocalizedMessage());
-					}
+				}//5-10-13 this bracket was missing.
+				try {
+					CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
+					Sample platformunit = cellWrapper.getPlatformUnit();
+					if (platformunit != null)
+						showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
+					cellsByLibrary.get(library).add(cellWrapper);
+				} catch (SampleParentChildException e) {
+					logger.warn(e.getLocalizedMessage());
 				}
-			}
-			
+				
+			}			
 		}
-	  	
-	  	
+	  		  	
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
 				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
