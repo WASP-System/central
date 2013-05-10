@@ -45,11 +45,16 @@
 				<artifactId>wasp-interface</artifactId>
 				<version>${module.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>edu.yu.einstein.wasp</groupId>
+				<artifactId>wasp-integration-test</artifactId>
+				<version>${module.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
 		<module>wasp-parent</module>
-  	</modules>
+	</modules>
 	<build>
 		<pluginManagement>
 		<plugins>

@@ -3,12 +3,8 @@ package edu.yu.einstein.wasp.integration.selenium;
 import java.util.List;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Mouse;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.internal.Locatable;
-import org.openqa.selenium.HasInputDevices;
-import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -16,7 +12,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.test.util.SeleniumHelper;
+import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelApproveNewJob extends SelBaseTest{
 	

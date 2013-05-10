@@ -2,17 +2,23 @@
 
 <suite name="SelWaspTest" verbose="10">
 
- 	
- 
-   
-
-	<parameter name="first-name"  value=""/>
-   <test name="WASP Regression Testing: Base Test Class" preserve-order="true">
-	<classes>
+  
+  
+  
+  <test name="WASP Regression Testing: Base Test Class" preserve-order="true">
+  
+  <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
       </classes>
-   </test>
-
+   </test>  
+  
+  <test name="WASP Regression Testing: TestSeleniumProfileSetup" preserve-order="true">    
+   
+  <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.TestSeleniumProfileSetup"/>
+  </classes>
+  </test>
+ <!--
    <test name="WASP Regression Testing: Submit New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
@@ -24,7 +30,7 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
       </classes>
    </test>
- <!--
+
  
   <test name="WASP Regression Testing: Login Page" preserve-order="true">
       <classes>
