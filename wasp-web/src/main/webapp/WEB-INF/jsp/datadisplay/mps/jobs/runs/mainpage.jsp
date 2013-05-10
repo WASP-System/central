@@ -1,8 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <br /><br />
-<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a>: Sequence Run View</h1>	
-
+<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a>: Data By Sequence Runs <span style="font-size:small"> (<a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">View Data By Samples</a>)</span></h1>	
 <%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>

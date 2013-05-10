@@ -54,7 +54,7 @@
 <tr class="FormData">
  <td class="CaptionTD"><fmt:message key="jobdetail_for_import.dataFiles.label" />:</td>
  <td class="DataTD">
- 	<a style="color: #801A00;" href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />"><fmt:message key="jobdetail_for_import.dataFilesView.label" /></a> | <a style="color: #801A00;" href="<c:url value="/sampleDnaToLibrary/resultsView/${job.jobId}.do" />">V (Iframe)</a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />">V (Div)</a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">SumBySam</a> 	
+ 	<a style="color: #801A00;" href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />"><fmt:message key="jobdetail_for_import.dataFilesView.label" /></a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />">By Runs</a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">By Samples</a> 	
  </td>
 </tr>
 </table>
