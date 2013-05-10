@@ -497,7 +497,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>2.1.1</version>
+				<version>2.3</version>
+				<configuration>
+				<webResources>
+				<resource>
+				<directory>src/main/default</directory>
+				<targetPath>WEB-INF</targetPath>
+				</resource>
+				</webResources>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -559,29 +567,21 @@
             </properties>
         </profile>
 
-		
 		<profile>
 		<id>deploy</id>
 		<build>
 		<plugins>
 		<plugin>
-		<artifactId>maven-antrun-plugin</artifactId>
-		<executions>
-		<execution>
-		<phase>package</phase>
-		<goals>
-		<goal>run</goal>
-		</goals>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-war-plugin</artifactId>
 		<configuration>
-		<tasks>
-		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
-		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.deploy.properties"/>
-		<copy file="src/main/webapp/WEB-INF/log4j.deploy.properties"
-		tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
-		</tasks>
+		<webResources>
+		<resource>
+		<directory>src/main/deploy</directory>
+		<targetPath>WEB-INF</targetPath>
+		</resource>
+		</webResources>
 		</configuration>
-		</execution>
-		</executions>
 		</plugin>
 		</plugins>
 		</build>

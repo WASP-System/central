@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.slf4j.Logger;

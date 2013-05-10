@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/wasp-eclipse-feature_0.1.0.qualifier.jar" id="wasp-eclipse-feature" version="0.1.0.qualifier">
+      <category name="wasp-update-site-projects"/>
+   </feature>
+   <category-def name="wasp-update-site-projects" label="WASP System Update Site Projects"/>
+</site>
