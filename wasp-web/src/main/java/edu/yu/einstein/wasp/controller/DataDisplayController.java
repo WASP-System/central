@@ -1657,27 +1657,6 @@ public class DataDisplayController extends WaspController {
 		  }
 	  }
 	  
-	  /* for testing
-	  for(Sample library : allJobLibraries){
-		  List<Sample>  cellsForLibrary = libraryCellListMap.get(library);
-		  System.out.println("Library: " + library.getName());
-		  for(Sample cell : cellsForLibrary){
-			  System.out.println("---Cell: " + cell.getName() + " (index number: " + cellIndexMap.get(cell) + ") ");
-			  System.out.println("------PU: " + cellPUMap.get(cell).getName());
-			  if(cellRunMap.containsKey(cell)){
-				  System.out.println("---------Run: " + cellRunMap.get(cell).getName());
-			  }
-			  else{
-				  System.out.println("---------Run: none");
-			  }
-		  }
-	  }
-	  */
-	  /* testing only
-	  for(Sample library : allJobLibraries){
-		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
-	  }
-		*/
 
 	  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 	  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
