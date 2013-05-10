@@ -1569,12 +1569,13 @@ public class DataDisplayController extends WaspController {
 	  }
 	  
 	  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-	  List<Sample> allJobLibraries = new ArrayList<Sample>();
+	  List<Sample> allJobLibraries = new ArrayList<Sample>();  //could have gotten this from allJobLibraries = jobService.getLibraries(job);
 	  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
 	  List<Sample> submittedLibraryList = new ArrayList<Sample>();
 	  List<Sample> facilityLibraryList = new ArrayList<Sample>();
 	  
-	  List<Sample> submittedObjectList = new ArrayList<Sample>();
+	  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+	  
 	  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
 	  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
 	  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
@@ -1600,6 +1601,7 @@ public class DataDisplayController extends WaspController {
 	  allJobLibraries.addAll(facilityLibraryList);
 	  
 	  //consolidate job's submitted objects: submitted macromoleucles and submitted libraries
+	  //could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
 	  submittedObjectList.addAll(submittedMacromoleculeList);
 	  submittedObjectList.addAll(submittedLibraryList);
 	  

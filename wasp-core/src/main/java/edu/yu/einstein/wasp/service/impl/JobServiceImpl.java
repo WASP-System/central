@@ -2297,4 +2297,19 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		job.getJobMeta().size();
 		return job;
 	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getLibraries(Job job){
+		List<Sample> libraryList = new ArrayList<Sample>();
+		for(JobSample js : job.getJobSample()){
+			Sample s = js.getSample();//includes userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+			if(s.getSampleType().getIName().toLowerCase().contains("library")){
+				libraryList.add(s);//userSubmitted Libraries and facilityGenerated Libraries
+			  }
+		}		
+		return libraryList;		
+	}
 }
