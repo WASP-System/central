@@ -201,19 +201,6 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
 	</definition>
-	<definition name="sampleDnaToLibrary/resultsView" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/resultsView.jsp" />
-	</definition>
-	<definition name="sampleDnaToLibrary/jobDetails" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/jobDetails.jsp" />
-	</definition>
-	<definition name="sampleDnaToLibrary/runDetails" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/runDetails.jsp" />
-	</definition>
-	<definition name="sampleDnaToLibrary/cellDetails" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/cellDetails.jsp" />
-	</definition>
 	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
