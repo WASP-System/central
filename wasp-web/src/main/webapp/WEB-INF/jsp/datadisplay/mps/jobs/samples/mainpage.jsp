@@ -6,6 +6,9 @@
 <table class="data">
 
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
+	<c:if test="${statusSubmittedObject.index>0}">
+		<tr class="FormData"><td colspan="13" class="label-centered" style="background-color:black; white-space:nowrap;"></td></tr>
+	</c:if>
 	<c:if test="${statusSubmittedObject.first}">
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Macromolecule</td>
@@ -15,6 +18,12 @@
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Index-Tag</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Run</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Lane</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Stats</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">PF</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Aligned</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">RefGenome</td>
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">SeqFiles</td>	
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">AlignFiles</td>
 			<%-- 
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Run (length:type)</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Lane</td>	
@@ -71,6 +80,12 @@
 			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>			
 			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 			<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td></tr>
 		</c:when>
 		<c:otherwise>
@@ -101,6 +116,12 @@
 				<c:choose>
 				<c:when test="${fn:length(cellList)==0}">
 					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>				
+					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 					<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td></tr>			
 				</c:when>
 				<c:otherwise>
@@ -112,10 +133,22 @@
 							<c:when test="${empty cellRunMap.get(cell)}">
 								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">&nbsp;</td>
 							</c:when>						
 							<c:otherwise>
 								<td class="DataTD" style="text-align:center; white-space:nowrap;"><c:out value="${run.getName()}" /></td>
 								<td class="DataTD" style="text-align:center; white-space:nowrap;"><c:out value="${laneIndex}" /></td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">fqc | stats</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">10000000</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">9000000</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">mm9</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">fastqc</td>
+								<td class="DataTD" style="text-align:center; white-space:nowrap;">bam<br/>bam-i<br>sam</td>
 							</c:otherwise>
 						</c:choose>
 						</tr>
