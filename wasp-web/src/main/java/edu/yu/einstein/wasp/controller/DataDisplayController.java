@@ -1565,8 +1565,8 @@ public class DataDisplayController extends WaspController {
 	  if(job.getId()==null){		  
 		  logger.warn("Unable to find job in db: " + referer);		  		
 		  waspErrorMessage("");
+		  return referer;
 	  }
-	  m.addAttribute("job",job);
 	  
 	  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
 	  List<Sample> allJobLibraries = new ArrayList<Sample>();
@@ -1580,15 +1580,9 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
 	  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
 	  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
-	  
-	  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();
-	  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();
-	  
-	  ////Map<Sample, List<Sample>> userSubmittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
-
+	  	  
 	  for(Sample s : allJobSamples){
 		  if(s.getParent()==null){
-			  submittedObjectList.add(s);
 			  if(s.getSampleType().getIName().toLowerCase().contains("library")){
 				  submittedLibraryList.add(s);
 			  }
@@ -1600,20 +1594,33 @@ public class DataDisplayController extends WaspController {
 			  facilityLibraryList.add(s);
 		  }
 	  }
+	  
+	  //consolidate job's libraries
 	  allJobLibraries.addAll(submittedLibraryList);
 	  allJobLibraries.addAll(facilityLibraryList);
 	  
+	  //consolidate job's submitted objects: submitted macromoleucles and submitted libraries
+	  submittedObjectList.addAll(submittedMacromoleculeList);
+	  submittedObjectList.addAll(submittedLibraryList);
+	  
+	  //for each submittedMacromolecule, get list of it's facility-generated libraries
 	  for(Sample macromolecule : submittedMacromoleculeList){
 		  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
 	  }
+	  
+	  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
 	  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
 		  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
 		  tempUserSubmittedLibraryList.add(userSubmittedLibrary);
 		  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
 	  }
+	  
+	  //for each submittedMacromolecule or submittedLibrary, get species
 	  for(Sample submittedObject : submittedObjectList){
 		  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
 	  }
+	  
+	  //for each job's library, get its adaptor info
 	  for(Sample library : allJobLibraries){
 		  Adaptor adaptor;
 		  try{ 
@@ -1622,18 +1629,12 @@ public class DataDisplayController extends WaspController {
 			  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
 		  }catch(Exception e){}		  
 	  }
-	  /* testing only
-	  for(Sample library : allJobLibraries){
-		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
-	  }
-		*/
 	  
 	  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
 	  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
 	  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 	  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
-	  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();
-	 
+	  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
 
 	  for(Sample library : allJobLibraries){
 		  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library);
@@ -1654,6 +1655,7 @@ public class DataDisplayController extends WaspController {
 		  }
 	  }
 	  
+	  /* for testing
 	  for(Sample library : allJobLibraries){
 		  List<Sample>  cellsForLibrary = libraryCellListMap.get(library);
 		  System.out.println("Library: " + library.getName());
@@ -1668,20 +1670,37 @@ public class DataDisplayController extends WaspController {
 			  }
 		  }
 	  }
-	  
+	  */
+	  /* testing only
+	  for(Sample library : allJobLibraries){
+		  System.out.println(library.getName() + " " + libraryAdaptorsetMap.get(library).getName() + " " + libraryAdaptorMap.get(library).getBarcodenumber() + "-" + libraryAdaptorMap.get(library).getBarcodesequence());
+	  }
+		*/
+
+	  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
+	  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
+
+	  //calculate the rowspans needed for the web, as the table display is rather complex. 
+	  //this is very very hard to do at the web, as there are multiple dependencies. easier to perform here
 	  for(Sample submittedObject : submittedObjectList){
 		  
 		  int numLibraries = 0;
 		  int numCells = 0;
+		  
+		  //calculate numLibraries
 		  List<Sample> facilityLibraryList2 = submittedMacromoleculeFacilityLibraryListMap.get(submittedObject);
 		  List<Sample> submittedLibraryList2 = submittedLibrarySubmittedLibraryListMap.get(submittedObject);
 		  numLibraries = (facilityLibraryList2==null?0:facilityLibraryList2.size()) + (submittedLibraryList2==null?0:submittedLibraryList2.size());
+		  
+		  //put numLibraries into its map for eventual use in web
 		  if(numLibraries==0){
 			  submittedObjectLibraryRowspan.put(submittedObject, 1);
 		  }
 		  else{
 			  submittedObjectLibraryRowspan.put(submittedObject, numLibraries);
 		  }
+		  
+		  //calculate numCells
 		  if(facilityLibraryList2!=null){
 			  for(Sample library : facilityLibraryList2){
 				  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
@@ -1692,6 +1711,8 @@ public class DataDisplayController extends WaspController {
 				  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
 			  }
 		  }
+		  
+		  //put numCells into its map for eventual use in web
 		  if(numCells==0){
 			  submittedObjectCellRowspan.put(submittedObject, 1);
 		  }
@@ -1700,10 +1721,12 @@ public class DataDisplayController extends WaspController {
 		  }
 	  }
 	  
-	  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);
-	  m.addAttribute("submittedLibraryList", submittedLibraryList);
-	  m.addAttribute("facilityLibraryList", facilityLibraryList);
-	  m.addAttribute("submittedObjectList", submittedObjectList);	  
+	  m.addAttribute("job",job);
+	  //not actually used by webpage   m.addAttribute("submittedLibraryList", submittedLibraryList);
+	  //not actually used on webpage m.addAttribute("facilityLibraryList", facilityLibraryList);
+	  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list  
+	  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
+
 	  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
 	  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
 	  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
@@ -1712,15 +1735,11 @@ public class DataDisplayController extends WaspController {
 
 	  m.addAttribute("libraryCellListMap", libraryCellListMap);
 	  m.addAttribute("cellIndexMap", cellIndexMap);
-	  m.addAttribute("cellPUMap", cellPUMap);
+	  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
 	  m.addAttribute("cellRunMap", cellRunMap);
 	  
 	  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
-	  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);
-
-	  
-	  
-	  
+	  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
 	  
 	  return "datadisplay/mps/jobs/samples/mainpage";
   }
