@@ -16,16 +16,18 @@ public class Picard extends BAMProcessor {
 	 */
 	private static final long serialVersionUID = -2501043398244995595L;
 	
-	private String softwareName = "picard";
 	private String version = "1.78";
+	
+	public Picard() {
+		this.setSoftwareName("picard");
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.software.SoftwarePackage#getSoftwareVersion()
 	 */
 	@Override
 	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return version;
 	}
 
 	/* (non-Javadoc)
@@ -33,7 +35,7 @@ public class Picard extends BAMProcessor {
 	 */
 	@Override
 	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
+		version = softwareVersion;
 
 	}
 

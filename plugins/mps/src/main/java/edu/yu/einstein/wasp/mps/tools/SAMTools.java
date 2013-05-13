@@ -16,7 +16,9 @@ public class SAMTools extends BAMProcessor {
 	 */
 	private static final long serialVersionUID = -5558053776438200566L;
 	
-	private String softwareName = "picard";
+	public SAMTools() {
+		this.setSoftwareName("samtools");
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.yu.einstein.wasp.software.SoftwarePackage#getSoftwareVersion()
