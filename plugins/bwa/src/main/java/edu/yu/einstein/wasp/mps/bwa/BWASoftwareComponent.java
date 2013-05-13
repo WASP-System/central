@@ -11,12 +11,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
-import edu.yu.einstein.wasp.exception.SampleException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
-import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.filetype.FastqComparator;
 import edu.yu.einstein.wasp.filetype.service.FastqService;
@@ -35,7 +31,6 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.software.alignment.ReferenceBasedAligner;
-import edu.yu.einstein.wasp.util.SoftwareConfiguration;
 
 /**
  * @author calder
@@ -69,7 +64,10 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 	 */
 	private static final long serialVersionUID = -6631761128215948999L;
 	private String version = "0.6.2"; // hard coded as this is likely the final version.
-	private String softwareName = "bwa"; 
+	
+	public BWASoftwareComponent() {
+		this.setSoftwareName("bwa");
+	}
 	
 	public WorkUnit getAln(SampleSource libraryCell, FileGroup fg, Map<String,Object> jobParameters) {
 		WorkUnit w = prepareWorkUnit(fg);
@@ -323,13 +321,12 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 
 	@Override
 	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return version;
 	}
 
 	@Override
 	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
+		version = softwareVersion;
 		
 	}
 
