@@ -129,7 +129,6 @@ public class WaspIlluminaController extends WaspController {
 						dateRunStarted = new String(formatter.format(sequenceRun.getStarted()));//yyyy/MM/dd
 					}catch(Exception e){}					
 				}
-				////startDateForRuns.add(dateRunStarted);
 				detailMap.put("dateRunStarted", dateRunStarted);
 				
 				String dateRunEnded = new String("not set");
@@ -139,11 +138,19 @@ public class WaspIlluminaController extends WaspController {
 					}catch(Exception e){}
 					
 				}
-				////endDateForRuns.add(dateRunEnded);
 				detailMap.put("dateRunEnded", dateRunEnded);
 				
-				////statusForRuns.add(new String("???"));
-				detailMap.put("runStatus", new String("???"));
+				if (runService.isRunSuccessfullyCompleted(sequenceRun)){
+					detailMap.put("runStatus", "COMPLETED");
+					m.addAttribute("runLocked", true);
+				} else if (runService.isRunActive(sequenceRun)){
+					detailMap.put("runStatus", "IN PROGRESS");
+					m.addAttribute("runLocked", true);
+				} else {
+					detailMap.put("runStatus", "UNKNOWN");
+					m.addAttribute("runLocked", false);
+				}
+				
 				
 				runDetails.put(sequenceRun.getId(), detailMap);
 			}

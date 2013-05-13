@@ -40,7 +40,9 @@
 <td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.start.label"/></td>
 <td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.end.label"/></td>
 <td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.status.label"/></td>
+<c:if test="${runLocked == false}">
 <td class="value-centered-small-heavyborder" style="background-color:#FAF2D6" nowrap><fmt:message key="platformunitShow.action.label"/></td>
+</c:if>
 </tr>
 <c:forEach items="${sequenceRuns}" var="sequenceRun">
 <tr>
@@ -52,7 +54,9 @@
 <td class="value-centered-small"><c:out value='${detailMap["dateRunStarted"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
+<c:if test="${runLocked == false}">
 <td class="value-centered-small"><a href='<c:url value="/wasp-illumina/run/${sequenceRun.runId}/update.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
+</c:if>
 </tr>
 </c:forEach>
 </table>
