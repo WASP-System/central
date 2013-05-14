@@ -154,8 +154,10 @@ public class DataDisplayController extends WaspController {
 	  Set<Sample> platformUnitSet = new HashSet<Sample>();
 	  Set<Run> runSet = new HashSet<Run>();
 	  List<Sample> platformUnitsSuccessfullyRun = new ArrayList<Sample>();
-	  List<SampleSource> getCellLibrariesThatPassedQCForJobList =  sampleService.getCellLibrariesThatPassedQCForJob(jobService.getJobByJobId(jobId));
-	  //Set<SampleSource> cellLibrariesForJob =  sampleService.getCellLibrariesForJob(job); //FOR TESTING ONLY; THIS IS NOT WHAT WE NEED!
+	  List<SampleSource> cellLibrariesThatPassedQCForJobList =  sampleService.getCellLibrariesThatPassedQCForJob(job);
+	  System.out.println("Num. entries in cellLibrariesThatPassedQCForJobList: " + cellLibrariesThatPassedQCForJobList.size());
+	  Set<SampleSource> cellLibrariesForJob =  sampleService.getCellLibrariesForJob(job); //FOR TESTING ONLY; THIS IS NOT WHAT WE NEED!
+	  System.out.println("Num. entries in cellLibrariesForJob: " + cellLibrariesForJob.size());
 	  Map<Run,Sample> runPlatformUnitMap = new HashMap<Run, Sample>();
 	  Map<Sample, Run> platformUnitRunMap = new HashMap<Sample, Run>();
 	  Map<Sample, Set<Sample>> platformUnitCellSetMap = new HashMap<Sample, Set<Sample>>();
@@ -167,7 +169,7 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
 	  Random randomInt = new Random(System.currentTimeMillis());//for FAKE_name_
 	  
-	  for(SampleSource cellLibrary : getCellLibrariesThatPassedQCForJobList/*cellLibrariesForJob*/){
+	  for(SampleSource cellLibrary : cellLibrariesThatPassedQCForJobList/*cellLibrariesForJob*/){
 		  try{
 			  Sample cell = sampleService.getCell(cellLibrary);//cellLibrary.getSample();
 			  Sample library = sampleService.getLibrary(cellLibrary);//cellLibrary.getSourceSample();
