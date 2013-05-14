@@ -169,7 +169,7 @@ public class DataDisplayController extends WaspController {
 	  Map<Sample, Sample> libraryMacromoleculeMap = new HashMap<Sample, Sample>();
 	  Random randomInt = new Random(System.currentTimeMillis());//for FAKE_name_
 	  
-	  for(SampleSource cellLibrary : cellLibrariesThatPassedQCForJobList/*cellLibrariesForJob*/){
+	  for(SampleSource cellLibrary : cellLibrariesForJob /*really should use: cellLibrariesThatPassedQCForJobList*/){
 		  try{
 			  Sample cell = sampleService.getCell(cellLibrary);//cellLibrary.getSample();
 			  Sample library = sampleService.getLibrary(cellLibrary);//cellLibrary.getSourceSample();
