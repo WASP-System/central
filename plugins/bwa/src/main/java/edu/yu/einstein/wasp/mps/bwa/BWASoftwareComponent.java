@@ -242,7 +242,7 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 		w.setProcessMode(ProcessMode.MAX);
 		
 		w.setMemoryRequirements(6);
-		
+		w.setProcessorRequirements(12);
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
 		fhlist.addAll(fg.getFileHandles());
 		Collections.sort(fhlist, new FastqComparator(fastqService));

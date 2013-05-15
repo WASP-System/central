@@ -93,6 +93,9 @@ public class BWAalnTasklet extends WaspTasklet implements StepExecutionListener 
 		
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		
+		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
+		stepContext.put("cellLibId", cellLib.getId()); //place in the step context
+		
 		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
 		
 		logger.debug("Beginning BWA aln step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
@@ -119,13 +122,12 @@ public class BWAalnTasklet extends WaspTasklet implements StepExecutionListener 
 		//place the grid result in the step context
 		storeStartedResult(context, result);
 		
-		// place scratch directory in execution context, to be promoted
+		// place scratch directory in step execution context, to be promoted
 		// to the job context at run time.
-		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
         stepContext.put("scrDir", result.getWorkingDirectory());
         stepContext.put("alnName", result.getId());
         stepContext.put("alnStr", w.getCommand());
-        stepContext.put("cellLibId", cellLib.getId());
+        
 
 		return RepeatStatus.CONTINUABLE;
 	}
