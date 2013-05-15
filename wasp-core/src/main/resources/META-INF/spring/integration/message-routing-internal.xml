@@ -36,6 +36,8 @@
 		<int:queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.queue.launch.throttled" />
+	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
 	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
@@ -77,6 +79,11 @@
 		
 	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
+	</int:bridge>
+	
+	<!-- IMPORTANT: failure to throttle the launch queue sufficiently may result in a deadlock situation when many jobs are launched simultaneously -->
+	<int:bridge id="wasp.channel.bridge.launch"  input-channel="wasp.channel.queue.launch" output-channel="wasp.channel.queue.launch.throttled">
+		<int:poller max-messages-per-poll="1" fixed-rate="1000" />
 	</int:bridge>
 	
 	

@@ -105,8 +105,8 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
-		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
-		if (stopJobNotificationReceived){
+		WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
+		if (statusFromMessage.isUnsuccessful()){
 			// this notice should trigger stopping the job
 			logger.debug(name + "Stopping job due to receiving a message containing an ABANDONED / FAILED notice");
 			// Signal the JobExecution to stop. JobExecution().stop() iterates through the associated StepExecutions, 
@@ -145,7 +145,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 				if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
 					stopJobNotificationReceived = true;
 				if (stopJobNotificationReceived || statusFromMessage.equals(messageTemplate.getStatus()) ){
-					if (this.message == null || stopJobNotificationReceived){
+					if (this.message == null || statusFromMessage.isUnsuccessful()){
 						this.message = (Message<WaspStatus>) message;
 					} else if (!stopJobNotificationPreviouslyReceived){
 						throw new MessagingException("Received an applicable message before previous message processed");
