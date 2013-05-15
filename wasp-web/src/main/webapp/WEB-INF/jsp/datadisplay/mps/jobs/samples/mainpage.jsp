@@ -3,34 +3,6 @@
 <br /><br />
 <h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a>: Data By Samples  <span style="font-size:small"> (<a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />">View Data By Sequence Runs</a>)</span></h1>
 
-
-<table class="data">
-
-<tr>
-<td>one</td>
-<td>two</td>
-<td>three</td>
-</tr>
-
-<tr>
-<td rowspan="3">four<br />five</td>
-<td rowspan="3">five<br />five<br />five<br />five<br />five<br />five<br />five<br />five<br />five<br />five<br />five</td>
-<td >six</td>
-</tr>
-<tr><td >seven</td></tr>
-<tr><td >eight</td></tr>
-
-
-<tr>
-<td>eight</td>
-<td>nine</td>
-<td>ten</td>
-</tr>
-
-</table>
-
-
-
 <table class="data">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 
@@ -42,8 +14,7 @@
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Macromolecule</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Runs</td>
-			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Runs</td>			
 		</tr>	
 	</c:if>
 	
@@ -55,8 +26,9 @@
 			<c:set value="${submittedLibrarySubmittedLibraryListMap.get(submittedObject)}" var="libraryList"/>
 		</c:otherwise>
 	</c:choose>
+	
 	<tr>
-		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject) * submittedObjectCellRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
+		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">
 					<label>Name:</label> <c:out value="${submittedObject.getName()}" /><br />
@@ -76,7 +48,7 @@
 			<c:otherwise>
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
-						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectCellRowspan.get(submittedObject)}">
+						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
 							<label>Name:</label> <c:out value="${library.getName()}" /><br />
 							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
@@ -86,51 +58,39 @@
 							<label>Adaptor:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 							<label>Index:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
-					
 						</td>
-						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>
+						
+						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
 		   				
-		   				
+		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
 		   				<c:choose>
 		   					<c:when test="${fn:length(cellList)==0}">
-		   						<td class="DataTD" style="text-align:center; white-space:nowrap;"><p>no runs</p></td>
+		   						no runs
 		   					</c:when>
-		   					<c:otherwise>
+		   					<c:otherwise>	
 		   						<c:forEach items="${cellList}" var="cell" varStatus="cellLibrary">
-		   							<c:if test="${!cellLibrary.first}"><tr></c:if>
 									<c:set value="${cellRunMap.get(cell)}" var="run"/>
 									<c:set value="${cellPUMap.get(cell)}" var="pu"/>
 									<c:set value="${cellIndexMap.get(cell)}" var="laneIndex"/>
-									
-									<td class="DataTD" style="text-align:center; white-space:nowrap;vertical-align:middle">
-									<p><%--this <p> is a hack and is needed to get these rows to be evenly divided in safari; text is a bit off, but better this than the other option. It's not needed in firefox--%>
-										<c:choose>
-											<c:when test="${empty cellRunMap.get(cell)}">
-												<c:out value="${pu.getName()}" />
-											</c:when>
-											<c:otherwise>
-												<c:out value="${run.getName()}" />
-											</c:otherwise>
-										</c:choose>										
-										(Lane: <c:out value="${laneIndex}" />)
-									</p>
-									</td>
-									<c:if test="${!cellLibrary.last}"></tr></c:if>
+									<c:choose>
+										<c:when test="${empty cellRunMap.get(cell)}">
+											<c:out value="${pu.getName()}" />
+										</c:when>
+										<c:otherwise>
+											<c:out value="${run.getName()}" />
+										</c:otherwise>
+									</c:choose>										
+									(Lane: <c:out value="${laneIndex}" />)
+									<br />
 		   						</c:forEach>
 		   					</c:otherwise>
-		   				</c:choose>
-		   				
-		   				
-					<%-- <c:if test="${!statusLibrary.last}"></tr></c:if>--%>
+		   				</c:choose>	
+		   				</td>	   				
+					<c:if test="${!statusLibrary.last}"></tr></c:if>
 				</c:forEach>
 			</c:otherwise>
 		</c:choose>
-
 	</tr>
-<%-- 
-	<c:set value="${submittedObjectLibraryRowspan.get(submittedObject) * submittedObjectCellRowspan.get(submittedObject)}" var="libraryRowspan"/>
---%>	
-	
 </c:forEach>
 </table>
 
