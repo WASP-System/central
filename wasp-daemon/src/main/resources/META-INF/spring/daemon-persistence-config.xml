@@ -12,6 +12,10 @@
 		<property name="url"><value>${batchdb.jdbc.url}</value></property>
 		<property name="username"><value>${batchdb.jdbc.username}</value></property>
 		<property name="password"><value>${batchdb.jdbc.password}</value></property>
+		<property name="maxIdle"><value>${batchdb.jdbc.maxIdle}</value></property>
+		<property name="initialSize"><value>${batchdb.jdbc.initialSize}</value></property>
+   		<property name="maxActive"><value>${batchdb.jdbc.maxActive}</value></property>
+   		<property name="maxWait"><value>${batchdb.jdbc.maxWait}</value></property>
 	</bean>
 	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
@@ -20,6 +24,10 @@
 		<property name="username"><value>${db.jdbc.username}</value></property>
 		<property name="password"><value>${db.jdbc.password}</value></property>
 		<property name="defaultAutoCommit"><value>${db.jdbc.auto_commit}</value></property>
+		<property name="maxIdle"><value>${db.jdbc.maxIdle}</value></property>
+		<property name="initialSize"><value>${db.jdbc.initialSize}</value></property>
+   		<property name="maxActive"><value>${db.jdbc.maxActive}</value></property>
+   		<property name="maxWait"><value>${db.jdbc.maxWait}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">

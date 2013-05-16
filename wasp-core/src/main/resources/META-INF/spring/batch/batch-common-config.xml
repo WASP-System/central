@@ -9,7 +9,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
-	<batch:job-repository id="jobRepository" data-source="batchDataSource" isolation-level-for-create="SERIALIZABLE"/>
+	<batch:job-repository id="jobRepository" data-source="batchDataSource"/>
 	
 	<!--<bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />-->
 
