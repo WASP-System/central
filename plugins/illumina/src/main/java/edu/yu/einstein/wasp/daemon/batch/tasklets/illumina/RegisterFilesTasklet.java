@@ -350,11 +350,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 			qcfg.setDescription("Illumina QC files");
 			fileService.addFileGroup(qcfg);
 			fileService.register(qcfg);
-			
-			Sample pu = run.getPlatformUnit();
-			pu.getFileGroups().add(qcfg);
-			sampleService.getSampleDao().save(pu);
-			
+			fileService.setSampleFile(qcfg, run.getPlatformUnit());
 		} catch (Exception e) {
 			logger.warn("unable to register files: " + e.getLocalizedMessage());
 			throw new RuntimeException(e);
