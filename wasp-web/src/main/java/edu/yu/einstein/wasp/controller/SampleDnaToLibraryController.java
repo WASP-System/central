@@ -327,7 +327,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
-	  //linkedHashMap because insert order is guarranteed
+	  //linkedHashMap because insert order is guaranteed
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);

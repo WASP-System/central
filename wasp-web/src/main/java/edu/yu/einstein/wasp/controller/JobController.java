@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
@@ -807,6 +809,178 @@ public class JobController extends WaspController {
 		jobService.sortJobsByJobId(jobsActiveAndWithLibraryCreatedTask);
 		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
+	}
+	
+	@RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		m.addAttribute("jobStatus", jobService.getJobStatus(job));
+		return "job/home/homepage";
+	}
+	@RequestMapping(value="/{jobId}/workflow", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobWorkflowPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
+		return "job/home/workflow";
+	}
+	@RequestMapping(value="/{jobId}/approvals", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobApprovalsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+		//get the jobApprovals Comments (if any)
+		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	
+		return "job/home/approvals";
+	}
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		List<JobUser> jobUserList = job.getJobUser();
+		List<User> additionalJobViewers = new ArrayList<User>();
+		for(JobUser jobUser : jobUserList){
+			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+				additionalJobViewers.add(jobUser.getUser());
+			}
+		}
+		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+		m.addAttribute("additionalJobViewers", additionalJobViewers);
+  
+		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
+		}
+		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+		m.addAttribute("currentWebViewer", currentWebViewer);
+			
+		return "job/home/viewerManager";
+	}
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
+		
+		String errorMessage = "";
+		String successMessage = "";
+		try{
+			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			   successMessage="Database sucessfully updated";
+			   m.addAttribute("successMessage", successMessage);
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  //waspErrorMessage(e.getMessage());
+		  errorMessage = "Update Failed: Email address not found in database";
+		  m.addAttribute("errorMessage", errorMessage);
+		  m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
+		}
+		
+
+	//	if("robert.dubin@abc.com".equalsIgnoreCase(newViewerEmailAddress)){
+		//	errorMessage = "Update Failed";
+	//	}
+		
+		
+
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		List<JobUser> jobUserList = job.getJobUser();
+		List<User> additionalJobViewers = new ArrayList<User>();
+		for(JobUser jobUser : jobUserList){
+			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+				additionalJobViewers.add(jobUser.getUser());
+			}
+		}
+		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+		m.addAttribute("additionalJobViewers", additionalJobViewers);
+
+		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
+		}
+		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+		m.addAttribute("currentWebViewer", currentWebViewer);
+					
+		return "job/home/viewerManager";
+	}
+	
+	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerRemoveUserPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("userId") Integer userId, ModelMap m) throws SampleTypeException {
+
+		String errorMessage = "";
+		String successMessage = "";
+		try{
+			   //jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			   successMessage="Database sucessfully updated: User removed";
+			   m.addAttribute("successMessage", successMessage);
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  //waspErrorMessage(e.getMessage());
+		  errorMessage = "Update Failed: Unable to remove user";
+		  m.addAttribute("errorMessage", errorMessage);
+		}
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		List<JobUser> jobUserList = job.getJobUser();
+		List<User> additionalJobViewers = new ArrayList<User>();
+		for(JobUser jobUser : jobUserList){
+			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+				additionalJobViewers.add(jobUser.getUser());
+			}
+		}
+		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+		m.addAttribute("additionalJobViewers", additionalJobViewers);
+
+		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
+		}
+		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+		m.addAttribute("currentWebViewer", currentWebViewer);
+					
+		return "job/home/viewerManager";
 	}
 }
 
