@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.test.util.SeleniumHelper;
+import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelLabUtilsJqGrid extends SelBaseTest{
   
