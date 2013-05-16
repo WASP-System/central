@@ -15,7 +15,7 @@
 	<import resource="integration/message-routing-common-config.xml"/>
   
 	<!-- define service activator to handle requests to kick off batch jobs -->
-	<int:service-activator input-channel="wasp.channel.queue.launch"  output-channel="wasp.channel.defaultLogging" method="launch"  >
+	<int:service-activator input-channel="wasp.channel.queue.launch"  output-channel="wasp.channel.reply" method="launch"  >
 		<bean id="batchJobLauncher" class="edu.yu.einstein.wasp.batch.launch.BatchJobLaunchServiceImpl">
 			<constructor-arg name="jobLauncher" ref="jobLauncher" />
 			<constructor-arg name="jobRegistry" ref="jobRegistry" />
