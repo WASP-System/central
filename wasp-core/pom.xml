@@ -21,6 +21,14 @@
              <directory>src/main/resources</directory>
             </resource>
            </resources>
+           <plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skipTests>false</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencies>
