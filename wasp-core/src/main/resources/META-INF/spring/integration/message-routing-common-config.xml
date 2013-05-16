@@ -21,20 +21,7 @@
 	<!-- default logging channel -->
 	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
 	
-	<!-- A Gateway will create a temporary point-to-point reply channel which is anonymous and is added to the Message Headers with the name replyChannel. 
-    When providing an explicit default-reply-channel (reply-channel with remote adapter gateways), you have the option to point to a publish-subscribe channel, 
-    which is so named because you can add more than one subscriber to it. Internally Spring Integration will create a Bridge between the temporary replyChannel 
-    and the explicitly defined default-reply-channel. So let's say you want your reply to go not only to the gateway, but also to some other consumer. 
-    In this case you would want two things: a) a named channel you can subscribe to and b) that channel is a publish-subscribe-channel. 
-    The default strategy used by the gateway will not satisfy those needs, because the reply channel added to the header is anonymous and point-to-point. 
-    This means that no other subscriber can get a handle to it and even if it could, the channel has point-to-point behavior such that only one subscriber 
-    would get the Message. So by defining a default-reply-channel you can point to a channel of your choosing, which in this case would be a 
-    publish-subscribe-channel. The Gateway would create a bridge from it to the temporary, anonymous reply channel that is stored in the header. -->
-    <int:publish-subscribe-channel id="wasp.channel.reply" >
-    	<int:interceptors>
-	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
-	    </int:interceptors>
-    </int:publish-subscribe-channel>
+	
 			
 </beans>
 
