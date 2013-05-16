@@ -78,7 +78,7 @@ public class SelBaseTest {
 	
 	@AfterSuite
     public void tearDown() throws SQLException{
-        connection.close();
+        //connection.close();
         driver.quit();
         
     } 
