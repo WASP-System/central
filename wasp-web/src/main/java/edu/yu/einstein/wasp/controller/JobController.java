@@ -943,9 +943,16 @@ public class JobController extends WaspController {
 		String errorMessage = "";
 		String successMessage = "";
 		try{
-			   //jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
-			   successMessage="Database sucessfully updated: User removed";
-			   m.addAttribute("successMessage", successMessage);
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
+			
+			//the next few lines make for problems if this is an ajax call, so do not do the doReauth().It's only important if the user is removing him/herself, so it is fine.
+			//User me = authenticationService.getAuthenticatedUser();
+			//if (me.getId().intValue() == userId.intValue()) {
+			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+			//}
+			
+			successMessage="Database sucessfully updated: User removed";
+			m.addAttribute("successMessage", successMessage);
 		}
 		catch(Exception e){		    
 		  logger.warn(e.getMessage());
