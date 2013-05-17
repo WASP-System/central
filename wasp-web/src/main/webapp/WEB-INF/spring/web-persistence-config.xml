@@ -13,6 +13,8 @@
 		<property name="url"><value>${batchdb.jdbc.url}</value></property>
 		<property name="username"><value>${batchdb.jdbc.username}</value></property>
 		<property name="password"><value>${batchdb.jdbc.password}</value></property>
+		<property name="testOnBorrow"><value>${batchdb.jdbc.testOnBorrow}</value></property>
+		<property name="validationQuery"><value>${batchdb.jdbc.validationQuery}</value></property>
 	</bean>
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
@@ -21,6 +23,8 @@
 		<property name="username"><value>${db.jdbc.username}</value></property>
 		<property name="password"><value>${db.jdbc.password}</value></property>
 		<property name="defaultAutoCommit"><value>${db.jdbc.auto_commit}</value></property>
+		<property name="testOnBorrow"><value>${db.jdbc.testOnBorrow}</value></property>
+		<property name="validationQuery"><value>${db.jdbc.validationQuery}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">

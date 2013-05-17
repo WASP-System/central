@@ -16,6 +16,8 @@
 		<property name="initialSize"><value>${batchdb.jdbc.initialSize}</value></property>
    		<property name="maxActive"><value>${batchdb.jdbc.maxActive}</value></property>
    		<property name="maxWait"><value>${batchdb.jdbc.maxWait}</value></property>
+   		<property name="testOnBorrow"><value>${batchdb.jdbc.testOnBorrow}</value></property>
+		<property name="validationQuery"><value>${batchdb.jdbc.validationQuery}</value></property>
 	</bean>
 	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
@@ -28,6 +30,8 @@
 		<property name="initialSize"><value>${db.jdbc.initialSize}</value></property>
    		<property name="maxActive"><value>${db.jdbc.maxActive}</value></property>
    		<property name="maxWait"><value>${db.jdbc.maxWait}</value></property>
+   		<property name="testOnBorrow"><value>${db.jdbc.testOnBorrow}</value></property>
+		<property name="validationQuery"><value>${db.jdbc.validationQuery}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
