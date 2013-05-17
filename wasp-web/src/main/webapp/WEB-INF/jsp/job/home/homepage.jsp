@@ -24,8 +24,8 @@
 			<a id="approvalsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a>	<br />
 			<a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Viewer Manager</a>	<br />
 			<a id="billingAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Billing</a>	<br />
-			<a id="uploadedFileAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Uploaded Files</a>	<br />
-			<a id="sampleAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Samples</a>	<br />
+			<a id="uploadedFileAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/uploadedFilesManager.do" />");' >Uploaded Files</a>	<br />
+			<a id="sampleAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples</a>	<br />
 			<a id="requestedCellAssignmentAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Cell Assignments</a>	<br />
 			<a id="requestedAnalysisAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Analysis Paramaters</a>	<br />
 			<a id="jobCommentsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Comments Feed</a>	<br />

@@ -39,6 +39,8 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -52,16 +54,19 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
@@ -119,6 +124,11 @@ public class JobController extends WaspController {
 	private JobService jobService;
 	@Autowired
 	private AuthenticationService authenticationService;
+	@Autowired
+	private AdaptorService adaptorService;
+	@Autowired
+	private RunService runService;
+
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -989,6 +999,174 @@ public class JobController extends WaspController {
 					
 		return "job/home/viewerManager";
 	}
+	
+	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		  List<Sample> allJobLibraries = new ArrayList<Sample>();  //could have gotten this from allJobLibraries = jobService.getLibraries(job);
+		  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+		  List<Sample> submittedLibraryList = new ArrayList<Sample>();
+		  List<Sample> facilityLibraryList = new ArrayList<Sample>();
+		  
+		  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		  
+		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
+		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
+		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+		  	  
+		  for(Sample s : allJobSamples){
+			  if(s.getParent()==null){
+				  if(s.getSampleType().getIName().toLowerCase().contains("library")){
+					  submittedLibraryList.add(s);
+				  }
+				  else{
+					  submittedMacromoleculeList.add(s);
+				  }
+			  }
+			  else{
+				  facilityLibraryList.add(s);
+			  }
+		  }
+		  
+		  //consolidate job's libraries
+		  allJobLibraries.addAll(submittedLibraryList);
+		  allJobLibraries.addAll(facilityLibraryList);
+		  
+		  //consolidate job's submitted objects: submitted macromoleucles and submitted libraries
+		  //could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		  submittedObjectList.addAll(submittedMacromoleculeList);
+		  submittedObjectList.addAll(submittedLibraryList);
+		  
+		  //for each submittedMacromolecule, get list of it's facility-generated libraries
+		  for(Sample macromolecule : submittedMacromoleculeList){
+			  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
+		  }
+		  
+		  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
+		  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
+			  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
+			  tempUserSubmittedLibraryList.add(userSubmittedLibrary);
+			  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
+		  }
+		  
+		  //for each submittedMacromolecule or submittedLibrary, get species
+		  for(Sample submittedObject : submittedObjectList){
+			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+		  }
+		  
+		  //for each job's library, get its adaptor info
+		  for(Sample library : allJobLibraries){
+			  Adaptor adaptor;
+			  try{ 
+				  adaptor = adaptorService.getAdaptor(library);
+				  libraryAdaptorMap.put(library, adaptor);
+				  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
+			  }catch(Exception e){}		  
+		  }
+		  
+		  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
+		  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
+		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
+		  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
+
+		  for(Sample library : allJobLibraries){
+			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
+			  libraryCellListMap.put(library, cellsForLibrary);
+			  for(Sample cell : cellsForLibrary){			  
+				  try{
+					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
+					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+					  cellPUMap.put(cell, platformUnit);
+					  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+					  if(!runList.isEmpty()){
+						  Run run = runList.get(0);
+						  cellRunMap.put(cell, run);
+						  
+					  }
+				  }catch(Exception e){}
+			  }
+		  }
+		  
+
+		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
+		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
+
+		  //calculate the rowspans needed for the web, as the table display is rather complex. 
+		  //this is very very hard to do at the web, as there are multiple dependencies. easier to perform here
+		  for(Sample submittedObject : submittedObjectList){
+			  
+			  int numLibraries = 0;
+			  int numCells = 0;
+			  
+			  //calculate numLibraries
+			  List<Sample> facilityLibraryList2 = submittedMacromoleculeFacilityLibraryListMap.get(submittedObject);
+			  List<Sample> submittedLibraryList2 = submittedLibrarySubmittedLibraryListMap.get(submittedObject);
+			  numLibraries = (facilityLibraryList2==null?0:facilityLibraryList2.size()) + (submittedLibraryList2==null?0:submittedLibraryList2.size());
+			  
+			  //put numLibraries into its map for eventual use in web
+			  if(numLibraries==0){
+				  submittedObjectLibraryRowspan.put(submittedObject, 1);
+			  }
+			  else{
+				  submittedObjectLibraryRowspan.put(submittedObject, numLibraries);
+			  }
+			  
+			  //calculate numCells
+			  if(facilityLibraryList2!=null){
+				  for(Sample library : facilityLibraryList2){
+					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+				  }
+			  }
+			  if(submittedLibraryList2!=null){
+				  for(Sample library : submittedLibraryList2){
+					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+				  }
+			  }
+			  
+			  //put numCells into its map for eventual use in web
+			  if(numCells==0){
+				  submittedObjectCellRowspan.put(submittedObject, 1);
+			  }
+			  else{
+				  submittedObjectCellRowspan.put(submittedObject, numCells);
+			  }
+		  }
+		  
+		  m.addAttribute("job",job);
+		  //not actually used by webpage   m.addAttribute("submittedLibraryList", submittedLibraryList);
+		  //not actually used on webpage m.addAttribute("facilityLibraryList", facilityLibraryList);
+		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list  
+		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
+
+		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
+		  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
+		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
+		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+
+		  m.addAttribute("libraryCellListMap", libraryCellListMap);
+		  m.addAttribute("cellIndexMap", cellIndexMap);
+		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
+		  m.addAttribute("cellRunMap", cellRunMap);
+		  
+		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
+		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
+		 
+		  //turns out I need this
+		  m.addAttribute("submittedLibraryList", submittedLibraryList);
+		
+		return "job/home/samples";
+	}
+	
 }
 
 class JobIdComparator implements Comparator<Job> {
