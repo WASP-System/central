@@ -113,6 +113,15 @@ function toggleExpandHide(thisAnchorObject){
 	}
 }
 
+function loadIFrame(thisAnchorObject, url){//alert("I am here with url of : " + url);
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="block"){
+		viewerFrame.style.display="none";
+		viewerFrame2.style.display = "block";
+	} 
+	thisAnchorObject.href=url;
+}
 function populateIFrame(thisAnchorObject, url){
 
 	var targetId = thisAnchorObject.target;
@@ -139,6 +148,13 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 	if(urlDisplayedOnRight == urlToDisplay){//urlDisplayedOnRight is a javascript global variable 
 		alert("The viewport on the right is currently displaying this information");
 		return false;
+	}
+	
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="none"){
+		viewerFrame.style.display="block";
+		viewerFrame2.style.display = "none";
 	}
 	
 	var req = new XMLHttpRequest();
@@ -208,6 +224,44 @@ function postForm(formId, urlToPost) {//added 5-16-13
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
 	*/
+}
+
+function postMultipartForm(formId, urlToPost) {//added 5-17-13 
+	
+	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
+	//http://stackoverflow.com/questions/5933949/how-to-send-multipart-form-data-form-content-by-ajax-no-jquery 
+	//alert("urlToPost: " + urlToPost); 
+	
+	var boundary=Math.random().toString().substr(2);
+	
+	var theForm = document.getElementById(formId);
+	var arrayOfInputs = theForm.getElementsByTagName("input");
+	var arrayOfTextInputs = [];
+	for(var i = 0; i < arrayOfInputs.length; i++ ){
+		if(arrayOfInputs[i].type == 'text'){
+			arrayOfTextInputs.push(arrayOfInputs[i]);
+		}
+	}
+	var inputParameters = "";
+	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
+		var theName = arrayOfTextInputs[i].getAttribute("name");
+		var theValue = arrayOfTextInputs[i].value;
+		if(i>0){
+			inputParameters += "&";
+		}
+		inputParameters += theName + "=" + theValue; 
+	}
+	
+	var req = new XMLHttpRequest();
+	req.open("POST", urlToPost, false);
+	req.setRequestHeader("content-type", "multipart/form-data; charset=utf-8; boundary=" + boundary);	
+	//xmlhttp.send("fname=Henry&lname=Ford"); 
+	req.send(inputParameters);
+	var page = req.responseText;
+	if(req.status == 404 || req.status == 500){
+		page = "Error! Unable to process form data. Please try again.";
+	}
+	document.getElementById("viewerFrame").innerHTML = page;
 }
 
 function doGetWithAjax(url) {

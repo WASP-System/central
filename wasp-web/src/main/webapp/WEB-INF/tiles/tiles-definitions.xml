@@ -242,6 +242,9 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
+	<definition name="job/home/fileUploadManager" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
+	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />

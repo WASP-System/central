@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -41,6 +42,8 @@ import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -64,6 +67,7 @@ import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -120,6 +124,8 @@ public class JobController extends WaspController {
 	private SampleService sampleService;
 	@Autowired
 	private FilterService filterService;
+	@Autowired
+	private FileService fileService;
 	@Autowired
 	private JobService jobService;
 	@Autowired
@@ -1167,6 +1173,44 @@ public class JobController extends WaspController {
 		return "job/home/samples";
 	}
 	
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+
+		return "job/home/fileUploadManager";
+	}
+	
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
+				@RequestParam("file_description") String fileDescription,
+				@RequestParam("file_upload") MultipartFile mpFile, ModelMap m) throws SampleTypeException {
+		System.out.println("inside the new upload post method-friday!");
+		return "job/home/fileUploadManager";
+	}
 }
 
 class JobIdComparator implements Comparator<Job> {

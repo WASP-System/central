@@ -24,13 +24,17 @@
 			<a id="approvalsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a>	<br />
 			<a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Viewer Manager</a>	<br />
 			<a id="billingAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Billing</a>	<br />
-			<a id="uploadedFileAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/uploadedFilesManager.do" />");' >Uploaded Files</a>	<br />
+			<a id="fileUploadAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a>	<br />
 			<a id="sampleAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples</a>	<br />
 			<a id="requestedCellAssignmentAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Cell Assignments</a>	<br />
 			<a id="requestedAnalysisAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Analysis Paramaters</a>	<br />
 			<a id="jobCommentsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Comments Feed</a>	<br />
 			Data Files:<br />
 			 &nbsp;&nbsp;&nbsp;<a style="color: #801A00;" href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />"><fmt:message key="jobdetail_for_import.dataFilesView.label" /></a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />">By Runs</a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">By Samples</a> 	
+
+			<br /><a id="fileuptest"  href="javascript:void(0);" target="myIframe"  onclick='toggleAnchors(this);  loadIFrame(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />"); <%--loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />"); --%>  ' >file upload test</a>	<br />
+			<br /><a id="fileuptest"  href="javascript:void(0);" target="myIframe"  onclick='toggleAnchors(this);  loadIFrame(this, "<c:url value="/job/${job.getId()}/approvals.do" />"); <%--loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />"); --%>  ' >approvals test</a>	<br />
+
 			
 		</div>
 	</div>
@@ -38,6 +42,11 @@
 		<div id="viewerFrame" style="display:block;">
   			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
   			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
+   		</div>
+   		<div id="viewerFrame2" style="display:hidden;">
+  			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
+  			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
+  			<iframe id="myIframe" name="myIframe" src="" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="800px" ><p>iframes not supported</p></iframe>
    		</div>
 	</div>	
 	<div style="clear:both;"></div>	
