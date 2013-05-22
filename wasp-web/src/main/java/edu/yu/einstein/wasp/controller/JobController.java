@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +39,7 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -1175,7 +1177,9 @@ public class JobController extends WaspController {
 	
 	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage, 
+			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
@@ -1199,7 +1203,12 @@ public class JobController extends WaspController {
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
-
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		
 		return "job/home/fileUploadManager";
 	}
 	
@@ -1208,8 +1217,38 @@ public class JobController extends WaspController {
 	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
 				@RequestParam("file_description") String fileDescription,
 				@RequestParam("file_upload") MultipartFile mpFile, ModelMap m) throws SampleTypeException {
-		System.out.println("inside the new upload post method-friday!");
-		return "job/home/fileUploadManager";
+
+		String errorMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		
+		if(mpFile.isEmpty() && !"".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+			errorMessage="File upload failed: no file provided";
+		}
+		else if(!mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please provide a file description";
+		}
+		else if(mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please select a file and provide a file description";
+		}
+		
+		if( "".equals(errorMessage) ){
+			Random randomNumberGenerator = new Random(System.currentTimeMillis());
+			try{
+				fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+			} catch(FileUploadException e){
+				logger.warn(e.getMessage());
+				//waspErrorMessage("listJobSamples.fileUploadFailed.error");
+				errorMessage="File upload unexpectedly failed. Please try again.";
+			}
+		}
+		
+		//waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
+		//String referer = request.getHeader("Referer");//return "redirect:"+ referer; 
+		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
 	}
 }
 
