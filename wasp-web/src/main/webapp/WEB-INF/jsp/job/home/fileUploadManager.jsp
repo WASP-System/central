@@ -1,9 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<head>
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/reset.css" />
-  <link rel="stylesheet" type="text/css" media="screen" href="/wasp/css/base.css" />
-  <link rel="stylesheet" type="text/css" href="/wasp/css/jquery/jquery-ui.css"/>
-</head>
+
 <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" >
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">

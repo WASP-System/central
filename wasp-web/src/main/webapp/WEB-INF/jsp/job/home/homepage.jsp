@@ -20,6 +20,7 @@
 		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
 		<%--this next one MUST be iframe, for dealing with the fileupload (ajax file upload is precarious; not supported by all browsers --%>
 		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
+		<li><a id="requestsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/requests.do" />");' >Requests</a></li>
 	    <li><a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples, Libraries, Runs</a></li>
 		<%--  neither one of the next two functions properly. So, this must be an iframe
 	   	<li><a id="dataByViewAnchor123"  href="javascript:void(0);"    onclick='loadNewPage(this, "<c:url value="/jobresults/treeview/job/${job.jobId}.do" />");'   >AJView</a></li>

@@ -243,19 +243,22 @@
 	<definition name="job/home/workflow" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/workflow.jsp" />
 	</definition>
+	<definition name="job/home/requests" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/requests.jsp" />
+	</definition>
 	<definition name="job/home/approvals" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/approvals.jsp" />
 	</definition>
 	<definition name="job/home/comments" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
 	</definition>
-	<definition name="job/home/viewerManager" extends="template-unadorned">
+	<definition name="job/home/viewerManager" extends="template-unadorned-with-stylesheet">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
 	</definition>
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
-	<definition name="job/home/fileUploadManager" extends="template-unadorned">
+	<definition name="job/home/fileUploadManager" extends="template-unadorned-with-stylesheet">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>
 	

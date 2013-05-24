@@ -900,6 +900,53 @@ public class JobController extends WaspController {
 	
 		return "job/home/approvals";
 	}
+	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		m.addAttribute("parentArea", "job");
+		
+		//deal with software
+		List<Software> softwareList = jobService.getSoftwareForJob(job);
+		m.addAttribute("softwareList", softwareList);
+		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
+		MetaHelperWebapp mhwa = getMetaHelperWebapp();
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		for(Software sw : softwareList){
+			mhwa.setArea(sw.getIName());
+			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
+			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
+		}	
+		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
+		
+		//deal with samplePairs
+		String samplePairs = null;
+		for(JobMeta jm : jobMetaList){
+			if(jm.getK().indexOf("samplePairs")>-1){
+				samplePairs = jm.getV();
+				break;
+			}
+		}
+		
+		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		m.addAttribute("submittedSamplesList", submittedSamplesList);
+		
+		Map<Sample, List<String>> samplePairsMap = jobService.decodeSamplePairs(samplePairs, submittedSamplesList); 
+		List<String> controlIsReferenceList = new ArrayList<String>();
+		List<String> testIsReferenceList = new ArrayList<String>();
+		jobService.decodeSamplePairsWithReference(samplePairs, submittedSamplesList, controlIsReferenceList, testIsReferenceList);
+		m.addAttribute("samplePairsMap", samplePairsMap);
+		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
+		m.addAttribute("testIsReferenceList", testIsReferenceList);
+		
+		return "job/home/requests";
+	}
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
