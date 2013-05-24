@@ -6,7 +6,6 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets.mps.bwa;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
@@ -15,6 +14,7 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	
 	private String scratchDirectory;
 	private Integer cellLibId;
+	private Integer bamGId;
+	private Integer baiGId;
 	
 	@Autowired
 	private SampleService sampleService;
@@ -80,12 +82,20 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	@Transactional("entityManager")
 	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+		
 		// if the work has already been started, then check to see if it is
 		// finished
 		// if not, throw an exception that is caught by the repeat policy.
 		RepeatStatus repeatStatus = super.execute(contrib, context);
-		if (repeatStatus.equals(RepeatStatus.FINISHED))
+		if (repeatStatus.equals(RepeatStatus.FINISHED)){
+			// register .bam and .bai file groups with cellLib so as to make available to views
+			SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
+			if (bamGId != null && cellLib.getId() != 0)
+				fileService.setSampleSourceFile(fileService.getFileGroupById(bamGId), cellLib);
+			if (baiGId != null && cellLib.getId() != 0)
+				fileService.setSampleSourceFile(fileService.getFileGroupById(baiGId), cellLib);
 			return RepeatStatus.FINISHED;
+		}
 
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibId);
 
@@ -116,9 +126,10 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		sd.add(picard);
 		w.setSoftwareDependencies(sd);
 		w.setSecureResults(true);
-		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
+		
 		String baiOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bai";
 		
+		String bamOutput = fileService.generateUniqueBaseFileName(cellLib) + "bwa.bam";
 		FileGroup bamG = new FileGroup();
 		FileHandle bam = new FileHandle();
 		bam.setFileName(bamOutput);
@@ -127,6 +138,9 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		bamG.setFileType(bamFileType);
 		bamG.setDescription(bamOutput);
 		bamG = fileService.addFileGroup(bamG);
+		bamGId = bamG.getId();
+		// save in step context in case of batch restart
+		context.getStepContext().getStepExecutionContext().put("bamGID", bamGId);
 		
 		
 		FileGroup baiG = new FileGroup();
@@ -137,6 +151,9 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		baiG.setFileType(baiFileType);
 		baiG.setDescription(baiOutput);
 		baiG = fileService.addFileGroup(baiG);
+		baiGId = baiG.getId();
+		// save in step context in case of batch restart
+		context.getStepContext().getStepExecutionContext().put("baiGId", baiGId);
 		
 //		baiG.getDerivedFrom().add(bamG);
 //		bamG.getBegat().add(baiG);
@@ -184,6 +201,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
 		this.scratchDirectory = jobContext.get("scrDir").toString();
 		this.cellLibId = (Integer) jobContext.get("cellLibId");
+		this.bamGId = (Integer) stepExecution.getExecutionContext().get("bamGID");
+		this.baiGId = (Integer) stepExecution.getExecutionContext().get("baiGID");
 		
 	}
 
