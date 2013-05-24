@@ -12,22 +12,16 @@
 	<bean id="messageRegistryBeanPostProcessor" class="edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistryBeanPostProcessor">
     	<property name="messageRegistry" ref="messageRegistry"/>
 	</bean>
-	
-	<!-- Main channel to send replies via gateway. Messages will be routed to correct gateway -->
-    <int:channel id="wasp.channel.primaryReply" >
-    	<int:interceptors>
-	    	<int:wire-tap channel="wasp.channel.defaultLogging" />
-	    </int:interceptors>
-    </int:channel>
-	
+		
 	<!--  Wasp plugin registry and message channel -->
 	<int:channel id="wasp.channel.pluginRegistry" />
-	<int:service-activator input-channel="wasp.channel.pluginRegistry"
-		ref="wasp.pluginRegistry" method="process" /> 
-	<bean id="wasp.pluginRegistry" class="edu.yu.einstein.wasp.plugin.WaspPluginRegistry" />	
+	<int:service-activator input-channel="wasp.channel.pluginRegistry" ref="wasp.pluginRegistry" method="process" />
+	<bean id="wasp.pluginRegistry" class="edu.yu.einstein.wasp.plugin.WaspPluginRegistry" />
 	
 	<!-- default logging channel -->
 	<int:logging-channel-adapter id='wasp.channel.defaultLogging' log-full-message="true" level="DEBUG" />
+	
+	
 			
 </beans>
 

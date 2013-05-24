@@ -438,7 +438,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 	private void logEntityFieldDetailsOnCRUD(E entity, String actionName){
 		if (!logger.isDebugEnabled())
 			return;
-		logger.debug(WordUtils.capitalize(actionName)+" entity of type: "+entity.getClass().getName()+"...");
+		logger.trace(WordUtils.capitalize(actionName)+" entity of type: "+entity.getClass().getName()+"...");
 		Map<String,Field> fields = new HashMap<String, Field>();
 		if (entity.getClass().getName().endsWith("Meta"))
 			for (Field field : entity.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredFields())
@@ -453,7 +453,7 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		for (Field field : fields.values()){
 			field.setAccessible(true);
 			try {
-				logger.debug("    -> "+field.getName()+"="+field.get(entity).toString());
+				logger.trace("    -> "+field.getName()+"="+field.get(entity).toString());
 			} catch (Exception e) {
 			}
 			

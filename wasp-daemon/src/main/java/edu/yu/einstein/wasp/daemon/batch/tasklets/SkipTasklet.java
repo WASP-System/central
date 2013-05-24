@@ -8,6 +8,8 @@ import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
+
 /**
  * Placeholder tasklet. Simply executes once and completes immediately
  * @author asmclellan
@@ -16,8 +18,13 @@ import org.springframework.batch.repeat.RepeatStatus;
 public class SkipTasklet implements Tasklet {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	public SkipTasklet() {
+		// proxy
+	}
 
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contribution, ChunkContext context) throws InterruptedException {
 		// do nothing
 		StepContext sc = context.getStepContext();

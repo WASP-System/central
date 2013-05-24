@@ -41,7 +41,7 @@
 		</batch:step>
 	</batch:job>
 	
-	<bean id="waspJobSoftwareLaunchTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet"  >
+	<bean id="waspJobSoftwareLaunchTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTaskletImpl"  >
 		<constructor-arg name="libraryCellId" value="1"/>
 		<constructor-arg name="softwareResourceType" ref="softwareResourceType" />
 		<property name="name" value="test.align" />

@@ -321,7 +321,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED).isEmpty())
+		if (! batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED).isEmpty())
 			return true;
 		return false;
 	}

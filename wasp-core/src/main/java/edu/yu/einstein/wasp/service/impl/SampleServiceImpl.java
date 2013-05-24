@@ -59,7 +59,6 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.ResourceException;
-import edu.yu.einstein.wasp.exception.RunException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
@@ -86,7 +85,6 @@ import edu.yu.einstein.wasp.model.JobSample;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleDraft;
@@ -2581,10 +2579,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
-			if (!batchJobExplorer.getJobExecutions(jobParameters, true, BatchStatus.COMPLETED).isEmpty())
-				return true; // at least one job execution with the parameters provided is completed
-			if (!batchJobExplorer.getJobExecutions(jobParameters, true, BatchStatus.FAILED).isEmpty())
-				return true; // at least one job execution with the parameters provided has completed (albeit failed)
+			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
+			if (!je.getStatus().equals(BatchStatus.STARTED))
+				return true;
 			return false;
 		}
 		
