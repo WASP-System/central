@@ -71,6 +71,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
@@ -136,6 +137,8 @@ public class JobController extends WaspController {
 	private AdaptorService adaptorService;
 	@Autowired
 	private RunService runService;
+	@Autowired
+	private MessageServiceWebapp messageService;
 
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
@@ -835,9 +838,42 @@ public class JobController extends WaspController {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
-		m.addAttribute("jobStatus", jobService.getJobStatus(job));
 		return "job/home/homepage";
 	}
+	@RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		m.addAttribute("jobStatus", jobService.getJobStatus(job));
+		
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
+
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+		//get the jobApprovals Comments (if any)
+		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	
+		return "job/home/basic";
+	}/*
+	@RequestMapping(value="/{jobId}/commentFeed", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+
+		
+		
+		
+		return "job/home/commentFeed";
+	}
+	*/
 	@RequestMapping(value="/{jobId}/workflow", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobWorkflowPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -864,9 +900,90 @@ public class JobController extends WaspController {
 	
 		return "job/home/approvals";
 	}
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		//get the user-submitted job comment (if any); should be zero or one
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+		}
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any)
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
+		}
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+		}catch(Exception e){
+			//waspErrorMessage("jobComment.jobCommentAuth.error");
+			//return "redirect:/dashboard.do";
+		}
+		//override this constraint:
+		permissionToAddEditComment=true;
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+
+		return "job/home/comments";
+	}
+	
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam("comment") String comment,
+			  ModelMap m) throws SampleTypeException {
+		
+		String errorMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+			errorMessage = messageService.getMessage("jobComment.job.error");
+		}
+		m.addAttribute("job", job);
+		
+		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		if(trimmedComment==null||trimmedComment.length()==0){
+			errorMessage = messageService.getMessage("jobComment.jobCommentEmpty.error");
+		}
+
+		if("".equals(errorMessage)){
+			try{
+				if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+					jobService.setFacilityJobComment(jobId, trimmedComment);
+				}
+				else{
+					jobService.setUserSubmittedJobComment(jobId, trimmedComment);
+				}
+			}catch(Exception e){
+				logger.warn(e.getMessage());
+				errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
+			}
+		}
+		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage;
+	}
+	
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  @RequestParam(value="newViewerEmailAddress", required=false) String newViewerEmailAddress,
+			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
@@ -894,7 +1011,22 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 		m.addAttribute("currentWebViewer", currentWebViewer);
-			
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("successMessage", successMessage);
+
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+		m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
+		
 		return "job/home/viewerManager";
 	}
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
@@ -903,54 +1035,25 @@ public class JobController extends WaspController {
 		
 		String errorMessage = "";
 		String successMessage = "";
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+
+		if("".equals(newViewerEmailAddress)){
+			errorMessage = "Update Failed: Please provide an email address";
+			return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+		}
+
 		try{
 			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
-			   successMessage="Database sucessfully updated";
-			   m.addAttribute("successMessage", successMessage);
+			   successMessage="Update Successful: New job viewer added.";
 		}
 		catch(Exception e){		    
 		  logger.warn(e.getMessage());
-		  //waspErrorMessage(e.getMessage());
-		  errorMessage = "Update Failed: Email address not found in database";
-		  m.addAttribute("errorMessage", errorMessage);
-		  m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
+		  errorMessage = messageService.getMessage(e.getMessage());
 		}
 		
-
-	//	if("robert.dubin@abc.com".equalsIgnoreCase(newViewerEmailAddress)){
-		//	errorMessage = "Update Failed";
-	//	}
-		
-		
-
-		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		List<JobUser> jobUserList = job.getJobUser();
-		List<User> additionalJobViewers = new ArrayList<User>();
-		for(JobUser jobUser : jobUserList){
-			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
-				additionalJobViewers.add(jobUser.getUser());
-			}
-		}
-		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
-			@Override
-			public int compare(User arg0, User arg1) {
-				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
-			}
-		}
-		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
-		m.addAttribute("additionalJobViewers", additionalJobViewers);
-
-		User currentWebViewer = authenticationService.getAuthenticatedUser();
-		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
-		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
-		}
-		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
-		m.addAttribute("currentWebViewer", currentWebViewer);
-					
-		return "job/home/viewerManager";
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
 	}
 	
 	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
@@ -967,45 +1070,14 @@ public class JobController extends WaspController {
 			//User me = authenticationService.getAuthenticatedUser();
 			//if (me.getId().intValue() == userId.intValue()) {
 			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
-			//}
-			
+			//}			
 			successMessage="Database sucessfully updated: User removed";
-			m.addAttribute("successMessage", successMessage);
 		}
 		catch(Exception e){		    
 		  logger.warn(e.getMessage());
-		  //waspErrorMessage(e.getMessage());
-		  errorMessage = "Update Failed: Unable to remove user";
-		  m.addAttribute("errorMessage", errorMessage);
+		  errorMessage = messageService.getMessage(e.getMessage());
 		}
-		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		List<JobUser> jobUserList = job.getJobUser();
-		List<User> additionalJobViewers = new ArrayList<User>();
-		for(JobUser jobUser : jobUserList){
-			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
-				additionalJobViewers.add(jobUser.getUser());
-			}
-		}
-		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
-			@Override
-			public int compare(User arg0, User arg1) {
-				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
-			}
-		}
-		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
-		m.addAttribute("additionalJobViewers", additionalJobViewers);
-
-		User currentWebViewer = authenticationService.getAuthenticatedUser();
-		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
-		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
-		}
-		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
-		m.addAttribute("currentWebViewer", currentWebViewer);
-					
-		return "job/home/viewerManager";
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
 	}
 	
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)

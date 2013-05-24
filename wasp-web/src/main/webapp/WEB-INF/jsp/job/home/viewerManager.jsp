@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<div>
 <%-- <form  method='post' name='addJobViewer' action="<c:url value="/sampleDnaToLibrary/addJobViewer.do" />" onsubmit="return validate_email();">--%>
 <form  method='post' name='addJobViewerForm' id='addJobViewerForm' action="" onsubmit='postForm("addJobViewerForm","<c:url value="/job/${job.getId()}/viewerManager.do" />"); return false;' >
 	<table class="data" style="margin: 0px 0px">
@@ -35,4 +35,5 @@
 	
 	</table>
 </form>
-
+</div>
+<br /><br />

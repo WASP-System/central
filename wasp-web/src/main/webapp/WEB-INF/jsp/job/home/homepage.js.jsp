@@ -113,6 +113,19 @@ function toggleExpandHide(thisAnchorObject){
 	}
 }
 
+function loadIFrameAnotherWay(thisAnchorObject, url){//alert("I am here with url of : " + url);
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="block"){
+		viewerFrame.style.display="none";
+		viewerFrame2.style.display = "block";
+	} 
+	//thisAnchorObject.href=url;
+	var myIframe = document.getElementById("myIframe");//ok, works with the tabs
+	myIframe.src = url;
+	myIframe.width="100%";myIframe.height="100%";
+}
+
 function loadIFrame(thisAnchorObject, url){//alert("I am here with url of : " + url);
 	var viewerFrame = document.getElementById("viewerFrame");
 	var viewerFrame2 = document.getElementById("viewerFrame2");
@@ -145,10 +158,10 @@ function populateIFrame(thisAnchorObject, url){
 function loadNewPage(thisAnchorObject, urlToDisplay) {
 	
 	//from http://bytes.com/topic/javascript/answers/658337-loading-html-pages-inside-div-id-x-div 
-	if(urlDisplayedOnRight == urlToDisplay){//urlDisplayedOnRight is a javascript global variable 
-		alert("The viewport on the right is currently displaying this information");
-		return false;
-	}
+//	if(urlDisplayedOnRight == urlToDisplay){//urlDisplayedOnRight is a javascript global variable 
+//		alert("The viewport on the right is currently displaying this information");
+//		return false;
+//	} 
 	
 	var viewerFrame = document.getElementById("viewerFrame");
 	var viewerFrame2 = document.getElementById("viewerFrame2");
@@ -193,6 +206,10 @@ function postForm(formId, urlToPost) {//added 5-16-13
 			arrayOfTextInputs.push(arrayOfInputs[i]);
 		}
 	}
+	var arrayOfTextAreas = theForm.getElementsByTagName("textarea");
+	for(var i = 0; i < arrayOfTextAreas.length; i++ ){
+		arrayOfTextInputs.push(arrayOfTextAreas[i]);
+	}
 	var inputParameters = "";
 	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
 		var theName = arrayOfTextInputs[i].getAttribute("name");
@@ -213,6 +230,7 @@ function postForm(formId, urlToPost) {//added 5-16-13
 		page = "Error! Unable to process form data. Please try again.";
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
+	//document.getElementById("tab-1").innerHTML = page;
 	
 	/*FOR GET FOR TESTING
 	var req = new XMLHttpRequest();
@@ -370,7 +388,9 @@ function closeAllRuns(){
 	}	
 }
 
-window.onload = function (){loadNewPage('fakeAnchor', '<c:url value="/job/${job.getId()}/workflow.do" />'); }
+window.onload = function (){
+	loadNewPage('fakeAnchor', '<c:url value="/job/${job.getId()}/basic.do" />'); 
+}
 
 </script>
  
