@@ -722,7 +722,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 */
 	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
 
-	  public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId);
+	  public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId);
 	  
 	  /**
 		 * save an InAggregateAnalysis comment
@@ -731,7 +731,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 * @throws Exception
 		 */
-	  public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
+	  public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
 
 		/**
 		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
@@ -920,9 +920,9 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @throws SampleTypeException
 		 * @throws MetaAttributeNotFoundException
 		 */
-	  public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
+	  public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
 
-	  public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
+	  public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
 		
 
 	  public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
@@ -952,7 +952,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * @param String comment
 	 * @throws Runtime exception
 	 */
-	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
+	public void saveCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
 
 	/** 
 	 * Get the index of the cell (the position on it's associated platform unit)

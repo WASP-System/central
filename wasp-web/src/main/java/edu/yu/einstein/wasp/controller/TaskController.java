@@ -814,11 +814,11 @@ public class TaskController extends WaspController {
 				  
 				  Boolean b = null;
 				  try{
-					  b = new Boolean(sampleService.isMetaCellLibraryInAggregateAnalysis(cellLibrary));
+					  b = new Boolean(sampleService.isCellLibraryInAggregateAnalysis(cellLibrary));
 				  }catch(Exception e){ }
 				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
 				  
-				  List<MetaMessage> inAnalysisCommentList = sampleService.getMetaInAggregateAnalysisComments(cellLibrary.getId());
+				  List<MetaMessage> inAnalysisCommentList = sampleService.getInAggregateAnalysisComments(cellLibrary.getId());
 				  if(inAnalysisCommentList.size()<=0){
 					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
 				  }
@@ -937,7 +937,7 @@ public class TaskController extends WaspController {
 			  continue;
 		  }
 		  try{
-			  sampleService.saveMetaCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);//will deal with insert and update
+			  sampleService.saveCellLibraryInAggregateAnalysisAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);//will deal with insert and update
 			  if("EXCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
 			  else if("INCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
 		  }catch(Exception e){

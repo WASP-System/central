@@ -2253,7 +2253,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
+	public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
 		
 		List<MetaMessage> existingMessages = metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		if (existingMessages.isEmpty()){
@@ -2267,7 +2267,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId){
+	public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId){
 		return metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 	}
 	
@@ -2650,7 +2650,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
 			for(SampleSource cellLibrary : cellLibrariesThatPassedQC){
 				try{
-					if(this.isMetaCellLibraryInAggregateAnalysis(cellLibrary)){//throws exception if this meta has not been created/set
+					if(this.isCellLibraryInAggregateAnalysis(cellLibrary)){//throws exception if this meta has not been created/set
 						continue;
 					}
 				}catch(MetaAttributeNotFoundException e){cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.add(cellLibrary);}
@@ -2691,7 +2691,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
+		public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			String isPassedQC = null;
@@ -2712,7 +2712,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 * @throws MetadataException 
 		 */
 		@Override
-		public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
+		public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
 			Boolean b = new Boolean(isPassedQC);
@@ -2895,17 +2895,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * {@inheritDoc}
 		   */
 		  @Override
-		  public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment){
+		  public void saveCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment){
 			  try{
 				  if(qcStatus.trim().equalsIgnoreCase("INCLUDE")){
-					  this.setMetaCellLibraryInAggregateAnalysis(cellLibrary, true);
+					  this.setCellLibraryInAggregateAnalysis(cellLibrary, true);
 				  }
 				  else if(qcStatus.trim().equalsIgnoreCase("EXCLUDE")){
-					  this.setMetaCellLibraryInAggregateAnalysis(cellLibrary, false);
+					  this.setCellLibraryInAggregateAnalysis(cellLibrary, false);
 				  }
 				  
 				  if( !comment.trim().isEmpty() ){
-					  this.setMetaInAggregateAnalysisComment(cellLibrary.getId(), comment.trim());
+					  this.setInAggregateAnalysisComment(cellLibrary.getId(), comment.trim());
 				  }
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
