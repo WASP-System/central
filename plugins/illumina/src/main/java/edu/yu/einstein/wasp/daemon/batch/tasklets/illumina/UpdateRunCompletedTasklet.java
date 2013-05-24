@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
@@ -57,6 +55,7 @@ public class UpdateRunCompletedTasklet extends WaspTasklet {
 	 * @see edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet#execute(org.springframework.batch.core.StepContribution, org.springframework.batch.core.scope.context.ChunkContext)
 	 */
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws GridException {
 		run = runService.getRunById(runId);
 		logger.debug("Marking run " + run.getName() + ":" + run.getPlatformUnit().getName() + " as completed.");
