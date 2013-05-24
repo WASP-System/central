@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+  
 <style>
 	.pageContainer {width:100%; overflow:hidden; }
 	.selectionLeft {float:left; width:15%; margin-right:0.2cm; border:3px solid black; overflow:auto;}
@@ -10,6 +11,12 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
+	
+	  $(function() {
+		    $( "#tabs" ).tabs();
+		    //$( "#tabs" ).tabs( "destroy");
+		  }); 
+
 	
 	//////$("#viewerFrame").load('<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
 	
@@ -123,7 +130,12 @@ function loadIFrameAnotherWay(thisAnchorObject, url){//alert("I am here with url
 	//thisAnchorObject.href=url;
 	var myIframe = document.getElementById("myIframe");//ok, works with the tabs
 	myIframe.src = url;
-	myIframe.width="100%";myIframe.height="100%";
+	myIframe.style.width="100%";
+	myIframe.style.height="1000px";
+	//note: neither of the two next lines works in Firefox. It doesn't know height of what, with %.  
+	//see http://www.daniweb.com/web-development/web-design-html-and-css/threads/283687/css-height-in-not-working 
+	//myIframe.style.height="100%";  
+	//myIframe.height="100%"; 
 }
 
 function loadIFrame(thisAnchorObject, url){//alert("I am here with url of : " + url);

@@ -2,6 +2,7 @@
 
 <br /><br />
 <h1><a  href="<c:url value="/job/${job.jobId}/homepage.do" />">JobID J<c:out value="${job.jobId}" /></a>: <c:out value="${job.getName()}" /></h1>	
+
 <%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
@@ -10,160 +11,40 @@
 	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
 
-<script>
-  $(function() {
-    $( "#tabs" ).tabs();
-    //$( "#tabs" ).tabs( "destroy");
-  });
-  $(function() {
-	    $( "#tab" ).tabs();
-	  });
-  </script>
- <%--  
-<div id="tab">	
-  <ul>	
-
-    <li>
-    	<a href="#tab-1">Basic</a>
-    </li>
-	  <li>
-		<a href="<c:url value="/job/${job.getId()}/approvals.do" />" >Approvals</a>
-	</li>
- 
-    <li>			
-    	<a href="<c:url value="/job/${job.getId()}/viewerManager.do" />" >Viewer Manager</a>	
-	</li>
-	<li>
-		<a href="<c:url value="/job/${job.getId()}/workflow.do" />" >Workflow</a>
-	</li>
-	<li>
-		<a href="javascript:void(0);" target="myIframe"  onclick='loadIFrame(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >file upload test</a>
-	</li>
-    <li>
-		<a href="<c:url value="/job/${job.getId()}/samples.do" />" >Samples</a>
-	</li>
-    <li>
-		<a href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />"  >Data By Runs</a>
-	</li>
-	
-  </ul>
-
-  <div id="tab-1">
-	  <table>
-		<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmitter.label" />:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-		<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-		<tr><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-		<tr><td class="CaptionTD">Status:</td><td class="DataTD"><c:out value="${jobStatus}" /></td></tr>
-	  </table>  
-	</div>
-</div>
-
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
---%>
 <div id="tabs">	
-  <ul>	
- 
-    <li>			
-    	<a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a>	
-	</li>
-	<li>
-		<a id="workflowAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/workflow.do" />");' >Workflow</a>
-	</li>
-    <li>
-		<a id="approvalsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a>
-	</li>
-	  
- 
-    <li>			
-    	<a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a>	
-	</li>
-	<li>
-		<a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a>
-	</li>
-	<%--this next one must be iframe, for dealing with the fileupload (ajax file upload is precarious; not supported by all browsers --%>
-	<li>
-		<a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a>
-	</li>
+  <ul>	 
+	    <li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
+		<li><a id="workflowAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/workflow.do" />");' >Workflow</a></li>
+	    <li><a id="approvalsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a></li>
+		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
+		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
+		<%--this next one MUST be iframe, for dealing with the fileupload (ajax file upload is precarious; not supported by all browsers --%>
+		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
+	    <li><a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples, Libraries, Runs</a></li>
+		<%--  neither one of the next two functions properly. So, this must be an iframe
+	   	<li><a id="dataByViewAnchor123"  href="javascript:void(0);"    onclick='loadNewPage(this, "<c:url value="/jobresults/treeview/job/${job.jobId}.do" />");'   >AJView</a></li>
+	   	<li><a id="dataByViewAnchor234"  href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />" >AJView</a></li>
+		--%>
+		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/jobresults/treeview/job/${job.getId()}.do" />");' >Data Treeview</a></li>
+		<%-- Next one does not work properly. So, this must be an iframe
+	    <li><a id="dataByRunsAnchor123"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />");' >Data By Runs</a></li>
+	    --%>
+		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
+	    <li><a id="dataBySamplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />");' >Data By Samples</a></li>
+		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
+	</ul>
 
-    <li>
-		<a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples, Libraries, Runs</a>
-	</li>
-<%-- Next one does not work properly. So, this must be an iframe
-    <li>
-		<a id="dataByRunsAnchor123"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />");' >Data By Runs</a>
-	</li>
---%>
-	<li>
-		<a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a>
-	</li>
-	
-    <li>
-		<a id="dataBySamplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />");' >Data By Samples</a>
-	</li>
-  <%--  neither one of the next two functions properly. So, this must be an iframe
-   <li>
-		<a id="dataByViewAnchor123"  href="javascript:void(0);"    onclick='loadNewPage(this, "<c:url value="/jobresults/treeview/job/${job.jobId}.do" />");'   >AJView</a>
-	</li>
-   <li>
-		<a id="dataByViewAnchor234"  href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />" >AJView</a>
-	</li>
-	--%>
-	<li>
-		<a id="dataByViewAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/jobresults/treeview/job/${job.getId()}.do" />");' >Data Viewport</a>
-	</li>
-	<li>
-		<a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a>
-	</li>
-	
-  </ul>
-
-
-<div class="pageContainer">
-
-<%-- 
-	<div id="selectionLeft" class="selectionLeft">
-	
-	<table>
-		<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmitter.label" />:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
-		<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
-		<tr><td class="CaptionTD">Submitted:</td><td class="DataTD"><fmt:formatDate value="${job.createts}" type="date" /></td></tr>
-		<tr><td class="CaptionTD">Status:</td><td class="DataTD"><c:out value="${jobStatus}" /></td></tr>
-	</table>
-		<div>  
-			<a style="color:red; font-weight:bold; background-color:Aqua;" id="workflowAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/workflow.do" />");' >Workflow</a>	<br />
-			<a id="approvalsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a>	<br />
-			<a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Viewer Manager</a>	<br />
-			<a id="billingAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Billing</a>	<br />
-			<a id="fileUploadAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a>	<br />
-			<a id="sampleAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Samples</a>	<br />
-			<a id="requestedCellAssignmentAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Cell Assignments</a>	<br />
-			<a id="requestedAnalysisAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Requested Analysis Paramaters</a>	<br />
-			<a id="jobCommentsAnchor"  href="javascript:void(0);" onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >Comments Feed</a>	<br />
-			Data Files:<br />
-			 &nbsp;&nbsp;&nbsp;<a style="color: #801A00;" href="<c:url value="/jobresults/treeview/job/${job.jobId}.do" />"><fmt:message key="jobdetail_for_import.dataFilesView.label" /></a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/runs.do" />">By Runs</a> | <a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">By Samples</a> 	
-
-			<br /><a id="fileuptest"  href="javascript:void(0);" target="myIframe"  onclick='toggleAnchors(this);  loadIFrame(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >file upload test</a>	<br />
-			<br /><a id="fileuptest"  href="javascript:void(0);" target="myIframe"  onclick='toggleAnchors(this);  loadIFrame(this, "<c:url value="/job/${job.getId()}/approvals.do" />"); ' >approvals test</a>	<br />
-
-			
-		</div>
-	</div>
---%>
-	<%--<div class="viewerRight">--%>
-		<div id="viewerFrame" style="display:block;">
-  			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
-  			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
-   		</div>
-   		<div id="viewerFrame2" style="display:none;">
-  			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
-  			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
-  			<iframe id="myIframe" name="myIframe" src="" style="overflow-x: scroll; overflow-y:scroll;"  height="800px" width="800px"><p>iframes not supported</p></iframe>
-   		</div>
-	<%--</div>	--%>
-	<%-- <div style="clear:both;"></div>	--%>
-</div>
-
-
+	<div id="parentDiv">
+	<div id="viewerFrame" style="display:block;">
+			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
+			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
+ 	</div>
+ 	<div id="viewerFrame2" style="display:none;">
+			<%--  <iframe id="myIframe" name="myIframe" src="http://webdesign.about.com/#lp-main" style="overflow-x: scroll; overflow-y: scroll" height="500px" width="500px" ><p>iframes not supported</p></iframe> --%>
+			<%-- <iframe id="myIframe" name="myIframe" src="<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />" style="overflow-x: scroll; overflow-y: scroll" height="800px" width="600px" ><p>iframes not supported</p></iframe>--%>
+			<iframe id="myIframe" name="myIframe" height="100%" width="100%" src="" style="overflow-x: scroll; overflow-y:scroll; height:100%; width:100%;"><p>iframes not supported</p></iframe>
+ 	</div>
+	</div>	
 </div>
 
 
@@ -202,18 +83,7 @@
 		<br /><br />
 		<a style="color:green; font-weight:bold; background-color:white;" id="jobDetailsAnchorzzzzzzzz"  href="javascript:void(0);" target="myIframe" onclick='loadNewPage(this, "<c:url value="/datadisplay/showplay.do" />");' >use SHOWPLAY INTO div on right</a>
 --%>
-<%--NO INNER TABLES, just 
-job
-	run
-		lane
-			control
-			library:
-			Library:
-		lane
-			library:
-	run
-	run
-	
+<%--	
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
 		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:white;" id="jobDetailsAnchor"  href="javascript:void(0);"  onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]
@@ -321,7 +191,5 @@ job
 	</div>	
 	<div style="clear:both;"></div>	
 </div>	
-	
-	
-	
-	 --%>
+	 
+--%>
