@@ -8,6 +8,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 
 public class NotifyStatusTasklet extends WaspTasklet {
@@ -18,6 +19,10 @@ public class NotifyStatusTasklet extends WaspTasklet {
 	
 	private MessageChannel messageChannel;
 	
+	public NotifyStatusTasklet() {
+		// proxy
+	}
+	
 	
 	public NotifyStatusTasklet(MessageChannel outputMessageChannel, StatusMessageTemplate messageTemplate) {
 		logger.debug("Constructing new instance"); 
@@ -27,6 +32,7 @@ public class NotifyStatusTasklet extends WaspTasklet {
 	
 	
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		logger.debug("execute() invoked");
 		Message<?> message = messageTemplate.build();

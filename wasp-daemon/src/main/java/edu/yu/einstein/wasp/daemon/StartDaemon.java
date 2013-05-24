@@ -1,6 +1,5 @@
 package edu.yu.einstein.wasp.daemon;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -23,11 +22,6 @@ public class StartDaemon {
 		//ctx.registerShutdownHook();
 		BatchRelaunchRunningJobsOnStartup batchRelaunchRunningJobsOnStartup = ctx.getBean(WaspBatchRelaunchRunningJobsOnStartup.class);
 		logger.info("\n\nGoing to restart any batch jobs that might have been running before last shutdown...\n\n");
-		BasicDataSource dataSource = (BasicDataSource) ctx.getBean("dataSource");
-		logger.debug("dataSource.getInitialSize=" + dataSource.getInitialSize());
-		logger.debug("dataSource.getMaxActive=" + dataSource.getMaxActive());
-		logger.debug("dataSource.getMaxIdle=" + dataSource.getMaxIdle());
-		logger.debug("dataSource.getMaxWait=" + dataSource.getMaxWait());
 		batchRelaunchRunningJobsOnStartup.doLaunchAllRunningJobs();
 		logger.info("\n\nSpring Batch Daemon Application Launched Successfully...\n\n");
 	}

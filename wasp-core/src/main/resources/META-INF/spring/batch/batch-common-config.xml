@@ -82,17 +82,19 @@
             <bean class="org.springframework.batch.retry.support.RetryTemplate">
                 <property name="retryPolicy">
                     <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-                    	<property name="maxAttempts" value="${wasp.batch.retry.backoff.maxattempts:1000000000}" />
+                    	<property name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
                     	<property name="retryableExceptions">
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
+								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
+								<entry key="java.sql.SQLException" value="true"/>
 							</map>
 						</property>
                     </bean>
                 </property>
                 <property name="backOffPolicy">
                     <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
-                    	<property name="backOffPeriod" value="${wasp.batch.retry.backoff.initialInterval:1000}" />
+                    	<property name="backOffPeriod" value="${wasp.batch.retry.fixed.interval:1000}" />
                     </bean>
                 </property>
             </bean>
@@ -112,19 +114,21 @@
 			<bean class="org.springframework.batch.retry.support.RetryTemplate">
 				<property name="retryPolicy">
 					<bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-						<property name="maxAttempts" value="${wasp.batch.retry.backoff.maxattempts:1000000000}" />
+						<property name="maxAttempts" value="${wasp.batch.retry.exponential.maxattempts:1000000000}" />
 						<property name="retryableExceptions">
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
+								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
+								<entry key="java.sql.SQLException" value="true"/>
 							</map>
 						</property>
 					</bean>
 				</property>
 				<property name="backOffPolicy">
 					<bean class="org.springframework.batch.retry.backoff.ExponentialBackOffPolicy">
-						<property name="initialInterval" value="${wasp.batch.retry.backoff.initialInterval:5000}" />
-						<property name="maxInterval" value="${wasp.batch.retry.backoff.maxInterval:3600000}" />
-						<property name="multiplier" value="${wasp.batch.retry.backoff.multiplier:2}" />
+						<property name="initialInterval" value="${wasp.batch.retry.exponential.initialInterval:5000}" />
+						<property name="maxInterval" value="${wasp.batch.retry.exponential.maxInterval:3600000}" />
+						<property name="multiplier" value="${wasp.batch.retry.exponential.multiplier:2}" />
 					</bean>
 				</property>
 			</bean>
