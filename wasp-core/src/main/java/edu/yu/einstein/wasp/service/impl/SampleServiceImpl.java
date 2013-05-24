@@ -2579,10 +2579,31 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
-			if (!je.getStatus().equals(BatchStatus.STARTED))
+			if (je != null && !je.getStatus().equals(BatchStatus.STARTED))
 				return true;
 			return false;
 		}
+		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellLibraryAggregationAnalysisRecord(SampleSource cellLibrary) throws SampleTypeException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
+			Set<String> ssIdStringSet = new LinkedHashSet<String>();
+			ssIdStringSet.add(cellLibrary.getId().toString());
+			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
+			Set<String> jobTaskSet = new LinkedHashSet<String>();
+			jobTaskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
+			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
+			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
+			if (je != null)		return true;
+			return false;
+		}
+		
+		
 		
 		/**
 		 *  {@inheritDoc}
@@ -2630,13 +2651,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 */
 		@Override
 		public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException{
-			Set<SampleSource> cellLibrariesForJob = this.getCellLibrariesForJob(job);
 			List<SampleSource> cellLibrariesThatPassedQC = new ArrayList<SampleSource>();
-			for(SampleSource cellLibrary : cellLibrariesForJob){
+			for(SampleSource cellLibrary : this.getCellLibrariesForJob(job)){
 				try{
-					if(this.isCellLibraryPassedQC(cellLibrary)){
+					if(this.isCellLibraryPassedQC(cellLibrary))
 						cellLibrariesThatPassedQC.add(cellLibrary);
-					}
 				}catch(MetaAttributeNotFoundException e){
 					logger.warn("recieved possibly anticipated MetaAttributeNotFoundException: " + e.getLocalizedMessage()); 				
 				}
@@ -2644,17 +2663,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			return cellLibrariesThatPassedQC;
 		}
 		
-		public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException{
-			List<SampleSource> cellLibrariesThatPassedQC = getCellLibrariesThatPassedQCForJob(job);
-			List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
-			for(SampleSource cellLibrary : cellLibrariesThatPassedQC){
-				try{
-					if(this.isCellLibraryPassedQC(cellLibrary)){//throws exception if this meta has not been created/set
-						continue;
-					}
-				}catch(MetaAttributeNotFoundException e){cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.add(cellLibrary);}
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public List<SampleSource> getCellLibrariesPassQCAndNoAggregateAnalysis(Job job) throws SampleTypeException{
+			List<SampleSource> cellLibrariesPassQCAndNoAggregateAnalysis = new ArrayList<SampleSource>();
+			for(SampleSource cellLibrary : getCellLibrariesThatPassedQCForJob(job)){
+				if (!this.isCellLibraryAggregationAnalysisRecord(cellLibrary))
+					cellLibrariesPassQCAndNoAggregateAnalysis.add(cellLibrary);
 			}
-			return cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis;			
+			return cellLibrariesPassQCAndNoAggregateAnalysis;			
 		}
 
 

@@ -912,7 +912,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 
 	  public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException;
-	  public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException;
+	  public List<SampleSource> getCellLibrariesPassQCAndNoAggregateAnalysis(Job job) throws SampleTypeException;
 	  
 	  /**
 		 * has cellLibrary passed QC?
@@ -1009,5 +1009,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	public String getNameOfOrganism(Sample sample, String defaultValue);
 
 	public String getNameOfOrganism(Sample sample);
+
+	public boolean isCellLibraryAggregationAnalysisRecord(SampleSource cellLibrary) throws SampleTypeException;
 
 }
