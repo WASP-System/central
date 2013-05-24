@@ -14,7 +14,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	private Integer bamGId;
 	private Integer baiGId;
 	
+	private StepExecution stepExecution;
+	
 	@Autowired
 	private SampleService sampleService;
 	
@@ -74,6 +75,10 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	
 	@Autowired
 	private GridHostResolver gridHostResolver;
+	
+	public BWAMergeSortTasklet() {
+		// proxy
+	}
 
 	/** 
 	 * {@inheritDoc}
@@ -140,7 +145,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		bamG = fileService.addFileGroup(bamG);
 		bamGId = bamG.getId();
 		// save in step context in case of batch restart
-		context.getStepContext().getStepExecutionContext().put("bamGID", bamGId);
+		stepExecution.getExecutionContext().put("bamGID", bamGId);
 		
 		
 		FileGroup baiG = new FileGroup();
@@ -153,7 +158,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 		baiG = fileService.addFileGroup(baiG);
 		baiGId = baiG.getId();
 		// save in step context in case of batch restart
-		context.getStepContext().getStepExecutionContext().put("baiGId", baiGId);
+		stepExecution.getExecutionContext().put("baiGId", baiGId);
 		
 //		baiG.getDerivedFrom().add(bamG);
 //		bamG.getBegat().add(baiG);
@@ -181,6 +186,7 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 
 		return RepeatStatus.CONTINUABLE;
 	}
+	
 
 	/** 
 	 * {@inheritDoc}
@@ -196,7 +202,8 @@ public class BWAMergeSortTasklet extends WaspTasklet implements StepExecutionLis
 	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
+		logger.debug("BeforeStep saving StepExecution");
+        this.stepExecution = stepExecution;
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		ExecutionContext jobContext = jobExecution.getExecutionContext();
 		this.scratchDirectory = jobContext.get("scrDir").toString();

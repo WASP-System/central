@@ -57,6 +57,10 @@ public class BWAsamTasklet extends WaspTasklet implements StepExecutionListener 
 
 	@Autowired
 	private BWASoftwareComponent bwa;
+	
+	public BWAsamTasklet() {
+		// proxy
+	}
 
 	/**
 	 * {@inheritDoc}
