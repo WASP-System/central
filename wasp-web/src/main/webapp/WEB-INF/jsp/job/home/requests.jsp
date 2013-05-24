@@ -1,4 +1,30 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
+<div id="user_requested_coverage_data" >
+    <h2 style="font-weight:bold">Lane Usage Request:</h2>		
+	<table class="data">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
+	</tr>
+	<c:forEach items="${coverageMap.keySet()}" var="coverageItem">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6" >
+				<c:out value="${coverageItem.getName()}" />
+			</td>
+			<c:set var="string" value="${coverageMap.get(coverageItem)}" scope="page" />
+			<c:forEach var="i" begin="0" end="${fn:length(string)-1}" step="1">
+	   			<td  class="value-centered" style="text-align: center; vertical-align: middle;"> 
+	   				<c:choose>
+	   					<c:when test='${fn:substring(string, i, i + 1)=="0"}'><input type="checkbox" DISABLED /></c:when>
+	   					<c:otherwise><input type="checkbox" DISABLED checked="checked" /></c:otherwise>
+	   				</c:choose>   
+	  			</td>   
+			</c:forEach>
+		</tr>
+	</c:forEach>
+	</table>
+</div>
+
 <div>
 	<c:choose>
 		<c:when test="${empty softwareList}">

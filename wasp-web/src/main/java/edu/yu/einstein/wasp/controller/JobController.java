@@ -196,7 +196,7 @@ public class JobController extends WaspController {
 		m.addAttribute("samplePairsMap", samplePairsMap);
 		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
 		m.addAttribute("testIsReferenceList", testIsReferenceList);
-		 
+		
 		return "job/analysisParameters";
 	}
 	
@@ -944,6 +944,10 @@ public class JobController extends WaspController {
 		m.addAttribute("samplePairsMap", samplePairsMap);
 		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
 		m.addAttribute("testIsReferenceList", testIsReferenceList);
+		
+		//request for which libraries/samples should go on which lanes
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
 		
 		return "job/home/requests";
 	}
