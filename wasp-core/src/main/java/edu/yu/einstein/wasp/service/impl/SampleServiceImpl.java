@@ -2253,11 +2253,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setInAggregateAnalysisComment(Integer sampleSourceId, String comment) throws Exception{
+	public void setCellLibraryQCComment(Integer sampleSourceId, String comment) throws Exception{
 		
-		List<MetaMessage> existingMessages = metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+		List<MetaMessage> existingMessages = metaMessageService.read(CellLibraryMeta.PREPROCESS_PASS_QC, "Cell Library QC Comment", sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		if (existingMessages.isEmpty()){
-			metaMessageService.saveToGroup(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, "In Aggregate Analysis Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+			metaMessageService.saveToGroup(CellLibraryMeta.PREPROCESS_PASS_QC, "Cell Library QC Comment", comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		} else {
 			metaMessageService.edit(existingMessages.get(0), comment, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 		}
@@ -2267,8 +2267,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<MetaMessage> getInAggregateAnalysisComments(Integer sampleSourceId){
-		return metaMessageService.read(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
+	public List<MetaMessage> getCellLibraryQCComments(Integer sampleSourceId){
+		return metaMessageService.read(CellLibraryMeta.PREPROCESS_PASS_QC, sampleSourceId, SampleSourceMeta.class, sampleSourceMetaDao);
 	}
 	
 	/**
@@ -2525,7 +2525,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	public static class CellLibraryMeta {
 		public static final String AREA = "cellLibrary";
 		public static final String PREPROCESS_PASS_QC = "preprocess_qc_pass";
-		public static final String IN_AGGREGATE_ANALYSIS = "in_aggregate_analysis";
 	}
 				
 		/**
@@ -2650,7 +2649,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			List<SampleSource> cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis = new ArrayList<SampleSource>();
 			for(SampleSource cellLibrary : cellLibrariesThatPassedQC){
 				try{
-					if(this.isCellLibraryInAggregateAnalysis(cellLibrary)){//throws exception if this meta has not been created/set
+					if(this.isCellLibraryPassedQC(cellLibrary)){//throws exception if this meta has not been created/set
 						continue;
 					}
 				}catch(MetaAttributeNotFoundException e){cellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis.add(cellLibrary);}
@@ -2687,44 +2686,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			return getJobBySamplePair(samplePair);
 		}
 		
-		/**
-		 *  {@inheritDoc}
-		 */
-		@Override
-		public boolean isCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException{
-			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
-			String isPassedQC = null;
-			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
-			if (metaList == null)
-				metaList = new ArrayList<SampleSourceMeta>();
-			try{
-				isPassedQC = (String) MetaHelper.getMetaValue(CellLibraryMeta.AREA, CellLibraryMeta.IN_AGGREGATE_ANALYSIS, metaList);
-			} catch(MetadataException e) {
-				throw new MetaAttributeNotFoundException("Samplesource meta attribute not found: CELL_LIBRARY_META_AREA.CELL_LIBRARY_META_KEY_IN_AGGREGATE_ANALYSIS"); // no value exists already
-			}
-			Boolean b = new Boolean(isPassedQC);
-			return b.booleanValue();
-		}
-
-		/**
-		 *  {@inheritDoc}
-		 * @throws MetadataException 
-		 */
-		@Override
-		public void setCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException {
-			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
-			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
-			Boolean b = new Boolean(isPassedQC);
-			String isPreprocessedString = b.toString();
-			List<SampleSourceMeta> metaList = cellLibrary.getSampleSourceMeta();
-			if (metaList == null || metaList.isEmpty())
-				metaList = new ArrayList<SampleSourceMeta>();
-			MetaHelper metaHelper = new MetaHelper(CellLibraryMeta.AREA, SampleSourceMeta.class);
-			metaHelper.setMetaList(metaList);
-			metaHelper.setMetaValueByName(CellLibraryMeta.IN_AGGREGATE_ANALYSIS, isPreprocessedString);
-			sampleSourceMetaDao.setMeta((List<SampleSourceMeta>) metaHelper.getMetaList(), cellLibrary.getId());
-		}
+		
 		
 		/**
 		 * @throws SampleException 
@@ -2895,17 +2857,17 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * {@inheritDoc}
 		   */
 		  @Override
-		  public void saveCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment){
+		  public void saveCellLibraryQCStatusAndComment(SampleSource cellLibrary, String qcStatus, String comment){
 			  try{
 				  if(qcStatus.trim().equalsIgnoreCase("INCLUDE")){
-					  this.setCellLibraryInAggregateAnalysis(cellLibrary, true);
+					  this.setCellLibraryPassedQC(cellLibrary, true);
 				  }
 				  else if(qcStatus.trim().equalsIgnoreCase("EXCLUDE")){
-					  this.setCellLibraryInAggregateAnalysis(cellLibrary, false);
+					  this.setCellLibraryPassedQC(cellLibrary, false);
 				  }
 				  
 				  if( !comment.trim().isEmpty() ){
-					  this.setInAggregateAnalysisComment(cellLibrary.getId(), comment.trim());
+					  this.setCellLibraryQCComment(cellLibrary.getId(), comment.trim());
 				  }
 			  }
 			  catch(Exception e){throw new RuntimeException(e.getMessage());}
