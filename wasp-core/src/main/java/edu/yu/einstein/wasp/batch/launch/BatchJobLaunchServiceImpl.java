@@ -78,7 +78,6 @@ public class BatchJobLaunchServiceImpl implements BatchJobLaunchService{
 		}
 	}
 	
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public static JobExecution launchBatchJob(BatchJobLaunchContext batchJobLaunchContext, JobLauncher jobLauncher, JobRegistry jobRegistry) throws WaspBatchJobExecutionException{
 		try{
 			Assert.assertParameterNotNull(batchJobLaunchContext, "No BatchJobLaunchContext set");

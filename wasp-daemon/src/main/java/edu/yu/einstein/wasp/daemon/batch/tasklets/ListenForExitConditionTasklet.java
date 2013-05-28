@@ -19,6 +19,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
@@ -41,6 +42,10 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	private Message<WaspStatus> message = null;
 	
 	private boolean stopJobNotificationReceived = false;
+	
+	public ListenForExitConditionTasklet() {
+		// proxy
+	}
 	
 	public ListenForExitConditionTasklet(SubscribableChannel inputSubscribableChannel, SubscribableChannel abortMonitoringChannel, StatusMessageTemplate messageTemplate) {
 		this.messageTemplates = new HashSet<StatusMessageTemplate>();
@@ -105,21 +110,24 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		ExitStatus exitStatus = stepExecution.getExitStatus();
-		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
-		if (stopJobNotificationReceived){
-			// this notice should trigger stopping the job
-			logger.debug(name + "Stopping job due to receiving a message containing an ABANDONED / FAILED notice");
-			// Signal the JobExecution to stop. JobExecution().stop() iterates through the associated StepExecutions, 
-			// calling StepExecution.setTerminateOnly()
-			stepExecution.getJobExecution().stop(); 
+		if (message != null){
+			WaspStatus statusFromMessage = (WaspStatus) message.getPayload();
+			if (statusFromMessage.isUnsuccessful()){
+				// this notice should trigger stopping the job
+				logger.debug(name + "Stopping job due to receiving a message containing an ABANDONED / FAILED notice");
+				// Signal the JobExecution to stop. JobExecution().stop() iterates through the associated StepExecutions, 
+				// calling StepExecution.setTerminateOnly()
+				stepExecution.getJobExecution().stop(); 
+			}
+			this.message = null; // clean up in case of restart
+			stopJobNotificationReceived = false; // clean up in case of restart
 		}
-		this.message = null; // clean up in case of restart
-		stopJobNotificationReceived = false; // clean up in case of restart
-		logger.debug(name + "AfterStep() going return ExitStatus of '"+exitStatus.toString()+"'");
+		logger.debug(name + "AfterStep() going return ExitStatus of '"+exitStatus.getExitCode().toString()+"'");
 		return exitStatus;
 	}
 
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (message == null){
@@ -145,7 +153,7 @@ public class ListenForExitConditionTasklet extends WaspTasklet implements Messag
 				if (statusFromMessage.isUnsuccessful() && message.getHeaders().get(WaspJobTask.HEADER_KEY).equals(WaspJobTask.NOTIFY_STATUS))
 					stopJobNotificationReceived = true;
 				if (stopJobNotificationReceived || statusFromMessage.equals(messageTemplate.getStatus()) ){
-					if (this.message == null || stopJobNotificationReceived){
+					if (this.message == null || statusFromMessage.isUnsuccessful()){
 						this.message = (Message<WaspStatus>) message;
 					} else if (!stopJobNotificationPreviouslyReceived){
 						throw new MessagingException("Received an applicable message before previous message processed");
