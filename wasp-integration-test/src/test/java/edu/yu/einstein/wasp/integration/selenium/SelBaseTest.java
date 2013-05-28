@@ -1,13 +1,18 @@
 package edu.yu.einstein.wasp.integration.selenium;
 
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.internal.ProfilesIni;
@@ -23,12 +28,12 @@ public class SelBaseTest {
 	public static WebDriverWait wait;
 	public static Connection connection = null;
 	
-	@BeforeSuite (groups="integration-tests")
+	@BeforeSuite
     public void setUp() throws Exception {
 		
 		//final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
-	    FirefoxProfile profile = new FirefoxProfile();
-	    profile.setEnableNativeEvents(true);
+	    //FirefoxProfile profile = new FirefoxProfile();
+	    //profile.setEnableNativeEvents(true);
 
 		//ProfilesIni allProfiles = new ProfilesIni();
 		//FirefoxProfile profile = allProfiles.getProfile("wasp_selenium_tests");
@@ -36,12 +41,18 @@ public class SelBaseTest {
 	    //profile.addExtension(new FileHandle(firebugPath));
 	    //profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
 
+	    String Xport = System.getProperty("Importal.xvfb.id",":99");
+	    FirefoxBinary firefoxBinary = new FirefoxBinary();
+	    firefoxBinary.setEnvironmentProperty("DISPLAY", Xport);
+	    
 	    // Add more if needed
-	    driver = new FirefoxDriver(profile);
-	    driver.manage().window().setSize(new Dimension(1920, 1080));	    
-		
-		//driver = new FirefoxDriver();
-   		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	    driver = new FirefoxDriver(firefoxBinary, null);
+	    driver.manage().window().setSize(new Dimension(1920, 1080));	   
+	    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        
+        // Take snapshot of browser
+        File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
 		
 		try {
 		    // Load the JDBC driver
@@ -65,10 +76,10 @@ public class SelBaseTest {
 				
 	}
 	
-	@AfterSuite (groups="integration-tests")
+	@AfterSuite
     public void tearDown() throws SQLException{
-        connection.close();
-		//driver.close();
+        //connection.close();
+        driver.quit();
         
     } 
 	

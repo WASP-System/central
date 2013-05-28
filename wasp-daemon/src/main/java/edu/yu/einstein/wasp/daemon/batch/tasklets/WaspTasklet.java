@@ -12,6 +12,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.TaskletRetryException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -24,10 +25,15 @@ public abstract class WaspTasklet implements Tasklet {
 	@Autowired
 	private GridHostResolver hostResolver;
 	
+	public WaspTasklet() {
+		// proxy
+	}
+	
 	/**
 	 * Default implementation checks to see if a stored result is running 
 	 */
 	@Override
+	@RetryOnExceptionExponential
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		if (isGridWorkUnitStarted(context)) {
 			GridResult result = getStartedResult(context);

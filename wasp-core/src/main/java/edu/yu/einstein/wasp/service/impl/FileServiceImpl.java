@@ -519,6 +519,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		s.getFileGroups().add(group);
 		sampleDao.save(s);
 	}
+	
+	@Override
+	public void setSampleSourceFile(FileGroup group, SampleSource sampleSource) {
+		SampleSource s = sampleService.getSampleSourceDao().getById(sampleSource.getId());
+		s.getFileGroups().add(group);
+		sampleService.getSampleSourceDao().save(s);
+	}
 
 	@Override
 	public FileType getFileType(String iname) {

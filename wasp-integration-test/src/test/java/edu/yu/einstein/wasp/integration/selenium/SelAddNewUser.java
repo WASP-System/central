@@ -13,7 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.test.util.SeleniumHelper;
+import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 /**
  * 
@@ -21,14 +21,16 @@ import edu.yu.einstein.wasp.test.util.SeleniumHelper;
  *
  */
 
-public class SelWaspAddNewUser extends SelBaseTest {
+public class SelAddNewUser extends SelBaseTest {
 		
 	/**
-	 * Simulates Wasp login by different users using WaspTestData.xls
+	 * Creates lab users using WaspTestData.xls
 	 *
 	 * 
 	 */
+	
 	private WebElement submitLogin;
+	
 	/**
 	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
@@ -41,18 +43,6 @@ public class SelWaspAddNewUser extends SelBaseTest {
 	}
 
     /**
-     * 
-     * @return retObjArr
-     * @throws Exception
-     */
-    @DataProvider(name = "DP2")
-    public Object[][] createData1() throws Exception{
-        Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "addNewUser");
-        return(retObjArr);
-    }
-    
-   /**
     * 
     * @param fName
     * @param lName
@@ -120,7 +110,32 @@ public class SelWaspAddNewUser extends SelBaseTest {
     	Assert.assertEquals(driver.getCurrentUrl(), sNewUserUrlCreated);
     }
   	
-  	@Test (groups="integration-tests")
+  	 @Override
+	@AfterClass
+     public void tearDown(){
+         //driver.close();
+         
+     } 
+  	
+  	 /**
+     * 
+     * @return retObjArr
+     * @throws Exception
+     */
+    @DataProvider(name = "DP2")
+    public Object[][] createData1() throws Exception{
+        Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
+                "Test_001", "addNewUser");
+       
+        return(retObjArr);
+    }
+  	
+  	
+    /**
+     * 
+     * @throws SQLException
+     */
+    @Test (groups="integration-tests")
   	public void confirmEmailAuth() throws SQLException {
   		Statement s = connection.createStatement();
   		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
@@ -140,13 +155,6 @@ public class SelWaspAddNewUser extends SelBaseTest {
   	    s.close ();
         
   	}
-    
-    @Override
-	@AfterClass
-    public void tearDown(){
-        //driver.close();
-        
-    } 
-    	  
+     	  
 }
 

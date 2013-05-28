@@ -155,9 +155,13 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
-		if ( jobId != null &&
+		if ( jobId != null && libraryId == null &&
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
+			return true;
+		if ( jobId == null && libraryId != null &&
+				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(libraryId) )
 			return true;
 		return false;
 	}
