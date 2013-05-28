@@ -3,9 +3,11 @@ package edu.yu.einstein.wasp.integration.selenium;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
+import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -31,7 +33,8 @@ public class SelTestWaspLogin extends SelBaseTest {
 	 */
 	@Override
 	@BeforeClass (alwaysRun = true)
-    public void setUp() throws Exception {
+	@Parameters("environment")
+    public void setUp(String environment) throws Exception {
 		
 	}
 
@@ -54,10 +57,10 @@ public class SelTestWaspLogin extends SelBaseTest {
      * @param sExpectedUrl
      * @throws Exception
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+    @Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void testWaspLogin(String sUserName, String sUserPass, String sText, String sExpectedUrl) throws Exception {   
-  		
-  	    driver.get("http://localhost:8080/wasp/auth/login.do");
+    	
+  	    driver.get("http://"+baseUrl+"/wasp/auth/login.do");
 	   	WebElement userName = driver.findElement(By.name("j_username"));
     	WebElement userPassword = driver.findElement(By.name("j_password"));
     	userName.clear();
@@ -74,7 +77,7 @@ public class SelTestWaspLogin extends SelBaseTest {
         	driver.findElement(By.linkText("Logout")).click();
         }
         else {
-        	driver.get("http://localhost:8080/wasp/auth/login.do");
+        	driver.get("http://"+baseUrl+"/wasp/auth/login.do");
         }
     }
     

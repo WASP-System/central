@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -40,8 +41,8 @@ public class SelSubmitNewJob extends SelBaseTest{
      */
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String sExpectedUrl) throws Exception {   
-  		
-  	    driver.get("http://localhost:8080/wasp/auth/login.do");
+    	driver.get("http://"+baseUrl+"/wasp");
+  	    
 	   	WebElement userName = driver.findElement(By.name("j_username"));
     	WebElement userPassword = driver.findElement(By.name("j_password"));
     	userName.clear();
@@ -63,7 +64,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	actions.click();
     	actions.perform();
     	*/
-    	driver.get("http://localhost:8080/wasp/jobsubmit/create.do");
+    	driver.get("http://"+baseUrl+"/wasp/jobsubmit/create.do");
     	Assert.assertTrue(driver.findElements(By.name("name")).size() != 0, "Cannot locate 'Job Name' input text box");
 		driver.findElement(By.name("name")).sendKeys(sJobNum);
 		
@@ -86,8 +87,8 @@ public class SelSubmitNewJob extends SelBaseTest{
     	//Create DNA
     	driver.findElement(By.linkText("New Sample")).click();
     	driver.findElement(By.id("name")).sendKeys(sDnaName);    	
-    	select = new Select(driver.findElement(By.id("species")));
-    	select.selectByValue("Human [Homo sapiens - GRCh37]");
+    	select = new Select(driver.findElement(By.id("organism")));
+    	select.selectByValue("9606");
     	driver.findElement(By.id("concentration")).sendKeys("100");
     	driver.findElement(By.id("volume")).sendKeys("100");
     	select = new Select(driver.findElement(By.id("buffer")));
@@ -102,8 +103,8 @@ public class SelSubmitNewJob extends SelBaseTest{
     	//Create LIBRARY
     	driver.findElement(By.linkText("New Library")).click();
     	driver.findElement(By.id("name")).sendKeys(sLibName);  	
-    	select = new Select(driver.findElement(By.id("species")));
-    	select.selectByValue("Human [Homo sapiens - GRCh37]");
+    	select = new Select(driver.findElement(By.id("organism")));
+    	select.selectByValue("10090");
     	driver.findElement(By.id("fragmentSize")).sendKeys("150");
     	driver.findElement(By.id("fragmentSizeSD")).sendKeys("5");
     	driver.findElement(By.id("antibody")).sendKeys("10");	
@@ -120,6 +121,11 @@ public class SelSubmitNewJob extends SelBaseTest{
 
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Save']")).click();
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
+    	
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Select Genome", driver), "Cannot find 'Create A Job -- Select Genome' page");
+    	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
+
+    	
  
     	Assert.assertTrue(driver.findElement(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']")).isDisplayed());
     	

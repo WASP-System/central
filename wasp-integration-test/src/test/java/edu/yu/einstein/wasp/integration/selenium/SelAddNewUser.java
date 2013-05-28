@@ -11,6 +11,7 @@ import org.testng.Reporter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -38,7 +39,8 @@ public class SelAddNewUser extends SelBaseTest {
 	 */
 	@Override
 	@BeforeClass (alwaysRun = true)
-    public void setUp() throws Exception {
+	@Parameters ("environment")
+    public void setUp(String environment) throws Exception {
 		
 	}
 
@@ -65,9 +67,10 @@ public class SelAddNewUser extends SelBaseTest {
 										String password, String locale, String primaryuserid, String title, 
 										String building_room, String address, String phone, String fax, 
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
-   		
-  		driver.get("http://localhost:8080/wasp/auth/login.do");
-  	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
+    	
+  	    driver.get("http://"+baseUrl+"/wasp");
+
+  		Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
 		driver.findElement(By.linkText("New User")).click();
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(fName);
@@ -135,17 +138,17 @@ public class SelAddNewUser extends SelBaseTest {
      * 
      * @throws SQLException
      */
+    @Parameters ("environment")
     @Test (groups="integration-tests")
-  	public void confirmEmailAuth() throws SQLException {
+  	public void confirmEmailAuth(String environment) throws SQLException {
   		Statement s = connection.createStatement();
   		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
   		ResultSet rs = s.getResultSet();
-  		
-  		while (rs.next ())  {
+   		while (rs.next ())  {
   			String sAuthCode = rs.getString("authcode");
   			String sEmail = rs.getString("email");
   			
-  			driver.get("http://localhost:8080/wasp/auth/confirmUserEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
+  			driver.get("http://"+baseUrl+"/wasp/auth/confirmUserEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
   	        
   			//Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/auth/newpi/emailok.do");
   			CharSequence csValue = "/wasp/auth/newuser/emailok.do";

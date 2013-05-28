@@ -7,6 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -15,15 +16,19 @@ public class SelLabUtilsJqGrid extends SelBaseTest{
   
 
 	  //TO DO:
+	  @Parameters("environment")
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
-	  public void editLab(String sUserName, String sUserPass) {
-		  
+	  public void editLab(String environment, String sUserName, String sUserPass) {
+		 String baseUrl = "localhost:8080";
+	  	 if (environment.equals("production")) {
+	  	  	baseUrl = "barcelona.einstein.yu.edu:8080";
+	  	  }
 		  WebElement element;
 		  
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/list.do')]")).size() != 0, "Cannot locate 'Lab Utils' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/list.do')]")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/lab/list.do");
+		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/lab/list.do");
 		  
 		  WebElement elMenuItem = driver.findElement(By.xpath("//td[contains(@title, 'Greally lab')]"));
 		  Actions actions = new Actions(driver);

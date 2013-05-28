@@ -11,6 +11,7 @@ import org.testng.Reporter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -34,11 +35,7 @@ public class SelWaspAddNewUser extends SelBaseTest {
 	 * If you want it to run before all methods, you need to use the alwaysRun = true:
 	 * @throws Exception
 	 */
-	@Override
-	@BeforeClass (alwaysRun = true)
-    public void setUp() throws Exception {
-		
-	}
+	
 
     /**
      * 

@@ -38,7 +38,7 @@ public class SelUserDetail extends SelBaseTest {
 	  public void myProfile(String sUserName, String sUserPass, String sSuccessUrl, String sOldPass, String sNewPass, String sSuccessUrl2) throws Exception {   
 			
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-		  driver.get("http://localhost:8080/wasp/dashboard.do");
+		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
@@ -50,10 +50,10 @@ public class SelUserDetail extends SelBaseTest {
 		  
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_ro.do')]")).click();
 		  
-		  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/user/me_ro.do");
+		  Assert.assertEquals(driver.getCurrentUrl(),"http://"+baseUrl+"/wasp/user/me_ro.do");
 		  Assert.assertTrue(driver.findElements(By.linkText("Edit")).size() != 0, "Cannot locate 'Edit' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_rw.do')]")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/user/me_rw.do");
+		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/user/me_rw.do");
 		  
 		  Assert.assertEquals(driver.findElement(By.id("login")).getAttribute("value"), "super");
 		  Assert.assertFalse(driver.findElement(By.id("login")).getAttribute("value").isEmpty(), "Login field is empty");
@@ -80,7 +80,7 @@ public class SelUserDetail extends SelBaseTest {
 		  
 		  Assert.assertTrue(driver.findElements(By.linkText("Edit")).size() != 0, "Cannot locate 'Edit' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/me_rw.do')]")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/user/me_rw.do");
+		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/user/me_rw.do");
 		  Assert.assertTrue(driver.findElements(By.xpath("//input[@value='Cancel']")).size() != 0, "Cannot locate 'Cancel' button");
 		  driver.findElement(By.xpath("//input[@value='Cancel']")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(), sSuccessUrl);
@@ -101,7 +101,7 @@ public class SelUserDetail extends SelBaseTest {
 	  @Test (groups="integration-tests", dataProvider = "DP1")
 	  public void changePassword(String sUserName, String sUserPass, String sSuccessUrl, String sOldPass, String sNewPass, String sSuccessUrl2) throws Exception {   
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-		  driver.get("http://localhost:8080/wasp/dashboard.do");
+		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
@@ -121,7 +121,7 @@ public class SelUserDetail extends SelBaseTest {
 		  driver.findElement(By.name("newpassword1")).sendKeys(sNewPass);
 		  driver.findElement(By.name("newpassword2")).sendKeys(sNewPass);
 		  driver.findElement(By.xpath("//input[@value='Submit']")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(), "http://localhost:8080/wasp/dashboard.do");
+		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
 		  
 	  }
 	  

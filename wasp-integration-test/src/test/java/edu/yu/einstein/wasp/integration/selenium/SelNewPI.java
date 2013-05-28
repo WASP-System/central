@@ -9,6 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -36,7 +37,8 @@ public class SelNewPI extends SelBaseTest {
 	 */
 	@Override
 	@BeforeClass (alwaysRun = true)
-    public void setUp() throws Exception {
+	@Parameters ("environment")
+    public void setUp(String environment) throws Exception {
 		
 	}
 
@@ -64,14 +66,19 @@ public class SelNewPI extends SelBaseTest {
      * @param sNewUserPICreated
      * @throws Exception
      */
+	@Parameters("environment")
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
+	public void navigateNewPIForm(String environment, String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
 									String title, String sInst, String sDept, String building_room, 
 									String address, String sCity, String sState, String sCountry, 
 									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
   		Assert.assertNotNull(driver);
-  		driver.get("http://localhost:8080/wasp/auth/login.do");
+  		String baseUrl = "localhost:8080";
+  	    if (environment.equals("production")) {
+  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
+  	  	}	
+  		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
 		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
@@ -142,9 +149,13 @@ public class SelNewPI extends SelBaseTest {
      * 
      * @throws SQLException
      */
+    @Parameters ("production")
   	@Test (groups="integration-tests")
-  	public void confirmEmailAuth() {
-  		
+  	public void confirmEmailAuth(String environment) {
+    	String baseUrl = "localhost:8080";
+  	    if (environment.equals("production")) {
+  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
+  	  	}
   		try {
 	  		Statement s = connection.createStatement();
 	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");
@@ -154,7 +165,7 @@ public class SelNewPI extends SelBaseTest {
 	  			String sAuthCode = rs.getString("authcode");
 	  			String sEmail = rs.getString("email");
 	  			
-	  			driver.get("http://localhost:8080/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
+	  			driver.get("http://"+baseUrl+"/wasp/auth/confirmPIEmail.do?authcode="+ sAuthCode+"&email="+sEmail);
 	  	        
 	  			CharSequence csValue = "/wasp/auth/newpi/emailok.do";
 	  			Assert.assertTrue(driver.getCurrentUrl().contains(csValue));
