@@ -65,21 +65,22 @@
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${library.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'>
-				
+					<c:set value="" var="passChecked" />
+					<c:set value="" var="failChecked" />
 					<c:if test="${status.first}"><br /></c:if>
-					<c:set value="${cellLibraryQcMap.get(cellLibrary)}" var="cellLibraryQc" />
-					<c:if test="${cellLibraryQc != null && cellLibraryQc == true }">
-						<c:set value="CHECKED" var="passChecked" />
+					<c:set value="${cellLibraryQcStatusMap.get(cellLibrary)}" var="cellLibraryQcStatus" />
+					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == true }">
+						<c:set value="checked='CHECKED'" var="passChecked" />
 					</c:if>
-					<c:if test="${cellLibraryQc != null && cellLibraryQc == false }">
-						<c:set value="CHECKED" var="failChecked" />
+					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == false }">
+						<c:set value="checked='CHECKED'" var="failChecked" />
 					</c:if>
 	 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSourceId" value="${cellLibrary.getSampleSourceId()}"> 
 	 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${passChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}A" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "PASSED"><fmt:message key="task.cellLibraryqc_pass.label" /> &nbsp;
 	 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${failChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}B" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "FAILED"><fmt:message key="task.cellLibraryqc_fail.label" /> 
 					<br />
-					<c:set value="${cellLibraryQcCommentMap.get(cellLibrary)}" var="cellLibraryQcComment" />
-	 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'>${cellLibraryQcComment}</textarea><br /><c:if test="${!status.last}"><br /></c:if>
+					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />
+	 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'>${cellLibraryQcStatusComment}</textarea><br /><c:if test="${!status.last}"><br /></c:if>
 				</td>
 			</tr>	
 				

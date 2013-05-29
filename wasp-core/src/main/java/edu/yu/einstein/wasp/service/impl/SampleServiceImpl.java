@@ -647,10 +647,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  public WaspStatus convertSampleQCStatusFromWeb(String webStatus){
 		  // TODO: Write test!!
 		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
-		  	if(webStatus.equals("PASSED")){
+		  	if(webStatus.equals(STATUS_PASSED)){
 				return WaspStatus.COMPLETED;
 			}
-			else if(webStatus.equals("FAILED")){
+			else if(webStatus.equals(STATUS_FAILED)){
 				return WaspStatus.FAILED;
 			}
 			else {

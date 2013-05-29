@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
+import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -758,7 +759,7 @@ public class TaskController extends WaspController {
 	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
 	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
-	  Map<SampleSource, String> cellLibraryQcCommentMap = new HashMap<SampleSource,String>();
+	  Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
 	  for(Job job : jobService.getActiveJobs()){
 		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
@@ -772,14 +773,18 @@ public class TaskController extends WaspController {
 			  if (!exitStatusCode.equals(ExitStatus.COMPLETED.getExitCode()))
 				  continue;
 			  preprocessedCellLibraries.add(cellLibrary);
-			  boolean isCellLibraryAwaitingQc = sampleService.isCellLibraryAwaitingQC(cellLibrary);
-			  logger.debug("isCellLibraryAwaitingQc=" + isCellLibraryAwaitingQc);
-			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryAwaitingQc);
-			  if (isCellLibraryAwaitingQc)
+			  if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
 				  atLeastOneCellLibraryAwaitingQC = true;
+			  Boolean isCellLibraryPassedQC = null;
+			  try{
+				  isCellLibraryPassedQC = sampleService.isCellLibraryPassedQC(cellLibrary);
+			  } catch (MetaAttributeNotFoundException e){} // no value set
+			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryPassedQC);
 		  }
 		  if (atLeastOneCellLibraryAwaitingQC)
 			  activeJobsWithCellLibrariesAwaitingQC.add(job);
+	
+			  
 		  /*  //*******************will currently be none, so fake for some data
 		  if(fakeIt){
 			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
@@ -829,10 +834,10 @@ public class TaskController extends WaspController {
 				  
 				  List<MetaMessage> inAnalysisCommentList = sampleService.getCellLibraryQCComments(cellLibrary.getId());
 				  if(inAnalysisCommentList.size()<=0){
-					  cellLibraryQcCommentMap.put(cellLibrary, "");
+					  cellLibraryQcStatusCommentMap.put(cellLibrary, "");
 				  }
 				  else{
-					  cellLibraryQcCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
+					  cellLibraryQcStatusCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
 				  }
 			  }  
 		  }
@@ -847,7 +852,7 @@ public class TaskController extends WaspController {
 	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
 	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
 	  m.addAttribute("cellLibraryQcStatusMap", cellLibraryQcStatusMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
-	  m.addAttribute("cellLibraryQcCommentMap", cellLibraryQcCommentMap);
+	  m.addAttribute("cellLibraryQcStatusCommentMap", cellLibraryQcStatusCommentMap);
 	  
 	  return "task/cellLibraryQC/list";
 	}
