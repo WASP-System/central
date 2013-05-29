@@ -964,7 +964,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (sampleSourceList.size() > 1)
 			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with more than one flowcell");
 		  SampleSource ss = sampleSourceList.get(0);
-		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
 		  return ss.getIndex();
 	  }
 
@@ -988,7 +987,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  if (sampleSourceList.size() > 1)
 			  throw new SampleParentChildException("Cell '"+cell.getId().toString()+"' is associated with more than one flowcell");
 		  SampleSource ss = sampleSourceList.get(0);
-		  logger.debug("Returning platform unit id=" + ss.getSample().getId() + " for cell id=" + cell.getId() + " (SampleSource id=" + ss.getId() + ")");
 		  return ss.getSample();
 	  }
 	  
@@ -2568,9 +2566,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException{
+		public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
 			ssIdStringSet.add(cellLibrary.getId().toString());
@@ -2579,30 +2578,48 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			jobTaskSet.add(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
-			if (je != null && !je.getStatus().equals(BatchStatus.STARTED))
-				return true;
-			return false;
+			if (je != null)
+				status = je.getExitStatus();
+			return status;
 		}
 		
 		/**
 		 *  {@inheritDoc}
 		 */
 		@Override
-		public boolean isCellLibraryAggregationAnalysisRecord(SampleSource cellLibrary) throws SampleTypeException{
+		public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
-			Set<String> ssIdStringSet = new LinkedHashSet<String>();
-			ssIdStringSet.add(cellLibrary.getId().toString());
-			jobParameters.put(WaspJobParameters.LIBRARY_CELL_ID, ssIdStringSet);
+			Set<String> jobIdStringSet = new LinkedHashSet<String>();
+			jobIdStringSet.add(getJobOfLibraryOnCell(cellLibrary).getId().toString());
+			jobParameters.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 			Set<String> jobTaskSet = new LinkedHashSet<String>();
 			jobTaskSet.add(BatchJobTask.ANALYSIS_AGGREGATE);
 			jobParameters.put(WaspJobParameters.BATCH_JOB_TASK, jobTaskSet);
 			JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(jobParameters, true));
-			if (je != null)		return true;
-			return false;
+			if (je != null)	
+				status = je.getExitStatus();
+			return status;
 		}
 		
+		/**
+		 *  {@inheritDoc}
+		 */
+		@Override
+		public boolean isCellLibraryAwaitingQC(SampleSource cellLibrary) throws SampleTypeException{
+			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
+			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			try{
+				isCellLibraryPassedQC(cellLibrary);
+			} catch (MetaAttributeNotFoundException e){
+				// no value recorded yet
+				if (getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()))
+					return true;
+			}
+			return false;
+		}
 		
 		
 		/**
@@ -2670,7 +2687,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public List<SampleSource> getCellLibrariesPassQCAndNoAggregateAnalysis(Job job) throws SampleTypeException{
 			List<SampleSource> cellLibrariesPassQCAndNoAggregateAnalysis = new ArrayList<SampleSource>();
 			for(SampleSource cellLibrary : getCellLibrariesThatPassedQCForJob(job)){
-				if (!this.isCellLibraryAggregationAnalysisRecord(cellLibrary))
+				if (!this.getCellLibraryAggregationAnalysisStatus(cellLibrary).getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
 					cellLibrariesPassQCAndNoAggregateAnalysis.add(cellLibrary);
 			}
 			return cellLibrariesPassQCAndNoAggregateAnalysis;			
@@ -2843,13 +2860,12 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  
 		  }
 		  
-		  public List<SampleSource> getPreprocessedCellLibraries(Job job){
-			  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();//preprocessed means sequenced and aligned
+		  public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job){
+			  Map<SampleSource, ExitStatus> preprocessedCellLibraries = new HashMap<SampleSource, ExitStatus>();//preprocessed means sequenced and aligned
 			  for (SampleSource cellLibrary: this.getCellLibrariesForJob(job)){
 				  try{
-					  if (this.isCellLibraryPreprocessed(cellLibrary)){
-						  preprocessedCellLibraries.add(cellLibrary);
-					  }
+					  ExitStatus preprocessingStatus = this.getCellLibraryPreprocessingStatus(cellLibrary);
+					  preprocessedCellLibraries.put(cellLibrary, preprocessingStatus);
 				  }
 				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
 				  }						  
@@ -2857,20 +2873,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  return preprocessedCellLibraries;
 		  }
 		  
-		  @Override
-		  public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu) throws SampleParentChildException{
-			  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();//preprocessed means sequenced and aligned
-			  for (SampleSource cellLibrary: this.getPreprocessedCellLibraries(job)){
-				  try{
-					  if (getPlatformUnitForCell(cellLibrary.getSample()).getId()==pu.getId()){
-						  preprocessedCellLibraries.add(cellLibrary);
-					  }
-				  }
-				  catch(SampleTypeException e){logger.warn("Expected sampletype of cellLibrary for SampleSource with Id of " + cellLibrary.getId()); 
-				  }						  
-			  }
-			  return preprocessedCellLibraries;
-		  }
+		 
 		  
 		  /**
 		   * {@inheritDoc}
@@ -2878,10 +2881,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  @Override
 		  public void saveCellLibraryQCStatusAndComment(SampleSource cellLibrary, String qcStatus, String comment){
 			  try{
-				  if(qcStatus.trim().equalsIgnoreCase("INCLUDE")){
+				  if(qcStatus.trim().equalsIgnoreCase(STATUS_PASSED)){
 					  this.setCellLibraryPassedQC(cellLibrary, true);
 				  }
-				  else if(qcStatus.trim().equalsIgnoreCase("EXCLUDE")){
+				  else if(qcStatus.trim().equalsIgnoreCase(STATUS_FAILED)){
 					  this.setCellLibraryPassedQC(cellLibrary, false);
 				  }
 				  

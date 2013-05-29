@@ -56,6 +56,9 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 public interface SampleService extends WaspMessageHandlingService {
+	
+	public static final String STATUS_PASSED = "PASSED";
+	public static final String STATUS_FAILED = "FAILED";
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -883,12 +886,12 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
-	   * is cellLibrary pre-processed?
+	   * get cellLibrary pre-processing status
 	   * @param cellLibrary
 	   * @return boolean
 	   * @throws SampleTypeException
 	   */
-	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
+	  public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException;
 			
 	  /**
 		 * has cellLibrary passed QC?
@@ -938,7 +941,12 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
-	public List<SampleSource> getPreprocessedCellLibraries(Job job);
+	/**
+	 * Returns a map containing all cell-libraries associated with a job and current pre-processing status
+	 * @param job
+	 * @return
+	 */
+	public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job);
 	
 	/**
 	 * has save both the in_aggregate_analysis meta and a comment meta
@@ -978,9 +986,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	
 	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao);
 
-	
-	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
-			throws SampleParentChildException;
 
 	public SampleSource getCellLibraryBySampleSourceId(Integer ssid)
 			throws SampleTypeException;
@@ -1010,6 +1015,15 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public String getNameOfOrganism(Sample sample);
 
-	public boolean isCellLibraryAggregationAnalysisRecord(SampleSource cellLibrary) throws SampleTypeException;
+	public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
+	
+	/**
+	 * Returns true if no QC status recorded against cell-library and primary analysis has been performed successfully
+	 * @param cellLibrary
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public boolean isCellLibraryAwaitingQC(SampleSource cellLibrary) throws SampleTypeException;
+
 
 }

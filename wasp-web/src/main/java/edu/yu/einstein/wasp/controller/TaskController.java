@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Job;
@@ -68,7 +70,7 @@ public class TaskController extends WaspController {
   
   @Autowired
   private GenomeService genomeService;
-
+  
 
   @RequestMapping(value = "/assignLibraries/lists", method = RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
@@ -328,20 +330,20 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");
 		  return "redirect:/task/sampleqc/list.do";
 	  }
-	  if( ! "FAILED".equals(qcStatus) && ! "PASSED".equals(qcStatus) ){
+	  if( ! SampleService.STATUS_FAILED.equals(qcStatus) && ! SampleService.STATUS_PASSED.equals(qcStatus) ){
 		  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");	
 		  return "redirect:/task/sampleqc/list.do";
 	  }
-	  if("FAILED".equals(qcStatus) && comment.trim().isEmpty() ){
+	  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
 		  waspErrorMessage("task.sampleqc_comment_empty.error");	
 		  return "redirect:/task/sampleqc/list.do";
 	  }
 
 	  try{
-		  if(qcStatus.equals("PASSED")){
+		  if(qcStatus.equals(SampleService.STATUS_PASSED)){
 			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
 		  }
-		  else if(qcStatus.equals("FAILED")){
+		  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
 			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
 		  }
 		  else{
@@ -412,20 +414,20 @@ public class TaskController extends WaspController {
 		  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");
 		  return "redirect:/task/libraryqc/list.do";
 	  }
-	  if( ! "FAILED".equals(qcStatus) && ! "PASSED".equals(qcStatus) ){
+	  if( ! SampleService.STATUS_FAILED.equals(qcStatus) && ! SampleService.STATUS_PASSED.equals(qcStatus) ){
 		  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");	
 		  return "redirect:/task/libraryqc/list.do";
 	  }
-	  if("FAILED".equals(qcStatus) && comment.trim().isEmpty() ){
+	  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
 		  waspErrorMessage("task.libraryqc_comment_empty.error");	
 		  return "redirect:/task/libraryqc/list.do";
 	  }
 
 	  try{
-		  if(qcStatus.equals("PASSED")){
+		  if(qcStatus.equals(SampleService.STATUS_PASSED)){
 			  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
 		  }
-		  else if(qcStatus.equals("FAILED")){
+		  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
 			  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
 		  }
 		  else{
@@ -678,7 +680,7 @@ public class TaskController extends WaspController {
  
   @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
-	public String listCellLibraryQC(ModelMap m) {
+	public String listCellLibraryQC(ModelMap m) throws SampleTypeException {
 
 	  class JobIdComparator implements Comparator<Job> {
 		  @Override
@@ -738,8 +740,7 @@ public class TaskController extends WaspController {
 		    }
 		}
 	  
-	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessed = jobService.getActiveJobsWithNoSamplesCurrentlyBeingProcessed();//guarantees that all libraries in the job's pipeline have been assigned a value for QC and alignment is complete  
-	 
+	  
 	  /* *************will currently be none, so add two jobs.
 	  boolean fakeIt = false;
 	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
@@ -749,22 +750,36 @@ public class TaskController extends WaspController {
 	  }
 	  */  //**************will currently be none, so add two jobs.
 	  
-	  List<Job> activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun = new ArrayList<Job>();
+	  List<Job> activeJobsWithCellLibrariesAwaitingQC = new ArrayList<Job>();
+	  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
 	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
 	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
-	  Map<SampleSource, Boolean> cellLibraryInAnalysisMap = new HashMap<SampleSource, Boolean>();
-	  Map<SampleSource, String> cellLibraryInAnalysisCommentMap = new HashMap<SampleSource,String>();
-	  
-	  for(Job job : activeJobsWithNoSamplesCurrentlyBeingProcessed){
+	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
+	  Map<SampleSource, String> cellLibraryQcCommentMap = new HashMap<SampleSource,String>();
+	  for(Job job : jobService.getActiveJobs()){
 		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
 		  }
-		  List<SampleSource> preprocessedCellLibraries = sampleService.getPreprocessedCellLibraries(job);//a preprocessed library is one that is sequenced and aligned
-		  
+		  boolean atLeastOneCellLibraryAwaitingQC = false;
+		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
+		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
+			  String exitStatusCode = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode();
+			  logger.debug("cellLibrariesWithPreprocessingStatus: " + cellLibrary.getId() + "=" + exitStatusCode);
+			  if (!exitStatusCode.equals(ExitStatus.COMPLETED.getExitCode()))
+				  continue;
+			  preprocessedCellLibraries.add(cellLibrary);
+			  boolean isCellLibraryAwaitingQc = sampleService.isCellLibraryAwaitingQC(cellLibrary);
+			  logger.debug("isCellLibraryAwaitingQc=" + isCellLibraryAwaitingQc);
+			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryAwaitingQc);
+			  if (isCellLibraryAwaitingQc)
+				  atLeastOneCellLibraryAwaitingQC = true;
+		  }
+		  if (atLeastOneCellLibraryAwaitingQC)
+			  activeJobsWithCellLibrariesAwaitingQC.add(job);
 		  /*  //*******************will currently be none, so fake for some data
 		  if(fakeIt){
 			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
@@ -773,14 +788,13 @@ public class TaskController extends WaspController {
 		  }
 		  */  //*******************will currently be none, so fake for some data	
 		  
-		  if(preprocessedCellLibraries.size()>0){
-			  activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun.add(job);
+		  if(atLeastOneCellLibraryAwaitingQC){
 			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
 			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
 			  //fill up the maps
 			  for(SampleSource cellLibrary : preprocessedCellLibraries){//TODO this can be a service
-				  
 				  Sample library = sampleService.getLibrary(cellLibrary);
+				  logger.debug("current library = " + library.getId());
 				  cellLibraryLibraryMap.put(cellLibrary, library);
 				  Sample macromolecule = library.getParent();
 				  if(macromolecule == null || macromolecule.getId() == null){
@@ -812,34 +826,29 @@ public class TaskController extends WaspController {
 				  }
 				  cellLibraryRunMap.put(cellLibrary, run);	
 				  
-				  Boolean b = null;
-				  try{
-					  b = new Boolean(sampleService.isCellLibraryPassedQC(cellLibrary));
-				  }catch(Exception e){ }
-				  cellLibraryInAnalysisMap.put(cellLibrary, b);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
 				  
 				  List<MetaMessage> inAnalysisCommentList = sampleService.getCellLibraryQCComments(cellLibrary.getId());
 				  if(inAnalysisCommentList.size()<=0){
-					  cellLibraryInAnalysisCommentMap.put(cellLibrary, "");
+					  cellLibraryQcCommentMap.put(cellLibrary, "");
 				  }
 				  else{
-					  cellLibraryInAnalysisCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
+					  cellLibraryQcCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
 				  }
 			  }  
 		  }
 	  }
 	  //sort by job ID desc
-	  Collections.sort(activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun, new JobIdComparator()); 
+	  Collections.sort(activeJobsWithCellLibrariesAwaitingQC, new JobIdComparator()); 
 
-	  m.addAttribute("jobs", activeJobsWithNoSamplesCurrentlyBeingProcessedAndAnalysisNotBegun);
+	  m.addAttribute("jobs", activeJobsWithCellLibrariesAwaitingQC);
 	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
 	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
 	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
 	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
 	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
-	  m.addAttribute("cellLibraryInAnalysisMap", cellLibraryInAnalysisMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
-	  m.addAttribute("cellLibraryInAnalysisCommentMap", cellLibraryInAnalysisCommentMap);
-
+	  m.addAttribute("cellLibraryQcStatusMap", cellLibraryQcStatusMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
+	  m.addAttribute("cellLibraryQcCommentMap", cellLibraryQcCommentMap);
+	  
 	  return "task/cellLibraryQC/list";
 	}
   
@@ -899,7 +908,7 @@ public class TaskController extends WaspController {
 		  if(qcStatus==null){//this particular item not sent by web so we do NOT have to deal with it
 			  continue;
 		  }
-		  else if(!qcStatus.trim().equalsIgnoreCase("INCLUDE") && !qcStatus.trim().equalsIgnoreCase("EXCLUDE")){//should not occur
+		  else if(!qcStatus.trim().equalsIgnoreCase(SampleService.STATUS_PASSED) && !qcStatus.trim().equalsIgnoreCase(SampleService.STATUS_FAILED)){//should not occur
 			  waspErrorMessage("task.cellLibraryqc_invalid_qcStatus_value.error");
 			  return "redirect:/task/cellLibraryQC/list.do";
 		  }
@@ -931,15 +940,15 @@ public class TaskController extends WaspController {
 	  for(int i = 0; i < totalRecordsToRecord; i++){
 		  String qcStatus = qcStatusList.get(i);
 		  String trimmedComment = commentList.get(i);
-		  if( "EXCLUDE".equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){//unlikely, since javascript prevents, but....
+		  if( SampleService.STATUS_FAILED.equals(qcStatus) && (trimmedComment.length()==0 || "Provide reason for exclusion".equalsIgnoreCase(trimmedComment)) ){//unlikely, since javascript prevents, but....
 			  //record a flash error in the Set errorMessages (to avoid display more than once), since excluding a library-run from analysis requires a valid comment
 			  errorMessages.add("task.cellLibraryqc_excludeRequiresComment.error");
 			  continue;
 		  }
 		  try{
 			  sampleService.saveCellLibraryQCStatusAndComment(sampleSourceList.get(i), qcStatus, trimmedComment);//will deal with insert and update
-			  if("EXCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
-			  else if("INCLUDE".equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
+			  if(SampleService.STATUS_FAILED.equals(qcStatus)){numCellLibrariesRecordedAsExclude++;}
+			  else if(SampleService.STATUS_PASSED.equals(qcStatus)){numCellLibrariesRecordedAsInclude++;}
 		  }catch(Exception e){
 			  logger.warn(e.getLocalizedMessage());
 			  errorMessages.add("task.cellLibraryqc_message.error");
