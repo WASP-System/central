@@ -50,6 +50,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl.LockStatus;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 
@@ -1014,5 +1015,18 @@ public interface SampleService extends WaspMessageHandlingService {
 	public String getNameOfOrganism(Sample sample, String defaultValue);
 
 	public String getNameOfOrganism(Sample sample);
+	
+	public Integer getIdOfOrganism(Sample sample);
+	
+	public Set<Organism> getOrganismsPlusOther();
+
+	  /**
+	   * Get cells onto which the current library is placed, restricted by job
+	   * @param Sample library
+	   * @param Job job
+	   * @return List<Sample>
+	   * @throws SampleTypeException 
+	   */
+	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
 
 }

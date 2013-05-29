@@ -27,6 +27,12 @@
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
 
+	<definition name="template-unadorned" template="/WEB-INF/jsp/layouts/unadorned.jsp">
+		<put-attribute name="head-style" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="body-content" value="" />
+	</definition>
+	
 	<definition name="auth/accessdenied" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
 	</definition>
@@ -181,8 +187,7 @@
 	<definition name="sampleDnaToLibrary/createLibrary" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/createLibrary.jsp" />
-	</definition>
-
+	</definition>	
 	<definition name="sampleDnaToLibrary/sampledetail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/sampledetail_rw.jsp" />
 	</definition>
@@ -196,8 +201,31 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
 	</definition>
-
-
+	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/jobdetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/jobdetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/rundetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/rundetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/celldetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/celldetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/sequencedetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/sequencedetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/alignmentdetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/alignmentdetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/librarydetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/librarydetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/samples/mainpage" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/samples/mainpage.jsp" />
+	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />

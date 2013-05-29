@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp.controller;
 
 
+import java.io.PrintWriter;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,15 +61,21 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.CellWrapper;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -104,6 +115,8 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @Autowired
   private RoleService roleService; 
+  @Autowired
+  private RunService runService; 
   @Autowired
   private SampleService sampleService;
   @Autowired
@@ -389,25 +402,25 @@ public class SampleDnaToLibraryController extends WaspController {
 				//message and get out of here
 			}
 			libraryAdaptorMap.put(library, adaptor);	
-			List<Sample> cells = sampleService.getCellsForLibrary(library);
+			List<Sample> cells = sampleService.getCellsForLibrary(library, job);//5-10-13, added expanded this service to include library,job. Without job, this could be a disaster!
 			for (Sample cell : cells){
+				System.out.println("---cell: " + cell.getName());
 				if (cellsByLibrary.get(library) == null){
 					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
-					try {
-						CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
-						Sample platformunit = cellWrapper.getPlatformUnit();
-						if (platformunit != null)
-							showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
-						cellsByLibrary.get(library).add(cellWrapper);
-					} catch (SampleParentChildException e) {
-						logger.warn(e.getLocalizedMessage());
-					}
+				}//5-10-13 this bracket was missing.
+				try {
+					CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
+					Sample platformunit = cellWrapper.getPlatformUnit();
+					if (platformunit != null)
+						showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
+					cellsByLibrary.get(library).add(cellWrapper);
+				} catch (SampleParentChildException e) {
+					logger.warn(e.getLocalizedMessage());
 				}
-			}
-			
+				
+			}			
 		}
-	  	
-	  	
+	  		  	
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
 				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
@@ -440,12 +453,17 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
 				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
 			}
 			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 		}
@@ -466,6 +484,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("cellsByLibrary", cellsByLibrary);
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
@@ -784,6 +803,11 @@ public class SampleDnaToLibraryController extends WaspController {
 			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
 		prepareAdaptorsetsAndAdaptors(job, libraryIn.getSampleMeta(), m);
+		  
+		//this is needed for the organism meta to be interpreted properly during metadata display (added by Rob; 5-2-13)
+		//TODO do not want organism for facility-generated library: 
+		m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		if (libraryIn.getId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
@@ -843,6 +867,9 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.put("job", job);
 	  m.put("sample", sample); 
 	  
+	  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
+	  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+	  
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
   }
 
@@ -886,6 +913,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  m.put("sample", sampleForm); 
 		  m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
+
+		  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
+		  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
 	  sample.setName(sampleForm.getName());

@@ -1309,6 +1309,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", sampleDraft);
 		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("organisms",  getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		return "jobsubmit/sample/sampledetail_ro";
 	}
 	

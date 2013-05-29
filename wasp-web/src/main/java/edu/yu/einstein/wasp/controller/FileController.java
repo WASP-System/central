@@ -183,4 +183,41 @@ public class FileController extends WaspController{
   	 		} 
   		}
    	}
+	
+ 	@RequestMapping(value = "/fileHandle/{fileHandleId}/view", method = RequestMethod.GET)
+	//@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public void viewFileHandle(@PathVariable("fileHandleId") Integer fileHandleId, ModelMap m, HttpServletResponse response)  {        
+
+  		//////////String referer = request.getHeader("Referer");
+  		
+  		FileHandle fileHandle = fileService.getFileHandleById(fileHandleId);
+  		if(fileHandle==null || fileHandle.getId()==null){
+  			String mess = "FileHandle with id = "+fileHandleId+" not found in database";
+  			logger.debug(mess);
+  			////waspErrorMessage("file.not_found.error");
+  			try{response.setContentType("text/html"); response.getOutputStream().print(mess);}catch(Exception e){}
+			return;
+  		}
+  		try{
+   			String fileName = fileHandle.getFileName();
+  			String mimeType = fileService.getMimeType(fileName);//TODO this service method can be updated with Java7
+ 
+  			if(mimeType==null || mimeType.isEmpty() || !mimeType.contains("/")){
+  				String mess = "Unable to download file: mime type unknown";
+  				logger.debug(mess);
+  				response.setContentType("text/html");  				
+  				response.getOutputStream().print(mess);
+  				return;
+  			}
+  			response.setContentType(mimeType); 
+  			fileService.copyFileHandleToOutputStream(fileHandle, response.getOutputStream());
+ 			//to view the file, do not flush, it's not needed and it screws things up   ///NO NO NO NO NO response.flushBuffer();
+ 		}catch(Exception e){
+ 			String mess = "Error downloading fileHandleId = " + fileHandleId + ". "+ e.getLocalizedMessage();
+ 			logger.debug(mess);
+ 			////waspErrorMessage("file.unable_to_download.error");
+ 			try{response.setContentType("text/html"); response.getOutputStream().print(mess);}catch(Exception e2){}
+			return;
+ 		}
+  	}
 }

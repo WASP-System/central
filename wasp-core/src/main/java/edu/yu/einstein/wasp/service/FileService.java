@@ -234,6 +234,15 @@ public interface FileService extends WaspService {
 	 */
 	public void copyFileHandlesInFileGroupToOutputStream(FileGroup fileGroup, OutputStream os) throws FileDownloadException, FileNotFoundException, GridException;
 
+
+	/**
+	 * in Java7 this will be a lot easier, but for now, fake it
+	 * @param String fileName
+	 * @return String mimeType (if not known, return empty string)
+	 */
+	public String getMimeType(String fileName);
+	
+
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
 

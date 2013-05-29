@@ -100,6 +100,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -2960,6 +2961,48 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 			return organismName;
 		}
+
+		@Override
+		public Integer getIdOfOrganism(Sample sample){
+			final String ORGANISM_META_AREA = "genericBiomolecule";
+			final String ORGANISM_META_KEY = "organism";
+			Assert.assertParameterNotNull(sample, "sample cannot be null");
+			Integer genomeId = new Integer(0);
+			try{	
+				genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta()));
+			}
+			catch(Exception me){
+				logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
+			}
+			return genomeId;
+		}
+		
+		@Override
+		public Set<Organism> getOrganismsPlusOther(){
+			Set<Organism> organisms = genomeService.getOrganisms();
+			Organism other = new Organism(0);
+			other.setCommonName("Other");
+			other.setName("Other");
+			other.setAlias("Other");
+			organisms.add(other);
+			return organisms;
+		}
+		
+		  /**
+		   * {@inheritDoc}
+		   */
+		  @Override
+		  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException{
+			  
+			  List<Sample> cellsForLibraryAndJob = new ArrayList<Sample>();		  
+			  Set<SampleSource> sampleSourceList = this.getCellLibrariesForJob(job);
+			  for(SampleSource ss : sampleSourceList){
+				  if(ss.getSourceSample()==library){//here, sourcesample is library; sample is cell
+					  cellsForLibraryAndJob.add(ss.getSample());//add cell to list
+				  }
+			  }			  
+			  return cellsForLibraryAndJob;
+		  }
 
 }
 

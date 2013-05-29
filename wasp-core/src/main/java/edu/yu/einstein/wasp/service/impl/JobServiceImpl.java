@@ -829,15 +829,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  String area = null;
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
 			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
-				  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
+				  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
 				  area = jrc.getResourceCategory().getIName();
 				  break;
 			  }
 		  }
 		  try {
 			  SequenceReadProperties readProperties = SequenceReadProperties.getSequenceReadProperties(job, area, JobMeta.class);
-			  extraJobDetailsMap.put("extraJobDetails.readLength.label", readProperties.getReadLength().toString());
-			  extraJobDetailsMap.put("extraJobDetails.readType.label", readProperties.getReadType().toUpperCase());
+			  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", readProperties.getReadLength().toString());
+			  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", readProperties.getReadType().toUpperCase());
 		  } catch (MetadataException e) {
 			  logger.warn("Cannot get sequenceReadProperties: " + e.getLocalizedMessage());
 		  }
@@ -854,11 +854,11 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  */
 		  AcctQuote currentQuote = job.getCurrentQuote();
 		  if(currentQuote == null || currentQuote.getId()==null){
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
+			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
 		  }
 		  else{
 			  Float price = new Float(job.getCurrentQuote().getAmount());
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 		  }
 		  return extraJobDetailsMap;	  
 	  }
@@ -2296,5 +2296,20 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		logger.debug("job has " + jsl.size() + " software" );
 		job.getJobMeta().size();
 		return job;
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Sample> getLibraries(Job job){
+		List<Sample> libraryList = new ArrayList<Sample>();
+		for(JobSample js : job.getJobSample()){
+			Sample s = js.getSample();//includes userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+			if(s.getSampleType().getIName().toLowerCase().contains("library")){
+				libraryList.add(s);//userSubmitted Libraries and facilityGenerated Libraries
+			  }
+		}		
+		return libraryList;		
 	}
 }

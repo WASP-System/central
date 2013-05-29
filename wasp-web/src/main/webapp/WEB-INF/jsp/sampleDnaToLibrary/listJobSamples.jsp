@@ -2,6 +2,13 @@
 <br />
 <title><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></title>
 <h1><fmt:message key="pageTitle.sampleDnaToLibrary/listJobSamples.label"/></h1>
+
+<%--this dialogbox is not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
+<div id="modalessDialog">
+	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
+</div>
+
+
 <%-- for divs side by side see http://stackoverflow.com/questions/5803023/how-to-place-two-divs-next-to-each-other --%>
 
 <div style="width=100%; overflow:hidden;">
@@ -32,7 +39,11 @@
 			 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
 			 		  			<!--  <a href="<wasp:url fileAccessor="${fileHandle}" />" > -->
-			 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a></td>
+			 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
+			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
+		 		  					| <a href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' >View</a>
+		 		  				</c:if>
+			 		  			</td>
 			 		  		</tr>
 			 			</c:forEach>
 			 		</c:when>			 		  

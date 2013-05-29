@@ -587,4 +587,12 @@ public interface JobService extends WaspMessageHandlingService {
 	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
 	
 	public Job getJobAndSoftware(Job job);
+	
+	/**
+	 * Get list of libraries (user-submitted and facility-generated) for a job
+	 * @param Job job
+	 * @return List<Sample>
+	 */
+	public List<Sample> getLibraries(Job job);
+	 
 }
