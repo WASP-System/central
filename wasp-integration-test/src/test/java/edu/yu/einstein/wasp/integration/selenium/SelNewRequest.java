@@ -6,6 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -34,9 +35,8 @@ public class SelNewRequest extends SelBaseTest {
 	   */
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
 	  public void requestAccessToLab(String sUserName, String sUserPass,String sPIName, String sUrl, String successUrl) throws Exception {   
-			
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-		  driver.get("http://localhost:8080/wasp/dashboard.do");
+		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
@@ -76,7 +76,7 @@ public class SelNewRequest extends SelBaseTest {
 			  						  String sAddress, String sPhone2, String sUrl, String successUrl) throws Exception {   
 			
 		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-		  driver.get("http://localhost:8080/wasp/dashboard.do");
+		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
 		  driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")).click();
 
@@ -159,7 +159,7 @@ public class SelNewRequest extends SelBaseTest {
 		  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+		  Assert.assertEquals(driver.getCurrentUrl(),"http://"+baseUrl+"/wasp/department/list.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
@@ -220,7 +220,7 @@ public class SelNewRequest extends SelBaseTest {
 		  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
-		  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+		  Assert.assertEquals(driver.getCurrentUrl(),"http://"+baseUrl+"/wasp/department/list.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 		  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();

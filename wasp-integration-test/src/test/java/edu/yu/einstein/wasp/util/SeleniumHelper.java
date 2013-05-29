@@ -12,6 +12,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Reporter;
+import org.testng.annotations.Parameters;
+
+import edu.yu.einstein.wasp.integration.selenium.SelBaseTest;
 
 /**
  * 
@@ -96,8 +99,8 @@ public class SeleniumHelper {
 	   * @param driver
 	   */
 	  public static void login(String sUserName, String sUserPass, WebDriver driver) {
-		//driver.get("http://localhost:8080/wasp/auth/login.do");
-		driver.get("http://barcelona.einstein.yu.edu:8080/wasp/auth/login.do");//test environment
+		driver.get("http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do");//test environment
+		
 		WebElement userName = driver.findElement(By.name("j_username"));
 	  	WebElement userPassword = driver.findElement(By.name("j_password"));
 	  	userName.clear();

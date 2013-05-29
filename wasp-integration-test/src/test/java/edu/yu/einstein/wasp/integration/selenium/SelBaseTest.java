@@ -17,8 +17,11 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.internal.ProfilesIni;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.ITestContext;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
 
 
@@ -27,9 +30,16 @@ public class SelBaseTest {
 	public static WebDriver driver;
 	public static WebDriverWait wait;
 	public static Connection connection = null;
+	public static String baseUrl;
 	
 	@BeforeSuite
-    public void setUp() throws Exception {
+    @Parameters ("environment")
+	public void setUp(@Optional("default")String environment) throws Exception {
+		baseUrl = "localhost:8080";
+    	if (environment.equals("production")) {
+    		baseUrl = "barcelona.einstein.yu.edu:8080";
+
+    	}
 		
 		//final String firebugPath = "/Users/nvolnova/Documents/Firefox/firebug-1.8.4-fx.xpi";
 	    //FirefoxProfile profile = new FirefoxProfile();
@@ -54,13 +64,14 @@ public class SelBaseTest {
         File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
 		
+        /*
 		try {
 		    // Load the JDBC driver
 		    String driverName = "com.mysql.jdbc.Driver"; // MySQL JDBC driver
 		    Class.forName(driverName);
 		
 		    // Create a connection to the database
-		    String serverName = "localhost:3306";
+		    String serverName =""+ baseUrl+":3306";
 		    String mydatabase = "wasp";
 		    String url = "jdbc:mysql://" + serverName +  "/" + mydatabase; // a JDBC url
 		    String username = "wasp";
@@ -73,13 +84,13 @@ public class SelBaseTest {
 		catch (SQLException e) {
 		    // Could not connect to the database
 		}
-				
+		*/
 	}
 	
 	@AfterSuite
     public void tearDown() throws SQLException{
         //connection.close();
-        driver.quit();
+        //driver.quit();
         
     } 
 	

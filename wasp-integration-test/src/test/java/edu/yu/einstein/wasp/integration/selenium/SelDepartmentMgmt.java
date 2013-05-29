@@ -7,18 +7,23 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
 
 public class SelDepartmentMgmt extends SelBaseTest{
   
-	
+
+  @Parameters("environment")
   @Test(dataProvider = "DP1")
-  public void createNewDept(String sUserName, String sUserPass, String sDeptName, String sAdminName) {
+  public void createNewDept(String environment, String sUserName, String sUserPass, String sDeptName, String sAdminName) {
 	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
-	  driver.get("http://localhost:8080/wasp/dashboard.do");
-	  
+	  String baseUrl = "localhost:8080";
+	  if (environment.equals("production")) {
+  		baseUrl = "barcelona.einstein.yu.edu:8080";
+  	  }	
+	  driver.get("http://"+baseUrl+"/wasp/dashboard.do"); 
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
@@ -27,7 +32,7 @@ public class SelDepartmentMgmt extends SelBaseTest{
 	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 
 	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
-	  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+	  Assert.assertEquals(driver.getCurrentUrl(),"http://"+baseUrl+"wasp/department/list.do");
 	  
 	  
 	  Assert.assertTrue(driver.findElements(By.name("departmentName")).size() != 0, "Cannot locate 'Department Name' input text field link.");

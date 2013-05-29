@@ -98,7 +98,7 @@ public class SelPendingLabs extends SelBaseTest{
 	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 
 	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/list.do')]")).click();
-	  Assert.assertEquals(driver.getCurrentUrl(),"http://localhost:8080/wasp/department/list.do");
+	  Assert.assertEquals(driver.getCurrentUrl(),"http://"+baseUrl+"/wasp/department/list.do");
 	  
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();

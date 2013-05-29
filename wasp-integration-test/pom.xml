@@ -77,7 +77,10 @@
 								<goal>integration-test</goal>
 								<goal>verify</goal>
 								</goals>
-									<configuration>	
+									<configuration>		
+									<systemPropertyVariables>
+				                        <environment>${env.USER}</environment>		
+				                    </systemPropertyVariables>         
 									<excludedGroups>none</excludedGroups><!-- Need to have this line because if left out, surefire plugin will exclude groups that were specified in the above configuration -->	
 										<suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
 										</suiteXmlFiles>
@@ -85,6 +88,7 @@
 								</execution>
 							</executions>	
 						</plugin>
+						
 					</plugins>
 
 				</build>
