@@ -859,7 +859,7 @@ public class TaskController extends WaspController {
   
 
   
-  @RequestMapping(value = "/cellLibraryQC/qc", method = RequestMethod.POST)
+  @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String updateCellLibraryQC(
 			@RequestParam("jobId") Integer jobId,

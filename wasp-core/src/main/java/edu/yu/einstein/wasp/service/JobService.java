@@ -162,6 +162,19 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public boolean isJobAwaitingLibraryQC(Job job);
+	
+	/**
+	 * returns true if job is awaiting QC of cell-library
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingCellLibraryQC(Job job);
+	
+	/**
+	 * returns true if any job is awaiting cell-library QC
+	 * @return
+	 */
+	public boolean isJobsAwaitingCellLibraryQC();
 
 	
 	/**

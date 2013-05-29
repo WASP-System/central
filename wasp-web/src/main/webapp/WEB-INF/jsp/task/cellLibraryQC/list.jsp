@@ -5,23 +5,6 @@
 	<h2><fmt:message key="task.cellLibraryqc_nojobs.label" /></h2>
 </c:when>
 <c:otherwise> 
-	<%-- 
-	<c:forEach items="${jobs}" var="job">
-		<br />
-		Job: <c:out value="${job.getName()}" />
-		<c:set value="${jobCellLibraryMap.get(job)}" var="cellLibraryList" />
-		<c:forEach items="${cellLibraryList}" var="cellLibrary">
-			<c:set value="${cellLibraryMacromoleculeMap.get(cellLibrary)}" var="macromolecule" />
-			<c:set value="${cellLibraryLibraryMap.get(cellLibrary)}" var="library" />
-			<c:set value="${cellLibraryPUMap.get(cellLibrary)}" var="pu" />
-			<c:set value="${cellLibraryRunMap.get(cellLibrary)}" var="run" />
-			<br />-<c:out value="${macromolecule.getName()}" />		
-			<br />--<c:out value="${library.getName()}" />
-			<br />---<c:out value="${pu.getName()}" /> (Cell <c:out value="${cellLibrary.getIndex().toString()}" />)
-			<br />----<c:out value="${run.getName()}" />
-		</c:forEach>
-	</c:forEach>
-	--%>
 	<br />
 	<c:set var="currentJobId" value="-1" scope="page" />
 	<table class="EditTable ui-widget ui-widget-content">
@@ -29,7 +12,7 @@
 		<c:if test='${currentJobId != "-1"}'>
 	 		<tr><td colspan="7" style='background-color:black'></td></tr>
 	 	</c:if>
-	 	<form action="<c:url value="/task/cellLibraryQC/qc.do"/>" id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
+	 	<form  id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
 	 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
 	 	<tr class="FormData">
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_jobId.label" /></th>
@@ -114,11 +97,6 @@
 			<c:set var="currentJobId" value="${job.getJobId()}" scope="page" />
 				
 			</c:forEach>
-			<%-- 
-			<tr class="FormData"><td colspan='7' style='text-align:right'>
-			<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.cellLibraryqc_reset.label" />">
-			<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.cellLibraryqc_submit.label" />">
-			</td></tr>--%>
 			</form>
 		
 	</c:forEach>

@@ -576,12 +576,41 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobAwaitingReceivingOfSamples(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		if (! getSubmittedSamplesNotYetReceived(job).isEmpty())
 			return true;
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingCellLibraryQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
+		for (SampleSource cellLibrary : sampleService.getCellLibrariesForJob(job)){
+			try {
+				if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
+					return true;
+			} catch (SampleTypeException e) {
+				logger.warn("received unexpected SampleTypeException: " + e.getLocalizedMessage());
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobsAwaitingCellLibraryQC(){
+		for (Job job : getActiveJobs()){
+			if (isJobAwaitingCellLibraryQC(job))
+				return true;
+		}
+		return false;
+	}
 	
 	
 	@Override
@@ -2082,7 +2111,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 						if (!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()) &&
-								!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.FAILED.getExitCode())){
+								!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.FAILED.getExitCode()) &&
+								!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
