@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="chipSeqUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="waspChipSeqPluginArea" />
+  </bean>
+
+
+  <bean id="chipSeqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory">
+    <property name="area" ref="waspChipSeqPluginArea" />
+    <property name="name" value="ChIP Seq" />
+    <property name="pageFlowOrder">
+      <list>
+		<value>/jobsubmit/modifymeta/{n}</value>
+		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/samples/{n}</value>
+		<value>/jobsubmit/genomes/{n}</value>
+		<value>/jobsubmit/cells/{n}</value>
+		<value>/jobsubmit/chipSeq/pair/{n}</value> 
+		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/software/#{peakcallerResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/comment/{n}</value> 
+		<value>/jobsubmit/verify/{n}</value>
+		<value>/jobsubmit/submit/{n}</value>
+		<value>/jobsubmit/ok</value>
+      </list>
+    </property>
+    
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1" />
+
+    <property name="dependencies">
+      <list>
+        <ref bean="mpsResourceType" />
+        <ref bean="referenceBasedAlignerResourceType" />
+        <ref bean="peakcallerResourceType" />
+      </list>
+    </property>
+
+    <property name="sampleSubtypes">
+      <list>
+        <ref bean="chipSeqDnaSampleSubtypeResource" />
+        <ref bean="chipSeqLibrarySampleSubtypeResource" />
+        <ref bean="chipSeqFacilityLibrarySampleSubtypeResource" />
+      </list>
+    </property>
+    
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="workflow" />
+          <property name="label" value="Chip Seq" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/modifymeta" />
+          <property name="label" value="ModifyChipSeq Metadata" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/resource/mps" />
+          <property name="label" value="MPS Sequencer Options" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/samples" />
+          <property name="label" value="Samples" />
+        </bean>
+		<bean parent="chipSeqUiFieldWrapper">
+			<property name="baseName" value="jobsubmit/genomes" />
+			<property name="label" value="Select Genomes" />
+		</bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/cells" />
+          <property name="label" value="DNA Sequencer Cells" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/chipSeq/pair" />
+          <property name="label" value="IP vs Input Pairings" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
+          <property name="label" value="Aligner Selection" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/peakcaller" />
+          <property name="label" value="Peak Calling Software Selection" />
+        </bean>
+         <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="Comments" />
+        </bean>
+        
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/verify" />
+          <property name="label" value="Verify Submission" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="pairing_instructions" />
+          <property name="label" value="Please pair up Input and IP samples that should be analyzed together for peak calling. Note that this pairing is optional." />
+        </bean>  
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="test" />
+          <property name="label" value="IP" />
+        </bean>
+        <bean parent="chipSeqUiFieldWrapper">
+          <property name="baseName" value="control" />
+          <property name="label" value="Input" />
+        </bean>
+     </list>
+ 
+    </property>
+  </bean>
+
+</beans>

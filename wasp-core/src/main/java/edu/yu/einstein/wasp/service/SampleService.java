@@ -57,6 +57,9 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 
 @Service
 public interface SampleService extends WaspMessageHandlingService {
+	
+	public static final String STATUS_PASSED = "PASSED";
+	public static final String STATUS_FAILED = "FAILED";
 
 	/**
 	 * setSampleDao(SampleDao sampleDao)
@@ -723,7 +726,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 */
 	  public void setSampleQCComment(Integer sampleId, String comment)throws Exception;
 
-	  public List<MetaMessage> getMetaInAggregateAnalysisComments(Integer sampleSourceId);
+	  public List<MetaMessage> getCellLibraryQCComments(Integer sampleSourceId);
 	  
 	  /**
 		 * save an InAggregateAnalysis comment
@@ -732,7 +735,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @return void
 		 * @throws Exception
 		 */
-	  public void setMetaInAggregateAnalysisComment(Integer sampleSourceId, String comment)throws Exception;
+	  public void setCellLibraryQCComment(Integer sampleSourceId, String comment)throws Exception;
 
 		/**
 		 * get all sampleQC comments for a particular sample (supposedly chronologically ordered)
@@ -884,12 +887,12 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
-	   * is cellLibrary pre-processed?
+	   * get cellLibrary pre-processing status
 	   * @param cellLibrary
 	   * @return boolean
 	   * @throws SampleTypeException
 	   */
-	  public boolean isCellLibraryPreprocessed(SampleSource cellLibrary) throws SampleTypeException;
+	  public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException;
 			
 	  /**
 		 * has cellLibrary passed QC?
@@ -913,7 +916,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 
 	  public List<SampleSource> getCellLibrariesThatPassedQCForJob(Job job) throws SampleTypeException;
-	  public List<SampleSource> getCellLibrariesThatPassedQCForJobAndHaveNotBeenRecordedForAggregateAnalysis(Job job) throws SampleTypeException;
+	  public List<SampleSource> getCellLibrariesPassQCAndNoAggregateAnalysis(Job job) throws SampleTypeException;
 	  
 	  /**
 		 * has cellLibrary passed QC?
@@ -921,12 +924,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @throws SampleTypeException
 		 * @throws MetaAttributeNotFoundException
 		 */
-	  public boolean isMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary) throws SampleTypeException, MetaAttributeNotFoundException;
-
-	  public void setMetaCellLibraryInAggregateAnalysis(SampleSource cellLibrary, boolean isPassedQC) throws SampleTypeException, MetadataException;
-		
-
-	  public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
+	 public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException;
 
 	public Job getJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException;
 
@@ -944,16 +942,21 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
 
-	public List<SampleSource> getPreprocessedCellLibraries(Job job);
+	/**
+	 * Returns a map containing all cell-libraries associated with a job and current pre-processing status
+	 * @param job
+	 * @return
+	 */
+	public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job);
 	
 	/**
 	 * has save both the in_aggregate_analysis meta and a comment meta
 	 * @param SampleSource cell library
-	 * @param String qcStatus (values of INCLUDE OR EXCLUDE only)
+	 * @param String qcStatus (values of PASS OR FAIL only)
 	 * @param String comment
 	 * @throws Runtime exception
 	 */
-	public void saveMetaCellLibraryInAggregateAnalysisAndComment(SampleSource cellLibrary, String qcStatus, String comment);
+	public void saveCellLibraryQCStatusAndComment(SampleSource cellLibrary, String qcStatus, String comment);
 
 	/** 
 	 * Get the index of the cell (the position on it's associated platform unit)
@@ -984,9 +987,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	
 	public void setSampleSourceMetaDao(SampleSourceMetaDao sampleSourceMetaDao);
 
-	
-	public List<SampleSource> getPreprocessedCellLibrariesOnPU(Job job, Sample pu)
-			throws SampleParentChildException;
 
 	public SampleSource getCellLibraryBySampleSourceId(Integer ssid)
 			throws SampleTypeException;
@@ -1028,5 +1028,16 @@ public interface SampleService extends WaspMessageHandlingService {
 	   * @throws SampleTypeException 
 	   */
 	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
+
+	public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
+	
+	/**
+	 * Returns true if no QC status recorded against cell-library and primary analysis has been performed successfully
+	 * @param cellLibrary
+	 * @return
+	 * @throws SampleTypeException
+	 */
+	public boolean isCellLibraryAwaitingQC(SampleSource cellLibrary) throws SampleTypeException;
+
 
 }
