@@ -192,18 +192,15 @@ public interface FileService extends WaspService {
 	
 	public FileHandle getFileHandle(UUID uuid) throws FileNotFoundException;
 
-
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
 
 	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
 
 	public FileType getFileType(Integer id);
 
-	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(
-			Sample cell, Sample library) throws SampleTypeException;
+	public Map<FileType, Set<FileGroup>> getFilesForCellLibraryMappedToFileType(Sample cell, Sample library) throws SampleTypeException;
 
-	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library,
-			FileType fileType) throws SampleTypeException;
+	public Set<FileGroup> getFilesForCellLibraryByType(Sample cell, Sample library, FileType fileType) throws SampleTypeException;
 
 	/**
 	 * @param group

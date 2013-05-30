@@ -129,6 +129,8 @@ public class ResultViewController extends WaspController {
 
 	@RequestMapping(value="/getDetailsJson", method = RequestMethod.GET)
 	public @ResponseBody String getDetailsJson(@RequestParam("node") String nodeJSON, HttpServletResponse response) {
+		
+		HashMap<String, Object> jsDetailsTabs = new HashMap<String, Object>();
 
 		LinkedHashMap<String, Object> jsDetails = new LinkedHashMap<String, Object>();
 		
@@ -185,6 +187,8 @@ public class ResultViewController extends WaspController {
 				for (MetaMessage msg : msgList) {
 					jsDetails.put(msg.getName(), msg.getValue());
 				}
+				
+				jsDetailsTabs.put("job details", jsDetails);
 
 			} else if(type.startsWith("sample") || type.startsWith("library") || type.startsWith("cell") || type.startsWith("pu")) {
 				Integer sampleId = id;
@@ -232,10 +236,6 @@ public class ResultViewController extends WaspController {
 				for (FileGroup fg : fgSet) {
 					jsDetails.putAll(fileService.getFileDetailsByFileType(fg));
 					
-//					jsDetails.put(getMessage("file.name.label"), fg.getDescription());
-//					jsDetails.put(getMessage("file.download.label"), "<a href=\""+this.fileUrlResolver.getURL(fg)+"\">Download All Files Here</a>");
-	
-				
 //					Set<FileHandle> fhSet = fg.getFileHandles();
 //					
 //					for (FileHandle fh : fhSet) {
@@ -250,9 +250,14 @@ public class ResultViewController extends WaspController {
 //						}
 //					}
 				}
+				
+				// TODO: for testing only
+				jsDetails.clear();
+				jsDetails.put("tab1", "tab1 content");
+				jsDetails.put("tab2", "tab2 content");
 			}
 			
-			return outputJSON(jsDetails, response);
+			return outputJSON(jsDetailsTabs, response);
 		} 
 		catch (Throwable e) {
 			throw new IllegalStateException("Can't marshall to JSON for " + nodeJSON, e);
