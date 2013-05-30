@@ -31,6 +31,7 @@
 					<label>Name:</label> <c:out value="${submittedObject.getName()}" /><br />
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
+					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 				</c:when>
 				<c:otherwise>
 					N/A

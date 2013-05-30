@@ -1166,7 +1166,9 @@ public class JobController extends WaspController {
 		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
 		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
 		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
-		  	  
+
+		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+
 		  for(Sample s : allJobSamples){
 			  if(s.getParent()==null){
 				  if(s.getSampleType().getIName().toLowerCase().contains("library")){
@@ -1202,9 +1204,11 @@ public class JobController extends WaspController {
 			  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
 		  }
 		  
-		  //for each submittedMacromolecule or submittedLibrary, get species
+		  //for each submittedMacromolecule or submittedLibrary, get species and get receviedStatus
+		  //submittedSamples' recevedStatus
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 		  }
 		  
 		  //for each job's library, get its adaptor info
@@ -1287,6 +1291,8 @@ public class JobController extends WaspController {
 			  }
 		  }
 		  
+
+		  
 		  m.addAttribute("job",job);
 		  //not actually used by webpage   m.addAttribute("submittedLibraryList", submittedLibraryList);
 		  //not actually used on webpage m.addAttribute("facilityLibraryList", facilityLibraryList);
@@ -1310,6 +1316,8 @@ public class JobController extends WaspController {
 		  //turns out I need this
 		  m.addAttribute("submittedLibraryList", submittedLibraryList);
 		
+		  m.addAttribute("receivedStatusMap", receivedStatusMap);
+
 		return "job/home/samples";
 	}
 	
