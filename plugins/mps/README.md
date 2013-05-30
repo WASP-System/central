@@ -1,9 +1,9 @@
-MPS-tools
+MPS
 =========
 
-Support MPS technology
+Support for MPS technology
 
-Copyright (c) 2011-2012, Albert Einstein College of Medicine.
+Copyright (c) 2011-2013, Albert Einstein College of Medicine.
 
 WASP System is released under the GNU Affero General Public License.
 
