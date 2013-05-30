@@ -36,6 +36,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
