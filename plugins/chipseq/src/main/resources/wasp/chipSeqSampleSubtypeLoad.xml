@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+    default-autowire="byName">
+   
+  <!-- ChIP-seq DNA sample --> 
+   
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="chipSeqDnaUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="chipseqDna" />
+  </bean>
+
+  
+  <bean id="chipSeqDnaSpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper">
+	        <!-- chipSeq Specific -->
+	        <bean parent="chipSeqDnaUiFieldWrapper">
+	          <property name="baseName" value="fragmentSize" />
+	          <property name="label" value="Average Fragmentation Size" />
+	          <property name="metaposition" value="10" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="You must provide a fragmentSize" />
+	          <property name="type" value="NUMBER" />
+	          <property name="range" value="0.0001:1000000000" />
+	        </bean>
+	        
+	        <bean parent="chipSeqDnaUiFieldWrapper">
+	          <property name="baseName" value="fragmentSizeSD" />
+	          <property name="label" value="Fragmentation Size Std. Dev." />
+	          <property name="metaposition" value="20" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="type" value="NUMBER" />
+	          <property name="error" value="You must provide a standard deviation" />
+	          <property name="range" value="0.0001:1000000000" />
+	        </bean>
+	        
+	        <bean parent="chipSeqDnaUiFieldWrapper">
+	          <property name="baseName" value="antibody" />
+	          <property name="label" value="Antibody" />
+	          <property name="metaposition" value="30" />
+	        </bean>
+	      </list>
+      </property>
+  </bean>
+
+
+  <bean id="chipSeqDnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+  	<property name="name" value="ChIP-seq DNA" />
+    <property name="area" value="chipseqDnaSample" />
+    <property name="sampleType" ref="dnaSampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="genericDNAUiFields" />
+   		<ref bean="chipSeqDnaSpecificUiFields" />
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft,lu" />
+    
+  </bean>
+
+
+  <!-- ChIPseq Library sample -->
+  
+  <bean class="edu.yu.einstein.wasp.model.UiField" id="chipSeqLibrarySampleUiField">
+    <property name="locale" value="en_US" />
+    <property name="area" value="chipseqLibrarySample" />
+  </bean>
+  
+ 
+  <bean id="chipSeqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+  	<property name="name" value="ChIP-seq Library" />
+    <property name="area" value="chipseqLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="applicableRoles" value="lu" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="chipSeqDnaSpecificUiFields" />
+    		<ref bean="genericLibraryUiFields" /> 
+    	</list>
+    </property>
+  </bean>
+  
+  <bean id="chipSeqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="ChIP-seq Facility Library" />
+    <property name="area" value="chipseqFacilityLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="applicableRoles" value="ft" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericLibraryUiFields" /> 
+    	</list>
+    </property>
+  </bean>
+  
+</beans>
