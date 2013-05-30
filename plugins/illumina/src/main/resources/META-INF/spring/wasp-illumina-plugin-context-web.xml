@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- component scan -->
+  	<context:component-scan base-package="edu.yu.einstein.wasp.controller.illumina" />
+
+	<!-- common definitions -->
+	<import resource="wasp-illumina-plugin-context-common.xml" />
+	
+	<bean class="edu.yu.einstein.wasp.taskMapping.illumina.IlluminaRunQCTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="waspIlluminaPlugin.taskRunQc.label" />
+		<constructor-arg name="targetLink" value="/#{illuminaPluginArea}/postRunQC/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm')" />
+	</bean>
+</beans>
