@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <div id="user_requested_coverage_data" >
-    <h2 style="font-weight:bold">Lane Usage Request:</h2>		
+    <h2 style="font-weight:bold">Lane Usage Requested:</h2>		
 	<table class="data">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
@@ -26,6 +26,29 @@
 </div>
 
 <div>
+<c:if test="${not empty controlList}">
+	<h2 style="font-weight:bold">Sample Pairing Requested:</h2>		
+	<table class="data">
+		<tr class="FormData">
+			<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${controlLabel}" /></td>
+			<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${testLabel}" /></td>
+		</tr>
+	<c:forEach var="controlSample" items="${controlList}">
+		<tr class="FormData">
+			<td class="value-centered" ><c:out value="${controlSample.getName()}" /></td>   	  				
+		 	<c:set var="testList" value="${samplePairsMap.get(controlSample)}" />
+		 	<td class="value-centered" >
+		 	<c:forEach var="testSample" items="${testList}">
+		 		<c:out value="${testSample.getName()}" /><br />
+		 	</c:forEach>
+		 	</td>
+		 </tr>
+	</c:forEach>
+	</table>
+</c:if>
+</div>
+
+<div>
 	<c:choose>
 		<c:when test="${empty softwareList}">
 			<h2 style="font-weight:bold"><fmt:message key="analysisParameters.no_software_requested.label"/></h2>
@@ -42,115 +65,6 @@
 			</table>
 		</c:otherwise>
 	</c:choose>
-</div>
-
-<div>
-  <c:if test="${not empty samplePairsMap}">
-      <br /><br />
-	  <c:set var="samplePairsMap" value="${samplePairsMap}" />
-	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
-	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.analysis_pairs.label"/>:</h2>
-	  <table class="EditTable ui-widget ui-widget-content">
-	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th></tr>
-	  <tr class="FormData">
-	    <th>&nbsp;</th>
-	  	<c:forEach var="sample" items="${submittedSamplesList}">
-	  		<th><c:out value="${sample.name}" /></th>
-	  	</c:forEach>
-	  </tr>	  
-	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
-	  <c:forEach var="sample" items="${submittedSamplesList}">
-	   <c:set var="truefalseList" value="${samplePairsMap.get(sample)}" />
-	   <c:if test="${truefalseList != null}">
-	    <tr class="FormData">
-	     <th><c:out value="${sample.name}" /></th>
-	     	<c:forEach var="isPaired" items="${truefalseList}">
-	  			<c:choose>
-	  				<c:when test="${isPaired == 'd'}">
-	  					<td align="center">&nbsp;</td>
-	  				</c:when>
-	  				<c:when test="${isPaired == 'f'}">
-	  					<td align="center"><input type="checkbox" DISABLED /></td>
-	  				</c:when>
-	  				<c:otherwise>
-	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
-	  				</c:otherwise>
-	  			</c:choose>
-			</c:forEach>
-	  	</tr>
-	  	</c:if>
-	  </c:forEach>
-	 
-	  </table>
-	  </c:if>
-</div>
-
-<div>
-  <c:if test="${not empty controlIsReferenceList}">
-  	<br /><br />
-	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
-	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.reference_sample_pairs.label"/>:</h2>
-	  <table class="EditTable ui-widget ui-widget-content">
-	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th></tr>
-	  <tr class="FormData">
-	    <th>&nbsp;</th>
-	  	<c:forEach var="sample" items="${submittedSamplesList}">
-	  		<th><c:out value="${sample.name}" /></th>
-	  	</c:forEach>
-	  </tr>	  
-	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
-	    <tr class="FormData">
-	     <th><fmt:message key="analysisParameters.reference.label"/></th>
-	     	<c:forEach var="isPaired" items="${controlIsReferenceList}">
-	  			<c:choose>
-	  				<c:when test="${isPaired == 'd'}">
-	  					<td align="center">&nbsp;</td>
-	  				</c:when>
-	  				<c:when test="${isPaired == 'f'}">
-	  					<td align="center"><input type="checkbox" DISABLED /></td>
-	  				</c:when>
-	  				<c:otherwise>
-	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
-	  				</c:otherwise>
-	  			</c:choose>
-			</c:forEach>
-	  	</tr>
-	  </table>
-	  </c:if>
-</div>
-
-<div>
-  <c:if test="${not empty testIsReferenceList}">
-  	<br /><br />
-	  <c:set var="columns" value="${fn:length(submittedSamplesList)}" />
-	  <h2 style="font-weight:bold;"><fmt:message key="analysisParameters.sample_pairs_reference.label"/>:</h2>
-	  <table class="EditTable ui-widget ui-widget-content">
-	  <tr class="FormData"><th>&nbsp;</th><th colspan = "${columns}"><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.control_samples.label"/></div></th></tr>
-	  <tr class="FormData">
-	    <th>&nbsp;</th>
-	  	<c:forEach var="sample" items="${submittedSamplesList}">
-	  		<th><c:out value="${sample.name}" /></th>
-	  	</c:forEach>
-	  </tr>	  
-	  <tr class="FormData"><th><div style="font-weight:bold;font-style:italic;text-decoration : underline;"><fmt:message key="analysisParameters.test_samples.label"/></div></th><td colspan = "${columns}">&nbsp;</td></tr>  
-	    <tr class="FormData">
-	     <th><fmt:message key="analysisParameters.reference.label"/></th>
-	     	<c:forEach var="isPaired" items="${testIsReferenceList}">
-	  			<c:choose>
-	  				<c:when test="${isPaired == 'd'}">
-	  					<td align="center">&nbsp;</td>
-	  				</c:when>
-	  				<c:when test="${isPaired == 'f'}">
-	  					<td align="center"><input type="checkbox" DISABLED /></td>
-	  				</c:when>
-	  				<c:otherwise>
-	  					<td align="center"><input type="checkbox" DISABLED checked="checked"/></td>
-	  				</c:otherwise>
-	  			</c:choose>
-			</c:forEach>
-	  	</tr>	 
-	  </table>
-  </c:if>
 </div>
 
 <br />

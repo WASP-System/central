@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,7 +62,9 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
@@ -912,7 +915,43 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		m.addAttribute("parentArea", "job");
 		
-		//deal with software
+		//request for which libraries/samples should go on which lanes
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
+
+		//samplePairingRequest
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		List<Sample> controlList = new ArrayList<Sample>();
+		//m.addAttribute("submittedSamplesList", submittedSamplesList);
+		Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+		for(Sample submittedSample : submittedSamplesList){
+			List<Sample> list = new ArrayList<Sample>();
+			for(SampleSource ss : sampleSourceSet){
+				Sample test = ss.getSample();
+				Sample control = ss.getSourceSample();
+				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
+				if(submittedSample == control){
+					list.add(test);
+				}
+			}
+			if(!list.isEmpty()){
+				samplePairsMap.put(submittedSample, list);
+				controlList.add(submittedSample);
+			}
+		}
+		m.addAttribute("samplePairsMap", samplePairsMap);
+		m.addAttribute("controlList", controlList);
+		String temp = job.getWorkflow().getIName() + ".control.label";
+		String controlLabel = messageService.getMessage(job.getWorkflow().getIName() + ".control.label");
+		if(controlLabel.equalsIgnoreCase(temp)){controlLabel = "Control";}
+		temp = job.getWorkflow().getIName() + ".test.label";
+		String testLabel = messageService.getMessage(job.getWorkflow().getIName() + ".test.label");
+		if(testLabel.equalsIgnoreCase(temp)){testLabel = "Test";}
+		m.addAttribute("controlLabel", controlLabel);
+		m.addAttribute("testLabel", testLabel);
+		
+		//software request
 		List<Software> softwareList = jobService.getSoftwareForJob(job);
 		m.addAttribute("softwareList", softwareList);
 		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
@@ -924,30 +963,6 @@ public class JobController extends WaspController {
 			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
 		}	
 		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
-		
-		//deal with samplePairs
-		String samplePairs = null;
-		for(JobMeta jm : jobMetaList){
-			if(jm.getK().indexOf("samplePairs")>-1){
-				samplePairs = jm.getV();
-				break;
-			}
-		}
-		
-		List <Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
-		m.addAttribute("submittedSamplesList", submittedSamplesList);
-		
-		Map<Sample, List<String>> samplePairsMap = jobService.decodeSamplePairs(samplePairs, submittedSamplesList); 
-		List<String> controlIsReferenceList = new ArrayList<String>();
-		List<String> testIsReferenceList = new ArrayList<String>();
-		jobService.decodeSamplePairsWithReference(samplePairs, submittedSamplesList, controlIsReferenceList, testIsReferenceList);
-		m.addAttribute("samplePairsMap", samplePairsMap);
-		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
-		m.addAttribute("testIsReferenceList", testIsReferenceList);
-		
-		//request for which libraries/samples should go on which lanes
-		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
-		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
 		
 		return "job/home/requests";
 	}
