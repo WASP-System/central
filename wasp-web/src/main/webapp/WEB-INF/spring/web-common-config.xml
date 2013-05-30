@@ -104,6 +104,12 @@
 		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
 	</bean>
 	
+	<bean class="edu.yu.einstein.wasp.taskMapping.CellLibraryQCTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.celllibraryqc_title.label" />
+		<constructor-arg name="targetLink" value="/task/cellLibraryQC/list.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm')" />
+	</bean>
+	
 	<bean class="edu.yu.einstein.wasp.taskMapping.InitiateAggregationAnalysisTaskMapping">
 		<constructor-arg name="localizedLabelKey"  value="task.initiateAnalysis_title.label" />
 		<constructor-arg name="targetLink" value="/task/cellLibraryQC/list.do" />
