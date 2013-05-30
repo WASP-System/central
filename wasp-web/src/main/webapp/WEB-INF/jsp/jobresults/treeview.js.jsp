@@ -2,6 +2,8 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
+<script type="text/javascript" src="/wasp/scripts/jquery/ui.tabs.closable.js"></script>
+
 <script>
 var state = 'none';
 
@@ -22,6 +24,18 @@ function showhide(btn,layer_ref) {
 	if (document.getElementById && !document.all) {
 		hza = document.getElementById(layer_ref);
 		hza.style.display = state;
+	}
+}
+
+function showhideTree(btn) {
+	if (btn.value == 'Hide Tree') {
+		btn.value= 'Show Tree';
+		$('#left-container').hide();
+		$('#right-container').css('width', '98%');
+	} else {
+		btn.value='Hide Tree';
+		$('#left-container').show('slow');
+		$('#right-container').css('width', '48%');
 	}
 }
 
@@ -84,7 +98,7 @@ function collapse(d) {
 
 root.myid=${myid};
 root.type="${type}";
-root.jid=${myid};
+root.jid=-1;
 root.pid=-1;
 var seen = [];
 var rootstr = JSON.stringify(root, function(key, val) {
@@ -95,6 +109,7 @@ var rootstr = JSON.stringify(root, function(key, val) {
     }
     return val; });
 
+var activeNode = {myid: null, type: null};
 
 //d3.json("../data/flare.json", function(json) {
 //d3.json("../data/flare100.json", function(json) {
@@ -129,22 +144,22 @@ d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, fu
   vis.append("rect")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
-    .attr('fill', '#fff');
+    .attr('fill', '#fff')
+    .attr('fill-opacity', '0');
 
   root = json;
   root.x0 = 0; // height / 2;
   root.y0 = 0;
   //root.children.forEach(collapse);
   update(root);
-  click(root); click(root);
+  click(root);
+  toggle(root);
+  activeNode.myid = root.myid;
+  activeNode.type = root.type;
 });
 
 //var g = d3.select("g");
 //g.call(drag);
-
-function trim(root) {
-	;
-}
 
 function update(source) {
 
@@ -407,7 +422,70 @@ function toggle(d) {
 	}
 	update(d);
 }
+
+//var tabs, tabTitle, tabContent;
+var tabCounter = 1;
+
+function addTab() {
+	//var tabs = $('#mytabs').tabs();
+
+	//var ul = tabs.find( "ul" );
+    //$( "<li><a href='#newtab'>New Tab</a></li>" ).appendTo( ul );
+    //$( "<div id='newtab'><form action='' method='post'>Name :<input type='text' name='name'></input></br>Email :<input type='text' name='email'></input></br>Phone Number :<input type='text' name='phone'></input></br><input type='button' value='Submit' id='form_button' onclick='submit_form()'></input></form></div>" ).appendTo( tabs );
+	//$( "<li><a href='/wasp/sampleDnaToLibrary/listJobSamples/2.do'>New Tab</a></li>" )
+    //	.appendTo( "#mytabs .ui-tabs-nav" );
 	
+	tabCounter++;
+	$( "<div id='tab"+tabCounter+"'><form action='' method='post'>Name "+tabCounter+"</br></form></div>" )
+		.appendTo( "#mytabs" );
+	$( "<li><a href='#tab"+tabCounter+"'>Tab "+tabCounter+"</a></li>" )
+		.appendTo( "#mytabs .ui-tabs-nav" );
+    $('#mytabs').tabs("refresh");
+    $('#mytabs').tabs("option", "active", -1);
+}
+
+/* 
+function removeTab(t){
+	// Decrease tab counter
+	tabCounter--;
+
+	// Remove the tab
+	var tab = $('#mytabs').find( ".ui-tabs-nav li:eq("+t+")" ).remove();
+	// Find the id of the associated panel
+	var panelId = tab.attr( "aria-controls" );
+	// Remove the panel
+	$( "#" + panelId ).remove();
+	// Refresh the tabs widget
+	$('#mytabs').tabs("refresh");
+	
+}
+
+
+function removeLastTab(){
+	// Decrease tab counter to get the index of last tab
+	tabCounter--;
+
+	// Remove the tab
+	var tab = $('#mytabs').find( ".ui-tabs-nav li:eq("+tabCounter+")" ).remove();
+	// Find the id of the associated panel
+	var panelId = tab.attr( "aria-controls" );
+	// Remove the panel
+	$( "#" + panelId ).remove();
+	// Refresh the tabs widget
+	$('#mytabs').tabs("refresh");
+	
+}
+*/
+
+function truncateTabs(){
+	$('#mytabs ul li').remove();
+	$('#mytabs div').remove();
+	$("#mytabs").tabs("refresh");
+	
+	tabCounter=0;
+}
+
+
 function click(d) {
 	if (d.jid==undefined) {
 	 d.jid = -1;
@@ -428,6 +506,10 @@ function click(d) {
 	        seen.push(val);
 	    }
 	    return val; });
+	
+	var tabs = $('#mytabs').tabs({closable: true});
+	truncateTabs();
+	
   
   $.ajax({
       url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
@@ -436,13 +518,13 @@ function click(d) {
       success: function (result) {
     	if (d.type=='dummy') return;  
       
-      	d3.select('#detailview').select("h3").remove();
-      	d3.select('#detailview').select("tbody").remove();
+      	//d3.select('#detailview').select("h3").remove();
+      	//d3.select('#detailview').select("tbody").remove();
       	
       	//remove all tabs first
-      	/*for (var i = $("div#tabs ul li").length  - 1; i >= 0; i--) {
-			$('div#tabs').tabs('remove', i);
-		} */
+//      	for (var i = $("div#tabs ul li").length  - 1; i >= 0; i--) {
+//			$('div#tabs').tabs('remove', i);
+//		}
       	
 /*      	$.each(result, function (index, item) {
 			var num_tabs = $("div#tabs ul li").length + 1;
@@ -456,41 +538,60 @@ function click(d) {
              $("div#tabs").tabs("refresh");
       	});
 */      
-		var headStr;
-		if ((d.type.split('-'))[0]=="filetype") {
-			headStr = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+		$.each(result, function (index, item) {
+			var tabTitle;
 			
-			//var tablist = d3.select('#detailview').append("div").attr("id", "mytabs").append("ul");
-			$("#mytabs").tabs();
-
-	      	$.each(result, function (index, item) {
-	      		$("#mytabs").tabs('add',item,index);;
-	      	});
-	        return;
-		} else {
-			headStr = d.type.toUpperCase()+" Details";
-		}
-     	d3.select('#detailview').append("h3").html(headStr);
-      	var table = d3.select('#detailview').append("tbody");
-        $.each(result, function (index, item) {
-         	var row = table.append("tr");
-         	row.append("td").html(index);
-
-         	if (typeof item == 'string' || item instanceof String) {
-          		row.append("td").html(item);
-         	} else if (item.targetLink != undefined) {
-         		row.append("td").html('<a href="'+item.targetLink+'">'+item.label+'</a>');
-          	} else {
-          		var td = row.append("td");
-          		$.each(item, function (index2, item2) {
-          			var row2 = td.append("tr");
-              		row2.append("td").html(index2);
-              		row2.append("td").html(item2);
-          		});
-          	}
-        });
-
-      }
+			if ((d.type.split('-'))[0]=="filetype") {
+				tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+				
+				//var tablist = d3.select('#detailview').append("div").attr("id", "mytabs").append("ul");
+				//var tabs = $("#mytabs").tabs();
+				
+	
+		      	$.each(result, function (index, item) {
+		      		//$("#mytabs").tabs('add',item,index);
+		      		//$tabs.tabs('add', '#tabs-'+tabCounter, 'Tab '+tabCounter);
+		      		//$tabs.tabs('add', '#tab1', 'Tab '+tabCounter);
+		      		//tabCounter++;
+		      		//tabtitle=index;
+		      		//tabcontent=item;
+		      		//addtab();
+		      	});
+		        return;
+			} else {
+				tabTitle = d.type.toUpperCase()+" Details";
+			}
+			
+			tabTitle = index;
+			tabCounter++;
+			$( "<div id='tab"+tabCounter+"'></div>" ).appendTo( "#mytabs" );
+	     	//d3.select('#detailview').append("h3").html(headStr);
+	      	//var table = d3.select('#detailview').append("tbody");
+	      	var table = d3.select("#tab"+tabCounter).append("tbody");
+	        $.each(item, function (index1, item1) {
+	         	var row = table.append("tr");
+	         	row.append("td").html(index1);
+	
+	         	if (typeof item1 == 'string' || item1 instanceof String) {
+	          		row.append("td").html(item1);
+	         	} else if (item1.targetLink != undefined) {
+	         		row.append("td").html('<a href="'+item1.targetLink+'">'+item1.label+'</a>');
+	          	} else {
+	          		var td = row.append("td");
+	          		$.each(item1, function (index2, item2) {
+	          			var row2 = td.append("tr");
+	              		row2.append("td").html(index2);
+	              		row2.append("td").html(item2);
+	          		});
+	          	}
+	        });
+	        
+	        $( "<li><a href='#tab"+tabCounter+"'>"+tabTitle+"</a></li>" )
+				.appendTo( "#mytabs .ui-tabs-nav" );
+		    $('#mytabs').tabs("refresh");
+		    $('#mytabs').tabs("option", "active", -1);
+		});
+     }
   });
   
   if (d.children == '') {
@@ -508,7 +609,11 @@ function click(d) {
       });
   }
 
-  toggle(d);
+  if (d.myid !== activeNode.myid && d.type !== activeNode.type) {
+  	toggle(d);
+    activeNode.myid = d.myid;
+    activeNode.type = d.type;
+  }
 }
 
 function color(d) {
