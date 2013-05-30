@@ -1552,7 +1552,17 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId){
 		return metaMessageService.read("facilityJobComments", jobId, JobMeta.class, jobMetaDao);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setUserSubmittedJobComment(Integer jobId, String comment) throws Exception{
+		try{
+			metaMessageService.saveToGroup("userSubmittedJobComment", "User-submitted Job Comment", comment.trim(), jobId, JobMeta.class, jobMetaDao);
+		}catch(Exception e){ throw new Exception(e.getMessage());}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

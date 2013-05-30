@@ -649,10 +649,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 
 	  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();	 
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", acctQuote.getAmount()));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", acctQuote.getAmount()));
 	  
 	  Assert.assertEquals(jobServiceImpl.getExtraJobDetails(job), extraJobDetailsMap);
 
@@ -704,10 +704,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 1  
 	  LinkedHashMap<String, String> extraJobDetailsMap = new LinkedHashMap<String, String>();
 	  Float price = new Float(123.45);
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	  
 	  quotes = new HashSet<AcctQuote>();
@@ -720,10 +720,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 2
 	  extraJobDetailsMap.clear();
 	  price = new Float(0);
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	 
 	  quotes = new HashSet<AcctQuote>();
@@ -736,10 +736,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 3
 	  extraJobDetailsMap.clear();
 	  price = new Float(123);
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	
 	  quotes = new HashSet<AcctQuote>();
@@ -752,10 +752,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 4
 	  extraJobDetailsMap.clear();
 	  price = new Float(123);
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	
 	  quotes = new HashSet<AcctQuote>();
@@ -768,10 +768,10 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //Test case 5
 	  extraJobDetailsMap.clear();
 	  price = new Float(9999999999.9999999);
-	  extraJobDetailsMap.put("extraJobDetails.machine.label", jrc.getResourceCategory().getName());
-	  extraJobDetailsMap.put("extraJobDetails.readLength.label", jobMeta.getV());
-	  extraJobDetailsMap.put("extraJobDetails.readType.label", jobMeta2.getV().toUpperCase());
-	  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
+	  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+	  extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta2.getV().toUpperCase());
+	  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
 	  
 	  acctQuote.setAmount(price);	 
 	  quotes = new HashSet<AcctQuote>();

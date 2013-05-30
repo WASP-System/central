@@ -10,9 +10,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -36,7 +40,13 @@ import edu.yu.einstein.wasp.dao.JobUserDao;
 import edu.yu.einstein.wasp.dao.LabDao;
 import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.Adaptor;
+import edu.yu.einstein.wasp.model.Adaptorset;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobCellSelection;
 import edu.yu.einstein.wasp.model.JobFile;
@@ -50,16 +60,23 @@ import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Role;
+import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleJobCellSelection;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
@@ -114,9 +131,18 @@ public class JobController extends WaspController {
 	@Autowired
 	private FilterService filterService;
 	@Autowired
+	private FileService fileService;
+	@Autowired
 	private JobService jobService;
 	@Autowired
 	private AuthenticationService authenticationService;
+	@Autowired
+	private AdaptorService adaptorService;
+	@Autowired
+	private RunService runService;
+	@Autowired
+	private MessageServiceWebapp messageService;
+
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -173,7 +199,7 @@ public class JobController extends WaspController {
 		m.addAttribute("samplePairsMap", samplePairsMap);
 		m.addAttribute("controlIsReferenceList", controlIsReferenceList);
 		m.addAttribute("testIsReferenceList", testIsReferenceList);
-		 
+		
 		return "job/analysisParameters";
 	}
 	
@@ -807,6 +833,568 @@ public class JobController extends WaspController {
 		jobService.sortJobsByJobId(jobsActiveAndWithLibraryCreatedTask);
 		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
+	}
+	
+	@RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		return "job/home/homepage";
+	}
+	@RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		m.addAttribute("jobStatus", jobService.getJobStatus(job));
+		
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
+
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+		//get the jobApprovals Comments (if any)
+		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	
+		return "job/home/basic";
+	}/*
+	@RequestMapping(value="/{jobId}/commentFeed", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+
+		
+		
+		
+		return "job/home/commentFeed";
+	}
+	*/
+	@RequestMapping(value="/{jobId}/workflow", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobWorkflowPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
+		return "job/home/workflow";
+	}
+	@RequestMapping(value="/{jobId}/approvals", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobApprovalsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		//linkedHashMap because insert order is guaranteed
+		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
+		m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
+		//get the jobApprovals Comments (if any)
+		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
+		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+	
+		return "job/home/approvals";
+	}
+	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
+			waspErrorMessage("jobComment.job.error");
+			return "redirect:/dashboard.do";
+		}		
+		m.addAttribute("job", job);
+		m.addAttribute("parentArea", "job");
+		
+		//request for which libraries/samples should go on which lanes
+		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
+
+		//samplePairingRequest
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		List<Sample> controlList = new ArrayList<Sample>();
+		//m.addAttribute("submittedSamplesList", submittedSamplesList);
+		Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+		for(Sample submittedSample : submittedSamplesList){
+			List<Sample> list = new ArrayList<Sample>();
+			for(SampleSource ss : sampleSourceSet){
+				Sample test = ss.getSample();
+				Sample control = ss.getSourceSample();
+				//System.out.println("----control = " + control.getName() + " AND test = " + test.getName());
+				if(submittedSample == control){
+					list.add(test);
+				}
+			}
+			if(!list.isEmpty()){
+				samplePairsMap.put(submittedSample, list);
+				controlList.add(submittedSample);
+			}
+		}
+		m.addAttribute("samplePairsMap", samplePairsMap);
+		m.addAttribute("controlList", controlList);
+		String temp = job.getWorkflow().getIName() + ".control.label";
+		String controlLabel = messageService.getMessage(job.getWorkflow().getIName() + ".control.label");
+		if(controlLabel.equalsIgnoreCase(temp)){controlLabel = "Control";}
+		temp = job.getWorkflow().getIName() + ".test.label";
+		String testLabel = messageService.getMessage(job.getWorkflow().getIName() + ".test.label");
+		if(testLabel.equalsIgnoreCase(temp)){testLabel = "Test";}
+		m.addAttribute("controlLabel", controlLabel);
+		m.addAttribute("testLabel", testLabel);
+		
+		//software request
+		List<Software> softwareList = jobService.getSoftwareForJob(job);
+		m.addAttribute("softwareList", softwareList);
+		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
+		MetaHelperWebapp mhwa = getMetaHelperWebapp();
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		for(Software sw : softwareList){
+			mhwa.setArea(sw.getIName());
+			List<JobMeta> softwareMetaList = mhwa.syncWithMaster(jobMetaList);
+			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
+		}	
+		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
+		
+		return "job/home/requests";
+	}
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		//get the user-submitted job comment (if any); should be zero or one
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+		}
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any)
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
+		}
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
+		}catch(Exception e){
+			//waspErrorMessage("jobComment.jobCommentAuth.error");
+			//return "redirect:/dashboard.do";
+		}
+		//override this constraint:
+		permissionToAddEditComment=true;
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+
+		return "job/home/comments";
+	}
+	
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam("comment") String comment,
+			  ModelMap m) throws SampleTypeException {
+		
+		String errorMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+			errorMessage = messageService.getMessage("jobComment.job.error");
+		}
+		m.addAttribute("job", job);
+		
+		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		if(trimmedComment==null||trimmedComment.length()==0){
+			errorMessage = messageService.getMessage("jobComment.jobCommentEmpty.error");
+		}
+
+		if("".equals(errorMessage)){
+			try{
+				if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+					jobService.setFacilityJobComment(jobId, trimmedComment);
+				}
+				else{
+					jobService.setUserSubmittedJobComment(jobId, trimmedComment);
+				}
+			}catch(Exception e){
+				logger.warn(e.getMessage());
+				errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
+			}
+		}
+		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage;
+	}
+	
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  @RequestParam(value="newViewerEmailAddress", required=false) String newViewerEmailAddress,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		List<JobUser> jobUserList = job.getJobUser();
+		List<User> additionalJobViewers = new ArrayList<User>();
+		for(JobUser jobUser : jobUserList){
+			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+				additionalJobViewers.add(jobUser.getUser());
+			}
+		}
+		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+		m.addAttribute("additionalJobViewers", additionalJobViewers);
+  
+		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
+		}
+		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+		m.addAttribute("currentWebViewer", currentWebViewer);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("successMessage", successMessage);
+
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+		m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
+		
+		return "job/home/viewerManager";
+	}
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
+		
+		String errorMessage = "";
+		String successMessage = "";
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+
+		if("".equals(newViewerEmailAddress)){
+			errorMessage = "Update Failed: Please provide an email address";
+			return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+		}
+
+		try{
+			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			   successMessage="Update Successful: New job viewer added.";
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  errorMessage = messageService.getMessage(e.getMessage());
+		}
+		
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+	}
+	
+	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerRemoveUserPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("userId") Integer userId, ModelMap m) throws SampleTypeException {
+
+		String errorMessage = "";
+		String successMessage = "";
+		try{
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
+			
+			//the next few lines make for problems if this is an ajax call, so do not do the doReauth().It's only important if the user is removing him/herself, so it is fine.
+			//User me = authenticationService.getAuthenticatedUser();
+			//if (me.getId().intValue() == userId.intValue()) {
+			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+			//}			
+			successMessage="Database sucessfully updated: User removed";
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  errorMessage = messageService.getMessage(e.getMessage());
+		}
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+	}
+	
+	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		  List<Sample> allJobLibraries = new ArrayList<Sample>();  //could have gotten this from allJobLibraries = jobService.getLibraries(job);
+		  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
+		  List<Sample> submittedLibraryList = new ArrayList<Sample>();
+		  List<Sample> facilityLibraryList = new ArrayList<Sample>();
+		  
+		  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		  
+		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
+		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
+		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+
+		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+
+		  for(Sample s : allJobSamples){
+			  if(s.getParent()==null){
+				  if(s.getSampleType().getIName().toLowerCase().contains("library")){
+					  submittedLibraryList.add(s);
+				  }
+				  else{
+					  submittedMacromoleculeList.add(s);
+				  }
+			  }
+			  else{
+				  facilityLibraryList.add(s);
+			  }
+		  }
+		  
+		  //consolidate job's libraries
+		  allJobLibraries.addAll(submittedLibraryList);
+		  allJobLibraries.addAll(facilityLibraryList);
+		  
+		  //consolidate job's submitted objects: submitted macromoleucles and submitted libraries
+		  //could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		  submittedObjectList.addAll(submittedMacromoleculeList);
+		  submittedObjectList.addAll(submittedLibraryList);
+		  
+		  //for each submittedMacromolecule, get list of it's facility-generated libraries
+		  for(Sample macromolecule : submittedMacromoleculeList){
+			  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
+		  }
+		  
+		  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
+		  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
+			  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
+			  tempUserSubmittedLibraryList.add(userSubmittedLibrary);
+			  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
+		  }
+		  
+		  //for each submittedMacromolecule or submittedLibrary, get species and get receviedStatus
+		  //submittedSamples' recevedStatus
+		  for(Sample submittedObject : submittedObjectList){
+			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
+			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
+		  }
+		  
+		  //for each job's library, get its adaptor info
+		  for(Sample library : allJobLibraries){
+			  Adaptor adaptor;
+			  try{ 
+				  adaptor = adaptorService.getAdaptor(library);
+				  libraryAdaptorMap.put(library, adaptor);
+				  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
+			  }catch(Exception e){}		  
+		  }
+		  
+		  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
+		  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
+		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
+		  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
+
+		  for(Sample library : allJobLibraries){
+			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
+			  libraryCellListMap.put(library, cellsForLibrary);
+			  for(Sample cell : cellsForLibrary){			  
+				  try{
+					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
+					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
+					  cellPUMap.put(cell, platformUnit);
+					  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+					  if(!runList.isEmpty()){
+						  Run run = runList.get(0);
+						  cellRunMap.put(cell, run);
+						  
+					  }
+				  }catch(Exception e){}
+			  }
+		  }
+		  
+
+		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
+		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
+
+		  //calculate the rowspans needed for the web, as the table display is rather complex. 
+		  //this is very very hard to do at the web, as there are multiple dependencies. easier to perform here
+		  for(Sample submittedObject : submittedObjectList){
+			  
+			  int numLibraries = 0;
+			  int numCells = 0;
+			  
+			  //calculate numLibraries
+			  List<Sample> facilityLibraryList2 = submittedMacromoleculeFacilityLibraryListMap.get(submittedObject);
+			  List<Sample> submittedLibraryList2 = submittedLibrarySubmittedLibraryListMap.get(submittedObject);
+			  numLibraries = (facilityLibraryList2==null?0:facilityLibraryList2.size()) + (submittedLibraryList2==null?0:submittedLibraryList2.size());
+			  
+			  //put numLibraries into its map for eventual use in web
+			  if(numLibraries==0){
+				  submittedObjectLibraryRowspan.put(submittedObject, 1);
+			  }
+			  else{
+				  submittedObjectLibraryRowspan.put(submittedObject, numLibraries);
+			  }
+			  
+			  //calculate numCells
+			  if(facilityLibraryList2!=null){
+				  for(Sample library : facilityLibraryList2){
+					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+				  }
+			  }
+			  if(submittedLibraryList2!=null){
+				  for(Sample library : submittedLibraryList2){
+					  numCells += libraryCellListMap.get(library)==null?0:libraryCellListMap.get(library).size();
+				  }
+			  }
+			  
+			  //put numCells into its map for eventual use in web
+			  if(numCells==0){
+				  submittedObjectCellRowspan.put(submittedObject, 1);
+			  }
+			  else{
+				  submittedObjectCellRowspan.put(submittedObject, numCells);
+			  }
+		  }
+		  
+
+		  
+		  m.addAttribute("job",job);
+		  //not actually used by webpage   m.addAttribute("submittedLibraryList", submittedLibraryList);
+		  //not actually used on webpage m.addAttribute("facilityLibraryList", facilityLibraryList);
+		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list  
+		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
+
+		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
+		  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
+		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
+		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+
+		  m.addAttribute("libraryCellListMap", libraryCellListMap);
+		  m.addAttribute("cellIndexMap", cellIndexMap);
+		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
+		  m.addAttribute("cellRunMap", cellRunMap);
+		  
+		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
+		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
+		 
+		  //turns out I need this
+		  m.addAttribute("submittedLibraryList", submittedLibraryList);
+		
+		  m.addAttribute("receivedStatusMap", receivedStatusMap);
+
+		return "job/home/samples";
+	}
+	
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage, 
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		
+		return "job/home/fileUploadManager";
+	}
+	
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
+				@RequestParam("file_description") String fileDescription,
+				@RequestParam("file_upload") MultipartFile mpFile, ModelMap m) throws SampleTypeException {
+
+		String errorMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		
+		if(mpFile.isEmpty() && !"".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+			errorMessage="File upload failed: no file provided";
+		}
+		else if(!mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please provide a file description";
+		}
+		else if(mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please select a file and provide a file description";
+		}
+		
+		if( "".equals(errorMessage) ){
+			Random randomNumberGenerator = new Random(System.currentTimeMillis());
+			try{
+				fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+			} catch(FileUploadException e){
+				logger.warn(e.getMessage());
+				//waspErrorMessage("listJobSamples.fileUploadFailed.error");
+				errorMessage="File upload unexpectedly failed. Please try again.";
+			}
+		}
+		
+		//waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
+		//String referer = request.getHeader("Referer");//return "redirect:"+ referer; 
+		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
 	}
 }
 
