@@ -36,6 +36,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
@@ -576,12 +577,41 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobAwaitingReceivingOfSamples(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		if (! getSubmittedSamplesNotYetReceived(job).isEmpty())
 			return true;
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobAwaitingCellLibraryQC(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
+		for (SampleSource cellLibrary : sampleService.getCellLibrariesForJob(job)){
+			try {
+				if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
+					return true;
+			} catch (SampleTypeException e) {
+				logger.warn("received unexpected SampleTypeException: " + e.getLocalizedMessage());
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isJobsAwaitingCellLibraryQC(){
+		for (Job job : getActiveJobs()){
+			if (isJobAwaitingCellLibraryQC(job))
+				return true;
+		}
+		return false;
+	}
 	
 	
 	@Override
@@ -2057,11 +2087,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNull(job, "job cannot be null");
 		Assert.assertParameterNotNull(job.getId(), "job must be valid");
 		if (!this.isJobActive(job)){
-			logger.debug("job " + job.getId() + " not active - returning false");
+			logger.debug("job " + job.getId() + ": not active - returning false");
 			return false;
 		}
 		if (this.isAggregationAnalysisBatchJob(job)){
-			logger.debug("job " + job.getId() + " aggregation analysis has been initiated - returning false;");
+			logger.debug("job " + job.getId() + ": aggregation analysis has been initiated - returning false;");
 			return false;
 		}
 			
@@ -2070,24 +2100,29 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			try{
 				List<Run> runs = runService.getRunsForPlatformUnit(sampleService.getPlatformUnitForCell(sampleService.getCell(cellLibrary)));
 				if (runs.isEmpty()){
-					logger.debug("job " + job.getId() + " no runs - returning true");
+					logger.debug("job " + job.getId() + ": no runs - returning true");
 					return true; // library on platform unit but not yet run
 				}
 				for (Run run : runs){
 					if (runService.isRunActive(run)){
-						logger.debug("job " + job.getId() + " a run is active - returning true");
+						logger.debug("job " + job.getId() + ": a run is active - returning true");
 						return true; // the library is on an active run
 					}
 				}
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
-						if (!sampleService.isCellLibraryPreprocessed(cellLibrary)){
-							logger.debug("job " + job.getId() + "the library has been run and it's cell has passed QC but has not been pre-processed (aligned) yet - returning true");
+						if (!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()) &&
+								!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.FAILED.getExitCode()) &&
+								!sampleService.getCellLibraryPreprocessingStatus(cellLibrary).getExitCode().equals(ExitStatus.STOPPED.getExitCode())){
+							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
+						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
+							logger.debug("job " + job.getId() + ": the cell-library is awaiting QC - returning true");
+							return true; 
 						}
 					}
 				} catch (MetaAttributeNotFoundException e) {
-					logger.debug("job " + job.getId() + "the library has been run but has not been QCd yet - returning true");
+					logger.debug("job " + job.getId() + ": the library has been run but has not been QCd yet - returning true");
 					return true; 
 				}
 			} catch(SampleTypeException e){
@@ -2098,15 +2133,15 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		// no in-process samples on platform units so ...
 		if (this.isJobPendingApprovalOrQuote(job)){
-			logger.debug("job " + job.getId() + "  Job is awaiting approval - returning true");
+			logger.debug("job " + job.getId() + ":  Job is awaiting approval - returning true");
 			return true; // Job is awaiting approval
 		}
 		if (this.isJobAwaitingReceivingOfSamples(job)){
-			logger.debug("job " + job.getId() + " At least one sample hasn't been received - returning true");
+			logger.debug("job " + job.getId() + ": At least one sample hasn't been received - returning true");
 			return true; // at least one sample hasn't been received
 		}
 		if (this.isJobAwaitingSampleQC(job)){
-			logger.debug("job " + job.getId() + " At least one sample is awaiting QC - returning true");
+			logger.debug("job " + job.getId() + ": At least one sample is awaiting QC - returning true");
 			return true; // at least one sample is awaiting QC
 		}
 		if (this.isJobAwaitingLibraryCreation(job)){
@@ -2114,14 +2149,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			return true; // At least one library needs to be created
 		}
 		if (this.isJobAwaitingLibraryQC(job)){
-			logger.debug("job " + job.getId() + " At least one library is awaiting QC - returning true");
+			logger.debug("job " + job.getId() + ": At least one library is awaiting QC - returning true");
 			return true; // At least one library is awaiting QC
 		}
 		if (this.isJobWithLibrariesToGoOnPlatformUnit(job)){
-			logger.debug("job " + job.getId() + " At least one library is awaiting platform unit placement - returning true");
+			logger.debug("job " + job.getId() + ": At least one library is awaiting platform unit placement - returning true");
 			return true; // At least one library is awaiting platform unit placement
 		}
-		logger.debug("job " + job.getId() + " seems no active samples in pipeline - returning false");
+		logger.debug("job " + job.getId() + ": seems no active samples in pipeline - returning false");
 		return false;
 	}
 	
