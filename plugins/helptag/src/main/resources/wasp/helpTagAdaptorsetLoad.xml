@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+
+
+
+  <bean id="helptagLibraryArea" class="java.lang.String">
+  	<constructor-arg><value>helptagLibrary</value></constructor-arg>
+  </bean>
+    
+   
+  <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+  	<property name="area" ref="helptagLibraryArea" />
+  	<property name="name" value="HELP-tag Library" />
+  	<property name="sampleType" ref="librarySampleType" />
+  	<property name="compatibleResources">
+  		<list>
+  			<ref bean ="illuminaHiSeq2000" />
+  		</list>
+  	</property>
+  	<property name="adaptorList">
+  		<list>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaHelptagLibrary1" />
+  				<property name="name" value="helptag Adaptor" />
+  				<property name="sequence" value="CGCTGCTG" />
+  				<property name="barcodesequence" value="CGCTGCTG" />
+  				<property name="barcodenumber" value="1" />
+  			</bean>
+   		</list>
+  	</property>
+  </bean> 
+
+</beans>
