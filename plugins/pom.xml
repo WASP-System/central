@@ -17,6 +17,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modules>
 		<module>mps</module>
+		<module>bwa</module>
+		<module>chipseq</module>
+		<module>genericDnaSeq</module>
+		<module>helptag</module>
+		<module>illumina</module>
 	</modules>
 
 	<build>
