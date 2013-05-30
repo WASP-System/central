@@ -228,6 +228,7 @@ public class WorkUnit {
 	/**
 	 * How a remote system should determine the number of processors used. 
 	 * 
+	 * <pre>
 	 *  SINGLE: WorkUnit will run in a single thread.
 	 *  FIXED:  WorkUnit will require one or more processors, specified by the work unit.  It is possible that some
 	 *  	work units will never be executed it this value is set higher than the largest machine on the grid.
@@ -237,6 +238,7 @@ public class WorkUnit {
 	 *  SUM:	The GridHostResolver sums up all of the configured software requirements to determine the number
 	 *      of required processors
 	 *  MPI:	The GridHostResolver must determine a number of processes and parallel environment.   
+	 * </pre>
 	 * 
 	 * @author calder
 	 *
