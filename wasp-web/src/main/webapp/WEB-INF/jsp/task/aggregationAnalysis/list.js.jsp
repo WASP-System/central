@@ -68,7 +68,10 @@
 		var numberOfRadioButtonsCheckedAsFail = 0;
 		
 		for(var i = 0; i < elements.length; i++){
-			if(elements[i].type == "radio" ){
+			if(elements[i].type == "select-one" && elements[i].name == "startAnalysis"){
+				startAnalysis = elements[i].value; 
+			} 
+			else if(elements[i].type == "radio" ){
 				totalNumberOfRadioButtons++;
 				if(elements[i].checked && elements[i].value==STATUS_FAILED ){
 					totalNumberOfCheckedRadioButtons++;
@@ -111,6 +114,30 @@
 			alert("<fmt:message key="task.cellLibraryqc_noLibRunSelectedAlert.label" />");
 			return false;
 		} 
+		else if(startAnalysis == "Now"){
+			if( totalNumberOfRadioButtons != 2 * totalNumberOfCheckedRadioButtons){//not every entry has been recorded as either pass or fail 
+				alert("<fmt:message key="task.cellLibraryqc_startAnalysisRequestedWithoutRecordingEachRecord.label" />");
+				return false;
+			}
+			if(numberOfRadioButtonsCheckedAsPass <= 0){//since no entries were selected as pass, you may not start analysis 
+				alert("<fmt:message key="task.cellLibraryqc_startAnalysisRequestedWithoutAtLeastOnePass.label" />");
+				return false; 
+			}
+		}
+		else if(startAnalysis == "Never"){//terminate the job 
+			if( totalNumberOfRadioButtons != 2 * totalNumberOfCheckedRadioButtons){//not every entry has been recorded  
+				alert("<fmt:message key="task.cellLibraryqc_terminateJobRequestedWithoutRecordingFailForEachRecord.label" />");
+				return false;
+			}
+			if(totalNumberOfCheckedRadioButtons != numberOfRadioButtonsCheckedAsFail ){//not every entry has been recorded as fail 
+				alert("<fmt:message key="task.cellLibraryqc_terminateJobRequestedWithoutRecordingFailForEachRecord.label" />");
+				return false;
+			}
+		}
+		else if(startAnalysis == ""){
+			alert("<fmt:message key="task.cellLibraryqc_startAnalysisNotSelectedAlert.label" />");
+			return false;
+		}
 		
 		return true; 
 	}

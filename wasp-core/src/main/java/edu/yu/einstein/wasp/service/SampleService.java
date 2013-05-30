@@ -951,7 +951,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	/**
 	 * has save both the in_aggregate_analysis meta and a comment meta
 	 * @param SampleSource cell library
-	 * @param String qcStatus (values of INCLUDE OR EXCLUDE only)
+	 * @param String qcStatus (values of PASS OR FAIL only)
 	 * @param String comment
 	 * @throws Runtime exception
 	 */

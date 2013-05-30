@@ -81,6 +81,13 @@
 					<span style="font-size:10px"><a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "PASSED");'><fmt:message key="task.cellLibraryqc_setAllPass.label" /></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "FAILED");'><fmt:message key="task.cellLibraryqc_setAllFail.label" /></a><br /></span>
 					<%-- <br /><input type="checkbox" name="startAnalysis"  value="true">Start Analysis<br />--%>
 					<br />
+					<select class="FormElement ui-widget-content ui-corner-all" name="startAnalysis" id = "startAnalysis${cellLibrary.getSampleSourceId()}" size="1" >
+						<option value=""><fmt:message key="task.cellLibraryqc_startAnalysisQuestion.label" /></option>
+						<option value="Now"><fmt:message key="task.cellLibraryqc_startAnalysisNow.label" /></option>
+						<option value="Later"><fmt:message key="task.cellLibraryqc_startAnalysisLater.label" /></option>
+						<option value="Never"><fmt:message key="task.cellLibraryqc_startAnalysisNever.label" /></option>
+					</select>				
+					<br />
 					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.cellLibraryqc_reset.label" />">
 					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.cellLibraryqc_submit.label" />">
 					</td>
