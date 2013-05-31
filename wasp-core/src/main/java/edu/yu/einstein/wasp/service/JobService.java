@@ -408,6 +408,15 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
 	
 	/**
+	 * save a User-submitted Job Comment
+	 * @param Integer jobId
+	 * @param String comment
+	 * @return void
+	 * @throws Exception
+	 */
+	public void setUserSubmittedJobComment(Integer jobId, String comment) throws Exception;
+	
+	/**
 	 * get user-submitted job comment (there will be zero or one only)
 	 * @param Integer jobId
 	 * @return List<MetaMessage>

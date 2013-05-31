@@ -838,6 +838,9 @@ public class DataDisplayController extends WaspController {
 	  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
 	  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
 	  
+	  //only used on testing page (not the real web page)
+	  m.addAttribute("submittedLibraryList", submittedLibraryList);
+	  
 	  return "datadisplay/mps/jobs/samples/mainpage";
   }
   
