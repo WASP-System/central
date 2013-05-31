@@ -327,7 +327,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
-	  //linkedHashMap because insert order is guarranteed
+	  //linkedHashMap because insert order is guaranteed
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
@@ -505,6 +505,8 @@ public class SampleDnaToLibraryController extends WaspController {
 	  User me = authenticationService.getAuthenticatedUser();
 	  if (me.getUserId().intValue() == userId.intValue()) {
 		doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+		waspMessage("listJobSamples.jobViewerRemoved.label");
+		return "redirect:/dashboard.do";
 	  }
 	  waspMessage("listJobSamples.jobViewerRemoved.label");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";

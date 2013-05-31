@@ -1,15 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
-<br /><br />
-<h1><a  href="<c:url value="/sampleDnaToLibrary/listJobSamples/${job.jobId}.do" />">JobID J<c:out value="${job.jobId}" /></a>: Data By Sequence Runs <span style="font-size:small"> (<a style="color: #801A00;" href="<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />">View Data By Samples</a>)</span></h1>	
-<%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%>
+<%--these 2 dialog areas are not displayed until called; don't know where is best to put them, but they have to be somewhere or it doesn't work --%> 
 <div id="modalDialog">
 	<iframe id="modalIframeId" name="modalIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
 <div id="modalessDialog">
 	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
-
 <div class="pageContainer">
 	<div id="selectionLeft" class="selectionLeft">	  
 		<label>Job Name: <c:out value="${job.getName()}" /></label>	[<a style="color:red; font-weight:bold; background-color:Aqua;" id="jobDetailsAnchor"  href="javascript:void(0);" <%-- target="myIframe" --%> onclick='toggleAnchors(this); loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/jobdetails.do" />");' >DETAILS</a><c:if test="${fn:length(platformUnitSet) > 1}"> | <a id="openAllRunsAnchor"  href="javascript:void(0);" onclick='openAllRuns();' >open all runs</a> | <a id="closeAllRunsAnchor" href="javascript:void(0);"  onclick='closeAllRuns();' >close all runs</a></c:if>]

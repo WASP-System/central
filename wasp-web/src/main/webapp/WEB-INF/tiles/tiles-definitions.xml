@@ -32,6 +32,12 @@
 		<put-attribute name="head-js" value="" />
 		<put-attribute name="body-content" value="" />
 	</definition>
+
+	<definition name="template-unadorned-with-stylesheet" template="/WEB-INF/jsp/layouts/unadornedWithStylesheet.jsp">
+		<put-attribute name="head-style" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="body-content" value="" />
+	</definition>
 	
 	<definition name="auth/accessdenied" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
@@ -99,6 +105,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
+	<!-- <definition name="jobresults/treeview" extends="template-unadorned-with-stylesheet"> -->
 	<definition name="jobresults/treeview" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobresults/treeview.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobresults/treeview.jsp" />
@@ -201,7 +208,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
 	</definition>
-	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-base">
+	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-unadorned-with-stylesheet">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
 	</definition>
@@ -223,8 +230,36 @@
 	<definition name="datadisplay/mps/jobs/librarydetails" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/librarydetails.jsp" />
 	</definition>
-	<definition name="datadisplay/mps/jobs/samples/mainpage" extends="template-base">
+	<definition name="datadisplay/mps/jobs/samples/mainpage" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/samples/mainpage.jsp" />
+	</definition>
+	<definition name="job/home/homepage" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/job/home/homepage.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/homepage.jsp" />
+	</definition>
+	<definition name="job/home/basic" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/basic.jsp" />
+	</definition>
+	<definition name="job/home/workflow" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/workflow.jsp" />
+	</definition>
+	<definition name="job/home/requests" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/requests.jsp" />
+	</definition>
+	<definition name="job/home/approvals" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/approvals.jsp" />
+	</definition>
+	<definition name="job/home/comments" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
+	</definition>
+	<definition name="job/home/viewerManager" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
+	</definition>
+	<definition name="job/home/samples" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
+	</definition>
+	<definition name="job/home/fileUploadManager" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
