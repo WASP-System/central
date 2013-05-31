@@ -37,11 +37,14 @@
 	          <property name="range" value="0.0001:1000000000" />
 	        </bean>
 	        
-<!-- 	        <bean parent="helpTagLibraryUiFieldWrapper">
-	          <property name="baseName" value="antibody" />
-	          <property name="label" value="Antibody" />
+ 	        <bean parent="helpTagLibraryUiFieldWrapper">
+	          <property name="baseName" value="enzyme" />
+	          <property name="label" value="Restriction Enzyme Used" />
 	          <property name="metaposition" value="30" />
-	        </bean> -->
+	          <property name="control" value="select:HpaII:HpaII;MspI:MspI" /> 
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="You must choose a restriction enzyme" />
+	        </bean>
 	      </list>
       </property>
   </bean>
