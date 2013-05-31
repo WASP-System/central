@@ -816,6 +816,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	  @Override
 	  public Adaptor getLibraryAdaptor(Sample library){
 		// TODO: Write test!!
+		  //ACTUALLY, there is another method, AdaptorService.getAdaptor(Sample Library) that exists. We don't need two. Perhaps this should be retired.
 		  Assert.assertParameterNotNull(library, "No Sample provided");
 		  Adaptor adaptor = null;
 		  String adaptorId = new String("");
@@ -826,7 +827,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  String [] stringList = areaList.split("[\\s,]+");//separates on comma or whitespace
 		  for(String string : stringList){
 			  
-			  if(string.indexOf("Library") > -1){
+			  if(string.indexOf("genericLibrary") > -1){//5-31-13 changed Library to genericLibrary
 				  area = string;
 			  }
 		  }
