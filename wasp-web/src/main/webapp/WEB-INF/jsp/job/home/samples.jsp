@@ -56,6 +56,7 @@
 							<label>Adaptor:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 							<label>Index:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
+							<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 						</td>
 						
 						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
