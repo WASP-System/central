@@ -1,0 +1,2 @@
+Docs are built using Sphinx <http://sphinx-doc.org> and require the "numfig" 
+python extension <"http://sourceforge.net/projects/numfig/">.
