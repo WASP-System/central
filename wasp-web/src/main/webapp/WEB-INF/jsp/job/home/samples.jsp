@@ -32,6 +32,15 @@
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
 					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
+					<c:if test='${qcStatusMap.get(submittedObject) != "NONEXISTENT" && receivedStatusMap.get(submittedObject) == "RECEIVED"}'>
+						<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(submittedObject)}"/>
+						<c:set value="${qcStatusCommentsMap.get(submittedObject)}" var="metaMessageList" />
+						<c:if test="${metaMessageList.size()>0}">
+							<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  					<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+						</c:if>
+						<br />		  
+					</c:if>
 				</c:when>
 				<c:otherwise>
 					N/A
@@ -56,7 +65,27 @@
 							<label>Adaptor:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 							<label>Index:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
-							<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
+							<c:if test="${not empty receivedStatusMap.get(library)}">
+								<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
+							</c:if>
+							<c:if test='${submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT" && receivedStatusMap.get(library) == "RECEIVED"}'>
+								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
+								<c:set value="${qcStatusCommentsMap.get(library)}" var="metaMessageList" />
+								<c:if test="${metaMessageList.size()>0}">
+									<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+								</c:if>	
+								<br />				  
+							</c:if>	
+							<c:if test='${!submittedLibraryList.contains(library) && qcStatusMap.get(library) != "NONEXISTENT"}'>
+								<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(library)}"/>
+								<c:set value="${qcStatusCommentsMap.get(library)}" var="metaMessageList" />
+								<c:if test="${metaMessageList.size()>0}">
+									<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+								</c:if>	
+								<br />				  
+							</c:if>														
 						</td>
 						
 						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				

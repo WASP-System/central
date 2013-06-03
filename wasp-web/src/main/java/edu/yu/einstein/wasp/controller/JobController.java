@@ -1168,6 +1168,8 @@ public class JobController extends WaspController {
 		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
 
 		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 
 		  for(Sample s : allJobSamples){
 			  if(s.getParent()==null){
@@ -1180,6 +1182,16 @@ public class JobController extends WaspController {
 			  }
 			  else{
 				  facilityLibraryList.add(s);
+			  }
+			  
+			  //also for each job's sample, get the qcStatus; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)
+			  if(s.getSampleType().getIName().toLowerCase().contains("library")){
+				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(s)));
+				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
+			  }
+			  else{
+				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
+				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
 			  }
 		  }
 		  
@@ -1205,7 +1217,6 @@ public class JobController extends WaspController {
 		  }
 		  
 		  //for each submittedMacromolecule or submittedLibrary, get species and get receviedStatus
-		  //submittedSamples' recevedStatus
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
@@ -1317,6 +1328,9 @@ public class JobController extends WaspController {
 		  m.addAttribute("submittedLibraryList", submittedLibraryList);
 		
 		  m.addAttribute("receivedStatusMap", receivedStatusMap);
+		  m.addAttribute("qcStatusMap", qcStatusMap);
+		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
+
 
 		return "job/home/samples";
 	}
