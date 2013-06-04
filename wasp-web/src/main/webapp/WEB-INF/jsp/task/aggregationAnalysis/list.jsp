@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<h1><fmt:message key="pageTitle.task/cellLibraryQC/list.label" /></h1>
+<h1><fmt:message key="pageTitle.task/aggregationAnalysis/list.label" /></h1>
 <c:choose>
 <c:when test="${jobs.size()==0}">
-	<h2><fmt:message key="task.cellLibraryqc_nojobs.label" /></h2>
+	<h2><fmt:message key="task.aggregateAnalysis_nojobs.label" /></h2>
 </c:when>
 <c:otherwise> 
 	<br />
@@ -10,7 +10,7 @@
 	<table class="EditTable ui-widget ui-widget-content">
 	<c:forEach items="${jobs}" var="job">
 		<c:if test='${currentJobId != "-1"}'>
-	 		<tr><td colspan="7" style='background-color:black'></td></tr>
+	 		<tr><td colspan="8" style='background-color:black'></td></tr>
 	 	</c:if>
 	 	<form  id="theForm${job.getJobId()}" method="POST" onsubmit="return validate(this);"  >
 	 	<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="jobId" value="${job.getJobId()}"> 
@@ -21,11 +21,11 @@
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_sample.label" /></th>
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_library.label" /></th>
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_pu_seqrun.label" /></th>
+			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_analysisStatus.label" /></th>
 			<th class="label-centered" style="font-weight:bold; background-color:#FAF2D6"><fmt:message key="task.cellLibraryqc_status.label" /></th>
 		</tr>
 		
 		<c:set value="${jobCellLibraryMap.get(job)}" var="cellLibraryList" />
-		<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="maxNumCellLibrariesThatCanBeRecorded" value="${cellLibraryList.size()}"> 
 		<c:forEach items="${cellLibraryList}" var="cellLibrary" varStatus="status">
 			<tr class="FormData">
 				<c:choose>
@@ -47,49 +47,45 @@
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${macromolecule.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${library.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
+				<td style='text-align:center;vertical-align:middle;'><c:out value="${cellLibraryWithPreprocessingStatusMap.get(cellLibrary)}" /></td>
 				<td style='text-align:center;vertical-align:middle;'>
-					<c:set value="" var="passChecked" />
-					<c:set value="" var="failChecked" />
-					<c:if test="${status.first}"><br /></c:if>
 					<c:set value="${cellLibraryQcStatusMap.get(cellLibrary)}" var="cellLibraryQcStatus" />
+					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == true }">
-						<c:set value="checked='CHECKED'" var="passChecked" />
+						<div><img src='/wasp/images/pass.png'></div>
 					</c:if>
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == false }">
-						<c:set value="checked='CHECKED'" var="failChecked" />
+						<div>
+							<img src='/wasp/images/fail.png'>
+							<c:if test="${cellLibraryQcStatusComment.length() > 0}"><wasp:comment value="${cellLibraryQcStatusComment}" /></c:if>
+						</div>
 					</c:if>
-	 				<input class="FormElement ui-widget-content ui-corner-all" type="hidden" name="sampleSourceId" value="${cellLibrary.getSampleSourceId()}"> 
-	 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${passChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}A" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "PASSED"><fmt:message key="task.cellLibraryqc_pass.label" /> &nbsp;
-	 				<input class="FormElement ui-widget-content ui-corner-all" onclick='selected("${cellLibrary.getSampleSourceId()}");' type="radio" ${failChecked} id = "qcStatus${cellLibrary.getSampleSourceId()}B" name = "qcStatus${cellLibrary.getSampleSourceId()}" value = "FAILED"><fmt:message key="task.cellLibraryqc_fail.label" /> 
-					<br />
-					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />
-	 				 <textarea id="comment${cellLibrary.getSampleSourceId()}" name="comment${cellLibrary.getSampleSourceId()}" cols="25" rows="2" onclick='changeTextColor(this, "black");'>${cellLibraryQcStatusComment}</textarea><br /><c:if test="${!status.last}"><br /></c:if>
-				</td>
+					<c:if test="${cellLibraryQcStatus == null }">
+						<fmt:message key="task.aggregateAnalysis_noQCData.label" />
+					</c:if>
+	 			</td>
 			</tr>	
 				
 			<c:if test="${!status.last}">
 				<tr><td >&nbsp;</td>
 				<td >&nbsp;</td>
 				<td >&nbsp;</td>
-				<td colspan="4" style='border-top: 2px solid gray;'>&nbsp;</td></tr>
+				<td colspan="5" style='border-top: 2px solid gray;'>&nbsp;</td></tr>
 			</c:if>
 			
 			<c:if test="${status.last}">
 				<tr style='text-align:center'>
-					<td colspan="6" >&nbsp;</td>
+					<td colspan="7" >&nbsp;</td>
 					<td>
-					<span style="font-size:10px"><a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "PASSED");'><fmt:message key="task.cellLibraryqc_setAllPass.label" /></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick='setAll("theForm${job.getJobId()}", "FAILED");'><fmt:message key="task.cellLibraryqc_setAllFail.label" /></a><br /></span>
-					<%-- <br /><input type="checkbox" name="startAnalysis"  value="true">Start Analysis<br />--%>
-					<br />
 					<select class="FormElement ui-widget-content ui-corner-all" name="startAnalysis" id = "startAnalysis${cellLibrary.getSampleSourceId()}" size="1" >
-						<option value=""><fmt:message key="task.cellLibraryqc_startAnalysisQuestion.label" /></option>
-						<option value="Now"><fmt:message key="task.cellLibraryqc_startAnalysisNow.label" /></option>
-						<option value="Later"><fmt:message key="task.cellLibraryqc_startAnalysisLater.label" /></option>
-						<option value="Never"><fmt:message key="task.cellLibraryqc_startAnalysisNever.label" /></option>
+						<option value=""><fmt:message key="task.aggregateAnalysis_startAnalysisQuestion.label" /></option>
+						<option value="Now"><fmt:message key="task.aggregateAnalysis_startAnalysisNow.label" /></option>
+						<option value="Later"><fmt:message key="task.aggregateAnalysis_startAnalysisLater.label" /></option>
+						<option value="Never"><fmt:message key="task.aggregateAnalysis_startAnalysisNever.label" /></option>
 					</select>				
 					<br />
-					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.cellLibraryqc_reset.label" />">
-					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.cellLibraryqc_submit.label" />">
+					<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.aggregateAnalysis_reset.label" />">
+					<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.aggregateAnalysis_submit.label" />">
 					</td>
 				</tr>
 			</c:if>

@@ -544,7 +544,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsAwaitingReceivingOfSamples = new ArrayList<Job>();
 		
 		for (Job job: getActiveJobs()){
-			logger.debug("examining sample receive status of job with id='" + job.getJobId() + "'");
+			logger.debug("examining sample receive status of job with id='" + job.getId() + "'");
 			if (this.isJobAwaitingReceivingOfSamples(job)) // some samples not yet received
 				jobsAwaitingReceivingOfSamples.add(job);
 		}
@@ -662,7 +662,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Override
 	public boolean isJobAwaitingSampleQC(Job job){
 		Assert.assertParameterNotNull(job, "job cannot be null");
-		Assert.assertParameterNotNull(job.getJobId(), "job Id cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
 		if (!this.getSubmittedSamplesNotYetQC(job).isEmpty())
 			return true;
 		return false;
@@ -688,7 +688,7 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		List<Job> jobsAwaitingQCOfLibraries = new ArrayList<Job>();
 		
 		for (Job job: getActiveJobs()){
-			logger.debug("examining library QC status of job with id='" + job.getJobId() + "'");
+			logger.debug("examining library QC status of job with id='" + job.getId() + "'");
 			if (this.isJobAwaitingLibraryQC(job)) // some samples not yet QCd
 				jobsAwaitingQCOfLibraries.add(job);
 		}
