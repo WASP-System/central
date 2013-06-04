@@ -10,13 +10,15 @@
 	</tr>
 	<c:if test="${fn:length(errorMessage)>0}">
 			<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
+	</c:if>
+	<c:forEach items="${fileGroups}" var="fileGroup" varStatus="fileGroupCounter">
+		<c:if test="${fileGroupCounter.first}">
+			<tr class="FormData">
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_name.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
+				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
+			</tr>		
 		</c:if>
-	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_name.label"/></td>
-		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
-		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
-	</tr>
-	<c:forEach items="${fileGroups}" var="fileGroup">
 	 	<c:set value="${fileGroupFileHandlesMap.get(fileGroup)}" var="fileHandles"/>
 	 	<c:choose>
 	 		<c:when test="${fn:length(fileHandles)==1}">
