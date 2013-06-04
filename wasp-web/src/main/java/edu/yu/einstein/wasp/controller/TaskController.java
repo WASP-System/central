@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
@@ -677,71 +678,128 @@ public class TaskController extends WaspController {
 		m.addAttribute("isTasks", taskMappingHyperlinksToDisplay.size() > 0);
 		return "task/myTaskList";
 	}
+	
+	private class JobIdComparator implements Comparator<Job> {
+		  @Override
+		  public int compare(Job job1, Job job2) {
+			  return job1.getId().compareTo(job2.getId());
+		  }
+	}
+	
+	//to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
+	private class SampleSourceComparator implements Comparator<SampleSource> {
+	    @Override
+	    public int compare(SampleSource sample1, SampleSource sample2) {
+	    	Sample library0 = sampleService.getLibrary(sample1);
+	    	Sample macromolecule0 = library0.getParent();
+	    	if(macromolecule0==null || macromolecule0.getId()==null){
+	    		macromolecule0 = new Sample();
+	    		macromolecule0.setName("User-Supplied Library");
+	    	}	    	
+			Sample cell0 = sampleService.getCell(sample1);
+			Sample platformUnit0 = null;
+			try{
+				platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
+			}catch(SampleException e){logger.warn(e.getMessage());}
+			List<Run> runs = platformUnit0.getRun();
+			Run run0=null;
+			if(!runs.isEmpty()){
+				run0 = runs.get(0);
+			}
+			else{
+				run0 = new Run();
+				run0.setName("Not Run");
+			}
+		    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + sample1.getIndex().toString() + run0.getName(); 
+			
+	    	Sample library1 = sampleService.getLibrary(sample2);
+	    	Sample macromolecule1 = library1.getParent();
+	    	if(macromolecule1==null || macromolecule1.getId()==null){
+	    		macromolecule1 = new Sample();
+	    		macromolecule1.setName("User-Supplied Library");
+	    	}		    	
+			Sample cell1 = sampleService.getCell(sample2);
+			Sample platformUnit1 = null;
+			try{
+				platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
+			}catch(SampleException e){logger.warn(e.getMessage());}
+			List<Run> moreRuns = platformUnit0.getRun();
+			Run run1;
+			if(!moreRuns.isEmpty()){
+				run1 = moreRuns.get(0);
+			}
+			else{
+				run1 = new Run();
+				run1.setName("Not Run");
+			}
+			String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + sample2.getIndex().toString() + run1.getName(); 
+				
+	        return str0.compareToIgnoreCase(str1);
+	    }
+	}
 
+	private void populateModelMapWithCommonCellLibraryAssociatedData(List<SampleSource> cellLibraries, ModelMap m){
+		Assert.assertParameterNotNull(cellLibraries, "cellLibraries cannot be null");
+		Assert.assertParameterNotNull(m, "model map cannot be null");
+  		Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
+		Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
+		Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
+		Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	 
+		Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
+		Collections.sort(cellLibraries, new SampleSourceComparator());//sort the SampleSourceList
+  		for(SampleSource cellLibrary : cellLibraries){
+			Sample library = sampleService.getLibrary(cellLibrary);
+			cellLibraryLibraryMap.put(cellLibrary, library);
+			Sample macromolecule = library.getParent();
+			if(macromolecule == null || macromolecule.getId() == null){
+				macromolecule = new Sample();
+				macromolecule.setName("User-Supplied Library");
+			}
+			cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
+			  
+			Sample cell = sampleService.getCell(cellLibrary);
+			Sample platformUnit = null;
+			try{
+				platformUnit = sampleService.getPlatformUnitForCell(cell);
+			}
+			catch(Exception e){//should not occur
+				platformUnit = new Sample();
+				platformUnit.setName("Not Found");
+				logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getId()); 
+			}
+			cellLibraryPUMap.put(cellLibrary, platformUnit);
+			  
+			List<Run> runs = platformUnit.getRun();
+			Run run = null;
+			if(!runs.isEmpty()){
+				run = platformUnit.getRun().get(0);
+			}
+			else{
+				run = new Run();
+				run.setName("Not run");					  
+			}
+			cellLibraryRunMap.put(cellLibrary, run);	
+			  
+			  
+			List<MetaMessage> inAnalysisCommentList = sampleService.getCellLibraryQCComments(cellLibrary.getId());
+			if(inAnalysisCommentList.size()<=0){
+				cellLibraryQcStatusCommentMap.put(cellLibrary, "");
+			}
+			else{
+				cellLibraryQcStatusCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
+			}
+		}
+  		m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
+  		m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
+  		m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
+  		m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
+  		m.addAttribute("cellLibraryQcStatusCommentMap", cellLibraryQcStatusCommentMap);
+  	}
  
   @RequestMapping(value = "/cellLibraryQC/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String listCellLibraryQC(ModelMap m) throws SampleTypeException {
 
-	  class JobIdComparator implements Comparator<Job> {
-		  @Override
-		  public int compare(Job job1, Job job2) {
-			  return job1.getId().compareTo(job2.getId());
-		  }
-	  }
-	  //to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
-	  class SampleSourceComparator implements Comparator<SampleSource> {
-		    @Override
-		    public int compare(SampleSource sample1, SampleSource sample2) {
-		    	Sample library0 = sampleService.getLibrary(sample1);
-		    	Sample macromolecule0 = library0.getParent();
-		    	if(macromolecule0==null || macromolecule0.getId()==null){
-		    		macromolecule0 = new Sample();
-		    		macromolecule0.setName("User-Supplied Library");
-		    	}	    	
-				Sample cell0 = sampleService.getCell(sample1);
-				Sample platformUnit0 = null;
-				try{
-					platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
-				}catch(SampleException e){logger.warn(e.getMessage());}
-				List<Run> runs = platformUnit0.getRun();
-				Run run0=null;
-				if(!runs.isEmpty()){
-					run0 = runs.get(0);
-				}
-				else{
-					run0 = new Run();
-					run0.setName("Not Run");
-				}
-			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + sample1.getIndex().toString() + run0.getName(); 
-				
-		    	Sample library1 = sampleService.getLibrary(sample2);
-		    	Sample macromolecule1 = library1.getParent();
-		    	if(macromolecule1==null || macromolecule1.getId()==null){
-		    		macromolecule1 = new Sample();
-		    		macromolecule1.setName("User-Supplied Library");
-		    	}		    	
-				Sample cell1 = sampleService.getCell(sample2);
-				Sample platformUnit1 = null;
-				try{
-					platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
-				}catch(SampleException e){logger.warn(e.getMessage());}
-				List<Run> moreRuns = platformUnit0.getRun();
-				Run run1;
-				if(!moreRuns.isEmpty()){
-					run1 = moreRuns.get(0);
-				}
-				else{
-					run1 = new Run();
-					run1.setName("Not Run");
-				}
-				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + sample2.getIndex().toString() + run1.getName(); 
-					
-		        return str0.compareToIgnoreCase(str1);
-		    }
-		}
-	  
-	  
 	  /* *************will currently be none, so add two jobs.
 	  boolean fakeIt = false;
 	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
@@ -754,12 +812,7 @@ public class TaskController extends WaspController {
 	  List<Job> activeJobsWithCellLibrariesAwaitingQC = new ArrayList<Job>();
 	  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
-	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
 	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
-	  Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
 	  for(Job job : jobService.getActiveJobs()){
 		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
@@ -769,7 +822,6 @@ public class TaskController extends WaspController {
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
 			  String exitStatusCode = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode();
-			  logger.debug("cellLibrariesWithPreprocessingStatus: " + cellLibrary.getId() + "=" + exitStatusCode);
 			  if (!exitStatusCode.equals(ExitStatus.COMPLETED.getExitCode()))
 				  continue;
 			  preprocessedCellLibraries.add(cellLibrary);
@@ -781,79 +833,18 @@ public class TaskController extends WaspController {
 			  } catch (MetaAttributeNotFoundException e){} // no value set
 			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryPassedQC);
 		  }
-		  if (atLeastOneCellLibraryAwaitingQC)
+		  if (atLeastOneCellLibraryAwaitingQC){
 			  activeJobsWithCellLibrariesAwaitingQC.add(job);
-	
-			  
-		  /*  //*******************will currently be none, so fake for some data
-		  if(fakeIt){
-			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
-				  preprocessedCellLibraries.add(ss);
-			  }
-		  }
-		  */  //*******************will currently be none, so fake for some data	
-		  
-		  if(atLeastOneCellLibraryAwaitingQC){
-			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
 			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
-			  //fill up the maps
-			  for(SampleSource cellLibrary : preprocessedCellLibraries){//TODO this can be a service
-				  Sample library = sampleService.getLibrary(cellLibrary);
-				  logger.debug("current library = " + library.getId());
-				  cellLibraryLibraryMap.put(cellLibrary, library);
-				  Sample macromolecule = library.getParent();
-				  if(macromolecule == null || macromolecule.getId() == null){
-					  macromolecule = new Sample();
-					  macromolecule.setName("User-Supplied Library");
-				  }
-				  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
-				  
-				  Sample cell = sampleService.getCell(cellLibrary);
-				  Sample platformUnit = null;
-				  try{
-					  platformUnit = sampleService.getPlatformUnitForCell(cell);
-				  }
-				  catch(Exception e){//should not occur
-					  platformUnit = new Sample();
-					  platformUnit.setName("Not Found");
-					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getId()); 
-				  }
-				  cellLibraryPUMap.put(cellLibrary, platformUnit);
-				  
-				  List<Run> runs = platformUnit.getRun();
-				  Run run = null;
-				  if(!runs.isEmpty()){
-					  run = platformUnit.getRun().get(0);
-				  }
-				  else{
-					  run = new Run();
-					  run.setName("Not run");					  
-				  }
-				  cellLibraryRunMap.put(cellLibrary, run);	
-				  
-				  
-				  List<MetaMessage> inAnalysisCommentList = sampleService.getCellLibraryQCComments(cellLibrary.getId());
-				  if(inAnalysisCommentList.size()<=0){
-					  cellLibraryQcStatusCommentMap.put(cellLibrary, "");
-				  }
-				  else{
-					  cellLibraryQcStatusCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
-				  }
-			  }  
 		  }
 	  }
+	  populateModelMapWithCommonCellLibraryAssociatedData(preprocessedCellLibraries, m);
 	  //sort by job ID desc
 	  Collections.sort(activeJobsWithCellLibrariesAwaitingQC, new JobIdComparator()); 
 
 	  m.addAttribute("jobs", activeJobsWithCellLibrariesAwaitingQC);
 	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
-	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
-	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
-	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
-	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
 	  m.addAttribute("cellLibraryQcStatusMap", cellLibraryQcStatusMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
-	  m.addAttribute("cellLibraryQcStatusCommentMap", cellLibraryQcStatusCommentMap);
-	  
 	  return "task/cellLibraryQC/list";
 	}
   
@@ -960,182 +951,50 @@ public class TaskController extends WaspController {
 	  return "redirect:/task/cellLibraryQC/list.do";
   }
   
+  	
+  
   @RequestMapping(value = "/aggregationAnalysis/list", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm-*')")
 	public String aggregationAnalysisGet(ModelMap m) throws SampleTypeException {
 
-	  class JobIdComparator implements Comparator<Job> {
-		  @Override
-		  public int compare(Job job1, Job job2) {
-			  return job1.getId().compareTo(job2.getId());
-		  }
-	  }
-	  //to sort samplesource objects based on macromoleucle name, then library name then platformunit name, then run name
-	  class SampleSourceComparator implements Comparator<SampleSource> {
-		    @Override
-		    public int compare(SampleSource sample1, SampleSource sample2) {
-		    	Sample library0 = sampleService.getLibrary(sample1);
-		    	Sample macromolecule0 = library0.getParent();
-		    	if(macromolecule0==null || macromolecule0.getId()==null){
-		    		macromolecule0 = new Sample();
-		    		macromolecule0.setName("User-Supplied Library");
-		    	}	    	
-				Sample cell0 = sampleService.getCell(sample1);
-				Sample platformUnit0 = null;
-				try{
-					platformUnit0 = sampleService.getPlatformUnitForCell(cell0);
-				}catch(SampleException e){logger.warn(e.getMessage());}
-				List<Run> runs = platformUnit0.getRun();
-				Run run0=null;
-				if(!runs.isEmpty()){
-					run0 = runs.get(0);
-				}
-				else{
-					run0 = new Run();
-					run0.setName("Not Run");
-				}
-			    String str0 = macromolecule0.getName() + library0.getName() + platformUnit0.getName() + sample1.getIndex().toString() + run0.getName(); 
-				
-		    	Sample library1 = sampleService.getLibrary(sample2);
-		    	Sample macromolecule1 = library1.getParent();
-		    	if(macromolecule1==null || macromolecule1.getId()==null){
-		    		macromolecule1 = new Sample();
-		    		macromolecule1.setName("User-Supplied Library");
-		    	}		    	
-				Sample cell1 = sampleService.getCell(sample2);
-				Sample platformUnit1 = null;
-				try{
-					platformUnit1 = sampleService.getPlatformUnitForCell(cell1);
-				}catch(SampleException e){logger.warn(e.getMessage());}
-				List<Run> moreRuns = platformUnit0.getRun();
-				Run run1;
-				if(!moreRuns.isEmpty()){
-					run1 = moreRuns.get(0);
-				}
-				else{
-					run1 = new Run();
-					run1.setName("Not Run");
-				}
-				String str1 = macromolecule1.getName() + library1.getName() + platformUnit1.getName() + sample2.getIndex().toString() + run1.getName(); 
-					
-		        return str0.compareToIgnoreCase(str1);
-		    }
-		}
-	  
-	  
-	  /* *************will currently be none, so add two jobs.
-	  boolean fakeIt = false;
-	  if(activeJobsWithNoSamplesCurrentlyBeingProcessed.isEmpty()){
-		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(40));
-		  activeJobsWithNoSamplesCurrentlyBeingProcessed.add(jobService.getJobByJobId(46));
-		  fakeIt = true;
-	  }
-	  */  //**************will currently be none, so add two jobs.
-	  
-	  List<Job> activeJobsWithCellLibrariesAwaitingQC = new ArrayList<Job>();
-	  List<SampleSource> preprocessedCellLibraries = new ArrayList<SampleSource>();
+	  List<Job> activeJobsWithCellLibrariesToDisplay = new ArrayList<Job>();
+	  List<SampleSource> allCellLibraries = new ArrayList<SampleSource>();
 	  Map<Job, List<SampleSource>> jobCellLibraryMap = new HashMap<Job, List<SampleSource>>();
-	  Map<SampleSource, Sample> cellLibraryLibraryMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> cellLibraryMacromoleculeMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Sample> cellLibraryPUMap = new HashMap<SampleSource, Sample>();
-	  Map<SampleSource, Run> cellLibraryRunMap = new HashMap<SampleSource, Run>();	  
+	   
 	  Map<SampleSource, Boolean> cellLibraryQcStatusMap = new HashMap<SampleSource, Boolean>();
-	  Map<SampleSource, String> cellLibraryQcStatusCommentMap = new HashMap<SampleSource,String>();
+	  
+	  Map<SampleSource, String> cellLibraryWithPreprocessingStatusMap = new HashMap<SampleSource,String>();
 	  for(Job job : jobService.getActiveJobs()){
-		  //make certain that aggregateAnalysis has not yet been kicked-off  for this job
+		  //make certain that aggregateAnalysis has not yet been kicked-off for this job
 		  if(jobService.isAggregationAnalysisBatchJob(job)){
 			  continue;
 		  }
-		  boolean atLeastOneCellLibraryAwaitingQC = false;
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
-			  String exitStatusCode = jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode();
-			  logger.debug("cellLibrariesWithPreprocessingStatus: " + cellLibrary.getId() + "=" + exitStatusCode);
-			  if (!exitStatusCode.equals(ExitStatus.COMPLETED.getExitCode()))
-				  continue;
-			  preprocessedCellLibraries.add(cellLibrary);
-			  if (sampleService.isCellLibraryAwaitingQC(cellLibrary))
-				  atLeastOneCellLibraryAwaitingQC = true;
+			  cellLibraryWithPreprocessingStatusMap.put(cellLibrary, jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode());
 			  Boolean isCellLibraryPassedQC = null;
 			  try{
 				  isCellLibraryPassedQC = sampleService.isCellLibraryPassedQC(cellLibrary);
 			  } catch (MetaAttributeNotFoundException e){} // no value set
 			  cellLibraryQcStatusMap.put(cellLibrary, isCellLibraryPassedQC);
+			  allCellLibraries.add(cellLibrary);
 		  }
-		  if (atLeastOneCellLibraryAwaitingQC)
-			  activeJobsWithCellLibrariesAwaitingQC.add(job);
-	
-			  
-		  /*  //*******************will currently be none, so fake for some data
-		  if(fakeIt){
-			  for(SampleSource ss : sampleService.getCellLibrariesForJob(job)){
-				  preprocessedCellLibraries.add(ss);
-			  }
-		  }
-		  */  //*******************will currently be none, so fake for some data	
-		  
-		  if(atLeastOneCellLibraryAwaitingQC){
-			  Collections.sort(preprocessedCellLibraries, new SampleSourceComparator());//sort the SampleSourceList
-			  jobCellLibraryMap.put(job, preprocessedCellLibraries);
-			  //fill up the maps
-			  for(SampleSource cellLibrary : preprocessedCellLibraries){//TODO this can be a service
-				  Sample library = sampleService.getLibrary(cellLibrary);
-				  logger.debug("current library = " + library.getId());
-				  cellLibraryLibraryMap.put(cellLibrary, library);
-				  Sample macromolecule = library.getParent();
-				  if(macromolecule == null || macromolecule.getId() == null){
-					  macromolecule = new Sample();
-					  macromolecule.setName("User-Supplied Library");
-				  }
-				  cellLibraryMacromoleculeMap.put(cellLibrary, macromolecule);
-				  
-				  Sample cell = sampleService.getCell(cellLibrary);
-				  Sample platformUnit = null;
-				  try{
-					  platformUnit = sampleService.getPlatformUnitForCell(cell);
-				  }
-				  catch(Exception e){//should not occur
-					  platformUnit = new Sample();
-					  platformUnit.setName("Not Found");
-					  logger.warn("Expected a platformUnit belonging to cell with Id of " + cell.getId()); 
-				  }
-				  cellLibraryPUMap.put(cellLibrary, platformUnit);
-				  
-				  List<Run> runs = platformUnit.getRun();
-				  Run run = null;
-				  if(!runs.isEmpty()){
-					  run = platformUnit.getRun().get(0);
-				  }
-				  else{
-					  run = new Run();
-					  run.setName("Not run");					  
-				  }
-				  cellLibraryRunMap.put(cellLibrary, run);	
-				  
-				  
-				  List<MetaMessage> inAnalysisCommentList = sampleService.getCellLibraryQCComments(cellLibrary.getId());
-				  if(inAnalysisCommentList.size()<=0){
-					  cellLibraryQcStatusCommentMap.put(cellLibrary, "");
-				  }
-				  else{
-					  cellLibraryQcStatusCommentMap.put(cellLibrary, inAnalysisCommentList.get(0).getValue());
-				  }
-			  }  
+		  if (!jobCellLibrariesWithPreprocessingStatus.isEmpty()){
+			  activeJobsWithCellLibrariesToDisplay.add(job);
+			  jobCellLibraryMap.put(job, allCellLibraries);
 		  }
 	  }
+	  populateModelMapWithCommonCellLibraryAssociatedData(allCellLibraries, m);
 	  //sort by job ID desc
-	  Collections.sort(activeJobsWithCellLibrariesAwaitingQC, new JobIdComparator()); 
+	  Collections.sort(activeJobsWithCellLibrariesToDisplay, new JobIdComparator()); 
 
-	  m.addAttribute("jobs", activeJobsWithCellLibrariesAwaitingQC);
+	  m.addAttribute("jobs", activeJobsWithCellLibrariesToDisplay);
 	  m.addAttribute("jobCellLibraryMap", jobCellLibraryMap);
-	  m.addAttribute("cellLibraryLibraryMap", cellLibraryLibraryMap);
-	  m.addAttribute("cellLibraryMacromoleculeMap", cellLibraryMacromoleculeMap);
-	  m.addAttribute("cellLibraryPUMap", cellLibraryPUMap);
-	  m.addAttribute("cellLibraryRunMap", cellLibraryRunMap);
+	  m.addAttribute("cellLibraryWithPreprocessingStatusMap", cellLibraryWithPreprocessingStatusMap);
 	  m.addAttribute("cellLibraryQcStatusMap", cellLibraryQcStatusMap);//Be careful in the jsp, as this Boolean can be null (not recorded yet)
-	  m.addAttribute("cellLibraryQcStatusCommentMap", cellLibraryQcStatusCommentMap);
 	  
-	  return "task/cellLibraryQC/list";
+	  
+	  return "task/aggregationAnalysis/list";
 	}
   
 
