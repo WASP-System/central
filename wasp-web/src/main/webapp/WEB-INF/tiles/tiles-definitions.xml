@@ -258,6 +258,23 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
+	
+	<definition name="job/home/sampledetail_ro" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_ro.jsp" />
+	</definition>
+	<definition name="job/home/sampledetail_rw" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_rw.jsp" />
+	</definition>
+	<definition name="job/home/librarydetail_ro" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/librarydetail_ro.jsp" />
+	</definition>
+	<definition name="job/home/librarydetail_rw" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/librarydetail_rw.jsp" />
+	</definition>
+	<definition name="job/home/createLibrary" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/createLibrary.jsp" />
+	</definition>
+	
 	<definition name="job/home/fileUploadManager" extends="template-unadorned-with-stylesheet">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>

@@ -121,14 +121,17 @@ function toggleExpandHide(thisAnchorObject){
 }
 
 function loadIFrameAnotherWay(thisAnchorObject, url){//alert("I am here with url of : " + url);
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="block"){
-		viewerFrame.style.display="none";
-		viewerFrame2.style.display = "block";
-	} 
-	//thisAnchorObject.href=url;
-	var myIframe = document.getElementById("myIframe");//ok, works with the tabs
+	///var viewerFrame = document.getElementById("viewerFrame");
+	///var viewerFrame2 = document.getElementById("viewerFrame2");
+	///if(viewerFrame.style.display=="block"){
+	///	viewerFrame.style.display="none";
+	///	viewerFrame2.style.display = "block";
+	///} 
+	//thisAnchorObject.href=url; 
+	
+	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
+	
+	var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
 	myIframe.src = url;
 	myIframe.style.width="100%";
 	myIframe.style.height="1000px";
@@ -136,6 +139,13 @@ function loadIFrameAnotherWay(thisAnchorObject, url){//alert("I am here with url
 	//see http://www.daniweb.com/web-development/web-design-html-and-css/threads/283687/css-height-in-not-working 
 	//myIframe.style.height="100%";  
 	//myIframe.height="100%"; 
+
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="block"){
+		viewerFrame.style.display="none";
+		viewerFrame2.style.display = "block";
+	} 
 }
 
 function loadIFrame(thisAnchorObject, url){//alert("I am here with url of : " + url);
@@ -175,13 +185,15 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 //		return false;
 //	} 
 	
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="none"){
-		viewerFrame.style.display="block";
-		viewerFrame2.style.display = "none";
-	}
+	///var viewerFrame = document.getElementById("viewerFrame");
+	///var viewerFrame2 = document.getElementById("viewerFrame2");
+	///if(viewerFrame.style.display=="none"){
+	///	viewerFrame.style.display="block";
+	///	viewerFrame2.style.display = "none";
+	///} 
 	
+	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
+
 	var req = new XMLHttpRequest();
 	req.open("GET", urlToDisplay, false);
 	req.send(null);
@@ -190,8 +202,15 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 		page = "Error! Unable to load data. Please try again.";
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
-	urlDisplayedOnRight = urlToDisplay;
+	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
 	
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="none"){
+		viewerFrame.style.display="block";
+		viewerFrame2.style.display = "none";
+	}
+
 	//how one could possibly get javascript with ajax and then add it to dom 
 	//http://ntt.cc/2008/02/10/4-ways-to-dynamically-load-external-javascriptwith-source.html 
 	/*
