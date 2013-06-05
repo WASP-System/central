@@ -47,7 +47,18 @@
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${macromolecule.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${library.getName()}" /></td>
 				<td style='text-align:center;vertical-align:middle;'><c:out value="${pu.getName()}" /> (Cell: <c:out value="${cellLibrary.getIndex().toString()}" />) --&gt;<br /><c:out value="${run.getName()}" /></td>
-				<td style='text-align:center;vertical-align:middle;'><c:out value="${cellLibraryWithPreprocessingStatusMap.get(cellLibrary)}" /></td>
+				<td style='text-align:center;vertical-align:middle;'>
+				<c:set value="${cellLibraryWithPreprocessingStatusMap.get(cellLibrary)}" var = "processingStatus" />
+				<c:if test="${processingStatus != null && processingStatus == 'COMPLETED' }">
+						<div><img src='/wasp/images/pass.png'></div>
+				</c:if>
+				<c:if test="${processingStatus != null && processingStatus == 'FAILED' }">
+					<div><img src='/wasp/images/fail.png'></div>
+				</c:if>
+				<c:if test="${processingStatus != null && processingStatus == 'STOPPED' }">
+					<div><wasp:warning key="task.aggregateAnalysis_processingStopped.label" /></div>
+				</c:if>
+				</td>
 				<td style='text-align:center;vertical-align:middle;'>
 					<c:set value="${cellLibraryQcStatusMap.get(cellLibrary)}" var="cellLibraryQcStatus" />
 					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />

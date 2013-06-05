@@ -14,5 +14,9 @@ public class Tooltip {
 	public static String getCommentHtmlString(String commentText){
 		return "&nbsp;<img src='/wasp/images/comment-icon.png' height='20px'  border='0' title='" + commentText + "' class='tooltip'>&nbsp;";
 	}
+	
+	public static String getWarningHtmlString(String commentText){
+		return "&nbsp;<img src='/wasp/images/warning.png' height='20px'  border='0' title='" + commentText + "' class='tooltip'>&nbsp;";
+	}
 
 }
