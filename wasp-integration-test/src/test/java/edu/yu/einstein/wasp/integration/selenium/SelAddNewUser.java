@@ -110,7 +110,7 @@ public class SelAddNewUser extends SelBaseTest {
     	 
     	//TO DO:
     	
-    	Assert.assertEquals(driver.getCurrentUrl(), sNewUserUrlCreated);
+    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newuser/created.do");
     }
   	
   	 @Override

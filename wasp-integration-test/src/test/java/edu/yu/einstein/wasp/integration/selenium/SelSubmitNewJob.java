@@ -52,7 +52,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	
 		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")), "'Submit' button does not exist");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-    	Assert.assertEquals(driver.getCurrentUrl(), sExpectedUrl);
+    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/dashboard.do");
     	/* Does not work. Possible firefox webdriver bug.
     	Assert.assertNotNull(driver.findElement(By.linkText("Jobs")), "Unable to locate 'Jobs' menu link.");
     	
