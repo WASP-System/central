@@ -1780,7 +1780,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			Run run = runService.getRunById(id);
 			
 			if (jid==null || jid<1) {
-				Set<SampleSource> libcellList = runService.getLibraryCellPairsOnSuccessfulRunCells(run);
+				Set<SampleSource> libcellList = runService.getCellLibrariesOnSuccessfulRunCells(run);
 				for (SampleSource libcell : libcellList) {
 					Sample cell = sampleService.getCell(libcell);
 					Map childNode = new HashMap();
