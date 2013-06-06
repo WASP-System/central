@@ -26,11 +26,7 @@
 			<input type="submit" value="Hide Tree" onClick="showhideTree(this);"/>
 			<input type="submit" value="Add tab" onClick="addTab();"/>
 			<div id="mytabs">
-	    		<ul>
-					
-				</ul>
-				
-	    	</div>
+		    </div>
 		</div>
 	</div>
 </div>

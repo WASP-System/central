@@ -2,9 +2,85 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<script type="text/javascript" src="/wasp/scripts/jquery/ui.tabs.closable.js"></script>
+<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
+<!-- script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script -->
 
 <script>
+Ext.require('Ext.tab.*');
+
+/* Ext.onReady(function(){
+    // basic tabs 1, built from existing content
+    var tabs = Ext.widget('tabpanel', {
+        renderTo: 'tabs1',
+        width: 450,
+        activeTab: 0,
+        defaults :{
+            bodyPadding: 10
+        },
+        items: [{
+            contentEl:'script', 
+            title: 'Short Text',
+            closable: true
+        },{
+            contentEl:'markup', 
+            title: 'Long Text'
+        }]
+    });
+    
+    // second tabs built from JS
+    var tabs2 = Ext.widget('tabpanel', {
+        renderTo: document.body,
+        activeTab: 0,
+        width: 600,
+        height: 250,
+        plain: true,
+        defaults :{
+            autoScroll: true,
+            bodyPadding: 10
+        },
+        items: [{
+                title: 'Normal Tab',
+                html: "My content was added during construction."
+            },{
+                title: 'Ajax Tab 1',
+                loader: {
+                    url: 'ajax1.htm',
+                    contentType: 'html',
+                    loadMask: true
+                },
+                listeners: {
+                    activate: function(tab) {
+                        tab.loader.load();
+                    }
+                }
+            },{
+                title: 'Ajax Tab 2',
+                loader: {
+                    url: 'ajax2.htm',
+                    contentType: 'html',
+                    autoLoad: true,
+                    params: 'foo=123&bar=abc'
+                }
+            },{
+                title: 'Event Tab',
+                listeners: {
+                    activate: function(tab){
+                        setTimeout(function() {
+                            alert(tab.title + ' was activated.');
+                        }, 1);
+                    }
+                },
+                html: "I am tab 4's content. I also have an event listener attached."
+            },{
+                title: 'Disabled Tab',
+                disabled: true,
+                html: "Can't see me cause I'm disabled"
+            }
+        ]
+    });
+});
+ */
+
 var state = 'none';
 
 function showhide(btn,layer_ref) {
@@ -30,12 +106,12 @@ function showhide(btn,layer_ref) {
 function showhideTree(btn) {
 	if (btn.value == 'Hide Tree') {
 		btn.value= 'Show Tree';
-		$('#left-container').hide();
-		$('#right-container').css('width', '98%');
+		$('#left-container').hide('slow');
+		setTimeout(function(){$('#right-container').css('width', '100%')}, 600);
 	} else {
 		btn.value='Hide Tree';
 		$('#left-container').show('slow');
-		$('#right-container').css('width', '48%');
+		$('#right-container').css('width', '65%');
 	}
 }
 
@@ -278,125 +354,7 @@ function update(source) {
 			d.pid = -1;
 	});
 
-/*
-  // Enter any new nodes at the parent's previous position.
-  var nodeEnter = node.enter().append("g")
-      .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-      .on("click", click)
-      .on("mouseover", onMouseOver)
-      .on("mouseout", onMouseOut);
 
-  nodeEnter.append("circle")
-      .attr("r", 1e-6)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
-
-  nodeEnter.append("text")
-      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6)
-      .attr("pointer-events", "all")
-      .on("click", clickLabel);
-*/
-//Add checkbox
-/* 	barHeight=20;
-	barWidth=80;
-	function color(d) {
-	    return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
-	}
-
-  nodeEnter.append("svg:rect")
-  	.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-  	.attr("y", -barHeight / 2)
-  	.attr("height", barHeight)
-  	.attr("width", barWidth)
-  	.style("stroke", color)
-  	.style("fill", "white")
-  	.style("fill-opacity", 1e-6)
-  	.on("click", function(d) {
-    	if (d.selected) {
-     		d.selected = false;
-     		d3.select(this).attr("fill", "white");
-    	} else {
-     		d.selected = true;
-     		d3.select(this).attr("fill", "black");
-    	}
-    });
- */  
-/*   nodeEnter.append("svg:circle")
-  	.attr("x", function(d) { return d.children || d._children ? -50 : 50; })
-  	.attr("r", 5)
-  	.attr("fill", "white")
-  	.on("click", function(d) {
-    	if (d.selected) {
-     		d.selected = false;
-     		d3.select(this).attr("fill", "white");
-    	} else {
-     		d.selected = true;
-     		d3.select(this).attr("fill", "black");
-    	}
-    	//printSelectedNodes();
-  	});
- */
-
- // Transition nodes to their new position.
-/*  var nodeUpdate = node.transition()
-      .duration(duration)
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-  nodeUpdate.select("circle")
-      .attr("r", 4.5)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
-
-  nodeUpdate.select("text")
-      .style("fill-opacity", 1);
-
-  // Transition exiting nodes to the parent's new position.
-  var nodeExit = node.exit().transition()
-      .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-      .remove();
-
-  nodeExit.select("circle")
-      .attr("r", 1e-6);
-
-  nodeExit.select("text")
-      .style("fill-opacity", 1e-6);
-
-  // Update the links
-  var link = vis.selectAll("path.link")
-      .data(tree.links(nodes), function(d) { return d.target.id; });
-
-  // Enter any new links at the parent's previous position.
-  link.enter().insert("path", "g")
-      .attr("class", "link")
-      .attr("d", function(d) {
-        var o = {x: source.x0, y: source.y0};
-        return diagonal({source: o, target: o});
-      });
-
-  // Transition links to their new position.
-  link.transition()
-      .duration(duration)
-      .attr("d", diagonal);
-
-  // Transition exiting nodes to the parent's new position.
-  link.exit().transition()
-      .duration(duration)
-      .attr("d", function(d) {
-        var o = {x: source.x, y: source.y};
-        return diagonal({source: o, target: o});
-      })
-      .remove();
-
-  // Stash the old positions for transition.
-  nodes.forEach(function(d) {
-    d.x0 = d.x;
-    d.y0 = d.y;
-  });
-*/
 }
 
 function printSelectedNodes() {
@@ -423,68 +381,7 @@ function toggle(d) {
 	update(d);
 }
 
-//var tabs, tabTitle, tabContent;
-var tabCounter = 1;
-
-function addTab() {
-	//var tabs = $('#mytabs').tabs();
-
-	//var ul = tabs.find( "ul" );
-    //$( "<li><a href='#newtab'>New Tab</a></li>" ).appendTo( ul );
-    //$( "<div id='newtab'><form action='' method='post'>Name :<input type='text' name='name'></input></br>Email :<input type='text' name='email'></input></br>Phone Number :<input type='text' name='phone'></input></br><input type='button' value='Submit' id='form_button' onclick='submit_form()'></input></form></div>" ).appendTo( tabs );
-	//$( "<li><a href='/wasp/sampleDnaToLibrary/listJobSamples/2.do'>New Tab</a></li>" )
-    //	.appendTo( "#mytabs .ui-tabs-nav" );
-	
-	tabCounter++;
-	$( "<div id='tab"+tabCounter+"'><form action='' method='post'>Name "+tabCounter+"</br></form></div>" )
-		.appendTo( "#mytabs" );
-	$( "<li><a href='#tab"+tabCounter+"'>Tab "+tabCounter+"</a></li>" )
-		.appendTo( "#mytabs .ui-tabs-nav" );
-    $('#mytabs').tabs("refresh");
-    $('#mytabs').tabs("option", "active", -1);
-}
-
-/* 
-function removeTab(t){
-	// Decrease tab counter
-	tabCounter--;
-
-	// Remove the tab
-	var tab = $('#mytabs').find( ".ui-tabs-nav li:eq("+t+")" ).remove();
-	// Find the id of the associated panel
-	var panelId = tab.attr( "aria-controls" );
-	// Remove the panel
-	$( "#" + panelId ).remove();
-	// Refresh the tabs widget
-	$('#mytabs').tabs("refresh");
-	
-}
-
-
-function removeLastTab(){
-	// Decrease tab counter to get the index of last tab
-	tabCounter--;
-
-	// Remove the tab
-	var tab = $('#mytabs').find( ".ui-tabs-nav li:eq("+tabCounter+")" ).remove();
-	// Find the id of the associated panel
-	var panelId = tab.attr( "aria-controls" );
-	// Remove the panel
-	$( "#" + panelId ).remove();
-	// Refresh the tabs widget
-	$('#mytabs').tabs("refresh");
-	
-}
-*/
-
-function truncateTabs(){
-	$('#mytabs ul li').remove();
-	$('#mytabs div').remove();
-	$("#mytabs").tabs("refresh");
-	
-	tabCounter=0;
-}
-
+var tabs, tabCounter=0;
 
 function click(d) {
 	if (d.jid==undefined) {
@@ -507,9 +404,7 @@ function click(d) {
 	    }
 	    return val; });
 	
-	var tabs = $('#mytabs').tabs({closable: true});
-	truncateTabs();
-	
+	//var tabs = $('#mytabs').tabs({closable: true});
   
   $.ajax({
       url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
@@ -526,7 +421,17 @@ function click(d) {
 //			$('div#tabs').tabs('remove', i);
 //		}
       	
-/*      	$.each(result, function (index, item) {
+      	if(tabs!=undefined)
+      		tabs.close();
+
+      	tabs = Ext.widget('tabpanel', {
+      		renderTo: 'mytabs',
+      		defaults :{
+      			bodyPadding: 10
+      		}
+      	});
+      	
+/*      $.each(result, function (index, item) {
 			var num_tabs = $("div#tabs ul li").length + 1;
 
              $("div#tabs ul").append(
@@ -559,12 +464,19 @@ function click(d) {
 		      	});
 		        return;
 			} else {
-				tabTitle = d.type.toUpperCase()+" Details";
+				tabTitle = d.name+" Details";
 			}
 			
-			tabTitle = index;
+			//tabTitle = index;
 			tabCounter++;
-			$( "<div id='tab"+tabCounter+"'></div>" ).appendTo( "#mytabs" );
+			var tab = tabs.add({
+	            // we use the tabs.items property to get the length of current items/tabs
+	            title: tabTitle,
+	            html : "<div id='tab"+tabCounter+"'></div>"
+	        });
+	        tabs.setActiveTab(tab);
+			
+//	        $( "<div id='tab"+tabCounter+"'></div>" ).appendTo( "#mytabs" );
 	     	//d3.select('#detailview').append("h3").html(headStr);
 	      	//var table = d3.select('#detailview').append("tbody");
 	      	var table = d3.select("#tab"+tabCounter).append("tbody");
@@ -585,12 +497,13 @@ function click(d) {
 	          		});
 	          	}
 	        });
+	        tabs.doComponentLayout();
 	        
-	        $( "<li><a href='#tab"+tabCounter+"'>"+tabTitle+"</a></li>" )
+/*	        $( "<li><a href='#tab"+tabCounter+"'>"+tabTitle+"</a></li>" )
 				.appendTo( "#mytabs .ui-tabs-nav" );
 		    $('#mytabs').tabs("refresh");
 		    $('#mytabs').tabs("option", "active", -1);
-		});
+*/		});
      }
   });
   
@@ -620,65 +533,6 @@ function color(d) {
 	  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
 	}
 
-/*
-// Toggle children on click.
-function click(d) {
-  if (labelClick) {
-	  labelClick = false;
-	  return;
-  }
-  if (d.children) {
-    d._children = d.children;
-    d.children = null;
-  } else {
-    d.children = d._children;
-    d._children = null;
-  }
-  // Collapse all sibling nodes' children
-  if (d.parent) {
-	  d.parent.children.forEach(function(e) {
-		  if(e!=d && e.children) {
-			  collapse(e);
-		  }
-	  });
-  }
-  
-  update(d);
-}
-
-var labelClick = false;
-
-function clickLabel(d) {
-  labelClick = true;
-  $.ajax({
-        url: '/wasp/jobresults/getDetailsJson.do?type='+d.type+'&id='+d.myid,
-        type: 'GET',
-        dataType: 'json',
-        success: function (result) {
-        	d3.select('#detailview').select("h3").remove();
-        	d3.select('#detailview').select("tbody").remove();
-        	
-        	d3.select('#detailview').append("h3").html(d.type.toUpperCase()+" Details");
-        	var table = d3.select('#detailview').append("tbody");
-            $.each(result, function (index, item) {
-           		var row = table.append("tr");
-           		row.append("td").html(index);
-
-           		if (typeof item == 'string' || item instanceof String) {
-            		row.append("td").html(item);
-            	} else {
-            		var td = row.append("td");
-            		$.each(item, function (index2, item2) {
-            			var row2 = td.append("tr");
-                		row2.append("td").html(index2);
-                		row2.append("td").html(item2);
-            		});
-            	}
-            });
-        }
-  });
-}
-*/
 function onMouseOver(d)
 {
     d3.select(this).select("circle").attr("r", 5);
