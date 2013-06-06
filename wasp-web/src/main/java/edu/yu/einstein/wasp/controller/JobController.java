@@ -1263,13 +1263,7 @@ public class JobController extends WaspController {
 				  adaptor = adaptorService.getAdaptor(library);
 				  libraryAdaptorMap.put(library, adaptor);
 				  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
-			  }catch(Exception e){
-				  System.out.println("EXCEPTION getting adaptor for library "+ library.getName() + ": " + e.getMessage());
-				  System.out.println("---SAMPLEMETA:");
-				  for(SampleMeta sm : library.getSampleMeta()){
-					  System.out.println("------"+sm.getK()+":"+sm.getV());
-				  }
-			  }		  
+			  }catch(Exception e){  }		  
 		  }
 		  
 		  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);

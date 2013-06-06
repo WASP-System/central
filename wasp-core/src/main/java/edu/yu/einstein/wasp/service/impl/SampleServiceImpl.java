@@ -2228,7 +2228,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		newJobSample.setJob(job);
 		newJobSample.setSample(managedLibrary.getSampleObject());
 		newJobSample = jobSampleDao.save(newJobSample);
-		///initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
+		initiateBatchJobForLibrary(job, managedLibrary.getSampleObject(), "wasp.facilityLibrary.jobflow.v1");
 	}
 	
 	/**
