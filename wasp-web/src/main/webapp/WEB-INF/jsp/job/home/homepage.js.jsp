@@ -224,7 +224,26 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 	oHead.appendChild( oScript );	
 	*/
 }
-
+function loadNewPageWithoutMoving(thisAnchorObject, urlToDisplay) {
+	
+	var req = new XMLHttpRequest();
+	req.open("GET", urlToDisplay, false);
+	req.send(null);
+	var page = req.responseText;
+	if(req.status == 404 || req.status == 500){
+		$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
+		page = "Error! Unable to load data. Please try again.";
+	}
+	document.getElementById("viewerFrame").innerHTML = page;
+	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
+	
+	var viewerFrame = document.getElementById("viewerFrame");
+	var viewerFrame2 = document.getElementById("viewerFrame2");
+	if(viewerFrame.style.display=="none"){
+		viewerFrame.style.display="block";
+		viewerFrame2.style.display = "none";
+	}
+}
 function postForm(formId, urlToPost) {//added 5-16-13 
 	
 	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
@@ -250,7 +269,8 @@ function postForm(formId, urlToPost) {//added 5-16-13
 		}
 		inputParameters += theName + "=" + theValue; 
 	}
-	
+	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
+
 	var req = new XMLHttpRequest();
 	req.open("POST", urlToPost, false);
 	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");	
@@ -276,8 +296,8 @@ function postForm(formId, urlToPost) {//added 5-16-13
 }
 
 function postMultipartForm(formId, urlToPost) {//added 5-17-13 
-	
-	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
+//don't think being used !!!  
+//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
 	//http://stackoverflow.com/questions/5933949/how-to-send-multipart-form-data-form-content-by-ajax-no-jquery 
 	//alert("urlToPost: " + urlToPost); 
 	
@@ -300,7 +320,8 @@ function postMultipartForm(formId, urlToPost) {//added 5-17-13
 		}
 		inputParameters += theName + "=" + theValue; 
 	}
-	
+	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
+
 	var req = new XMLHttpRequest();
 	req.open("POST", urlToPost, false);
 	req.setRequestHeader("content-type", "multipart/form-data; charset=utf-8; boundary=" + boundary);	

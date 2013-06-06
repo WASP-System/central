@@ -55,6 +55,7 @@
  	 							<br />
  	 							<a class="button" href="javascript:void(0);" onclick='parent.loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
  	 							<br /><br />
+ 	 							
  	 						</c:if>
 	 					</c:if>
 					</sec:authorize>
@@ -105,8 +106,10 @@
 							</c:if>
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'><%--MUST RESPOND TO BATCH!!!!!, currently doesn't --%>							
  	 							<br />
- 	 							<a class="button" href="javascript:void(0);" onclick='showModalDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
+ 	 							<a class="button" href="javascript:void(0);" onclick='showModalDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' >Add To PlatformUnit</a>
  	 							<br /><br />
+ 	 							<a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Add To PlatformUnit</a>
+		
  	 						</c:if>	
 						</td>
 						
