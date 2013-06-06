@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.___pluginname___.plugin;
+package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,9 +35,9 @@ import edu.yu.einstein.wasp.service.RunService;
 /**
  * 
  */
-public class ___Pluginname___Plugin extends WaspPlugin 
+public class BabrahamPlugin extends WaspPlugin 
 		implements 
-			BatchJobProviding,	///// PIP
+			BatchJobProviding,
 			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -54,9 +54,9 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow";
+	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow";
 
-	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
+	public BabrahamPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
 	}
 
@@ -144,14 +144,14 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 
 	private Message<String> helloWorldHelp() {
-		String mstr = "\n___Pluginname___ plugin: hello world!\n" +
-				"wasp -T ___pluginname___ -t helloWorld\n";
+		String mstr = "\nBabraham plugin: hello world!\n" +
+				"wasp -T babraham -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 	private Message<String> launchTestFlowHelp() {
-		String mstr = "\n___Pluginname___ plugin: launch the test flow.\n" +
-				"wasp -T ___pluginname___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		String mstr = "\nBabraham plugin: launch the test flow.\n" +
+				"wasp -T babraham -t launchTestFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	

@@ -23,20 +23,20 @@
 		<constructor-arg name="pluginName" ref="___pluginname___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginname___" />
+		<!-- 
 		<property name="provides" >
 			<set>
-				<ref bean="casava" />
+				<ref bean="___pluginname___" />
 			</set>
 		</property>
+		 -->
+		<!-- 
 		<property name="handles" >
 			<set>
-				<ref bean="illuminaHiSeq2000Area" />
-				<ref bean="illuminaMiSeqPersonalSequencerArea" />
+				<ref bean="___pluginname___PluginArea" />
 			</set>
 		</property>
-		<property name="casava" ref="casava" />
+		 -->
 	</bean>
-	
-	
 
 </beans>

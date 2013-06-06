@@ -4,9 +4,8 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
 	<!-- for job, call with parameter 'runID' -->
-	<batch:flow id="___package___.___pluginname___.mainFlow">
-		<batch:step id="___package___.___pluginname___.mainFlow.notify___Pluginname___Start" 
-				next="___package___.___pluginname___.mainFlow.performAction">
+	<batch:flow id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow">
+		<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.notifyQCStart" next="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.split">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -19,11 +18,31 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="___package___.___pluginname___.mainFlow.performAction" next="___package___.___pluginname___.mainFlow.notifyRunComplete">
-			<!-- example do-nothing tasklet -->
-			<batch:tasklet ref="___package___.___pluginname___.mainFlow.skipTasklet" />
-		</batch:step>
-		<batch:step id="___package___.___pluginname___.mainFlow.notifyRunComplete">
+
+		<batch:split id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.split" next="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.notifyQCComplete">
+			<batch:flow>
+				<!-- FastQC flow -->
+				<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.fastQC">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQCTasklet" scope="step">
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+						</bean>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<!-- FastQScreen flow -->
+				<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.fastQScreen">
+					<batch:tasklet>
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQScreenTasklet" scope="step">
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+						</bean>
+					</batch:tasklet>
+				</batch:step>
+			</batch:flow>
+		</batch:split>
+
+		<batch:step id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.notifyQCComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -38,6 +57,6 @@
 		</batch:step>
 	</batch:flow>
 
-	<bean id="___package___.___pluginname___.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+	<bean id="edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
 
 </beans>
