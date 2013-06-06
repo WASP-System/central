@@ -66,18 +66,13 @@ public class SelNewPI extends SelBaseTest {
      * @param sNewUserPICreated
      * @throws Exception
      */
-	@Parameters("environment")
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String environment, String sUrl, String sLogin, String sFName, String sLName, 
+	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
 									String title, String sInst, String sDept, String building_room, 
 									String address, String sCity, String sState, String sCountry, 
 									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
-  		Assert.assertNotNull(driver);
-  		String baseUrl = "localhost:8080";
-  	    if (environment.equals("production")) {
-  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
-  	  	}	
+  		Assert.assertNotNull(driver);	
   		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
@@ -119,10 +114,23 @@ public class SelNewPI extends SelBaseTest {
 		//Submit New PI Form
     	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
+		pause(1000000);
+
 		Assert.assertEquals(driver.getCurrentUrl(), sNewUserPICreated);
 				
      	
     }
+  	public static void pause(final int iTimeInMillis) {
+  	    
+        try
+        {
+          Thread.sleep(iTimeInMillis);
+        }
+        catch(InterruptedException ex)
+        {
+          System.out.println(ex.getMessage());
+        }
+      }
   	
   	 @Override
 	@AfterClass

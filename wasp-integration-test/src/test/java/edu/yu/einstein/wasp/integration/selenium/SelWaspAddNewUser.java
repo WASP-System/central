@@ -73,7 +73,7 @@ public class SelWaspAddNewUser extends SelBaseTest {
 										String building_room, String address, String phone, String fax, 
 										String captcha, String sNewUserUrlCreated, String confEmailOkUrl ) throws Exception {  
    		
-  		driver.get("http://localhost:8080/wasp/auth/login.do");
+  		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
   	    Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
 		driver.findElement(By.linkText("New User")).click();
 		driver.findElement(By.id("login")).sendKeys(sLogin);
