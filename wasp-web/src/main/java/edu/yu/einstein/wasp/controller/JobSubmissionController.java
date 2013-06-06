@@ -1338,16 +1338,6 @@ public class JobSubmissionController extends WaspController {
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}
 	
-	private Set<Organism> getOrganismsPlusOther(){
-		Set<Organism> organisms = genomeService.getOrganisms();
-		Organism other = new Organism(0);
-		other.setCommonName("Other");
-		other.setName("Other");
-		other.setAlias("Other");
-		organisms.add(other);
-		return organisms;
-	}
-	
 
 	@Transactional
 	@RequestMapping(value="/samples/edit/{jobDraftId}/{sampleDraftId}", method=RequestMethod.GET)
@@ -1370,7 +1360,7 @@ public class JobSubmissionController extends WaspController {
 		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
-		m.addAttribute("organisms", getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("organisms", genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", sampleDraft);
@@ -1413,7 +1403,7 @@ public class JobSubmissionController extends WaspController {
 				// library specific functionality
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
-			m.addAttribute("organisms",  getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_edit_heading.label"));
 			m.addAttribute("normalizedMeta", metaFromForm);
 			m.addAttribute("sampleDraft", sampleDraftForm);
@@ -1458,7 +1448,7 @@ public class JobSubmissionController extends WaspController {
 		if (sampleService.isLibrary(clone)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, clone.getSampleDraftMeta(), m);
 		}
-		m.addAttribute("organisms",  getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_clone_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", clone);
@@ -1503,7 +1493,7 @@ public class JobSubmissionController extends WaspController {
 		if (sampleService.isLibrary(sampleDraft)){
 			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
 		}
-		m.addAttribute("organisms",  getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
 		m.addAttribute("normalizedMeta", normalizedMeta);
 		m.addAttribute("sampleDraft", sampleDraft);
@@ -1543,7 +1533,7 @@ public class JobSubmissionController extends WaspController {
 				prepareAdaptorsetsAndAdaptors(jobDraft, metaFromForm, m);
 			}
 			waspErrorMessage("sampleDetail.updated.error");
-			m.addAttribute("organisms",  getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
 			m.addAttribute("normalizedMeta", metaFromForm);
 			m.addAttribute("sampleDraft", sampleDraftForm);
