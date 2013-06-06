@@ -7,6 +7,9 @@
 		<h2 style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></h2>
 	</c:when>
 <c:otherwise>
+	<c:if test="${fn:length(successMessage)>0}">
+		<h2 style="color:green;font-weight:bold"><c:out value="${successMessage}" /></h2>
+	</c:if>
 	<table class="EditTable ui-widget ui-widget-content">
 	   	<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_ro.libraryDetails.label" /></td></tr>
 	  	 <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.libraryName.label" />: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>

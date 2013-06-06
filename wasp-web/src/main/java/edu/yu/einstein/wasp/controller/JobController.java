@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -86,11 +88,13 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
@@ -152,6 +156,8 @@ public class JobController extends WaspController {
 	@Autowired
 	private JobService jobService;
 	@Autowired
+	private UserService UserService;
+	@Autowired
 	private AuthenticationService authenticationService;
 	@Autowired
 	private AdaptorService adaptorService;
@@ -171,7 +177,7 @@ public class JobController extends WaspController {
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp(JobMeta.class, request.getSession());
 	}
-
+	
 	@RequestMapping(value = "/analysisParameters/{jobId}", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String jobAnalysisParameters(@PathVariable("jobId") Integer jobId, ModelMap m) {
@@ -255,7 +261,7 @@ public class JobController extends WaspController {
 		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
 		return "job/comments";
 	}
-
+	
 	@RequestMapping(value = "/comments/{jobId}", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String jobCommentsPost(@PathVariable("jobId") Integer jobId,  @RequestParam("comment") String comment, ModelMap m) {
@@ -283,7 +289,7 @@ public class JobController extends WaspController {
 		waspMessage("jobComment.jobCommentAdded.label");
 		return "redirect:/job/comments/"+jobId+".do";
 	}
-
+	
 	@RequestMapping("/list")
 	public String list(ModelMap m) {
 		//List<Job> jobList = this.getJobDao().findAll();
@@ -302,7 +308,7 @@ public class JobController extends WaspController {
 		}
 		return "job/list";
 	}
-
+	
 	@RequestMapping(value="/listJSON", method=RequestMethod.GET)
 	public String getListJSON(HttpServletResponse response) {
 		
@@ -596,7 +602,7 @@ public class JobController extends WaspController {
 			throw new IllegalStateException("Can't marshall to JSON " + jobList,e);
 		}	
 	}
-
+	
 	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('jv-' + #jobId)")
 	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {
@@ -663,12 +669,12 @@ public class JobController extends WaspController {
 		 }
 	
 	}
-
+	
 	@RequestMapping(value = "/detail/{jobId}", method = RequestMethod.GET)
 	public String detail(@PathVariable("jobId") Integer jobId, ModelMap m) {
 		String now = (new Date()).toString();
 
-		Job job = this.getJobDao().getById(jobId);
+		Job job = jobService.getJobByJobId(jobId); //this.getJobDao().getById(jobId);
 
 		List<JobMeta> jobMetaList = job.getJobMeta();
 		jobMetaList.size();
@@ -691,7 +697,7 @@ public class JobController extends WaspController {
 
 		return "job/detail";
 	}
-
+	
   @RequestMapping(value="/user/roleAdd", method=RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId) or hasRole('js-' + #jobId)")
   public String jobViewerUserRoleAdd (
@@ -700,7 +706,7 @@ public class JobController extends WaspController {
       @RequestParam("login") String login, //10-11-11 changed from useremail to login, AND 10-20-11 changed login format from jgreally to the AJAX-generated and formatted login of John Greally (jgreally), so must now extract the login from the formatted string 
       ModelMap m) {
  
-	Job job = this.jobDao.findById(jobId);
+	Job job = jobService.getJobByJobId(jobId);//this.jobDao.findById(jobId);
 	if(job.getJobId() == null || job.getLabId().intValue() != labId.intValue()){
 		waspErrorMessage("job.jobViewerUserRoleAdd.error1");//this job not found in database or the labId does not belong to this job
 	}
@@ -735,7 +741,7 @@ public class JobController extends WaspController {
     return "redirect:/job/detail/" + jobId + ".do";
   }
 
-
+	
   @RequestMapping(value="/user/roleRemove/{labId}/{jobId}/{UserId}", method=RequestMethod.GET)
   @PreAuthorize("hasRole('su') or hasRole('lm-' + #labId)")
   public String departmentUserRoleRemove (
@@ -758,6 +764,7 @@ public class JobController extends WaspController {
   	/**
 	 * show job/resource data and meta information to be modified.
 	 */
+  
 	@RequestMapping(value = "/meta/{jobId}.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm')") 
 	public String showJobMetaForm(
@@ -830,7 +837,7 @@ public class JobController extends WaspController {
 
 		return "job/metaform_rw";
 	}
-	
+  
 	@RequestMapping(value = "/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('sa') or hasRole('fm') or hasRole('ft') or hasRole('ga')")
 	public String jobsAwaitingLibraryCreation(ModelMap m) {
@@ -851,7 +858,7 @@ public class JobController extends WaspController {
 		m.put("jobList", jobsActiveAndWithLibraryCreatedTask);
 		return "job/jobsAwaitingLibraryCreation/jobsAwaitingLibraryCreationList";	  
 	}
-	
+  
 	@RequestMapping(value="/{jobId}/homepage", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -860,6 +867,7 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		return "job/home/homepage";
 	}
+  
 	@RequestMapping(value="/{jobId}/basic", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -894,6 +902,7 @@ public class JobController extends WaspController {
 		return "job/home/commentFeed";
 	}
 	*/
+  
 	@RequestMapping(value="/{jobId}/workflow", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobWorkflowPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -905,6 +914,7 @@ public class JobController extends WaspController {
 		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
 		return "job/home/workflow";
 	}
+  
 	@RequestMapping(value="/{jobId}/approvals", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobApprovalsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -920,6 +930,7 @@ public class JobController extends WaspController {
 	
 		return "job/home/approvals";
 	}
+  
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
@@ -983,6 +994,7 @@ public class JobController extends WaspController {
 		
 		return "job/home/requests";
 	}
+  
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
@@ -1024,7 +1036,7 @@ public class JobController extends WaspController {
 
 		return "job/home/comments";
 	}
-	
+  
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
@@ -1059,7 +1071,7 @@ public class JobController extends WaspController {
 		}
 		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage;
 	}
-	
+  
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
@@ -1112,6 +1124,7 @@ public class JobController extends WaspController {
 		
 		return "job/home/viewerManager";
 	}
+ 
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
@@ -1250,7 +1263,13 @@ public class JobController extends WaspController {
 				  adaptor = adaptorService.getAdaptor(library);
 				  libraryAdaptorMap.put(library, adaptor);
 				  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
-			  }catch(Exception e){}		  
+			  }catch(Exception e){
+				  System.out.println("EXCEPTION getting adaptor for library "+ library.getName() + ": " + e.getMessage());
+				  System.out.println("---SAMPLEMETA:");
+				  for(SampleMeta sm : library.getSampleMeta()){
+					  System.out.println("------"+sm.getK()+":"+sm.getV());
+				  }
+			  }		  
 		  }
 		  
 		  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
@@ -1356,6 +1375,124 @@ public class JobController extends WaspController {
 		return "job/home/samples";
 	}
 	
+	
+	@RequestMapping(value="/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCreateLibraryFromMacromoleculePage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("macromolSampleId") Integer macromolSampleId, ModelMap m) throws SampleTypeException {
+
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		Sample macromoleculeSample;		
+		String errorMessage = "Error locating requested Job or Sample in database";
+		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		for(Sample s : allJobSamples){
+			if(s.getId().intValue() == macromolSampleId.intValue()){
+				macromoleculeSample = s;
+				errorMessage="";
+				m.addAttribute("macromoleculeSample", macromoleculeSample);
+				m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample, "Other"));
+				
+				String[] roles = {"ft"};
+				List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getId(), roles, "library");
+				if(librarySampleSubtypes.isEmpty()){
+					//////waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
+					errorMessage="Unexpected Error: sampleSubtype Not Found";
+					m.addAttribute("errorMessage", errorMessage);
+					return "job/home/createLibrary";
+				}
+				SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
+				List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype);
+				prepareAdaptorsetsAndAdaptors(job, libraryMeta, m);
+				
+				Sample library = new Sample();
+				library.setSampleSubtype(librarySampleSubtype);
+				library.setSampleType(sampleService.getSampleTypeDao().getSampleTypeByIName("facilityLibrary"));
+				library.setSampleMeta(libraryMeta);
+				m.addAttribute("sample", library); 
+				
+				break;
+			}
+		}
+		m.addAttribute("errorMessage", errorMessage);
+				
+		return "job/home/createLibrary";
+	}
+	  @RequestMapping(value = "/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String createLibrary(@PathVariable("macromolSampleId") Integer macromolSampleId,
+			  @PathVariable("jobId") Integer jobId, 
+			  @Valid Sample libraryForm, BindingResult result, 
+			  SessionStatus status, 
+			  ModelMap m) {
+
+		  //display the new library as read-only. add success message, and display. Cannot go directly back to samples.jsp, as that is displayed in a div, but this POST will land back in IFRAME
+		  
+		  /* must add something like this
+		  String returnString = validateJobIdAndSampleId(jobId, macromolSampleId, null);
+		  if (returnString != null)
+			  return returnString;
+		   */
+		  
+		  //cannot do it this way; cancel would return via Iframe and that is NOT desired. Instead, cancel is handled directly in the jsp
+		  ///if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
+			//  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
+		  //}
+
+		  String successMessage = "";
+		  String errorMessage = "";
+		  Sample parentMacromolecule = sampleService.getSampleDao().getSampleBySampleId(macromolSampleId);
+		  Job jobForThisSample = jobDao.getJobByJobId(jobId);
+
+		  m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule, "Other"));
+		  
+		  libraryForm.setName(libraryForm.getName().trim());
+		  SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());
+		  validateSampleNameUnique(libraryForm.getName(), macromolSampleId, jobForThisSample, result);
+
+		  // get validated metadata from 
+		  List<SampleMeta> sampleMetaListFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result);
+
+		  if (result.hasErrors()) {
+			  libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaListFromForm));
+			  libraryForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
+			  libraryForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
+			  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
+			  //waspErrorMessage("sampleDetail.updated.error");
+			  prepareAdaptorsetsAndAdaptors(jobForThisSample, libraryForm.getSampleMeta(), m);
+			  m.put("macromoleculeSample", parentMacromolecule);
+			  m.put("job", jobForThisSample);
+			  m.put("sample", libraryForm); 
+			  return "job/home/createLibrary";
+		  }
+
+		  //all OK so create/save new library
+		  libraryForm.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
+		  libraryForm.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
+		  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
+		  libraryForm.setIsActive(new Integer(1));
+		  SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
+		   try {
+			  managedLibraryFromForm.setParent(parentMacromolecule);
+			  sampleService.createFacilityLibraryFromMacro(jobForThisSample, managedLibraryFromForm, sampleMetaListFromForm);
+			  successMessage="New Library Successfully Created";
+			  return "redirect:/job/"+jobId+"/library/"+managedLibraryFromForm.getSampleObject().getId()+"/librarydetail_ro.do?successMessage="+successMessage;
+		  } catch (SampleParentChildException e) {
+			  logger.warn(e.getLocalizedMessage());
+			  errorMessage="Library Creation Unexpectedly Failed.";
+			  m.put("errorMessage", errorMessage); 
+			  m.put("job", jobService.getJobByJobId(jobId));
+			  //waspErrorMessage("libraryCreated.sample_problem.error");
+			  return "job/home/error";
+		  } catch (MessagingException e) {
+			  logger.warn(e.getLocalizedMessage());
+			  errorMessage="Library Creation Unexpectedly Failed.";
+			  m.put("errorMessage", errorMessage); 
+			  m.put("job", jobService.getJobByJobId(jobId));
+			  //waspErrorMessage("libraryCreated.message_fail.error");
+			  return "job/home/message";
+		  } 
+	 }
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_ro", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSampleDetailPage(@PathVariable("jobId") Integer jobId, 
@@ -1496,7 +1633,9 @@ public class JobController extends WaspController {
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_ro", method=RequestMethod.GET)
 		  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 		  public String jobLibraryDetailPage(@PathVariable("jobId") Integer jobId, 
-				  @PathVariable("libraryId") Integer libraryId, ModelMap m) throws SampleTypeException {
+				  @PathVariable("libraryId") Integer libraryId, 
+				  @RequestParam(value="successMessage", required=false) String successMessage, 
+				  ModelMap m) throws SampleTypeException {
 
 			Job job = jobService.getJobByJobId(jobId);
 			m.addAttribute("job", job);
@@ -1519,6 +1658,7 @@ public class JobController extends WaspController {
 			}catch(Exception e){errorMessage = e.getMessage();}
 			
 			m.addAttribute("errorMessage", errorMessage);
+			m.addAttribute("successMessage", successMessage);//only coming from CreateLibrary; do not ever set this 
 			return "job/home/librarydetail_ro";
 		}
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_rw", method=RequestMethod.GET)
@@ -1591,7 +1731,7 @@ public class JobController extends WaspController {
 			  library.setName(libraryForm.getName());
 			  sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);			  	
 
-			  	
+			  	//what if the update fails??
 			  	
 			  	return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
 		}
