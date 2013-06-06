@@ -101,8 +101,13 @@
 									<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
 		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 								</c:if>	
-								<br />				  
-							</c:if>	
+								<br />	 	 						  
+							</c:if>
+							<c:if test='${qcStatusMap.get(library) == "PASSED"}'><%--MUST RESPOND TO BATCH!!!!!, currently doesn't --%>							
+ 	 							<br />
+ 	 							<a class="button" href="javascript:void(0);" onclick='showModalDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
+ 	 							<br /><br />
+ 	 						</c:if>	
 						</td>
 						
 						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
