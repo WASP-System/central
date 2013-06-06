@@ -50,25 +50,24 @@
 				<td style='text-align:center;vertical-align:middle;'>
 				<c:set value="${cellLibraryWithPreprocessingStatusMap.get(cellLibrary)}" var = "processingStatus" />
 				<c:if test="${processingStatus != null && processingStatus == 'COMPLETED' }">
-						<div><img src='/wasp/images/pass.png'></div>
+						<wasp:successIcon />
 				</c:if>
 				<c:if test="${processingStatus != null && processingStatus == 'FAILED' }">
-					<div><img src='/wasp/images/fail.png'></div>
+					<wasp:failureIcon />
 				</c:if>
 				<c:if test="${processingStatus != null && processingStatus == 'STOPPED' }">
-					<div><wasp:warning key="task.aggregateAnalysis_processingStopped.label" /></div>
+					<wasp:warningIcon key="task.aggregateAnalysis_processingStopped.label" />
 				</c:if>
 				</td>
 				<td style='text-align:center;vertical-align:middle;'>
 					<c:set value="${cellLibraryQcStatusMap.get(cellLibrary)}" var="cellLibraryQcStatus" />
 					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == true }">
-						<div><img src='/wasp/images/pass.png'></div>
+						<wasp:successIcon />
 					</c:if>
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == false }">
 						<div>
-							<img src='/wasp/images/fail.png'>
-							<c:if test="${cellLibraryQcStatusComment.length() > 0}"><wasp:comment value="${cellLibraryQcStatusComment}" /></c:if>
+							<wasp:failureIcon value="${cellLibraryQcStatusComment}"/>
 						</div>
 					</c:if>
 					<c:if test="${cellLibraryQcStatus == null }">

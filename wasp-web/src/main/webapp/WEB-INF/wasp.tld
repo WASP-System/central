@@ -285,9 +285,45 @@
 		</attribute>		
 	</tag>
 	<tag>
-        <description>Displays warning with icon (hover over icon to see warning)</description>
-        <name>warning</name>
-		<tag-class>edu.yu.einstein.wasp.taglib.WarningTag</tag-class>
+        <description>Displays warning icon. If comment provided a warning message icon is shown (hover over icon to see comment)</description>
+        <name>warningIcon</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.WarningIconTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Provide a resource key to decode, e.g., sample.warning.label</description>
+			<name>key</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Provide a literal value for the comment text</description>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
+	<tag>
+        <description>Displays success icon. If comment provided a success message icon is shown (hover over icon to see comment)</description>
+        <name>successIcon</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.SuccessIconTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Provide a resource key to decode, e.g., sample.warning.label</description>
+			<name>key</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<description>Provide a literal value for the comment text</description>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>		
+	</tag>
+	<tag>
+        <description>Displays failure icon. If comment provided a failure message icon is shown (hover over icon to see comment)</description>
+        <name>failureIcon</name>
+		<tag-class>edu.yu.einstein.wasp.taglib.FailureIconTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
 			<description>Provide a resource key to decode, e.g., sample.warning.label</description>

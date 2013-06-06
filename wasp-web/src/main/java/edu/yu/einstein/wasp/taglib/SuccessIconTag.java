@@ -21,12 +21,12 @@ import edu.yu.einstein.wasp.web.Tooltip;
  * @author asmclellan
  *
  */
-public class WarningTag extends BodyTagSupport {
+public class SuccessIconTag extends BodyTagSupport {
 	
 	
 	private static final long serialVersionUID = -7313415827087355691L;
 
-	Logger log = LoggerFactory.getLogger(WarningTag.class);
+	Logger log = LoggerFactory.getLogger(SuccessIconTag.class);
 	
 	private String commentText;
 	
@@ -47,11 +47,8 @@ public class WarningTag extends BodyTagSupport {
 		
 	@Override
 	public int doEndTag() throws javax.servlet.jsp.JspException {
-		if (commentText == null) 
-			return Tag.SKIP_PAGE;
-		
 		StringBuffer buf=new StringBuffer("");
-		buf.append(Tooltip.getWarningHtmlString(commentText));
+		buf.append(Tooltip.getSuccessHtmlString(commentText));
 		
 		try {
 			this.pageContext.getOut().print(buf.toString());

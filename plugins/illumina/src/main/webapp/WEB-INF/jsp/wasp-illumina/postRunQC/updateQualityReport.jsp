@@ -35,11 +35,8 @@
 					<c:set var="passed" value="${fn:trim(qcDataMap.get(qcDataMetaKey).get(index).isPassedQc())}" />
 					<c:set var="comment" value="${fn:trim(qcDataMap.get(qcDataMetaKey).get(index).getComment())}" />
 					<td class='fixedWidth'>
-						<c:if test="${passed == true}"><div><img src='/wasp/images/wasp-illumina/postRunQC/pass.png'></div></c:if>
-						<c:if test="${passed == false}">
-							<img src='/wasp/images/wasp-illumina/postRunQC/fail.png'>
-							<c:if test="${comment.length() > 0}"><wasp:comment value="${comment}" /></c:if>
-						</c:if>
+						<c:if test="${passed == true}"><wasp:successIcon value="${comment}" /></c:if>
+						<c:if test="${failed == false}"><wasp:failureIcon value="${comment}" /></c:if>
 					</td>
 				</c:forEach>
 				<td>
