@@ -3,40 +3,32 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-WASP Developers Guide
-=====================================
+.. only:: html
 
-Contents:
+   Contents
+   ========
 
-.. toctree::
+.. toctree:: 
    :maxdepth: 2
+   :numbered:
 
-.. include:: preface.rst
+   preface
+   requirements
+   installation
+   begin
+   resource
+   webapp
+   pipelines
+   future
+   glossary
+   tasks
+   agpl2
 
-.. include:: requirements.rst
+.. only:: html
 
-.. include:: installation.rst
+   Index and search
+   ==================
 
-.. include:: begin.rst
-
-.. include:: resource.rst
-
-.. include:: webapp.rst
-
-.. include:: pipelines.rst
-
-.. include:: future.rst
-
-.. include:: glossary.rst
-
-.. include:: tasks.rst
-
-.. include:: agpl2.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   * :ref:`genindex`
+   * :ref:`search`
 
