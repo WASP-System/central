@@ -96,12 +96,13 @@
             				<c:forEach items="${cellLibraryMeta}" var="cellLibraryMetaItem">
             					<c:if test="${fn:indexOf(cellLibraryMetaItem.k,'libConcInCellPicoM') > -1 }"><br /><fmt:message key="waspIlluminaPlugin.showPlatformUnit_concOnCell.label"/>: <c:out value="${cellLibraryMetaItem.v}"/> <fmt:message key="showPlatformUnit.pM.label"/> </c:if>					
             				</c:forEach>
-            				
-            				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
-							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
-							<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
-							</form>	
+            				<c:if test="${runLocked == false}">
+	            				<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeControlFromThisCell.label"/>");'>
+								<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+								<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
+								<input type='submit' value='<fmt:message key="showPlatformUnit.removeControl.label"/>'/>
+								</form>	
+							</c:if>
             				
             					
             				<hr>
@@ -113,7 +114,9 @@
 					</c:if>
 					
 					<c:set var="idNewControlCounter" value="${idNewControlCounter + 1}" scope="page" />
-					<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)"><fmt:message key="showPlatformUnit.addControl.label"/></a>
+					<c:if test="${runLocked == false}">
+						<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)"><fmt:message key="showPlatformUnit.addControl.label"/></a>
+					</c:if>
 					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
 						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/wasp-illumina/flowcell/addNewControlToLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
@@ -193,11 +196,13 @@
 						</div>						
 					
 					</c:forEach>
-					<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
-						<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
-						<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
-						<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
-					</form>					
+					<c:if test="${runLocked == false}">
+						<form  name='removeLib' method='post' action="<c:url value="/facility/platformunit/assignRemove.do" />" onsubmit='return confirm("<fmt:message key="waspIlluminaPlugin.showPlatformUnit_removeLibFromCell_alert.label"/>");'>
+							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
+							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
+							<input type='submit' value='<fmt:message key="showPlatformUnit.removeLibrary.label"/>'/>
+						</form>	
+					</c:if>				
 					<c:set var="counter" value="${counter + 1}" scope="page" />
 				  </c:if>	
 				</c:forEach>
