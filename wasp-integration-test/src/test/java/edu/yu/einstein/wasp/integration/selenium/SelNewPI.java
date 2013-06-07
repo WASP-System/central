@@ -66,22 +66,17 @@ public class SelNewPI extends SelBaseTest {
      * @param sNewUserPICreated
      * @throws Exception
      */
-	@Parameters("environment")
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String environment, String sUrl, String sLogin, String sFName, String sLName, 
+	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
 									String title, String sInst, String sDept, String building_room, 
 									String address, String sCity, String sState, String sCountry, 
 									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
-  		Assert.assertNotNull(driver);
-  		String baseUrl = "localhost:8080";
-  	    if (environment.equals("production")) {
-  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
-  	  	}	
+  		Assert.assertNotNull(driver);	
   		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/institute.do");
 		
 		//Select Institute
     	Assert.assertTrue(driver.findElements(By.name("instituteSelect")).size() != 0, "Cannot locate 'Select Institute' drop-down");
@@ -93,7 +88,7 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
 		
 		//Fill out New PI Form
-		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/institute.do");
 
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(sFName);
@@ -119,10 +114,23 @@ public class SelNewPI extends SelBaseTest {
 		//Submit New PI Form
     	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), sNewUserPICreated);
+		pause(1000000);
+
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/created.do");
 				
      	
     }
+  	public static void pause(final int iTimeInMillis) {
+  	    
+        try
+        {
+          Thread.sleep(iTimeInMillis);
+        }
+        catch(InterruptedException ex)
+        {
+          System.out.println(ex.getMessage());
+        }
+      }
   	
   	 @Override
 	@AfterClass
@@ -139,7 +147,7 @@ public class SelNewPI extends SelBaseTest {
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_001", "addNewPI");
+                "Test_prod", "addNewPI");
         Assert.assertNotNull(retObjArr, "object is null");
 
         return(retObjArr);
@@ -152,10 +160,7 @@ public class SelNewPI extends SelBaseTest {
     @Parameters ("production")
   	@Test (groups="integration-tests")
   	public void confirmEmailAuth(String environment) {
-    	String baseUrl = "localhost:8080";
-  	    if (environment.equals("production")) {
-  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
-  	  	}
+    	
   		try {
 	  		Statement s = connection.createStatement();
 	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");
