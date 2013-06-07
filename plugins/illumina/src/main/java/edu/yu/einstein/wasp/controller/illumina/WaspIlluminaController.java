@@ -110,6 +110,7 @@ public class WaspIlluminaController extends WaspController {
 			Format formatter = new SimpleDateFormat("yyyy/MM/dd");
 			
 			Map<Integer, Map<String, String>> runDetails = new HashMap<Integer, Map<String, String>>();
+			boolean lockedStatus = false;
 			for(Run sequenceRun : sequenceRuns){
 				SequenceReadProperties runReadProperties = new SequenceReadProperties();
 				try {
@@ -142,19 +143,19 @@ public class WaspIlluminaController extends WaspController {
 				
 				if (runService.isRunSuccessfullyCompleted(sequenceRun)){
 					detailMap.put("runStatus", "COMPLETED");
-					m.addAttribute("runLocked", true);
+					lockedStatus = true;
 				} else if (runService.isRunActive(sequenceRun)){
 					detailMap.put("runStatus", "IN PROGRESS");
-					m.addAttribute("runLocked", true);
+					lockedStatus = true;
 				} else {
 					detailMap.put("runStatus", "UNKNOWN");
-					m.addAttribute("runLocked", false);
 				}
 				
 				
 				runDetails.put(sequenceRun.getId(), detailMap);
 			}
 			m.addAttribute("runDetails", runDetails);
+			m.addAttribute("runLocked", lockedStatus);
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error");

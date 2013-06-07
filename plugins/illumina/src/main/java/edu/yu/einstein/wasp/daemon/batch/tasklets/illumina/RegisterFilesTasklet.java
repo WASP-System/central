@@ -96,7 +96,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 		// required by cglib
 	}
 
-	public RegisterFilesTasklet(int runId) {
+	public RegisterFilesTasklet(Integer runId) {
 		this.runId = runId;
 	}
 	
