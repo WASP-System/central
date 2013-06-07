@@ -22,6 +22,20 @@
   </test>
 -->
 
+ <!--
+  <test name="WASP Regression Testing: Login Page" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
+      </classes>
+   </test>
+-->
+	<parameter name="first-name"  value=""/>
+   <test name="WASP Regression Testing: Base Test Class" preserve-order="true">
+	<classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
+      </classes>
+   </test>
+
 	<test name="WASP Regression Testing: Add New PI" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelNewPI">
