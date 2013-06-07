@@ -64,14 +64,14 @@ public class SelBaseTest {
         File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(srcFile, new File("ffsnapshot.png"));
 		
-        /*
+       
 		try {
 		    // Load the JDBC driver
 		    String driverName = "com.mysql.jdbc.Driver"; // MySQL JDBC driver
 		    Class.forName(driverName);
 		
 		    // Create a connection to the database
-		    String serverName =""+ baseUrl+":3306";
+		    String serverName ="localhost:3306";
 		    String mydatabase = "wasp";
 		    String url = "jdbc:mysql://" + serverName +  "/" + mydatabase; // a JDBC url
 		    String username = "wasp";
@@ -84,7 +84,7 @@ public class SelBaseTest {
 		catch (SQLException e) {
 		    // Could not connect to the database
 		}
-		*/
+		
 	}
 	
 	@AfterSuite
