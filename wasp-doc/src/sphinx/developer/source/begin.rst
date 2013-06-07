@@ -40,7 +40,7 @@ when it becomes necessary.
    Job Task State.
 
   
-All processes defined within WASP are implemented as `Spring Batch <http://www.springsource.org/spring-batch">`_ job flows.  :num:`figure #fig-taskstate` presents an
+All processes defined within WASP are implemented as `Spring Batch <http://www.springsource.org/spring-batch">`_ job flows.  :num:`Figure #fig-taskstate` presents an
 example state diagram where the state of a Spring Batch flow is determined by the `State` of
 a WASP `Task` designed to manage human interaction related to the flow.  
 
