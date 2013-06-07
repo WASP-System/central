@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Wasp System'
+project = u'Wasp System Developer\'s Guide'
 copyright = u'2013, Albert Einstein College of Medicine'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -64,7 +64,7 @@ release = '0.1.0-RELEASE'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = [ 'agpl.rst' ]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

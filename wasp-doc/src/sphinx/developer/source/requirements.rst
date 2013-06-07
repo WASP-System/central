@@ -1,6 +1,6 @@
-***************
-Requirements
-***************
+***********************************
+Hardware/Software Requirements 
+***********************************
 	
 What you need to get started.
 

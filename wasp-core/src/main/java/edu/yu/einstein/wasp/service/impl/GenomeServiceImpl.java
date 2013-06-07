@@ -418,5 +418,19 @@ public class GenomeServiceImpl implements GenomeService, InitializingBean {
 				build.getName() + "/";
 		return path;
 	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Organism> getOrganismsPlusOther(){
+		Set<Organism> organisms = getOrganisms();
+		Organism other = new Organism(0);
+		other.setCommonName("Other");
+		other.setName("Other");
+		other.setAlias("Other");
+		organisms.add(other);
+		return organisms;
+	}
 
 }

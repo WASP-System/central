@@ -47,7 +47,7 @@
 			<batch:next on="FAILED" to="default.waspJob.step.rejected" />
 			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
-		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.listenForAllLibraryPreprocessComplete">
+		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.listenForAnalysisComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -73,28 +73,23 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="default.waspJob.step.listenForAllLibraryPreprocessComplete" next="default.waspJob.step.launchSummarization">
+		<batch:step id="default.waspJob.step.listenForAnalysisComplete" next="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
-					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.job" />
+					<constructor-arg name="inputSubscribableChannel" ref="wasp.channel.notification.analysis" />
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate">
-							<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
-							<property name="task" value="#{jobTasks.DATA_PREPROCESSING_APPROVE}" />
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
-					<property name="name" value="default.waspJob.step.listenForAllLibraryPreprocessComplete" />
+					<property name="name" value="default.waspJob.step.listenForAnalysisComplete" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="default.waspJob.step.launchSummarization" next="default.waspJob.step.listenForSummarizationComplete">
-			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" />
-			</batch:tasklet>
-		</batch:step>
-		<batch:step id="default.waspJob.step.listenForSummarizationComplete">
+		<batch:step id="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />

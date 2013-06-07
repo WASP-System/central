@@ -1,10 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
 
-import java.io.PrintWriter;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,7 +12,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,15 +56,11 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.RunMeta;
+import edu.yu.einstein.wasp.model.MetaAttribute.FormVisibility;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.SampleSourceMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.User;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -788,10 +779,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
 		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn);
 		
-  		
+		Map<String, FormVisibility> maskMap = new HashMap<String, FormVisibility>();
+		maskMap.put("genericBiomolecule.organism", FormVisibility.immutable);
+		
 		libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
 				sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
-				libraryInManaged.getAllSampleMeta()));
+				libraryInManaged.getAllSampleMeta(),
+				maskMap));
 		
 
 		SampleWrapperWebapp persistentLibraryManaged;
@@ -824,6 +818,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
+		m.addAttribute("organisms", genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   
@@ -865,13 +860,12 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //confirm these two objects exist and part of same job
 	  
 	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample);
-	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
-	  m.put("job", job);
-	  m.put("sample", sample); 
-	  
-	  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
-	  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
-	  
+	  Map<String, FormVisibility> maskMap = new HashMap<String, FormVisibility>();
+	  maskMap.put("genericBiomolecule.organism", FormVisibility.immutable);
+	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta(), maskMap) );
+	  m.addAttribute("job", job);
+	  m.addAttribute("sample", sample); 
+	  m.addAttribute("organisms", genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
   }
 

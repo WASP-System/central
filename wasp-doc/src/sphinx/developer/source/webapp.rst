@@ -28,6 +28,8 @@ System Administrators, etc. While the two groups of users are not mutually exclu
 different; creating accounts for Job Submitters (PIs and their lab members) generally occurs from outside WASP while creating accounts 
 for Core Facility Personnel generally occurs from within WASP.
 
+.. index:: Roles
+
 =============
 Roles
 =============
