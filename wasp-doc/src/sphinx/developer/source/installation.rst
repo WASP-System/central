@@ -58,14 +58,16 @@ Setting up the Server (Linux)
 
    * ``PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH``
 				
-   E.g. in a typical Linux setup using bash, your .bashrc file should contain something similar to this::
+   E.g. in a typical Linux setup using bash, your .bashrc file should contain something similar to this:
+
+   .. code-block:: bash
 				
-     export ANT_HOME=/opt/ant
-     export JAVA_HOME=/usr/java/latest
-     export CATALINA_HOME=/usr/local/tomcat/tomcat/current
-     export WASP_HOME=$HOME/waspSystem
-     export MAVEN_HOME=/opt/maven/current
-     export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH
+      export ANT_HOME=/opt/ant
+      export JAVA_HOME=/usr/java/latest
+      export CATALINA_HOME=/usr/local/tomcat/tomcat/current
+      export WASP_HOME=$HOME/waspSystem
+      export MAVEN_HOME=/opt/maven/current
+      export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$MAVEN_HOME/bin:$PATH
 		
 ====================
 Tomcat 7 setup
@@ -80,13 +82,15 @@ Tomcat 7 setup
 				
 2. Open ``$CATALINA_HOME/conf/tomcat-users.xml`` using your favorite editor and add the
    following (replacing placeholders ‘myGuiPass’ and ‘myScriptPass’ with your own choice of
-   passwords:: 
+   passwords: 
 
-     </tomcat-users>
-      	<role rolename="manager-gui"/>
-      	<user username="tomcat" password="myGuiPass" roles="manager-gui"/>
-      	<role rolename="manager-script"/>
-      	<user username="tomcat-script" password="myScriptPass" roles="manager-script"/>
+   .. code-block:: xml
+
+      </tomcat-users>
+         <role rolename="manager-gui"/>
+         <user username="tomcat" password="myGuiPass" roles="manager-gui"/>
+         <role rolename="manager-script"/>
+         <user username="tomcat-script" password="myScriptPass" roles="manager-script"/>
       </tomcat-users>
 				
    The manager-script account is used to deploy The WASP System using Maven. The managergui
@@ -95,33 +99,39 @@ Tomcat 7 setup
    to be added to your local maven configuration as follows:
 				
    From within your home folder, open the .m2/settings.xml file and locate the tags. In between these tags place the following 
-   (replacing placeholder myScriptPass with the 	same password you used above for the tomcat-script account)::
+   (replacing placeholder myScriptPass with the same password you used above for the tomcat-script account):
+
+   .. code-block:: xml
 
       <server>
-      	<id>tomcat-localhost</id>
-      	<username>tomcat-script</username>
-      	<password>myScriptPass</password>
+      	 <id>tomcat-localhost</id>
+      	 <username>tomcat-script</username>
+      	 <password>myScriptPass</password>
       </server>
 
 3. Create the folder: ``$CATALINA_HOME/waspPlugins``			
    Ensure that their permissions are set such that Maven can copy files into the ``waspPlugins`` folder.		
 4. To create a startup launch daemon (Debian based instructions):
-5. Type the following at the command line:: 
+5. Type the following at the command line: 
 
-    $ cd $CATALINA_HOME/bin
-    $ tar xvfz commons-daemon-native.tar.gz
-    $ cd commons-daemon-1.0.x-native-src/unix
-    $ ./configure
-    $ make
-    $ cp jsvc ../..
+   .. code-block:: bash
+
+      $ cd $CATALINA_HOME/bin
+      $ tar xvfz commons-daemon-native.tar.gz
+      $ cd commons-daemon-1.0.x-native-src/unix
+      $ ./configure
+      $ make
+      $ cp jsvc ../..
 				
    a. Using your favorite editor and sudo, copy the contents of the file ``tomcat7-init.d.sh`` to the location ``/etc/init.d/tomcat7``.
 
      .. important:: Replace the values of the variables under "local config section" at the top with values relevant to your setup
 
-   b. At the command line run::
+   b. At the command line run:
+
+      .. code-block:: bash
     
-      $ chkconfig --add tomcat7
+         $ chkconfig --add tomcat7
 
    c. At the command line run ``$ sudo /etc/init.d/tomcat7 start`` to start tomcat. You should see a welcome page at 
       http://localhost:8080 if all went well.
@@ -152,49 +162,62 @@ After installation is complete, take a look at the ``$WASP_HOME/wasp-plugins/was
 properties can be set including the database settings.
 
 1. Initialize the wasp database by running the following at the command line (remember to edit the database 
-   settings in the scripts first if they have been changed in the config)::
+   settings in the scripts first if they have been changed in the config):
 
-    $ mysql -uroot -p < $WASP_HOME/wasp/db/InitializeWaspDb.sql
-    $ mysql -uroot -p wasp < $WASP_HOME/wasp/db/createSpringBatchTables.sql
+   .. code-block:: bash
+
+      $ mysql -uroot -p < $WASP_HOME/wasp/db/InitializeWaspDb.sql
+      $ mysql -uroot -p wasp < $WASP_HOME/wasp/db/createSpringBatchTables.sql
 		
 2. Post Installation checks:
 
    a. Check to see that ``wasp-tomcat-classloader-x.x.x-SNAPSHOT.jar`` has been copied into the
-      ``$CATALINA_HOME/lib`` folder. If not (due to a permissions issue) you should do this manually::
+      ``$CATALINA_HOME/lib`` folder. If not (due to a permissions issue) you should do this manually:
+
+      .. code-block:: bash
     
-        $ sudo cp $WASP_HOME/wasp/wasp-tomcat-classloader/target/wasp-tomcat-classloader-?.?.?-SNAPSHOT.jar $CATALINA_HOME/lib
+         $ sudo cp $WASP_HOME/wasp/wasp-tomcat-classloader/target/wasp-tomcat-classloader-?.?.?-SNAPSHOT.jar $CATALINA_HOME/lib
 				
    b. Verify the installed plugins by navigating to ``$CATALINA_HOME/waspPlugins``. Plugins should have been installed here. If 
       old versions of plugins persist these must be deleted as only one version of each plugin can be present in this folder.
 				
    c. Verify that the wasp system webapp was started by navigating to localhost:8080/wasp in 
-      a local web browser. If you see the login page you have set up the webapp properly. On a Linux system you could also use command-line tool lynx to do this:: 
-      
-        $ lynx http://localhost:8080/wasp
+      a local web browser. If you see the login page you have set up the webapp properly. On a Linux system you could also use command-line tool lynx to do this:
 
-      If not already performed by the setupWasp script, you may start up the wasp-daemon executable component (task management) in a new shell as follows::
+      .. code-block:: bash
+      
+         $ lynx http://localhost:8080/wasp
+
+      If not already performed by the setupWasp script, you may start up the wasp-daemon executable component (task management) in a new shell as follows:
+
+         .. code-block:: bash
 		
-        $ cd $WASP_HOME/wasp/wasp-exec
-        $ java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \ 
-          -Dcatalina.home=$CATALINA_HOME \
-          -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \ 
-	  edu.yu.einstein.wasp.daemon.StartDaemon
+            $ cd $WASP_HOME/wasp/wasp-exec
+            $ java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \ 
+                 -Dcatalina.home=$CATALINA_HOME \
+                 -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \ 
+	         edu.yu.einstein.wasp.daemon.StartDaemon
 					
-      To run it in the background with no terminal output use this variant of the command instead:: 
+      To run it in the background with no terminal output use this variant of the command instead:
+
+         .. code-block:: bash
     
-        $ nohupjava -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \ 
-          -Dcatalina.home=$CATALINA_HOME \
-          -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \ 
-          edu.yu.einstein.wasp.daemon.StartDaemon > /dev/null 2>&1 &
+            $ nohup java -Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m \ 
+                 -Dcatalina.home=$CATALINA_HOME \
+                 -cp "target/wasp-exec-0.1.0-SNAPSHOT.jar:$CATALINA_HOME/waspPlugins/*" \ 
+                 edu.yu.einstein.wasp.daemon.StartDaemon > /dev/null 2>&1 &
 	
 ==========================
 Building the Documentation
 ==========================
 		
-The Sphinx documentation (http://sphinx-doc.org) can be built by running the following commands::
-  $ cd wasp-doc/src/sphinx
-  $ make html
-  $ make latexpdf # requires pdftolatex install
+The Sphinx documentation (http://sphinx-doc.org) can be built by running the following commands:
+
+   .. code-block:: bash
+  
+      $ cd wasp-doc/src/sphinx
+      $ make html
+      $ make latexpdf # requires pdftolatex install
 			
 Javadoc can be generated by running ``$ mvn javadoc:javadoc`` in any component parent folder, e.g.
 ``WASP_HOME/wasp-web`` (for the WASP SYSTEM webapp) or ``$WASP_HOME/wasp-core``
