@@ -74,8 +74,10 @@ VALUES
 	
 INSERT INTO `department` (`id`, `created`, `updated`, `uuid`, `isactive`, `isinternal`, `name`, `lastupdatebyuser`)
 VALUES
-	(1, '2013-03-12 12:26:58', '2013-03-12 12:26:59', X'4FC2914069F24397B5AD0A96B8721F2D', 1, 0, 'External', 1);
+	(1, '2013-03-12 12:26:58', '2013-03-12 12:26:59', X'4FC2914069F24397B5AD0A96B8721F2D', 1, 0, 'External', 1),
+	(2, '2013-03-12 12:26:58', '2013-03-12 12:26:59', X'4FC2914069F24397B5AD0A96B8721F2D', 1, 1, 'Internal', 1);
 	
+		
 INSERT INTO `usermeta` (`id`, `created`, `updated`, `uuid`, `k`, `position`, `rolevisibility`, `v`, `userid`, `lastupdatebyuser`)
 VALUES
 	(1, '2012-05-23 17:23:00', '2013-03-12 12:26:59', X'E5ADBC3510164D58A716AEE1D5B8D3FF', 'user.title', 0, NULL, 'Mr', 1, 1),

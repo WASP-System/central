@@ -49,23 +49,31 @@ public class SelPendingLabs extends SelBaseTest{
 	  
 	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sPiEmail, driver),"Lab "+ sPiEmail +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sPiEmail+"')]")).click();
-
+	  
 	  //WebDriverWait wait = new WebDriverWait(driver, 5);
 	  //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@value='approve']")));
 	  
 	  
 	  List<WebElement> radios = driver.findElements(By.xpath("//input[@type='radio' and @value='approve']"));
+	  System.out.println("radios.size="+radios.size());
 	  List<WebElement> submits = driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']"));
 
 	  for (int i = 0; i < radios.size(); i++) {  
+		  /* doesn't work. evaluates to false
+		   * Assert.assertTrue(radios.get(i).isDisplayed());
+
 		  if (radios.get(i).isDisplayed() ) {
 			  radios.get(i).click(); 
 		  }
+		  */
+		  
+		  radios.get(i).click(); 
+
       }
 	  for (int i = 0; i < driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).size(); i++) {  
-		  if (driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).isDisplayed() ) {
+		  //if (driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).isDisplayed() ) {
 			  driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).click();
-		  }
+		  //}
 	  }
 	  driver.findElement(By.linkText("Logout")).click();
 
@@ -140,6 +148,19 @@ public class SelPendingLabs extends SelBaseTest{
       
       return(retObjArr);
   }
+  
+  public static void pause(final int iTimeInMillis) {
+	    
+      try
+      {
+        Thread.sleep(iTimeInMillis);
+      }
+      catch(InterruptedException ex)
+      {
+        System.out.println(ex.getMessage());
+      }
+    }
+	
   
 
 }

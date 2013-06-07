@@ -20,8 +20,21 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.TestSeleniumProfileSetup"/>
   </classes>
   </test>
-
 -->
+
+ <!--
+  <test name="WASP Regression Testing: Login Page" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
+      </classes>
+   </test>
+-->
+	<parameter name="first-name"  value=""/>
+   <test name="WASP Regression Testing: Base Test Class" preserve-order="true">
+	<classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelBaseTest"/>
+      </classes>
+   </test>
 
 	<test name="WASP Regression Testing: Add New PI" preserve-order="true">
 		<classes>
@@ -34,6 +47,7 @@
          	</class>
       </classes>
     </test>
+
 	<test name="WASP Regression Testing: Pending Lab Approve/Reject" preserve-order="true">
 			<classes>
 	         	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingLabs">
@@ -44,6 +58,7 @@
 	         	</class>
 	      </classes>
 	</test>
+
 	<test name="WASP Regression Testing: Add New User" preserve-order="true">
 	<classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelAddNewUser">
@@ -54,6 +69,7 @@
 	     </class>
       </classes>
    </test>
+ 
    <test name="WASP Regression Testing: Pending User Approval" preserve-order="true">
 		<classes>
          	<class name="edu.yu.einstein.wasp.integration.selenium.SelPendingUserApproval">
@@ -65,19 +81,28 @@
          	</class>
       </classes>
     </test>
+ 
+    
+    <test name="WASP Regression Testing: Configure Workflow" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelConfigureWorkflow"/>
+      </classes>
+   </test>
+ 
+
    <test name="WASP Regression Testing: Submit New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelSubmitNewJob"/>
       </classes>
    </test>
-<!--  
+
    <test name="WASP Regression Testing: Approve New Job" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
       </classes>
    </test>
 
-  
+  <!--  
   <test name="WASP Regression Testing: Login Page" preserve-order="true">
       <classes>
          <class name="edu.yu.einstein.wasp.integration.selenium.SelTestWaspLogin"/>
@@ -87,7 +112,6 @@
    
 -->
 <!--
-	
 
    	<test name="WASP Regression Testing: New Request" preserve-order="true">
 			<classes>

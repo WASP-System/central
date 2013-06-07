@@ -52,13 +52,15 @@
           <fork>true</fork>
         </configuration>
         <executions>
+        
+        
           <execution>
             <id>stop-tomcat</id>
             <phase>pre-integration-test</phase>
             <goals>
               <goal>shutdown</goal>
             </goals>
-          </execution>        
+          </execution> 
           <execution>
             <id>start-tomcat</id>
             <phase>pre-integration-test</phase>
@@ -85,7 +87,7 @@
                 <driver>com.mysql.jdbc.Driver</driver>
                 <url>jdbc:mysql://localhost:3306/wasp</url>
                 <username>root</username>
-                <password>wasp</password>
+                <password>wasp123</password>
                 <forceMojoExecution>true</forceMojoExecution>
             </configuration>
             <executions>
