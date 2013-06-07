@@ -6,7 +6,7 @@
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
  <br />
 <h1><fmt:message key="pageTitle.wasp-illumina/flowcell/showflowcell.label"/></h1>
- 
+ <c:out value="${runLocked}" />
 <div>
 <table class="EditTable ui-widget ui-widget-content">
 <tr class="FormData"><td class="CaptionTD"><fmt:message key="platformunitShow.typeOfPlatformUnit.label"/>:</td><td class="DataTD"><c:out value="${typeOfPlatformUnit}" /></td></tr>

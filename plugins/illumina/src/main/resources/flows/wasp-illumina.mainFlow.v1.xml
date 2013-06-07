@@ -11,7 +11,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
-							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 							<property name="status" value="STARTED" />
 						</bean>
 					</constructor-arg>
@@ -42,7 +42,7 @@
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.UpdateRunCompletedTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -50,7 +50,7 @@
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.SampleSheetTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -58,14 +58,14 @@
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.PipelineTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="wasp-illumina.mainFlow.stageResults" next="wasp-illumina.mainFlow.demultiplex">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.StageResultsTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -76,7 +76,7 @@
 		<batch:step id="wasp-illumina.mainFlow.registerFiles" next="wasp-illumina.mainFlow.listenForQCCompletion">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.RegisterFilesTasklet" scope="step">
-					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
@@ -87,7 +87,7 @@
 					<constructor-arg name="abortMonitoringChannel" ref="wasp.channel.notification.abort"/>
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
-							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 							<property name="task" value="#{runTasks.QC}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
@@ -101,7 +101,7 @@
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
 						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
-							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" type="int" />
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>

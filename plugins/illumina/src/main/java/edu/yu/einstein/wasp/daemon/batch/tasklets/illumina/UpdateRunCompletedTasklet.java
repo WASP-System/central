@@ -47,7 +47,7 @@ public class UpdateRunCompletedTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public UpdateRunCompletedTasklet(int runId) {
+	public UpdateRunCompletedTasklet(Integer runId) {
 		this.runId = runId;
 	}
 

@@ -60,7 +60,7 @@ public class PipelineTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(int runId) {
+	public PipelineTasklet(Integer runId) {
 		this.runId = runId;
 	}
 
