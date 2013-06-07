@@ -3,9 +3,9 @@ Working with the web layer
 **************************
 
 .. note::
-  Email communication is essential for proper WASP flow, particularly during user registration and initial steps of job submission.
-  Currently, WASP does NOT provide a backup system if email communication fails. While this will be remedied in a future release, 
-  until that time, it is essential to properly configure the email system and to confirm that emails to and from the system function as expected.
+   Email communication is essential for proper WASP flow, particularly during user registration and initial steps of job submission.
+   Currently, WASP does NOT provide a backup system if email communication fails. While this will be remedied in a future release, 
+   until that time, it is essential to properly configure the email system and to confirm that emails to and from the system function as expected.
 
 ======================
 Users
