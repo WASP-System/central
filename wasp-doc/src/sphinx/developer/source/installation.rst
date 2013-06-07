@@ -16,7 +16,7 @@ We provide a script to help clone and install the main components to speed up th
 After cloning the WASP System source code, you’ll notice the project contains many folders. Most of these represent modules of the system, wrapped up into individual Maven projects:
 						
 
-.. _folders:
+.. _waspfolders:
 
 .. csv-table:: Wasp System project folder contents
   :header: "Subfolder", "Description"
@@ -116,10 +116,12 @@ Tomcat 7 setup
     $ cp jsvc ../..
 				
    a. Using your favorite editor and sudo, copy the contents of the file ``tomcat7-init.d.sh`` to the location ``/etc/init.d/tomcat7``.
+
      .. important:: Replace the values of the variables under "local config section" at the top with values relevant to your setup
+
    b. At the command line run::
     
-     $ chkconfig --add tomcat7
+      $ chkconfig --add tomcat7
 
    c. At the command line run ``$ sudo /etc/init.d/tomcat7 start`` to start tomcat. You should see a welcome page at 
       http://localhost:8080 if all went well.
@@ -150,7 +152,7 @@ After installation is complete, take a look at the ``$WASP_HOME/wasp-plugins/was
 properties can be set including the database settings.
 
 1. Initialize the wasp database by running the following at the command line (remember to edit the database 
-  settings in the scripts first if they have been changed in the config)::
+   settings in the scripts first if they have been changed in the config)::
 
     $ mysql -uroot -p < $WASP_HOME/wasp/db/InitializeWaspDb.sql
     $ mysql -uroot -p wasp < $WASP_HOME/wasp/db/createSpringBatchTables.sql

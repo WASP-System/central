@@ -19,16 +19,16 @@ State
 		
 State is a central concept to dealing with data processing in WASP. 
 State is managed by a split mechanism within WASP.  The first is a state semaphore system
-that is handled through persistence using the WASP ``State`` class.  WASP developers
-define ``Task``\s that represent human intervention tasks that are managed by
-``State``\s. A depiction of state transition for the overall Job task is presented
+that is handled through persistence using the WASP `State` class.  WASP developers
+define `Task`\s that represent human intervention tasks that are managed by
+`State`\s. A depiction of state transition for the overall Job task is presented
 in :num:`figure #fig-jobtaskstate`.  In this example, upon creation of a WASP Job, a corresponding
-``Task`` is created in the database and it is assigned a ``State`` value indicating
+`Task` is created in the database and it is assigned a `State` value indicating
 that the process is running (running of the process is managed by Spring Batch). 
-The processing pipeline proceeds through its steps and changes the ``State`` to completed 
-after completion of work. WASP task states are defined by the ``TaskStatus`` ``enum``.
-The intention is to use these states for all tasks; however, states are persisted through ``Enum``\s
-allowing developers can create their own states to manage custom ``Task``\s 
+The processing pipeline proceeds through its steps and changes the `State` to completed 
+after completion of work. WASP task states are defined by the `TaskStatus` `enum`.
+The intention is to use these states for all tasks; however, states are persisted through `Enum`\s
+allowing developers can create their own states to manage custom `Task`\s 
 when it becomes necessary.  
 
 .. _fig-jobtaskstate:
@@ -41,8 +41,8 @@ when it becomes necessary.
 
   
 All processes defined within WASP are implemented as `Spring Batch <http://www.springsource.org/spring-batch">`_ job flows.  :num:`figure #fig-taskstate` presents an
-example state diagram where the state of a Spring Batch flow is determined by the ``State`` of
-a WASP ``Task`` designed to manage human interaction related to the flow.  
+example state diagram where the state of a Spring Batch flow is determined by the `State` of
+a WASP `Task` designed to manage human interaction related to the flow.  
 
 .. _fig-taskstate:
 		

@@ -1,4 +1,11 @@
+*************
+License
+*************
+
+The Wasp System is licensed under the `GNU Affero General Public License <http://www.gnu.org/licenses/agpl.html>`_.
+
 GNU AFFERO GENERAL PUBLIC LICENSE
+=================================
 Version 3, 19 November 2007
 
 Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
