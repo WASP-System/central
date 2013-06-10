@@ -38,39 +38,7 @@
           </execution>
         </executions>
     </plugin>
-    <!--
-    <plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-		  <artifactId>tomcat7-maven-plugin</artifactId>
-		  <version>2.0</version>
-      
-        <configuration>
-			<server>tomcat-localhost</server>
-			<url>http://localhost:8080/manager/text</url> 
-          <catalinaHome>${env.CATALINA_HOME}</catalinaHome>
-          <warFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</warFile>
-          <fork>true</fork>
-        </configuration>
-        <executions>
-        
-        
-          <execution>
-            <id>stop-tomcat</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>shutdown</goal>
-            </goals>
-          </execution> 
-          <execution>
-            <id>start-tomcat</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      -->
+  
       <!-- BEGIN MYSQL DATABASE CONFIGURATION-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -107,7 +75,66 @@
           </executions>
       </plugin>
       <!-- END MYSQL DATABASE CONFIGURATION-->
-       
+       <!--
+       <plugin>
+          <groupId>org.apache.tomcat.maven</groupId>
+		  <artifactId>tomcat7-maven-plugin</artifactId>
+		  <version>2.0</version>
+      
+        <configuration>
+			<server>Tomcat v7.0 Server at localhost</server>
+			<url>http://localhost:8080/manager/text</url> 
+          <catalinaHome>${env.CATALINA_HOME}</catalinaHome>
+          <fork>true</fork>
+        </configuration>
+    
+      
+        <executions>   
+          <execution>
+            <id>stop-tomcat</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>shutdown</goal>
+            </goals>
+          </execution>   
+          <execution>
+		            <id>start-tomcat</id>
+		            <phase>pre-integration-test</phase>
+		            <goals>
+		              <goal>run</goal>
+		            </goals>
+		        </execution>    
+        </executions>
+      
+      </plugin>
+      -->
+      <plugin>  
+        <groupId>org.codehaus.mojo</groupId>  
+        <artifactId>exec-maven-plugin</artifactId>  
+        <version>1.2.1</version>  
+        <executions>  
+          <execution>  
+            <id>stop-tomcat</id>  
+            <phase>pre-integration-test</phase>  
+            <goals>  
+              <goal>exec</goal>  
+            </goals>  
+            <configuration>  
+            <executable>${env.CATALINA_HOME}/bin/shutdown.sh</executable>  
+            </configuration>  
+          </execution>  
+          <execution>  
+            <id>start-tomcat</id>  
+            <phase>pre-integration-test</phase>  
+            <goals>  
+              <goal>exec</goal>  
+            </goals>  
+            <configuration>  
+            <executable>${env.CATALINA_HOME}/bin/startup.sh</executable>    
+            </configuration>  
+          </execution>  
+        </executions>  
+      </plugin>   
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -164,6 +191,12 @@
 		</profile>
 	</profiles>
 	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>exec-maven-plugin</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+            
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
