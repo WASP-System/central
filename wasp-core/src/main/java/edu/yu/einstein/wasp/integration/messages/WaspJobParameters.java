@@ -20,5 +20,6 @@ public class WaspJobParameters {
 	public static final String PLATFORM_UNIT_ID = "platformUnitId";
 	public static final String PLATFORM_UNIT_NAME = "platformUnitName";
 	public static final String BATCH_JOB_TASK = "batchJobTask";
+	public static final String FILE_GROUP_ID = "fileGroupId";
 	
 }

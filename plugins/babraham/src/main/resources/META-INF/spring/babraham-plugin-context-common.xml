@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="babrahamPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>babraham</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.babraham" />
+
+	<int:service-activator input-channel="wasp.channel.plugin.babraham" ref="babraham.WaspPluginBean" method="process" />
+	
+	<bean id="babraham.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.BabrahamPlugin">
+		<constructor-arg name="pluginName" ref="babrahamPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.babraham" />
+		<!-- 
+		<property name="provides" >
+			<set>
+				<ref bean="babraham" />
+			</set>
+		</property>
+		 -->
+		<!-- 
+		<property name="handles" >
+			<set>
+				<ref bean="babrahamPluginArea" />
+			</set>
+		</property>
+		 -->
+	</bean>
+
+</beans>

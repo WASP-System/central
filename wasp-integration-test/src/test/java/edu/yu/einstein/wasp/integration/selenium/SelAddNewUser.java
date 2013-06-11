@@ -32,18 +32,7 @@ public class SelAddNewUser extends SelBaseTest {
 	
 	private WebElement submitLogin;
 	
-	/**
-	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
-	 * If you want it to run before all methods, you need to use the alwaysRun = true:
-	 * @throws Exception
-	 */
-	@Override
-	@BeforeClass (alwaysRun = true)
-	@Parameters ("environment")
-    public void setUp(String environment) throws Exception {
-		
-	}
-
+	
     /**
     * 
     * @param fName
@@ -96,6 +85,7 @@ public class SelAddNewUser extends SelBaseTest {
 		
 		
 		driver.findElement(By.name("captcha")).sendKeys("");
+		pause(30000);
 		
     	submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
     	if(submitLogin !=null){
@@ -110,7 +100,7 @@ public class SelAddNewUser extends SelBaseTest {
     	 
     	//TO DO:
     	
-    	Assert.assertEquals(driver.getCurrentUrl(), sNewUserUrlCreated);
+    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newuser/created.do");
     }
   	
   	 @Override
@@ -138,11 +128,10 @@ public class SelAddNewUser extends SelBaseTest {
      * 
      * @throws SQLException
      */
-    @Parameters ("environment")
     @Test (groups="integration-tests")
-  	public void confirmEmailAuth(String environment) throws SQLException {
+  	public void confirmEmailAuth() throws SQLException {
   		Statement s = connection.createStatement();
-  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.userpendingid=cea.userpendingid");
+  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");
   		ResultSet rs = s.getResultSet();
    		while (rs.next ())  {
   			String sAuthCode = rs.getString("authcode");
@@ -158,6 +147,18 @@ public class SelAddNewUser extends SelBaseTest {
   	    s.close ();
         
   	}
+    public static void pause(final int iTimeInMillis) {
+	    
+        try
+        {
+          Thread.sleep(iTimeInMillis);
+        }
+        catch(InterruptedException ex)
+        {
+          System.out.println(ex.getMessage());
+        }
+      }
+  	
      	  
 }
 

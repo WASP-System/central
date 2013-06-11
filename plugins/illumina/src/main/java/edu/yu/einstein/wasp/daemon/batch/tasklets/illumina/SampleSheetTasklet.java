@@ -41,7 +41,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	/**
 	 * 
 	 */
-	public SampleSheetTasklet(int runId) {
+	public SampleSheetTasklet(Integer runId) {
 		this.runId = runId;
 	}
 	

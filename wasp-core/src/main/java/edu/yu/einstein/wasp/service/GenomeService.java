@@ -107,6 +107,12 @@ public interface GenomeService extends WaspService {
 	 * @return
 	 */
 	String getRemoteBuildPath(Build build);
+	
+	/**
+	 * returns the list of organisms plus a generic 'Other' organism
+	 * @return
+	 */
+	public Set<Organism> getOrganismsPlusOther();
 
 	  
 }

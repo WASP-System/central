@@ -40,8 +40,12 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserPass
      */
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
-	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String sExpectedUrl) throws Exception {   
-    	driver.get("http://"+baseUrl+"/wasp");
+	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
+    	
+  		driver.get("http://"+baseUrl+"/wasp");
+  		if (SeleniumHelper.verifyTextPresent("Logout", driver)) {
+  			driver.findElement(By.linkText("Logout")).click();
+  		}
   	    
 	   	WebElement userName = driver.findElement(By.name("j_username"));
     	WebElement userPassword = driver.findElement(By.name("j_password"));
@@ -52,7 +56,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	
 		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")), "'Submit' button does not exist");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-    	Assert.assertEquals(driver.getCurrentUrl(), sExpectedUrl);
+    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
     	/* Does not work. Possible firefox webdriver bug.
     	Assert.assertNotNull(driver.findElement(By.linkText("Jobs")), "Unable to locate 'Jobs' menu link.");
     	
@@ -69,7 +73,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		driver.findElement(By.name("name")).sendKeys(sJobNum);
 		
 		Select select = new Select(driver.findElement(By.name("labId")));
-		select.selectByVisibleText("Robert Dubin Lab");
+		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
     	driver.findElement(By.name("workflowId")).click();
@@ -131,7 +135,6 @@ public class SelSubmitNewJob extends SelBaseTest{
     	
     	int checkboxCount = driver.findElements(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']")).size();
     	List<WebElement> checkboxes = driver.findElements(By.xpath("//form[@name='jobDraft']//table[@id='cells']//td[@style='display: table-cell;']//input[@type='checkbox']"));
-    	logger.debug("checkboxCount="+checkboxCount);
         for (int i = 0; i < checkboxCount; i++) {  
         	checkboxes.get(i).click();  
         }  

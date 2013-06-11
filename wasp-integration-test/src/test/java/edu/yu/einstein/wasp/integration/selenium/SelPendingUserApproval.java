@@ -33,14 +33,13 @@ public class SelPendingUserApproval extends SelBaseTest{
   public void pendingUserApprove(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass, driver);
-	  
-	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
-	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
-
-	  WebElement element = driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]"));
-	  if (!element.isDisplayed())  driver.findElement(By.xpath("//a[contains(@href, '#tabs-labUtils')]")).click();
-
-	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pendinglmapproval/')]")).click();
+	  	  
+	  Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
+	  driver.findElement(By.linkText("Tasks")).click();
+	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/piapprove/list.do')]")), "Unable to locate 'Lab Management Tasks' link.");
+	  Assert.assertTrue(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/piapprove/list.do')]")).isDisplayed());	  
+	  driver.findElement(By.linkText("Lab Management Tasks")).click();
+ 
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(.,'"+sUserEmail+"')]")), "Could not locate user with '"+sUserEmail+"' email.");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sUserEmail+"')]")).click();
 	  

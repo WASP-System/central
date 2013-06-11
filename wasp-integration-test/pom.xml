@@ -38,7 +38,105 @@
           </execution>
         </executions>
     </plugin>
-    <plugin>
+  
+      <!-- BEGIN MYSQL DATABASE CONFIGURATION-->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+               <artifactId>sql-maven-plugin</artifactId>
+               <version>1.5</version>
+               <dependencies>
+                    <dependency>
+                         <groupId>mysql</groupId>
+                         <artifactId>mysql-connector-java</artifactId>
+                         <version>5.1.18</version>
+                    </dependency>
+              </dependencies>
+            <configuration>
+                <driver>com.mysql.jdbc.Driver</driver>
+                <url>jdbc:mysql://localhost:3306/wasp</url>
+                <username>root</username>
+                <password>wasp123</password>
+                <forceMojoExecution>true</forceMojoExecution>
+            </configuration>
+            <executions>
+	          <execution>
+	            <phase>pre-integration-test</phase>
+		            <goals>
+		                <goal>execute</goal>
+		            </goals>
+		            <configuration>
+			                <srcFiles>
+			                	<srcFile>src/main/resources/dbscripts/InitializeWaspDb.sql</srcFile>
+			                	<srcFile>src/main/resources/dbscripts/createSpringBatchTables.sql</srcFile>		                	
+			                	<srcFile>src/main/resources/dbscripts/minimalDataLoad.sql</srcFile>
+			                </srcFiles>
+		            </configuration>
+	          	</execution>
+          </executions>
+      </plugin>
+      <!-- END MYSQL DATABASE CONFIGURATION-->
+       <!--
+       <plugin>
+          <groupId>org.apache.tomcat.maven</groupId>
+		  <artifactId>tomcat7-maven-plugin</artifactId>
+		  <version>2.0</version>
+      
+        <configuration>
+			<server>Tomcat v7.0 Server at localhost</server>
+			<url>http://localhost:8080/manager/text</url> 
+          <catalinaHome>${env.CATALINA_HOME}</catalinaHome>
+          <fork>true</fork>
+        </configuration>
+    
+      
+        <executions>   
+          <execution>
+            <id>stop-tomcat</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>shutdown</goal>
+            </goals>
+          </execution>   
+          <execution>
+		            <id>start-tomcat</id>
+		            <phase>pre-integration-test</phase>
+		            <goals>
+		              <goal>run</goal>
+		            </goals>
+		        </execution>    
+        </executions>
+      
+      </plugin>
+      -->
+      
+      <plugin>  
+        <groupId>org.codehaus.mojo</groupId>  
+        <artifactId>exec-maven-plugin</artifactId>  
+        <version>1.2.1</version>  
+        <executions>  
+          <execution>  
+            <id>stop-tomcat</id>  
+            <phase>pre-integration-test</phase>  
+            <goals>  
+              <goal>exec</goal>  
+            </goals>  
+            <configuration>  
+            <executable>${env.CATALINA_HOME}/bin/shutdown.sh</executable>  
+            </configuration>  
+          </execution>  
+          <execution>  
+            <id>start-tomcat</id>  
+            <phase>pre-integration-test</phase>  
+            <goals>  
+              <goal>exec</goal>  
+            </goals>  
+            <configuration>  
+            <executable>${env.CATALINA_HOME}/bin/startup.sh</executable>    
+            </configuration>  
+          </execution>  
+        </executions>  
+      </plugin>   
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.14.1</version>
@@ -56,6 +154,7 @@
           </execution>
         </executions>
       </plugin>
+      
     </plugins>
 	</build>
 	<profiles>			
@@ -81,21 +180,46 @@
 									<systemPropertyVariables>
 				                        <environment>${env.USER}</environment>		
 				                    </systemPropertyVariables>         
-									<excludedGroups>none</excludedGroups><!-- Need to have this line because if left out, surefire plugin will exclude groups that were specified in the above configuration -->	
+									<excludedGroups>none</excludedGroups><!-- Need to have this because if left out, surefire plugin will exclude groups that were specified in the above configuration -->	
 										<suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
 										</suiteXmlFiles>
 									</configuration>
 								</execution>
 							</executions>	
-						</plugin>
-						
+						</plugin>						
 					</plugins>
-
 				</build>
 		</profile>
 	</profiles>
 	<dependencies>
-	<dependency>
+		<dependency>
+   			<groupId>xml-apis</groupId>
+   			<artifactId>xml-apis</artifactId>
+  				<version>1.4.01</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.9</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>xml-apis</artifactId>
+					<groupId>xml-apis</groupId>
+				</exclusion>		
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>exec-maven-plugin</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+            
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			</dependency>
+		<dependency>
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>
 				<scope>test</scope>
