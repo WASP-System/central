@@ -1366,6 +1366,29 @@ public class JobController extends WaspController {
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		  
+		  List<Sample> availableAndCompatiblePlatformUnitList = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
+		  m.addAttribute("availableAndCompatiblePlatformUnitList", availableAndCompatiblePlatformUnitList);
+		  Map<Sample, List<Sample>> platformUnitCellListMap = new HashMap<Sample, List<Sample>>();
+		  for(Sample platformUnit : availableAndCompatiblePlatformUnitList){
+			  System.out.println("PU: " + platformUnit.getName());
+			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
+			  
+			  List<Sample> cellList = new ArrayList<Sample>();
+			  int numberOfIndexedCellsOnPlatformUnit = indexedCellsOnPlatformUnitMap.size();
+			  ///System.out.println("---numberOfIndexedCellsOnPlatformUnit: " + numberOfIndexedCellsOnPlatformUnit);
+			  for(int i = 1; i <= numberOfIndexedCellsOnPlatformUnit; i++){
+				  ///System.out.println("------"+i);
+				  Sample cell = indexedCellsOnPlatformUnitMap.get(new Integer(i));
+				  ///System.out.println("----------"+cell.getName());
+				  cellList.add(cell);
+				  sampleService.getControlLibrariesOnCell(cell);
+				  sampleService.getLibrariesOnCellWithoutControls(cell);
+				  //need to order by index.
+			  }
+			  platformUnitCellListMap.put(platformUnit, cellList);
+		  }
+		  m.addAttribute("platformUnitCellListMap", platformUnitCellListMap);
+		  
 		return "job/home/samples";
 	}
 	

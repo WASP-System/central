@@ -109,7 +109,34 @@
  	 							<a class="button" href="javascript:void(0);" onclick='showModalDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' >Add To PlatformUnit</a>
  	 							<br /><br />
  	 							<a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Add To PlatformUnit</a>
-		
+								<br /><br />
+								<div id="rob_${library.getId()}">
+ 	 								<a id="david_${library.getId()}"  href="javascript:void(0);" onclick='if(this.innerHTML=="Close"){this.parentNode.childNodes[3].style.display="none"; this.innerHTML="Add To PlatformUnit"; }else{this.innerHTML="Close"; this.parentNode.childNodes[3].style.display="block";} /* var x = this.parentNode.id; alert(x); var y = this.parentNode.childNodes[3]; y.style.display="none";*/ ' >Add To PlatformUnit</a>
+ 	 								<div id="les_${library.getId()}" style="display:none;">
+<form  method='post' name='addLibToPU' action="<c:url value="/facility/platformunit/assignAdd2.do" />" onsubmit="return validate_submit(this);">
+<input type='hidden' name='jobid' value='<c:out value="${job.jobId}" />'/>
+<input type='hidden' name='librarysampleid' value='<c:out value="${library.getId()}" />'/>
+							
+<table class='data'>
+<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+<tr>
+<td>
+<select style="font-size:x-small;" name="cellsampleid" id="cellsampleid_<c:out value="${idCounter}" />" size="1" >
+<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
+<c:forEach items="${availableAndCompatiblePlatformUnitList}" var="platformUnit">
+<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${platformUnit.getName()}" /> [<c:out value="${platformUnit.getSampleSubtype().getName()}" />]</option>
+<c:set value="${platformUnitCellListMap.get(platformUnit)}" var="cellList" />
+<c:forEach items="${cellList}" var="cell">
+<option style="color:red; font-weight: bold;" value="<c:out value="${cell.getSampleId()}" />">&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.cell.label" />: <c:out value="${cell.getName()}" /></option>				
+</c:forEach>
+</c:forEach>						
+</select>
+</td>
+</tr>
+</table>
+</form>										
+ 	 								</div>
+								</div>
  	 						</c:if>	
 						</td>
 						
