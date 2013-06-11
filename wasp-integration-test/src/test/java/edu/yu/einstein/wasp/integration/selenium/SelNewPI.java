@@ -30,17 +30,6 @@ public class SelNewPI extends SelBaseTest {
 	
 	String sEmail;
 	
-	/**
-	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
-	 * If you want it to run before all methods, you need to use the alwaysRun = true:
-	 * @throws Exception
-	 */
-	@Override
-	@BeforeClass (alwaysRun = true)
-	@Parameters ("environment")
-    public void setUp(String environment) throws Exception {
-		
-	}
 
 	/**
      * 
@@ -76,19 +65,19 @@ public class SelNewPI extends SelBaseTest {
   		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/institute.do");
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/institute.do");
 		
 		//Select Institute
     	Assert.assertTrue(driver.findElements(By.name("instituteSelect")).size() != 0, "Cannot locate 'Select Institute' drop-down");
 		driver.findElement(By.name("instituteSelect")).sendKeys(sInst);
  		//TO DO:  check for read-only attribute of 'other' input field.
-		
+		pause(4000);
 		//Submit
 		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")));
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
 		
 		//Fill out New PI Form
-		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/institute.do");
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/institute.do");
 
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(sFName);
@@ -111,12 +100,12 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("phone")).sendKeys(sPhone);
 		driver.findElement(By.id("fax")).sendKeys(sFax);
 		
+		pause(4000);
 		//Submit New PI Form
     	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-		pause(1000000);
 
-		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+":8080/wasp/auth/newpi/created.do");
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/created.do");
 				
      	
     }
@@ -147,7 +136,7 @@ public class SelNewPI extends SelBaseTest {
     @DataProvider(name = "DP1")
     public Object[][] createData1() throws Exception{
         Object[][] retObjArr=SeleniumHelper.getTableArray("WaspTestData.xls",
-                "Test_prod", "addNewPI");
+                "Test_001", "addNewPI");
         Assert.assertNotNull(retObjArr, "object is null");
 
         return(retObjArr);
@@ -157,9 +146,8 @@ public class SelNewPI extends SelBaseTest {
      * 
      * @throws SQLException
      */
-    @Parameters ("production")
   	@Test (groups="integration-tests")
-  	public void confirmEmailAuth(String environment) {
+  	public void confirmEmailAuth() {
     	
   		try {
 	  		Statement s = connection.createStatement();
