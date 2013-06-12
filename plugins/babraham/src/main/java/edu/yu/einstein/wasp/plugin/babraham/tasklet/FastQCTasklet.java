@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.tasklet;
 
+import java.util.Map;
+
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -60,7 +62,7 @@ public class FastQCTasklet extends WaspTasklet {
 		if (repeatStatus.equals(RepeatStatus.FINISHED)) {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
-			String metadata = fastqc.parseOutput(result);
+			Map<String, String> results = fastqc.parseOutput(result);
 			
 			// TODO: Persist metadata
 		
