@@ -74,13 +74,6 @@ public abstract class WaspChart {
 		this.categories = categories;
 	}
 	
-	/**
-	 * Returns a JSON representation of the object
-	 * @return
-	 * @throws JsonGenerationException
-	 */
-	@JsonIgnore
-	public abstract String getAsJSON() throws JSONException;
 	
 	/**
 	 * sets parameters based on JSON input
@@ -96,6 +89,16 @@ public abstract class WaspChart {
 			return mapper.readValue(JSON, clazz);
 		} catch(Exception e){
 			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json");
+		}
+	}
+	
+	@JsonIgnore
+	public String getAsJSON() throws JSONException {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (Exception e) {
+			throw new JSONException("Cannot convert object to JSON");
 		}
 	}
 	

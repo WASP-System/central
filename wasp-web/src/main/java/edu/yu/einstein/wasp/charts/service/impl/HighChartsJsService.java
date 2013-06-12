@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
-import edu.yu.einstein.wasp.charts.service.chartService;
+import edu.yu.einstein.wasp.charts.service.ChartService;
 
 /**
  * Highcharts JS implementation (http://www.highcharts.com)
@@ -13,9 +13,9 @@ import edu.yu.einstein.wasp.charts.service.chartService;
  */
 @Service
 @Transactional
-public class highChartsJsService implements chartService {
+public class HighChartsJsService implements ChartService {
 
-	public highChartsJsService() {
+	public HighChartsJsService() {
 		// TODO Auto-generated constructor stub
 	}
 

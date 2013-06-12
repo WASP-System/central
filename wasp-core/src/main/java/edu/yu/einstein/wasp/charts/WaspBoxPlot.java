@@ -1,16 +1,9 @@
 package edu.yu.einstein.wasp.charts;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONException;
 
 /**
  * Generic Box Plot data handler
@@ -51,18 +44,5 @@ public class WaspBoxPlot extends WaspChart {
 		dataPoint.put(Elements.high, high);
 		data.add(dataPoint);
 	}
-
-	@Override
-	@JsonIgnore
-	public String getAsJSON() throws JSONException {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.writeValueAsString(this);
-		} catch (Exception e) {
-			throw new JSONException("Cannot convert object to JSON");
-		}
-	}
-	
-	
 
 }
