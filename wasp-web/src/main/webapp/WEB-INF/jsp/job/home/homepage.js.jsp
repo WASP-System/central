@@ -245,21 +245,25 @@ function loadNewPageWithoutMoving(thisAnchorObject, urlToDisplay) {
 	}
 }
 function postForm(formId, urlToPost) {//added 5-16-13 
-	
+	//alert("yes, I am in postForm");alert("url: "+urlToPost);alert("formId = " + formId);
 	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
 	//alert("urlToPost: " + urlToPost);
 	var theForm = document.getElementById(formId);
+	//alert("theForm name = "+ theForm.name);
 	var arrayOfInputs = theForm.getElementsByTagName("input");
 	var arrayOfTextInputs = [];
+	
 	for(var i = 0; i < arrayOfInputs.length; i++ ){
 		if(arrayOfInputs[i].type == 'text'){
 			arrayOfTextInputs.push(arrayOfInputs[i]);
 		}
 	}
+	
 	var arrayOfTextAreas = theForm.getElementsByTagName("textarea");
 	for(var i = 0; i < arrayOfTextAreas.length; i++ ){
 		arrayOfTextInputs.push(arrayOfTextAreas[i]);
 	}
+	
 	var inputParameters = "";
 	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
 		var theName = arrayOfTextInputs[i].getAttribute("name");
@@ -269,6 +273,18 @@ function postForm(formId, urlToPost) {//added 5-16-13
 		}
 		inputParameters += theName + "=" + theValue; 
 	}
+	
+	var arrayOfSelects = theForm.getElementsByTagName("select");
+	for(var i = 0; i < arrayOfSelects.length; i++ ){
+		var s = arrayOfSelects[i];
+		var theName = s.getAttribute("name");
+		var theValue = s.options[s.selectedIndex].value;
+		if(inputParameters != ""){
+			inputParameters += "&";
+		}
+		inputParameters += theName + "=" + theValue; 
+	}
+	
 	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
 
 	var req = new XMLHttpRequest();
@@ -294,6 +310,72 @@ function postForm(formId, urlToPost) {//added 5-16-13
 	document.getElementById("viewerFrame").innerHTML = page;
 	*/
 }
+
+function postFormWithoutMoving(formId, urlToPost) {//added 5-16-13 
+	//alert("yes, I am in postForm");alert("url: "+urlToPost);alert("formId = " + formId);
+	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
+	//alert("urlToPost: " + urlToPost);
+	var theForm = document.getElementById(formId);
+	//alert("theForm name = "+ theForm.name);
+	var arrayOfInputs = theForm.getElementsByTagName("input");
+	var arrayOfTextInputs = [];
+	
+	for(var i = 0; i < arrayOfInputs.length; i++ ){
+		if(arrayOfInputs[i].type == 'text'){
+			arrayOfTextInputs.push(arrayOfInputs[i]);
+		}
+	}
+	
+	var arrayOfTextAreas = theForm.getElementsByTagName("textarea");
+	for(var i = 0; i < arrayOfTextAreas.length; i++ ){
+		arrayOfTextInputs.push(arrayOfTextAreas[i]);
+	}
+	
+	var inputParameters = "";
+	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
+		var theName = arrayOfTextInputs[i].getAttribute("name");
+		var theValue = arrayOfTextInputs[i].value;
+		if(i>0){
+			inputParameters += "&";
+		}
+		inputParameters += theName + "=" + theValue; 
+	}
+
+	var arrayOfSelects = theForm.getElementsByTagName("select");
+	for(var i = 0; i < arrayOfSelects.length; i++ ){
+		var s = arrayOfSelects[i];
+		var theName = s.getAttribute("name");
+		var theValue = s.options[s.selectedIndex].value;
+		if(inputParameters != ""){
+			inputParameters += "&";
+		}
+		inputParameters += theName + "=" + theValue; 
+	}
+
+	var req = new XMLHttpRequest();
+	req.open("POST", urlToPost, false);
+	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");	
+	//xmlhttp.send("fname=Henry&lname=Ford"); 
+	req.send(inputParameters);
+	var page = req.responseText;
+	if(req.status == 404 || req.status == 500){
+		page = "Error! Unable to process form data. Please try again.";
+	}
+	document.getElementById("viewerFrame").innerHTML = page;
+	//document.getElementById("tab-1").innerHTML = page;
+	
+	/*FOR GET FOR TESTING
+	var req = new XMLHttpRequest();
+	req.open("GET", urlToPost, false);
+	req.send(null);
+	var page = req.responseText;
+	if(req.status == 404 || req.status == 500){
+		page = "Error! Unable to load data. Please try again.";
+	}
+	document.getElementById("viewerFrame").innerHTML = page;
+	*/
+}
+
 
 function postMultipartForm(formId, urlToPost) {//added 5-17-13 
 //don't think being used !!!  

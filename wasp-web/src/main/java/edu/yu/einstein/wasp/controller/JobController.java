@@ -51,6 +51,8 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SampleException;
+import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
@@ -1366,10 +1368,15 @@ public class JobController extends WaspController {
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		  
-		  List<Sample> availableAndCompatiblePlatformUnitList = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
-		  m.addAttribute("availableAndCompatiblePlatformUnitList", availableAndCompatiblePlatformUnitList);
-		  Map<Sample, List<Sample>> platformUnitCellListMap = new HashMap<Sample, List<Sample>>();
-		  for(Sample platformUnit : availableAndCompatiblePlatformUnitList){
+		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
+		  m.addAttribute("availableAndCompatiblePlatformUnitListOnForm", availableAndCompatiblePlatformUnitListOnForm);
+		  Map<Sample, List<Sample>> platformUnitCellListMapOnForm = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> cellControlLibraryListMapOnForm = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, List<Sample>> cellLibraryWithoutControlListMapOnForm = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, Adaptorset> libraryAdaptorsetMapOnForm = new HashMap<Sample, Adaptorset>();
+		  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
+
+		  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
 			  System.out.println("PU: " + platformUnit.getName());
 			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 			  
@@ -1381,17 +1388,157 @@ public class JobController extends WaspController {
 				  Sample cell = indexedCellsOnPlatformUnitMap.get(new Integer(i));
 				  ///System.out.println("----------"+cell.getName());
 				  cellList.add(cell);
-				  sampleService.getControlLibrariesOnCell(cell);
-				  sampleService.getLibrariesOnCellWithoutControls(cell);
+				  List<Sample> controlLibrariesOnCellList = sampleService.getControlLibrariesOnCell(cell);
+				  cellControlLibraryListMapOnForm.put(cell, controlLibrariesOnCellList);
+
+				  //should order next list by index???
+				  List<Sample> librariesWithoutControlsOnCellList = sampleService.getLibrariesOnCellWithoutControls(cell);
+				  cellLibraryWithoutControlListMapOnForm.put(cell, librariesWithoutControlsOnCellList);
 				  //need to order by index.
+				  
+				  List<Sample> tempLibraryList = new ArrayList<Sample>();
+				  tempLibraryList.addAll(controlLibrariesOnCellList);
+				  tempLibraryList.addAll(librariesWithoutControlsOnCellList);
+				  
+				  //for each library on this form, get its adaptor info
+				  for(Sample library : tempLibraryList){
+					  Adaptor adaptor;
+					  try{ 
+						  adaptor = adaptorService.getAdaptor(library);
+						  libraryAdaptorMapOnForm.put(library, adaptor);
+						  libraryAdaptorsetMapOnForm.put(library, adaptor.getAdaptorset()); 
+					  }catch(Exception e){  }		  
+				  }
+
 			  }
-			  platformUnitCellListMap.put(platformUnit, cellList);
+			  platformUnitCellListMapOnForm.put(platformUnit, cellList);
 		  }
-		  m.addAttribute("platformUnitCellListMap", platformUnitCellListMap);
+		  m.addAttribute("platformUnitCellListMapOnForm", platformUnitCellListMapOnForm);		  
+		  m.addAttribute("cellControlLibraryListMapOnForm", cellControlLibraryListMapOnForm);
+		  m.addAttribute("cellLibraryWithoutControlListMapOnForm", cellLibraryWithoutControlListMapOnForm);
+		  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
+		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);
 		  
 		return "job/home/samples";
 	}
 	
+	@RequestMapping(value="/{jobId}/library/{libraryId}/add", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String jobAddLibraryToCellPostPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("libraryId") Integer libraryId, 
+			  @RequestParam("cellId") Integer cellId, 
+			  @RequestParam("libConcInCellPicoM") String libConcInCellPicoM, ModelMap m) throws SampleTypeException {
+
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		System.out.println("____________inside new add method with jobId=" + jobId + " and libraryId = " + libraryId + " and cellId = " + cellId + " and libConcInCellPicoM = " + libConcInCellPicoM);
+		
+/*		
+		
+		Sample cellSample = sampleService.getSampleById(cellId);//CsampleService.getSampleById(sampleId)sampleService.getSampleDao().getSampleBySampleId(cellSampleId); 
+		Sample librarySample = sampleService.getSampleById(libraryId);//samplesampleService.getSampleDao().getSampleBySampleId(librarySampleId); 
+		//JobSample jobSample = jobSampleDao.getJobSampleByJobIdSampleId(jobId, librarySampleId);//confirm library is really part of this jobId
+		List<Sample> jobLibraries = jobService.getLibraries(job);
+		//confirm jobLibraries 
+		
+		Float libConcInCellPicoMFloat = 0.0f;
+		boolean error = false;
+		
+		if (jobId == null || jobId == 0 || job == null || job.getJobId() == null) {
+			error = true; waspErrorMessage("platformunit.jobIdNotFound.error"); 
+		}
+		else if(cellSampleId == null || cellSampleId == 0){//user selected a flowcell from dropdown box (parameter cellSampleId == 0); we should actually prevent this with javascript
+			error = true; waspErrorMessage("platformunit.cellIsFlowCell.error");
+		}
+		else if (cellSample == null || cellSample.getSampleId() == null) {
+			error = true; waspErrorMessage("platformunit.cellIdNotFound.error"); 
+		}
+		else if (librarySampleId == null || librarySampleId == 0 || librarySample == null || librarySample.getSampleId() == null) {
+			error = true; waspErrorMessage("platformunit.libraryIdNotFound.error");
+		}
+		else if ( ! sampleService.isLibrary(librarySample)) {
+			error = true; waspErrorMessage("platformunit.libraryIsNotLibrary.error");	
+		}
+		else if ( ! cellSample.getSampleType().getIName().equals("cell")) { 
+			error = true; waspErrorMessage("platformunit.cellIsNotCell.error");
+		}
+		else if(jobSample.getJobSampleId()==null || jobSample.getJobSampleId()==0){//confirm library is really part of this jobId
+			error = true; waspErrorMessage("platformunit.libraryJobMismatch.error");	
+		}
+		else if ("".equals(libConcInCellPicoM)) {
+			error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");	
+		}
+		else{
+			try{
+				libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoM));
+				if(libConcInCellPicoMFloat.floatValue() <= 0){
+					error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
+				}
+			}
+			catch(Exception e){
+				error = true; waspErrorMessage("platformunit.pmoleAddedInvalidValue.error");
+			}
+		}		
+
+		if(error){
+			return;
+		}
+						
+		// ensure platform unit is available
+		
+		boolean puIsAvailable = false;
+				
+		List<SampleSource> parentSampleSources = cellSample.getSourceSample();//should be one
+		if(parentSampleSources == null || parentSampleSources.size()!=1){
+			error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+		}
+		else{
+			Sample platformUnit = parentSampleSources.get(0).getSample();
+			if( ! sampleService.isPlatformUnit(platformUnit) ){
+				error=true; waspErrorMessage("platformunit.flowcellNotFoundNotUnique.error");
+			}
+			else{
+				for (Sample currentPlatformUnit : sampleService.getAvailableAndCompatiblePlatformUnits(job)){
+					if (currentPlatformUnit.getSampleId().equals(platformUnit.getSampleId()));
+					puIsAvailable=true;
+					break;
+				}
+				if(!puIsAvailable){
+					error=true; waspErrorMessage("platformunit.flowcellStateError.error");
+				}
+			}
+		}
+		if(error){
+			return;
+		}
+		try{
+			sampleService.addLibraryToCell(cellSample, librarySample, libConcInCellPicoMFloat);
+		} catch(SampleTypeException ste){
+			waspErrorMessage("platformunit.sampleType.error");
+			logger.warn(ste.getMessage()); // print more detailed error to warn logs
+			return;
+		} catch(SampleMultiplexException sme){
+			waspErrorMessage("platformunit.multiplex.error");
+			logger.warn(sme.getMessage()); // print more detailed error to debug logs
+			return;
+		} catch(SampleException se){
+			waspErrorMessage("platformunit.adaptorNotFound.error");
+			logger.warn(se.getMessage()); // print more detailed error to warn logs
+			return;
+		} catch(MetadataException me){
+			waspErrorMessage("platformunit.adaptorBarcodeNotFound.error");
+			logger.warn(me.getMessage()); // print more detailed error to warn logs
+			return;
+		}
+		
+		waspMessage("platformunit.libAdded.success");
+		
+	*/	
+		
+		
+		
+		return "redirect:/job/"+jobId+"/samples.do";
+	}
 	
 	@RequestMapping(value="/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
