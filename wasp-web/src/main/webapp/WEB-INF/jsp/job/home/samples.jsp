@@ -34,6 +34,8 @@
 					<label>Name (Modeless):</label> <a id="sampledetail_roAnchor2"  href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Name (Modal):</label> <a id="sampledetail_roAnchor3"  href="javascript:void(0);" onclick='showModalDialog("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Name (NewWindow):</label> <a id="sampledetail_roAnchor4"  href="javascript:void(0);" onclick='showPopupWindow("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
+					
+					<label>Name (NewWindow):</label> <a id="sampledetail_roAnchor4"  href="javascript:void(0);" onclick='showPopupWindow("<c:url value="/wasp-illumina/flowcell/7/show.do" />");' >see a flowcell</a><br />
 					--%>
 					<label>Name:</label> <a id="sampledetail_roAnchor1"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
@@ -108,7 +110,10 @@
 								<br />	 	 						  
 							</c:if>
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
-							<c:if test='${qcStatusMap.get(library) == "PASSED"}'><%--MUST RESPOND TO BATCH!!!!!, currently doesn't --%>								 							
+							<c:if test='${qcStatusMap.get(library) == "PASSED"}'><%--MUST RESPOND TO BATCH!!!!!, currently doesn't --%>	
+									<c:if test="${fn:length(addLibraryToPlatformUnitSuccessMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
+										<br /><span style="color:green;font-weight:bold"><c:out value="${addLibraryToPlatformUnitSuccessMessage}" /></span>
+									</c:if>														 							
  	 								<form  method='post' name='addLibToCell_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 
  	 									onsubmit='	var s = document.getElementById("cellId_${library.getId()}"); 
  	 												var sVal = s.options[s.selectedIndex].value; 
@@ -134,7 +139,7 @@
  	 												
  	 												postFormWithoutMoving("addLibToCell_${library.getId()}","<c:url value="/job/${job.getId()}/library/${library.getId()}/add.do" />"); 
  	 												return false;' >
-										<table class='data'>
+										<table class='data' style="margin: 0 auto;">
 										<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 										<tr>
 										<td>
@@ -165,6 +170,9 @@
 										</c:forEach>						
 										</select>
 											<br /><fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${library.getId()}" />" size='3' maxlength='5'>
+											<c:if test="${fn:length(addLibraryToPlatformUnitErrorMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
+												<br /><span style="color:red;font-weight:bold"><c:out value="${addLibraryToPlatformUnitErrorMessage}" /></span>
+											</c:if>
 											<br /><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input type='reset' value='Reset'/>
 																	
 										</td>
