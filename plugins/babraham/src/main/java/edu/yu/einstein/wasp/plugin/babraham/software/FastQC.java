@@ -29,7 +29,7 @@ public class FastQC extends SoftwarePackage {
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
 	
-	static class PlotType{
+	public static class PlotType{
 		// meta keys for charts produced
 		public static final String BASIC_STATISTICS = "basic_statistics";
 		public static final String DUPLICATION_LEVELS = "duplication_levels";
@@ -41,6 +41,7 @@ public class FastQC extends SoftwarePackage {
 		public static final String PER_SEQUENCE_GC_CONTENT = "per_sequence_gc_content";
 		public static final String PER_SEQUENCE_QUALITY = "per_sequence_quality";
 		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "sequence_length_distribution"; 
+		public static final String OVERREPRESENTED_SEQUENCES = "overrepresented_sequences";
 	}
 	
 	@Autowired

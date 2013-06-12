@@ -15,14 +15,14 @@ public class FastQCDataModule{
 	
 	private Set<String> attributes;
 	
-	private Map<String, Double> keyValueData;
+	private Map<String, String> keyValueData;
 	
-	private Set<Map<String, Double>> dataPoints;
+	private Set<Map<String, String>> dataPoints;
 	
 	public FastQCDataModule() {
 		this.attributes = new LinkedHashSet<String>();
-		this.dataPoints = new LinkedHashSet<Map<String,Double>>();
-		this.keyValueData = new LinkedHashMap<String, Double>();
+		this.dataPoints = new LinkedHashSet<Map<String,String>>();
+		this.keyValueData = new LinkedHashMap<String, String>();
 	}
 	
 	public String getName() {
@@ -34,11 +34,11 @@ public class FastQCDataModule{
 		setINameFromName();
 	}
 	
-	public Map<String, Double> getKeyValueData() {
+	public Map<String, String> getKeyValueData() {
 		return keyValueData;
 	}
 	
-	public void setKeyValueData(String key, Double value) {
+	public void setKeyValueData(String key, String value) {
 		this.keyValueData.put(key, value);
 	}
 	
@@ -62,11 +62,11 @@ public class FastQCDataModule{
 		this.attributes = attributes;
 	}
 	
-	public Set<Map<String, Double>> getDataPoints() {
+	public Set<Map<String, String>> getDataPoints() {
 		return dataPoints;
 	}
 	
-	public void setDataPoints(Set<Map<String, Double>> dataPoints) {
+	public void setDataPoints(Set<Map<String, String>> dataPoints) {
 		this.dataPoints = dataPoints;
 	}
 
@@ -96,8 +96,10 @@ public class FastQCDataModule{
 			return FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION;
 		if (name.equals("Sequence Duplication Levels"))
 			return FastQC.PlotType.DUPLICATION_LEVELS;
-		if (name.equals("Overrepresented sequences"))
+		if (name.equals("Kmer Content"))
 			return FastQC.PlotType.KMER_PROFILES;
+		if (name.equals("Overrepresented sequences"))
+			return FastQC.PlotType.OVERREPRESENTED_SEQUENCES;
 		return null;
 	}
 }

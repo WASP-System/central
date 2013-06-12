@@ -5,6 +5,8 @@
 package edu.yu.einstein.wasp.plugin.babraham.service.impl;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -48,32 +51,28 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws GridException, FastQCDataParseException{
-		Map<String, FastQCDataModule> dataModules = new HashMap<String, FastQCDataModule>(); 
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = hostResolver.getGridWorkService(w);
-		GridTransportConnection transportConnection = workService.getTransportConnection();
-		String resultsDir = gridResult.getResultsDirectory();
-		w.setWorkingDirectory(resultsDir);
-		w.addCommand("cat fastqc_data.txt");
-		try {
-			GridResult r = transportConnection.sendExecToRemote(w);
-			BufferedReader br = new BufferedReader(new InputStreamReader(r.getStdOutStream()));
+	public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws FastQCDataParseException{
+		Map<String, FastQCDataModule> dataModules = new HashMap<String, FastQCDataModule>();
+		try{
+			BufferedReader br = new BufferedReader(new InputStreamReader(inStream)); 
 			boolean keepReading = true;
 			boolean processingModule = false;
-			
 			FastQCDataModule currentModule = null;
 			boolean isFirstLine = true;
 			while (keepReading){
-				String line = br.readLine();
+				String line = null;
+				line = br.readLine();
+				//logger.debug("processing line: " + line);
 				if (line == null)
 					keepReading = false;
 				else{
 					if (isFirstLine){
 						isFirstLine = false;
 						if (line.contains("No such file or directory"))
-							throw new FastQCDataParseException("Unable to find fastqc_data.txt file in " + resultsDir);
+							throw new FastQCDataParseException("Unable to find fastqc_data.txt file");
+						if (!line.startsWith("##FastQC"))
+							throw new FastQCDataParseException("Unexpected first line. Suspect wrong file or file corrupt");
+						continue;
 					}
 					if (line.startsWith(">>")){
 						if (processingModule){
@@ -82,9 +81,9 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						}
 						// we're looking at the first line of new module
 						processingModule = true;
-						String[] elements = line.substring(2).split("\n");
+						String[] elements = line.substring(2).split("\t");
 						if (elements.length != 2)
-							throw new FastQCDataParseException("Problem parsing line: value must contain two elements (name and result)");
+							throw new FastQCDataParseException("Problem parsing line: value must contain 2 elements (name and result). Instead got " + elements.length + " elements");
 						String name = elements[0];
 						String result = elements[1];
 						String iname = FastQCDataModule.getModuleINameFromName(name);
@@ -96,12 +95,12 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						currentModule.setResult(result);
 					} else if (line.startsWith("#")){
 						// could be a key value pair or a header
-						String[] elements = line.substring(1).split("\n");
+						String[] elements = line.substring(1).split("\t");
 						if (elements.length == 2){
 							try{
-								Double value = Double.parseDouble(elements[1]);
+								Double.parseDouble(elements[1]); // test value type
 								// no exception thrown so reckoning we're looking at key value pair (not a header)
-								currentModule.setKeyValueData(elements[0], value);
+								currentModule.setKeyValueData(elements[0], elements[1]);
 								continue;
 							} catch (NumberFormatException e){
 								// not a numeric value so reckoning this is a header and not a key value pair
@@ -116,26 +115,48 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 					} else {
 						// must be data points
 						Set<String> attributes = currentModule.getAttributes();
-						Set<Map<String, Double>> dataPoints = new LinkedHashSet<Map<String,Double>>();
 						String[] elements = line.split("\t");
 						// check number of data values matches the number of data attributes
 						if (elements.length != attributes.size())
 							throw new FastQCDataParseException("line contains " + elements.length + " tab-delimited elements which does not match expected number (" + attributes.size() + ")");
 						int i = 0;
 						for (String attrib: attributes){
-							Map<String, Double> dataPoint = new LinkedHashMap<String, Double>();
-							dataPoint.put(attrib, Double.valueOf(elements[i++]));
-							dataPoints.add(dataPoint);
+							Map<String, String> dataPoint = new LinkedHashMap<String, String>();
+							dataPoint.put(attrib, elements[i++]);
+							currentModule.getDataPoints().add(dataPoint);
 						}
-						currentModule.setDataPoints(dataPoints);
 					}
 				}
 			}
 			br.close();
-		} catch (Exception e) {
-			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to parse FastQC output: " + e.getLocalizedMessage());
+		} catch (IOException e){
+			logger.warn(e.getLocalizedMessage());
+			throw new FastQCDataParseException("Unable to parse from InputStream");
 		}
 		return dataModules;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws FastQCDataParseException{
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = hostResolver.getGridWorkService(w);
+		GridTransportConnection transportConnection = workService.getTransportConnection();
+		String resultsDir = gridResult.getResultsDirectory();
+		w.setWorkingDirectory(resultsDir);
+		w.addCommand("cat fastqc_data.txt");
+		try {
+			GridResult r = transportConnection.sendExecToRemote(w);
+			return processFastQCOutput(r.getStdOutStream());
+		} catch (MisconfiguredWorkUnitException e) {
+			throw new FastQCDataParseException("Caught MisconfiguredWorkUnitException when trying to parse FastQC output: " + e.getLocalizedMessage());
+		} 
+		catch (GridException e) {
+			throw new FastQCDataParseException("Caught GridException when trying to parse FastQC output: " + e.getLocalizedMessage());
+		} 
 	}
 	
 
