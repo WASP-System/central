@@ -20,7 +20,7 @@ public class TestWaspChart {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private String testJson = "{\"data\":[{\"median\":2.0,\"lq\":1.6,\"uq\":3.5,\"high\":4.0,\"low\":1.1},{\"median\":3.3,\"lq\":2.5,\"uq\":4.0,\"high\":5.2,\"low\":1.9}],\"title\":\"My Boxplot\",\"xAxisName\":\"X-axis\",\"yAxisName\":\"Y-Axis\",\"legend\":\"A nice boxplot of great data\",\"categories\":[\"A\",\"B\"]}";
+	private String testJson = "{\"data\":[{\"median\":2.0,\"lq\":1.6,\"uq\":3.5,\"high\":4.0,\"low\":1.1},{\"median\":3.3,\"lq\":2.5,\"uq\":4.0,\"high\":5.2,\"low\":1.9}],\"title\":\"My Boxplot\",\"xaxisName\":\"X-axis\",\"yaxisName\":\"Y-Axis\",\"legend\":\"A nice boxplot of great data\",\"categories\":[\"A\",\"B\"]}";
 	
 	private WaspBoxPlot testBoxPlot;
 	
@@ -35,8 +35,8 @@ public class TestWaspChart {
 		testBoxPlot.setCategories(cat);
 		testBoxPlot.setLegend("A nice boxplot of great data");
 		testBoxPlot.setTitle("My Boxplot");
-		testBoxPlot.setxAxisName("X-axis");
-		testBoxPlot.setyAxisName("Y-Axis");
+		testBoxPlot.setXAxisName("X-axis");
+		testBoxPlot.setYAxisName("Y-Axis");
 	}
 	
 	@Test (groups = "unit-tests")

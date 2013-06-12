@@ -42,19 +42,19 @@ public abstract class WaspChart {
 		this.title = title;
 	}
 
-	public String getxAxisName() {
+	public String getXAxisName() {
 		return xAxisName;
 	}
 
-	public void setxAxisName(String xAxisName) {
+	public void setXAxisName(String xAxisName) {
 		this.xAxisName = xAxisName;
 	}
 
-	public String getyAxisName() {
+	public String getYAxisName() {
 		return yAxisName;
 	}
 
-	public void setyAxisName(String yAxisName) {
+	public void setYAxisName(String yAxisName) {
 		this.yAxisName = yAxisName;
 	}
 	
