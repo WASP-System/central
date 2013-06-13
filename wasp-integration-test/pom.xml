@@ -55,7 +55,7 @@
                 <driver>com.mysql.jdbc.Driver</driver>
                 <url>jdbc:mysql://localhost:3306/wasp</url>
                 <username>root</username>
-                <password>wasp123</password>
+                <password>wasp</password>
                 <forceMojoExecution>true</forceMojoExecution>
             </configuration>
             <executions>
