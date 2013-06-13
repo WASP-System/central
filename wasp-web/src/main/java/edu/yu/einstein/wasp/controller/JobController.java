@@ -1222,6 +1222,7 @@ public class JobController extends WaspController {
 		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
+		  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
 
 		  for(Sample s : allJobSamples){
 			  if(s.getParent()==null){
@@ -1277,8 +1278,11 @@ public class JobController extends WaspController {
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 		  }
 		  
-		  //for each job's library, get its adaptor info
+		  //for each job's library, get its adaptor info and determine whether the library should be assigned to a platformUnit
 		  for(Sample library : allJobLibraries){
+			  
+			  assignLibraryToPlatformUnitStatusMap.put(library, sampleService.isLibraryAwaitingPlatformUnitPlacement(library));
+
 			  Adaptor adaptor;
 			  try{ 
 				  adaptor = adaptorService.getAdaptor(library);
@@ -1370,6 +1374,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
 		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
 
 		  m.addAttribute("libraryCellListMap", libraryCellListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
