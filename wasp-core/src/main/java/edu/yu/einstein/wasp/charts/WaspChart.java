@@ -66,6 +66,17 @@ public abstract class WaspChart {
 		return null;
 	}
 	
+	@JsonIgnore
+	protected DataSeries getDataSeriesOrCreateNew(String name){
+		DataSeries data = this.getDataSeries(name);
+		if (data == null){
+			data = new DataSeries(name);
+			if (this.dataSeries == null)
+				this.dataSeries = new ArrayList<DataSeries>();
+			this.dataSeries.add(data);
+		}
+		return data;
+	}
 	
 	/**
 	 * sets parameters based on JSON input

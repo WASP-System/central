@@ -18,7 +18,7 @@ public class TestWaspChart {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private String testJson = "{\"dataSeries\":[{\"rowLabels\":[\"1\",\"2\"],\"name\":\"box_plot\",\"data\":[[1.1,1.6,2,3.5,4],[1.9,2.5,3.3,4,5.2]],\"properties\":{},\"colLabels\":[\"low\",\"lq\",\"median\",\"uq\",\"high\"]}],\"yAxisLabel\":\"Y-Axis\",\"title\":\"My Boxplot\",\"legend\":\"A nice boxplot of great data\",\"xAxisLabel\":\"X-axis\"}";
+	private String testJson = "{\"dataSeries\":[{\"rowLabels\":[\"1\",\"2\"],\"name\":\"box_and_whisker\",\"data\":[[1.1,1.6,2,3.5,4],[1.9,2.5,3.3,4,5.2]],\"properties\":{},\"colLabels\":[\"low\",\"lq\",\"median\",\"uq\",\"high\"]}],\"yAxisLabel\":\"Y-Axis\",\"title\":\"My Boxplot\",\"legend\":\"A nice boxplot of great data\",\"xAxisLabel\":\"X-axis\"}";
 	
 	private WaspBoxPlot testBoxPlot;
 	
@@ -56,9 +56,9 @@ public class TestWaspChart {
 		}
 		Assert.assertNotNull(boxPlot);
 		Assert.assertEquals(testBoxPlot.getTitle(), boxPlot.getTitle());
-		Assert.assertTrue(testBoxPlot.getBoxAndWhiskers("2").containsKey(WaspBoxPlot.Elements.LQ));
-		Assert.assertEquals(testBoxPlot.getBoxAndWhiskers("2").get(WaspBoxPlot.Elements.LQ), 2.5d);
-		Assert.assertEquals(testBoxPlot.getDataSeries(WaspBoxPlot.BOX_PLOT_SERIES_NAME).getRowCount(), 2);
+		Assert.assertTrue(testBoxPlot.getBoxAndWhiskers("2").containsKey(WaspBoxPlot.BoxAndWhiskerComponent.LQ));
+		Assert.assertEquals(testBoxPlot.getBoxAndWhiskers("2").get(WaspBoxPlot.BoxAndWhiskerComponent.LQ), 2.5d);
+		Assert.assertEquals(testBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.BOX_AND_WHISKER).getRowCount(), 2);
 	}
 
 }

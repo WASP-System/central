@@ -143,7 +143,7 @@ public class DataSeries {
 	 * @param label
 	 * @param value
 	 */
-	public void addSingleValueRow(String label, Object value){
+	public void addRowWithSingleColumn(String label, Object value){
 		List<Object> row = new ArrayList<Object>();
 		row.add(value);
 		this.addRow(label, row);
@@ -164,9 +164,9 @@ public class DataSeries {
 	 * Add rows from a Map. Typically this might represent a series of X-labels with associated Y-value for each.
 	 * @param rows
 	 */
-	public void addSingleValueRows(Map<String, Object> rows){
+	public void addRowWithSingleColumn(Map<String, ?> rows){
 		for (String label: rows.keySet())
-			this.addSingleValueRow(label, rows.get(label));
+			this.addRowWithSingleColumn(label, rows.get(label));
 	}
 	
 	@JsonIgnore

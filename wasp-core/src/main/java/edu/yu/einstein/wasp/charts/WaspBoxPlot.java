@@ -14,9 +14,14 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  */
 public class WaspBoxPlot extends WaspChart2D {
 	
-	public static final String BOX_PLOT_SERIES_NAME="box_plot";
+	public static class BoxPlotSeries{
+		public static final String BOX_AND_WHISKER="box_and_whisker";
+		public static final String RUNNING_MEAN="running_mean";
+		public static final String OUTLIERS="outliers";
+	}
 	
-	public static class Elements{
+	
+	public static class BoxAndWhiskerComponent{
 		public static final String LOW="low";
 		public static final String LQ="lq";
 		public static final String MEDIAN="median";
@@ -29,20 +34,16 @@ public class WaspBoxPlot extends WaspChart2D {
 	}
 	
 	public void addBoxAndWhiskers(String label, Double low, Double lowerQuartile, Double median, Double upperQuartile, Double high){
-		DataSeries data = this.getDataSeries(BOX_PLOT_SERIES_NAME);
-		if (data == null){
-			data = new DataSeries(BOX_PLOT_SERIES_NAME);
+		DataSeries data = getDataSeriesOrCreateNew(BoxPlotSeries.BOX_AND_WHISKER);
+		if (data.getColLabels().isEmpty()){
 			List<String> colLabels; 
 			colLabels = new ArrayList<String>();
-			colLabels.add(Elements.LOW);
-			colLabels.add(Elements.LQ);
-			colLabels.add(Elements.MEDIAN);
-			colLabels.add(Elements.UQ);
-			colLabels.add(Elements.HIGH);
+			colLabels.add(BoxAndWhiskerComponent.LOW);
+			colLabels.add(BoxAndWhiskerComponent.LQ);
+			colLabels.add(BoxAndWhiskerComponent.MEDIAN);
+			colLabels.add(BoxAndWhiskerComponent.UQ);
+			colLabels.add(BoxAndWhiskerComponent.HIGH);
 			data.setColLabels(colLabels);
-			if (this.dataSeries == null)
-				this.dataSeries = new ArrayList<DataSeries>();
-			this.dataSeries.add(data);
 		}
 		List<Double> row = new ArrayList<Double>();
 		row.add(low);
@@ -56,7 +57,7 @@ public class WaspBoxPlot extends WaspChart2D {
 	@JsonIgnore
 	public Map<String, Double> getBoxAndWhiskers(String label){
 		Map<String, Double> boxAndWhisker = new HashMap<String, Double>();
-		DataSeries data = this.getDataSeries(BOX_PLOT_SERIES_NAME);
+		DataSeries data = this.getDataSeries(BoxPlotSeries.BOX_AND_WHISKER);
 		if (data == null)
 			return null;
 		int index = data.getRowLabels().indexOf(label);
@@ -68,4 +69,39 @@ public class WaspBoxPlot extends WaspChart2D {
 			boxAndWhisker.put(colLabels.get(i), row.get(i));
 		return boxAndWhisker;
 	}
+	
+	public void addRunningMeanValue(String label, Double value){
+		DataSeries data = getDataSeriesOrCreateNew(BoxPlotSeries.RUNNING_MEAN);
+		data.addRowWithSingleColumn(label, value);
+	}
+	
+	public void addRunningMeanValues(Map<String, Double> values){
+		DataSeries data = getDataSeriesOrCreateNew(BoxPlotSeries.RUNNING_MEAN);
+		data.addRowWithSingleColumn(values);
+	}
+	
+	@JsonIgnore
+	public Double getRunningMeanValue(String label){
+		DataSeries data = this.getDataSeries(BoxPlotSeries.RUNNING_MEAN);
+		int index = data.getRowLabels().indexOf(label);
+		if (index == -1)
+			return null;
+		return ((List<Double>) data.getRow(index)).get(0);
+	}
+	
+	public void addOutliers(String label, List<Double> outliers){
+		DataSeries data = this.getDataSeries(BoxPlotSeries.OUTLIERS);
+		data.addRow(label, outliers);
+	}
+	
+	@JsonIgnore
+	public List<Double> getOutliers(String label){
+		DataSeries data = this.getDataSeries(BoxPlotSeries.OUTLIERS);
+		int index = data.getRowLabels().indexOf(label);
+		if (index == -1)
+			return null;
+		return (List<Double>) data.getRow(index);
+	}
+	
+	
 }
