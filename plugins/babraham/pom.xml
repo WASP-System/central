@@ -12,17 +12,6 @@
   <properties>
     <wasp.version>${project.parent.version}</wasp.version>
   </properties>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>edu.yu.einstein.wasp</groupId>
-        <artifactId>bom</artifactId>
-        <version>${wasp.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>edu.yu.einstein.wasp</groupId>
@@ -47,6 +36,10 @@
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>edu.yu.einstein.wasp</groupId>
+    	<artifactId>illumina</artifactId>
     </dependency>
   </dependencies>
   <build>
