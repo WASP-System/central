@@ -34,19 +34,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class FastQC extends SoftwarePackage {
 
-	// Static variables for metadata keys
-	public static final String BASIC_STATISTICS = "fastqc basic statistics";
-	public static final String BASE_SEQUENCE_QUALITY = "fastqc base sequence quality";
-	public static final String SEQUENCE_QUALITY = "fastqc sequence quality";
-	public static final String BASE_SEQUENCE_CONTENT = "fastqc base sequence content"; 
-	public static final String BASE_GC_CONTENT = "fastqc base GC content";
-	public static final String SEQUENCE_GC_CONTENT = "fastqc sequence GC content";
-	public static final String BASE_N_CONTENT = "fastqc base N content";
-	public static final String SEQUENCE_LENGTH_DISTRIBUTION = "fastqc sequence length dist"; 
-	public static final String SEQUENCE_DUPLICATION = "fastqc sequence duplication";
-	public static final String OVERREPRESENTED_SEQUENCES = "fastqc overrepresented sequences";
-	public static final String KMER_CONTENT = "fastqc k-mer content";
-
+	
 	@Autowired
 	private FastqService fastqService;
 	
