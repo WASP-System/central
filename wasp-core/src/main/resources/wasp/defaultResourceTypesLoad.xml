@@ -33,7 +33,12 @@
   <bean id="bamProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
   	<property name="name" value="BAM Processor" />
   	<property name="area" value="bamProcessor" />
-  	</bean>
+  </bean>
+  
+  <bean id="fastqProcessorResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+  	<property name="name" value="FASTQ Processor" />
+  	<property name="area" value="fastqProcessor" />
+  </bean>
  
 </beans>
 
