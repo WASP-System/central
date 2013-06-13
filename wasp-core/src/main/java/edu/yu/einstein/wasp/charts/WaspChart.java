@@ -1,13 +1,12 @@
 package edu.yu.einstein.wasp.charts;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
-
-import edu.yu.einstein.wasp.exception.ParseException;
 
 /**
  * Base class to generalize all charts
@@ -16,15 +15,13 @@ import edu.yu.einstein.wasp.exception.ParseException;
  */
 public abstract class WaspChart {
 	
-	private String title;
+	protected String title;
 	
-	private String legend;
+	protected String legend;
 	
-	private String xAxisName;
+	protected Set<String> categories;
 	
-	private String yAxisName;
-	
-	private Set<String> categories;
+	protected List<DataSeries> dataSeries;
 
 	public WaspChart() {}
 	
@@ -41,22 +38,6 @@ public abstract class WaspChart {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
-	public String getXAxisName() {
-		return xAxisName;
-	}
-
-	public void setXAxisName(String xAxisName) {
-		this.xAxisName = xAxisName;
-	}
-
-	public String getYAxisName() {
-		return yAxisName;
-	}
-
-	public void setYAxisName(String yAxisName) {
-		this.yAxisName = yAxisName;
-	}
 	
 	public String getLegend() {
 		return legend;
@@ -72,6 +53,26 @@ public abstract class WaspChart {
 
 	public void setCategories(Set<String> categories) {
 		this.categories = categories;
+	}
+	
+	public List<DataSeries> getDataSeries() {
+		if (dataSeries == null)
+			return new ArrayList<DataSeries>();
+		return dataSeries;
+	}
+
+	public void setDataSeries(List<DataSeries> dataSeries) {
+		this.dataSeries = dataSeries;
+	}
+	
+	@JsonIgnore
+	public DataSeries getDataSeries(String name){
+		if (dataSeries == null)
+			return null;
+		for (DataSeries currentSeries : dataSeries)
+			if (currentSeries.getName().equals(name))
+				return currentSeries;
+		return null;
 	}
 	
 	
