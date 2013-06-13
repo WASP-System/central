@@ -59,6 +59,7 @@ public class TestWaspChart {
 		Assert.assertTrue(testBoxPlot.getBoxAndWhiskers("2").containsKey(WaspBoxPlot.BoxAndWhiskerComponent.LQ));
 		Assert.assertEquals(testBoxPlot.getBoxAndWhiskers("2").get(WaspBoxPlot.BoxAndWhiskerComponent.LQ), 2.5d);
 		Assert.assertEquals(testBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.BOX_AND_WHISKER).getRowCount(), 2);
+		Assert.assertFalse(testBoxPlot.isOutliers());
 	}
 
 }

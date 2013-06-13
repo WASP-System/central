@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.charts;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;

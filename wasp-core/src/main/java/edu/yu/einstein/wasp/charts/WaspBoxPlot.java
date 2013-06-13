@@ -63,6 +63,7 @@ public class WaspBoxPlot extends WaspChart2D {
 		int index = data.getRowLabels().indexOf(label);
 		if (index == -1)
 			return null;
+		@SuppressWarnings("unchecked")
 		List<Double> row = (List<Double>) data.getRow(index);
 		List<String> colLabels = data.getColLabels();
 		for (int i=0; i < data.getColCount(); i++)
@@ -80,6 +81,7 @@ public class WaspBoxPlot extends WaspChart2D {
 		data.addRowWithSingleColumn(values);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@JsonIgnore
 	public Double getRunningMeanValue(String label){
 		DataSeries data = this.getDataSeries(BoxPlotSeries.RUNNING_MEAN);
@@ -94,6 +96,7 @@ public class WaspBoxPlot extends WaspChart2D {
 		data.addRow(label, outliers);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@JsonIgnore
 	public List<Double> getOutliers(String label){
 		DataSeries data = this.getDataSeries(BoxPlotSeries.OUTLIERS);
@@ -101,6 +104,20 @@ public class WaspBoxPlot extends WaspChart2D {
 		if (index == -1)
 			return null;
 		return (List<Double>) data.getRow(index);
+	}
+	
+	@JsonIgnore
+	public boolean isOutliers(){
+		if (this.getDataSeries(BoxPlotSeries.OUTLIERS) == null)
+			return false;
+		return true;
+	}
+	
+	@JsonIgnore
+	public boolean isRunningMean(){
+		if (this.getDataSeries(BoxPlotSeries.RUNNING_MEAN) == null)
+			return false;
+		return true;
 	}
 	
 	
