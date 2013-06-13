@@ -16,7 +16,7 @@ public class WaspBoxPlot extends WaspChart2D {
 	
 	public static final String BOX_PLOT_SERIES_NAME="box_plot";
 	
-	static class Elements{
+	public static class Elements{
 		public static final String LOW="low";
 		public static final String LQ="lq";
 		public static final String MEDIAN="median";

@@ -120,6 +120,8 @@ public class DataSeries {
 	public void addRow(List<?> row){
 		if (row == null || (row.size() > 1 && row.size() != colLabels.size()) )
 			throw new ParameterException("supplied parameter is null or size does not match size of colLabels");
+		if (data == null)
+			data = new ArrayList<List<?>>();
 		data.add(row);
 	}
 	
