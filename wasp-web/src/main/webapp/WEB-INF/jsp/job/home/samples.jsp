@@ -111,12 +111,11 @@
 							</c:if>
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
-									
 									<c:if test="${fn:length(addLibraryToPlatformUnitSuccessMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
 										<br /><span style="color:green;font-weight:bold"><c:out value="${addLibraryToPlatformUnitSuccessMessage}" /></span>
 									</c:if>	
 									
-									<c:if test='${assignLibraryToPlatformUnitStatusMap.get(facilityLibraryForThisMacromolecule) == true}'> 
+									<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true}'> 
 				 															 							
 	 	 								<form  method='post' name='addLibToCell_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 
 	 	 									onsubmit='	var s = document.getElementById("cellId_${library.getId()}"); 

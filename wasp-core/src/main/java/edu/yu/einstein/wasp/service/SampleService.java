@@ -940,7 +940,7 @@ public interface SampleService extends WaspMessageHandlingService {
 
 	public List<Sample> getControlSamplesByTestSample(Sample testSample);
 
-	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException;
+	public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId, Job job) throws SampleTypeException, SampleException, MetadataException;
 
 	/**
 	 * Returns a map containing all cell-libraries associated with a job and current pre-processing status

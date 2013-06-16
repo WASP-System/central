@@ -2704,12 +2704,13 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		 */
 		@Override
 		public void setJobByTestAndControlSamples(Sample testSample, Sample controlSample) throws SampleException, MetadataException{
+			//Do not use. see warning within
 			SampleSource sampleSource = getSamplePair(testSample, controlSample);
 			if (sampleSource == null)
 				throw new SampleException("no relationship between provided sample pair exists in the samplesource table");
 			SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
 			sampleSourceMeta.setK(SAMPLE_PAIR_AREA + "." + JOB_ID);
-			sampleSourceMeta.setV(testSample.getJob().getId().toString());
+			sampleSourceMeta.setV(testSample.getJob().getId().toString());//WARNING: bad idea, since a sample can be on many jobs
 			sampleSourceMeta.setSampleSourceId(sampleSource.getId());
 			sampleSourceMetaDao.setMeta(sampleSourceMeta);
 		}
@@ -2835,31 +2836,42 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * {@inheritDoc}
 		   */
 		  @Override
-		  public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId) throws SampleTypeException, SampleException {
+		  public void createTestControlSamplePairsByIds(Integer testSampleId, Integer controlSampleId, Job job) throws SampleTypeException, SampleException, MetadataException {
 			  Assert.assertParameterNotNull(testSampleId, "No test sample id provided");
 			  Assert.assertParameterNotNull(controlSampleId, "No control sample id provided");
+			  Assert.assertParameterNotNull(job, "Job cannot be null");
 			  
 			  Sample testSample = this.getSampleById(testSampleId);
 			  Assert.assertParameterNotNull(testSample.getId(), "Test sample does not exist!");
 			  Sample controlSample = this.getSampleById(controlSampleId);
 			  Assert.assertParameterNotNull(controlSample.getId(), "Control sample does not exist!");
-
+			  Integer jobId = job.getId();
+			  Assert.assertParameterNotNull(jobId, "jobId cannot be null");
+				 
+			  /* this concept is specific for help-tag; DO NOT INCLUDE 
 			  if (!this.isLibrary(controlSample)){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
 			  }
-
+			*/
 			  SampleSource newSampleSource = new SampleSource(); 
 			  newSampleSource.setSample(testSample);
 			  newSampleSource.setSourceSample(controlSample);
 			  newSampleSource.setIndex(null);
-			  newSampleSource = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
+			  SampleSource newSampleSourceDB = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
 			  
+			  SampleSourceMeta sampleSourceMeta = new SampleSourceMeta();
+			  sampleSourceMeta.setK(SAMPLE_PAIR_AREA + "." + JOB_ID);
+			  sampleSourceMeta.setV(jobId.toString());
+			  sampleSourceMeta.setSampleSourceId(newSampleSourceDB.getId());
+			  sampleSourceMetaDao.setMeta(sampleSourceMeta);
+			  
+			  /*
 			  try{
 				  this.setJobByTestAndControlSamples(testSample, controlSample);
 			  } catch(Exception e){
 				  logger.warn("Unable to set 'jobId' SampleSourceMeta for sample "+testSample.getName()+" and sample "+controlSample.getName());
 			  }
-			  
+			  */
 		  }
 		  
 		  public Map<SampleSource, ExitStatus> getCellLibrariesWithPreprocessingStatus(Job job){

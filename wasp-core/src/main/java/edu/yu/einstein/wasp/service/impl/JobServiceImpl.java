@@ -1094,51 +1094,36 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			//StringBuffer samplePairsSB = new StringBuffer();
 			if(sampleDraftPairs != null){
 				for(String pair : sampleDraftPairs.split(";")){
-					String[] pairList = pair.split(":");
-					Integer T = null;
 					try{
-						T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
-					}catch(Exception e){}
-//					String t;
-//					t = T==null ? pairList[0] : T.toString();
-					Integer C = null;
-					try{
-						C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
-					}catch(Exception e){}					
-//					String c;
-//					c = C==null ? pairList[1] : C.toString();
-					//samplePairsSB.append(t + ":" + c + ";");
-					
-					try {
-						sampleService.createTestControlSamplePairsByIds(T, C);
-					} catch (SampleTypeException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SampleException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						String[] pairList = pair.split(":");
+						Integer T = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[0]));
+						Integer C = sampleDraftIDKeyToSampleIDValueMap.get(Integer.valueOf(pairList[1]));
+						sampleService.createTestControlSamplePairsByIds(T, C, jobDb);
+					}catch(Exception e){
+						logger.warn("e.getMessage(): Error translate sampleDraftPairs to samplePairs");
+						throw new RuntimeException("Error translate sampleDraftPairs to samplePairs");
 					}
 				}
-
 			}
-			
+
 			
 			// jobDraftFile -> jobFile
-		if (jobDraft.getJobDraftFile() != null) {
-			for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
-				FileGroup group = jdf.getFileGroup();
-
-				JobFile jobFile = new JobFile();
-				jobFile.setJob(jobDb);
-				try {
-					jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
-				} catch (Exception e) {
-					logger.warn(e.getLocalizedMessage());
-					throw new RuntimeException(e);
+			if (jobDraft.getJobDraftFile() != null) {
+				for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
+					FileGroup group = jdf.getFileGroup();
+	
+					JobFile jobFile = new JobFile();
+					jobFile.setJob(jobDb);
+					try {
+						jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+					} catch (Exception e) {
+						logger.warn(e.getLocalizedMessage());
+						throw new RuntimeException(e);
+					}
+					jobFileDao.save(jobFile);
 				}
-				jobFileDao.save(jobFile);
-			}
-		}			
+			}	
+			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
 			jobDraft.setSubmittedjobId(jobDb.getJobId());
