@@ -1400,6 +1400,7 @@ public class JobController extends WaspController {
 		  Map<Sample, Adaptorset> libraryAdaptorsetMapOnForm = new HashMap<Sample, Adaptorset>();
 		  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
 
+		  //fill up drop-down box
 		  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
 			  System.out.println("PU: " + platformUnit.getName());
 			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
