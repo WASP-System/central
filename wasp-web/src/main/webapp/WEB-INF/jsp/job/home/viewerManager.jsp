@@ -29,7 +29,7 @@
 
 	<c:forEach items="${additionalJobViewers}" var="additionalJobViewer">
 		<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
-			<td>
+			<td class="DataTD">
 				<c:if test='${currentWebViewerIsSuperuserSubmitterOrPI==true || currentWebViewer.getUserId() == additionalJobViewer.getUserId()}'>
 					<a  href='javascript:void(0)' onclick = 'if(confirm("Do you really want to remove this viewer?")){doGetWithAjax("<c:url value="/job/${job.getId()}/user/${additionalJobViewer.getUserId()}/removeJobViewer.do" />");}'><fmt:message key="listJobSamples.remove.label" /></a>
 				</c:if>

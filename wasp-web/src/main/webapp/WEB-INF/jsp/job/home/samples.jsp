@@ -140,7 +140,7 @@
 	    												}
 	 	 												
 	 	 												
-	 	 												postFormWithoutMoving("addLibToCell_${library.getId()}","<c:url value="/job/${job.getId()}/library/${library.getId()}/add.do" />"); 
+	 	 												postFormWithoutMoving("addLibToCell_${library.getId()}","<c:url value="/job/${job.getId()}/library/${library.getId()}/addToCell.do" />"); 
 	 	 												return false;' >
 											<table class='data' style="margin: 0 auto;">
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
@@ -242,6 +242,16 @@
 						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
 		   				
 		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		   				
+		   					<c:if test="${fn:length(removeLibraryFromCellSuccessMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
+								<span style="color:green;font-weight:bold"><c:out value="${removeLibraryFromCellSuccessMessage}" /></span>
+								<br />
+							</c:if>	
+	   						<c:if test="${fn:length(removeLibraryFromCellErrorMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
+								<span style="color:red;font-weight:bold"><c:out value="${removeLibraryFromCellErrorMessage}" /></span>
+								<br />
+							</c:if>	
+		   				
 		   				<c:choose>
 		   					<c:when test="${fn:length(cellList)==0}">
 		   						no runs
@@ -251,6 +261,12 @@
 									<c:set value="${cellRunMap.get(cell)}" var="run"/>
 									<c:set value="${cellPUMap.get(cell)}" var="pu"/>
 									<c:set value="${cellIndexMap.get(cell)}" var="laneIndex"/>
+									
+									<c:set value="${cellLibraryPMLoadedMap.get(cell)}" var="libraryPMLoadedMap" />
+									
+									<c:set value="${libraryPMLoadedMap.get(library)}" var="pMLoaded" />
+									
+									
 									<c:choose>
 										<c:when test="${empty cellRunMap.get(cell)}">
 											<c:out value="${pu.getName()}" />
@@ -258,8 +274,20 @@
 										<c:otherwise>
 											<c:out value="${run.getName()}" />
 										</c:otherwise>
-									</c:choose>										
-									(Lane: <c:out value="${laneIndex}" />)
+									</c:choose>	
+																	
+									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
+									
+									<sec:authorize access="hasRole('su') or hasRole('ft')">									
+									[<a href="javascript:void(0);" onclick='if(confirm("Remove library from this lane?")){alert("removing in progress"); loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/remove.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
+									 
+									 	<div  id="updatePM_${cell.getId()}_${library.getId()}" style="display:none;">
+									 	<form  style="display:inline;" method='post' name='updatePMOnCellLibrary_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 
+	 	 									onsubmit='alert("update the pM value"); return false;' ><input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${library.getId()}" />" size='3' maxlength='5' value="<c:out value="${pMLoaded}" />"> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/samples.do" />");' />
+	 	 								</form>
+	 	 								</div>	
+									
+									</sec:authorize>
 									<br />
 		   						</c:forEach>
 		   					</c:otherwise>

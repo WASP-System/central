@@ -1184,8 +1184,10 @@ public class JobController extends WaspController {
 			  @RequestParam(value="addLibraryToPlatformUnitErrorMessage", required=false) String addLibraryToPlatformUnitErrorMessage,
 			  @RequestParam(value="addLibraryToPlatformUnitSuccessMessage", required=false) String addLibraryToPlatformUnitSuccessMessage,
 			  @RequestParam(value="libraryIdAssociatedWithMessage", required=false) Integer libraryIdAssociatedWithMessage,
+			  @RequestParam(value="removeLibraryFromCellErrorMessage", required=false) String removeLibraryFromCellErrorMessage,
+			  @RequestParam(value="removeLibraryFromCellSuccessMessage", required=false) String removeLibraryFromCellSuccessMessage,
 			  ModelMap m) throws SampleTypeException {
-		
+				
 		if(addLibraryToPlatformUnitErrorMessage==null){
 			addLibraryToPlatformUnitErrorMessage="";
 		}
@@ -1196,6 +1198,16 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("addLibraryToPlatformUnitSuccessMessage", addLibraryToPlatformUnitSuccessMessage);
 		
+		if(removeLibraryFromCellErrorMessage==null){
+			removeLibraryFromCellErrorMessage="";
+		}
+		m.addAttribute("removeLibraryFromCellErrorMessage", removeLibraryFromCellErrorMessage);
+
+		if(removeLibraryFromCellSuccessMessage==null){
+			removeLibraryFromCellSuccessMessage="";
+		}
+		m.addAttribute("removeLibraryFromCellSuccessMessage", removeLibraryFromCellSuccessMessage);
+
 		if(libraryIdAssociatedWithMessage==null){
 			libraryIdAssociatedWithMessage = new Integer(-1);
 		}
@@ -1297,6 +1309,8 @@ public class JobController extends WaspController {
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
 		  Map<Sample, Run> cellRunMap = new HashMap<Sample, Run>();	 
 
+		  Map<Sample, Map<Sample, Float>> cellLibraryPMLoadedMap = new HashMap<Sample, Map<Sample, Float>>();
+		  
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
 			  libraryCellListMap.put(library, cellsForLibrary);
@@ -1305,6 +1319,12 @@ public class JobController extends WaspController {
 					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
 					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
 					  cellPUMap.put(cell, platformUnit);
+					  
+					  Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
+					  Float pMLoaded = sampleService.getConcentrationOfLibraryAddedToCell(cell, library);
+					  libraryPMLoadedMap.put(library, pMLoaded);
+					  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
+					  
 					  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
 					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
 					  if(!runList.isEmpty()){
@@ -1380,6 +1400,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("cellIndexMap", cellIndexMap);
 		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
 		  m.addAttribute("cellRunMap", cellRunMap);
+		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);
 		  
 		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
 		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
@@ -1392,6 +1413,8 @@ public class JobController extends WaspController {
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		  
+		  
+		  //the dropdown box
 		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
 		  m.addAttribute("availableAndCompatiblePlatformUnitListOnForm", availableAndCompatiblePlatformUnitListOnForm);
 		  Map<Sample, List<Sample>> platformUnitCellListMapOnForm = new HashMap<Sample, List<Sample>>();
@@ -1446,8 +1469,32 @@ public class JobController extends WaspController {
 		  
 		return "job/home/samples";
 	}
+
+	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/remove", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String jobRemoveLibraryFromCellPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("cellId") Integer cellId, 
+			  @PathVariable("libraryId") Integer libraryId){ 
+
+		/*
+		 * get cell
+		 * get library
+		 * confirm library on this job
+		 * confirm this library is on this cell and if so, it's through this job
+		 * do remove in trycatch 
+		 * set message
+		 */
+//sampleService.removeLibraryFromCellOfPlatformUnit(cell, library)
+
+		String removeLibraryFromCellErrorMessage = "";
+		String removeLibraryFromCellSuccessMessage = "";
+		removeLibraryFromCellErrorMessage="Library ERROR";
+		removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
+		return "redirect:/job/"+jobId+"/samples.do?removeLibraryFromCellErrorMessage="+removeLibraryFromCellErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&removeLibraryFromCellSuccessMessage=" + removeLibraryFromCellSuccessMessage;
+		//return "redirect:/job/"+jobId+"/samples.do";		  
+	}
 	
-	@RequestMapping(value="/{jobId}/library/{libraryId}/add", method=RequestMethod.POST)
+	@RequestMapping(value="/{jobId}/library/{libraryId}/addToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibraryToCellPostPage(@PathVariable("jobId") Integer jobId, 
 			  @PathVariable("libraryId") Integer libraryId, 

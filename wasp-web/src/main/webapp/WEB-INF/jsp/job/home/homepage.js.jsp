@@ -209,6 +209,8 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 	if(viewerFrame.style.display=="none"){
 		viewerFrame.style.display="block";
 		viewerFrame2.style.display = "none";
+		var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
+		myIframe.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe
 	}
 
 	//how one could possibly get javascript with ajax and then add it to dom 
@@ -242,6 +244,8 @@ function loadNewPageWithoutMoving(thisAnchorObject, urlToDisplay) {
 	if(viewerFrame.style.display=="none"){
 		viewerFrame.style.display="block";
 		viewerFrame2.style.display = "none";
+		var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
+		myIframe.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe 
 	}
 }
 function postForm(formId, urlToPost) {//added 5-16-13 
