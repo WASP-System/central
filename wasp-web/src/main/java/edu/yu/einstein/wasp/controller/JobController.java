@@ -1186,8 +1186,21 @@ public class JobController extends WaspController {
 			  @RequestParam(value="libraryIdAssociatedWithMessage", required=false) Integer libraryIdAssociatedWithMessage,
 			  @RequestParam(value="removeLibraryFromCellErrorMessage", required=false) String removeLibraryFromCellErrorMessage,
 			  @RequestParam(value="removeLibraryFromCellSuccessMessage", required=false) String removeLibraryFromCellSuccessMessage,
+			  @RequestParam(value="updateConcentrationToCellLibraryErrorMessage", required=false) String updateConcentrationToCellLibraryErrorMessage,
+			  @RequestParam(value="updateConcentrationToCellLibrarySuccessMessage", required=false) String updateConcentrationToCellLibrarySuccessMessage,
 			  ModelMap m) throws SampleTypeException {
-				
+						
+		if(updateConcentrationToCellLibraryErrorMessage==null){
+			updateConcentrationToCellLibraryErrorMessage="";
+		}
+		m.addAttribute("updateConcentrationToCellLibraryErrorMessage", updateConcentrationToCellLibraryErrorMessage);
+		
+		if(updateConcentrationToCellLibrarySuccessMessage==null){
+			updateConcentrationToCellLibrarySuccessMessage="";
+		}
+		m.addAttribute("updateConcentrationToCellLibrarySuccessMessage", updateConcentrationToCellLibrarySuccessMessage);
+
+		
 		if(addLibraryToPlatformUnitErrorMessage==null){
 			addLibraryToPlatformUnitErrorMessage="";
 		}
@@ -1469,52 +1482,54 @@ public class JobController extends WaspController {
 		return "job/home/samples";
 	}
 
-	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/remove", method=RequestMethod.GET)
+	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/updateConcentration", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
-	  public String jobRemoveLibraryFromCellPage(@PathVariable("jobId") Integer jobId, 
+	  public String jobUpdateConcentrationToCellPostPage(
+			  @PathVariable("jobId") Integer jobId, 
+			  @PathVariable("libraryId") Integer libraryId, 
+			  @PathVariable("cellId") Integer cellId, 
+			  @RequestParam("newConcentrationInPM") String newConcentrationInPM, ModelMap m) throws SampleTypeException {
+
+		String updateConcentrationToCellLibraryErrorMessage = "";
+		String updateConcentrationToCellLibrarySuccessMessage = "";
+		
+		try {
+			sampleService.setLibraryOnCellConcentration(sampleService.getCellLibrary(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryId)), Float.parseFloat(newConcentrationInPM.trim()));
+			updateConcentrationToCellLibrarySuccessMessage="Concentration successfully updated";
+		} catch (Exception e) {
+			logger.warn("Problem occurred updating library concentration on cell: " + e.getLocalizedMessage());
+			updateConcentrationToCellLibraryErrorMessage ="Unexpected error. Update failed.";
+		}
+		
+		return "redirect:/job/"+jobId+"/samples.do?updateConcentrationToCellLibraryErrorMessage="+updateConcentrationToCellLibraryErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&updateConcentrationToCellLibrarySuccessMessage=" + updateConcentrationToCellLibrarySuccessMessage;
+	}
+	
+	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/removeLibrary", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String jobRemoveLibraryFromCellPage(
+			  @PathVariable("jobId") Integer jobId, 
 			  @PathVariable("cellId") Integer cellId, 
 			  @PathVariable("libraryId") Integer libraryId){ 
 
 		String removeLibraryFromCellErrorMessage = "";
 		String removeLibraryFromCellSuccessMessage = "";
 		
-		Job job = jobService.getJobByJobId(jobId);
-		Sample library = sampleService.getSampleById(libraryId);
-		Sample cell = sampleService.getSampleById(cellId);
-		
-		if(job.getId()==null || library.getId()==null || cell.getId()==null){
-			logger.warn("job, library, or cell unexpectedly not found in database");
-			removeLibraryFromCellErrorMessage = "Unexpected error. Please try again.";
+		try{
+			sampleService.removeLibraryFromCellOfPlatformUnit(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryId));
+			removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
 		}
-		else{
-			List<Sample>  cellsForLibrary = null;
-			try{
-				cellsForLibrary = sampleService.getCellsForLibrary(library, job);
-			}
-			catch(Exception e){
-				logger.warn(e.getMessage()+": unable to getCellForLibrary(library, job) threw exception");				
-			}
-			if( cellsForLibrary == null || !cellsForLibrary.contains(cell) ){
-				logger.warn("cellsForLibrary list is null, is empty, or does not contain the expected cell");
-				removeLibraryFromCellErrorMessage = "Unexpected error. Lane not part of this job.";
-			}
-			else{
-				try{
-					sampleService.removeLibraryFromCellOfPlatformUnit(cell, library);
-					removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
-				}
-				catch(Exception e){
-					logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cell, library) threw exception");
-					removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
-				}
-			}
-		}		
+		catch(Exception e){
+			logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cell, library) threw exception");
+			removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
+		}
+			
 		return "redirect:/job/"+jobId+"/samples.do?removeLibraryFromCellErrorMessage="+removeLibraryFromCellErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&removeLibraryFromCellSuccessMessage=" + removeLibraryFromCellSuccessMessage;
 	}
 	
 	@RequestMapping(value="/{jobId}/library/{libraryId}/addToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
-	  public String jobAddLibraryToCellPostPage(@PathVariable("jobId") Integer jobId, 
+	  public String jobAddLibraryToCellPostPage(
+			  @PathVariable("jobId") Integer jobId, 
 			  @PathVariable("libraryId") Integer libraryId, 
 			  @RequestParam("cellId") Integer cellId, 
 			  @RequestParam("libConcInCellPicoM") String libConcInCellPicoM, ModelMap m) throws SampleTypeException {
@@ -1579,7 +1594,8 @@ public class JobController extends WaspController {
 		
 		if( "".equals(addLibraryToPlatformUnitErrorMessage) ){
 			try{
-				  sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat);//this really needs job
+				  sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat, job);
+				  addLibraryToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
 			} catch(SampleTypeException ste){
 				addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
 				logger.warn(ste.getMessage()); // print more detailed error to warn logs
@@ -1595,10 +1611,6 @@ public class JobController extends WaspController {
 			}	
 		}
 
-		//System.out.println("------------inside new add method with jobId=" + jobId + " and libraryId = " + libraryId + " and cellId = " + cellId + " and libConcInCellPicoM = " + libConcInCellPicoM + " and libConcInCellPicoMFloat = " + libConcInCellPicoMFloat);
-		if( "".equals(addLibraryToPlatformUnitErrorMessage) ){
-			addLibraryToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
-		}
 		return "redirect:/job/"+jobId+"/samples.do?addLibraryToPlatformUnitErrorMessage="+addLibraryToPlatformUnitErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&addLibraryToPlatformUnitSuccessMessage=" + addLibraryToPlatformUnitSuccessMessage;
 		
 	}

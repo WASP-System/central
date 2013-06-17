@@ -103,6 +103,7 @@ import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Organism;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -162,6 +163,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	@Autowired
 	protected SampleMetaDao sampleMetaDao;
 	
+	@Autowired
+	protected JobService jobService;
+
 	@Autowired
 	protected ResourceService resourceService;
 	
@@ -2344,7 +2348,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public void setJobForLibraryOnCell(SampleSource cellLibrary) throws MetadataException{
-		Job job = getLibrary(cellLibrary).getJob();
+		Job job = getLibrary(cellLibrary).getJob();//not good to use this; it assumes a sample is only on one job
 		if (job == null){
 			logger.debug("Not setting job for library on cell as library as no job associated with it (probably a control?)");
 			return;
@@ -2363,7 +2367,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 */
 	@Override
 	public void setJobForLibraryOnCell(Sample cell, Sample library) throws SampleTypeException, MetadataException{
-		SampleSource cellLibrary = getCellLibrary(cell, library);
+		SampleSource cellLibrary = getCellLibrary(cell, library);//not good to use this; it assumes a sample is only on one job
 		setJobForLibraryOnCell(cellLibrary);
 	}
 	
@@ -3000,6 +3004,125 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  }			  
 			  return cellsForLibraryAndJob;
 		  }
+		  
+		  /**
+		   * {@inheritDoc}
+		   */
+		  @Override
+		  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
+			  
+			  Assert.assertParameterNotNull(cell, "No cell provided");
+			  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
+			  Assert.assertParameterNotNull(library, "No library provided");
+			  Assert.assertParameterNotNullNotZero(library.getId(), "Invalid library Provided");
+			  Assert.assertParameterNotNull(libConcInCellPicoM, "No lib conc provided");
+			  Assert.assertParameterNotNull(job, "No job provided");
+			  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid job Provided");
+
+			  if (!isCell(cell)){
+				  throw new SampleTypeException("Expected 'cell' but got Sample of type '" + cell.getSampleType().getIName() + "' instead.");
+			  }
+			  if (!this.isLibrary(library)){
+				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + library.getSampleType().getIName() + "' instead.");
+			  }
+			  List<Sample> jobLibraryList = jobService.getLibraries(job);
+			  if( !jobLibraryList.contains(library) ){
+				  throw new SampleException("Library (id = "+library.getId()+") not part of specified job (id=" + job.getId()+")");
+			  }
+			  /* 
+				(1) identify the barcode sequence on the library being added. If problem then terminate. 
+				(2) if the library being added has a barcode that is NONE, and the cell contains ANY OTHER LIBRARY, then terminate. 
+				(3) identify barcode of libraries already on cell; if problem, terminate. Should also get their jobIds.
+				(4) if the cell already has a library with a barcode of NONE, then terminate
+				(5) if the library being added has a bardcode that is something other than NONE (meaning a real barcode sequence) AND if a library already on the cell has that same barcode, then terminate. 
+				(6) do we want to maintain only a single jobId for a cell???
+			   */
+
+			  //case 1: identify the adaptor barcode for the library being added; it's barcode is either NONE (no multiplexing) or has some more interesting barcode sequence (for multiplexing, such as AACTG)
+			  Adaptor adaptorOnLibraryBeingAdded = null;
+			  try{
+				  adaptorOnLibraryBeingAdded = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", library.getSampleMeta())));
+			  } catch(NumberFormatException e){
+				  throw new MetadataException("Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
+			  }
+			  
+			  if(adaptorOnLibraryBeingAdded==null || adaptorOnLibraryBeingAdded.getAdaptorId()==null){
+				  throw new SampleException("No adaptor associated with library");
+			  }
+			  else if( adaptorOnLibraryBeingAdded.getBarcodesequence()==null || adaptorOnLibraryBeingAdded.getBarcodesequence().equals("") ){
+				  throw new SampleException("Library adaptor has no barcode");
+			  }
+			  Index index = new Index();
+			  List<Sample> libraries = this.getLibrariesOnCell(cell, index); 
+			  index.increment();
+			  String barcodeOnLibBeingAdded = new String(adaptorOnLibraryBeingAdded.getBarcodesequence());
+
+			  //case 2: dispense with this easy check 
+			  if( barcodeOnLibBeingAdded.equals("NONE") && libraries != null && libraries.size() > 0  ){ //case 2: the library being added has a barcode of "NONE" AND the cell to which user wants to add this library already contains one or more libraries (such action is prohibited)
+				  throw new SampleMultiplexException("Cannot add more than one sample to cell if not multiplexed. Input library has barcode 'NONE'.");
+			  }
+			 
+			  //cases 3, 4, 5, 6 
+			  if (libraries != null) {
+				  for (Sample libraryAlreadyOnCell: libraries) {
+					  Adaptor adaptorOnCell = null;
+					  try{
+						  adaptorOnCell = adaptorDao.getAdaptorByAdaptorId(Integer.valueOf(MetaHelper.getMetaValue("genericLibrary", "adaptor", libraryAlreadyOnCell.getSampleMeta())));
+					  } catch(NumberFormatException e){
+						  throw new MetadataException("Library already on cell: Cannot convert genericLibrary.adaptor meta result to Integer: "+e.getMessage());
+					  }
+					  
+					  if(adaptorOnCell==null || adaptorOnCell.getAdaptorId()==null){
+						  throw new SampleException("Library already on cell : No adaptor associated with library");
+					  }
+					  else if( adaptorOnCell.getBarcodesequence()==null || adaptorOnCell.getBarcodesequence().equals("") ){
+						  throw new SampleException("Library already on cell: adaptor has no barcode");
+					  } 
+					  else if( adaptorOnCell.getBarcodesequence().equals("NONE")){ 
+						  throw new SampleMultiplexException("Library already on cell: Cannot add more than one sample to cell if not multiplexed. Library has barcode 'NONE'");
+					  }
+					  else if(adaptorOnCell.getBarcodesequence().equals(barcodeOnLibBeingAdded)){
+						  throw new SampleMultiplexException("Library already on cell: has same barcode as input library");
+					  }
+					  else{
+						  // TODO: confirm library is really part of this jobId. For now do nothing. If Einstein, then terminate (cell restricted to libraries from single job)
+					  }
+				  }	
+			  }
+
+			  SampleSource newSampleSource = new SampleSource(); 
+			  newSampleSource.setSample(cell);
+			  newSampleSource.setSourceSample(library);
+			  newSampleSource.setIndex(index.getValue());
+			  SampleSource newSampleSourceDB = getSampleSourceDao().save(newSampleSource);//capture the new samplesourceid
+			  
+			  try{
+				  setJobForLibraryOnCell(newSampleSourceDB, job);
+				  setLibraryOnCellConcentration(newSampleSourceDB, libConcInCellPicoM);		  
+			  } catch(Exception e){
+				  logger.warn("Unable to set LibraryOnCell SampleSourceMeta");
+			  }
+			  
+		  }
+		  
+			/**
+			 *  {@inheritDoc}
+			 */
+			@Override
+			public void setJobForLibraryOnCell(SampleSource cellLibrary, Job job) throws MetadataException{
+				Assert.assertParameterNotNull(job, "No job provided");
+				Assert.assertParameterNotNullNotZero(job.getId(), "Invalid job Provided");
+				Assert.assertParameterNotNull(cellLibrary, "A valid cellLibrary must be provided");
+				Assert.assertParameterNotNullNotZero(cellLibrary.getId(), "Invalid cellLibrary Provided");
+
+				MetaHelper metahelper = new MetaHelper(LIBRARY_ON_CELL_AREA, SampleSourceMeta.class);
+				metahelper.setMetaList(cellLibrary.getSampleSourceMeta());
+				metahelper.setMetaValueByName(JOB_ID, job.getId().toString());
+				List<SampleSourceMeta> meta = new ArrayList<SampleSourceMeta>();
+				meta.add( (SampleSourceMeta) metahelper.getMetaByName(JOB_ID) ); // may be new OR existing
+				sampleSourceMetaDao.setMeta(meta, cellLibrary.getId());
+			}
+
 
 }
 

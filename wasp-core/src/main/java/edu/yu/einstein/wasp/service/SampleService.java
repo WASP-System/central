@@ -1040,4 +1040,18 @@ public interface SampleService extends WaspMessageHandlingService {
 	public boolean isCellLibraryAwaitingQC(SampleSource cellLibrary) throws SampleTypeException;
 
 
+	  /**
+	   * Adds a given library to the given cell
+	   * @param cell
+	   * @param library
+	   * @param libConcInCellPicoM
+	   * @param job
+	   * @throws SampleTypeException
+	   * @throws SampleException
+	   * @throws SampleMultiplexException
+	   * @throws MetadataException
+	   */
+	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
+
+	  public void setJobForLibraryOnCell(SampleSource cellLibrary, Job job) throws MetadataException;
 }

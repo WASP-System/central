@@ -365,6 +365,7 @@ function postFormWithoutMoving(formId, urlToPost) {//added 5-16-13
 	if(req.status == 404 || req.status == 500){
 		page = "Error! Unable to process form data. Please try again.";
 	}
+	
 	document.getElementById("viewerFrame").innerHTML = page;
 	//document.getElementById("tab-1").innerHTML = page;
 	
