@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.charts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,6 +22,8 @@ public abstract class WaspChart {
 	protected String legend;
 	
 	protected List<DataSeries> dataSeries;
+	
+	protected Map<String, Object> properties;
 
 	public WaspChart() {}
 	
@@ -53,6 +57,37 @@ public abstract class WaspChart {
 
 	public void setDataSeries(List<DataSeries> dataSeries) {
 		this.dataSeries = dataSeries;
+	}
+	
+	/**
+	 * Get a generic map of properties which may be associated with this plot or an empty Map if none set.
+	 * @param properties
+	 */
+	public Map<String, Object> getProperties() {
+		if (properties == null)
+			return new HashMap<String, Object>();
+		return properties;
+	}
+
+	/**
+	 * Set a generic map of properties which may be associated with this plot
+	 * @param properties
+	 */
+	@SuppressWarnings("unchecked")
+	public void setProperties(Map<String, ?> properties) {
+		this.properties = (Map<String,Object>) properties;
+	}
+	
+	/**
+	 * Add a property
+	 * @param key
+	 * @param value
+	 */
+	@JsonIgnore
+	public void addProperty(String key, Object value){
+		if (properties == null)
+			properties =  new HashMap<String, Object>();
+		properties.put(key, value);
 	}
 	
 	@JsonIgnore

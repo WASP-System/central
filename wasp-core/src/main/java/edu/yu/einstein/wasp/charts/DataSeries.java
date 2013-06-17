@@ -16,15 +16,15 @@ import edu.yu.einstein.wasp.exception.InvalidParameterException;
  */
 public class DataSeries {
 	
-	public String name;
+	private String name;
 
-	public List<String> rowLabels;
+	private List<String> rowLabels;
 	
-	public List<String> colLabels;
+	private List<String> colLabels;
 	
-	public List<List<?>> data;
+	private List<List<Object>> data;
 	
-	public Map<String, ?> properties;
+	private Map<String, Object> properties;
 	
 	public DataSeries() {}
 	
@@ -88,13 +88,13 @@ public class DataSeries {
 	 * Gets data or returns an empty List if none present.
 	 * @return
 	 */
-	public List<List<?>> getData() {
+	public List<List<Object>> getData() {
 		if (data == null)
-			return new ArrayList<List<?>>();
+			return new ArrayList<List<Object>>();
 		return data;
 	}
 
-	public void setData(List<List<?>> data) {
+	public void setData(List<List<Object>> data) {
 		this.data = data;
 	}
 
@@ -103,7 +103,7 @@ public class DataSeries {
 	 * Get a generic map of properties which may be associated with this data series or an empty Map if none set.
 	 * @param properties
 	 */
-	public Map<String, ?> getProperties() {
+	public Map<String, Object> getProperties() {
 		if (properties == null)
 			return new HashMap<String, Object>();
 		return properties;
@@ -113,17 +113,33 @@ public class DataSeries {
 	 * Set a generic map of properties which may be associated with this data series
 	 * @param properties
 	 */
+	@SuppressWarnings("unchecked")
 	public void setProperties(Map<String, ?> properties) {
-		this.properties = properties;
+		this.properties = (Map<String, Object>) properties;
 	}
 	
+	
+	/**
+	 * Add a property
+	 * @param key
+	 * @param value
+	 */
+	@JsonIgnore
+	public void addProperty(String key, Object value){
+		if (properties == null)
+			properties =  new HashMap<String, Object>();
+		properties.put(key, value);
+	}
+	
+	@SuppressWarnings("unchecked")
 	public void addRow(List<?> row){
 		if (row == null || (row.size() > 1 && row.size() != colLabels.size()) )
 			throw new InvalidParameterException("supplied parameter is null or size does not match size of colLabels");
 		if (data == null)
-			data = new ArrayList<List<?>>();
-		data.add(row);
+			data = new ArrayList<List<Object>>();
+		data.add((List<Object>) row);
 	}
+	
 	
 	/**
 	 * Add a row of data. Typically this might represent a list of Y-values where each corresponds to a column label 
