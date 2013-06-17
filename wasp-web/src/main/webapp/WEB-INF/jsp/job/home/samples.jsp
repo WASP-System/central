@@ -279,7 +279,7 @@
 									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
 									
 									<sec:authorize access="hasRole('su') or hasRole('ft')">									
-									[<a href="javascript:void(0);" onclick='if(confirm("Remove library from this lane?")){alert("removing in progress"); loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/remove.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
+									[<a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/remove.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
 									 
 									 	<div  id="updatePM_${cell.getId()}_${library.getId()}" style="display:none;">
 									 	<form  style="display:inline;" method='post' name='updatePMOnCellLibrary_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 

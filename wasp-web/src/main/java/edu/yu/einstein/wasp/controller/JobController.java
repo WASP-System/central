@@ -1457,7 +1457,6 @@ public class JobController extends WaspController {
 						  libraryAdaptorsetMapOnForm.put(library, adaptor.getAdaptorset()); 
 					  }catch(Exception e){  }		  
 				  }
-
 			  }
 			  platformUnitCellListMapOnForm.put(platformUnit, cellList);
 		  }
@@ -1476,22 +1475,54 @@ public class JobController extends WaspController {
 			  @PathVariable("cellId") Integer cellId, 
 			  @PathVariable("libraryId") Integer libraryId){ 
 
-		/*
-		 * get cell
-		 * get library
-		 * confirm library on this job
-		 * confirm this library is on this cell and if so, it's through this job
-		 * do remove in trycatch 
-		 * set message
-		 */
-//sampleService.removeLibraryFromCellOfPlatformUnit(cell, library)
-
 		String removeLibraryFromCellErrorMessage = "";
 		String removeLibraryFromCellSuccessMessage = "";
-		removeLibraryFromCellErrorMessage="Library ERROR";
-		removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		Sample library = sampleService.getSampleById(libraryId);
+		Sample cell = sampleService.getSampleById(cellId);
+		
+		if(job.getId()==null || library.getId()==null || cell.getId()==null){
+			logger.warn("job, library, or cell unexpectedly not found in database");
+			removeLibraryFromCellErrorMessage = "Unexpected error. Please try again.";
+		}
+		else{
+			List<Sample>  cellsForLibrary = null;
+			try{
+				cellsForLibrary = sampleService.getCellsForLibrary(library, job);
+			}
+			catch(Exception e){
+				logger.warn(e.getMessage()+": unable to getCellForLibrary(library, job) threw an exception");				
+			}
+			if( cellsForLibrary == null || cellsForLibrary.size() == 0 || !cellsForLibrary.contains(cell) ){
+				logger.warn("cellsForLibrary list is null, is empty, or does not contain the expected cell");
+				removeLibraryFromCellErrorMessage = "Unexpected error. Lane not part of this job.";
+			}
+			else{
+				SampleSource cellLibrary = null;
+				try{
+					cellLibrary = sampleService.getCellLibrary(cell, library);
+				}
+				catch(Exception e){
+					logger.warn(e.getMessage() + ": getCellLibrary(cell, library) threw and exception");
+				}
+				if(cellLibrary == null || cellLibrary.getId() == null){
+					logger.warn("cellLibrary is either null or it's id is null");
+					removeLibraryFromCellErrorMessage = "Unexpected error. Unable to locate library on this platformunit.";
+				}
+				else{
+					try{
+						//sampleService.removeLibraryFromCellOfPlatformUnit(cellLibrary);
+						removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
+					}
+					catch(Exception e){
+						logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cellLibrary) threw and exception");
+						removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
+					}
+				}
+			}
+		}		
 		return "redirect:/job/"+jobId+"/samples.do?removeLibraryFromCellErrorMessage="+removeLibraryFromCellErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&removeLibraryFromCellSuccessMessage=" + removeLibraryFromCellSuccessMessage;
-		//return "redirect:/job/"+jobId+"/samples.do";		  
 	}
 	
 	@RequestMapping(value="/{jobId}/library/{libraryId}/addToCell", method=RequestMethod.POST)
