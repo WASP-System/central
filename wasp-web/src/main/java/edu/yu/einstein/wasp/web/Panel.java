@@ -1,12 +1,14 @@
 package edu.yu.einstein.wasp.web;
 
+import edu.yu.einstein.wasp.plugin.ViewPanel;
+
 /**
  * Class for describing a generic vizualisation panel. Plugins may be asked to return a Panel object for displaying data.
  * The panel data may be used by any web rendering tool for presenting a panel within a view.
  * @author asmclellan
  *
  */
-public class Panel {
+public class Panel implements ViewPanel{
 
 	private String title = "";
 	
@@ -55,75 +57,147 @@ public class Panel {
 		this.height = height;
 		this.htmlContent = htmlContent;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Integer getWidth() {
 		return width;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setWidth(Integer width) {
 		this.width = width;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Integer getHeight() {
 		return height;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setHeight(Integer height) {
 		this.height = height;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Integer getOrder() {
 		return order;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setOrder(Integer order) {
 		this.order = order;
 	}
 
-	public String getHtmlContent() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object getContent() {
 		return htmlContent;
 	}
 
-	public void setHtmlContent(String htmlContent) {
-		this.htmlContent = htmlContent;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setContent(Object content) {
+		this.htmlContent = (String) content;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isResizable() {
 		return isResizable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setResizable(boolean isResizable) {
 		this.isResizable = isResizable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isMaximizable() {
 		return isMaximizable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setMaximizable(boolean isMaximizable) {
 		this.isMaximizable = isMaximizable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isCloseable() {
 		return isCloseable;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
 	}

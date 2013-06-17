@@ -8,9 +8,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -114,17 +117,14 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						currentModule.setAttributes(attributes);
 					} else {
 						// must be data points
-						Set<String> attributes = currentModule.getAttributes();
+						List<String> row = new ArrayList<String>();
 						String[] elements = line.split("\t");
 						// check number of data values matches the number of data attributes
-						if (elements.length != attributes.size())
-							throw new FastQCDataParseException("line contains " + elements.length + " tab-delimited elements which does not match expected number (" + attributes.size() + ")");
-						int i = 0;
-						for (String attrib: attributes){
-							Map<String, String> dataPoint = new LinkedHashMap<String, String>();
-							dataPoint.put(attrib, elements[i++]);
-							currentModule.getDataPoints().add(dataPoint);
-						}
+						if (elements.length != currentModule.getAttributes().size())
+							throw new FastQCDataParseException("line contains " + elements.length + " tab-delimited elements which does not match expected number (" + currentModule.getAttributes().size() + ")");
+						for (String element: elements)
+							row.add(element);
+						currentModule.getDataPoints().add(row);
 					}
 				}
 			}
