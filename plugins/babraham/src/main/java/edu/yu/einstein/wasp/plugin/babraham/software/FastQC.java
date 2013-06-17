@@ -175,7 +175,7 @@ public class FastQC extends SoftwarePackage {
 			} else {
 				// otherwise treat like fastq
 				String name = i + ".fq";
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name; 
+				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name + "\n";
 			}
 		}
 

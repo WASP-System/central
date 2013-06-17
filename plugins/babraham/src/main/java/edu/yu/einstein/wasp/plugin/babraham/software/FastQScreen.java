@@ -134,11 +134,7 @@ public class FastQScreen extends SoftwarePackage {
 		
 		String opts = "--quiet --subset " + subset;
 		
-		//HOW TO TELL IF PAIRED END SET OF READS?
-		boolean isPairedEnd = false;
-		if(isPairedEnd){
-			opts += " --paired ";
-		}		
+		//HOW TO TELL IF PAIRED END SET OF READS?//we'll just use the forward reads for fastq_screen
 		
 		for (int i = 0; i < segments; i++) {
 			int dir = i+1;
@@ -151,7 +147,7 @@ public class FastQScreen extends SoftwarePackage {
 				// otherwise treat like fastq
 				String name = i + ".fq";
 				//command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name;
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc_screen " + opts + " --outdir " + i + " " + name;
+				command += "zcat " + fileList[i] + " > " + name + " && fastq_screen " + opts + " --outdir " + i + " " + name + "\n";
 			}
 		}
 
