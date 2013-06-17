@@ -1492,33 +1492,20 @@ public class JobController extends WaspController {
 				cellsForLibrary = sampleService.getCellsForLibrary(library, job);
 			}
 			catch(Exception e){
-				logger.warn(e.getMessage()+": unable to getCellForLibrary(library, job) threw an exception");				
+				logger.warn(e.getMessage()+": unable to getCellForLibrary(library, job) threw exception");				
 			}
-			if( cellsForLibrary == null || cellsForLibrary.size() == 0 || !cellsForLibrary.contains(cell) ){
+			if( cellsForLibrary == null || !cellsForLibrary.contains(cell) ){
 				logger.warn("cellsForLibrary list is null, is empty, or does not contain the expected cell");
 				removeLibraryFromCellErrorMessage = "Unexpected error. Lane not part of this job.";
 			}
 			else{
-				SampleSource cellLibrary = null;
 				try{
-					cellLibrary = sampleService.getCellLibrary(cell, library);
+					sampleService.removeLibraryFromCellOfPlatformUnit(cell, library);
+					removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
 				}
 				catch(Exception e){
-					logger.warn(e.getMessage() + ": getCellLibrary(cell, library) threw and exception");
-				}
-				if(cellLibrary == null || cellLibrary.getId() == null){
-					logger.warn("cellLibrary is either null or it's id is null");
-					removeLibraryFromCellErrorMessage = "Unexpected error. Unable to locate library on this platformunit.";
-				}
-				else{
-					try{
-						//sampleService.removeLibraryFromCellOfPlatformUnit(cellLibrary);
-						removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
-					}
-					catch(Exception e){
-						logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cellLibrary) threw and exception");
-						removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
-					}
+					logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cell, library) threw exception");
+					removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
 				}
 			}
 		}		
