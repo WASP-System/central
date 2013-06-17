@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/requests.do" />");' >View Lane Request</a><br />
+<br />							
 <table class="data" style="margin: 0px 0px">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 
