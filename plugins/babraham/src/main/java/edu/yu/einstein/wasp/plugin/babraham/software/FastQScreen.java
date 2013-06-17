@@ -134,6 +134,12 @@ public class FastQScreen extends SoftwarePackage {
 		
 		String opts = "--quiet --subset " + subset;
 		
+		//HOW TO TELL IF PAIRED END SET OF READS?
+		boolean isPairedEnd = false;
+		if(isPairedEnd){
+			opts += " --paired ";
+		}		
+		
 		for (int i = 0; i < segments; i++) {
 			int dir = i+1;
 			command += "mkdir " + dir + "\n";
