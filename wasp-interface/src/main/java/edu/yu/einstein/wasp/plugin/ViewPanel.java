@@ -24,7 +24,7 @@ public interface ViewPanel {
 
 	public Object getContent();
 
-	public void setContent(Object Content);
+	public void setContent(Object content);
 
 	public boolean isResizable();
 
