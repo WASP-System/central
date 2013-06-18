@@ -1,5 +1,6 @@
 /**
- * 
+ * Created by Wasp System Eclipse Plugin
+ * @author 
  */
 package ___package___.___pluginname___.plugin;
 
@@ -34,7 +35,10 @@ import edu.yu.einstein.wasp.service.RunService;
 /**
  * 
  */
-public class ___Pluginname___Plugin extends WaspPlugin implements ClientMessageI, BatchJobProviding {
+public class ___Pluginname___Plugin extends WaspPlugin 
+		implements 
+			BatchJobProviding,	///// PIP
+			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -50,7 +54,7 @@ public class ___Pluginname___Plugin extends WaspPlugin implements ClientMessageI
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "___pluginname___.test.jobFlow";
+	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow";
 
 	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);

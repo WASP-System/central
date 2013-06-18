@@ -30,17 +30,6 @@ public class SelNewPI extends SelBaseTest {
 	
 	String sEmail;
 	
-	/**
-	 * @BeforeClass has a groups() attribute as well, and it’s respected when you run group test suites. 
-	 * If you want it to run before all methods, you need to use the alwaysRun = true:
-	 * @throws Exception
-	 */
-	@Override
-	@BeforeClass (alwaysRun = true)
-	@Parameters ("environment")
-    public void setUp(String environment) throws Exception {
-		
-	}
 
 	/**
      * 
@@ -66,34 +55,29 @@ public class SelNewPI extends SelBaseTest {
      * @param sNewUserPICreated
      * @throws Exception
      */
-	@Parameters("environment")
   	@Test (groups = "integration-tests", dataProvider = "DP1")
-	public void navigateNewPIForm(String environment, String sUrl, String sLogin, String sFName, String sLName, 
+	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
 									String title, String sInst, String sDept, String building_room, 
 									String address, String sCity, String sState, String sCountry, 
 									String sZip, String sPhone, String sFax, String sNewUserPICreated) throws Exception {  
-  		Assert.assertNotNull(driver);
-  		String baseUrl = "localhost:8080";
-  	    if (environment.equals("production")) {
-  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
-  	  	}	
+  		Assert.assertNotNull(driver);	
   		driver.get("http://"+baseUrl+"/wasp/auth/login.do");
     	Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).size() != 0, "Cannot locate New PI link on login page");
 		driver.findElement(By.xpath("//a[contains(@href,'/wasp/auth/newpi/institute.do')]")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/institute.do");
 		
 		//Select Institute
     	Assert.assertTrue(driver.findElements(By.name("instituteSelect")).size() != 0, "Cannot locate 'Select Institute' drop-down");
 		driver.findElement(By.name("instituteSelect")).sendKeys(sInst);
  		//TO DO:  check for read-only attribute of 'other' input field.
-		
+		pause(4000);
 		//Submit
 		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")));
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
 		
 		//Fill out New PI Form
-		Assert.assertEquals(driver.getCurrentUrl(), sUrl);
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/institute.do");
 
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(sFName);
@@ -116,13 +100,26 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("phone")).sendKeys(sPhone);
 		driver.findElement(By.id("fax")).sendKeys(sFax);
 		
+		pause(4000);
 		//Submit New PI Form
     	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();
-		Assert.assertEquals(driver.getCurrentUrl(), sNewUserPICreated);
+
+		Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/auth/newpi/created.do");
 				
      	
     }
+  	public static void pause(final int iTimeInMillis) {
+  	    
+        try
+        {
+          Thread.sleep(iTimeInMillis);
+        }
+        catch(InterruptedException ex)
+        {
+          System.out.println(ex.getMessage());
+        }
+      }
   	
   	 @Override
 	@AfterClass
@@ -149,13 +146,9 @@ public class SelNewPI extends SelBaseTest {
      * 
      * @throws SQLException
      */
-    @Parameters ("production")
   	@Test (groups="integration-tests")
-  	public void confirmEmailAuth(String environment) {
-    	String baseUrl = "localhost:8080";
-  	    if (environment.equals("production")) {
-  	  		baseUrl = "barcelona.einstein.yu.edu:8080";
-  	  	}
+  	public void confirmEmailAuth() {
+    	
   		try {
 	  		Statement s = connection.createStatement();
 	  		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");

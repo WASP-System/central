@@ -90,7 +90,9 @@ public class JdbcWaspJobInstanceDao extends JdbcJobInstanceDao implements WaspJo
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource();
 			parameterSource.addValue("val", id);
 			String sql = "select count(JOB_INSTANCE_ID) from %PREFIX%JOB_PARAMS where TYPE_CD = 'STRING' and JOB_INSTANCE_ID = :val";
+			logger.trace("Built SQL string: " + getQuery(sql));
 			int count = getJdbcTemplate().queryForInt(getQuery(sql), parameterSource);
+			logger.trace("job with JOB_INSTANCE_ID=" + id.toString() + " has " + count + " parameters, parameterMap has " + parameterMap.size());
 			if (count == parameterMap.size())
 				exclusiveJobInstanceIds.add(id);
 		}

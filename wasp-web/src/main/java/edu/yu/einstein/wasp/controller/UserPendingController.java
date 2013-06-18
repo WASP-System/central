@@ -201,11 +201,11 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		String captchaText = request.getParameter("captcha");
-		
+		/* NV commented for testing
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(userPendingMetaHelperWebapp.getParentArea()+".captcha.error"));
 		}
-		
+		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) userPendingMetaHelperWebapp.getMetaList());
 			prepareSelectListData(m);
@@ -432,11 +432,11 @@ public class UserPendingController extends WaspController {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
 		
 		String captchaText = request.getParameter("captcha");
-		
+		/* NV commented for testing
 		if (captcha == null || captchaText == null || captchaText.isEmpty() || (! captcha.isCorrect(captchaText)) ){
 			m.put("captchaError", messageService.getMessage(metaHelperWebapp.getParentArea()+".captcha.error"));
 		}
-		
+		*/
 		if (result.hasErrors() || m.containsKey("captchaError")) {
 			userPendingForm.setUserPendingMeta((List<UserPendingMeta>) metaHelperWebapp.getMetaList());
 			prepareSelectListData(m, metaHelperWebapp);
@@ -665,14 +665,14 @@ public class UserPendingController extends WaspController {
 	        ModelMap m) throws MetadataException {
 		 
 		  Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
-		  
+		  /* NV commented for testing
 		  if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			  waspErrorMessage("auth.confirmemail_captcha.error");
 			  m.put("authcode", authCode);
 			  m.put("email", email);
 			  return "auth/confirmemail/authcodeform";
 		  }
-
+		   */
 		  if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 
@@ -740,14 +740,15 @@ public class UserPendingController extends WaspController {
 			@RequestParam(value="captcha_text") String captchaText,
 			ModelMap m) throws MetadataException {
 		Captcha captcha = (Captcha) request.getSession().getAttribute(Captcha.NAME);
-
+		
+		/* NV commented for testing
 		if (captcha == null || (! captcha.isCorrect(captchaText)) ){
 			waspErrorMessage("auth.confirmemail_captcha.error");
 			m.put("authcode", authCode);
 			m.put("email", email);
 			return "auth/confirmemail/authcodeform";
 		}
-		
+		*/
 		if (! userPendingEmailValid(authCode, email, m)) return "auth/confirmemail/authcodeform";
 
 

@@ -426,7 +426,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run){
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
@@ -462,7 +462,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		List<Sample> cellList = new ArrayList<Sample>();
-		Set<SampleSource> libraryCellSet = this.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
+		Set<SampleSource> libraryCellSet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
 		for (SampleSource lc : libraryCellSet) {
 			if (sampleService.getJobOfLibraryOnCell(lc).getId()==job.getId()) {
 				cellList.add(sampleService.getCell(lc));
@@ -475,7 +475,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run){
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCells(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");

@@ -60,7 +60,7 @@ public class SelApproveNewJob extends SelBaseTest{
 	   	driver.findElement(By.xpath("//input[@id='acctQuote.cell_cost']")).clear();
 	   	driver.findElement(By.xpath("//input[@id='acctQuote.cell_cost']")).sendKeys("300");
 	   	driver.findElement(By.xpath("//a[@id='sData']")).click();
-	   	pause(3000);
+	   	pause(5000);
 	   	
     	//DEPARTMENT ADMIN APPROVAL
    	    driver.findElement(By.linkText("Tasks")).click();
@@ -68,16 +68,19 @@ public class SelApproveNewJob extends SelBaseTest{
   	    driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
   	    radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));		
-		for (int i = 0; i < radios.size(); i++) {  
-			  if (radios.get(i).isDisplayed() ) {
+		for (int i = 0; i < radios.size(); i++) {
+
 				  radios.get(i).click(); 
-			  }
+			  
 	      }
+	   	pause(5000);
+
 		  for (int i = 0; i < driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).size(); i++) {  
 			  if (driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).isDisplayed() ) {
 				  driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).click();
 			  }
 		  }
+		  
 		  
 		  //FACILITY MANAGER APPROVAL
 		  driver.findElement(By.linkText("Tasks")).click();
@@ -86,9 +89,8 @@ public class SelApproveNewJob extends SelBaseTest{
 	  	  
   	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
 		  for (int i = 0; i < radios.size(); i++) {  
-			  if (radios.get(i).isDisplayed() ) {
 				  radios.get(i).click(); 
-			  }
+			  
 	      }
 		  for (int i = 0; i < driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).size(); i++) {  
 			  if (driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).isDisplayed() ) {
@@ -103,9 +105,8 @@ public class SelApproveNewJob extends SelBaseTest{
 	  	  
   	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));	
 		  for (int i = 0; i < radios.size(); i++) {  
-			  if (radios.get(i).isDisplayed() ) {
 				  radios.get(i).click(); 
-			  }
+			  
 	      }
 		  for (int i = 0; i < driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).size(); i++) {  
 			  if (driver.findElements(By.xpath("//input[@type='submit' and @value='SUBMIT']")).get(i).isDisplayed() ) {

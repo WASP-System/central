@@ -307,15 +307,15 @@ public class WaspProjectCreator {
 
 		// dependency management
 
-		DependencyManagement dm = new DependencyManagement();
-		Dependency bom = new Dependency();
-		bom.setGroupId("edu.yu.einstein.wasp");
-		bom.setArtifactId("bom");
-		bom.setVersion("${wasp.version}");
-		bom.setType("pom");
-		bom.setScope("import");
-		dm.getDependencies().add(bom);
-		model.setDependencyManagement(dm);
+		// DependencyManagement dm = new DependencyManagement();
+		// Dependency bom = new Dependency();
+		// bom.setGroupId("edu.yu.einstein.wasp");
+		// bom.setArtifactId("bom");
+		// bom.setVersion("${wasp.version}");
+		// bom.setType("pom");
+		// bom.setScope("import");
+		// dm.getDependencies().add(bom);
+		// model.setDependencyManagement(dm);
 
 		// dependencies
 
@@ -382,7 +382,8 @@ public class WaspProjectCreator {
 		String javaPackage = "src/main/java/" + ns + "/" + name.toLowerCase();
 		String javaRes = "src/main/resources";
 
-		String[] folders = { "src/main/java",  javaPackage + "/plugin", javaPackage + "/controller", "src/main/resources/batch",
+		String[] folders = { "src/main/java",  javaPackage + "/plugin", javaPackage + "/controller", javaPackage + "/tasklet",
+				javaPackage + "/software", javaPackage + "/resource", javaPackage + "/filetype", 
 				javaPackage + "/service/impl", javaRes + "/wasp", javaRes + "/META-INF/spring", javaRes + "/META-INF/tiles", javaRes + "/flows",
 				javaRes + "/i18n/en_US", javaRes + "/images/" + name.toLowerCase() , "src/main/webapp/WEB-INF/jsp/" + name.toLowerCase(),
 				"src/test/java", "src/test/resources", "target/classes", "target/test-classes" };

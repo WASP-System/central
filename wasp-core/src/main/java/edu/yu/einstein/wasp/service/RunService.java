@@ -114,7 +114,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @param runId
 	 * @return
 	 */
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run);
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCellsWithoutControls(Run run);
 
 
 	/**
@@ -123,7 +123,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @param runId
 	 * @return
 	 */
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run);
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCells(Run run);
 
 	/**
 	 * Gets a list of all libraries on a run from cells that are marked as being successful and returns

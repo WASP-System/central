@@ -46,7 +46,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>
-			<artifactId>mps-tools</artifactId>
+			<artifactId>mps</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>

@@ -535,6 +535,13 @@ public interface JobService extends WaspMessageHandlingService {
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
 
 	public boolean isJobActive(Job job);
+	
+	/**
+	 * returns true if at least one cell library from all submitted samples has either been QCd or has failed primary analysis
+	 * @param job
+	 * @return
+	 */
+	public boolean isQcPerformedOrPreprocessingFailedForAtLeastOneCellLibraryForAllSubmittedSamples(Job job);
 
 	/**
 	 * return true if any sample associated with the job is in any stage of processing.

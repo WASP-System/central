@@ -454,7 +454,7 @@ public class WorkUnit {
 		this.resultFiles = resultFiles;
 	}
 	
-	public void addRequiredFiles(FileGroup file) {
+	public void addResultFiles(FileGroup file) {
 		this.resultFiles.add(file);
 	}
 	/**
