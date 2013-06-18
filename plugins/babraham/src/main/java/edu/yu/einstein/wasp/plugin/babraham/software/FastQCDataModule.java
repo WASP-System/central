@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,11 +19,11 @@ public class FastQCDataModule{
 	
 	private Map<String, String> keyValueData;
 	
-	private Set<Map<String, String>> dataPoints;
+	private List<List<String>> dataPoints;
 	
 	public FastQCDataModule() {
 		this.attributes = new LinkedHashSet<String>();
-		this.dataPoints = new LinkedHashSet<Map<String,String>>();
+		this.dataPoints = new ArrayList<List<String>>();
 		this.keyValueData = new LinkedHashMap<String, String>();
 	}
 	
@@ -62,11 +64,11 @@ public class FastQCDataModule{
 		this.attributes = attributes;
 	}
 	
-	public Set<Map<String, String>> getDataPoints() {
+	public List<List<String>> getDataPoints() {
 		return dataPoints;
 	}
 	
-	public void setDataPoints(Set<Map<String, String>> dataPoints) {
+	public void setDataPoints(List<List<String>> dataPoints) {
 		this.dataPoints = dataPoints;
 	}
 

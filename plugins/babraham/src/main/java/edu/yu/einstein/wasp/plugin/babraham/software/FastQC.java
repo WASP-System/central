@@ -6,12 +6,17 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.filetype.FastqComparator;
 import edu.yu.einstein.wasp.filetype.service.FastqService;
@@ -45,6 +50,8 @@ public class FastQC extends SoftwarePackage {
 	 * 
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
+	
+	public static final String QC_ANALYSIS_RESULT = "result";
 	
 	public static class PlotType{
 		// meta keys for charts produced
@@ -193,10 +200,35 @@ public class FastQC extends SoftwarePackage {
 	 * @return
 	 * @throws GridException
 	 * @throws FastQCDataParseException
+	 * @throws JSONException 
 	 */
-	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, FastQCDataParseException {
-		Map<String, FastQCDataModule> dataModuleMap = babrahamService.parseFastQCOutput(result);
-		return null;
+	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, FastQCDataParseException, JSONException {
+		Map<String,JSONObject> output = new HashMap<String, JSONObject>();
+		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
+		FastQCDataModule perBaseQual = mMap.get(PlotType.PER_BASE_QUALITY);
+		WaspBoxPlot boxPlot = new WaspBoxPlot();
+		boxPlot.setTitle("Quality scores across all bases");
+		boxPlot.setxAxisLabel("position in read (bp)");
+		boxPlot.setyAxisLabel("Quality Score");
+		boxPlot.addProperty(QC_ANALYSIS_RESULT, perBaseQual.getResult());
+		for (List<String> row : perBaseQual.getDataPoints()){
+			logger.debug(row.toString());
+			try{
+				boxPlot.addBoxAndWhiskers(
+						row.get(0), // Base
+						Double.valueOf(row.get(5)), // 10th Percentile
+						Double.valueOf(row.get(3)), // Lower Quartile
+						Double.valueOf(row.get(2)), // Median
+						Double.valueOf(row.get(4)), // Upper Quartile
+						Double.valueOf(row.get(6)) // 90th Percentile
+					);
+				boxPlot.addRunningMeanValue(row.get(0), Double.valueOf(row.get(1)));
+			} catch (NumberFormatException e){
+				throw new FastQCDataParseException("Caught NFE attempting to convert string values to Double");
+			}
+			output.put(PlotType.PER_BASE_QUALITY, boxPlot.getAsJSON());
+		}
+		return output;
 	}
 
 }
