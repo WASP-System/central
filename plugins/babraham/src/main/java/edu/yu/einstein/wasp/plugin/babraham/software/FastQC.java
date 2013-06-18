@@ -55,17 +55,17 @@ public class FastQC extends SoftwarePackage {
 	
 	public static class PlotType{
 		// meta keys for charts produced
-		public static final String BASIC_STATISTICS = "basic_statistics";
-		public static final String DUPLICATION_LEVELS = "duplication_levels";
-		public static final String KMER_PROFILES = "kmer_profiles";
-		public static final String PER_BASE_GC_CONTENT = "per_base_gc_content";
-		public static final String PER_BASE_N_CONTENT = "per_base_n_content";
-		public static final String PER_BASE_QUALITY = "per_base_quality";
-		public static final String PER_BASE_SEQUENCE_CONTENT = "per_base_sequence_content";
-		public static final String PER_SEQUENCE_GC_CONTENT = "per_sequence_gc_content";
-		public static final String PER_SEQUENCE_QUALITY = "per_sequence_quality";
-		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "sequence_length_distribution"; 
-		public static final String OVERREPRESENTED_SEQUENCES = "overrepresented_sequences";
+		public static final String BASIC_STATISTICS = "fastqc_basic_statistics";
+		public static final String DUPLICATION_LEVELS = "fastqc_duplication_levels";
+		public static final String KMER_PROFILES = "fastqc_kmer_profiles";
+		public static final String PER_BASE_GC_CONTENT = "fastqc_per_base_gc_content";
+		public static final String PER_BASE_N_CONTENT = "fastqc_per_base_n_content";
+		public static final String PER_BASE_QUALITY = "fastqc_per_base_quality";
+		public static final String PER_BASE_SEQUENCE_CONTENT = "fastqc_per_base_sequence_content";
+		public static final String PER_SEQUENCE_GC_CONTENT = "fastqc_per_sequence_gc_content";
+		public static final String PER_SEQUENCE_QUALITY = "fastqc_per_sequence_quality";
+		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "fastqc_sequence_length_distribution"; 
+		public static final String OVERREPRESENTED_SEQUENCES = "fastqc_overrepresented_sequences";
 	}
 	
 	@Autowired
