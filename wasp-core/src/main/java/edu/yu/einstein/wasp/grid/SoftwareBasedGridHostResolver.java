@@ -4,7 +4,9 @@
 package edu.yu.einstein.wasp.grid;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -26,14 +28,15 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  */
 public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 
-	private ArrayList<GridWorkService> gridWorkServices = new ArrayList<GridWorkService>();
+	private Map<GridWorkService, List<SoftwarePackage>> gridWorkServiceMap = new LinkedHashMap<GridWorkService,List<SoftwarePackage>>();
+	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
 	 * 
 	 */
-	public SoftwareBasedGridHostResolver(List<GridWorkService> gridWorkServices) {
-		this.gridWorkServices.addAll(gridWorkServices);
+	public SoftwareBasedGridHostResolver(Map<GridWorkService, List<SoftwarePackage>> gridWorkServices) {
+		this.gridWorkServiceMap.putAll(gridWorkServices);
 	}
 	
 	/**
@@ -43,7 +46,14 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * @return
 	 */
 	private List<GridWorkService> getPossibleDestinations(WorkUnit w) {
-		return null;
+		List<GridWorkService> retval = new ArrayList<GridWorkService>();
+		for (GridWorkService ws : gridWorkServiceMap.keySet()) {
+			List<SoftwarePackage> soft = gridWorkServiceMap.get(ws);
+			if (soft.containsAll(w.getSoftwareDependencies())) {
+				retval.add(ws);
+			}
+		}
+		return retval;
 	}
 	
 	/**
@@ -127,7 +137,6 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 
 	/** 
 	 * {@inheritDoc}
-	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
 	public GridWorkService getGridWorkService(WorkUnit w) throws GridUnresolvableHostException {
@@ -136,7 +145,6 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 
 	/** 
 	 * {@inheritDoc}
-	 * @throws GridUnresolvableHostException 
 	 */
 	@Override
 	public GridWorkService getGridWorkService(GridResult r) throws GridUnresolvableHostException {
@@ -149,7 +157,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 */
 	@Override
 	public GridWorkService getGridWorkService(String hostname) throws GridUnresolvableHostException {
-		for (GridWorkService gws : gridWorkServices) {
+		for (GridWorkService gws : gridWorkServiceMap.keySet()) {
 			if (gws.getTransportConnection().getHostName().equals(hostname))
 				return gws;
 		}
@@ -162,8 +170,10 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List getAvailableWorkServices() {
-		return gridWorkServices;
+	public List<GridWorkService> getAvailableWorkServices() {
+		List<GridWorkService> retval = new ArrayList<GridWorkService>();
+		retval.addAll(gridWorkServiceMap.keySet());
+		return retval;
 	}
 
 	/** 
