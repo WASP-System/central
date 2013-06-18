@@ -167,7 +167,10 @@ public class FastQC extends SoftwarePackage {
 		for (int i = 0; i < segments; i++) {
 			for (int j = 0; j < (files/segments); j++) {
 				int index = ((j-1) * segments) + (i-1);
-				fileList[i] += " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
+				if(fileList[i]==null)
+					fileList[i] = " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
+				else
+					fileList[i] += " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
 			}
 		}
 		
@@ -182,7 +185,7 @@ public class FastQC extends SoftwarePackage {
 			} else {
 				// otherwise treat like fastq
 				String name = i + ".fq";
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name; 
+				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name + "\n";
 			}
 		}
 
