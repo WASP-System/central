@@ -53,7 +53,7 @@ public class StageResultsTasklet extends WaspTasklet {
 		// required by cglib
 	}
 	
-	public StageResultsTasklet(int runId) {
+	public StageResultsTasklet(Integer runId) {
 		this.runId = runId;
 	}
 

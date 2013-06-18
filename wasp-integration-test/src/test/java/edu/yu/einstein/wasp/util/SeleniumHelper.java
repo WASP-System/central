@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.util;
 
 import java.io.File;
 
+import junit.framework.Assert;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
@@ -100,7 +101,7 @@ public class SeleniumHelper {
 	   */
 	  public static void login(String sUserName, String sUserPass, WebDriver driver) {
 		driver.get("http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do");//test environment
-		
+		Assert.assertEquals("http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do", "http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do");
 		WebElement userName = driver.findElement(By.name("j_username"));
 	  	WebElement userPassword = driver.findElement(By.name("j_password"));
 	  	userName.clear();
