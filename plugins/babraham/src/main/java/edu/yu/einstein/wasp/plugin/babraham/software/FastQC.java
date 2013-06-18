@@ -155,6 +155,8 @@ public class FastQC extends SoftwarePackage {
 		int segments = fastqService.getNumberOfReadSegments(fileGroup);
 		int files = fileGroup.getFileHandles().size();
 		
+		// fileList is an array of file name refs
+		// 1 for each read segment.
 		String[] fileList = new String[segments];
 		
 		for (int i = 0; i < segments; i++) {
