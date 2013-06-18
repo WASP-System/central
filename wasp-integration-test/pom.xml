@@ -39,7 +39,7 @@
         </executions>
     </plugin>
   
-      <!-- BEGIN MYSQL DATABASE CONFIGURATION-->
+      <!-- BEGIN MYSQL DATABASE CONFIGURATION
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
                <artifactId>sql-maven-plugin</artifactId>
@@ -55,7 +55,7 @@
                 <driver>com.mysql.jdbc.Driver</driver>
                 <url>jdbc:mysql://localhost:3306/wasp</url>
                 <username>root</username>
-                <password>wasp123</password>
+                <password>wasp</password>
                 <forceMojoExecution>true</forceMojoExecution>
             </configuration>
             <executions>
@@ -74,7 +74,7 @@
 	          	</execution>
           </executions>
       </plugin>
-      <!-- END MYSQL DATABASE CONFIGURATION-->
+      END MYSQL DATABASE CONFIGURATION -->
        <!--
        <plugin>
           <groupId>org.apache.tomcat.maven</groupId>
@@ -108,7 +108,7 @@
       
       </plugin>
       -->
-      
+      <!--
       <plugin>  
         <groupId>org.codehaus.mojo</groupId>  
         <artifactId>exec-maven-plugin</artifactId>  
@@ -135,7 +135,8 @@
             </configuration>  
           </execution>  
         </executions>  
-      </plugin>   
+      </plugin>  
+      --> 
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>

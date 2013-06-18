@@ -1,13 +1,14 @@
 package edu.yu.einstein.wasp.charts;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
-
-import edu.yu.einstein.wasp.exception.ParseException;
+import org.json.JSONObject;
 
 /**
  * Base class to generalize all charts
@@ -16,15 +17,13 @@ import edu.yu.einstein.wasp.exception.ParseException;
  */
 public abstract class WaspChart {
 	
-	private String title;
+	protected String title;
 	
-	private String legend;
+	protected String legend;
 	
-	private String xAxisName;
+	protected List<DataSeries> dataSeries;
 	
-	private String yAxisName;
-	
-	private Set<String> categories;
+	protected Map<String, Object> properties;
 
 	public WaspChart() {}
 	
@@ -41,22 +40,6 @@ public abstract class WaspChart {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
-	public String getXAxisName() {
-		return xAxisName;
-	}
-
-	public void setXAxisName(String xAxisName) {
-		this.xAxisName = xAxisName;
-	}
-
-	public String getYAxisName() {
-		return yAxisName;
-	}
-
-	public void setYAxisName(String yAxisName) {
-		this.yAxisName = yAxisName;
-	}
 	
 	public String getLegend() {
 		return legend;
@@ -66,46 +49,95 @@ public abstract class WaspChart {
 		this.legend = legend;
 	}
 	
-	public Set<String> getCategories() {
-		return categories;
+	public List<DataSeries> getDataSeries() {
+		if (dataSeries == null)
+			return new ArrayList<DataSeries>();
+		return dataSeries;
 	}
 
-	public void setCategories(Set<String> categories) {
-		this.categories = categories;
+	public void setDataSeries(List<DataSeries> dataSeries) {
+		this.dataSeries = dataSeries;
 	}
 	
+	/**
+	 * Get a generic map of properties which may be associated with this plot or an empty Map if none set.
+	 * @param properties
+	 */
+	public Map<String, Object> getProperties() {
+		if (properties == null)
+			return new HashMap<String, Object>();
+		return properties;
+	}
+
+	/**
+	 * Set a generic map of properties which may be associated with this plot
+	 * @param properties
+	 */
+	@SuppressWarnings("unchecked")
+	public void setProperties(Map<String, ?> properties) {
+		this.properties = (Map<String,Object>) properties;
+	}
+	
+	/**
+	 * Add a property
+	 * @param key
+	 * @param value
+	 */
+	@JsonIgnore
+	public void addProperty(String key, Object value){
+		if (properties == null)
+			properties =  new HashMap<String, Object>();
+		properties.put(key, value);
+	}
+	
+	@JsonIgnore
+	public DataSeries getDataSeries(String name){
+		if (dataSeries == null)
+			return null;
+		for (DataSeries currentSeries : dataSeries)
+			if (currentSeries.getName().equals(name))
+				return currentSeries;
+		return null;
+	}
+	
+	@JsonIgnore
+	protected DataSeries getDataSeriesOrCreateNew(String name){
+		DataSeries data = this.getDataSeries(name);
+		if (data == null){
+			data = new DataSeries(name);
+			if (this.dataSeries == null)
+				this.dataSeries = new ArrayList<DataSeries>();
+			this.dataSeries.add(data);
+		}
+		return data;
+	}
 	
 	/**
 	 * sets parameters based on JSON input
 	 * @param <T>
-	 * @param JSON
+	 * @param json
 	 * @return
 	 * @throws JSONException
 	 */
 	@JsonIgnore
-	public static <T extends WaspChart> T getChart(String JSON, Class<T> clazz) throws JSONException{
+	public static <T extends WaspChart> T getChart(JSONObject json, Class<T> clazz) throws JSONException{
 		ObjectMapper mapper = new ObjectMapper();
 		try{
-			return mapper.readValue(JSON, clazz);
+			return mapper.readValue(json.toString(), clazz);
 		} catch(Exception e){
 			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json");
 		}
 	}
 	
 	@JsonIgnore
-	public String getAsJSON() throws JSONException {
+	public JSONObject getAsJSON() throws JSONException {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return mapper.writeValueAsString(this);
+			// use jackson object mapper to create json as text then wrap in JSONObject (Jackson understands @JsonIgnore)
+			return new JSONObject(mapper.writeValueAsString(this));
 		} catch (Exception e) {
 			throw new JSONException("Cannot convert object to JSON");
 		}
 	}
-	
-
-	
-
-
-	
 
 }
