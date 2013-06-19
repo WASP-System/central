@@ -1,6 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <div id="user_requested_coverage_data" >
+<c:if test="${totalNumberCellsRequested>0}">
     <h2 style="font-weight:bold">Lane Usage Requested:</h2>		
 	<table class="data">
 	<tr class="FormData">
@@ -23,8 +24,13 @@
 		</tr>
 	</c:forEach>
 	</table>
+</c:if>
+<c:if test="${totalNumberCellsRequested<=0}">
+ <h2 style="font-weight:bold">Lane Usage Requested: Unknown</h2>	
+</c:if>
 </div>
 
+<c:if test='${coverageMapOnly!="true"}'>
 <div>
 <c:if test="${not empty controlList}">
 	<h2 style="font-weight:bold">Sample Pairing Requested:</h2>		
@@ -66,5 +72,5 @@
 		</c:otherwise>
 	</c:choose>
 </div>
-
 <br />
+</c:if>

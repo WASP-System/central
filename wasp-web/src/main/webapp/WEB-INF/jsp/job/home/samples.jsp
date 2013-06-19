@@ -1,5 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/requests.do" />");' >View Lane Request</a><br />
+<sec:authorize access="hasRole('su') or hasRole('ft')">
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?coverageMapOnly=true" />");' >View Lane Request</a>
+<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/manipulateMultipleLibraries.do" />");' >Multiple Library Placement</a><br />
+</sec:authorize>
 <br />							
 <table class="data" style="margin: 0px 0px">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">

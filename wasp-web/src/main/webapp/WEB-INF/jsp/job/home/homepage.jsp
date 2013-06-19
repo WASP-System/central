@@ -10,6 +10,9 @@
 <div id="modalessDialog">
 	<iframe id="modalessIframeId" name="modalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
 </div>
+<div id="smallModalessDialog">
+	<iframe id="smallModalessIframeId" name="smallModalessIframeId"  style="overflow-x: scroll; overflow-y: scroll" height="800" width="99%"><p>iframes not supported</p></iframe>
+</div>
 
 <div id="tabs">	
   <ul>	 

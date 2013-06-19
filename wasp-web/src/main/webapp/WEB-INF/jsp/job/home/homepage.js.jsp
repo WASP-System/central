@@ -36,6 +36,14 @@ $(document).ready(function() {
         position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
     }); 
 	
+	$("#smallModalessDialog").dialog({
+        autoOpen: false,
+        modal: false,
+        height: 400,
+        width: 400,
+        position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
+    });
+	
 });
 
 
@@ -56,6 +64,10 @@ function showModalDialog(url){
 function showModalessDialog(url){
 	$("#modalessIframeId").attr("src", url);
 	$( "#modalessDialog" ).dialog("open");
+}
+function showSmallModalessDialog(url){
+	$("#smallModalessIframeId").attr("src", url);
+	$( "#smallModalessDialog" ).dialog("open");
 }
 function showPopupWindow(url) 
 {	

@@ -935,20 +935,31 @@ public class JobController extends WaspController {
   
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="coverageMapOnly", required=false) String coverageMapOnly,
+			  ModelMap m) throws SampleTypeException {
+		
+		if(coverageMapOnly==null){
+			coverageMapOnly="";
+		}
+		m.addAttribute("coverageMapOnly", coverageMapOnly);
 		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
 			waspErrorMessage("jobComment.job.error");
-			return "redirect:/dashboard.do";
+			return "redirect:/dashboard.do";//not a good idea if ajax call
 		}		
 		m.addAttribute("job", job);
-		m.addAttribute("parentArea", "job");
+		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
 		
 		//request for which libraries/samples should go on which lanes
 		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
 		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
 
+		if("true".equalsIgnoreCase(coverageMapOnly)){//just display coverageMap
+			return "job/home/requests";
+		}
+		
 		//samplePairingRequest
 		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 		List<Sample> controlList = new ArrayList<Sample>();
@@ -1176,6 +1187,29 @@ public class JobController extends WaspController {
 		  errorMessage = messageService.getMessage(e.getMessage());
 		}
 		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+	}
+
+	@RequestMapping(value="/{jobId}/manipulateMultipleLibraries", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String jobManipulateMultipleLibrariesPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
+			  @RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
+			  ModelMap m) throws SampleTypeException {						
+		
+		if(addLibrariesToPlatformUnitErrorMessage==null){
+			addLibrariesToPlatformUnitErrorMessage="";
+		}
+		m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
+		
+		if(addLibrariesToPlatformUnitSuccessMessage==null){
+			addLibrariesToPlatformUnitSuccessMessage="";
+		}
+		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
+			
+		Job job = jobService.getJobByJobId(jobId);
+		m.addAttribute("job", job);
+		
+		return "job/home/manipulateMultipleLibraries";
 	}
 	
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
