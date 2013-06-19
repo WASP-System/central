@@ -300,7 +300,12 @@ function postForm(formId, urlToPost) {//added 5-16-13
 	if(req.status == 404 || req.status == 500){
 		page = "Error! Unable to process form data. Please try again.";
 	}
+	else if(req.status == 599){//session expired; user defined 
+		document.location.href = '<c:url value="/auth/login.do" />';
+	}
 	document.getElementById("viewerFrame").innerHTML = page;
+	//document.location.href = "http://www.google.com"; //works  
+	
 	//document.getElementById("tab-1").innerHTML = page;
 	
 	/*FOR GET FOR TESTING
