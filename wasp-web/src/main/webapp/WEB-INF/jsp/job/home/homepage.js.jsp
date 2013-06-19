@@ -270,7 +270,7 @@ function postForm(formId, urlToPost) {//added 5-16-13
 	var arrayOfTextInputs = [];
 	
 	for(var i = 0; i < arrayOfInputs.length; i++ ){
-		if(arrayOfInputs[i].type == 'text'){
+		if(arrayOfInputs[i].type == 'text' || arrayOfInputs[i].type == 'hidden'){
 			arrayOfTextInputs.push(arrayOfInputs[i]);
 		}
 	}
@@ -342,7 +342,7 @@ function postFormWithoutMoving(formId, urlToPost) {//added 5-16-13
 	var arrayOfTextInputs = [];
 	
 	for(var i = 0; i < arrayOfInputs.length; i++ ){
-		if(arrayOfInputs[i].type == 'text'){
+		if(arrayOfInputs[i].type == 'text' || arrayOfInputs[i].type == 'hidden'){
 			arrayOfTextInputs.push(arrayOfInputs[i]);
 		}
 	}

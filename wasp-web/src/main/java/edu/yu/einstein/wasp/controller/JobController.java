@@ -1189,9 +1189,9 @@ public class JobController extends WaspController {
 		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
 	}
 
-	@RequestMapping(value="/{jobId}/manipulateMultipleLibraries", method=RequestMethod.GET)
+	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
-	  public String jobManipulateMultipleLibrariesPage(@PathVariable("jobId") Integer jobId, 
+	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
 			  @RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
 			  @RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
 			  ModelMap m) throws SampleTypeException {						
@@ -1209,8 +1209,31 @@ public class JobController extends WaspController {
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
 		
-		return "job/home/manipulateMultipleLibraries";
+		getSampleLibraryRunData(jobId, m);
+		
+		return "job/home/addLibrariesToCell";
 	}
+	
+	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft')")
+	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
+			  //@RequestParam("libraryId") List<Integer> libraryId, 
+			  @RequestParam("cellId") Integer cellId, 
+			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
+			  @RequestParam("libraryId") List<Integer> libraryIdList,
+			  ModelMap m) throws SampleTypeException {						
+	
+		System.out.println("---cellId="+cellId);
+		for(String s : libConcInCellPicoMAsStringList){
+			System.out.println("------"+s);
+		}
+		for(Integer integer : libraryIdList){
+			System.out.println("--------"+integer);
+		}
+		return "redirect:/job/"+jobId+"/addLibrariesToCell.do";//?errorMessage="+errorMessage+"&successMessage="+successMessage;
+	
+	}
+	
 	
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
@@ -1259,6 +1282,13 @@ public class JobController extends WaspController {
 			libraryIdAssociatedWithMessage = new Integer(-1);
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryIdAssociatedWithMessage);
+		
+		getSampleLibraryRunData(jobId, m);
+		
+		return "job/home/samples";
+	}
+
+	private void getSampleLibraryRunData(Integer jobId, ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
@@ -1513,9 +1543,8 @@ public class JobController extends WaspController {
 		  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
 		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);
 		  
-		return "job/home/samples";
+		
 	}
-
 	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/updateConcentration", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobUpdateConcentrationToCellPostPage(

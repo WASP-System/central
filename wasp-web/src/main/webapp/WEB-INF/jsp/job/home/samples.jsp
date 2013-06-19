@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?coverageMapOnly=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/manipulateMultipleLibraries.do" />");' >Multiple Library Placement</a><br />
+<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Multiple Library Placement</a><br />
 </sec:authorize>
 <br />							
 <table class="data" style="margin: 0px 0px">
@@ -150,6 +150,7 @@
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 											<tr>
 											<td>
+											<br />
 											<select style="font-size:x-small;" name="cellId" id="cellId_<c:out value="${library.getId()}" />" size="1" >
 											<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
 											<c:forEach items="${availableAndCompatiblePlatformUnitListOnForm}" var="platformUnitOnForm">

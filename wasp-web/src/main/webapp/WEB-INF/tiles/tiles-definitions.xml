@@ -258,8 +258,8 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
-	<definition name="job/home/manipulateMultipleLibraries" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/manipulateMultipleLibraries.jsp" />
+	<definition name="job/home/addLibrariesToCell" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
 	</definition>
 	
 	<definition name="job/home/sampledetail_ro" extends="template-unadorned-with-stylesheet">
