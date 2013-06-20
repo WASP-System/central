@@ -10,18 +10,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -29,10 +30,16 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 @Transactional("entityManager")
@@ -40,6 +47,9 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	@Autowired
 	private GridHostResolver hostResolver;
+	
+	@Autowired
+	private FileService fileService;
 	
 	/**
 	 * {@inheritDoc}
@@ -159,5 +169,28 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 		} 
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, FileGroup fileGroup) throws MetadataException{
+		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
+		for (String metaKeyName : JsonByKey.keySet())
+			fgMetahelper.setMetaValueByName(metaKeyName, JsonByKey.get(metaKeyName).toString());
+		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileGroup);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public  JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, FileGroup fileGroup) throws JSONException, MetadataException{
+		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
+		List<FileGroupMeta> fileGroupMeta = fileGroup.getFileGroupMeta();
+		if (fileGroupMeta == null)
+			fileGroupMeta = new ArrayList<FileGroupMeta>();
+		fgMetahelper.setMetaList(fileGroupMeta);
+		return new JSONObject(fgMetahelper.getMetaValueByName(key));
+	}
 
 }
