@@ -76,7 +76,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.name("workflowId")).click();
+    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
