@@ -1218,13 +1218,13 @@ public class JobController extends WaspController {
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
 			  @RequestParam("cellId") Integer cellId, 
-			  @RequestParam("libConcInCellPicoM") List<Float> libConcInCellPicoMAsFloatList,
+			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
 			  @RequestParam("libraryId") List<Integer> libraryIdList,
 			  ModelMap m) throws SampleTypeException {						
 	
 		System.out.println("---cellId="+cellId);
-		for(Float f : libConcInCellPicoMAsFloatList){
-			System.out.println("------"+f);
+		for(String s : libConcInCellPicoMAsStringList){
+			System.out.println("------"+s);
 		}
 		for(Integer integer : libraryIdList){
 			System.out.println("--------"+integer);
@@ -1232,7 +1232,7 @@ public class JobController extends WaspController {
 		String addLibrariesToPlatformUnitErrorMessage = "";
 		String addLibrariesToPlatformUnitSuccessMessage = "";
 		
-		if(libConcInCellPicoMAsFloatList.size()!=libraryIdList.size()){
+		if(libConcInCellPicoMAsStringList.size()!=libraryIdList.size()){
 			addLibrariesToPlatformUnitErrorMessage="Update Failed: Unexpected parameter mismatch";
 		}
 		
@@ -1250,33 +1250,43 @@ public class JobController extends WaspController {
 		int numLibrariesSuccessfullyAdded = 0;
 		int numLibrariesFailedAddedDueToSampleTypeOrAdaptorError = 0;
 		int numLibrariesFailedAddedDueToMultiplexError = 0;
+		int numLibrariesFailedAddedDueToParseFloatError = 0;
 		List<Sample> librariesThatFailedDueToMultiplexErrors = new ArrayList<Sample>();
+		List<Sample> librariesThatFailedDueToParseFloatErrors = new ArrayList<Sample>();
 		
 		if( "".equals(addLibrariesToPlatformUnitErrorMessage) ){
 			for(int i = 0; i < libraryIdList.size(); i++){
-				if(libConcInCellPicoMAsFloatList.get(i)!=null){
-					try{
-						  sampleService.addLibraryToCell(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryIdList.get(i)), libConcInCellPicoMAsFloatList.get(i), jobService.getJobByJobId(jobId));
-						  //addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
-						  numLibrariesSuccessfullyAdded++;
-					} catch(SampleTypeException ste){
-						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
-						logger.warn(ste.getMessage()); // print more detailed error to warn logs
-						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-					} catch(SampleMultiplexException sme){
-						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");//index already on cell
-						logger.warn(sme.getMessage()); // print more detailed error to debug logs
-						numLibrariesFailedAddedDueToMultiplexError++;
-						librariesThatFailedDueToMultiplexErrors.add(sampleService.getSampleById(libraryIdList.get(i)));
-					} catch(SampleException se){
-						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorNotFound.error");
-						logger.warn(se.getMessage()); // print more detailed error to warn logs
-						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-					} catch(MetadataException me){
-						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorBarcodeNotFound.error");
-						logger.warn(me.getMessage()); // print more detailed error to warn logs
-						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-					}
+				
+				if("".equals(libConcInCellPicoMAsStringList.get(i).trim())){
+					  continue;
+				}
+				
+				try{
+					  Float libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoMAsStringList.get(i).trim()));
+					  sampleService.addLibraryToCell(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryIdList.get(i)), libConcInCellPicoMFloat, jobService.getJobByJobId(jobId));
+					  //addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
+					  numLibrariesSuccessfullyAdded++;
+				} catch(SampleTypeException ste){
+					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
+					logger.warn(ste.getMessage()); // print more detailed error to warn logs
+					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+				} catch(SampleMultiplexException sme){
+					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");//index already on cell
+					logger.warn(sme.getMessage()); // print more detailed error to debug logs
+					numLibrariesFailedAddedDueToMultiplexError++;
+					librariesThatFailedDueToMultiplexErrors.add(sampleService.getSampleById(libraryIdList.get(i)));
+				} catch(SampleException se){
+					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorNotFound.error");
+					logger.warn(se.getMessage()); // print more detailed error to warn logs
+					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+				} catch(MetadataException me){
+					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorBarcodeNotFound.error");
+					logger.warn(me.getMessage()); // print more detailed error to warn logs
+					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+				} catch(NumberFormatException e){//libConcInCellPicoMAsStringList.get(i) didn't parse to float
+					logger.warn(e.getMessage());
+					numLibrariesFailedAddedDueToParseFloatError++;
+					librariesThatFailedDueToParseFloatErrors.add(sampleService.getSampleById(libraryIdList.get(i)));						
 				}
 			}
 		}
@@ -1298,6 +1308,17 @@ public class JobController extends WaspController {
 			}
 			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError>1){
 				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToSampleTypeOrAdaptorError + " Libraries Not Added Due To Unexpected SampleType or Adaptor Errors";
+			}
+		}
+		if(numLibrariesFailedAddedDueToParseFloatError >0){
+			if(numLibrariesFailedAddedDueToParseFloatError==1){
+				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Concentration Not Expressed As Number";
+			}
+			if(numLibrariesFailedAddedDueToParseFloatError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToParseFloatError + " Libraries Not Added Due To Concentration Not Expressed As Number";
+			}
+			for(Sample s : librariesThatFailedDueToParseFloatErrors){
+				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
 			}
 		}
 		
