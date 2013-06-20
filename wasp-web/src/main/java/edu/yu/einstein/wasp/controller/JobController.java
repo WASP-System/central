@@ -1221,7 +1221,7 @@ public class JobController extends WaspController {
 			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
 			  @RequestParam("libraryId") List<Integer> libraryIdList,
 			  ModelMap m) throws SampleTypeException {						
-	
+	/*
 		System.out.println("---cellId="+cellId);
 		for(String s : libConcInCellPicoMAsStringList){
 			System.out.println("------"+s);
@@ -1229,6 +1229,7 @@ public class JobController extends WaspController {
 		for(Integer integer : libraryIdList){
 			System.out.println("--------"+integer);
 		}
+	*/
 		String addLibrariesToPlatformUnitErrorMessage = "";
 		String addLibrariesToPlatformUnitSuccessMessage = "";
 		
