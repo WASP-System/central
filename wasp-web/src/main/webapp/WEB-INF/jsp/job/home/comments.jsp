@@ -7,12 +7,13 @@
 		<tr><td align="center" colspan="3">
 			<form  method='post' name='commentForm' id='commentForm' action="" onsubmit='postForm("commentForm","<c:url value="/job/${job.getId()}/comments.do" />"); return false;' >
 				<textarea id="comment" name="comment" cols="70" rows="4"></textarea><br />
+				<c:if test="${fn:length(errorMessage)>0}">
+					<span style="color:red;font-weight:bold;text-align:center"><c:out value="${errorMessage}" /></span>
+					<br />
+				</c:if>
 				<input type='submit' value='<fmt:message key="jobComment.submitNewComment.label" />'/>
 			</form>
 		</td></tr>
-		<c:if test="${fn:length(errorMessage)>0}">
-			<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
-		</c:if>
 	</c:if>
 	<c:if test='${fn:length(userSubmittedJobCommentsList) > 0}'>
 		<tr>

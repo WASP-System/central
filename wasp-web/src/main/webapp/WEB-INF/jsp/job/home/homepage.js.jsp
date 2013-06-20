@@ -208,10 +208,15 @@ function loadNewPage(thisAnchorObject, urlToDisplay) {
 
 	var req = new XMLHttpRequest();
 	req.open("GET", urlToDisplay, false);
+	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
 	req.send(null);
 	var page = req.responseText;
 	if(req.status == 404 || req.status == 500){
 		page = "Error! Unable to load data. Please try again.";
+	}
+	else if(req.status == 599){//session expired; user defined 
+		document.location.href = '<c:url value="/auth/login.do" />';
+		return;
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
 	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
@@ -242,11 +247,16 @@ function loadNewPageWithoutMoving(thisAnchorObject, urlToDisplay) {
 	
 	var req = new XMLHttpRequest();
 	req.open("GET", urlToDisplay, false);
+	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
 	req.send(null);
 	var page = req.responseText;
 	if(req.status == 404 || req.status == 500){
 		$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
 		page = "Error! Unable to load data. Please try again.";
+	}
+	else if(req.status == 599){//session expired; user defined 
+		document.location.href = '<c:url value="/auth/login.do" />';
+		return;
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
 	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
@@ -305,7 +315,8 @@ function postForm(formId, urlToPost) {//added 5-16-13
 
 	var req = new XMLHttpRequest();
 	req.open("POST", urlToPost, false);
-	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");	
+	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
 	//xmlhttp.send("fname=Henry&lname=Ford"); 
 	req.send(inputParameters);
 	var page = req.responseText;
@@ -314,6 +325,7 @@ function postForm(formId, urlToPost) {//added 5-16-13
 	}
 	else if(req.status == 599){//session expired; user defined 
 		document.location.href = '<c:url value="/auth/login.do" />';
+		return;
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
 	//document.location.href = "http://www.google.com"; //works  
@@ -375,14 +387,19 @@ function postFormWithoutMoving(formId, urlToPost) {//added 5-16-13
 
 	var req = new XMLHttpRequest();
 	req.open("POST", urlToPost, false);
-	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");	
+	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
 	//xmlhttp.send("fname=Henry&lname=Ford"); 
 	req.send(inputParameters);
 	var page = req.responseText;
 	if(req.status == 404 || req.status == 500){
 		page = "Error! Unable to process form data. Please try again.";
 	}
-	
+	else if(req.status == 599){//session expired; user defined 
+		document.location.href = '<c:url value="/auth/login.do" />';
+		return;
+	}
+
 	document.getElementById("viewerFrame").innerHTML = page;
 	//document.getElementById("tab-1").innerHTML = page;
 	
