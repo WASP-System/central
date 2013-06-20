@@ -64,10 +64,11 @@ public class JobEmailServiceActivator {
 	}
 	
 	@ServiceActivator
-	public void isSuccessfulRun(Message<WaspStatus> jobStatusMessage) {
+	public void handleJobStatusMessage(Message<WaspStatus> jobStatusMessage) {
 		
 		if (!JobStatusMessageTemplate.isMessageOfCorrectType(jobStatusMessage)){
 			logger.warn("Message is not of the correct type (a Job message). Check service activator and input channel are correct");
+			return;
 		}
 		
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
@@ -296,5 +297,5 @@ public class JobEmailServiceActivator {
 		}//end if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.COMPLETED) && job
 		
 		
-	}//end of method isSuccessfulRun(Message
+	}//end of method handleJobStatusMessage()
 }
