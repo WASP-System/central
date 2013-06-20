@@ -1217,21 +1217,97 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
-			  //@RequestParam("libraryId") List<Integer> libraryId, 
 			  @RequestParam("cellId") Integer cellId, 
-			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
+			  @RequestParam("libConcInCellPicoM") List<Float> libConcInCellPicoMAsFloatList,
 			  @RequestParam("libraryId") List<Integer> libraryIdList,
 			  ModelMap m) throws SampleTypeException {						
 	
 		System.out.println("---cellId="+cellId);
-		for(String s : libConcInCellPicoMAsStringList){
-			System.out.println("------"+s);
+		for(Float f : libConcInCellPicoMAsFloatList){
+			System.out.println("------"+f);
 		}
 		for(Integer integer : libraryIdList){
 			System.out.println("--------"+integer);
 		}
-		return "redirect:/job/"+jobId+"/addLibrariesToCell.do";//?errorMessage="+errorMessage+"&successMessage="+successMessage;
-	
+		String addLibrariesToPlatformUnitErrorMessage = "";
+		String addLibrariesToPlatformUnitSuccessMessage = "";
+		
+		if(libConcInCellPicoMAsFloatList.size()!=libraryIdList.size()){
+			addLibrariesToPlatformUnitErrorMessage="Update Failed: Unexpected parameter mismatch";
+		}
+		
+		if( "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+			// ensure platform unit is available
+			try{
+				Sample platformUnit = sampleService.getPlatformUnitForCell(sampleService.getSampleById(cellId));
+				if( ! sampleService.getAvailableAndCompatiblePlatformUnits(jobService.getJobByJobId(jobId)).contains(platformUnit) ){
+					addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.flowcellStateError.error");
+				}
+			}catch(Exception e){
+				addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.flowcellNotFoundNotUnique.error");
+			}
+		}		
+		int numLibrariesSuccessfullyAdded = 0;
+		int numLibrariesFailedAddedDueToSampleTypeOrAdaptorError = 0;
+		int numLibrariesFailedAddedDueToMultiplexError = 0;
+		List<Sample> librariesThatFailedDueToMultiplexErrors = new ArrayList<Sample>();
+		
+		if( "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+			for(int i = 0; i < libraryIdList.size(); i++){
+				if(libConcInCellPicoMAsFloatList.get(i)!=null){
+					try{
+						  sampleService.addLibraryToCell(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryIdList.get(i)), libConcInCellPicoMAsFloatList.get(i), jobService.getJobByJobId(jobId));
+						  //addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
+						  numLibrariesSuccessfullyAdded++;
+					} catch(SampleTypeException ste){
+						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
+						logger.warn(ste.getMessage()); // print more detailed error to warn logs
+						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+					} catch(SampleMultiplexException sme){
+						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");//index already on cell
+						logger.warn(sme.getMessage()); // print more detailed error to debug logs
+						numLibrariesFailedAddedDueToMultiplexError++;
+						librariesThatFailedDueToMultiplexErrors.add(sampleService.getSampleById(libraryIdList.get(i)));
+					} catch(SampleException se){
+						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorNotFound.error");
+						logger.warn(se.getMessage()); // print more detailed error to warn logs
+						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+					} catch(MetadataException me){
+						//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorBarcodeNotFound.error");
+						logger.warn(me.getMessage()); // print more detailed error to warn logs
+						numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
+					}
+				}
+			}
+		}
+		
+		if(numLibrariesFailedAddedDueToMultiplexError>0){
+			if(numLibrariesFailedAddedDueToMultiplexError==1){
+				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Indexing Conflicts:";
+			}
+			if(numLibrariesFailedAddedDueToMultiplexError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToMultiplexError + " Libraries Not Added Due To Indexing Conflicts:";
+			}
+			for(Sample s : librariesThatFailedDueToMultiplexErrors){
+				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
+			}
+		}
+		if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError >0){
+			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError==1){
+				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Unexpected SampleType or Adaptor Errors";
+			}
+			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToSampleTypeOrAdaptorError + " Libraries Not Added Due To Unexpected SampleType or Adaptor Errors";
+			}
+		}
+		
+		if( numLibrariesSuccessfullyAdded == 1 ){
+			addLibrariesToPlatformUnitSuccessMessage = "One Library Successfully Added";
+		}
+		else if( numLibrariesSuccessfullyAdded > 1 ){
+			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " Libraries Successfully Added";
+		}
+		return "redirect:/job/"+jobId+"/addLibrariesToCell.do?addLibrariesToPlatformUnitErrorMessage="+addLibrariesToPlatformUnitErrorMessage+"&addLibrariesToPlatformUnitSuccessMessage="+addLibrariesToPlatformUnitSuccessMessage;
 	}
 	
 	
@@ -1368,9 +1444,14 @@ public class JobController extends WaspController {
 		  }
 		  
 		  //for each job's library, get its adaptor info and determine whether the library should be assigned to a platformUnit
+		  int numberOfLibrariesAwaitingPlatformUnitPlacement = 0;
 		  for(Sample library : allJobLibraries){
 			  
-			  assignLibraryToPlatformUnitStatusMap.put(library, sampleService.isLibraryAwaitingPlatformUnitPlacement(library));
+			  boolean b = sampleService.isLibraryAwaitingPlatformUnitPlacement(library);
+			  if(b==true){
+				  numberOfLibrariesAwaitingPlatformUnitPlacement++;
+			  }
+			  assignLibraryToPlatformUnitStatusMap.put(library, b);
 
 			  Adaptor adaptor;
 			  try{ 
@@ -1472,7 +1553,8 @@ public class JobController extends WaspController {
 		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
 		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
 		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
-
+		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
+		  
 		  m.addAttribute("libraryCellListMap", libraryCellListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
 		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web

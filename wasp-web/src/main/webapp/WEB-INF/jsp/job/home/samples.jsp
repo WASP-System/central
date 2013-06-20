@@ -1,7 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?coverageMapOnly=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Multiple Library Placement</a><br />
+<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}">
+	<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Multiple Library Placement</a><br />
+</c:if>
 </sec:authorize>
 <br />							
 <table class="data" style="margin: 0px 0px">

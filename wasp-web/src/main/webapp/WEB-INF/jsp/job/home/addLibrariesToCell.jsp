@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?coverageMapOnly=true" />");' >View Lane Request</a>
 <a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
 <br />
 
@@ -60,6 +61,12 @@
 		<tr >
 			<td colspan="3" style="text-align:center; white-space:nowrap;" >
 			<br />
+			<c:if test="${fn:length(addLibrariesToPlatformUnitSuccessMessage)>0}">				
+				<span style="color:green;font-weight:bold"><c:out value="${addLibrariesToPlatformUnitSuccessMessage}" /></span>	<br /><br />			
+			</c:if>
+			<c:if test="${fn:length(addLibrariesToPlatformUnitErrorMessage)>0}">				
+				<span style="color:red;font-weight:bold"><c:out value="${addLibrariesToPlatformUnitErrorMessage}" escapeXml="false" /></span><br /><br />
+			</c:if>	
 			<select style="font-size:x-small;" name="cellId" id="cellId" size="1" >
 			<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
 			<c:forEach items="${availableAndCompatiblePlatformUnitListOnForm}" var="platformUnitOnForm">
