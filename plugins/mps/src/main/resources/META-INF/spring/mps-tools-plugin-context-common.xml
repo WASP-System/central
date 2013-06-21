@@ -41,6 +41,80 @@
 		<property name="picard" ref="picard" />
 	</bean>
 	
+	<bean id="waspFastqPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.fastq</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="waspFastqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>fastq</value>
+		</constructor-arg>
+	</bean>
+	
+		
+	<bean id="waspBamPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.bam</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="waspBamPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>bam</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="waspBaiPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.bai</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="waspBaiPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>bai</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with these plugins. -->
+	<int:channel id="wasp.channel.plugin.wasp-fastq" />
+	<int:channel id="wasp.channel.plugin.wasp-bam" />
+	
+	<bean id="wasp-fastq.WaspPluginBean" class="edu.yu.einstein.wasp.fileformat.plugin.WaspFastqPlugin">
+		<constructor-arg name="pluginName" ref="waspFastqPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-fastq" />
+		<property name="handles">
+			<set>
+				<ref bean="waspFastqPluginArea" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="wasp-bam.WaspPluginBean" class="edu.yu.einstein.wasp.fileformat.plugin.WaspBamPlugin">
+		<constructor-arg name="pluginName" ref="waspBamPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-bam" />
+		<property name="handles">
+			<set>
+				<ref bean="waspBamPluginArea" />
+			</set>
+		</property>
+	</bean>
+	
+	<bean id="wasp-bai.WaspPluginBean" class="edu.yu.einstein.wasp.fileformat.plugin.WaspBaiPlugin">
+		<constructor-arg name="pluginName" ref="waspBaiPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-bam" /> <!-- use same channel as .bam files -->
+		<property name="handles">
+			<set>
+				<ref bean="waspBaiPluginArea" />
+			</set>
+		</property>
+	</bean>
+	
 	
 
 </beans>
