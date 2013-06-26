@@ -41,22 +41,22 @@ public abstract class HighChartsJsBase {
 	}
 	
 	protected static String getBasicXAxisCode(String title){
-		return getBasicAxisCode("xAxis", title, null);
+		return getBasicAxisCode("xAxis", title, null, null);
 	}
 	
-	protected static String getBasicXAxisCode(String title, List<String> categories){
-		return getBasicAxisCode("xAxis", title, categories);
+	protected static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval){
+		return getBasicAxisCode("xAxis", title, categories, tickInterval);
 	}
 	
 	protected static String getBasicYAxisCode(String title){
-		return getBasicAxisCode("yAxis", title, null);
+		return getBasicAxisCode("yAxis", title, null, null);
 	}
 	
-	protected static String getBasicYAxisCode(String title, List<String> categories){
-		return getBasicAxisCode("yAxis", title, categories);
+	protected static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval){
+		return getBasicAxisCode("yAxis", title, categories, tickInterval);
 	}
 	
-	protected static String getBasicAxisCode(String axis, String title, List<String> categories){
+	protected static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval){
 		StringBuilder sb = new StringBuilder();
 		if (categories != null && !categories.isEmpty()){
 			sb.append(axis + ": { categories: [");
@@ -70,8 +70,10 @@ public abstract class HighChartsJsBase {
 			}
 			sb.append("],\n");
 		}
-		
-		sb.append("title: { text: '" + title + "' } },\n");
+		if (tickInterval != null)
+			sb.append("tickInterval: " + tickInterval + ",\n");
+		sb.append("title: { text: '" + title + "' }\n");
+		sb.append("},\n");
 		return sb.toString();
 	}
 	

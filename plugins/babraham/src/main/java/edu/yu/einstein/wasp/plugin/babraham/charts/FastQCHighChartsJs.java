@@ -13,9 +13,9 @@ import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
  */
 public class FastQCHighChartsJs extends HighChartsJsBase {
 
-	private static final String RED = "#FA8258";
-	private static final String YELLOW = "#F3F781";
-	private static final String GREEN = "#C8FE2E";
+	private static final String RED = "#F6CECE";
+	private static final String YELLOW = "#F5ECCE";
+	private static final String GREEN = "#CEF6CE";
 	private static final String BLUE = "#0101DF";
 
 	
@@ -26,13 +26,13 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		sb.append(getScriptIncludes());
 		sb.append(getContainerStartCode(ChartType.BOXPLOT, waspBoxPlot.getTitle(), null, waspBoxPlot.getLegend()));
 		
-		sb.append(getBasicXAxisCode(waspBoxPlot.getxAxisLabel(), boxPlotDS.getRowLabels()));
+		sb.append(getBasicXAxisCode(waspBoxPlot.getxAxisLabel(), boxPlotDS.getRowLabels(), 5));
 		
 		sb.append("yAxis: { title: { text: '" + waspBoxPlot.getyAxisLabel() + "' },\n ");
 		sb.append("plotBands: ["); 
 		sb.append("{ color: '" + RED + "', from: 0, to: 20 },");
 		sb.append("{ color: '" + YELLOW + "', from: 20, to: 28 },");
-		sb.append("{ color: '" + GREEN + "', from: 28, to: 50 }");
+		sb.append("{ color: '" + GREEN + "', from: 28, to: 100 }");
 		sb.append("]},\n");
 		
 		sb.append("series: [{ name: '" + boxPlotDS.getName() + "', data: [\n");
