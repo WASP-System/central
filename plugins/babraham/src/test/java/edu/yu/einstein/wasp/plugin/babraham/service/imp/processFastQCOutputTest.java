@@ -15,9 +15,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.charts.WaspBoxPlot;
+import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
+import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCHighChartsJs;
 import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
@@ -35,16 +37,42 @@ public class processFastQCOutputTest {
 		Assert.assertNotNull(mockBabrahamServiceImpl);
 	}
 	
-	@Test (groups = "unit-tests")
-	public void processFastQCOutputTest() {
+	private Map<String, FastQCDataModule> getModuleList(){
 		BabrahamServiceImpl babrahamServiceImpl = new BabrahamServiceImpl();
 		InputStream in = this.getClass().getResourceAsStream("/fastqc_data.txt");
-		Map<String, FastQCDataModule> moduleList = null;
 		try {
-			moduleList = babrahamServiceImpl.processFastQCOutput(in);
+			return babrahamServiceImpl.processFastQCOutput(in);
 		} catch (FastQCDataParseException e) {
 			logger.warn(e.getLocalizedMessage());
 		}
+		return null;
+	}
+	
+	private JSONObject getJSONForPerBaseQuality(Map<String, FastQCDataModule> moduleList){
+		GridResult result = new GridResultImpl();
+		
+		try {
+			PowerMockito.when(mockBabrahamServiceImpl.parseFastQCOutput(result)).thenReturn(moduleList);
+		} catch (FastQCDataParseException e) {
+			logger.warn(e.getLocalizedMessage());
+			return null;
+		}
+		
+		FastQC fastQC = new FastQC();
+		ReflectionTestUtils.setField(fastQC, "babrahamService", mockBabrahamServiceImpl);
+		Map<String, JSONObject> output = null;
+		try {
+			output = fastQC.parseOutput(result);
+		} catch (Exception e) {
+			logger.warn(e.getLocalizedMessage());
+			return null;
+		}
+		return output.get(FastQC.PlotType.PER_BASE_QUALITY);
+	}
+	
+	@Test (groups = "unit-tests")
+	public void processFastQCOutputTest() {
+		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
 		
 		for (String key : moduleList.keySet()){
@@ -74,29 +102,24 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
-	public void parseOutputTest() throws FastQCDataParseException, GridException, JSONException {
-		BabrahamServiceImpl babrahamServiceImpl = new BabrahamServiceImpl();
-		InputStream in = this.getClass().getResourceAsStream("/fastqc_data.txt");
-		Map<String, FastQCDataModule> moduleList = null;
-		try {
-			moduleList = babrahamServiceImpl.processFastQCOutput(in);
-		} catch (FastQCDataParseException e) {
-			logger.warn(e.getLocalizedMessage());
-		}
+	public void parseOutputTest() throws JSONException {
+		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
-		
-		GridResult result = new GridResultImpl();
-		
-		PowerMockito.when(mockBabrahamServiceImpl.parseFastQCOutput(result)).thenReturn(moduleList);
-		
-		FastQC fastQC = new FastQC();
-		ReflectionTestUtils.setField(fastQC, "babrahamService", mockBabrahamServiceImpl);
-		Map<String,JSONObject> output = fastQC.parseOutput(result);
-		JSONObject jsonObject =  output.get(FastQC.PlotType.PER_BASE_QUALITY);
+		JSONObject jsonObject = getJSONForPerBaseQuality(moduleList);
+		Assert.assertNotNull(jsonObject);
 		logger.debug(jsonObject.toString());
 		Assert.assertEquals(jsonObject.getJSONArray("dataSeries").length(), 2);
 		Assert.assertEquals(jsonObject.getJSONObject("properties").getString("result"), "pass");
-		
-		
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerBaseSeqQualityPlotHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForPerBaseQuality(moduleList);
+		Assert.assertNotNull(jsonObject);
+		WaspBoxPlot bp = WaspChart.getChart(jsonObject, WaspBoxPlot.class);
+		String html = FastQCHighChartsJs.getPerBaseSeqQualityPlotHtml(bp);
+		logger.debug(html);
 	}
 }
