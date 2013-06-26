@@ -52,7 +52,7 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 			sb.append("\n");
 		}
 		sb.append("]},\n");
-		sb.append("{ name: '" + meanDS.getName() + "', type: 'spline', color: '" + BLUE + "', data: [\n");
+		sb.append("{ name: '" + meanDS.getName() + "', type: 'spline', color: '" + BLUE + "', marker: { enabled: false }, data: [\n");
 		for (int i=0; i< meanDS.getRowCount(); i++){
 			sb.append("[");
 			boolean isFirst = true;
