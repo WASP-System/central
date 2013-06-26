@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.util;
 
+
 import java.io.File;
 
 import junit.framework.Assert;
@@ -13,8 +14,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Reporter;
-import org.testng.annotations.Parameters;
-
 import edu.yu.einstein.wasp.integration.selenium.SelBaseTest;
 
 /**
@@ -22,7 +21,7 @@ import edu.yu.einstein.wasp.integration.selenium.SelBaseTest;
  * @author nvolnova
  *
  */
-public class SeleniumHelper {
+public class SeleniumHelper extends SelBaseTest{
 	
 	private static final Logger logger = LoggerFactory.getLogger(SeleniumHelper.class);
 	
@@ -31,7 +30,7 @@ public class SeleniumHelper {
 	* @param value
 	* @return boolean
 	*/
-	public static boolean verifyTextPresent(String value, WebDriver driver) {
+	public static boolean verifyTextPresent(String value) {
 	
 		CharSequence csValue = value;
 		
@@ -99,27 +98,27 @@ public class SeleniumHelper {
 	   * @param sUserPass
 	   * @param driver
 	   */
-	  public static void login(String sUserName, String sUserPass, WebDriver driver) {
-		driver.get("http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do");//test environment
-		Assert.assertEquals("http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do", "http://"+SelBaseTest.baseUrl+"/wasp/auth/login.do");
-		WebElement userName = driver.findElement(By.name("j_username"));
-	  	WebElement userPassword = driver.findElement(By.name("j_password"));
-	  	userName.clear();
-	  	userPassword.clear();
-	  	userName.sendKeys(sUserName);
-	  	userPassword.sendKeys(sUserPass);
-	  	
-	  	WebElement submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
-	  	if(submitLogin !=null){
-	  		submitLogin.click();
-	  		
-	  	}
-	  	else {
-	  		Reporter.log("Element: " +submitLogin+ ", is not available on page - "
+	  public static void login(String sUserName, String sUserPass) {
+		  driver.get("http://"+baseUrl+"/wasp");
+	  	  if (SeleniumHelper.verifyTextPresent("Logout")) {
+	  			driver.findElement(By.linkText("Logout")).click();
+	  	  } 
+		  WebElement userName = driver.findElement(By.name("j_username"));
+	      WebElement userPassword = driver.findElement(By.name("j_password"));
+	      userName.clear();
+	      userPassword.clear();
+	      userName.sendKeys(sUserName);
+	      userPassword.sendKeys(sUserPass);
+	    		  	
+	  	  WebElement submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
+	  	  if(submitLogin !=null){
+	  		  submitLogin.click();  		
+	  	  }
+	  	  else {
+	  		  Reporter.log("Element: " +submitLogin+ ", is not available on page - "
 	                  + driver.getCurrentUrl());
-	  	}
-	
-		  
+	  	  }
+		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
 	  }
 	  
 	  public static boolean isElementPresent(WebDriver driver, String xpathLocator, Boolean displayCustomMessage, String customMessage) {

@@ -87,10 +87,10 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.name("password2")).sendKeys(pwd);
 		driver.findElement(By.name("locale")).sendKeys(locale);
 		driver.findElement(By.id("labName")).sendKeys(sLab);
-		pause(2000);
+		pause(3000);
 		driver.findElement(By.id("title")).sendKeys(title);
 		driver.findElement(By.id("institution")).sendKeys(sInst);
-		pause(2000);
+		pause(3000);
 		driver.findElement(By.id("departmentId")).sendKeys(sDept);
 		driver.findElement(By.id("building_room")).sendKeys(building_room);
 		driver.findElement(By.id("address")).sendKeys(address);
@@ -101,7 +101,6 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("phone")).sendKeys(sPhone);
 		driver.findElement(By.id("fax")).sendKeys(sFax);
 		
-		pause(4000);
 		//Submit New PI Form
     	Assert.assertTrue(driver.findElements(By.xpath("//input[@type='submit']")).size() != 0, "Cannot locate Apply for Account submit button");
 		driver.findElement(By.xpath("//input[@type='submit']")).click();

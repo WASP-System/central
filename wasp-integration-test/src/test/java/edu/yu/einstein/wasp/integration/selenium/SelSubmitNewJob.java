@@ -42,21 +42,8 @@ public class SelSubmitNewJob extends SelBaseTest{
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
     	
-  		driver.get("http://"+baseUrl+"/wasp");
-  		if (SeleniumHelper.verifyTextPresent("Logout", driver)) {
-  			driver.findElement(By.linkText("Logout")).click();
-  		}
-  	    
-	   	WebElement userName = driver.findElement(By.name("j_username"));
-    	WebElement userPassword = driver.findElement(By.name("j_password"));
-    	userName.clear();
-    	userPassword.clear();
-    	userName.sendKeys(sUserName);
-    	userPassword.sendKeys(sUserPass);
-    	
-		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")), "'Submit' button does not exist");
-		driver.findElement(By.xpath("//input[@type='submit']")).click();
-    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
+  		SeleniumHelper.login(sUserName, sUserPass);
+  		
     	/* Does not work. Possible firefox webdriver bug.
     	Assert.assertNotNull(driver.findElement(By.linkText("Jobs")), "Unable to locate 'Jobs' menu link.");
     	
@@ -126,7 +113,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Save']")).click();
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Select Genome", driver), "Cannot find 'Create A Job -- Select Genome' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Select Genome"), "Cannot find 'Create A Job -- Select Genome' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
 
     	
@@ -155,13 +142,13 @@ public class SelSubmitNewJob extends SelBaseTest{
     	select.selectByIndex(1); 
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Add A Comment", driver), "Cannot find 'Add A Comment' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Add A Comment"), "Cannot find 'Add A Comment' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Verify New Job", driver), "Cannot find 'Verify New Job' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Verify New Job"), "Cannot find 'Verify New Job' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Submit Job']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Job Successfully Submitted", driver), "Job submission did not go through. Check that wasp-daemon application is running.");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Job Successfully Submitted"), "Job submission did not go through. Check that wasp-daemon application is running.");
     	
     }
   	
