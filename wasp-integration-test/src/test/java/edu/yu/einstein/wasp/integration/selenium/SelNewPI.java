@@ -97,6 +97,7 @@ public class SelNewPI extends SelBaseTest {
 		driver.findElement(By.id("city")).sendKeys(sCity);
 		driver.findElement(By.id("state")).sendKeys(sState);
 		driver.findElement(By.id("country")).sendKeys(sCountry);
+		pause(3000);
 		driver.findElement(By.id("zip")).sendKeys(sZip);
 		driver.findElement(By.id("phone")).sendKeys(sPhone);
 		driver.findElement(By.id("fax")).sendKeys(sFax);
