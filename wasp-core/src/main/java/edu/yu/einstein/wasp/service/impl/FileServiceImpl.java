@@ -53,6 +53,7 @@ import org.springframework.web.multipart.MultipartFile;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.dao.FileGroupDao;
+import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.dao.FileHandleDao;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.dao.JobDao;
@@ -63,6 +64,7 @@ import edu.yu.einstein.wasp.dao.SampleDao;
 import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
+import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -76,6 +78,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
@@ -121,6 +124,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Autowired
 	private FileGroupDao fileGroupDao;
+	
+	@Autowired
+	private FileGroupMetaDao fileGroupMetaDao;
 
 	@Autowired
 	private GridHostResolver hostResolver;
@@ -1473,5 +1479,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	}
 
-
+	@Override
+	public List<FileGroupMeta> saveFileGroupMeta(List<FileGroupMeta> metaList, FileGroup filegroup) throws MetadataException{
+		Assert.assertParameterNotNull(metaList, "a list of metadata is required");
+		Assert.assertParameterNotNull(filegroup, "a filegroup is required");
+		Assert.assertParameterNotNull(filegroup.getId(), "filegroup must have an id");
+		return fileGroupMetaDao.setMeta(metaList, filegroup.getId());
+	}
+	
 }

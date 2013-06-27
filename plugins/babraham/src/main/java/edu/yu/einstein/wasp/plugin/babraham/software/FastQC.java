@@ -7,10 +7,8 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +115,7 @@ public class FastQC extends SoftwarePackage {
 		w.setMemoryRequirements(1);
 		
 		// require a single thread, execution mode PROCESS
-		// indicates this is a vanilla exectuion.
+		// indicates this is a vanilla execution.
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMode(ExecutionMode.PROCESS);
 		
@@ -227,7 +225,9 @@ public class FastQC extends SoftwarePackage {
 					);
 				boxPlot.addRunningMeanValue(row.get(0), Double.valueOf(row.get(1)));
 			} catch (NumberFormatException e){
-				throw new FastQCDataParseException("Caught NFE attempting to convert string values to Double");
+				throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			} catch (NullPointerException e){
+				throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
 			}
 			output.put(PlotType.PER_BASE_QUALITY, boxPlot.getAsJSON());
 		}
