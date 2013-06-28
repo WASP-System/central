@@ -1,6 +1,12 @@
 package edu.yu.einstein.wasp.charts.highchartsjs;
 
 import java.util.List;
+import java.util.UUID;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+
+import edu.yu.einstein.wasp.charts.DataSeries;
 
 /**
  * Base Class for producing HighChartsJs charts (www.highcharts.com)
@@ -27,7 +33,9 @@ public abstract class HighChartsJsBase {
 	
 	protected static String getContainerStartCode(String chartType, String title, String subTitle, String legend){
 		StringBuilder sb = new StringBuilder();
-		sb.append("$(function () {\n$('#container').highcharts({\n");
+		String id = "highChartContainer_" + UUID.randomUUID().toString();
+		sb.append("<div id='" + id + "' style='height: 400px; margin: auto; min-width: 400px; max-width: 600px'></div>\n<script>\n");
+		sb.append("$(function () {\n$('#" + id + "').highcharts({\n");
 		sb.append("chart: { type: '" + chartType +"' },\n");
 		if (title != null && !title.isEmpty())
 			sb.append("title: { text: '" + title + "' },\n");
@@ -78,7 +86,17 @@ public abstract class HighChartsJsBase {
 	}
 	
 	protected static String getContainerEndCode(){
-		return "\n});\n});";
+		return "\n});\n});\n</script>";
+	}
+	
+	protected static String getDataSeriesAsJsonArray(DataSeries ds) throws JSONException{
+		List<List<Object>> data = ds.getData();
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return " data: " + mapper.writeValueAsString(data);
+		} catch (Exception e) {
+			throw new JSONException("Cannot convert object to JSON");
+		}
 	}
 
 }

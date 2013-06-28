@@ -66,10 +66,6 @@ public class Panel implements ViewPanel{
 		return title;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -82,10 +78,6 @@ public class Panel implements ViewPanel{
 		return description;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -98,10 +90,6 @@ public class Panel implements ViewPanel{
 		return width;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setWidth(Integer width) {
 		this.width = width;
 	}
@@ -114,10 +102,6 @@ public class Panel implements ViewPanel{
 		return height;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setHeight(Integer height) {
 		this.height = height;
 	}
@@ -130,10 +114,6 @@ public class Panel implements ViewPanel{
 		return order;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setOrder(Integer order) {
 		this.order = order;
 	}
@@ -146,10 +126,6 @@ public class Panel implements ViewPanel{
 		return htmlContent;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setContent(Object content) {
 		this.htmlContent = (String) content;
 	}
@@ -162,10 +138,6 @@ public class Panel implements ViewPanel{
 		return isResizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setResizable(boolean isResizable) {
 		this.isResizable = isResizable;
 	}
@@ -178,10 +150,6 @@ public class Panel implements ViewPanel{
 		return isMaximizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setMaximizable(boolean isMaximizable) {
 		this.isMaximizable = isMaximizable;
 	}
@@ -194,10 +162,6 @@ public class Panel implements ViewPanel{
 		return isCloseable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
 	}
