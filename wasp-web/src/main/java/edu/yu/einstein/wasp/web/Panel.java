@@ -1,5 +1,9 @@
 package edu.yu.einstein.wasp.web;
 
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 
 /**
@@ -15,6 +19,10 @@ public class Panel implements ViewPanel{
 	private String description = "";
 	
 	private String htmlContent = "";
+	
+	private Set<URL> scriptDependencies = new HashSet<URL>();
+	
+	private Set<URL> cssDependencies = new HashSet<URL>();
 	
 	private Integer width;
 	
@@ -164,6 +172,30 @@ public class Panel implements ViewPanel{
 
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
+	}
+	
+	public void setScriptDependencies(Set<URL> dependencies){
+		this.scriptDependencies = dependencies;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<URL> getScriptDependencies() {
+		return scriptDependencies;
+	}
+	
+	public void setCssDependencies(Set<URL> dependencies){
+		this.cssDependencies = dependencies;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<URL> getCssDependencies() {
+		return cssDependencies;
 	}
 
 }

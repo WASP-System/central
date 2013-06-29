@@ -24,9 +24,7 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		DataSeries meanDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.RUNNING_MEAN);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append(getScriptIncludes());
 		sb.append(getContainerStartCode(ChartType.BOXPLOT, waspBoxPlot.getTitle(), null, waspBoxPlot.getLegend()));
-		
 		sb.append(getBasicXAxisCode(waspBoxPlot.getxAxisLabel(), boxPlotDS.getRowLabels(), 5));
 		sb.append("plotOptions: { series: { groupPadding: 0} },\n");
 		sb.append("yAxis: { title: { text: '" + waspBoxPlot.getyAxisLabel() + "' },\n ");
@@ -44,6 +42,4 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		sb.append(getContainerEndCode());
 		return sb.toString();
 	}
-
-
 }

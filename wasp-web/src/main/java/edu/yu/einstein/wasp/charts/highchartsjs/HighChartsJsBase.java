@@ -1,10 +1,16 @@
 package edu.yu.einstein.wasp.charts.highchartsjs;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 
@@ -15,23 +21,30 @@ import edu.yu.einstein.wasp.charts.DataSeries;
  */
 public abstract class HighChartsJsBase {
 	
+	public static Logger logger = LoggerFactory.getLogger(HighChartsJsBase.class);
+	
 	public static class ChartType{
 		public static final String BOXPLOT="boxplot";
 	}
 	
-	protected static String getScriptIncludes() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<script src='http://code.highcharts.com/highcharts.js'></script>\n");
-		sb.append("<script src='http://code.highcharts.com/highcharts-more.js'></script>\n");
-		sb.append("<script src='http://code.highcharts.com/modules/exporting.js'></script>\n");
-		return sb.toString();
+	public static Set<URL> getScriptDependencies() {
+		Set<URL> dependencies =  new HashSet<URL>();
+		try {
+			dependencies.add(new URL("http://code.highcharts.com/highcharts.js"));
+			dependencies.add(new URL("http://code.highcharts.com/highcharts-more.js"));
+			dependencies.add(new URL("http://code.highcharts.com/modules/exporting.js"));
+		} catch (MalformedURLException e) {
+			logger.warn(e.getLocalizedMessage());
+		}
+		
+		return dependencies;
 	}
 	
-	protected static String getContainerStartCode(String chartType, String title){
+	public static String getContainerStartCode(String chartType, String title){
 		return getContainerStartCode(chartType, title, null, null);
 	}
 	
-	protected static String getContainerStartCode(String chartType, String title, String subTitle, String legend){
+	public static String getContainerStartCode(String chartType, String title, String subTitle, String legend){
 		StringBuilder sb = new StringBuilder();
 		String id = "highChartContainer_" + UUID.randomUUID().toString();
 		sb.append("<div id='" + id + "' style='height: 400px; margin: auto; min-width: 400px; max-width: 600px'></div>\n<script>\n");
@@ -48,23 +61,23 @@ public abstract class HighChartsJsBase {
 		return sb.toString();
 	}
 	
-	protected static String getBasicXAxisCode(String title){
+	public static String getBasicXAxisCode(String title){
 		return getBasicAxisCode("xAxis", title, null, null);
 	}
 	
-	protected static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval){
+	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval){
 		return getBasicAxisCode("xAxis", title, categories, tickInterval);
 	}
 	
-	protected static String getBasicYAxisCode(String title){
+	public static String getBasicYAxisCode(String title){
 		return getBasicAxisCode("yAxis", title, null, null);
 	}
 	
-	protected static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval){
+	public static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval){
 		return getBasicAxisCode("yAxis", title, categories, tickInterval);
 	}
 	
-	protected static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval){
+	public static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval){
 		StringBuilder sb = new StringBuilder();
 		if (categories != null && !categories.isEmpty()){
 			sb.append(axis + ": { categories: [");
@@ -85,11 +98,11 @@ public abstract class HighChartsJsBase {
 		return sb.toString();
 	}
 	
-	protected static String getContainerEndCode(){
+	public static String getContainerEndCode(){
 		return "\n});\n});\n</script>";
 	}
 	
-	protected static String getDataSeriesAsJsonArray(DataSeries ds) throws JSONException{
+	public static String getDataSeriesAsJsonArray(DataSeries ds) throws JSONException{
 		List<List<Object>> data = ds.getData();
 		ObjectMapper mapper = new ObjectMapper();
 		try {
