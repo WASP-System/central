@@ -59,7 +59,7 @@ public class SelAddNewUser extends SelBaseTest {
     	
   	    driver.get("http://"+baseUrl+"/wasp");
 
-  		Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User", driver), true);
+  		Assert.assertEquals(SeleniumHelper.verifyTextPresent("New User"), true);
 		driver.findElement(By.linkText("New User")).click();
 		driver.findElement(By.id("login")).sendKeys(sLogin);
 		driver.findElement(By.id("firstName")).sendKeys(fName);
@@ -84,9 +84,7 @@ public class SelAddNewUser extends SelBaseTest {
 		
 		
 		
-		driver.findElement(By.name("captcha")).sendKeys("");
-		pause(30000);
-		
+		driver.findElement(By.name("captcha")).sendKeys("");		
     	submitLogin = driver.findElement(By.xpath("//input[@type='submit']"));
     	if(submitLogin !=null){
     		submitLogin.click();
