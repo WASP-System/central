@@ -48,7 +48,7 @@ public class processFastQCOutputTest {
 		return null;
 	}
 	
-	private JSONObject getJSONForPerBaseQuality(Map<String, FastQCDataModule> moduleList){
+	private JSONObject getJSONForModule(Map<String, FastQCDataModule> moduleList, String plotType){
 		GridResult result = new GridResultImpl();
 		
 		try {
@@ -67,7 +67,7 @@ public class processFastQCOutputTest {
 			logger.warn(e.getLocalizedMessage());
 			return null;
 		}
-		return output.get(FastQC.PlotType.PER_BASE_QUALITY);
+		return output.get(plotType);
 	}
 	
 	@Test (groups = "unit-tests")
@@ -102,10 +102,21 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
-	public void parseOutputTest() throws JSONException {
+	public void parseOutputTestBasicStats() throws JSONException {
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
-		JSONObject jsonObject = getJSONForPerBaseQuality(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
+		Assert.assertNotNull(jsonObject);
+		logger.debug(jsonObject.toString());
+		Assert.assertEquals(jsonObject.getJSONArray("dataSeries").length(), 1);
+		Assert.assertEquals(jsonObject.getJSONObject("properties").getString("result"), "pass");
+	}
+	
+	@Test (groups = "unit-tests")
+	public void parseOutputTestPerSeqQuality() throws JSONException {
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		logger.debug(jsonObject.toString());
 		Assert.assertEquals(jsonObject.getJSONArray("dataSeries").length(), 2);
@@ -116,7 +127,7 @@ public class processFastQCOutputTest {
 	public void testGetPerBaseSeqQualityPlotHtml() throws JSONException{
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
-		JSONObject jsonObject = getJSONForPerBaseQuality(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspBoxPlot bp = WaspChart.getChart(jsonObject, WaspBoxPlot.class);
 		String html = FastQCHighChartsJs.getPerBaseSeqQualityPlotHtml(bp);

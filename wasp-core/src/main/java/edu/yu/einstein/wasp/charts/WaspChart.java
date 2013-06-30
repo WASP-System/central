@@ -15,7 +15,7 @@ import org.json.JSONObject;
  * @author asmclellan
  *
  */
-public abstract class WaspChart {
+public class WaspChart {
 	
 	protected String title;
 	
@@ -57,6 +57,17 @@ public abstract class WaspChart {
 
 	public void setDataSeries(List<DataSeries> dataSeries) {
 		this.dataSeries = dataSeries;
+	}
+	
+	/**
+	 * Add a data series
+	 * @param dataSeries
+	 */
+	@JsonIgnore
+	public void addDataSeries(DataSeries dataSeries){
+		if (this.dataSeries == null)
+			this.dataSeries =  new ArrayList<DataSeries>();
+		this.dataSeries.add(dataSeries);
 	}
 	
 	/**

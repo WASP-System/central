@@ -1,7 +1,5 @@
 package edu.yu.einstein.wasp.plugin;
 
-import java.net.URL;
-import java.util.Set;
 
 
 public interface ViewPanel {
@@ -16,10 +14,6 @@ public interface ViewPanel {
 
 	public Integer getOrder();
 	
-	public Set<URL> getScriptDependencies();
-	
-	public Set<URL> getCssDependencies();
-
 	public Object getContent();
 
 	public boolean isResizable();

@@ -1,8 +1,4 @@
-package edu.yu.einstein.wasp.web;
-
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+package edu.yu.einstein.wasp.web.panel;
 
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 
@@ -18,11 +14,7 @@ public class Panel implements ViewPanel{
 	
 	private String description = "";
 	
-	private String htmlContent = "";
-	
-	private Set<URL> scriptDependencies = new HashSet<URL>();
-	
-	private Set<URL> cssDependencies = new HashSet<URL>();
+	private WebContent content;
 	
 	private Integer width;
 	
@@ -38,32 +30,32 @@ public class Panel implements ViewPanel{
 	
 	public Panel() {}
 	
-	public Panel(String title, String htmlContent) {
+	public Panel(String title, WebContent content) {
 		this.title = title;
-		this.htmlContent = htmlContent;
+		this.content = content;
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, Integer order, String htmlContent,
+			Integer height, Integer order, WebContent content,
 			boolean isResizable, boolean isMaximizable, boolean isCloseable) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
 		this.height = height;
 		this.order = order;
-		this.htmlContent = htmlContent;
+		this.content = content;
 		this.isResizable = isResizable;
 		this.isMaximizable = isMaximizable;
 		this.isCloseable = isCloseable;
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, String htmlContent) {
+			Integer height, WebContent content) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
 		this.height = height;
-		this.htmlContent = htmlContent;
+		this.content = content;
 	}
 	
 	/**
@@ -130,12 +122,12 @@ public class Panel implements ViewPanel{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object getContent() {
-		return htmlContent;
+	public WebContent getContent() {
+		return content;
 	}
 
-	public void setContent(Object content) {
-		this.htmlContent = (String) content;
+	public void setContent(WebContent content) {
+		this.content = content;
 	}
 
 	/**
@@ -174,28 +166,5 @@ public class Panel implements ViewPanel{
 		this.isCloseable = isCloseable;
 	}
 	
-	public void setScriptDependencies(Set<URL> dependencies){
-		this.scriptDependencies = dependencies;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Set<URL> getScriptDependencies() {
-		return scriptDependencies;
-	}
-	
-	public void setCssDependencies(Set<URL> dependencies){
-		this.cssDependencies = dependencies;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Set<URL> getCssDependencies() {
-		return cssDependencies;
-	}
 
 }

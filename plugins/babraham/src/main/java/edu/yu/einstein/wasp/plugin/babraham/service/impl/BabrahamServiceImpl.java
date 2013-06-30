@@ -120,7 +120,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 							}
 			
 						}
-						Set<String> attributes = new LinkedHashSet<String>();
+						List<String> attributes = new ArrayList<String>();
 						for (String attrib : line.substring(1).split("\t")) // remove preceeding # and split on tabs
 							attributes.add(attrib);
 						currentModule.setAttributes(attributes);

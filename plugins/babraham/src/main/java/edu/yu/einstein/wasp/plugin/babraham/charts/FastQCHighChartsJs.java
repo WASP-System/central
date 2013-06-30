@@ -4,6 +4,7 @@ import org.json.JSONException;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
+import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 
 /**
@@ -40,6 +41,11 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		sb.append(getDataSeriesAsJsonArray(meanDS));
 		sb.append("}]\n");	
 		sb.append(getContainerEndCode());
+		return sb.toString();
+	}
+
+	public static String getBasicStatistics(final WaspChart basicStats){
+		StringBuilder sb = new StringBuilder();
 		return sb.toString();
 	}
 }
