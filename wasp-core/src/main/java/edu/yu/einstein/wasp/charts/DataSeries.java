@@ -64,6 +64,17 @@ public class DataSeries {
 	}
 	
 	/**
+	 * Row labels might typically represent X-axis labels but are not necessary or may be used as required.
+	 * For one dimensional data may these may be specified but the colLabels omitted.
+	 * @return
+	 */
+	public void addRowLabel(String label) {
+		if (this.rowLabels == null)
+			this.rowLabels =  new ArrayList<String>();
+		this.rowLabels.add(label);
+	}
+	
+	/**
 	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
 	 * to construct the plot (median, quartiles, outliers etc).<br />
 	 * Returns an Empty list if no data.
@@ -83,6 +94,17 @@ public class DataSeries {
 	public void setColLabels(List<String> labels) {
 		this.colLabels = labels;
 	}
+	
+	/**
+	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
+	 * to construct the plot (median, quartiles, outliers etc).
+	 * @return
+	 */
+	public void addColLabel(String label) {
+		if (this.colLabels == null)
+			this.colLabels =  new ArrayList<String>();
+		this.colLabels.add(label);
+	}
 
 	/**
 	 * Gets data or returns an empty List if none present.
@@ -94,8 +116,8 @@ public class DataSeries {
 		return data;
 	}
 
-	public void setData(List<List<Object>> data) {
-		this.data = data;
+	public void setData(List<? extends List<Object>> data) {
+		this.data = (List<List<Object>>) data;
 	}
 
 	

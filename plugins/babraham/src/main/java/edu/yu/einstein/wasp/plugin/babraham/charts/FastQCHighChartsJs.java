@@ -1,9 +1,10 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
-import java.util.List;
+import org.json.JSONException;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
+import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 
 /**
@@ -19,61 +20,32 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 	private static final String BLUE = "#0101DF";
 
 	
-	public static String getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot) {
+	public static String getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot) throws JSONException {
 		DataSeries boxPlotDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.BOX_AND_WHISKER);
 		DataSeries meanDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.RUNNING_MEAN);
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append(getScriptIncludes());
 		sb.append(getContainerStartCode(ChartType.BOXPLOT, waspBoxPlot.getTitle(), null, waspBoxPlot.getLegend()));
-		
 		sb.append(getBasicXAxisCode(waspBoxPlot.getxAxisLabel(), boxPlotDS.getRowLabels(), 5));
-		
+		sb.append("plotOptions: { series: { groupPadding: 0} },\n");
 		sb.append("yAxis: { title: { text: '" + waspBoxPlot.getyAxisLabel() + "' },\n ");
 		sb.append("plotBands: ["); 
 		sb.append("{ color: '" + RED + "', from: 0, to: 20 },");
 		sb.append("{ color: '" + YELLOW + "', from: 20, to: 28 },");
 		sb.append("{ color: '" + GREEN + "', from: 28, to: 100 }");
 		sb.append("]},\n");
-		
-		sb.append("series: [{ name: '" + boxPlotDS.getName() + "', data: [\n");
-		for (int i=0; i< boxPlotDS.getRowCount(); i++){
-			sb.append("[");
-			boolean isFirst = true;
-			for (Object dataPoint : (List<Object>) boxPlotDS.getRow(i)){
-				if (isFirst)
-					isFirst = false;
-				else
-					sb.append(", ");
-				sb.append(dataPoint.toString());
-			}
-			sb.append("]");
-			if (i < meanDS.getRowCount() - 1)
-				sb.append(",");
-			sb.append("\n");
-		}
-		sb.append("]},\n");
-		sb.append("{ name: '" + meanDS.getName() + "', type: 'spline', color: '" + BLUE + "', marker: { enabled: false }, data: [\n");
-		for (int i=0; i< meanDS.getRowCount(); i++){
-			sb.append("[");
-			boolean isFirst = true;
-			for (Object dataPoint : (List<Object>) meanDS.getRow(i)){
-				if (isFirst)
-					isFirst = false;
-				else
-					sb.append(", ");
-				sb.append(dataPoint.toString());
-			}
-			sb.append("]");
-			if (i < meanDS.getRowCount() - 1)
-				sb.append(",");
-			sb.append("\n");
-		}
-		sb.append("]\n");
-		sb.append("}]\n");
-		
+		sb.append("series: [{ name: '" + boxPlotDS.getName() + "', animation:false,\n");
+		sb.append(getDataSeriesAsJsonArray(boxPlotDS));
+		sb.append("},\n");
+		sb.append("{ name: '" + meanDS.getName() + "', type: 'spline', color: '" + BLUE + "', marker: { enabled: false }, animation:false,\n");
+		sb.append(getDataSeriesAsJsonArray(meanDS));
+		sb.append("}]\n");	
 		sb.append(getContainerEndCode());
 		return sb.toString();
 	}
 
-
+	public static String getBasicStatistics(final WaspChart basicStats){
+		StringBuilder sb = new StringBuilder();
+		return sb.toString();
+	}
 }
