@@ -25,7 +25,12 @@ public class WaspChart {
 	
 	protected Map<String, Object> properties;
 
-	public WaspChart() {}
+	public WaspChart() {
+		dataSeries = new ArrayList<DataSeries>();
+		properties = new HashMap<String, Object>();
+		title = "";
+		legend = "";
+	}
 	
 	/**
 	 * Set up object from JSON representation
@@ -50,8 +55,6 @@ public class WaspChart {
 	}
 	
 	public List<DataSeries> getDataSeries() {
-		if (dataSeries == null)
-			return new ArrayList<DataSeries>();
 		return dataSeries;
 	}
 
@@ -65,8 +68,6 @@ public class WaspChart {
 	 */
 	@JsonIgnore
 	public void addDataSeries(DataSeries dataSeries){
-		if (this.dataSeries == null)
-			this.dataSeries =  new ArrayList<DataSeries>();
 		this.dataSeries.add(dataSeries);
 	}
 	
@@ -75,8 +76,6 @@ public class WaspChart {
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -96,8 +95,6 @@ public class WaspChart {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	

@@ -12,13 +12,17 @@ import java.util.Set;
  */
 public class WebContent {
 	
-	private String htmlContent = "";
+	private String htmlContent;
 	
-	private Set<URL> scriptDependencies = new HashSet<URL>();
+	private Set<URL> scriptDependencies;
 	
-	private Set<URL> cssDependencies = new HashSet<URL>();
+	private Set<URL> cssDependencies;
 
-	public WebContent() {}
+	public WebContent() {
+		scriptDependencies = new HashSet<URL>();
+		cssDependencies = new HashSet<URL>();
+		htmlContent = "";
+	}
 	
 	public String getHtmlContent() {
 		return htmlContent;
@@ -35,6 +39,10 @@ public class WebContent {
 	public void setScriptDependencies(Set<URL> scriptDependencies) {
 		this.scriptDependencies = scriptDependencies;
 	}
+	
+	public void addScriptDependency(URL dependency){
+		this.scriptDependencies.add(dependency);
+	}
 
 	public Set<URL> getCssDependencies() {
 		return cssDependencies;
@@ -42,6 +50,10 @@ public class WebContent {
 
 	public void setCssDependencies(Set<URL> cssDependencies) {
 		this.cssDependencies = cssDependencies;
+	}
+	
+	public void addCssDependency(URL dependency){
+		this.cssDependencies.add(dependency);
 	}
 
 	

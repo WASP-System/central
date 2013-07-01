@@ -26,9 +26,16 @@ public class DataSeries {
 	
 	private Map<String, Object> properties;
 	
-	public DataSeries() {}
+	public DataSeries() {
+		name = "";
+		rowLabels = new ArrayList<String>();
+		colLabels = new ArrayList<String>();
+		data = new ArrayList<List<Object>>();
+		properties = new HashMap<String, Object>();
+	}
 	
 	public DataSeries(String name){
+		this();
 		this.setName(name);
 	}
 	
@@ -49,8 +56,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public List<String> getRowLabels() {
-		if (rowLabels == null)
-			return new ArrayList<String>();
 		return rowLabels;
 	}
 	
@@ -69,8 +74,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public void addRowLabel(String label) {
-		if (this.rowLabels == null)
-			this.rowLabels =  new ArrayList<String>();
 		this.rowLabels.add(label);
 	}
 	
@@ -81,8 +84,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public List<String> getColLabels() {
-		if (colLabels == null)
-			return new ArrayList<String>();
 		return colLabels;
 	}
 
@@ -101,8 +102,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public void addColLabel(String label) {
-		if (this.colLabels == null)
-			this.colLabels =  new ArrayList<String>();
 		this.colLabels.add(label);
 	}
 
@@ -111,8 +110,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public List<List<Object>> getData() {
-		if (data == null)
-			return new ArrayList<List<Object>>();
 		return data;
 	}
 
@@ -126,8 +123,6 @@ public class DataSeries {
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -148,8 +143,6 @@ public class DataSeries {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	
@@ -170,8 +163,6 @@ public class DataSeries {
 	 * @param row
 	 */
 	public void addRow(String label, List<?> row){
-		if (rowLabels == null)
-			rowLabels = new ArrayList<String>();
 		rowLabels.add(label);
 		this.addRow(row);
 	}
@@ -214,15 +205,11 @@ public class DataSeries {
 	
 	@JsonIgnore
 	public int getRowCount(){
-		if (rowLabels == null)
-			return 0;
 		return rowLabels.size();
 	}
 	
 	@JsonIgnore
 	public int getColCount(){
-		if (colLabels == null)
-			return 0;
 		return colLabels.size();
 	}
 

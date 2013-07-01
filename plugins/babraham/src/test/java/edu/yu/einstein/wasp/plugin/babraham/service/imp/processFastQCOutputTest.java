@@ -71,7 +71,7 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
-	public void processFastQCOutputTest() {
+	public void processFastQCTest() {
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
 		

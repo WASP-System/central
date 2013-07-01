@@ -219,6 +219,7 @@ public class FastQC extends SoftwarePackage {
 		chart.setTitle(bs.getName());
 		chart.addProperty(QC_ANALYSIS_RESULT, bs.getResult());
 		DataSeries ds = new DataSeries();
+		ds.setColLabels(bs.getAttributes());
 		ds.setData((List<? extends List<Object>>) bs.getDataPoints());
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
