@@ -38,7 +38,7 @@ public class SelPendingLabs extends SelBaseTest{
   @Test (groups = "integration-tests",  dataProvider = "DP1")
   public void pendingLabApprove(String sUserName, String sUserPass, String sPiEmail, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
-	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass);	 
 	  Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
 	  driver.findElement(By.linkText("Tasks")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")), "Unable to locate 'Department Administration Tasks' link.");
@@ -47,7 +47,7 @@ public class SelPendingLabs extends SelBaseTest{
 	  //driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).click();
 	  driver.findElement(By.linkText("Department Administration Tasks")).click();
 	  
-	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sPiEmail, driver),"Lab "+ sPiEmail +" not found");
+	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sPiEmail),"Lab "+ sPiEmail +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sPiEmail+"')]")).click();
 	  
 	  //WebDriverWait wait = new WebDriverWait(driver, 5);
@@ -97,7 +97,7 @@ public class SelPendingLabs extends SelBaseTest{
   @Test  (groups = "integration-tests",  dataProvider = "DP2")
   public void pendingLabReject(String sUserName, String sUserPass, String sLab, String sUserEmail, String sRejectedUrl) throws Exception {
 	  
-	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass);	 
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-daAdmin')]")), "Unable to locate 'Dept Admin' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href, '#tabs-daAdmin')]")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/list.do')]")), "Unable to locate 'Department Management' link.");
@@ -111,7 +111,7 @@ public class SelPendingLabs extends SelBaseTest{
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/department/dapendingtasklist.do')]")), "Unable to locate 'Pending Department Admin Tasks' link.");
 	  driver.findElement(By.xpath("//a[contains(@href, '/wasp/department/dapendingtasklist.do')]")).click();
 	  
-	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab, driver),"Lab "+ sLab +" not found");
+	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sLab),"Lab "+ sLab +" not found");
 	  driver.findElement(By.xpath("//a[contains(.,'"+sLab+"')]")).click();
 	  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).size() != 0, "Cannot locate REJECT link");
 	  driver.findElement(By.xpath("//a[contains(@href,'/wasp/lab/pending/reject/')]")).click();

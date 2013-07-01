@@ -15,7 +15,7 @@ import org.json.JSONObject;
  * @author asmclellan
  *
  */
-public abstract class WaspChart {
+public class WaspChart {
 	
 	protected String title;
 	
@@ -25,7 +25,12 @@ public abstract class WaspChart {
 	
 	protected Map<String, Object> properties;
 
-	public WaspChart() {}
+	public WaspChart() {
+		dataSeries = new ArrayList<DataSeries>();
+		properties = new HashMap<String, Object>();
+		title = "";
+		legend = "";
+	}
 	
 	/**
 	 * Set up object from JSON representation
@@ -50,8 +55,6 @@ public abstract class WaspChart {
 	}
 	
 	public List<DataSeries> getDataSeries() {
-		if (dataSeries == null)
-			return new ArrayList<DataSeries>();
 		return dataSeries;
 	}
 
@@ -60,12 +63,19 @@ public abstract class WaspChart {
 	}
 	
 	/**
+	 * Add a data series
+	 * @param dataSeries
+	 */
+	@JsonIgnore
+	public void addDataSeries(DataSeries dataSeries){
+		this.dataSeries.add(dataSeries);
+	}
+	
+	/**
 	 * Get a generic map of properties which may be associated with this plot or an empty Map if none set.
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -85,8 +95,6 @@ public abstract class WaspChart {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	

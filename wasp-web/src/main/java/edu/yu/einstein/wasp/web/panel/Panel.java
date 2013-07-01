@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.web;
+package edu.yu.einstein.wasp.web.panel;
 
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 
@@ -14,7 +14,7 @@ public class Panel implements ViewPanel{
 	
 	private String description = "";
 	
-	private String htmlContent = "";
+	private WebContent content;
 	
 	private Integer width;
 	
@@ -30,32 +30,32 @@ public class Panel implements ViewPanel{
 	
 	public Panel() {}
 	
-	public Panel(String title, String htmlContent) {
+	public Panel(String title, WebContent content) {
 		this.title = title;
-		this.htmlContent = htmlContent;
+		this.content = content;
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, Integer order, String htmlContent,
+			Integer height, Integer order, WebContent content,
 			boolean isResizable, boolean isMaximizable, boolean isCloseable) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
 		this.height = height;
 		this.order = order;
-		this.htmlContent = htmlContent;
+		this.content = content;
 		this.isResizable = isResizable;
 		this.isMaximizable = isMaximizable;
 		this.isCloseable = isCloseable;
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, String htmlContent) {
+			Integer height, WebContent content) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
 		this.height = height;
-		this.htmlContent = htmlContent;
+		this.content = content;
 	}
 	
 	/**
@@ -66,10 +66,6 @@ public class Panel implements ViewPanel{
 		return title;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -82,10 +78,6 @@ public class Panel implements ViewPanel{
 		return description;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -98,10 +90,6 @@ public class Panel implements ViewPanel{
 		return width;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setWidth(Integer width) {
 		this.width = width;
 	}
@@ -114,10 +102,6 @@ public class Panel implements ViewPanel{
 		return height;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setHeight(Integer height) {
 		this.height = height;
 	}
@@ -130,10 +114,6 @@ public class Panel implements ViewPanel{
 		return order;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setOrder(Integer order) {
 		this.order = order;
 	}
@@ -142,16 +122,12 @@ public class Panel implements ViewPanel{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object getContent() {
-		return htmlContent;
+	public WebContent getContent() {
+		return content;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setContent(Object content) {
-		this.htmlContent = (String) content;
+	public void setContent(WebContent content) {
+		this.content = content;
 	}
 
 	/**
@@ -162,10 +138,6 @@ public class Panel implements ViewPanel{
 		return isResizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setResizable(boolean isResizable) {
 		this.isResizable = isResizable;
 	}
@@ -178,10 +150,6 @@ public class Panel implements ViewPanel{
 		return isMaximizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setMaximizable(boolean isMaximizable) {
 		this.isMaximizable = isMaximizable;
 	}
@@ -194,12 +162,9 @@ public class Panel implements ViewPanel{
 		return isCloseable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
 	}
+	
 
 }

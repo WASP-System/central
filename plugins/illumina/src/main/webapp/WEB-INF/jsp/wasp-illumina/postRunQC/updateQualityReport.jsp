@@ -36,7 +36,7 @@
 					<c:set var="comment" value="${fn:trim(qcDataMap.get(qcDataMetaKey).get(index).getComment())}" />
 					<td class='fixedWidth'>
 						<c:if test="${passed == true}"><wasp:successIcon value="${comment}" /></c:if>
-						<c:if test="${failed == false}"><wasp:failureIcon value="${comment}" /></c:if>
+						<c:if test="${passed == false}"><wasp:failureIcon value="${comment}" /></c:if>
 					</td>
 				</c:forEach>
 				<td>

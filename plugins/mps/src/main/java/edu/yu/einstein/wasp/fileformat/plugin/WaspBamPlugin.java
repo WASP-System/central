@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.plugin.fileformat;
+package edu.yu.einstein.wasp.fileformat.plugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,12 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author asmclellan
  * 
  */
-public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileTypeViewProviding {
+public class WaspBamPlugin extends WaspPlugin implements ClientMessageI, FileTypeViewProviding {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -863497448066623205L;
 
 	@Autowired
 	private FileGroupDao fileGroupDao;
@@ -46,14 +51,9 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 	@Autowired
 	protected SampleService sampleService;
 
-	private static Logger logger = LoggerFactory.getLogger(WaspFastqPlugin.class);
+	private static Logger logger = LoggerFactory.getLogger(WaspBamPlugin.class);
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -654454985142650980L;
-
-	public WaspFastqPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
+	public WaspBamPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
 	}
 
@@ -72,7 +72,7 @@ public class WaspFastqPlugin extends WaspPlugin implements ClientMessageI, FileT
 
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("waspFastq.hyperlink.label", "/wasp-fastq/description.do");
+		return new Hyperlink("waspBam.hyperlink.label", "/wasp-bam/description.do");
 	}
 	
 	@Override
