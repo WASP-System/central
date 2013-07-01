@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
+import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
 import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCHighChartsJs;
@@ -108,7 +109,9 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
 		logger.debug(jsonObject.toString());
-		Assert.assertEquals(jsonObject.getJSONArray("dataSeries").length(), 1);
+		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
+		Assert.assertEquals(chart.getDataSeries().size(), 1);
+		Assert.assertEquals(chart.getDataSeries().get(0).getRowCount(), 7);
 		Assert.assertEquals(jsonObject.getJSONObject("properties").getString("result"), "pass");
 	}
 	
@@ -124,7 +127,20 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
-	public void testGetPerBaseSeqQualityPlotHtml() throws JSONException{
+	public void parseSeqDupStats() throws JSONException {
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
+		Assert.assertNotNull(jsonObject);
+		logger.debug(jsonObject.toString());
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		Assert.assertEquals(chart.getDataSeries().size(), 1);
+		Assert.assertEquals(chart.getDataSeries().get(0).getRowCount(), 10);
+		Assert.assertEquals(jsonObject.getJSONObject("properties").getString("result"), "pass");
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerBaseSeqQualityHighChartsPlotHtml() throws JSONException{
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
@@ -132,5 +148,18 @@ public class processFastQCOutputTest {
 		WaspBoxPlot bp = WaspChart.getChart(jsonObject, WaspBoxPlot.class);
 		String html = FastQCHighChartsJs.getPerBaseSeqQualityPlotHtml(bp);
 		logger.debug(html);
+		Assert.assertTrue(html.contains("chart: { type: 'boxplot' }"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetBasicStatsHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
+		Assert.assertNotNull(jsonObject);
+		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
+		String html = FastQCHighChartsJs.getBasicStatistics(chart);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("<tr><td>Total Sequences: </td><td>4000000</td></tr>"));
 	}
 }

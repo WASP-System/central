@@ -1,5 +1,8 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.json.JSONException;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
@@ -44,8 +47,16 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		return sb.toString();
 	}
 
-	public static String getBasicStatistics(final WaspChart basicStats){
+	public static String getBasicStatistics(final WaspChart basicStats) throws JSONException{
+		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
+		sb.append("<div id='" + UUID.randomUUID().toString() + "'/>\n");
+		sb.append("<h2>" + basicStats.getTitle() + "</h2>\n");
+		sb.append("<table>\n");
+		for (List<Object> row : data)
+			sb.append("<tr><td>" + (String) row.get(0) + ": </td><td>" + (String) row.get(1) + "</td></tr>\n");
+		sb.append("</table>\n");
+		sb.append("</div>\n");
 		return sb.toString();
 	}
 }

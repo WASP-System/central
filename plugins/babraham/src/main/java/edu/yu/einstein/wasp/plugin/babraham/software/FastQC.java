@@ -4,6 +4,7 @@
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
+import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.filetype.FastqComparator;
 import edu.yu.einstein.wasp.filetype.service.FastqService;
@@ -210,6 +212,7 @@ public class FastQC extends SoftwarePackage {
 		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
 		output.put(PlotType.BASIC_STATISTICS, getParsedBasicStatistics(mMap));
 		output.put(PlotType.PER_BASE_QUALITY, getParsedPerBaseQualityData(mMap));
+		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		return output;
 	}
 	
@@ -250,6 +253,22 @@ public class FastQC extends SoftwarePackage {
 			}
 		}
 		return boxPlot.getAsJSON();
+	}
+	
+	private JSONObject getSequenceDuplicationLevels(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule dl = moduleMap.get(PlotType.DUPLICATION_LEVELS);
+		WaspChart2D chart = new WaspChart2D();
+		chart.setxAxisLabel("Sequence Duplication Level");
+		chart.setyAxisLabel("% Duplicate Relative to Unique");
+		chart.addProperty(QC_ANALYSIS_RESULT, dl.getResult());
+		int decimalPlaces = 1;
+		BigDecimal bd = new BigDecimal(dl.getKeyValueData().get("Total Duplicate Percentage"));
+		chart.setTitle("Sequence Duplication Level >= " + bd.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP).toPlainString());
+		DataSeries ds = new DataSeries();
+		ds.setColLabels(dl.getAttributes());
+		ds.setData((List<? extends List<Object>>) dl.getDataPoints());
+		chart.addDataSeries(ds);
+		return chart.getAsJSON();
 	}
 
 }
