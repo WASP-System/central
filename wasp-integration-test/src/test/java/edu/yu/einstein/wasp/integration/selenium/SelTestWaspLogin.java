@@ -73,7 +73,7 @@ public class SelTestWaspLogin extends SelBaseTest {
     	Assert.assertEquals(driver.getCurrentUrl(), sExpectedUrl);
 		
 		
-        if(SeleniumHelper.verifyTextPresent("Logout", driver)) {
+        if(SeleniumHelper.verifyTextPresent("Logout")) {
         	driver.findElement(By.linkText("Logout")).click();
         }
         else {

@@ -7,16 +7,16 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
+import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.filetype.FastqComparator;
 import edu.yu.einstein.wasp.filetype.service.FastqService;
@@ -55,17 +55,17 @@ public class FastQC extends SoftwarePackage {
 	
 	public static class PlotType{
 		// meta keys for charts produced
-		public static final String BASIC_STATISTICS = "basic_statistics";
-		public static final String DUPLICATION_LEVELS = "duplication_levels";
-		public static final String KMER_PROFILES = "kmer_profiles";
-		public static final String PER_BASE_GC_CONTENT = "per_base_gc_content";
-		public static final String PER_BASE_N_CONTENT = "per_base_n_content";
-		public static final String PER_BASE_QUALITY = "per_base_quality";
-		public static final String PER_BASE_SEQUENCE_CONTENT = "per_base_sequence_content";
-		public static final String PER_SEQUENCE_GC_CONTENT = "per_sequence_gc_content";
-		public static final String PER_SEQUENCE_QUALITY = "per_sequence_quality";
-		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "sequence_length_distribution"; 
-		public static final String OVERREPRESENTED_SEQUENCES = "overrepresented_sequences";
+		public static final String BASIC_STATISTICS = "fastqc_basic_statistics";
+		public static final String DUPLICATION_LEVELS = "fastqc_duplication_levels";
+		public static final String KMER_PROFILES = "fastqc_kmer_profiles";
+		public static final String PER_BASE_GC_CONTENT = "fastqc_per_base_gc_content";
+		public static final String PER_BASE_N_CONTENT = "fastqc_per_base_n_content";
+		public static final String PER_BASE_QUALITY = "fastqc_per_base_quality";
+		public static final String PER_BASE_SEQUENCE_CONTENT = "fastqc_per_base_sequence_content";
+		public static final String PER_SEQUENCE_GC_CONTENT = "fastqc_per_sequence_gc_content";
+		public static final String PER_SEQUENCE_QUALITY = "fastqc_per_sequence_quality";
+		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "fastqc_sequence_length_distribution"; 
+		public static final String OVERREPRESENTED_SEQUENCES = "fastqc_overrepresented_sequences";
 	}
 	
 	@Autowired
@@ -117,7 +117,7 @@ public class FastQC extends SoftwarePackage {
 		w.setMemoryRequirements(1);
 		
 		// require a single thread, execution mode PROCESS
-		// indicates this is a vanilla exectuion.
+		// indicates this is a vanilla execution.
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMode(ExecutionMode.PROCESS);
 		
@@ -162,12 +162,17 @@ public class FastQC extends SoftwarePackage {
 		int segments = fastqService.getNumberOfReadSegments(fileGroup);
 		int files = fileGroup.getFileHandles().size();
 		
+		// fileList is an array of file name refs
+		// 1 for each read segment.
 		String[] fileList = new String[segments];
 		
 		for (int i = 0; i < segments; i++) {
 			for (int j = 0; j < (files/segments); j++) {
 				int index = ((j-1) * segments) + (i-1);
-				fileList[i] += " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
+				if(fileList[i]==null)
+					fileList[i] = " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
+				else
+					fileList[i] += " ${" + WorkUnit.INPUT_FILE + "[" + index + "]}";
 			}
 		}
 		
@@ -182,7 +187,7 @@ public class FastQC extends SoftwarePackage {
 			} else {
 				// otherwise treat like fastq
 				String name = i + ".fq";
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name; 
+				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name + "\n";
 			}
 		}
 
@@ -203,14 +208,31 @@ public class FastQC extends SoftwarePackage {
 	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, FastQCDataParseException, JSONException {
 		Map<String,JSONObject> output = new HashMap<String, JSONObject>();
 		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
-		FastQCDataModule perBaseQual = mMap.get(PlotType.PER_BASE_QUALITY);
+		output.put(PlotType.BASIC_STATISTICS, getParsedBasicStatistics(mMap));
+		output.put(PlotType.PER_BASE_QUALITY, getParsedPerBaseQualityData(mMap));
+		return output;
+	}
+	
+	private JSONObject getParsedBasicStatistics(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule bs = moduleMap.get(PlotType.BASIC_STATISTICS);
+		WaspChart chart = new WaspChart();
+		chart.setTitle(bs.getName());
+		chart.addProperty(QC_ANALYSIS_RESULT, bs.getResult());
+		DataSeries ds = new DataSeries();
+		ds.setColLabels(bs.getAttributes());
+		ds.setData((List<? extends List<Object>>) bs.getDataPoints());
+		chart.addDataSeries(ds);
+		return chart.getAsJSON();
+	}
+	
+	private JSONObject getParsedPerBaseQualityData(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule perBaseQual = moduleMap.get(PlotType.PER_BASE_QUALITY);
 		WaspBoxPlot boxPlot = new WaspBoxPlot();
 		boxPlot.setTitle("Quality scores across all bases");
 		boxPlot.setxAxisLabel("position in read (bp)");
 		boxPlot.setyAxisLabel("Quality Score");
 		boxPlot.addProperty(QC_ANALYSIS_RESULT, perBaseQual.getResult());
 		for (List<String> row : perBaseQual.getDataPoints()){
-			logger.debug(row.toString());
 			try{
 				boxPlot.addBoxAndWhiskers(
 						row.get(0), // Base
@@ -222,11 +244,12 @@ public class FastQC extends SoftwarePackage {
 					);
 				boxPlot.addRunningMeanValue(row.get(0), Double.valueOf(row.get(1)));
 			} catch (NumberFormatException e){
-				throw new FastQCDataParseException("Caught NFE attempting to convert string values to Double");
+				throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			} catch (NullPointerException e){
+				throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
 			}
-			output.put(PlotType.PER_BASE_QUALITY, boxPlot.getAsJSON());
 		}
-		return output;
+		return boxPlot.getAsJSON();
 	}
 
 }

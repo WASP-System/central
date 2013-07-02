@@ -95,6 +95,24 @@
          <class name="edu.yu.einstein.wasp.integration.selenium.SelApproveNewJob"/>
       </classes>
    </test>
+   
+   <test name="WASP Regression Testing: Create New Platform Unit" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelCreateNewPlatformUnit"/>
+      </classes>
+   </test>
+   
+   <test name="WASP Regression Testing: Add Library to Platform Unit" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelAddLibraryToPlatformUnit"/>
+      </classes>
+   </test>
+   
+   <test name="WASP Regression Testing: Create New Resource (Machine)" preserve-order="true">
+      <classes>
+         <class name="edu.yu.einstein.wasp.integration.selenium.SelCreateNewMachine"/>
+      </classes>
+   </test>
 
   <!--  
   <test name="WASP Regression Testing: Login Page" preserve-order="true">

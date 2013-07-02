@@ -37,24 +37,8 @@ public class SelConfigureWorkflow extends SelBaseTest{
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void configureWorkflow(String sUserName, String sUserPass, String id) throws Exception {   
     	
-  		driver.get("http://"+baseUrl+"/wasp");
-  		if (SeleniumHelper.verifyTextPresent("Logout", driver)) {
-  			driver.findElement(By.linkText("Logout")).click();
-  		}
-  	    
-	   	WebElement userName = driver.findElement(By.name("j_username"));
-    	WebElement userPassword = driver.findElement(By.name("j_password"));
-    	userName.clear();
-    	userPassword.clear();
-    	userName.sendKeys(sUserName);
-    	userPassword.sendKeys(sUserPass);
-    	
-		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")), "'Submit' button does not exist");
-		driver.findElement(By.xpath("//input[@type='submit']")).click();
-    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
-    	
+  		SeleniumHelper.login(sUserName, sUserPass);
     	driver.get("http://"+baseUrl+"/wasp/workflow/list.do");
-
    	    driver.findElement(By.xpath("//tbody/tr[@id='"+id+"']/td[4]/a")).click();
    	    
    	    int checkboxCount = driver.findElements(By.xpath("//input[@type='checkbox']")).size();

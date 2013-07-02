@@ -38,7 +38,7 @@ public class SelApproveNewJob extends SelBaseTest{
   	@Test (groups = "integration-tests",  dataProvider = "DP1")
 	public void approveNewJob(String sUserName, String sUserPass, String jobId, String id, String jobName) throws Exception {   
   		
-  		SeleniumHelper.login(sUserName, sUserPass, driver);	     	
+  		SeleniumHelper.login(sUserName, sUserPass);	     	
     	Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
     	
     	List<WebElement> radios;

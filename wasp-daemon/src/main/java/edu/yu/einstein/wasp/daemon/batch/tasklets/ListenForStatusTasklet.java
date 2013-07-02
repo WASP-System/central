@@ -146,10 +146,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 				logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");
 				abandonStep = true;
 			}
-		} else if (messageTemplate.actUponMessageIgnoringTask(message) && statusFromMessage.isUnsuccessful()){
-			// need to stop this step as ABANDONED or FAILED
-			logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon although task is different. Going to stop step.");
-			stopStep = true;
 		}
 	}
 
