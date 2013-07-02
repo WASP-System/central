@@ -22,10 +22,10 @@ import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
  */
 public class FastQCHighChartsJs extends HighChartsJsBase {
 
-	private static final String RED = "#F6CECE";
-	private static final String YELLOW = "#F5ECCE";
-	private static final String GREEN = "#CEF6CE";
-	private static final String BLUE = "#0101DF";
+	private static final String HEX_RED = "#F6CECE";
+	private static final String HEX_YELLOW = "#F5ECCE";
+	private static final String HEX_GREEN = "#CEF6CE";
+	private static final String HEX_BLUE = "#0101DF";
 
 	
 	public static String getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot) throws JSONException {
@@ -38,9 +38,9 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		sb.append("plotOptions: { series: { groupPadding: 0} },\n");
 		sb.append("yAxis: { title: { text: '" + waspBoxPlot.getyAxisLabel() + "' },\n ");
 		sb.append("plotBands: ["); 
-		sb.append("{ color: '" + RED + "', from: 0, to: 20 },");
-		sb.append("{ color: '" + YELLOW + "', from: 20, to: 28 },");
-		sb.append("{ color: '" + GREEN + "', from: 28, to: 100 }");
+		sb.append("{ color: '" + HEX_RED + "', from: 0, to: 20 },");
+		sb.append("{ color: '" + HEX_YELLOW + "', from: 20, to: 28 },");
+		sb.append("{ color: '" + HEX_GREEN + "', from: 28, to: 100 }");
 		sb.append("]},\n");
 		Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 		seriesSet.add(new BasicHighChartsSeries(boxPlotDS));
