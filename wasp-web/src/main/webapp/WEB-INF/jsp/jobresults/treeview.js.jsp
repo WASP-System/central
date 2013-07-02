@@ -1,132 +1,17 @@
-<script type="text/javascript" src="/wasp/scripts/jquery/jquery.cookie.js"></script>
+<script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
+<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
 <script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
-<!-- script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script -->
+<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script>
+<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/examples.js"></script>
 
-<script>
-Ext.require('Ext.tab.*');
+<!--link rel="stylesheet" type="text/css"	href="/wasp/scripts/extjs/resources/css/ext-all.css" /-->
 
-/* Ext.onReady(function(){
-    // basic tabs 1, built from existing content
-    var tabs = Ext.widget('tabpanel', {
-        renderTo: 'tabs1',
-        width: 450,
-        activeTab: 0,
-        defaults :{
-            bodyPadding: 10
-        },
-        items: [{
-            contentEl:'script', 
-            title: 'Short Text',
-            closable: true
-        },{
-            contentEl:'markup', 
-            title: 'Long Text'
-        }]
-    });
-    
-    // second tabs built from JS
-    var tabs2 = Ext.widget('tabpanel', {
-        renderTo: document.body,
-        activeTab: 0,
-        width: 600,
-        height: 250,
-        plain: true,
-        defaults :{
-            autoScroll: true,
-            bodyPadding: 10
-        },
-        items: [{
-                title: 'Normal Tab',
-                html: "My content was added during construction."
-            },{
-                title: 'Ajax Tab 1',
-                loader: {
-                    url: 'ajax1.htm',
-                    contentType: 'html',
-                    loadMask: true
-                },
-                listeners: {
-                    activate: function(tab) {
-                        tab.loader.load();
-                    }
-                }
-            },{
-                title: 'Ajax Tab 2',
-                loader: {
-                    url: 'ajax2.htm',
-                    contentType: 'html',
-                    autoLoad: true,
-                    params: 'foo=123&bar=abc'
-                }
-            },{
-                title: 'Event Tab',
-                listeners: {
-                    activate: function(tab){
-                        setTimeout(function() {
-                            alert(tab.title + ' was activated.');
-                        }, 1);
-                    }
-                },
-                html: "I am tab 4's content. I also have an event listener attached."
-            },{
-                title: 'Disabled Tab',
-                disabled: true,
-                html: "Can't see me cause I'm disabled"
-            }
-        ]
-    });
-});
- */
+<link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
 
-var state = 'none';
-
-function showhide(btn,layer_ref) {
-	if (state == 'block') {
-		state = 'none';
-		btn.value= 'Show Filters';
-	} else {
-		state = 'block';
-		btn.value='Hide Filters';
-	}
-	if (document.all) { //IS IE 4 or 5 (or 6 beta)
-		eval("document.all." + layer_ref + ".style.display = state");
-	}
-	if (document.layers) { //IS NETSCAPE 4 or below
-		document.layers[layer_ref].display = state;
-	}
-	if (document.getElementById && !document.all) {
-		hza = document.getElementById(layer_ref);
-		hza.style.display = state;
-	}
-}
-
-function showhideTree(btn) {
-	if (btn.value == 'Hide Tree') {
-		btn.value= 'Show Tree';
-		$('#left-container').hide('slow');
-		setTimeout(function(){$('#right-container').css('width', '100%')}, 600);
-	} else {
-		btn.value='Hide Tree';
-		$('#left-container').show('slow');
-		$('#right-container').css('width', '65%');
-	}
-}
-
-function toggleview() {
-	if (root.jid == undefined || root.jid < 1) {
-		root.jid = root.id;
-	} else {
-		root.jid = -1;
-	}
-	root.children = '';
-	click(root);
-	update(root);
-}
-
-
+<script type="text/javascript">
 var margin = {top: 20, right: 80, bottom: 20, left: 20},
     width = 460 - margin.right - margin.left,
     height = 700 - margin.top - margin.bottom,
@@ -139,38 +24,12 @@ var margin = {top: 20, right: 80, bottom: 20, left: 20},
 var barHeight = 20,
 	barWidth = width * .6;
 
-//var tree = d3.layout.tree().size([height, width]);
 var tree = d3.layout.tree().size([height, 100]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-
-var vis;/* = d3.select("#treeview").append("svg")
-    .attr("width", width + margin.right + margin.left)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("pointer-events", "all")
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-	.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
-	.append("g");
-
-vis.append("rect")
-  .attr("width", width + margin.right + margin.left)
-  .attr("height", height + margin.top + margin.bottom)
-  .attr('fill', '#fff');*/
-
-function zoom() {
-	  vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	}
-
-function collapse(d) {
-  if (d.children) {
-    d._children = d.children;
-    d._children.forEach(collapse);
-    d.children = null;
-  }
-}
+var vis;
 
 root.myid=${myid};
 root.type="${type}";
@@ -183,56 +42,67 @@ var rootstr = JSON.stringify(root, function(key, val) {
             return undefined;
         seen.push(val);
     }
-    return val; });
-
-var activeNode = {myid: null, type: null};
-
-//d3.json("../data/flare.json", function(json) {
-//d3.json("../data/flare100.json", function(json) {
-//d3.json("http://localhost:8080/wasp/jobresults/helpTag/getJSTreeJson.do?jobId=${jobId}", function(json) {
-//d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}", function(json) {
-//d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?id=${myid}&type=${type}&jid=${myid}&pid=-1", function(json) {	
-d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
-/*   if (height < json.children.length * min_branch_int) {
-	  height = json.children.length * min_branch_int;
-  }
-
-  tree.size([height, width]);
-  vis = d3.select("#treeview").append("svg")
-    .attr("width", width + margin.right + margin.left)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr("pointer-events", "all")
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-  .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
-  .append("g");
-*/
-	vis = d3.select("#treeview").append("svg:svg")
-	.attr("width", width + margin.right + margin.left)
-	.attr("height", height + margin.top + margin.bottom)
-	.attr("pointer-events", "all")
-	.append("svg:g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-	//.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
-	.append("svg:g");
-
-
-  vis.append("rect")
-    .attr("width", width + margin.right + margin.left)
-    .attr("height", height + margin.top + margin.bottom)
-    .attr('fill', '#fff')
-    .attr('fill-opacity', '0');
-
-  root = json;
-  root.x0 = 0; // height / 2;
-  root.y0 = 0;
-  //root.children.forEach(collapse);
-  update(root);
-  click(root);
-  toggle(root);
-  activeNode.myid = root.myid;
-  activeNode.type = root.type;
+    return val; 
 });
+ 
+var activeNode = {myid: null, type: null};
+	
+Ext.require([
+    'Ext.layout.container.*',
+    'Ext.resizer.Splitter',
+    'Ext.fx.target.Element',
+    'Ext.fx.target.Component',
+    'Ext.window.Window',
+    'Ext.wasp.Portal'
+]);
+
+
+Ext.onReady(function(){
+    Ext.create('Ext.wasp.Portal');
+//	Ext.Msg.alert('Alert',"${myid}");
+
+	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
+		vis = d3.select("#treeview").append("svg:svg")
+		.attr("width", width + margin.right + margin.left)
+		.attr("height", height + margin.top + margin.bottom)
+		.attr("pointer-events", "all")
+		.append("svg:g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+		//.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom)).on("dblclick.zoom", null)
+		.append("svg:g");
+	
+	
+	  vis.append("rect")
+	    .attr("width", width + margin.right + margin.left)
+	    .attr("height", height + margin.top + margin.bottom)
+	    .attr('fill', '#fff')
+	    .attr('fill-opacity', '0');
+	
+	  root = json;
+	  root.x0 = 0; // height / 2;
+	  root.y0 = 0;
+	  //root.children.forEach(collapse);
+	  update(root);
+	  click(root);
+	  toggle(root);
+	  activeNode.myid = root.myid;
+	  activeNode.type = root.type;
+	});
+
+});
+
+function zoom() {
+  vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+function collapse(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+
 
 //var g = d3.select("g");
 //g.call(drag);
@@ -353,8 +223,6 @@ function update(source) {
 		else
 			d.pid = -1;
 	});
-
-
 }
 
 function printSelectedNodes() {
@@ -411,6 +279,7 @@ function click(d) {
       type: 'GET',
       dataType: 'json',
       success: function (result) {
+      	return;
     	if (d.type=='dummy') return;  
       
       	//d3.select('#detailview').select("h3").remove();
@@ -424,12 +293,60 @@ function click(d) {
       	if(tabs!=undefined)
       		tabs.close();
 
-      	tabs = Ext.widget('tabpanel', {
+//      	tabs = Ext.widget('tabpanel', {
+			tabs = new Ext.TabPanel({
+				
+			activeTab:0,
       		renderTo: 'mytabs',
       		defaults :{
       			bodyPadding: 10
       		}
       	});
+
+/*      	var manager_portal = new Ext.Panel({
+        	id: 'app-portal',
+            items: [{
+                id: 'col-1',
+                items: [{
+                    id: 'portlet-1',
+                    title: 'Grid Portlet',
+                    html: 'empty panel',
+                    //items: Ext.create('Ext.app.GridPortlet'),
+                    listeners: {
+//                        'close': Ext.bind(this.onPortletClose, this)
+                    }
+                },{
+                    id: 'portlet-2',
+                    title: 'Portlet 2',
+                    html: 'empty panel',
+                    listeners: {
+//                        'close': Ext.bind(this.onPortletClose, this)
+                    }
+                }]
+            },{
+                id: 'col-2',
+                items: [{
+                    id: 'portlet-3',
+                    title: 'Portlet 3',
+                    html: "<div id='tab"+tabCounter+"'></div>",
+                    listeners: {
+//                        'close': Ext.bind(this.onPortletClose, this)
+                    }
+                }]
+            },{
+                id: 'col-3',
+                items: [{
+                    id: 'portlet-4',
+                    title: 'Stock Portlet',
+                    html: 'empty panel',
+                    //items: Ext.create('Ext.app.ChartPortlet'),
+                    listeners: {
+//                        'close': Ext.bind(this.onPortletClose, this)
+                    }
+                }]
+            }]
+        });
+*/
       	
 /*      $.each(result, function (index, item) {
 			var num_tabs = $("div#tabs ul li").length + 1;
@@ -472,7 +389,28 @@ function click(d) {
 			var tab = tabs.add({
 	            // we use the tabs.items property to get the length of current items/tabs
 	            title: tabTitle,
-	            html : "<div id='tab"+tabCounter+"'></div>"
+	            //html : "<div id='tab"+tabCounter+"'></div>"
+	            id: 'tab2',
+	            layout: 'fit', //required
+	            //title: 'Manager\'s Portal',
+	            closable: false, //required
+	            autoScroll: true,
+	            items: [
+	               Ext.create('Ext.Window', {
+			            title: 'Constrained Window',
+			            width: 200,
+			            height: 100,
+			
+			            // Constraining will pull the Window leftwards so that it's within the parent Window
+			            x: 1000,
+			            y: 20,
+			            constrain: true,
+			            layout: 'fit',
+			            items: {
+			                border: false
+			            }
+   				     }).show()
+				]
 	        });
 	        tabs.setActiveTab(tab);
 			

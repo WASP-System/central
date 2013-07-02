@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/include.jsp"%>
 <%@ include file="/WEB-INF/jsp/taglib.jsp"%>
-
+<%-- 
 <div>
 	<h1>${wf_name} Job Result</h1>
 </div>
@@ -30,8 +30,11 @@
 		</div>
 	</div>
 </div>
+ --%>
 
+<span id="app-msg" style="display:none;"></span>
 
-
+<div id="resultpanel">
+</div>
 
 
