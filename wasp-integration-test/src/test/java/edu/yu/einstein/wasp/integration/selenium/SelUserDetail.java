@@ -37,7 +37,7 @@ public class SelUserDetail extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
 	  public void myProfile(String sUserName, String sUserPass, String sSuccessUrl, String sOldPass, String sNewPass, String sSuccessUrl2) throws Exception {   
 			
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");
@@ -100,7 +100,7 @@ public class SelUserDetail extends SelBaseTest {
 	   */
 	  @Test (groups="integration-tests", dataProvider = "DP1")
 	  public void changePassword(String sUserName, String sUserPass, String sSuccessUrl, String sOldPass, String sNewPass, String sSuccessUrl2) throws Exception {   
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+		  SeleniumHelper.login(sUserName, sUserPass);	 
 		  driver.get("http://"+baseUrl+"/wasp/dashboard.do");
 		  
 		  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-home')]")), "Unable to locate 'My Account' tab.");

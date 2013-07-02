@@ -26,9 +26,16 @@ public class DataSeries {
 	
 	private Map<String, Object> properties;
 	
-	public DataSeries() {}
+	public DataSeries() {
+		name = "";
+		rowLabels = new ArrayList<String>();
+		colLabels = new ArrayList<String>();
+		data = new ArrayList<List<Object>>();
+		properties = new HashMap<String, Object>();
+	}
 	
 	public DataSeries(String name){
+		this();
 		this.setName(name);
 	}
 	
@@ -49,8 +56,6 @@ public class DataSeries {
 	 * @return
 	 */
 	public List<String> getRowLabels() {
-		if (rowLabels == null)
-			return new ArrayList<String>();
 		return rowLabels;
 	}
 	
@@ -64,14 +69,21 @@ public class DataSeries {
 	}
 	
 	/**
+	 * Row labels might typically represent X-axis labels but are not necessary or may be used as required.
+	 * For one dimensional data may these may be specified but the colLabels omitted.
+	 * @return
+	 */
+	public void addRowLabel(String label) {
+		this.rowLabels.add(label);
+	}
+	
+	/**
 	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
 	 * to construct the plot (median, quartiles, outliers etc).<br />
 	 * Returns an Empty list if no data.
 	 * @return
 	 */
 	public List<String> getColLabels() {
-		if (colLabels == null)
-			return new ArrayList<String>();
 		return colLabels;
 	}
 
@@ -83,19 +95,26 @@ public class DataSeries {
 	public void setColLabels(List<String> labels) {
 		this.colLabels = labels;
 	}
+	
+	/**
+	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
+	 * to construct the plot (median, quartiles, outliers etc).
+	 * @return
+	 */
+	public void addColLabel(String label) {
+		this.colLabels.add(label);
+	}
 
 	/**
 	 * Gets data or returns an empty List if none present.
 	 * @return
 	 */
 	public List<List<Object>> getData() {
-		if (data == null)
-			return new ArrayList<List<Object>>();
 		return data;
 	}
 
-	public void setData(List<List<Object>> data) {
-		this.data = data;
+	public void setData(List<? extends List<Object>> data) {
+		this.data = (List<List<Object>>) data;
 	}
 
 	
@@ -104,8 +123,6 @@ public class DataSeries {
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -126,8 +143,6 @@ public class DataSeries {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	
@@ -148,8 +163,6 @@ public class DataSeries {
 	 * @param row
 	 */
 	public void addRow(String label, List<?> row){
-		if (rowLabels == null)
-			rowLabels = new ArrayList<String>();
 		rowLabels.add(label);
 		this.addRow(row);
 	}
@@ -192,15 +205,11 @@ public class DataSeries {
 	
 	@JsonIgnore
 	public int getRowCount(){
-		if (rowLabels == null)
-			return 0;
 		return rowLabels.size();
 	}
 	
 	@JsonIgnore
 	public int getColCount(){
-		if (colLabels == null)
-			return 0;
 		return colLabels.size();
 	}
 

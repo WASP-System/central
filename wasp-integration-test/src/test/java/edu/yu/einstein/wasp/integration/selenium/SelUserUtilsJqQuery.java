@@ -17,7 +17,7 @@ public class SelUserUtilsJqQuery extends SelBaseTest {
 	  @Test (groups = "integration-tests",  dataProvider = "DP1")
 	  public void f(String sUserName, String sUserPass) {
 
-		  SeleniumHelper.login(sUserName, sUserPass, driver);	
+		  SeleniumHelper.login(sUserName, sUserPass);	
 		  Assert.assertTrue(driver.findElements(By.xpath("//a[contains(@href,'/wasp/user/list.do')]")).size() != 0, "Cannot locate 'User Utils' link.");
 		  driver.findElement(By.xpath("//a[contains(@href,'/wasp/user/list.do')]")).click();
 		  Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/user/list.do");

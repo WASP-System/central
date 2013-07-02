@@ -32,7 +32,7 @@ public class SelPendingUserApproval extends SelBaseTest{
   @Test (groups = "integration-tests",  dataProvider = "DP1")
   public void pendingUserApprove(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
-	  SeleniumHelper.login(sUserName, sUserPass, driver);
+	  SeleniumHelper.login(sUserName, sUserPass);
 	  	  
 	  Assert.assertNotNull(driver.findElement(By.linkText("Tasks")), "Unable to locate 'Tasks' tab.");
 	  driver.findElement(By.linkText("Tasks")).click();
@@ -60,7 +60,7 @@ public class SelPendingUserApproval extends SelBaseTest{
    */
   @Test  (groups = "integration-tests",  dataProvider = "DP2")
   public void pendingUserReject(String sUserName, String sUserPass, String sExpectedUrl, String sUserEmail, String sRejectedUrl) throws Exception { 
-	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass);	 
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")), "Unable to locate 'Lab Utils' tab.");
 	  driver.findElement(By.xpath("//a[contains(@href,'#tabs-labUtils')]")).click();
 

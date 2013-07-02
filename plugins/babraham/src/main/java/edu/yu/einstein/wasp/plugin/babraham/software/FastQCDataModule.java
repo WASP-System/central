@@ -15,14 +15,14 @@ public class FastQCDataModule{
 	
 	private String result;
 	
-	private Set<String> attributes;
+	private List<String> attributes;
 	
 	private Map<String, String> keyValueData;
 	
 	private List<List<String>> dataPoints;
 	
 	public FastQCDataModule() {
-		this.attributes = new LinkedHashSet<String>();
+		this.attributes = new ArrayList<String>();
 		this.dataPoints = new ArrayList<List<String>>();
 		this.keyValueData = new LinkedHashMap<String, String>();
 	}
@@ -56,11 +56,11 @@ public class FastQCDataModule{
 		this.result = result;
 	}
 	
-	public Set<String> getAttributes() {
+	public List<String> getAttributes() {
 		return attributes;
 	}
 	
-	public void setAttributes(Set<String> attributes) {
+	public void setAttributes(List<String> attributes) {
 		this.attributes = attributes;
 	}
 	
