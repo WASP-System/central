@@ -1,6 +1,9 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
+import java.awt.Color;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.json.JSONException;
@@ -8,6 +11,8 @@ import org.json.JSONException;
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
+import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries;
+import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 
 /**
@@ -37,12 +42,10 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		sb.append("{ color: '" + YELLOW + "', from: 20, to: 28 },");
 		sb.append("{ color: '" + GREEN + "', from: 28, to: 100 }");
 		sb.append("]},\n");
-		sb.append("series: [{ name: '" + boxPlotDS.getName() + "', animation:false,\n");
-		sb.append(getDataSeriesAsJsonArray(boxPlotDS));
-		sb.append("},\n");
-		sb.append("{ name: '" + meanDS.getName() + "', type: 'spline', color: '" + BLUE + "', marker: { enabled: false }, animation:false,\n");
-		sb.append(getDataSeriesAsJsonArray(meanDS));
-		sb.append("}]\n");	
+		Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
+		seriesSet.add(new BasicHighChartsSeries(boxPlotDS));
+		seriesSet.add(new BasicHighChartsSeries(meanDS, Type.SPLINE, false, false, Color.RED));
+		sb.append(getBasicSeriesCode(seriesSet));
 		sb.append(getContainerEndCode());
 		return sb.toString();
 	}

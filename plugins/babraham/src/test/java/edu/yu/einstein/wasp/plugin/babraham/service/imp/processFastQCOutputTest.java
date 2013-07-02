@@ -152,6 +152,18 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
+	public void testGetSeqDupHighChartsPlotHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getBasicSpline(chart);
+		logger.debug(html);
+		//Assert.assertTrue(html.contains("chart: { type: 'boxplot' }"));
+	}
+	
+	@Test (groups = "unit-tests")
 	public void testGetBasicStatsHtml() throws JSONException{
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);

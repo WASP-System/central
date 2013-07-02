@@ -265,8 +265,17 @@ public class FastQC extends SoftwarePackage {
 		BigDecimal bd = new BigDecimal(dl.getKeyValueData().get("Total Duplicate Percentage"));
 		chart.setTitle("Sequence Duplication Level >= " + bd.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP).toPlainString());
 		DataSeries ds = new DataSeries();
+		ds.setName("% Duplication");
 		ds.setColLabels(dl.getAttributes());
-		ds.setData((List<? extends List<Object>>) dl.getDataPoints());
+		try{
+			for (List<String> dataRow : dl.getDataPoints()){
+				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
+			}
+		} catch (NumberFormatException e){
+			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+		} catch (NullPointerException e){
+			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
