@@ -213,6 +213,7 @@ public class FastQC extends SoftwarePackage {
 		output.put(PlotType.BASIC_STATISTICS, getParsedBasicStatistics(mMap));
 		output.put(PlotType.PER_BASE_QUALITY, getParsedPerBaseQualityData(mMap));
 		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
+		output.put(PlotType.PER_SEQUENCE_QUALITY, getPerSequenceQualityScores(mMap));
 		return output;
 	}
 	
@@ -234,6 +235,7 @@ public class FastQC extends SoftwarePackage {
 		boxPlot.setTitle("Quality scores across all bases");
 		boxPlot.setxAxisLabel("position in read (bp)");
 		boxPlot.setyAxisLabel("Quality Score");
+		boxPlot.setDescription("This view shows an overview of the range of quality values across all bases at each position in the FastQ file.");
 		boxPlot.addProperty(QC_ANALYSIS_RESULT, perBaseQual.getResult());
 		for (List<String> row : perBaseQual.getDataPoints()){
 			try{
@@ -261,6 +263,10 @@ public class FastQC extends SoftwarePackage {
 		chart.setxAxisLabel("Sequence Duplication Level");
 		chart.setyAxisLabel("% Duplicate Relative to Unique");
 		chart.addProperty(QC_ANALYSIS_RESULT, dl.getResult());
+		chart.setDescription("In a diverse library most sequences will occur only once in the final set. A low level of duplication may indicate a very high level of coverage of the target sequence, but a high level of duplication is more likely to indicate some kind of enrichment bias (eg PCR over amplification).\n" + 
+				"This module counts the degree of duplication for every sequence in the set and creates a plot showing the relative number of sequences with different degrees of duplication.\n" + 
+				"Because the duplication detection requires an exact sequence match over the whole length of the sequence any reads over 75bp in length are truncated to 50bp for the purposes of this analysis. Even so, longer reads are more likely to contain sequencing errors which will artificially increase the observed diversity and will tend to underrepresent highly duplicated sequences." 
+			);
 		int decimalPlaces = 1;
 		BigDecimal bd = new BigDecimal(dl.getKeyValueData().get("Total Duplicate Percentage"));
 		chart.setTitle("Sequence Duplication Level >= " + bd.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP).toPlainString());
@@ -269,6 +275,32 @@ public class FastQC extends SoftwarePackage {
 		ds.setColLabels(dl.getAttributes());
 		try{
 			for (List<String> dataRow : dl.getDataPoints()){
+				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
+			}
+		} catch (NumberFormatException e){
+			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+		} catch (NullPointerException e){
+			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+		}
+		chart.addDataSeries(ds);
+		return chart.getAsJSON();
+	}
+	
+	private JSONObject getPerSequenceQualityScores(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule psq = moduleMap.get(PlotType.PER_SEQUENCE_QUALITY);
+		WaspChart2D chart = new WaspChart2D();
+		chart.setxAxisLabel("Quality Score");
+		chart.setyAxisLabel("Sequence Count");
+		chart.addProperty(QC_ANALYSIS_RESULT, psq.getResult());
+		chart.setTitle("Quality Score Distribution Over all Sequences");
+		chart.setDescription("The per sequence quality score report allows you to see if a subset of your sequences have universally low quality values. It is often the case that a subset of sequences will have universally poor quality, often because they are poorly imaged (on the edge of the field of view etc), however these should represent only a small percentage of the total sequences.\n" + 
+				"If a significant proportion of the sequences in a run have overall low quality then this could indicate some kind of systematic problem - possibly with just part of the run (for example one end of a flowcell)." 
+			);
+		DataSeries ds = new DataSeries();
+		ds.setName("average quality per read");
+		ds.setColLabels(psq.getAttributes());
+		try{
+			for (List<String> dataRow : psq.getDataPoints()){
 				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){

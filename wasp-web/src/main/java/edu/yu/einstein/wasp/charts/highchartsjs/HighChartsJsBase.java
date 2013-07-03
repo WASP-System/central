@@ -25,10 +25,11 @@ public abstract class HighChartsJsBase {
 	public static Logger logger = LoggerFactory.getLogger(HighChartsJsBase.class);
 	
 	private static String X_AXIS_NAME = "xAxis";
+	
 	private static String Y_AXIS_NAME = "yAxis";
 	
 	public enum ChartType{
-		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT;
+		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT, NONE;
 	}
 	
 	public static Set<URL> getScriptDependencies() {
@@ -45,59 +46,96 @@ public abstract class HighChartsJsBase {
 	}
 	
 	public static String getContainerStartCode(ChartType chartType, String title){
-		return getContainerStartCode(chartType, title, null, null);
+		return getContainerStartCode(chartType, title, false, null);
 	}
 	
-	public static String getContainerStartCode(ChartType chartType, String title, String subTitle, String legend){
+	public static String getContainerStartCode(ChartType chartType, String title, boolean displayLegend, String description){
 		StringBuilder sb = new StringBuilder();
-		String id = "highChartContainer_" + UUID.randomUUID().toString();
-		sb.append("<div id='" + id + "' style='height: 400px; margin: auto; min-width: 400px; max-width: 600px'></div>\n<script>\n");
-		sb.append("$(function () {\n$('#" + id + "').highcharts({\n");
-		sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
-		if (title != null && !title.isEmpty())
-			sb.append("title: { text: '" + title + "' },\n");
-		if (subTitle != null && !subTitle.isEmpty())
-			sb.append("subtitle: { text: '" + subTitle + "' },\n");
-		if (legend == null || legend.isEmpty())
-			sb.append("legend: { enabled: false },\n");
-		else
-			sb.append("legend: { title: { text: '" + legend + "'} },\n");
+		String id = "highChart_Target_" + UUID.randomUUID().toString();
+		sb.append("<div class='highchart_container'>\n");
+		if (!chartType.equals(ChartType.NONE))
+			sb.append("<div class='highchart_chart' id='" + id + "'></div>\n");
+		if (description != null)
+			sb.append("<div class='highchart_Description'><p>" + description.replaceAll("[\n\r]", "<br /><br />") + "</p></div>\n");
+		sb.append("</div>\n");
+		if (!chartType.equals(ChartType.NONE)){
+			sb.append("<script>\n$(function () {\n$('#" + id + "').highcharts({\n");
+			sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
+			if (title != null && !title.isEmpty())
+				sb.append("title: { text: '" + title + "' },\n");
+			//if (subTitle != null && !subTitle.isEmpty())
+			//	sb.append("subtitle: { text: '" + subTitle + "' },\n");
+			sb.append("legend: { enabled: " + displayLegend + " },\n");
+		}
 		return sb.toString();
 	}
 	
 	public static String getBasicXAxisCode(String title){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, null, null, null);
 	}
 	
 	public static String getBasicXAxisCode(String title, List<String> categories){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, null);
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, null, null);
 	}
 	
 	public static String getBasicXAxisCode(String title, Integer tickInterval){
-		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval);
+		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, null, null);
 	}
 	
 	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval){
-		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval);
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, null, null);
 	}
 	
 	public static String getBasicYAxisCode(String title){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, null, null);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, null, null);
 	}
 	
 	public static String getBasicYAxisCode(String title, List<String> categories){
-		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null);
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, null, null);
 	}
 	
 	public static String getBasicYAxisCode(String title, Integer tickInterval){
-		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval);
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, null, null);
 	}
 	
-	private static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval){
+	public static String getBasicXAxisCode(String title, Number min, Number max){
+		return getBasicAxisCode(X_AXIS_NAME, title, null, null, min, max);
+	}
+	
+	public static String getBasicXAxisCode(String title, List<String> categories, Number min, Number max){
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, null, min, max);
+	}
+	
+	public static String getBasicXAxisCode(String title, Integer tickInterval, Number min, Number max){
+		return getBasicAxisCode(X_AXIS_NAME, title, null, tickInterval, min, max);
+	}
+	
+	public static String getBasicXAxisCode(String title, List<String> categories, Integer tickInterval, Number min, Number max){
+		return getBasicAxisCode(X_AXIS_NAME, title, categories, tickInterval, min, max);
+	}
+	
+	public static String getBasicYAxisCode(String title, Number min, Number max){
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, null, min, max);
+	}
+	
+	public static String getBasicYAxisCode(String title, List<String> categories, Integer tickInterval, Number min, Number max){
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, tickInterval, min, max);
+	}
+	
+	public static String getBasicYAxisCode(String title, List<String> categories, Number min, Number max){
+		return getBasicAxisCode(Y_AXIS_NAME, title, categories, null, min, max);
+	}
+	
+	public static String getBasicYAxisCode(String title, Integer tickInterval, Number min, Number max){
+		return getBasicAxisCode(Y_AXIS_NAME, title, null, tickInterval, min, max);
+	}
+	
+	
+	private static String getBasicAxisCode(String axis, String title, List<String> categories, Integer tickInterval, Number min, Number max){
 		StringBuilder sb = new StringBuilder();
 		sb.append(axis + ": { ");
 		if (categories != null && !categories.isEmpty()){
@@ -114,6 +152,10 @@ public abstract class HighChartsJsBase {
 		}
 		if (tickInterval != null)
 			sb.append("tickInterval: " + tickInterval + ",\n");
+		if (min != null)
+			sb.append("min: " + min + ",\n");
+		if (max != null)
+			sb.append("min: " + max + ",\n");
 		sb.append("title: { text: '" + title + "' }\n");
 		sb.append("},\n");
 		return sb.toString();
@@ -148,7 +190,7 @@ public abstract class HighChartsJsBase {
 	public static String getBasicSpline(final WaspChart2D chart) throws JSONException{
 		DataSeries ds = chart.getDataSeries().get(0);
 		StringBuilder sb = new StringBuilder();
-		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), null, chart.getLegend()));
+		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), false, chart.getDescription()));
 		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels()));
 		sb.append(getBasicYAxisCode(chart.getyAxisLabel()));
 		sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));

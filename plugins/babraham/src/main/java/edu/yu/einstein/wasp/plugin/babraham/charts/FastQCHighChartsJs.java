@@ -33,7 +33,7 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		DataSeries meanDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.RUNNING_MEAN);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append(getContainerStartCode(ChartType.BOXPLOT, waspBoxPlot.getTitle(), null, waspBoxPlot.getLegend()));
+		sb.append(getContainerStartCode(ChartType.BOXPLOT, waspBoxPlot.getTitle(), false, waspBoxPlot.getDescription()));
 		sb.append(getBasicXAxisCode(waspBoxPlot.getxAxisLabel(), boxPlotDS.getRowLabels(), 5));
 		sb.append("plotOptions: { series: { groupPadding: 0} },\n");
 		sb.append("yAxis: { title: { text: '" + waspBoxPlot.getyAxisLabel() + "' },\n ");
@@ -53,11 +53,11 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 	public static String getBasicStatistics(final WaspChart basicStats) throws JSONException{
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div id='" + UUID.randomUUID().toString() + "'/>\n");
-		sb.append("<h2>" + basicStats.getTitle() + "</h2>\n");
+		sb.append("<div class='highchart_container'>\n");
+		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
 		sb.append("<table>\n");
 		for (List<Object> row : data)
-			sb.append("<tr><td>" + (String) row.get(0) + ": </td><td>" + (String) row.get(1) + "</td></tr>\n");
+			sb.append("<tr><th>" + (String) row.get(0) + ": </th><td>" + (String) row.get(1) + "</td></tr>\n");
 		sb.append("</table>\n");
 		sb.append("</div>\n");
 		return sb.toString();
