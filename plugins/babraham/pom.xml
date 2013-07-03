@@ -4,7 +4,6 @@
     <groupId>edu.yu.einstein.wasp</groupId>
     <artifactId>wasp-plugin</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <relativePath/>
   </parent>
   <groupId>edu.yu.einstein.wasp.plugin</groupId>
   <artifactId>babraham</artifactId>

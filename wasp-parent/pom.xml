@@ -100,6 +100,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</properties>
 
 	<modules>
+		<module>../wasp-plugin</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-daemon</module>
 		<module>../wasp-core</module>
@@ -107,7 +108,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-web</module>
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
-		<module>../wasp-plugin</module>
 		<module>../wasp-file</module>
 		<module>../plugins</module>
 		</modules>
@@ -1015,7 +1015,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<repository>
 			<id>atlassian</id>
 			<name>Atlassian repository</name>
-			<url>https://repository.atlassian.com/maven2/</url>
+			<url>https://maven.atlassian.com/repository/public</url>
 		</repository>
 		<repository>
 			<id>junit</id>
