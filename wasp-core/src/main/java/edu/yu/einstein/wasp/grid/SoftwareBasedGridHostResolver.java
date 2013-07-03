@@ -128,7 +128,7 @@ public class SoftwareBasedGridHostResolver extends AbstractGridHostResolver {
 	 */
 	@Override
 	public String getUsername(String hostname) throws GridUnresolvableHostException {
-		for (GridWorkService gws : gridWorkServices) {
+		for (GridWorkService gws : gridWorkServiceMap.keySet()) {
 			if (gws.getTransportConnection().getHostName().equals(hostname))
 				return gws.getTransportConnection().getUserName();
 		}
