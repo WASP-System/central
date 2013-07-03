@@ -8,7 +8,6 @@
 	<name>WASP Eclipse project</name>
 	
 	<parent>
-		<relativePath>../wasp-parent/pom.xml</relativePath>
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
