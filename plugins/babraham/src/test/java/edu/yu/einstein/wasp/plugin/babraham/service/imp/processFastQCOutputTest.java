@@ -184,6 +184,20 @@ public class processFastQCOutputTest {
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
 		String html = FastQCHighChartsJs.getBasicSpline(chart);
 		logger.debug(html);
-		//Assert.assertTrue(html.contains("<tr><th>Total Sequences: </th><td>4000000</td></tr>"));
+		Assert.assertTrue(html.contains("xAxis: { categories: ['2', '3', '4', '5', '6', '7'"));
 	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerBaseSeqContentHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getSplineForBases(chart);
+		logger.debug(html);
+		//Assert.assertTrue(html.contains("xAxis: { categories: ['2', '3', '4', '5', '6', '7'"));
+	}
+	
+	
 }

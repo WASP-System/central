@@ -175,7 +175,7 @@ public abstract class HighChartsJsBase {
 		for (BasicHighChartsSeries series : seriesSet){
 			if (seriesCount++ > 0)
 				sb.append(",");
-			sb.append(series.getInnerHtml());	
+			sb.append(series.getInnerHtml());
 		}
 		sb.append("]\n");	
 		return sb.toString();

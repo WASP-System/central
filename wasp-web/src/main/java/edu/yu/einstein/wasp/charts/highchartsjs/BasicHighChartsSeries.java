@@ -137,7 +137,7 @@ public class BasicHighChartsSeries{
 	 */
 	public String getInnerHtml() throws JSONException{
 		String seriesName = "";
-		if (!ds.getName().isEmpty())
+		if (ds.getName() != null && !ds.getName().isEmpty())
 			seriesName =  "name: '" + ds.getName() + "', ";
 		String seriesColor = "";
 		if (color != null){

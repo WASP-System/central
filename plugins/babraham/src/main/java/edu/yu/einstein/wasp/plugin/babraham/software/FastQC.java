@@ -214,6 +214,7 @@ public class FastQC extends SoftwarePackage {
 		output.put(PlotType.PER_BASE_QUALITY, getParsedPerBaseQualityData(mMap));
 		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		output.put(PlotType.PER_SEQUENCE_QUALITY, getPerSequenceQualityScores(mMap));
+		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, getPerBaseSequenceContent(mMap));
 		return output;
 	}
 	
@@ -309,6 +310,44 @@ public class FastQC extends SoftwarePackage {
 			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(ds);
+		return chart.getAsJSON();
+	}
+	
+	private JSONObject getPerBaseSequenceContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule pbsq = moduleMap.get(PlotType.PER_BASE_SEQUENCE_CONTENT);
+		WaspChart2D chart = new WaspChart2D();
+		chart.setxAxisLabel("position in read (bp)");
+		chart.setyAxisLabel("proportion of base (%)");
+		chart.addProperty(QC_ANALYSIS_RESULT, pbsq.getResult());
+		chart.setTitle("Quality Score Distribution Over all Sequences");
+		chart.setDescription("Per Base Sequence Content plots out the proportion of each base position in a file for which each of the four normal DNA bases has been called.\n" + 
+				"In a random library you would expect that there would be little to no difference between the different bases of a sequence run, so the lines in this plot should run parallel with each other. The relative amount of each base should reflect the overall amount of these bases in your genome, but in any case they should not be hugely imbalanced from each other.\n" + 
+				"If you see strong biases which change in different bases then this usually indicates an overrepresented sequence which is contaminating your library. A bias which is consistent across all bases either indicates that the original library was sequence biased, or that there was a systematic problem during the sequencing of the library."
+			);
+		DataSeries dsA = new DataSeries("% A");
+		DataSeries dsC = new DataSeries("% C");
+		DataSeries dsT = new DataSeries("% T");
+		DataSeries dsG = new DataSeries("% G");
+		dsA.setColLabels(pbsq.getAttributes());
+		dsC.setColLabels(pbsq.getAttributes());
+		dsT.setColLabels(pbsq.getAttributes());
+		dsG.setColLabels(pbsq.getAttributes());
+		try{
+			for (List<String> dataRow : pbsq.getDataPoints()){
+				dsG.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
+				dsA.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(2)));
+				dsT.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(3)));
+				dsC.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(4)));
+			}
+		} catch (NumberFormatException e){
+			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+		} catch (NullPointerException e){
+			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+		}
+		chart.addDataSeries(dsA);
+		chart.addDataSeries(dsC);
+		chart.addDataSeries(dsT);
+		chart.addDataSeries(dsG);
 		return chart.getAsJSON();
 	}
 
