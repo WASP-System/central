@@ -296,7 +296,6 @@ public class WaspProjectCreator {
 		parent.setGroupId("edu.yu.einstein.wasp");
 		parent.setArtifactId("wasp-plugin");
 		parent.setVersion(version);
-		parent.setRelativePath("");
 		model.setParent(parent);
 
 		// properties
