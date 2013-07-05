@@ -72,7 +72,7 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), true, chart.getDescription()));
 		sb.append(getBasicXAxisCode(chart.getxAxisLabel()));
-		sb.append(getBasicYAxisCode(chart.getyAxisLabel()));
+		sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, 100));
 		Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
 		seriesSet.add(new BasicHighChartsSeries(dsG, false, false, Color.RED));
 		seriesSet.add(new BasicHighChartsSeries(dsA, false, false, Color.BLUE));

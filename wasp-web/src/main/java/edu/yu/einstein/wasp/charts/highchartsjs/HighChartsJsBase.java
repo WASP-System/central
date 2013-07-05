@@ -155,7 +155,7 @@ public abstract class HighChartsJsBase {
 		if (min != null)
 			sb.append("min: " + min + ",\n");
 		if (max != null)
-			sb.append("min: " + max + ",\n");
+			sb.append("max: " + max + ",\n");
 		sb.append("title: { text: '" + title + "' }\n");
 		sb.append("},\n");
 		return sb.toString();
@@ -186,13 +186,25 @@ public abstract class HighChartsJsBase {
 	}
 	
 	
-	
 	public static String getBasicSpline(final WaspChart2D chart) throws JSONException{
+		return getBasicSpline(chart, null, null, null);
+	}
+	
+	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval) throws JSONException{
+		return getBasicSpline(chart, xTickInterval, null, null);
+	}
+	
+	public static String getBasicSpline(final WaspChart2D chart, Integer yMin, Integer yMax) throws JSONException{
+		return getBasicSpline(chart, null, yMin, yMax);
+	}
+	
+	
+	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yMin, Integer yMax) throws JSONException{
 		DataSeries ds = chart.getDataSeries().get(0);
 		StringBuilder sb = new StringBuilder();
 		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), false, chart.getDescription()));
-		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels()));
-		sb.append(getBasicYAxisCode(chart.getyAxisLabel()));
+		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels(), xTickInterval));
+		sb.append(getBasicYAxisCode(chart.getyAxisLabel(), yMin, yMax));
 		sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));
 		sb.append(getContainerEndCode());
 		return sb.toString();

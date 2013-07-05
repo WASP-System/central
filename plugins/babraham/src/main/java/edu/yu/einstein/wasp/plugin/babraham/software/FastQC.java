@@ -215,6 +215,7 @@ public class FastQC extends SoftwarePackage {
 		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		output.put(PlotType.PER_SEQUENCE_QUALITY, getPerSequenceQualityScores(mMap));
 		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, getPerBaseSequenceContent(mMap));
+		output.put(PlotType.PER_BASE_GC_CONTENT, getPerBaseGcContent(mMap));
 		return output;
 	}
 	
@@ -348,6 +349,32 @@ public class FastQC extends SoftwarePackage {
 		chart.addDataSeries(dsC);
 		chart.addDataSeries(dsT);
 		chart.addDataSeries(dsG);
+		return chart.getAsJSON();
+	}
+	
+	private JSONObject getPerBaseGcContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+		FastQCDataModule pbgc = moduleMap.get(PlotType.PER_BASE_GC_CONTENT);
+		WaspChart2D chart = new WaspChart2D();
+		chart.setxAxisLabel("position in read (bp)");
+		chart.setyAxisLabel("% GC");
+		chart.addProperty(QC_ANALYSIS_RESULT, pbgc.getResult());
+		chart.setTitle("Per Base GC Content");
+		chart.setDescription("Per Base GC Content plots out the GC content of each base position in a file.\n" + 
+				"In a random library you would expect that there would be little to no difference between the different bases of a sequence run, so the line in this plot should run horizontally across the graph. The overall GC content should reflect the GC content of the underlying genome.\n" + 
+				"If you see a GC bias which changes in different bases then this could indicate an overrepresented sequence which is contaminating your library. A bias which is consistent across all bases either indicates that the original library was sequence biased, or that there was a systematic problem during the sequencing of the library." );
+		DataSeries ds = new DataSeries();
+		ds.setName("% GC");
+		ds.setColLabels(pbgc.getAttributes());
+		try{
+			for (List<String> dataRow : pbgc.getDataPoints()){
+				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
+			}
+		} catch (NumberFormatException e){
+			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+		} catch (NullPointerException e){
+			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+		}
+		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
 

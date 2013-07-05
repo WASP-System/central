@@ -160,7 +160,7 @@ public class processFastQCOutputTest {
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
 		String html = FastQCHighChartsJs.getBasicSpline(chart);
 		logger.debug(html);
-		//Assert.assertTrue(html.contains("chart: { type: 'boxplot' }"));
+		Assert.assertTrue(html.contains("title: { text: 'Sequence Duplication Level' }"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -182,7 +182,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart);
+		String html = FastQCHighChartsJs.getBasicSpline(chart,2);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("xAxis: { categories: ['2', '3', '4', '5', '6', '7'"));
 	}
@@ -196,7 +196,19 @@ public class processFastQCOutputTest {
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
 		String html = FastQCHighChartsJs.getSplineForBases(chart);
 		logger.debug(html);
-		//Assert.assertTrue(html.contains("xAxis: { categories: ['2', '3', '4', '5', '6', '7'"));
+		Assert.assertTrue(html.contains("title: { text: 'Quality Score Distribution Over all Sequences' },"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerBaseGcContentHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, 0, 100);
+		logger.debug(html);
+		//Assert.assertTrue(html.contains("title: { text: 'Sequence Duplication Level' }"));
 	}
 	
 	
