@@ -6,9 +6,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 	    <groupId>edu.yu.einstein.wasp</groupId>
 	    <version>0.1.0-SNAPSHOT</version>
-		<artifactId>bom</artifactId>
+	    <artifactId>bom</artifactId>
 	</parent>
 
+	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Wasp System</name>
