@@ -37,7 +37,7 @@
 				    <td colspan="3" align="left" class="submitBottom">
 			        	<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_ro.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
 			        	<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' >Reset</a>
-						<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editLibraryForm","<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_rw1234.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
+						<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("editLibraryForm","<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
 				    </td>
 				</tr>
 		    

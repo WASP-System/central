@@ -2183,16 +2183,17 @@ public class JobController extends WaspController {
 		m.addAttribute("errorMessage", errorMessage);
 		return "job/home/librarydetail_rw";
 	}
-		@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw1234", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
-		@PreAuthorize("hasRole('su') or hasRole('ft')")
-		public String updateJobLibraryDetailRW1234(@PathVariable("jobId") Integer jobId, 
-				@PathVariable("libraryId") Integer libraryId,
-				@RequestBody String jsonString, //we cannot do @RequestBody Sample libraryForm due to the metadata
-				/*
-				 * BindingResult result, //cannot use this BindingResult as it would be bound to the jsonString, which is NOT useful
-				 * SessionStatus status, //do not need SessionStatus 
-				 */ 
-				ModelMap m) throws MetadataException {
+	  
+	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String updateJobLibraryDetailRW(@PathVariable("jobId") Integer jobId, 
+		@PathVariable("libraryId") Integer libraryId,
+		@RequestBody String jsonString, //we cannot do @RequestBody Sample libraryForm due to the metadata
+		/*
+		 * BindingResult result, //cannot use this BindingResult as it would be bound to the jsonString, which is NOT useful
+		 * SessionStatus status, //do not need SessionStatus 
+		 */ 
+		ModelMap m) throws MetadataException {
 			
 			String errorMessage = "";
 
@@ -2247,48 +2248,9 @@ public class JobController extends WaspController {
 				errorMessage = "Update Failed: Unexpected Error";
 				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_rw.do?errorMessage="+errorMessage;
 			}
-/*			
-				if ( request.getParameter("submit").equals("Cancel") ){
-					return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-				} 
-
-				Job jobForThisSample = jobDao.getJobByJobId(jobId);
-				
-				String errorMessage = "Error locating requested Job or Sample in database";
-
-				List<Sample> allJobSamples = jobForThisSample.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-				for(Sample s : allJobSamples){
-					if(s.getId().intValue() == libraryId.intValue()){			
-						errorMessage="";
-						break;
-					}
-				}
-				m.addAttribute("errorMessage", errorMessage);
-			  	if(!"".equals(errorMessage)){
-			  		return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-			  	}
-			  	libraryForm.setName(libraryForm.getName().trim());
-			  
-			  	Sample library = sampleService.getSampleDao().getSampleBySampleId(libraryId); 
-			  	validateSampleNameUnique(libraryForm.getName(), libraryId, jobDao.getJobByJobId(jobId), result);
-			  	SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
-			  	List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, 
-					  sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()), result); 
-			  	if(result.hasErrors()){
-				  //waspErrorMessage("sampleDetail.updated.error");
-				  libraryForm.setSampleMeta(metaFromForm);
-				  libraryDetail(jobId, libraryForm, libraryId, m);
-				  return "job/home/librarydetail_rw";
-			  	}
-			  // all ok so save 
-			  library.setName(libraryForm.getName());
-			  sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);			  	
-
-			  	//what if the update fails??
-			  	
-			 return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-		*/
 	}
+		
+	/* ********************* NO LONGER USED
 	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 		@PreAuthorize("hasRole('su') or hasRole('ft')")
 		public String updateJobLibraryDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -2335,6 +2297,8 @@ public class JobController extends WaspController {
 			  	
 			  	return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
 		}
+		//end no longer used *****************/
+		
 	 /**
 	   * Handles preparation of model for display of library details. Makes a detached Sample object.
 	   * @param jobId

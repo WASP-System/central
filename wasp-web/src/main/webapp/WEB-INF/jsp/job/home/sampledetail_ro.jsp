@@ -12,7 +12,7 @@
 	  	<tr class="FormData"><td class="CaptionTD"><fmt:message key="sampledetail_ro.sampleType.label" />:</td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td></tr>
 	     <c:set var="_area" value = "sample" scope="request"/>
 		 <c:set var="_metaList" value = "${normalizedSampleMeta}" scope="request" />		
-	     <c:import url="/WEB-INF/jsp/meta_ro.jsp"/>
+	     <c:import url="/WEB-INF/jsp/job/home/meta_ro.jsp"/>
 	    <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="sampledetail_ro.cancel.label" /></a>&nbsp;
 			<sec:authorize access="hasRole('su') or hasRole('ft')"> 
 			<%-- 

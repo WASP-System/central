@@ -18,48 +18,42 @@
 				
 			    <%-- this tag will define selectItems/itemValue/itemLabel request attributes --%>
 			    <wasp:metaSelect control="${_meta.property.control}"/>
-			    <c:choose>
-			    <c:when test='${id=="adaptorset"}'>
+			    
+			   
 			    	<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all" 
-				    	onchange='			    	
-				    		var selectedAdaptorSet = this.options[this.selectedIndex].value;			    	
-					    	var options = "";
-					    	var url = "<c:url value="/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId="/>"+selectedAdaptorSet;
-							
-							var adaptorCount = 0;
-							if (!selectedAdaptorSet) {
-								$("tr#row_adaptor").hide();
-								$("select#adaptor").children().remove().end();                 		            
-							return;
-							}						
-							$.ajax({
-								async: false,
-							   	url: url,
-							    dataType: "json",
-							    success: function(data) {
-							    	$.each(data, function (index, name) {         				    
-										options += "<option value=" + index + ">" + name + "</option>\n";
-										adaptorCount++;
-									});
-							    }
-							});   
-					
-					
-							if (adaptorCount > 1){
-								options = "<option value=><fmt:message key="wasp.default_select.label" /></option>\n" + options;
-							}
-							
-							$("select#adaptor").html(options);
-							$("tr#row_adaptor").show();						
-			    		'
+
+ 						<c:if test='${id=="adaptorset"}'>
+					    	onchange='			    	
+					    		var selectedAdaptorSet = this.options[this.selectedIndex].value;			    	
+						    	var options = "";
+						    	var url = "<c:url value="/jobsubmit/adaptorsByAdaptorsetId.do?adaptorsetId="/>"+selectedAdaptorSet;
+								var adaptorCount = 0;
+								if (!selectedAdaptorSet) {
+									$("tr#row_adaptor").hide();
+									$("select#adaptor").children().remove().end();                 		            
+								return;
+								}						
+								$.ajax({
+									async: false,
+								   	url: url,
+								    dataType: "json",
+								    success: function(data) {
+								    	$.each(data, function (index, name) {         				    
+											options += "<option value=" + index + ">" + name + "</option>\n";
+											adaptorCount++;
+										});
+								    }
+								});   
+								if (adaptorCount > 1){
+									options = "<option value=><fmt:message key="wasp.default_select.label" /></option>\n" + options;
+								}
+								$("select#adaptor").html(options);
+								$("tr#row_adaptor").show();						
+				    		'
+			    		</c:if>
 			    	>
-			    </c:when>
-			    <c:otherwise>
-			    	<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all">
-			    </c:otherwise>
-			    </c:choose>
-       			<%--<select class="FormElement ui-widget-content ui-corner-all" name="${_area}Meta_${_meta.k}" id="${id}" class="FormElement ui-widget-content ui-corner-all"> --%>
-					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
+			    			    
+ 					<c:if test= "${fn:length(selectItems) > 1 && _meta.property.formVisibility != 'immutable'}">
 						<option value=''><fmt:message key="wasp.default_select.label"/></option>
 					</c:if>
 					<c:set var="useDefault" value="0" />
