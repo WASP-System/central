@@ -109,7 +109,7 @@ public abstract class SampleAndSampleDraftMetaHelper {
 	}
 	
 	/**
-	 * Gets all metadata filled in on the form from the http request using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * Gets all metadata filled in on the form from the json string using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
 	 * @param request
 	 * @param areas
 	 * @param result
@@ -119,4 +119,34 @@ public abstract class SampleAndSampleDraftMetaHelper {
 		return getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, null, clazz);
 	}
 
+	/**
+	 * Gets all metadata filled in on the form from json map using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. Applies visibilityElementMap.
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param areas
+	 * @param result
+	 * @param visibilityElementMap
+	 * @return list of sample meta data
+	 */
+	public static <T extends MetaBase>  List<T> getValidatedMetaFromJsonAndTemplateToSubtype(Map<String,String> jsonMap, SampleSubtype sampleSubtype, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap, Class<T> clazz) throws MetadataTypeException{
+		validateClass(clazz);
+		List<T> validatedFormMeta = new ArrayList<T>();
+		MetaHelperWebapp metaHelper = new MetaHelperWebapp(clazz);
+		for (String area : sampleSubtype.getComponentMetaAreas()){
+			metaHelper.setArea(area);
+			validatedFormMeta.addAll(metaHelper.getFromJson(jsonMap, visibilityElementMap, clazz));
+		}
+		MetaHelperWebapp.validate(metaHelper.getParentArea(), validatedFormMeta, result);
+		return validatedFormMeta;
+	}
+	
+	/**
+	 * Gets all metadata filled in on the form from the json map using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param areas
+	 * @param result
+	 * @return list of sample meta data
+	 */
+	public static <T extends MetaBase> List<T> getValidatedMetaFromJsonAndTemplateToSubtype(Map<String,String> jsonMap, SampleSubtype sampleSubtype, BindingResult result, Class<T> clazz) throws MetadataTypeException{
+		return getValidatedMetaFromJsonAndTemplateToSubtype(jsonMap, sampleSubtype, result, null, clazz);
+	}
 }

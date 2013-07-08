@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.controller;
 
+import java.io.BufferedReader;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -22,16 +23,23 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,6 +91,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.service.AdaptorService;
@@ -99,6 +108,8 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
+
+
 
 @Controller
 @Transactional
@@ -167,7 +178,6 @@ public class JobController extends WaspController {
 	private RunService runService;
 	@Autowired
 	private MessageServiceWebapp messageService;
-
 	
 	// list of baserolenames (da-department admin, lu- labuser ...)
 	// see role table
@@ -1932,12 +1942,12 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_rw", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSampleDetailRWPage(@PathVariable("jobId") Integer jobId, 
-			  @PathVariable("sampleId") Integer sampleId, ModelMap m) throws SampleTypeException {
+			  @PathVariable("sampleId") Integer sampleId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  ModelMap m) throws SampleTypeException {
 
 		Job job = jobService.getJobByJobId(jobId);
 		m.addAttribute("job", job);
-		
-		String errorMessage = "Error locating requested Job or Sample in database";
 		
 		Sample theRequestedSample = null;
 		SampleWrapperWebapp sampleManaged;
@@ -1945,7 +1955,6 @@ public class JobController extends WaspController {
 		for(Sample sample : allJobSamples){
 			if(sample.getId().intValue() == sampleId.intValue()){
 				theRequestedSample = sample;
-				errorMessage="";
 				sampleManaged = new SampleWrapperWebapp(theRequestedSample);
 				m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(theRequestedSample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
 				
@@ -1959,6 +1968,81 @@ public class JobController extends WaspController {
 		m.addAttribute("errorMessage", errorMessage);
 		return "job/home/sampledetail_rw";
 	}	
+	private <T extends WaspModel> T constructInstanceFromJson(String jsonString, Class<T> clazz) throws Exception{
+		
+		//convert jsonString to some object (if meta entries present, they will be ignored due to the om.configure setting)
+		ObjectMapper om = new ObjectMapper();
+		om.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);//http://stackoverflow.com/questions/4486787/jackson-with-json-unrecognized-field-not-marked-as-ignorable
+		T obj = om.readValue(jsonString, clazz);
+		return obj;
+	}
+	private Map<String,String> constructMapFromJson(String jsonString) throws Exception{
+		
+		ObjectMapper om = new ObjectMapper();
+		Map<String,String> map = om.readValue(jsonString, new TypeReference<HashMap<String,String>>() { });
+		return map;
+	}
+	
+	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
+	@PreAuthorize("hasRole('su') or hasRole('ft')")
+	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
+			@PathVariable("sampleId") Integer sampleId, 
+			@RequestBody String jsonString, //we cannot do @RequestBody Sample sampleForm due to the metadata
+			/*
+			 * BindingResult result, //cannot use this BindingResult as it would be bound to the jsonString, which is NOT useful
+			 * SessionStatus status, //do not need SessionStatus 
+			 */ 
+			ModelMap m) throws MetadataException {
+		
+		String errorMessage = "";
+
+		try{
+			Job jobForThisSample = jobDao.getJobByJobId(jobId);	
+			//TODO confirm job exists; confirm sample exists; confirm sample part of this job. It not, throw new Excpetion
+
+			Sample sampleForm = constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
+			sampleForm.setName(sampleForm.getName().trim());//from the form
+
+			//programmatically validate constraints on Sample attributes (note: will NOT examine sample.metadata); see http://static.springsource.org/spring/docs/3.0.0.RC3/reference/html/ch05s07.html (see part 5.7.3 Configuring a DataBinder)
+			WebDataBinder binder = new WebDataBinder(sampleForm, "sample");//setting the objectName to "sample" is very important
+			initBinder(binder);//WaspController method that sets the validator to an autowired BeanValidator. This call replaces: binder.setValidator(validator);
+			//binder.bind(propertyValues); //Don't know how to set this, but apparently works fine (at least in this case) without it. Perhaps the validator from WASPController has already dealt with this step??
+			binder.validate();// validate the target object, in this case, sampleForm
+			BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
+			//perform an additional validation of Sample to make sure that Sample.name is unique within this job
+			//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
+			validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
+			
+			//retrieve Sample.metadata from the form AND validate it too
+			List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(sampleForm.getSampleSubtypeId()), result); 
+									
+			if(result.hasErrors()){
+				sampleForm.setId(sampleId);//since this sampleForm was created thru json, it curretly lacks id
+				sampleForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(sampleForm.getSampleTypeId()));
+				sampleForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(sampleForm.getSampleSubtypeId()));
+				m.put("job", jobForThisSample);
+				m.put("sample", sampleForm); 
+				m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleForm.getSampleSubtype(), metaFromForm));
+				m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+				//need next line to send the bindingResult, with the errors, to the jsp (it's not automatic in this case)
+				m.addAttribute(BindingResult.MODEL_KEY_PREFIX+result.getObjectName(), result);//http://static.springsource.org/autorepo/docs/spring/2.5.x/api/org/springframework/validation/BindingResult.html
+				
+				return "job/home/sampledetail_rw";
+			}
+			
+			Sample sample = sampleService.getSampleById(sampleId);
+			sample.setName(sampleForm.getName());
+			SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample);
+			sampleService.updateExistingSampleViaSampleWrapper(managedSample, metaFromForm);
+			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
+
+		}catch(Exception e){
+			e.printStackTrace();
+			errorMessage = "Update Failed: Unexpected Error";
+			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_rw.do?errorMessage="+errorMessage;
+		}
+	}
+	/* ********************* NO LONGER USED
 	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -2012,6 +2096,10 @@ public class JobController extends WaspController {
 			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
 
 		}
+		//end no longer used *****************/
+	
+	
+	
 	  /**
 	   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
 	   * @param formSample
@@ -2094,6 +2182,112 @@ public class JobController extends WaspController {
 		
 		m.addAttribute("errorMessage", errorMessage);
 		return "job/home/librarydetail_rw";
+	}
+		@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw1234", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
+		@PreAuthorize("hasRole('su') or hasRole('ft')")
+		public String updateJobLibraryDetailRW1234(@PathVariable("jobId") Integer jobId, 
+				@PathVariable("libraryId") Integer libraryId,
+				@RequestBody String jsonString, //we cannot do @RequestBody Sample libraryForm due to the metadata
+				/*
+				 * BindingResult result, //cannot use this BindingResult as it would be bound to the jsonString, which is NOT useful
+				 * SessionStatus status, //do not need SessionStatus 
+				 */ 
+				ModelMap m) throws MetadataException {
+			
+			String errorMessage = "";
+
+			try{
+				Job jobForThisSample = jobDao.getJobByJobId(jobId);	
+				//TODO confirm job exists; confirm sample exists; confirm sample part of this job. It not, throw new Excpetion
+
+				Sample libraryForm = constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
+				libraryForm.setName(libraryForm.getName().trim());//from the form
+
+				//programmatically validate constraints on Sample attributes (note: will NOT examine sample.metadata); see http://static.springsource.org/spring/docs/3.0.0.RC3/reference/html/ch05s07.html (see part 5.7.3 Configuring a DataBinder)
+				WebDataBinder binder = new WebDataBinder(libraryForm, "sample");//setting the objectName to "sample" is very important
+				initBinder(binder);//WaspController method that sets the validator to an autowired BeanValidator. This call replaces: binder.setValidator(validator);
+				//binder.bind(propertyValues); //Don't know how to set this, but apparently works fine (at least in this case) without it. Perhaps the validator from WASPController has already dealt with this step??
+				binder.validate();// validate the target object, in this case, sampleForm
+				BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
+				//perform an additional validation of Sample to make sure that Sample.name is unique within this job
+				//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
+				validateSampleNameUnique(libraryForm.getName(), libraryId, jobForThisSample, result);
+				
+				//retrieve Sample.metadata from the form AND validate it too
+				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
+										
+				if(result.hasErrors()){
+					
+					libraryForm.setSampleMeta(metaFromForm);
+					libraryDetail(jobId, libraryForm, libraryId, m);
+					
+					//all these things below and commented out will be performed in the call above: libraryDetail(jobId, libraryForm, libraryId, m);
+					//libraryForm.setId(libraryId);//since this libraryForm was created thru json, it curretly lacks id
+					//libraryForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
+					//libraryForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
+					//m.put("job", jobForThisSample);
+					//m.put("sample", libraryForm); 
+					//m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(libraryForm.getSampleSubtype(), metaFromForm));
+					//m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+					
+					//need next line to send the bindingResult, with the errors, to the jsp (it's not automatic in this case)
+					m.addAttribute(BindingResult.MODEL_KEY_PREFIX+result.getObjectName(), result);//http://static.springsource.org/autorepo/docs/spring/2.5.x/api/org/springframework/validation/BindingResult.html
+					
+					return "job/home/librarydetail_rw";
+				}
+				
+				Sample library = sampleService.getSampleById(libraryId);
+				library.setName(libraryForm.getName());
+				SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
+				sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);
+				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
+
+			}catch(Exception e){
+				e.printStackTrace();
+				errorMessage = "Update Failed: Unexpected Error";
+				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_rw.do?errorMessage="+errorMessage;
+			}
+/*			
+				if ( request.getParameter("submit").equals("Cancel") ){
+					return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
+				} 
+
+				Job jobForThisSample = jobDao.getJobByJobId(jobId);
+				
+				String errorMessage = "Error locating requested Job or Sample in database";
+
+				List<Sample> allJobSamples = jobForThisSample.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+				for(Sample s : allJobSamples){
+					if(s.getId().intValue() == libraryId.intValue()){			
+						errorMessage="";
+						break;
+					}
+				}
+				m.addAttribute("errorMessage", errorMessage);
+			  	if(!"".equals(errorMessage)){
+			  		return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
+			  	}
+			  	libraryForm.setName(libraryForm.getName().trim());
+			  
+			  	Sample library = sampleService.getSampleDao().getSampleBySampleId(libraryId); 
+			  	validateSampleNameUnique(libraryForm.getName(), libraryId, jobDao.getJobByJobId(jobId), result);
+			  	SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
+			  	List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, 
+					  sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()), result); 
+			  	if(result.hasErrors()){
+				  //waspErrorMessage("sampleDetail.updated.error");
+				  libraryForm.setSampleMeta(metaFromForm);
+				  libraryDetail(jobId, libraryForm, libraryId, m);
+				  return "job/home/librarydetail_rw";
+			  	}
+			  // all ok so save 
+			  library.setName(libraryForm.getName());
+			  sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);			  	
+
+			  	//what if the update fails??
+			  	
+			 return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
+		*/
 	}
 	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 		@PreAuthorize("hasRole('su') or hasRole('ft')")

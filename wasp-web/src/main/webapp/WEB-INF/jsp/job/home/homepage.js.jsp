@@ -43,7 +43,22 @@ $(document).ready(function() {
         width: 400,
         position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
     });
-	
+	 $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
+	    	var o = {};
+	    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
+	    	$.each(a, function() {
+	    		if (o[this.name]) {
+	    			if (!o[this.name].push) {
+	    				o[this.name] = [o[this.name]];
+	    			}
+	    			o[this.name].push(this.value || '');
+	    		} else {
+	    			o[this.name] = this.value || '';
+	    		}
+	    	});
+	    	return o;
+	    };
+ 
 });
 
 
@@ -567,3 +582,122 @@ window.onload = function (){
 
 </script>
  
+<script type="text/javascript">
+   /*
+   var frm = $('#commentForm');
+    frm.submit(function () {
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: frm.serialize(),
+            success: function (response) {
+                //alert('ok');
+                //document.getElementById("viewerFrame").innerHTML = response;
+                $('#viewerFrame').html = "This is a test";
+            }
+        });
+
+        return false;
+    });
+    */
+    function postFormWithAjax(formObject, theUrl){
+    	var frm = $("#" + formObject.id);//must do this; cannot simply use formObject; don't know why not 
+    	$.ajax({
+            type: frm.attr('method'),
+            url: theUrl,
+            data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
+            success: function (response) {
+                //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+                $('#viewerFrame').html(response);
+            }
+        });
+    	return false; // avoid to execute the actual submit of the form 
+    }	
+    //look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
+    function postFormWithAjaxJson(formObjectId, theUrl){
+    	var frm = $("#" + formObjectId);//must do this; cannot simply use formObject; don't know why not
+    	//////alert("frm id = " + frm.attr('id'));
+    	//////alert("the url = " + theUrl);
+    	//var array = jQuery(frm).serializeArray();
+    	//////var sf = frm.serialize();//http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery
+    	//////alert("serialize sf =: " + sf);
+    	//sf = sf.replace(/"/g, '\"');         // be sure all " are escaped
+    	//sf = '{"' + sf.replace(/&/g, '","'); // start "object", replace tupel delimiter &
+    	//sf = sf.replace(/=/g, '":"') + '"}'; // replace equal sign, add closing "object"
+
+    	//////alert("ABCD");
+    	//var serializedObject = frm.serializeObject(); //such as [{ name: "a", value: "1"},{name: "b", value: "2"}] 
+    	
+    	
+    	var serializedObject = {};
+    	var a = frm.serializeArray(); //http://api.jquery.com/serializeArray/ 
+    	$.each(a, function() {
+    		if (serializedObject[this.name]) {
+    			if (!serializedObject[this.name].push) {
+    				serializedObject[this.name] = [serializedObject[this.name]];
+    			}
+    			serializedObject[this.name].push(this.value || '');
+    		} else {
+    			serializedObject[this.name] = this.value || '';
+    		}
+    	});
+    	
+    	
+    	//////alert("defgzyx");
+    	//////alert("serialziedObject is: " + serializedObject);
+    	var jsonData = JSON.stringify(serializedObject);// such as {"sampleSubtypeId":"5","sampleTypeId":"2"} 
+    	//////alert("serialziedObject as JSON: " + jsonData);
+    	//return false;
+    	$.ajax({
+            type: frm.attr('method'),
+            url: theUrl,
+            //dataType : 'json', //coming back from server
+            data: jsonData,
+            contentType: 'application/json',
+            //data: $.toJSON(frm),
+            success: function (response) {
+                //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+                $('#viewerFrame').html(response);
+            },
+    		error: function (response) {
+            //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+            $('#viewerFrame').html("failed, the response is:" + response);
+        }
+        });
+    	return false;
+    }	
+   
+    $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
+    	var o = {};
+    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
+    	$.each(a, function() {
+    		if (o[this.name]) {
+    			if (!o[this.name].push) {
+    				o[this.name] = [o[this.name]];
+    			}
+    			o[this.name].push(this.value || '');
+    		} else {
+    			o[this.name] = this.value || '';
+    		}
+    	});
+    	return o;
+    };
+    
+    /*
+   function serializeObject() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery  
+    	var o = {};
+    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
+    	$.each(a, function() {
+    		if (o[this.name]) {
+    			if (!o[this.name].push) {
+    				o[this.name] = [o[this.name]];
+    			}
+    			o[this.name].push(this.value || '');
+    		} else {
+    			o[this.name] = this.value || '';
+    		}
+    	});
+    	return o;
+    };
+    */
+</script>

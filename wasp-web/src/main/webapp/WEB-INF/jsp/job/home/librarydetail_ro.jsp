@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<a class="button" href="javascript:void(0);"  onclick='parent.loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
 <br />
 <br />
 <c:choose>
@@ -17,10 +17,10 @@
 	     <c:set var="_area" value = "library" scope="request"/>
 	     <c:set var="_metaList" value = "${sample.getSampleMeta()}" scope="request" />
 	     <c:import url="/WEB-INF/jsp/meta_ro.jsp" />
-	    <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="javascript:void(0);" onclick='parent.loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="librarydetail_ro.cancel.label" /></a>&nbsp;
+	    <tr class="FormData"><td colspan="2" class="submitBottom"><a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="librarydetail_ro.cancel.label" /></a>&nbsp;
 		<sec:authorize access="hasRole('su') or hasRole('ft')"> 
 		  <%-- <a class="button" href="<c:url value="/sampleDnaToLibrary/librarydetail_rw/${job.jobId}/${sample.sampleId}.do"/>"><fmt:message key="librarydetail_ro.edit.label" /></a>--%>
-		  <a class="button" href="javascript:void(0);" onclick='parent.loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' ><fmt:message key="librarydetail_ro.edit.label" /></a>
+		  <a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/library/${sample.getId()}/librarydetail_rw.do" />");' ><fmt:message key="librarydetail_ro.edit.label" /></a>
 		 </sec:authorize>	
 		 </td></tr>
 	</table>

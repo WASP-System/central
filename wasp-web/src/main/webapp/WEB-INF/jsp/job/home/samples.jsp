@@ -42,8 +42,9 @@
 					<label>Name (NewWindow):</label> <a id="sampledetail_roAnchor4"  href="javascript:void(0);" onclick='showPopupWindow("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					
 					<label>Name (NewWindow):</label> <a id="sampledetail_roAnchor4"  href="javascript:void(0);" onclick='showPopupWindow("<c:url value="/wasp-illumina/flowcell/7/show.do" />");' >see a flowcell</a><br />
-					--%>
 					<label>Name:</label> <a id="sampledetail_roAnchor1"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
+					--%>
+					<label>Name:</label> <a id="sampledetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
 					<label>Arrival Status:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
@@ -85,7 +86,7 @@
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
-							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
+							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
 							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
 								<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
