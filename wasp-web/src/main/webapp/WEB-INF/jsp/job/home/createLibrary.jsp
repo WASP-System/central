@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<a class="button" href="javascript:void(0);"  onclick='parent.loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
+<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
 <br />
 <br />
 <c:choose>
@@ -8,7 +8,9 @@
 	</c:when>
 <c:otherwise>
 
-	<form:form  cssClass="FormGrid" commandName="sample">
+	<%-- <form:form  cssClass="FormGrid" commandName="sample"> --%>
+	<form:form   cssClass="FormGrid" commandName="sample" method='post' name='createLibraryForm' id='createLibraryForm' action="" >
+	
 		 <form:hidden path='sampleTypeId' />
 		 <form:hidden path='sampleSubtypeId' />
 		 
@@ -28,15 +30,23 @@
 		     <tr class="FormData"><td class="CaptionTD"><fmt:message key="createLibrary.librarySubtype.label" />:</td><td class="DataTD"><c:out value="${sample.getSampleSubtype().getName()}" /></td><td>&nbsp;</td></tr>
 		     <c:set var="_area" value = "sample" scope="request"/>
 			 <c:set var="_metaList" value = "${sample.sampleMeta}" scope="request" />		
-		     <c:import url="/WEB-INF/jsp/meta_rw.jsp" />
+		     <c:import url="/WEB-INF/jsp/job/home/meta_rw.jsp" />
 		     <sec:authorize access="hasRole('su') or hasRole('ft')">
+		     	<%-- 
 			    <tr class="FormData">
 			     	<td colspan="3" align="left" class="submitBottom">
 			     		<a class="button" href="javascript:void(0);" onclick='parent.loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="createLibrary.cancel.label" /></a>&nbsp;
-			         	<%-- <input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="createLibrary.cancel.label" />" /> --%>
-			            <input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="createLibrary.save.label" />" />
+			         	<input class="FormElement ui-widget-content ui-corner-all" type="submit" name="submit" value="<fmt:message key="createLibrary.save.label" />" />
 			        </td>
 			    </tr>
+			    --%>
+			    <tr class="FormData">
+				    <td colspan="3" align="left" class="submitBottom">
+			        	<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
+			        	<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/macromolecule/${macromoleculeSample.getId()}/createLibrary.do" />");' >Reset</a>
+			        	<a class="button" href="javascript:void(0);"  onclick='postFormWithAjaxJson("createLibraryForm","<c:url value="/job/${job.getId()}/macromolecule/${macromoleculeSample.getId()}/createLibrary.do" />"); return false;' ><fmt:message key="sampledetail_rw.save.label" /></a>	
+				    </td>
+				</tr>
 		     </sec:authorize>
 		</table>
 	</form:form>

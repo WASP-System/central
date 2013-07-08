@@ -65,7 +65,8 @@
 	 							
  	 							--%>
  	 							<br />
- 	 							<a class="button" href="javascript:void(0);" onclick='parent.loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
+ 	 							<%-- <a class="button" href="javascript:void(0);" onclick='parent.loadIFrameAnotherWay(this, "<c:url value="/job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>--%>
+ 	 							<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/macromolecule/${submittedObject.getId()}/createLibrary.do" />");' ><fmt:message key="listJobSamples.createLibrary.label" /></a>
  	 							<br /><br />
  	 							
  	 						</c:if>

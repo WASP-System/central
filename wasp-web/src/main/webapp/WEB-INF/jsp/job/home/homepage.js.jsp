@@ -646,7 +646,7 @@ window.onload = function (){
     	//////alert("defgzyx");
     	//////alert("serialziedObject is: " + serializedObject);
     	var jsonData = JSON.stringify(serializedObject);// such as {"sampleSubtypeId":"5","sampleTypeId":"2"} 
-    	//////alert("serialziedObject as JSON: " + jsonData);
+    	//alert("serialziedObject as JSON: " + jsonData);
     	//return false;
     	$.ajax({
             type: frm.attr('method'),
@@ -660,8 +660,8 @@ window.onload = function (){
                 $('#viewerFrame').html(response);
             },
     		error: function (response) {
-            //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
-            $('#viewerFrame').html("failed, the response is:" + response);
+            	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+            	$('#viewerFrame').html("Unexpected Failure");
         }
         });
     	return false;
