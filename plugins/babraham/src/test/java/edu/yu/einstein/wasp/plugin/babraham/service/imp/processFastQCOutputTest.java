@@ -93,9 +93,9 @@ public class processFastQCOutputTest {
 		Assert.assertEquals(module.getDataPoints().size(), 10);
 		Assert.assertEquals(module.getKeyValueData().size(), 1);
 		module = moduleList.get(FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
-		Assert.assertEquals(module.getDataPoints().size(), 0);
+		Assert.assertEquals(module.getDataPoints().size(), 9);
 		Assert.assertEquals(module.getKeyValueData().size(), 0);
-		Assert.assertEquals(module.getResult(), "pass");
+		Assert.assertEquals(module.getResult(), "fail");
 		module = moduleList.get(FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
 		Assert.assertEquals(module.getName(), "Per base sequence content");
 		Assert.assertEquals(module.getAttributes().size(), 5);
@@ -164,15 +164,27 @@ public class processFastQCOutputTest {
 	}
 	
 	@Test (groups = "unit-tests")
-	public void testGetBasicStatsHtml() throws JSONException{
+	public void testGetBasicStatsHtml() throws Exception{
 		Map<String, FastQCDataModule> moduleList = getModuleList();
 		Assert.assertNotNull(moduleList);
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		String html = FastQCHighChartsJs.getBasicStatistics(chart);
+		String html = FastQCHighChartsJs.getKeyValueTableRepresentation(chart);
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<tr><th>Total Sequences: </th><td>4000000</td></tr>"));
+		Assert.assertTrue(html.contains("<h3>Basic Statistics</h3>"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetOverrepresentedSequencesHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
+		Assert.assertNotNull(jsonObject);
+		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
+		String html = FastQCHighChartsJs.getTableRepresentation(chart);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("<h3>Overrepresented sequences</h3>"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -182,9 +194,9 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart,2);
+		String html = FastQCHighChartsJs.getBasicSpline(chart,2, null, null, null, null, null);
 		logger.debug(html);
-		Assert.assertTrue(html.contains("xAxis: { categories: ['2', '3', '4', '5', '6', '7'"));
+		Assert.assertTrue(html.contains("title: { text: 'Quality Score Distribution Over all Sequences' },"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -206,9 +218,45 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, 0, 100);
+		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
 		logger.debug(html);
-		//Assert.assertTrue(html.contains("title: { text: 'Sequence Duplication Level' }"));
+		Assert.assertTrue(html.contains("title: { text: 'Per Base GC Content' },"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerSequenceGcContentHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_GC_CONTENT);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getSplineForPerSequenceGC(chart);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("title: { text: 'Per Sequence GC Content' },"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetPerBaseNContentHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_N_CONTENT);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("title: { text: 'N content acrosss all bases' },"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetKmerProfilesHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.KMER_PROFILES);
+		Assert.assertNotNull(jsonObject);
+		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
+		String html = FastQCHighChartsJs.getTableRepresentation(chart);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("<h3>Kmer Content</h3>"));
 	}
 	
 	

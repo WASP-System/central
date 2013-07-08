@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -14,19 +13,22 @@ import org.slf4j.LoggerFactory;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
+import edu.yu.einstein.wasp.charts.WebChartsBase;
 
 /**
  * Base Class for producing HighChartsJs charts (www.highcharts.com)
  * @author asmclellan
  *
  */
-public abstract class HighChartsJsBase {
+public abstract class HighChartsJsBase extends WebChartsBase{
 	
 	public static Logger logger = LoggerFactory.getLogger(HighChartsJsBase.class);
 	
 	private static String X_AXIS_NAME = "xAxis";
 	
 	private static String Y_AXIS_NAME = "yAxis";
+	
+	private static final String HIGHCHART_DIV_PREFIX = "highchart";
 	
 	public enum ChartType{
 		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT, NONE;
@@ -45,21 +47,31 @@ public abstract class HighChartsJsBase {
 		return dependencies;
 	}
 	
+	/**
+	 * Get initiation code for displaying a HighCharts chart. It is necessary to terminate by calling getContainerEndCode() later.
+	 * @param chartType
+	 * @param title
+	 * @return
+	 */
 	public static String getContainerStartCode(ChartType chartType, String title){
 		return getContainerStartCode(chartType, title, false, null);
 	}
 	
+	/**
+	 * Get initiation code for displaying a HighCharts chart. It is necessary to terminate by calling getContainerEndCode() later.
+	 * @param chartType
+	 * @param title
+	 * @param displayLegend
+	 * @param description
+	 * @return
+	 */
 	public static String getContainerStartCode(ChartType chartType, String title, boolean displayLegend, String description){
 		StringBuilder sb = new StringBuilder();
-		String id = "highChart_Target_" + UUID.randomUUID().toString();
-		sb.append("<div class='highchart_container'>\n");
-		if (!chartType.equals(ChartType.NONE))
-			sb.append("<div class='highchart_chart' id='" + id + "'></div>\n");
-		if (description != null)
-			sb.append("<div class='highchart_Description'><p>" + description.replaceAll("[\n\r]", "<br /><br />") + "</p></div>\n");
-		sb.append("</div>\n");
+		StringBuilder id = new StringBuilder();
+		
+		sb.append(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", description, id)); // value of id get set in here
 		if (!chartType.equals(ChartType.NONE)){
-			sb.append("<script>\n$(function () {\n$('#" + id + "').highcharts({\n");
+			sb.append("<script>\n$(function () {\n$('#" + HIGHCHART_DIV_PREFIX +  CONTENTS_DIV_SUFFIX + id + "').highcharts({\n");
 			sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
 			if (title != null && !title.isEmpty())
 				sb.append("title: { text: '" + title + "' },\n");
@@ -181,25 +193,40 @@ public abstract class HighChartsJsBase {
 		return sb.toString();
 	}
 	
+	
+	/**
+	 * Terminates a chart. Do not call this methods unless getContainerStartCode() has been called first
+	 * @return
+	 */
 	public static String getContainerEndCode(){
 		return "\n});\n});\n</script>";
 	}
 	
-	
+	/**
+	 * Get a basic spline chart.
+	 * @param chart
+	 * @return
+	 * @throws JSONException
+	 */
 	public static String getBasicSpline(final WaspChart2D chart) throws JSONException{
-		return getBasicSpline(chart, null, null, null);
+		return getBasicSpline(chart, null, null, null, null, null, null);
 	}
+
 	
-	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval) throws JSONException{
-		return getBasicSpline(chart, xTickInterval, null, null);
-	}
-	
-	public static String getBasicSpline(final WaspChart2D chart, Integer yMin, Integer yMax) throws JSONException{
-		return getBasicSpline(chart, null, yMin, yMax);
-	}
-	
-	
-	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yMin, Integer yMax) throws JSONException{
+	/**
+	 * Get a basic spline chart. Except for chart, which must be provided, all other parameter values may be null
+	 * in which case HighCharts default values will be used.
+	 * @param chart
+	 * @param xTickInterval
+	 * @param yTickInterval
+	 * @param xMin
+	 * @param xMax
+	 * @param yMin
+	 * @param yMax
+	 * @return
+	 * @throws JSONException
+	 */
+	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws JSONException{
 		DataSeries ds = chart.getDataSeries().get(0);
 		StringBuilder sb = new StringBuilder();
 		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), false, chart.getDescription()));
@@ -209,5 +236,7 @@ public abstract class HighChartsJsBase {
 		sb.append(getContainerEndCode());
 		return sb.toString();
 	}
+	
+	
 
 }
