@@ -13,6 +13,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
+import edu.yu.einstein.wasp.grid.file.GridFileMover;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 
 /**
@@ -77,5 +78,11 @@ public interface GridWorkService {
 	public InputStream readTaskOutput(GridResult r, int taskId) throws IOException;
 
 	public LinkedHashMap<String,String> getMappedTaskOutput(GridResult r) throws IOException;
+	
+	//public void setGridFileMovers(List<GridFileMover> gridFileMovers);
+	
+	//public boolean hasFileMover(Class<GridFileMover> c);
+	
+	//public boolean getFileMover(Class<GridFileMover> c);
 
 }

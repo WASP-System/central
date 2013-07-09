@@ -8,35 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
-import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.mps.bwa.BWASoftwareComponent;
-import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
-import edu.yu.einstein.wasp.service.SampleService;
 
 /**
- * @author calder
+ * @author 
  * 
  */
 public class ___Pluginname___Tasklet extends WaspTasklet {
