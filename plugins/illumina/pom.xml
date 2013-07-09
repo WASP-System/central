@@ -48,6 +48,10 @@
 			<artifactId>wasp-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>edu.yu.einstein.wasp</groupId>
+			<artifactId>wasp-daemon</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
