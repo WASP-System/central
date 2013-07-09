@@ -2,7 +2,8 @@
 
 <%-- <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" > --%>
 <%--see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery --%>
-<%--method2 described here (easier of the two): targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html  --%>
+<%--method2, used here (the easier of the two),: targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html  --%>
+<%--method1 using flash swf, can be implemented with this jquery plugin http://www.uploadify.com/--%>
 <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" target="hiddenIFrame">
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">
