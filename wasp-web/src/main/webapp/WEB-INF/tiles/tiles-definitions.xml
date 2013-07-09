@@ -27,6 +27,18 @@
 		<put-attribute name="footer-content" value="/WEB-INF/jsp/sections/footer.jsp" />
 	</definition>
 
+	<definition name="template-unadorned" template="/WEB-INF/jsp/layouts/unadorned.jsp">
+		<put-attribute name="head-style" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="body-content" value="" />
+	</definition>
+
+	<definition name="template-unadorned-with-stylesheet" template="/WEB-INF/jsp/layouts/unadornedWithStylesheet.jsp">
+		<put-attribute name="head-style" value="" />
+		<put-attribute name="head-js" value="" />
+		<put-attribute name="body-content" value="" />
+	</definition>
+	
 	<definition name="auth/accessdenied" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
 	</definition>
@@ -96,6 +108,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
+	<!-- <definition name="jobresults/treeview" extends="template-unadorned-with-stylesheet"> -->
 	<definition name="jobresults/treeview" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobresults/treeview.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobresults/treeview.jsp" />
@@ -184,8 +197,7 @@
 	<definition name="sampleDnaToLibrary/createLibrary" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/createLibrary.jsp" />
-	</definition>
-
+	</definition>	
 	<definition name="sampleDnaToLibrary/sampledetail_rw" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/sampledetail_rw.jsp" />
 	</definition>
@@ -199,8 +211,59 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
 	</definition>
-
-
+	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/jobdetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/jobdetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/rundetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/rundetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/celldetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/celldetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/sequencedetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/sequencedetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/alignmentdetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/alignmentdetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/librarydetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/librarydetails.jsp" />
+	</definition>
+	<definition name="datadisplay/mps/jobs/samples/mainpage" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/samples/mainpage.jsp" />
+	</definition>
+	<definition name="job/home/homepage" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/job/home/homepage.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/homepage.jsp" />
+	</definition>
+	<definition name="job/home/basic" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/basic.jsp" />
+	</definition>
+	<definition name="job/home/workflow" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/workflow.jsp" />
+	</definition>
+	<definition name="job/home/requests" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/requests.jsp" />
+	</definition>
+	<definition name="job/home/approvals" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/approvals.jsp" />
+	</definition>
+	<definition name="job/home/comments" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
+	</definition>
+	<definition name="job/home/viewerManager" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
+	</definition>
+	<definition name="job/home/samples" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
+	</definition>
+	<definition name="job/home/fileUploadManager" extends="template-unadorned-with-stylesheet">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
+	</definition>
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />
@@ -234,6 +297,10 @@
 	<definition name="task/cellLibraryQC/list" extends="template-base">
 	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/cellLibraryQC/list.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/task/cellLibraryQC/list.jsp" />
+	</definition>
+	<definition name="task/aggregationAnalysis/list" extends="template-base">
+	    <put-attribute name="head-js" value="/WEB-INF/jsp/task/aggregationAnalysis/list.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/task/aggregationAnalysis/list.jsp" />
 	</definition>
 	<definition name="task/daapprove/list" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/task/daapprove/list.js.jsp" />

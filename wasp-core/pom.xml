@@ -6,7 +6,6 @@
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>wasp-core</artifactId>
@@ -21,41 +20,22 @@
              <directory>src/main/resources</directory>
             </resource>
            </resources>
-
-		<plugins>
+           <plugins>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<additionalClasspathElements>
-						<additionalClasspathElement>/src/test/resources/unitils</additionalClasspathElement>
-					</additionalClasspathElements>				
-					<!-- <suiteXmlFiles> <suiteXmlFile>src/test/config/testng.xml</suiteXmlFile> 
-						</suiteXmlFiles> -->
-
-				
-				</configuration>
+				<executions>
+					<execution>
+						<id>test-testng</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
-
 	</build>
-<profiles>			
-	<profile>
-			<id>selenium-tests</id>
-			<build>
-			<plugins>
-			<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-surefire-plugin</artifactId>
-			<configuration>
-			<suiteXmlFiles>
-			<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
-			</suiteXmlFiles>
-			</configuration>
-			</plugin>     
-			</plugins>
-			</build>
-	</profile>
-</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>edu.yu.einstein.wasp</groupId>

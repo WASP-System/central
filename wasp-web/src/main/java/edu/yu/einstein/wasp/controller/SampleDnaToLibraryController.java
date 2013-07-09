@@ -56,6 +56,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobUser;
+import edu.yu.einstein.wasp.model.MetaAttribute.FormVisibility;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
@@ -65,6 +66,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.RoleService;
+import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.CellWrapper;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -104,6 +106,8 @@ public class SampleDnaToLibraryController extends WaspController {
   
   @Autowired
   private RoleService roleService; 
+  @Autowired
+  private RunService runService; 
   @Autowired
   private SampleService sampleService;
   @Autowired
@@ -314,7 +318,7 @@ public class SampleDnaToLibraryController extends WaspController {
 	  m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 	  m.addAttribute("currentWebViewer", currentWebViewer);
 	  
-	  //linkedHashMap because insert order is guarranteed
+	  //linkedHashMap because insert order is guaranteed
 	  LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 	  m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	  
 	  LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
@@ -389,25 +393,25 @@ public class SampleDnaToLibraryController extends WaspController {
 				//message and get out of here
 			}
 			libraryAdaptorMap.put(library, adaptor);	
-			List<Sample> cells = sampleService.getCellsForLibrary(library);
+			List<Sample> cells = sampleService.getCellsForLibrary(library, job);//5-10-13, added expanded this service to include library,job. Without job, this could be a disaster!
 			for (Sample cell : cells){
+				System.out.println("---cell: " + cell.getName());
 				if (cellsByLibrary.get(library) == null){
 					cellsByLibrary.put(library, new ArrayList<CellWrapper>());
-					try {
-						CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
-						Sample platformunit = cellWrapper.getPlatformUnit();
-						if (platformunit != null)
-							showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
-						cellsByLibrary.get(library).add(cellWrapper);
-					} catch (SampleParentChildException e) {
-						logger.warn(e.getLocalizedMessage());
-					}
+				}//5-10-13 this bracket was missing.
+				try {
+					CellWrapper cellWrapper = new CellWrapper(cell, sampleService);
+					Sample platformunit = cellWrapper.getPlatformUnit();
+					if (platformunit != null)
+						showPlatformunitViewMap.put(platformunit, sampleService.getPlatformunitViewLink(platformunit));
+					cellsByLibrary.get(library).add(cellWrapper);
+				} catch (SampleParentChildException e) {
+					logger.warn(e.getLocalizedMessage());
 				}
-			}
-			
+				
+			}			
 		}
-	  	
-	  	
+	  		  	
 		for(List<Sample> libraryList : facilityLibraryMap.values()){
 			for(Sample library : libraryList){
 				Adaptor adaptor = sampleService.getLibraryAdaptor(library);
@@ -440,12 +444,17 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
 				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
 			}
 			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 		}
@@ -466,6 +475,7 @@ public class SampleDnaToLibraryController extends WaspController {
 		m.addAttribute("cellsByLibrary", cellsByLibrary);
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		
 		return "sampleDnaToLibrary/listJobSamples";
   }
@@ -486,6 +496,8 @@ public class SampleDnaToLibraryController extends WaspController {
 	  User me = authenticationService.getAuthenticatedUser();
 	  if (me.getUserId().intValue() == userId.intValue()) {
 		doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+		waspMessage("listJobSamples.jobViewerRemoved.label");
+		return "redirect:/dashboard.do";
 	  }
 	  waspMessage("listJobSamples.jobViewerRemoved.label");
 	  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
@@ -767,10 +779,13 @@ public class SampleDnaToLibraryController extends WaspController {
 	  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
 		SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn);
 		
-  		
+		Map<String, FormVisibility> maskMap = new HashMap<String, FormVisibility>();
+		maskMap.put("genericBiomolecule.organism", FormVisibility.immutable);
+		
 		libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
 				sampleSubtypeDao.getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
-				libraryInManaged.getAllSampleMeta()));
+				libraryInManaged.getAllSampleMeta(),
+				maskMap));
 		
 
 		SampleWrapperWebapp persistentLibraryManaged;
@@ -784,6 +799,11 @@ public class SampleDnaToLibraryController extends WaspController {
 			parentMacromolecule = persistentLibraryManaged.getParentWrapper().getSampleObject();
 		
 		prepareAdaptorsetsAndAdaptors(job, libraryIn.getSampleMeta(), m);
+		  
+		//this is needed for the organism meta to be interpreted properly during metadata display (added by Rob; 5-2-13)
+		//TODO do not want organism for facility-generated library: 
+		m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		if (libraryIn.getId() == null)
 			libraryIn.setSampleId(libraryInId);
 		m.addAttribute("job", job);
@@ -798,6 +818,7 @@ public class SampleDnaToLibraryController extends WaspController {
 
 		m.addAttribute("sample", libraryIn);
 		m.addAttribute("parentMacromolecule", parentMacromolecule);
+		m.addAttribute("organisms", genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		return isRW?"sampleDnaToLibrary/librarydetail_rw":"sampleDnaToLibrary/librarydetail_ro";
   }
   
@@ -839,10 +860,12 @@ public class SampleDnaToLibraryController extends WaspController {
 	  //confirm these two objects exist and part of same job
 	  
 	  SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(sample);
-	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
-	  m.put("job", job);
-	  m.put("sample", sample); 
-	  
+	  Map<String, FormVisibility> maskMap = new HashMap<String, FormVisibility>();
+	  maskMap.put("genericBiomolecule.organism", FormVisibility.immutable);
+	  m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), sampleManaged.getAllSampleMeta(), maskMap) );
+	  m.addAttribute("job", job);
+	  m.addAttribute("sample", sample); 
+	  m.addAttribute("organisms", genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 	  return isRW?"sampleDnaToLibrary/sampledetail_rw":"sampleDnaToLibrary/sampledetail_ro";
   }
 
@@ -886,6 +909,10 @@ public class SampleDnaToLibraryController extends WaspController {
 		  m.put("job", jobForThisSample);
 		  m.put("sample", sampleForm); 
 		  m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
+
+		  //this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
+		  m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
+
 		  return "sampleDnaToLibrary/sampledetail_rw";
 	  }
 	  sample.setName(sampleForm.getName());

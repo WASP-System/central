@@ -49,15 +49,17 @@ public interface GridHostResolver {
 	/**
 	 * Given a work unit, return the appropriate work service.  
 	 * @param w
+	 * @throws GridUnresolvableHostException 
 	 */
-	public GridWorkService getGridWorkService(WorkUnit w);
+	public GridWorkService getGridWorkService(WorkUnit w) throws GridUnresolvableHostException;
 	
 	/**
 	 * Get the work service that is working on the result
 	 * @param w
 	 * @return
+	 * @throws GridUnresolvableHostException 
 	 */
-	public GridWorkService getGridWorkService(GridResult r);
+	public GridWorkService getGridWorkService(GridResult r) throws GridUnresolvableHostException;
 	
 	/**
 	 * Get the work service from a FQDN.  This should be done only when the host is truly known, e.g. 

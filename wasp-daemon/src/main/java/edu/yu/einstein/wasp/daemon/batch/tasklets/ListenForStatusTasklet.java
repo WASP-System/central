@@ -21,6 +21,7 @@ import org.springframework.integration.MessagingException;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
+import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -47,6 +48,10 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	private boolean stopStep = false;
 	
 	private boolean abandonStep = false;
+	
+	public ListenForStatusTasklet() {
+		// proxy
+	}
 	
 
 	public void setAdditionalAbortMonitoredTemplates(Set<StatusMessageTemplate> additionalAbortMessageMonitoredTemplates){
@@ -105,6 +110,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	}
 
 	@Override
+	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (messageQueue.isEmpty() && !abandonStep && !stopStep){
@@ -140,10 +146,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 				logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");
 				abandonStep = true;
 			}
-		} else if (messageTemplate.actUponMessageIgnoringTask(message) && statusFromMessage.isUnsuccessful()){
-			// need to stop this step as ABANDONED or FAILED
-			logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon although task is different. Going to stop step.");
-			stopStep = true;
 		}
 	}
 

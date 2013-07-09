@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!-- for job, call with parameter 'runID' -->
+	<batch:flow id="___package___.___pluginname___.mainFlow">
+		<batch:step id="___package___.___pluginname___.mainFlow.notify___Pluginname___Start" 
+				next="___package___.___pluginname___.mainFlow.performAction">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="___package___.___pluginname___.mainFlow.performAction" next="___package___.___pluginname___.mainFlow.notifyRunComplete">
+			<!-- example do-nothing tasklet -->
+			<batch:tasklet ref="___package___.___pluginname___.mainFlow.skipTasklet" />
+		</batch:step>
+		<batch:step id="___package___.___pluginname___.mainFlow.notifyRunComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:flow>
+
+	<bean id="___package___.___pluginname___.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+</beans>

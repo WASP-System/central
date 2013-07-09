@@ -36,6 +36,8 @@
 		<int:queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.throttled.launch" />
+	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
 	<int:publish-subscribe-channel id="wasp.channel.notification.job" />
@@ -77,6 +79,10 @@
 		
 	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.launch"  input-channel="wasp.channel.queue.launch" output-channel="wasp.channel.throttled.launch">
+		<int:poller max-messages-per-poll="1" fixed-rate="100" />
 	</int:bridge>
 	
 	

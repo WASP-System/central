@@ -26,6 +26,7 @@
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
+				<value>classpath:batch-database.properties</value>
 				<value>classpath:database.properties</value>
 				<value>classpath:authentication.properties</value>
 				<value>classpath:email.properties</value>

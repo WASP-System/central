@@ -42,6 +42,9 @@ public class WorkUnit {
 	public static final String TASK_END_FILE = "WASP_TASK_END";
 	public static final String INPUT_FILE = "WASPFILE";
 	public static final String OUTPUT_FILE = "WASPOUTPUT";
+	public static final String METADATA_ROOT = "WASP_META";
+	public static final String NUMBER_OF_THREADS = "NTHREADS";
+	public static final String REQUESTED_GB_MEMORY = "MEMORYGB";
 
 	private boolean isRegistering;
 	
@@ -225,6 +228,7 @@ public class WorkUnit {
 	/**
 	 * How a remote system should determine the number of processors used. 
 	 * 
+	 * <pre>
 	 *  SINGLE: WorkUnit will run in a single thread.
 	 *  FIXED:  WorkUnit will require one or more processors, specified by the work unit.  It is possible that some
 	 *  	work units will never be executed it this value is set higher than the largest machine on the grid.
@@ -234,6 +238,7 @@ public class WorkUnit {
 	 *  SUM:	The GridHostResolver sums up all of the configured software requirements to determine the number
 	 *      of required processors
 	 *  MPI:	The GridHostResolver must determine a number of processes and parallel environment.   
+	 * </pre>
 	 * 
 	 * @author calder
 	 *
@@ -449,7 +454,7 @@ public class WorkUnit {
 		this.resultFiles = resultFiles;
 	}
 	
-	public void addRequiredFiles(FileGroup file) {
+	public void addResultFiles(FileGroup file) {
 		this.resultFiles.add(file);
 	}
 	/**

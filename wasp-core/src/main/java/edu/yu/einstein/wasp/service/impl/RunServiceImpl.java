@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
@@ -29,6 +31,7 @@ import edu.yu.einstein.wasp.dao.RunCellDao;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.dao.RunMetaDao;
 import edu.yu.einstein.wasp.dao.SampleMetaDao;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.RunException;
@@ -36,8 +39,12 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspRunTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Resource;
 import edu.yu.einstein.wasp.model.Run;
@@ -47,10 +54,12 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.sequence.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 
 /**
@@ -76,6 +85,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	
 	@Autowired
 	private WaspPluginRegistry waspPluginRegistry;
+	
+	@Autowired
+	private UserService userService;
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -249,7 +261,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, BatchStatus.STARTED);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -271,7 +283,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, true, BatchStatus.STARTED).isEmpty())
+		if (! batchJobExplorer.getJobExecutions(parameterMap, false, BatchStatus.STARTED).isEmpty())
 			return true;
 		return false;
 	}
@@ -286,7 +298,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> jobIdStringSet = new LinkedHashSet<String>();
 		jobIdStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, jobIdStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED);
 		for(JobExecution jobExecution: jobExecutions){
 			try {
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -309,7 +321,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Set<String> runIdStringSet = new LinkedHashSet<String>();
 		runIdStringSet.add(run.getId().toString());
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED).isEmpty())
+		if (! batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED).isEmpty())
 			return true;
 		return false;
 	}
@@ -320,33 +332,30 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public Set<Run> getRunsAwaitingQc(){
 		Set<Run> runsAwaitingQc = new LinkedHashSet<Run>();
-		for (Run completedRun : this.getSuccessfullyCompletedRuns()){
-			try{
-				Sample cell1 = sampleService.getIndexedCellsOnPlatformUnit(completedRun.getPlatformUnit()).get(1);
-				sampleService.isCellSequencedSuccessfully(cell1); // do nothing with this, only interested if not set
-			} catch(MetaAttributeNotFoundException e) { 
-				runsAwaitingQc.add(completedRun); // not yet QC
-			} catch(SampleTypeException e1){
-				logger.warn("caught unexpected sample type exception: " + e1.getLocalizedMessage());
+		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
+			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), BatchStatus.STARTED);
+			for(StepExecution stepExec: stepExecutions){
+				try{
+					Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExec, WaspJobParameters.RUN_ID));
+					runsAwaitingQc.add(runDao.getRunByRunId(runId));
+				} catch (Exception e) {
+					logger.warn("unable to proccess a run Id as a parameter for step execution: "+ stepExec.toString());
+				}
 			}
 		}
 		return runsAwaitingQc;
 	}
+		
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean isRunsAwaitingQc(){
-		for (Run completedRun : this.getSuccessfullyCompletedRuns()){
-			try{
-				Sample cell1 = sampleService.getIndexedCellsOnPlatformUnit(completedRun.getPlatformUnit()).get(1);
-				sampleService.isCellSequencedSuccessfully(cell1); // do nothing with this, only interested if not set
-			} catch(MetaAttributeNotFoundException e) { 
-				return true; // not yet QC
-			} catch(SampleTypeException e1){
-				logger.warn("caught unexpected sample type exception: " + e1.getLocalizedMessage());
-			}
+		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
+			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), BatchStatus.STARTED);
+			if (stepExecutions.size() > 0)
+				return true;
 		}
 		return false;
 	}
@@ -417,7 +426,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(Run run){
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCellsWithoutControls(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
@@ -453,7 +462,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
 		List<Sample> cellList = new ArrayList<Sample>();
-		Set<SampleSource> libraryCellSet = this.getLibraryCellPairsOnSuccessfulRunCellsWithoutControls(run);
+		Set<SampleSource> libraryCellSet = this.getCellLibrariesOnSuccessfulRunCellsWithoutControls(run);
 		for (SampleSource lc : libraryCellSet) {
 			if (sampleService.getJobOfLibraryOnCell(lc).getId()==job.getId()) {
 				cellList.add(sampleService.getCell(lc));
@@ -466,7 +475,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	 *  {@inheritDoc}
 	 */
 	@Override
-	public Set<SampleSource> getLibraryCellPairsOnSuccessfulRunCells(Run run){
+	public Set<SampleSource> getCellLibrariesOnSuccessfulRunCells(Run run){
 		Assert.assertParameterNotNull(run, "a run must be provided");
 		Assert.assertParameterNotNullNotZero(run.getId(), "run provided is invalid or not in the database");
 		Assert.assertParameterNotNull(run.getId(), "a runId must be have a valid database entry");
@@ -577,6 +586,26 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		return run;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateRunQcStatusSetComplete(Run run) throws WaspMessageBuildingException{
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(run, "No Run provided");
+		Assert.assertParameterNotNullNotZero(run.getId(), "Invalid Run Provided");
+		if (!this.isRunActive(run))
+			throw new WaspMessageBuildingException("Not going to build message because run " + run.getId() + " is not active");
+		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
+		messageTemplate.setUserCreatingMessageFromSession(userService);
+		messageTemplate.setTask(WaspRunTask.QC);
+		messageTemplate.setStatus(WaspStatus.COMPLETED); 
+		try{
+			sendOutboundMessage(messageTemplate.build(), false);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
+	}
 	
 
 }

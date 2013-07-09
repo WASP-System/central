@@ -7,6 +7,7 @@ package edu.yu.einstein.wasp.integration.messages;
  */
 public class WaspJobParameters {
 	
+	public static final String GENOME_STRING = "genomeString";
 	public static final String JOB_ID = "jobId";
 	public static final String JOB_NAME = "jobName";
 	public static final String SAMPLE_ID = "sampleId";
@@ -19,5 +20,6 @@ public class WaspJobParameters {
 	public static final String PLATFORM_UNIT_ID = "platformUnitId";
 	public static final String PLATFORM_UNIT_NAME = "platformUnitName";
 	public static final String BATCH_JOB_TASK = "batchJobTask";
+	public static final String FILE_GROUP_ID = "fileGroupId";
 	
 }

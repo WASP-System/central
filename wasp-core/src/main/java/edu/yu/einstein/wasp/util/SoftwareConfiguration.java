@@ -11,7 +11,7 @@ import edu.yu.einstein.wasp.model.Software;
  * @author asmclellan
  *
  */
-public class SoftwareConfiguration implements Serializable{
+public class SoftwareConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -2582562680785424878L;
 

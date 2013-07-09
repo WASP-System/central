@@ -17,7 +17,7 @@
 	    </int:interceptors>
     </int:publish-subscribe-channel>
     
-    <int:channel id="wasp.channel.reply" />
+    
     	    	
     <!-- channel for messages to enter from within components of the WASP System -->
     <int:channel id="wasp.channel.remoting.inbound" />
@@ -26,6 +26,7 @@
     <!-- defines a route to inject messages into the system from within the WASP System-->
     <int-rmi:inbound-gateway id="internalRmiGateway"
     	request-channel="wasp.channel.remoting.inbound" 
+    	reply-channel="wasp.channel.reply"
     	registry-port="23533" 
 
  	/>

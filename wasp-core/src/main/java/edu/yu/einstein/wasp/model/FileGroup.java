@@ -41,7 +41,7 @@ public class FileGroup extends WaspModel {
 
 
 	public FileGroup() {
-		filehandles = new HashSet<FileHandle>();
+		fileHandles = new HashSet<FileHandle>();
 		begat = new HashSet<FileGroup>();
 		derivedFrom = new HashSet<FileGroup>();
 	}
@@ -403,15 +403,15 @@ public class FileGroup extends WaspModel {
 	
 	@ManyToMany
     @JoinTable(name="groupfile", joinColumns={@JoinColumn(name="groupid")}, inverseJoinColumns={@JoinColumn(name="fileid")})
-	protected Set<FileHandle> filehandles;
+	protected Set<FileHandle> fileHandles;
 	
 	@JsonIgnore
 	public Set<FileHandle> getFileHandles() {
-		return this.filehandles;
+		return this.fileHandles;
 	}
 	
 	public void setFileHandles(Set<FileHandle> filehandles) {
-		this.filehandles = filehandles;
+		this.fileHandles = filehandles;
 	}
 	
 	public void addFileHandle(FileHandle fileHandle) {

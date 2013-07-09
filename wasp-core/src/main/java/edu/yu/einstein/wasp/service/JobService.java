@@ -44,6 +44,7 @@ import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
@@ -161,6 +162,19 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @return
 	 */
 	public boolean isJobAwaitingLibraryQC(Job job);
+	
+	/**
+	 * returns true if job is awaiting QC of cell-library
+	 * @param job
+	 * @return
+	 */
+	public boolean isJobAwaitingCellLibraryQC(Job job);
+	
+	/**
+	 * returns true if any job is awaiting cell-library QC
+	 * @return
+	 */
+	public boolean isJobsAwaitingCellLibraryQC();
 
 	
 	/**
@@ -394,6 +408,15 @@ public interface JobService extends WaspMessageHandlingService {
 	public List<MetaMessage> getAllFacilityJobComments(Integer jobId);
 	
 	/**
+	 * save a User-submitted Job Comment
+	 * @param Integer jobId
+	 * @param String comment
+	 * @return void
+	 * @throws Exception
+	 */
+	public void setUserSubmittedJobComment(Integer jobId, String comment) throws Exception;
+	
+	/**
 	 * get user-submitted job comment (there will be zero or one only)
 	 * @param Integer jobId
 	 * @return List<MetaMessage>
@@ -512,6 +535,13 @@ public interface JobService extends WaspMessageHandlingService {
 	public void decodeSamplePairsWithReference(String samplePairs, List<Sample> submittedSamplesList, List<String> controlIsReferenceList, List<String> testIsReferenceList);
 
 	public boolean isJobActive(Job job);
+	
+	/**
+	 * returns true if at least one cell library from all submitted samples has either been QCd or has failed primary analysis
+	 * @param job
+	 * @return
+	 */
+	public boolean isQcPerformedOrPreprocessingFailedForAtLeastOneCellLibraryForAllSubmittedSamples(Job job);
 
 	/**
 	 * return true if any sample associated with the job is in any stage of processing.
@@ -584,4 +614,14 @@ public interface JobService extends WaspMessageHandlingService {
 	 * @throws Exception
 	 */
 	public void addNewQuote(Integer jobId, AcctQuote quoteForm, List<AcctQuoteMeta> metaList) throws Exception;
+	
+	public Job getJobAndSoftware(Job job);
+	
+	/**
+	 * Get list of libraries (user-submitted and facility-generated) for a job
+	 * @param Job job
+	 * @return List<Sample>
+	 */
+	public List<Sample> getLibraries(Job job);
+	 
 }

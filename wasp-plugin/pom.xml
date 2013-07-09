@@ -6,7 +6,6 @@
 		<groupId>edu.yu.einstein.wasp</groupId>
 		<artifactId>wasp-parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../wasp-parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>wasp-plugin</artifactId>
@@ -21,6 +20,16 @@
 	<version>${module.version}</version>
 	<type>pom</type>
 	<scope>import</scope>
+	</dependency>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>mps</artifactId>
+	<version>${module.version}</version>
+	</dependency>
+	<dependency>
+	<groupId>edu.yu.einstein.wasp</groupId>
+	<artifactId>illumina</artifactId>
+	<version>${module.version}</version>
 	</dependency>
 	</dependencies>
 	</dependencyManagement>

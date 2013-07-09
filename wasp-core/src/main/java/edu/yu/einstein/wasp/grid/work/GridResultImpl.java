@@ -23,6 +23,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	private static final long serialVersionUID = 1423472291111175147L;
 
 	private UUID uuid;
+	private String id;
 	private String hostname;
 	private String username;
 	private String workingDirectory;
@@ -199,5 +200,17 @@ public class GridResultImpl implements GridResult, Serializable {
 	
 	public void setFileGroupIds(Set<Integer> ids) {
 		this.fileGroupIds = ids;
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getId() {
+		return id;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
 	}
 }

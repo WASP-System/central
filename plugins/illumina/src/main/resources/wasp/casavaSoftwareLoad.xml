@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+    default-autowire="byName">
+    
+   <bean id="casavaArea" class="java.lang.String">
+  	<constructor-arg><value>casava</value></constructor-arg>
+  </bean>
+
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="casavaUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="casavaArea" />
+  </bean>
+
+  <bean id="casava" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+    <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor</value></property>
+    <property name="name" value="CASAVA" />
+    <property name="area" ref="casavaArea" />
+    <property name="resourceType" ref="sequenceRunProcessorResourceType" />
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="casavaArea" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspSoftware['currentVersion']}=1.8.2</value>
+         		<value>#{waspSoftware['priorVersions']}=</value>
+         	</list>
+       	 </property>
+       </bean>
+    </property> 
+	
+  </bean> 
+
+</beans>

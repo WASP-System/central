@@ -1,0 +1,12 @@
+Documentation is built using sphinx http://sphinx-doc.org
+
+Sphinx requires the numfig plugin http://www.sf.net/projects/numfig
+install using `python setup.py install`
+
+cd to src/sphinx/plugin then:
+
+    to build HTML documentation, use `make html`.
+
+    to build PDF documentation, use `make latexpdf`. Requires LaTeX/pdflatex.  
+    
+output will appear in src/sphinx/plugin/build

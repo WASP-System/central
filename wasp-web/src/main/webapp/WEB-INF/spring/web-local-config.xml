@@ -8,6 +8,7 @@
 
 	<!-- component scan -->
   	<context:component-scan base-package="edu.yu.einstein.wasp.controller" />
+  	<context:component-scan base-package="edu.yu.einstein.wasp.charts.highchartsjs.service.impl" />
   	
   	<!-- import internationalized messaging. Initialize database first-->
   	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle">
@@ -32,6 +33,7 @@
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
 		<property name="locations">  
 			<list>  
+				<value>classpath:batch-database.properties</value>
 				<value>classpath:database.properties</value>  
 				<value>classpath:authentication.properties</value>
 				<value>classpath:email.properties</value>

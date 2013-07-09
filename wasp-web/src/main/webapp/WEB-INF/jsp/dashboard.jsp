@@ -7,11 +7,6 @@
 	<c:if test="${isTasks == true}">
 		<br />
 		<h2 style="color:red">*****<fmt:message key="home.tasksAwaiting.label" />*****</h2>
-		<!--<c:forEach items="${taskHyperlinks}" var="hyperlink">
-			<li>
-				<a href='<c:url value="${hyperlink.getTargetLink()}"/>'>${hyperlink.getLabel()}</a>
-			</li>	
-		</c:forEach>-->
 	</c:if>
 	
 </div>

@@ -7,24 +7,44 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName"><value>${batchdb.jdbc.driver}</value></property>
-		<property name="url"><value>${batchdb.jdbc.url}</value></property>
-		<property name="username"><value>${batchdb.jdbc.username}</value></property>
+	<!-- for defaults and other C3P0 DB connection pooling and statement pooling properties see http://www.mchange.com/projects/c3p0 -->
+	<bean id="batchDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass"><value>${batchdb.jdbc.driver}</value></property>
+		<property name="jdbcUrl"><value>${batchdb.jdbc.url}</value></property>
+		<property name="user"><value>${batchdb.jdbc.username}</value></property>
 		<property name="password"><value>${batchdb.jdbc.password}</value></property>
+		<property name="acquireIncrement"><value>${batchdb.jdbc.acquireIncrement}</value></property>
+		<property name="initialPoolSize"><value>${batchdb.jdbc.initialPoolSize}</value></property>
+		<property name="maxPoolSize"><value>${batchdb.jdbc.maxPoolSize}</value></property>
+		<property name="maxIdleTime"><value>${batchdb.jdbc.maxIdleTime}</value></property>
+		<property name="minPoolSize"><value>${batchdb.jdbc.minPoolSize}</value></property>
+		<property name="testConnectionOnCheckin"><value>${batchdb.jdbc.testConnectionOnCheckin}</value></property>
+		<property name="preferredTestQuery"><value>${batchdb.jdbc.preferredTestQuery}</value></property>
+		<property name="idleConnectionTestPeriod"><value>${batchdb.jdbc.idleConnectionTestPeriod}</value></property>
+		<property name="numHelperThreads"><value>${batchdb.jdbc.numHelperThreads}</value></property>
+		<property name="checkoutTimeout"><value>${batchdb.jdbc.checkoutTimeout}</value></property>
+	</bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass"><value>${db.jdbc.driver}</value></property>
+		<property name="jdbcUrl"><value>${db.jdbc.url}</value></property>
+		<property name="user"><value>${db.jdbc.username}</value></property>
+		<property name="password"><value>${db.jdbc.password}</value></property>
+		<property name="acquireIncrement"><value>${db.jdbc.acquireIncrement}</value></property>
+		<property name="initialPoolSize"><value>${db.jdbc.initialPoolSize}</value></property>
+		<property name="maxPoolSize"><value>${db.jdbc.maxPoolSize}</value></property>
+		<property name="maxIdleTime"><value>${db.jdbc.maxIdleTime}</value></property>
+		<property name="minPoolSize"><value>${db.jdbc.minPoolSize}</value></property>
+		<property name="testConnectionOnCheckin"><value>${db.jdbc.testConnectionOnCheckin}</value></property>
+		<property name="preferredTestQuery"><value>${db.jdbc.preferredTestQuery}</value></property>
+		<property name="idleConnectionTestPeriod"><value>${db.jdbc.idleConnectionTestPeriod}</value></property>
+		<property name="numHelperThreads"><value>${db.jdbc.numHelperThreads}</value></property>
+		<property name="checkoutTimeout"><value>${db.jdbc.checkoutTimeout}</value></property>
 	</bean>
 
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="persistenceUnitName" value="waspPU" />
-		<property name="dataSource">
-			<bean class="org.apache.commons.dbcp.BasicDataSource">
-				<property name="driverClassName"><value>${db.jdbc.driver}</value></property>
-				<property name="url"><value>${db.jdbc.url}</value></property>
-				<property name="username"><value>${db.jdbc.username}</value></property>
-				<property name="password"><value>${db.jdbc.password}</value></property>
-				<property name="defaultAutoCommit"><value>${db.jdbc.auto_commit}</value></property>
-			</bean>
-		</property>
+		<property name="dataSource" ref="dataSource" />
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
 				<property name="database"><value>${db.jdbc.database}</value></property>
@@ -43,7 +63,7 @@
 	
 	<!-- default (batch database transactions) -->
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
+		<property name="dataSource" ref="batchDataSource" />
 	</bean>
 	
 	<!-- Enable @Transactional support -->

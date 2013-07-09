@@ -101,7 +101,7 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 	@Override
 	public Sample getLibraryFromFASTQ(FileHandle fastq) {
 		Assert.assertTrue(fastq.getFileType().equals(fastqFileType), "file must be of type");
-		TypedQuery<Sample> query = fileTypeDao.getEntityManager().createQuery("select s from sample s where s.uuid = :fqLibUUID", Sample.class);
+		TypedQuery<Sample> query = fileTypeDao.getEntityManager().createQuery("select s from Sample s where s.uuid = :fqLibUUID", Sample.class);
 		query.setParameter("fqLibUUID", getLibraryUUID(fastq));
 		Sample result = query.getSingleResult();
 		Assert.assertParameterNotNull(result);
@@ -119,6 +119,15 @@ public class FastqServiceImpl extends FileTypeServiceImpl implements FastqServic
 		Assert.assertParameterNotNull(filegroup);
 		Assert.assertParameterNotNull(number);
 		setMeta(filegroup, FILE_AREA, FASTQ_GROUP_NUMBER_OF_READ_SEGMENTS, number.toString());
+	}
+
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FileType getFastqFileType() {
+		FileType fq = fileTypeDao.findById(fastqFileType.getId());
+		return fq;
 	}
 	
 	
