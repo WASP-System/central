@@ -133,7 +133,7 @@ public class WaspChart {
 		try{
 			return mapper.readValue(json.toString(), clazz);
 		} catch(Exception e){
-			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json");
+			throw new JSONException("Cannot create object of type " + clazz.getName() + " from json: " + e.getLocalizedMessage());
 		}
 	}
 	
