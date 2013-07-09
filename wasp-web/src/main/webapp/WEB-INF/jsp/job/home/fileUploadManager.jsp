@@ -1,6 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
-<form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" >
+<%-- <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" > --%>
+<%--see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery --%>
+<%--method2 described here (easier of the two): targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html  --%>
+<form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" target="hiddenIFrame">
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td colspan="3" class="label-centered" style="background-color:#FAF2D6">Upload A New File</td>

@@ -18,6 +18,25 @@ $(document).ready(function() {
 		  }); 
 
 	
+	   
+	  $("#hiddenIFrame").load(function() { ////http://blog.manki.in/2011/08/ajax-fie-upload.html 
+		  
+		  var responseText = $('#hiddenIFrame').contents().find('body').html();
+		  
+		  if (!responseText) {
+			    return;
+		  }
+		  
+		  $('#viewerFrame').html(responseText);
+		  //clear contents of iframe; don't know which is best 
+		  this.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe 
+		  this.contentDocument.location.href = "about:blank"; ///'/img/logo.png';
+		});
+	  
+	  
+	  
+	  
+	  
 	//////$("#viewerFrame").load('<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
 	
 	//http://api.jqueryui.com/dialog/
