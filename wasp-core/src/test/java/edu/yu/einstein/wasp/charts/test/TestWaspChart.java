@@ -27,7 +27,7 @@ public class TestWaspChart {
 		testBoxPlot = new WaspBoxPlot();
 		testBoxPlot.addBoxAndWhiskers("1", 1.1d, 1.6d, 2.0d, 3.5d, 4.0d);
 		testBoxPlot.addBoxAndWhiskers("2", 1.9d, 2.5d, 3.3d, 4.0d, 5.2d);
-		testBoxPlot.setLegend("A nice boxplot of great data");
+		testBoxPlot.setDescription("A nice boxplot of great data");
 		testBoxPlot.setTitle("My Boxplot");
 		testBoxPlot.setxAxisLabel("X-axis");
 		testBoxPlot.setyAxisLabel("Y-Axis");

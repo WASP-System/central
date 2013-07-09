@@ -19,7 +19,7 @@ public class WaspChart {
 	
 	protected String title;
 	
-	protected String legend;
+	protected String description;
 	
 	protected List<DataSeries> dataSeries;
 	
@@ -29,7 +29,7 @@ public class WaspChart {
 		dataSeries = new ArrayList<DataSeries>();
 		properties = new HashMap<String, Object>();
 		title = "";
-		legend = "";
+		description = "";
 	}
 	
 	/**
@@ -46,12 +46,12 @@ public class WaspChart {
 		this.title = title;
 	}
 	
-	public String getLegend() {
-		return legend;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setLegend(String legend) {
-		this.legend = legend;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	public List<DataSeries> getDataSeries() {
