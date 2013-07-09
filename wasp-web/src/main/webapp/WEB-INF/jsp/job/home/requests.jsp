@@ -72,5 +72,5 @@
 		</c:otherwise>
 	</c:choose>
 </div>
-<br />
 </c:if>
+<br /><br />
