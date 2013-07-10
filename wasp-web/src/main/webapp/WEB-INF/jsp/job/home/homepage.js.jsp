@@ -720,45 +720,16 @@ window.onload = function (){
     */
     
     // from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
-  //using jquery.form.js 
+  	//using jquery.form.js 
     function uploadJqueryForm(formObjectId){
-       //  $('#result').html('this is a funny test 1');
-         alert("funny test 12345");
-         var frm = $("#" + formObjectId);
-         //var formAction = frm.attr("action");
-        // alert("formAction = " + formAction);
-        // var formName = frm.attr("name");
-        // alert("formName = " + formName);
+    	var frm = $("#" + formObjectId);
       // $("#form22123").ajaxForm({ 
     	frm.ajaxForm({ 
         success:function(data) { 
               $('#viewerFrame').html(data);
          },
          dataType:"text" 
-       }).submit();
-       
-       alert("funny test 2");
-       return false;
-    }
-    
-  //using FormData() object ( from:   http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ ) 
-    function uploadFormData(){
-        $('#result').html('this is a funny test too');
-        alert("funny test 2; return false");
-        return false;
-      var oMyForm = new FormData();
-      oMyForm.append("file", file2.files[0]);
-     
-      $.ajax({
-        url: 'http://localhost:8080/spring-mvc-file-upload/rest/cont/upload',
-        data: oMyForm,
-        dataType: 'text',
-        processData: false,
-        contentType: false,
-        type: 'POST',
-        success: function(data){
-          $('#result').html(data);
-        }
-      });
+       }).submit();       
+       return false;//I added this last line. Not sure it's required 
     }
 </script>

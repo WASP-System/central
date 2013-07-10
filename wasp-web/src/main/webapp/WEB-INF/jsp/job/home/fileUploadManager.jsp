@@ -1,18 +1,54 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<c:if test="${fn:length(errorMessage)>0 || fn:length(successMessage)>0}">
+	<script type="text/javascript">
+		//http://papermashup.com/jquery-fading-a-div-after-a-certain-time/ 
+		$(document).ready(function(){
+			setTimeout(function(){
+				$("#messagediv").fadeOut("slow", function () {
+				$("#messagediv").remove();
+			 });
+			 }, 3000);
+		}); 
+	</script>
+	<div id="messagediv" >
+		<%-- <span style="color:red;font-weight:bold;text-align:center"><c:out value="${errorMessage}" /></span>--%>
+		<c:if test="${fn:length(errorMessage)>0}">
+			<H2 style="color:red;font-weight:bold;"><c:out value="${errorMessage}" /></H2>
+		</c:if>
+		<c:if test="${fn:length(successMessage)>0}">
+			<H2 style="color:green;font-weight:bold;"><c:out value="${successMessage}" /></H2>
+		</c:if>
+		<br />
+	</div>
+</c:if>
 
-<%-- <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" > --%>
-<%--see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery --%>
-<%--method2, used here (the easier of the two),: targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html  --%>
-<%--method1 using flash swf, can be implemented with this jquery plugin http://www.uploadify.com/--%>
- 
+<%--
+see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery 
+method2,  (the easier of the two): targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html worked well but Andy didn't want it this way 
+method1 using flash swf, can be implemented with this jquery plugin http://www.uploadify.com/
+In the end we used the jquery form plug (http://malsup.com/jquery/form/). Its use is described well in http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+(Note that we did NOT use the Html5 FormObject method, as some browsers do not yet support it).
+--%>
+
+<%-- example using the target = hidden iFrame worked nicely but Andy didn't like it. It only requires the target attribute to be set in the form tag, as is here, and to have a hidden iframe
 <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" target="hiddenIFrame">
+--%>
+
+<form id="fileUploadForm" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data">
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td colspan="3" class="label-centered" style="background-color:#FAF2D6">Upload A New File</td>
 	</tr>
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6">Select File To Upload</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Provide A Brief Description</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
+	</tr>
 	<tr>
-		<td class="DataTD value-centered"><input type="file" name="file_upload" /></td><td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td><td align="center"><input type="submit" name="file_upload_submit_button" value="<fmt:message key="listJobSamples.file_upload.label"/>" /></td>
+		<td class="DataTD value-centered"><input type="file" name="file_upload" /></td>
+		<td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td>
+		<td align="center"><input type="reset" name="reset" value="Reset" /> <a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("fileUploadForm")' ><fmt:message key="listJobSamples.file_upload.label" /></a></td>
 	</tr>
 	<c:if test="${fn:length(errorMessage)>0}">
 			<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
@@ -52,33 +88,4 @@
 	</c:forEach>
 </table>
 </form>
-
 <br /><br />
-
-<!--  Form 2 -->
-<i>Uploading File With Ajax</i><br/>
-<h2 style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></h2>
-<form id="form1234" name="form1234" method="post" action="<c:url value="/job/${job.getId()}/fileUploadManager1234.do" />" enctype="multipart/form-data">
-  <!-- File input -->    
-  <input name="file_upload" id="file_upload" type="file" />  <input type="text" maxlength="30" name="file_description" id="file_description" /> <br/>
-<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("form1234")' ><fmt:message key="sampledetail_rw.submit.label" /></a>
-<a class="button" href="javascript:void(0);"  onclick='
-	alert("new alert 1");
-	$("#form1234").ajaxForm({ 
-    	//frm.ajaxForm({ 
-        success:function(data) { 
-              $("#viewerFrame").html(data);
-         },
-         dataType:"text" 
-       }).submit();
-       
-       alert("new alert 2");
-
-' ><fmt:message key="sampledetail_rw.submit.label" /></a>
-			        	
-</form>
- <br />
-<button value="Submit" onclick='uploadJqueryForm("form1234")' >Upload</button><i>Using JQuery Form Plugin</i><br/>
-<button value="Submit" onclick="uploadFormData()" >Upload</button><i>Using FormData Object</i>
- 
-<div id="result"></div>
