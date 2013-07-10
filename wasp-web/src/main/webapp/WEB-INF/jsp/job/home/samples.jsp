@@ -5,7 +5,7 @@
 	<a class="button" href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Multiple Library Placement</a><br />
 </c:if>
 </sec:authorize>
-<br />							
+<br />	<br />						
 <table class="data" style="margin: 0px 0px">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 

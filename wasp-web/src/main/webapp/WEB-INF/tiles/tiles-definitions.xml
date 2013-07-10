@@ -252,7 +252,7 @@
 	<definition name="job/home/comments" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
 	</definition>
-	<definition name="job/home/viewerManager" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/viewerManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
 	</definition>
 	<definition name="job/home/samples" extends="template-unadorned">
@@ -262,20 +262,20 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
 	</definition>
 	
-	<definition name="job/home/sampledetail_ro" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/sampledetail_ro" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_ro.jsp" />
 	</definition>
-	<definition name="job/home/sampledetail_rw" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/sampledetail_rw" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_rw.jsp" />
 	</definition>
-	<definition name="job/home/librarydetail_ro" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/librarydetail_ro" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/librarydetail_ro.jsp" />
 	</definition>
-	<definition name="job/home/librarydetail_rw" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/librarydetail_rw" extends="template-unadorned">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/home/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/librarydetail_rw.jsp" />
 	</definition>
-	<definition name="job/home/createLibrary" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/createLibrary" extends="template-unadorned">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/home/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/createLibrary.jsp" />
 	</definition>
@@ -283,7 +283,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/message.jsp" />
 	</definition>
 	
-	<definition name="job/home/fileUploadManager" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/fileUploadManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>
 	

@@ -1,9 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+
 <%-- <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" > --%>
 <%--see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery --%>
 <%--method2, used here (the easier of the two),: targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html  --%>
 <%--method1 using flash swf, can be implemented with this jquery plugin http://www.uploadify.com/--%>
+ 
 <form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" target="hiddenIFrame">
 <table class="data" style="margin: 0px 0px">
 	<tr class="FormData">
@@ -52,3 +54,31 @@
 </form>
 
 <br /><br />
+
+<!--  Form 2 -->
+<i>Uploading File With Ajax</i><br/>
+<h2 style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></h2>
+<form id="form1234" name="form1234" method="post" action="<c:url value="/job/${job.getId()}/fileUploadManager1234.do" />" enctype="multipart/form-data">
+  <!-- File input -->    
+  <input name="file_upload" id="file_upload" type="file" />  <input type="text" maxlength="30" name="file_description" id="file_description" /> <br/>
+<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("form1234")' ><fmt:message key="sampledetail_rw.submit.label" /></a>
+<a class="button" href="javascript:void(0);"  onclick='
+	alert("new alert 1");
+	$("#form1234").ajaxForm({ 
+    	//frm.ajaxForm({ 
+        success:function(data) { 
+              $("#viewerFrame").html(data);
+         },
+         dataType:"text" 
+       }).submit();
+       
+       alert("new alert 2");
+
+' ><fmt:message key="sampledetail_rw.submit.label" /></a>
+			        	
+</form>
+ <br />
+<button value="Submit" onclick='uploadJqueryForm("form1234")' >Upload</button><i>Using JQuery Form Plugin</i><br/>
+<button value="Submit" onclick="uploadFormData()" >Upload</button><i>Using FormData Object</i>
+ 
+<div id="result"></div>

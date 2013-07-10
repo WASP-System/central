@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
@@ -1526,6 +1529,14 @@ public class JobController extends WaspController {
 			  }
 		  }
 		  
+		  for(Sample library : allJobLibraries){
+			  List<Sample> cellList = libraryCellListMap.get(library);
+			  for(Sample cell : cellList){
+				  Map<Sample,Float> libraryPMLoadedMap = cellLibraryPMLoadedMap.get(cell);
+				  Float pmLoaded = libraryPMLoadedMap.get(library);
+				  System.out.println("----------Library : cell : pmLoaded = " + library.getName() + " : " + cell.getName() + " : " + pmLoaded);
+			  }
+		  }
 
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
@@ -2577,6 +2588,65 @@ public class JobController extends WaspController {
 		
 		//waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
 		//String referer = request.getHeader("Referer");//return "redirect:"+ referer; 
+		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	}
+	
+	@RequestMapping(value="/{jobId}/fileUploadManager1234", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage1234(@PathVariable("jobId") Integer jobId,
+			  MultipartHttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+
+		String errorMessage = "";
+				
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	System.out.println("----The uploaded file is unexpectedly null");
+		   	errorMessage = "Upload Failed: Unexpected Error. Job Not found in database.";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+		}
+
+		List<MultipartFile> mpFiles = request.getFiles("file_upload");
+	    if(mpFiles.isEmpty()){
+	    	System.out.println("----The uploaded file List is unexpectedly empty");
+	    	errorMessage = "Upload Failed: Select a file AND provide a description";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    }
+	   	MultipartFile mpFile = mpFiles.get(0);
+	   	if(mpFile==null){
+		   	System.out.println("----The uploaded file is unexpectedly null");
+		   	errorMessage = "Upload Failed: Unexpected Error";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+		}
+		
+	   	String fileDescription = request.getParameter("file_description");
+	    
+	    if(fileDescription==null || "".equals(fileDescription)){
+	    	System.out.println("--The fileDescription is unexpectedly null");
+	    	errorMessage = "Upload Failed: Select a file AND provide a description";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    }
+	    /*		
+		if(mpFile.isEmpty() && !"".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+			errorMessage="File upload failed: no file provided";
+		}
+		else if(!mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please provide a file description";
+		}
+		else if(mpFile.isEmpty()  && "".equals(fileDescription)){
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			errorMessage="File upload failed: please select a file and provide a file description";
+		}
+	    */			
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		try{
+			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+		} catch(FileUploadException e){
+			logger.warn(e.getMessage());
+			//waspErrorMessage("listJobSamples.fileUploadFailed.error");
+			errorMessage = "Upload Failed: Unexpected Error";
+		}
 		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
 	}
 }
