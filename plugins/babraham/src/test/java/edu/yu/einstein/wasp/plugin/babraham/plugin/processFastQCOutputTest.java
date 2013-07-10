@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.babraham.service.imp;
+package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -158,7 +158,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart);
+		String html = FastQCHighChartsJs.getBasicSpline(chart, null, null, null, null, 0, null);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Sequence Duplication Level' }"));
 	}
@@ -194,7 +194,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart,2, null, null, null, null, null);
+		String html = FastQCHighChartsJs.getBasicSpline(chart,2, null, null, null, 0, null);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Quality Score Distribution Over all Sequences' },"));
 	}
@@ -257,6 +257,18 @@ public class processFastQCOutputTest {
 		String html = FastQCHighChartsJs.getTableRepresentation(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("<h3>Kmer Content</h3>"));
+	}
+	
+	@Test (groups = "unit-tests")
+	public void testGetSequenceLengthHtml() throws JSONException{
+		Map<String, FastQCDataModule> moduleList = getModuleList();
+		Assert.assertNotNull(moduleList);
+		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
+		Assert.assertNotNull(jsonObject);
+		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
+		String html = FastQCHighChartsJs.getBasicSpline(chart, 10, null, null, null, 0, null);
+		logger.debug(html);
+		Assert.assertTrue(html.contains("title: { text: 'Distribution of sequence lengths over all sequences' },"));
 	}
 	
 	

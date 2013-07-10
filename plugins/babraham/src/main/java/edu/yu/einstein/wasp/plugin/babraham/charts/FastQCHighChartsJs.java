@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 
 /**
- * Highcharts JS implementation of Babraham plots (http://www.highcharts.com)
+ * Highcharts JS implementation of Babraham plots that require a custom implementation (http://www.highcharts.com)
  * @author asmclellan
  *
  */
@@ -74,7 +74,7 @@ public class FastQCHighChartsJs extends HighChartsJsBase {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), true, chart.getDescription()));
 		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), 0, 100));
-		sb.append(getBasicYAxisCode(chart.getyAxisLabel()));
+		sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, null));
 		Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
 		seriesSet.add(new BasicHighChartsSeries(dsActual, false, false, Color.RED));
 		seriesSet.add(new BasicHighChartsSeries(dsTheory, false, false, Color.BLUE));
