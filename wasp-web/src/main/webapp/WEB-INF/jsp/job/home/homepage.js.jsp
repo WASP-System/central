@@ -13,11 +13,11 @@ $(document).ready(function() {
 	
 	  $(function() {
 		    $( "#tabs" ).tabs();
-		    //$( "#tabs" ).tabs( "destroy");
 		  }); 
 
 	
-	   
+	   /* this was used to pull data from the hidden Iframe and display it in a visible div
+	   (but is no longer used). This was attempt 2 to deal with uploading a file. It's no longer used  
 	  $("#hiddenIFrame").load(function() { ////http://blog.manki.in/2011/08/ajax-fie-upload.html 
 		  
 		  var responseText = $('#hiddenIFrame').contents().find('body').html();
@@ -31,7 +31,7 @@ $(document).ready(function() {
 		  this.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe 
 		  this.contentDocument.location.href = "about:blank"; ///'/img/logo.png';
 		});
-	  
+	  */
 	  
 	  
 	  
@@ -61,6 +61,7 @@ $(document).ready(function() {
         width: 400,
         position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
     });
+	/*
 	 $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
 	    	var o = {};
 	    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
@@ -76,7 +77,7 @@ $(document).ready(function() {
 	    	});
 	    	return o;
 	    };
- 
+ */
 });
 
 
@@ -488,32 +489,7 @@ function postMultipartForm(formId, urlToPost) {//added 5-17-13
 	document.getElementById("viewerFrame").innerHTML = page;
 }
 
-function doGetWithAjax(theUrl) {
-	/*
-	var req = new XMLHttpRequest();
-	req.open("GET", url, false);
-	req.send(null);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to perform action. Please try again.";
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	return false;
-	*/
-	$.ajax({
-        type: "GET",
-        url: theUrl,
-        success: function (response) {
-            //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
-            $('#viewerFrame').html(response);
-        },
-        error: function (response) {
-        	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
-        	$('#viewerFrame').html("Unexpected Failure");
-        }
-    });
-	return false; // avoid 
-}
+
 
 function toggleAnchors(thisAnchorObject){
 	
@@ -616,23 +592,8 @@ window.onload = function (){
 </script>
  
 <script type="text/javascript">
-   /*
-   var frm = $('#commentForm');
-    frm.submit(function () {
-        $.ajax({
-            type: frm.attr('method'),
-            url: frm.attr('action'),
-            data: frm.serialize(),
-            success: function (response) {
-                //alert('ok');
-                //document.getElementById("viewerFrame").innerHTML = response;
-                $('#viewerFrame').html = "This is a test";
-            }
-        });
-
-        return false;
-    });
-    */
+  
+  //used for comments, viewerManager 
     function postFormWithAjax(formObjectId, theUrl){
     	var frm = $("#" + formObjectId);
     	$.ajax({
@@ -640,32 +601,19 @@ window.onload = function (){
             url: theUrl,
             data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
             success: function (response) {
-                //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
                 $('#viewerFrame').html(response);
             },
             error: function (response) {
-            	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
             	$('#viewerFrame').html("Unexpected Failure");
             }
         });
     	return false; // avoid to execute the actual submit of the form 
-    }	
+    }
+    
+  //used for the samples and libraries 
     //look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
     function postFormWithAjaxJson(formObjectId, theUrl){
-    	var frm = $("#" + formObjectId);//must do this; cannot simply use formObject; don't know why not
-    	//////alert("frm id = " + frm.attr('id'));
-    	//////alert("the url = " + theUrl);
-    	//var array = jQuery(frm).serializeArray();
-    	//////var sf = frm.serialize();//http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery
-    	//////alert("serialize sf =: " + sf);
-    	//sf = sf.replace(/"/g, '\"');         // be sure all " are escaped
-    	//sf = '{"' + sf.replace(/&/g, '","'); // start "object", replace tupel delimiter &
-    	//sf = sf.replace(/=/g, '":"') + '"}'; // replace equal sign, add closing "object"
-
-    	//////alert("ABCD");
-    	//var serializedObject = frm.serializeObject(); //such as [{ name: "a", value: "1"},{name: "b", value: "2"}] 
-    	
-    	
+    	var frm = $("#" + formObjectId);    	
     	var serializedObject = {};
     	var a = frm.serializeArray(); //http://api.jquery.com/serializeArray/ 
     	$.each(a, function() {
@@ -678,32 +626,55 @@ window.onload = function (){
     			serializedObject[this.name] = this.value || '';
     		}
     	});
-    	
-    	
-    	//////alert("defgzyx");
-    	//////alert("serialziedObject is: " + serializedObject);
     	var jsonData = JSON.stringify(serializedObject);// such as {"sampleSubtypeId":"5","sampleTypeId":"2"} 
-    	//alert("serialziedObject as JSON: " + jsonData);
-    	//return false;
+    	
     	$.ajax({
             type: frm.attr('method'),
             url: theUrl,
             //dataType : 'json', //coming back from server
             data: jsonData,
             contentType: 'application/json',
-            //data: $.toJSON(frm),
             success: function (response) {
-                //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
                 $('#viewerFrame').html(response);
             },
     		error: function (response) {
-            	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
             	$('#viewerFrame').html("Unexpected Failure");
-        }
+        	}
         });
     	return false;
     }	
-   
+  
+    //used here to upload files via ajax 
+    //from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
+  	//using plugin jquery.form.js  see http://malsup.com/jquery/form/
+    function uploadJqueryForm(formObjectId){
+    	var frm = $("#" + formObjectId);
+      // $("#form22123").ajaxForm({ 
+    	frm.ajaxForm({ 
+        success:function(data) { 
+              $('#viewerFrame').html(data);
+         },
+         dataType:"text" 
+       }).submit();       
+       return false;//I added this last line. Not sure if it's required 
+    }
+     
+      //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
+    function doGetWithAjax(theUrl) {
+    	$.ajax({
+            type: "GET",
+            url: theUrl,
+            success: function (response) {
+                $('#viewerFrame').html(response);
+            },
+            error: function (response) {
+            	$('#viewerFrame').html("Unexpected Failure");
+            }
+        });
+    	return false; // avoid 
+    }
+      
+/*     
     $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
     	var o = {};
     	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
@@ -719,7 +690,7 @@ window.onload = function (){
     	});
     	return o;
     };
-    
+ */   
     /*
    function serializeObject() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery  
     	var o = {};
@@ -738,19 +709,7 @@ window.onload = function (){
     };
     */
     
-    // from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
-  	//using plugin jquery.form.js 
-    function uploadJqueryForm(formObjectId){
-    	var frm = $("#" + formObjectId);
-      // $("#form22123").ajaxForm({ 
-    	frm.ajaxForm({ 
-        success:function(data) { 
-              $('#viewerFrame').html(data);
-         },
-         dataType:"text" 
-       }).submit();       
-       return false;//I added this last line. Not sure if it's required 
-    }
+
       
    
 </script>
