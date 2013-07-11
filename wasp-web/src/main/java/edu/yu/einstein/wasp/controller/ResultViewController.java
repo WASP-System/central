@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -41,6 +42,8 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.web.panel.Panel;
+import edu.yu.einstein.wasp.web.panel.WebContent;
 
 @Controller
 @Transactional
@@ -250,12 +253,40 @@ public class ResultViewController extends WaspController {
 //						}
 //					}
 				}
-				
-				// TODO: for testing only
-				jsDetails.clear();
-				jsDetails.put("tab1", "tab1 content");
-				jsDetails.put("tab2", "tab2 content");
 			}
+				
+			// TODO: for testing only
+			jsDetails.clear();
+			jsDetailsTabs.clear();
+			
+			WebContent webContent = new WebContent();
+			webContent.setScriptDependencies(HighChartsJsBase.getScriptDependencies());
+
+			StringBuilder sb = new StringBuilder();
+			sb.append("<div id='highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b' style='margin: auto'></div>\n");
+			sb.append("<script>\n");
+			sb.append("$(function () {\n");
+			sb.append("$('#highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b').highcharts({\n");
+			sb.append("chart: { type: 'spline' },\n");
+			sb.append("title: { text: 'Sequence Duplication Level >= 14.0' },\n");
+			sb.append("legend: { enabled: false },\n");
+			sb.append("xAxis: { categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10++'],\n");
+			sb.append("title: { text: 'Sequence Duplication Level' }\n");
+			sb.append("},\n");
+			sb.append("yAxis: { title: { text: '% Duplicate Relative to Unique' }\n");
+			sb.append("},\n");
+			sb.append("series: [{ name: '% Duplication', color: '#ff0000', animation:false, marker: { enabled: false },\n");
+			sb.append(" data: [[100],[6.339399637364851],[1.6139502607839187],[0.8148098403957648],[0.5433931009782195],[0.37326796946701585],[0.29380162514270364],[0.2383990329729367],[0.19083115080697513],[1.5165760078794799]]}\n");
+			sb.append("]\n");
+			sb.append("});\n");
+			sb.append("});\n");
+			sb.append("</script>\n");
+
+			webContent.setHtmlContent(sb.toString());
+
+			Panel panel = new Panel("FastQC - % Duplication", webContent);
+			jsDetails.put("panel1", panel);
+			jsDetailsTabs.put("tab1", jsDetails);
 			
 			return outputJSON(jsDetailsTabs, response);
 		} 

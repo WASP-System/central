@@ -2,14 +2,19 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
-<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
-<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script>
-<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/examples.js"></script>
+<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script>
 
+<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
 <!--link rel="stylesheet" type="text/css"	href="/wasp/scripts/extjs/resources/css/ext-all.css" /-->
 
+<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
+<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/examples.js"></script-->
+
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
+
 
 <script type="text/javascript">
 var margin = {top: 20, right: 80, bottom: 20, left: 20},
@@ -47,6 +52,7 @@ var rootstr = JSON.stringify(root, function(key, val) {
  
 var activeNode = {myid: null, type: null};
 	
+
 Ext.require([
     'Ext.layout.container.*',
     'Ext.resizer.Splitter',
@@ -56,9 +62,10 @@ Ext.require([
     'Ext.wasp.Portal'
 ]);
 
+var extPortal;
 
 Ext.onReady(function(){
-    Ext.create('Ext.wasp.Portal');
+    extPortal = Ext.create('Ext.wasp.Portal');
 //	Ext.Msg.alert('Alert',"${myid}");
 
 	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
@@ -285,68 +292,15 @@ function click(d) {
       	//d3.select('#detailview').select("h3").remove();
       	//d3.select('#detailview').select("tbody").remove();
       	
-      	//remove all tabs first
-//      	for (var i = $("div#tabs ul li").length  - 1; i >= 0; i--) {
-//			$('div#tabs').tabs('remove', i);
-//		}
-      	
-      	if(tabs!=undefined)
-      		tabs.close();
+      	//remove all existing tabs first
+      	var tabpanel = Ext.getCmp('wasp-tabpanel');
+      	if(tabpanel===undefined) {
+      		// alert if the tabpanel is undefined
+      		extPortal.showMsg("wasp-tabpanel is not defined!");
+      		return;
+      	}
+      	tabpanel.removeAll();
 
-//      	tabs = Ext.widget('tabpanel', {
-			tabs = new Ext.TabPanel({
-				
-			activeTab:0,
-      		renderTo: 'mytabs',
-      		defaults :{
-      			bodyPadding: 10
-      		}
-      	});
-
-/*      	var manager_portal = new Ext.Panel({
-        	id: 'app-portal',
-            items: [{
-                id: 'col-1',
-                items: [{
-                    id: 'portlet-1',
-                    title: 'Grid Portlet',
-                    html: 'empty panel',
-                    //items: Ext.create('Ext.app.GridPortlet'),
-                    listeners: {
-//                        'close': Ext.bind(this.onPortletClose, this)
-                    }
-                },{
-                    id: 'portlet-2',
-                    title: 'Portlet 2',
-                    html: 'empty panel',
-                    listeners: {
-//                        'close': Ext.bind(this.onPortletClose, this)
-                    }
-                }]
-            },{
-                id: 'col-2',
-                items: [{
-                    id: 'portlet-3',
-                    title: 'Portlet 3',
-                    html: "<div id='tab"+tabCounter+"'></div>",
-                    listeners: {
-//                        'close': Ext.bind(this.onPortletClose, this)
-                    }
-                }]
-            },{
-                id: 'col-3',
-                items: [{
-                    id: 'portlet-4',
-                    title: 'Stock Portlet',
-                    html: 'empty panel',
-                    //items: Ext.create('Ext.app.ChartPortlet'),
-                    listeners: {
-//                        'close': Ext.bind(this.onPortletClose, this)
-                    }
-                }]
-            }]
-        });
-*/
       	
 /*      $.each(result, function (index, item) {
 			var num_tabs = $("div#tabs ul li").length + 1;
@@ -360,6 +314,10 @@ function click(d) {
              $("div#tabs").tabs("refresh");
       	});
 */      
+
+		var sdArray = new Array();	// to store all script dependencies from the plugins
+		var cdArray = new Array();  // to store all css dependencies from the plugins
+		
 		$.each(result, function (index, item) {
 			var tabTitle;
 			
@@ -370,7 +328,7 @@ function click(d) {
 				//var tabs = $("#mytabs").tabs();
 				
 	
-		      	$.each(result, function (index, item) {
+		      	//$.each(result, function (index, item) {
 		      		//$("#mytabs").tabs('add',item,index);
 		      		//$tabs.tabs('add', '#tabs-'+tabCounter, 'Tab '+tabCounter);
 		      		//$tabs.tabs('add', '#tab1', 'Tab '+tabCounter);
@@ -378,46 +336,58 @@ function click(d) {
 		      		//tabtitle=index;
 		      		//tabcontent=item;
 		      		//addtab();
-		      	});
+		      	//});
 		        return;
 			} else {
-				tabTitle = d.name+" Details";
+				tabTitle = index; //d.name+" Details";
 			}
 			
 			//tabTitle = index;
 			tabCounter++;
-			var tab = tabs.add({
-	            // we use the tabs.items property to get the length of current items/tabs
-	            title: tabTitle,
-	            //html : "<div id='tab"+tabCounter+"'></div>"
-	            id: 'tab2',
-	            layout: 'fit', //required
-	            //title: 'Manager\'s Portal',
-	            closable: false, //required
-	            autoScroll: true,
-	            items: [
-	               Ext.create('Ext.Window', {
-			            title: 'Constrained Window',
-			            width: 200,
-			            height: 100,
-			
-			            // Constraining will pull the Window leftwards so that it's within the parent Window
-			            x: 1000,
-			            y: 20,
-			            constrain: true,
-			            layout: 'fit',
-			            items: {
-			                border: false
-			            }
-   				     }).show()
-				]
+			var tab = tabpanel.add({
+				xtype: 'panel',
+                title: tabTitle,
+                layout:'card',
+				activeItem: 1,
+                items: [{
+                    layout: 'fit'
+                }]
+			});
+			var ptlpnl = tab.add({
+                //id: 'wasp-portal1',
+	            xtype: 'portalpanel'});
+	        var ptlcol1 = ptlpnl.add({id: 'col-1'});
+	        var ptlcol2 = ptlpnl.add({id: 'col-2'});
+	            
+	        $.each(item, function (index1, item1) {
+	        	for (var i1 in item1.content.scriptDependencies){
+	        		if (sdArray.indexOf(item1.content.scriptDependencies[i1])<0) {
+	        			sdArray.push(item1.content.scriptDependencies[i1]);
+	        		}
+	        	}
+	        	for (var i1 in item1.content.cssDependencies){
+	        		if (cdArray.indexOf(item1.content.cssDependencies[i1])<0) {
+	        			cdArray.push(item1.content.cssDependencies[i1]);
+	        		}
+	        	}
+	        	
+	            ptlcol1.add({
+                    //id: 'portlet-2',
+                    title: item1.title,
+                    tools: extPortal.getTools(),
+                    closable: false,
+                    html: item1.content.htmlContent,
+                    listeners: {
+                        'close': Ext.bind(extPortal.onPortletClose, extPortal)
+                    }
+	            });
 	        });
-	        tabs.setActiveTab(tab);
+	        tabpanel.setActiveTab(tab);
 			
 //	        $( "<div id='tab"+tabCounter+"'></div>" ).appendTo( "#mytabs" );
 	     	//d3.select('#detailview').append("h3").html(headStr);
 	      	//var table = d3.select('#detailview').append("tbody");
-	      	var table = d3.select("#tab"+tabCounter).append("tbody");
+/*	      	var table = d3.select("#tab"+tabCounter).append("tbody");
 	        $.each(item, function (index1, item1) {
 	         	var row = table.append("tr");
 	         	row.append("td").html(index1);
@@ -436,12 +406,50 @@ function click(d) {
 	          	}
 	        });
 	        tabs.doComponentLayout();
-	        
+*/
+
 /*	        $( "<li><a href='#tab"+tabCounter+"'>"+tabTitle+"</a></li>" )
 				.appendTo( "#mytabs .ui-tabs-nav" );
 		    $('#mytabs').tabs("refresh");
 		    $('#mytabs').tabs("option", "active", -1);
 */		});
+
+   		var oHead = document.getElementsByTagName('HEAD').item(0);
+   		if (sdArray.length>0) {
+			// get a list of existing scripts
+	   		var esArray = oHead.getElementsByTagName('script');
+	   		var essrcArray = new Array();
+	   		for(var i=0,len=esArray.length; i<len;i++) {
+	   			essrcArray.push(esArray[i].getAttribute('src'));
+	   		}
+			// if the plugin returns script is not in existing, add it to HEAD
+	   		for(var i=0,len=sdArray.length; i<len;i++) {
+	   			if (essrcArray.indexOf(sdArray[i])<0) {
+					var oScript= document.createElement("script");
+					oScript.type = "text/javascript";
+					oScript.src = sdArray[i];
+					oHead.appendChild(oScript);
+	   			}
+	   		}
+   		}
+   		if (cdArray.length>0) {
+			// get a list of existing css files
+	   		var elArray = oHead.getElementsByTagName('link');
+	   		var elhrefArray = new Array();
+	   		for(var i=0,len=elArray.length; i<len;i++) {
+	   			elhrefArray.push(elArray[i].getAttribute('href'));
+	   		}
+			// if the plugin returns script is not in existing, add it to HEAD
+	   		for(var i=0,len=cdArray.length; i<len;i++) {
+	   			if (elhrefArray.indexOf(cdArray[i])<0) {
+					var oScript= document.createElement("link");
+					oScript.type = "text/css";
+					oScript.rel = "stylesheet";
+					oScript.href = cdArray[i];
+					oHead.appendChild(oScript);
+	   			}
+	   		}
+   		}
      }
   });
   

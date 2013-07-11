@@ -129,13 +129,13 @@ Ext.define('Ext.wasp.Portal', {
 		                            //id: 'portlet-3',
 		                            title: 'Portlet 3',
 		                            tools: this.getTools(),
-		                            html: '<div class="portlet-content">content2</div>',
+		                            html: '<div id=\'highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b\'></div>',
 		                            listeners: {
-		                                'close': Ext.bind(this.onPortletClose, this)
+		                                'close': Ext.bind(this.onPortletClose, this),
+		                                'render': Ext.bind(this.onPortletRender, this),
+		                                'resize': Ext.bind(this.onPortletRender, this)
 		                            }
 		                        }]
-		                    },{
-		                    	id: 'col-3'
 		                    }]
                         }]
                     },{
@@ -173,6 +173,24 @@ Ext.define('Ext.wasp.Portal', {
 
     onPortletClose: function(portlet) {
         this.showMsg('"' + portlet.title + '" was removed');
+    },
+    
+    onPortletRender: function(portlet) {
+		$('#highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b').highcharts({
+			chart: { type: 'spline' },
+			title: { text: 'Sequence Duplication Level >= 14.0' },
+			legend: { enabled: false },
+			xAxis: { categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10++'],
+			title: { text: 'Sequence Duplication Level' }},
+			yAxis: { title: { text: '% Duplicate Relative to Unique' }
+		},series: [{ 
+			name: '% Duplication', 
+			color: '#ff0000', 
+			animation:false, 
+			marker: { enabled: false }, 
+			data: [[100],[6.339399637364851],[1.6139502607839187],[0.8148098403957648],[0.5433931009782195],[0.37326796946701585],[0.29380162514270364],[0.2383990329729367],[0.19083115080697513],[1.5165760078794799]]
+			}]
+		});
     },
 
     showMsg: function(msg) {
