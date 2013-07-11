@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
-<plugin>
+<plugin id="wasp-eclipse-plugin" version="0.1.0.qualifier" name="Wasp System Eclipse Plugin">
    	<extension point="org.eclipse.ui.newWizards">
 		<category id="edu.yu.einstein.wasp" name="%wasp.wizard.name"/>
 		
