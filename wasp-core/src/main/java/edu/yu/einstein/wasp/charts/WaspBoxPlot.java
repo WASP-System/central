@@ -15,8 +15,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 public class WaspBoxPlot extends WaspChart2D {
 	
 	public static class BoxPlotSeries{
-		public static final String BOX_AND_WHISKER="box_and_whisker";
-		public static final String RUNNING_MEAN="running_mean";
+		public static final String BOX_AND_WHISKER="box and whisker";
+		public static final String RUNNING_MEAN="running-mean";
 		public static final String OUTLIERS="outliers";
 	}
 	
