@@ -172,6 +172,9 @@ public class Panel implements ViewPanel{
 		this.isCloseable = isCloseable;
 	}
 
+	/**
+	 * Returns code that is to be executed when a panel is rendered. This might be a jQuery function for example. 
+	 */
 	public String getExecOnRenderCode() {
 		return execOnRenderCode;
 	}
@@ -180,6 +183,10 @@ public class Panel implements ViewPanel{
 		this.execOnRenderCode = execOnRenderCode;
 	}
 
+	/**
+	 * Returns code that is to be executed when a panel is resized. This might be a jQuery function for example. 
+	 * If not set but 'execOnRender' code is set, this code will be called on resize, otherwise returns an empty string.
+	 */
 	public String getExecOnResizeCode() {
 		if (execOnResizeCode == null || execOnResizeCode.isEmpty())
 			return execOnRenderCode;
@@ -190,6 +197,10 @@ public class Panel implements ViewPanel{
 		this.execOnResizeCode = execOnResizeCode;
 	}
 
+	/**
+	 * Returns code that is to be executed when a panel is expanded. This might be a jQuery function for example. 
+	 * If not set but 'execOnRender' code is set, this code will be called on expanding, otherwise returns an empty string.
+	 */
 	public String getExecOnExpandCode() {
 		if (execOnExpandCode == null || execOnExpandCode.isEmpty())
 			return execOnRenderCode;
