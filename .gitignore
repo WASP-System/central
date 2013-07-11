@@ -98,3 +98,4 @@ bin
 /wasp-web/.localized
 /wasp-web/test-output
 /wasp-web/.externalToolBuilders
+/wasp-web/src/main/webapp/META-INF
