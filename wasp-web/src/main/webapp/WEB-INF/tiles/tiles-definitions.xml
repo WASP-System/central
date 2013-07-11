@@ -240,28 +240,24 @@
 	<definition name="job/home/basic" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/basic.jsp" />
 	</definition>
-	<definition name="job/home/workflow" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/workflow.jsp" />
-	</definition>
-	<definition name="job/home/requests" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/requests.jsp" />
-	</definition>
-	<definition name="job/home/approvals" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/approvals.jsp" />
+	<definition name="job/home/viewerManager" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
 	</definition>
 	<definition name="job/home/comments" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
 	</definition>
-	<definition name="job/home/viewerManager" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/viewerManager.jsp" />
+	<definition name="job/home/fileUploadManager" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
+	</definition>
+	<definition name="job/home/requests" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/requests.jsp" />
 	</definition>
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
 	<definition name="job/home/addLibrariesToCell" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
-	</definition>
-	
+	</definition>	
 	<definition name="job/home/sampledetail_ro" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_ro.jsp" />
 	</definition>
@@ -283,9 +279,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/message.jsp" />
 	</definition>
 	
-	<definition name="job/home/fileUploadManager" extends="template-unadorned">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
-	</definition>
+	
 	
 	<definition name="resource/list" extends="template-grid">
 		<put-attribute name="area" value="resource" />

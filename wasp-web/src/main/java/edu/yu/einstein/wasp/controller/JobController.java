@@ -879,6 +879,11 @@ public class JobController extends WaspController {
 	  public String jobHomePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	waspErrorMessage("job.jobUnexpectedlyNotFound.error"); 
+			return "redirect:/dashboard.do";
+		}
 		m.addAttribute("job", job);
 		return "job/home/homepage";
 	}
@@ -888,6 +893,11 @@ public class JobController extends WaspController {
 	  public String jobBasicPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		m.addAttribute("job", job);
 		m.addAttribute("jobStatus", jobService.getJobStatus(job));
 		
@@ -903,49 +913,348 @@ public class JobController extends WaspController {
 		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
 	
 		return "job/home/basic";
-	}/*
-	@RequestMapping(value="/{jobId}/commentFeed", method=RequestMethod.GET)
+	}
+  
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  @RequestParam(value="newViewerEmailAddress", required=false) String newViewerEmailAddress,
+			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		m.addAttribute("job", job);
+		
+		List<JobUser> jobUserList = job.getJobUser();
+		List<User> additionalJobViewers = new ArrayList<User>();
+		for(JobUser jobUser : jobUserList){
+			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
+				additionalJobViewers.add(jobUser.getUser());
+			}
+		}
+		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+			@Override
+			public int compare(User arg0, User arg1) {
+				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
+			}
+		}
+		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
+		m.addAttribute("additionalJobViewers", additionalJobViewers);
 
+		User currentWebViewer = authenticationService.getAuthenticatedUser();
+		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
+		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
+		}
+		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
+		m.addAttribute("currentWebViewer", currentWebViewer);
 		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
 		
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("successMessage", successMessage);
+
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+		m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
 		
-		return "job/home/commentFeed";
+		return "job/home/viewerManager";
 	}
-	*/
-  
-	@RequestMapping(value="/{jobId}/workflow", method=RequestMethod.GET)
+
+	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobWorkflowPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		//linkedHashMap because insert order is guaranteed
-		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
-		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
-		return "job/home/workflow";
-	}
-  
-	@RequestMapping(value="/{jobId}/approvals", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobApprovalsPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		//linkedHashMap because insert order is guaranteed
-		LinkedHashMap<String,String> jobApprovalsMap = jobService.getJobApprovals(job);
-		m.addAttribute("jobApprovalsMap", jobApprovalsMap);	  
-		//get the jobApprovals Comments (if any)
-		HashMap<String, MetaMessage> jobApprovalsCommentsMap = jobService.getLatestJobApprovalsComments(jobApprovalsMap.keySet(), jobId);
-		m.addAttribute("jobApprovalsCommentsMap", jobApprovalsCommentsMap);	
+		String errorMessage = "";
+		String successMessage = "";
+		if(newViewerEmailAddress==null){
+			newViewerEmailAddress="";
+		}
+
+		if("".equals(newViewerEmailAddress)){
+			errorMessage = "Update Failed: Please provide an email address";
+			return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+		}
+
+		try{
+			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			   successMessage="Update Successful: New job viewer added.";
+			   newViewerEmailAddress="";
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  errorMessage = "Update Unexpectedly Failed";
+		}
+		
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+	}
 	
-		return "job/home/approvals";
+	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobViewerManagerRemoveUserPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("userId") Integer userId, ModelMap m) throws SampleTypeException {
+
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+
+		String errorMessage = "";
+		String successMessage = "";
+		try{
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
+			
+			//If (me.getId().intValue() == userId.intValue() is true, then a user is removing him/her self from being a job viewer.
+			//Normally, I would execute the doReauth() if me.getId().intValue() == userId.intValue()
+			//However, if we performed the doReauth(), then, since the return is to a method demanding the viewer is a viewer of this job,
+			//an execption will be thrown and it will look like a mess. 
+			//To avoid, simply don't execute this doReathu(). It's not a problem, since the user is removing him/her self.
+			//User me = authenticationService.getAuthenticatedUser();
+			//if (me.getId().intValue() == userId.intValue()) {
+			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
+			//}	
+			
+			successMessage="Update Successful: User removed";
+		}
+		catch(Exception e){		    
+		  logger.warn(e.getMessage());
+		  errorMessage = "Update Unexpectedly Failed";
+		}
+		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
 	}
-  
+	
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("job", job);
+		
+		class MetaMessageDateComparatorLIFO implements Comparator<MetaMessage> {//last date is first
+			@Override
+			public int compare(MetaMessage arg0, MetaMessage arg1) {
+				return arg1.getDate().compareTo(arg0.getDate());
+			}
+		}
+		
+		//get the user-submitted job comment (if any); order LastInFirstOut
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+		}
+		Collections.sort(userSubmittedJobCommentsList, new MetaMessageDateComparatorLIFO());		
+		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
+		
+		//get the facility-generated job comments (if any); order LastInFirstOut
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		for (MetaMessage metaMessage: facilityJobCommentsList){
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
+		}
+		Collections.sort(facilityJobCommentsList, new MetaMessageDateComparatorLIFO());
+		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
+		
+		boolean permissionToAddEditComment = false;
+		try{
+			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*') ");
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+		}
+		//also permit job's submitter and job's PI to add a comment:
+		User me = authenticationService.getAuthenticatedUser();
+		if(me.getId().intValue() == job.getUserId().intValue() || me.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+			permissionToAddEditComment=true;
+		}
+		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("successMessage", successMessage);
+
+		return "job/home/comments";
+	}
+
+	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam("comment") String comment,
+			  ModelMap m) throws SampleTypeException {
+		
+		String errorMessage = "";
+		String successMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("job", job);
+		
+		String trimmedComment = comment==null?null:comment.trim();  //StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
+		if(trimmedComment==null||trimmedComment.length()==0){
+			errorMessage = messageService.getMessage("jobComment.jobCommentEmpty.error");
+			return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+		}
+
+		try{
+			if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+				jobService.setFacilityJobComment(jobId, trimmedComment);
+				successMessage = "Update Successful: Comment Added";
+			}
+			else{
+				jobService.setUserSubmittedJobComment(jobId, trimmedComment);
+				successMessage = "Update Successful: Comment Added";
+			}
+		}catch(Exception e){
+			logger.warn(e.getMessage());
+			errorMessage = "Update Unexpectedly Failed";
+			//errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
+		}
+		
+		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+	}
+	
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, 
+			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly Not found in database");
+		   	errorMessage = "Unexpected Error. Job Not found in database.";
+		   	waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+		}
+		m.addAttribute("job", job);
+		
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			fileGroups.add(fileGroup);
+			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+			for(FileHandle fh : fileGroup.getFileHandles()){
+				fileHandles.add(fh);
+				String mimeType = fileService.getMimeType(fh.getFileName());
+				if(!mimeType.isEmpty()){
+					fileHandlesThatCanBeViewedList.add(fh);
+				}
+			}
+			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+		}
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+		
+		if(errorMessage==null){
+			errorMessage="";
+		}
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("errorMessage", errorMessage);
+		m.addAttribute("successMessage", successMessage);
+		
+		return "job/home/fileUploadManager";
+	}
+
+	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
+			  MultipartHttpServletRequest request, 
+			  HttpServletResponse response
+			  //since this is now an ajax call, we no longer need/use these 2 @RequestParam parameters
+			  ///@RequestParam("file_description") String fileDescription, 
+			  ///@RequestParam("file_upload") MultipartFile mpFile
+			  ) throws SampleTypeException {
+
+		String errorMessage = "";
+		String successMessage = "";
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	waspErrorMessage("job.jobNotFound.error"); 
+			return "redirect:/dashboard.do";
+		}
+
+		List<MultipartFile> mpFiles = request.getFiles("file_upload");
+	    if(mpFiles.isEmpty()){
+	    	logger.warn("The uploaded file List is unexpectedly empty");
+	    	errorMessage = "Upload Failed: Select a file AND provide a description";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    }
+	   	MultipartFile mpFile = mpFiles.get(0);
+	   	if(mpFile==null){
+	   		logger.warn("The uploaded file is unexpectedly null");
+		   	errorMessage = "Upload Failed: Unexpected Error";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+		}
+		
+	   	String fileDescription = request.getParameter("file_description");
+	    
+	    if(fileDescription==null || "".equals(fileDescription)){
+	    	logger.warn("The fileDescription is unexpectedly null");
+	    	errorMessage = "Upload Failed: Select a file AND provide a description";
+	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    }	    
+	    /*			
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+			//waspErrorMessage("listJobSamples.fileUploadFailed.error");
+	    */			
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		try{
+			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+			successMessage = "File Successfully Uploaded";
+		} catch(FileUploadException e){
+			logger.warn(e.getMessage());			
+			errorMessage = "Upload Failed: Unexpected Error";
+		}
+		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+	}
+	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, 
@@ -1021,186 +1330,9 @@ public class JobController extends WaspController {
 		return "job/home/requests";
 	}
   
-	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobCommentsPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="errorMessage", required=false) String errorMessage,
-			  ModelMap m) throws SampleTypeException {
-		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		
-		//get the user-submitted job comment (if any); should be zero or one
-		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
-		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
-			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
-		}
-		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
-		
-		//get the facility-generated job comments (if any)
-		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
-		for (MetaMessage metaMessage: facilityJobCommentsList){
-			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
-		}
-		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
-		
-		boolean permissionToAddEditComment = false;
-		try{
-			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft')");
-		}catch(Exception e){
-			//waspErrorMessage("jobComment.jobCommentAuth.error");
-			//return "redirect:/dashboard.do";
-		}
-		//override this constraint:
-		permissionToAddEditComment=true;
-		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
-		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
 
-		return "job/home/comments";
-	}
   
-	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobCommentsPostPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam("comment") String comment,
-			  ModelMap m) throws SampleTypeException {
-		
-		String errorMessage = "";
-		
-		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-			errorMessage = messageService.getMessage("jobComment.job.error");
-		}
-		m.addAttribute("job", job);
-		
-		String trimmedComment = comment==null?null:StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
-		if(trimmedComment==null||trimmedComment.length()==0){
-			errorMessage = messageService.getMessage("jobComment.jobCommentEmpty.error");
-		}
 
-		if("".equals(errorMessage)){
-			try{
-				if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
-					jobService.setFacilityJobComment(jobId, trimmedComment);
-				}
-				else{
-					jobService.setUserSubmittedJobComment(jobId, trimmedComment);
-				}
-			}catch(Exception e){
-				logger.warn(e.getMessage());
-				errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
-			}
-		}
-		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage;
-	}
-  
-	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="errorMessage", required=false) String errorMessage,
-			  @RequestParam(value="successMessage", required=false) String successMessage,
-			  @RequestParam(value="newViewerEmailAddress", required=false) String newViewerEmailAddress,
-			  ModelMap m) throws SampleTypeException {
-		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		
-		List<JobUser> jobUserList = job.getJobUser();
-		List<User> additionalJobViewers = new ArrayList<User>();
-		for(JobUser jobUser : jobUserList){
-			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
-				additionalJobViewers.add(jobUser.getUser());
-			}
-		}
-		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
-			@Override
-			public int compare(User arg0, User arg1) {
-				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
-			}
-		}
-		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
-		m.addAttribute("additionalJobViewers", additionalJobViewers);
-  
-		User currentWebViewer = authenticationService.getAuthenticatedUser();
-		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
-		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
-		}
-		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
-		m.addAttribute("currentWebViewer", currentWebViewer);
-		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		
-		if(successMessage==null){
-			successMessage="";
-		}
-		m.addAttribute("successMessage", successMessage);
-
-		if(newViewerEmailAddress==null){
-			newViewerEmailAddress="";
-		}
-		m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
-		
-		return "job/home/viewerManager";
-	}
- 
-	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
-		
-		String errorMessage = "";
-		String successMessage = "";
-		if(newViewerEmailAddress==null){
-			newViewerEmailAddress="";
-		}
-
-		if("".equals(newViewerEmailAddress)){
-			errorMessage = "Update Failed: Please provide an email address";
-			return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
-		}
-
-		try{
-			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
-			   successMessage="Update Successful: New job viewer added.";
-		}
-		catch(Exception e){		    
-		  logger.warn(e.getMessage());
-		  errorMessage = messageService.getMessage(e.getMessage());
-		}
-		
-		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
-	}
-	
-	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobViewerManagerRemoveUserPage(@PathVariable("jobId") Integer jobId, 
-			  @PathVariable("userId") Integer userId, ModelMap m) throws SampleTypeException {
-
-		String errorMessage = "";
-		String successMessage = "";
-		try{
-			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
-			
-			//the next few lines make for problems if this is an ajax call, so do not do the doReauth().It's only important if the user is removing him/herself, so it is fine.
-			//User me = authenticationService.getAuthenticatedUser();
-			//if (me.getId().intValue() == userId.intValue()) {
-			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
-			//}			
-			successMessage="Database sucessfully updated: User removed";
-		}
-		catch(Exception e){		    
-		  logger.warn(e.getMessage());
-		  errorMessage = messageService.getMessage(e.getMessage());
-		}
-		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
-	}
 
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
@@ -1513,10 +1645,19 @@ public class JobController extends WaspController {
 					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
 					  cellPUMap.put(cell, platformUnit);
 					  
-					  Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
+					  //Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
 					  Float pMLoaded = sampleService.getConcentrationOfLibraryAddedToCell(cell, library);
-					  libraryPMLoadedMap.put(library, pMLoaded);
-					  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
+					 // libraryPMLoadedMap.put(library, pMLoaded);
+					  if(cellLibraryPMLoadedMap.containsKey(cell)){
+						  //Map<Sample, Float> existing_libraryPMLoadedMap = cellLibraryPMLoadedMap.get(cell);
+						  //existing_libraryPMLoadedMap.put(library, pMLoaded);
+						  cellLibraryPMLoadedMap.get(cell).put(library, pMLoaded);
+					  }
+					  else{
+						  Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
+						  libraryPMLoadedMap.put(library, pMLoaded);
+						  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
+					  }
 					  
 					  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
 					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
@@ -1528,7 +1669,7 @@ public class JobController extends WaspController {
 				  }catch(Exception e){}
 			  }
 		  }
-		  
+		  /*
 		  for(Sample library : allJobLibraries){
 			  List<Sample> cellList = libraryCellListMap.get(library);
 			  for(Sample cell : cellList){
@@ -1537,7 +1678,7 @@ public class JobController extends WaspController {
 				  System.out.println("----------Library : cell : pmLoaded = " + library.getName() + " : " + cell.getName() + " : " + pmLoaded);
 			  }
 		  }
-
+		   */
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
 
@@ -2507,147 +2648,6 @@ public class JobController extends WaspController {
 			}
 			m.addAttribute("adaptors", adaptors); // required for adaptors metadata control element (select:${adaptors}:adaptorId:barcodenumber)
 		}
-
-	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="errorMessage", required=false) String errorMessage,
-			  @RequestParam(value="successMessage", required=false) String successMessage,
-			  ModelMap m) throws SampleTypeException {
-		
-		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-		   	logger.warn("Job unexpectedly Not found in database");
-		   	errorMessage = "Unexpected Error. Job Not found in database.";
-		   	waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-		}
-		m.addAttribute("job", job);
-		
-		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
-		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
-		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
-		for(JobFile jf: job.getJobFile()){
-			FileGroup fileGroup = jf.getFile();//returns a FileGroup
-			fileGroups.add(fileGroup);
-			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
-			for(FileHandle fh : fileGroup.getFileHandles()){
-				fileHandles.add(fh);
-				String mimeType = fileService.getMimeType(fh.getFileName());
-				if(!mimeType.isEmpty()){
-					fileHandlesThatCanBeViewedList.add(fh);
-				}
-			}
-			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
-		}
-		m.addAttribute("fileGroups", fileGroups);
-		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
-		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
-		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		if(successMessage==null){
-			successMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		m.addAttribute("successMessage", successMessage);
-		
-		return "job/home/fileUploadManager";
-	}
-	
-	/* ********************* NO LONGER USED
-	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
-				@RequestParam("file_description") String fileDescription,
-				@RequestParam("file_upload") MultipartFile mpFile, ModelMap m) throws SampleTypeException {
-
-		String errorMessage = "";
-		
-		Job job = jobService.getJobByJobId(jobId);
-		
-		if(mpFile.isEmpty() && !"".equals(fileDescription)){
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-			errorMessage="File upload failed: no file provided";
-		}
-		else if(!mpFile.isEmpty()  && "".equals(fileDescription)){
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			errorMessage="File upload failed: please provide a file description";
-		}
-		else if(mpFile.isEmpty()  && "".equals(fileDescription)){
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			errorMessage="File upload failed: please select a file and provide a file description";
-		}
-		
-		if( "".equals(errorMessage) ){
-			Random randomNumberGenerator = new Random(System.currentTimeMillis());
-			try{
-				fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
-			} catch(FileUploadException e){
-				logger.warn(e.getMessage());
-				//waspErrorMessage("listJobSamples.fileUploadFailed.error");
-				errorMessage="File upload unexpectedly failed. Please try again.";
-			}
-		}
-		
-		//waspMessage("listJobSamples.fileUploadedSuccessfully.label");	
-		//String referer = request.getHeader("Referer");//return "redirect:"+ referer; 
-		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-	}
-	*******************end of no longer used */
-	
-	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
-			  MultipartHttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
-
-		String errorMessage = "";
-		String successMessage = "";
-		
-		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-		   	logger.warn("The uploaded file is unexpectedly null");
-		   	errorMessage = "Upload Failed: Unexpected Error. Job Not found in database.";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-		}
-
-		List<MultipartFile> mpFiles = request.getFiles("file_upload");
-	    if(mpFiles.isEmpty()){
-	    	logger.warn("The uploaded file List is unexpectedly empty");
-	    	errorMessage = "Upload Failed: Select a file AND provide a description";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-	    }
-	   	MultipartFile mpFile = mpFiles.get(0);
-	   	if(mpFile==null){
-	   		logger.warn("The uploaded file is unexpectedly null");
-		   	errorMessage = "Upload Failed: Unexpected Error";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-		}
-		
-	   	String fileDescription = request.getParameter("file_description");
-	    
-	    if(fileDescription==null || "".equals(fileDescription)){
-	    	logger.warn("The fileDescription is unexpectedly null");
-	    	errorMessage = "Upload Failed: Select a file AND provide a description";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
-	    }	    
-	    /*			
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed.error");
-	    */			
-		Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		try{
-			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
-			successMessage = "File Successfully Uploaded";
-		} catch(FileUploadException e){
-			logger.warn(e.getMessage());			
-			errorMessage = "Upload Failed: Unexpected Error";
-		}
-		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
-	}
 }
 
 class JobIdComparator implements Comparator<Job> {

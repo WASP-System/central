@@ -488,8 +488,8 @@ function postMultipartForm(formId, urlToPost) {//added 5-17-13
 	document.getElementById("viewerFrame").innerHTML = page;
 }
 
-function doGetWithAjax(url) {
-	
+function doGetWithAjax(theUrl) {
+	/*
 	var req = new XMLHttpRequest();
 	req.open("GET", url, false);
 	req.send(null);
@@ -498,6 +498,21 @@ function doGetWithAjax(url) {
 		page = "Error! Unable to perform action. Please try again.";
 	}
 	document.getElementById("viewerFrame").innerHTML = page;
+	return false;
+	*/
+	$.ajax({
+        type: "GET",
+        url: theUrl,
+        success: function (response) {
+            //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+            $('#viewerFrame').html(response);
+        },
+        error: function (response) {
+        	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+        	$('#viewerFrame').html("Unexpected Failure");
+        }
+    });
+	return false; // avoid 
 }
 
 function toggleAnchors(thisAnchorObject){
@@ -618,8 +633,8 @@ window.onload = function (){
         return false;
     });
     */
-    function postFormWithAjax(formObject, theUrl){
-    	var frm = $("#" + formObject.id);//must do this; cannot simply use formObject; don't know why not 
+    function postFormWithAjax(formObjectId, theUrl){
+    	var frm = $("#" + formObjectId);
     	$.ajax({
             type: frm.attr('method'),
             url: theUrl,
@@ -627,6 +642,10 @@ window.onload = function (){
             success: function (response) {
                 //document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
                 $('#viewerFrame').html(response);
+            },
+            error: function (response) {
+            	//document.getElementById("viewerFrame").innerHTML = htmlResponse;//works just as well 
+            	$('#viewerFrame').html("Unexpected Failure");
             }
         });
     	return false; // avoid to execute the actual submit of the form 
@@ -720,7 +739,7 @@ window.onload = function (){
     */
     
     // from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
-  	//using jquery.form.js 
+  	//using plugin jquery.form.js 
     function uploadJqueryForm(formObjectId){
     	var frm = $("#" + formObjectId);
       // $("#form22123").ajaxForm({ 
@@ -730,6 +749,8 @@ window.onload = function (){
          },
          dataType:"text" 
        }).submit();       
-       return false;//I added this last line. Not sure it's required 
+       return false;//I added this last line. Not sure if it's required 
     }
+      
+   
 </script>

@@ -16,9 +16,7 @@
 
 <div id="tabs">	
   <ul>	 
-	    <li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
-		<%--<li><a id="workflowAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/workflow.do" />");' >Workflow</a></li>
-	    <li><a id="approvalsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/approvals.do" />");' >Approvals</a></li>--%>
+	    <li><a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
 		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
 		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
 		<%--this next one MUST be iframe, for dealing with the fileupload (ajax file upload is precarious; not supported by all browsers --%>
