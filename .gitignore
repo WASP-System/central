@@ -12,7 +12,6 @@ target
 test-output
 installAll.sh
 bin
-MANIFEST.MF
 
 # /db/
 /db/t

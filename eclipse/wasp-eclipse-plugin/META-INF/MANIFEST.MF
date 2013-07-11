@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Wasp System Eclipse Plugin
+Bundle-SymbolicName: wasp-eclipse-plugin; singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.jdt.core;bundle-version="[3.8.3,4.0.0)",
+ org.eclipse.core.resources;bundle-version="[3.8.1,4.0.0)",
+ org.eclipse.core.runtime;bundle-version="[3.8.0,4.0.0)",
+ org.eclipse.jface;bundle-version="[3.8.0,4.0.0)",
+ org.eclipse.m2e.maven.runtime,
+ org.eclipse.ui.ide,
+ org.eclipse.m2e.core,
+ org.eclipse.ui.workbench
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.ui.plugin
