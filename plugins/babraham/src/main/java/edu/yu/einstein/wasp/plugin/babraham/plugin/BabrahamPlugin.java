@@ -7,6 +7,7 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,24 +18,29 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.plugin.ViewPanel;
+import edu.yu.einstein.wasp.plugin.ViewPanelProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
  * 
  */
-public class BabrahamPlugin extends WaspPlugin 
-		implements 
-			BatchJobProviding,
-			ClientMessageI {
+public class BabrahamPlugin extends WaspPlugin implements BatchJobProviding, ClientMessageI, ViewPanelProviding {
+
+	private static final long serialVersionUID = -4008147590778610484L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -49,6 +55,9 @@ public class BabrahamPlugin extends WaspPlugin
 	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+	
+	@Autowired
+	private BabrahamService babrahamService;
 
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow";
 
@@ -163,5 +172,28 @@ public class BabrahamPlugin extends WaspPlugin
 		return getBatchJobNameByArea(batchJobType, null);
 	}
 
+	@Override
+	public Hyperlink getDescriptionPageHyperlink() {
+		return new Hyperlink("babraham.hyperlink.label", "/babraham/description.do");
+	}
+
+	@Override
+	public Status getStatus(Object handle) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Get a set of ViewPanels for a given handle which in this case must be a FileGroup otherwise a ClassCastException is thrown.
+	 */
+	@Override
+	public Set<? extends ViewPanel> getViewPanels(Object handle){
+		FileGroup fg;
+		if (FileHandle.class.isInstance(handle))
+			fg = (FileGroup) handle;
+		else
+			throw new ClassCastException("Expected 'handle' to be of type FileHandle but it cannot be cast to one");
+		return babrahamService.getFastQCDataToDisplay(fg);
+	}
 
 }

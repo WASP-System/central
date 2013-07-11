@@ -10,8 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +39,7 @@ import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.web.panel.Panel;
 
 @Service
 @Transactional("entityManager")
@@ -93,7 +96,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						processingModule = true;
 						String[] elements = line.substring(2).split("\t");
 						if (elements.length != 2)
-							throw new FastQCDataParseException("Problem parsing line: value must contain 2 elements (name and result). Instead got " + elements.length + " elements");
+							throw new FastQCDataParseException("Problem parsing line: value must contain 2 elements (name and result). Instead got " 
+									+ elements.length + " elements");
 						String name = elements[0];
 						String result = elements[1];
 						String iname = FastQCDataModule.getModuleINameFromName(name);
@@ -128,7 +132,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						String[] elements = line.split("\t");
 						// check number of data values matches the number of data attributes
 						if (elements.length != currentModule.getAttributes().size())
-							throw new FastQCDataParseException("line contains " + elements.length + " tab-delimited elements which does not match expected number (" + currentModule.getAttributes().size() + ")");
+							throw new FastQCDataParseException("line contains " + elements.length 
+									+ " tab-delimited elements which does not match expected number (" + currentModule.getAttributes().size() + ")");
 						for (String element: elements)
 							row.add(element);
 						currentModule.getDataPoints().add(row);
@@ -188,6 +193,16 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			fileGroupMeta = new ArrayList<FileGroupMeta>();
 		fgMetahelper.setMetaList(fileGroupMeta);
 		return new JSONObject(fgMetahelper.getMetaValueByName(key));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup){
+		Set<Panel> panels = new LinkedHashSet<Panel>();
+		// TODO: code here
+		return panels;
 	}
 
 }

@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,11 +16,15 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.plugin.ViewPanel;
+import edu.yu.einstein.wasp.plugin.ViewPanelProviding;
 import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCHighChartsJs;
 import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;

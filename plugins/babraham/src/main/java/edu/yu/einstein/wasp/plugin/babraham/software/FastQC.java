@@ -40,7 +40,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder / asmclellan
  *
  */
-public class FastQC extends SoftwarePackage {
+public class FastQC extends SoftwarePackage{
 
 	
 	@Autowired
@@ -224,6 +224,8 @@ public class FastQC extends SoftwarePackage {
 		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, getSequenceLengthDist(mMap));
 		return output;
 	}
+	
+	
 	
 	private JSONObject getParsedBasicStatistics(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
 		FastQCDataModule bs = moduleMap.get(PlotType.BASIC_STATISTICS);
@@ -686,5 +688,6 @@ public class FastQC extends SoftwarePackage {
 		
 		return theoreticalDistribution;
 	}
+
 
 }
