@@ -1258,7 +1258,7 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="coverageMapOnly", required=false) String coverageMapOnly,
+			  @RequestParam(value="coverageMapOnly", required=false) String coverageMapOnly,//used as flag to only display coverage map, from button on samples page
 			  ModelMap m) throws SampleTypeException {
 		
 		if(coverageMapOnly==null){
@@ -1267,9 +1267,10 @@ public class JobController extends WaspController {
 		m.addAttribute("coverageMapOnly", coverageMapOnly);
 		
 		Job job = jobService.getJobByJobId(jobId);
-		if(job==null || job.getJobId()==null || job.getJobId().intValue()<=0){
-			waspErrorMessage("jobComment.job.error");
-			return "redirect:/dashboard.do";//not a good idea if ajax call
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	waspErrorMessage("job.jobNotFound.error"); 
+			return "redirect:/dashboard.do";
 		}		
 		m.addAttribute("job", job);
 		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
@@ -1330,10 +1331,6 @@ public class JobController extends WaspController {
 		return "job/home/requests";
 	}
   
-
-  
-
-
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
