@@ -152,12 +152,12 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws FastQCDataParseException{
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = hostResolver.getGridWorkService(w);
-		GridTransportConnection transportConnection = workService.getTransportConnection();
-		String resultsDir = gridResult.getResultsDirectory();
-		w.setWorkingDirectory(resultsDir);
-		w.addCommand("cat fastqc_data.txt");
 		try {
+			GridWorkService workService = hostResolver.getGridWorkService(w);
+			GridTransportConnection transportConnection = workService.getTransportConnection();
+			String resultsDir = gridResult.getResultsDirectory();
+			w.setWorkingDirectory(resultsDir);
+			w.addCommand("cat fastqc_data.txt");
 			GridResult r = transportConnection.sendExecToRemote(w);
 			return processFastQCOutput(r.getStdOutStream());
 		} catch (MisconfiguredWorkUnitException e) {

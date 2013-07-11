@@ -15,6 +15,12 @@ public interface ViewPanel {
 	public Integer getOrder();
 	
 	public Object getContent();
+	
+	public String getExecOnRenderCode();
+	
+	public String getExecOnResizeCode();
+	
+	public String getExecOnExpandCode();
 
 	public boolean isResizable();
 

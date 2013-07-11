@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>edu.yu.einstein.wasp</groupId>
-    <artifactId>wasp-plugin</artifactId>
+    <artifactId>plugins</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <relativePath/>
+    <relativePath>../</relativePath>
   </parent>
   <groupId>edu.yu.einstein.wasp.plugin</groupId>
   <artifactId>babraham</artifactId>
@@ -41,6 +41,11 @@
     	<groupId>edu.yu.einstein.wasp</groupId>
     	<artifactId>illumina</artifactId>
     </dependency>
+    <dependency>
+	<groupId>org.apache.commons</groupId>
+		<artifactId>commons-math3</artifactId>
+		<version>3.2</version>
+	</dependency>
   </dependencies>
   <build>
     <resources>

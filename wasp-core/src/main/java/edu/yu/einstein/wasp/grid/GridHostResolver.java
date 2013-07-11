@@ -6,6 +6,8 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 
 /**
  * Mechanism for fine grained control over where remote jobs are sent.  GridHostResolvers need to implement this 
@@ -49,15 +51,17 @@ public interface GridHostResolver {
 	/**
 	 * Given a work unit, return the appropriate work service.  
 	 * @param w
+	 * @throws GridUnresolvableHostException 
 	 */
-	public GridWorkService getGridWorkService(WorkUnit w);
+	public GridWorkService getGridWorkService(WorkUnit w) throws GridUnresolvableHostException;
 	
 	/**
 	 * Get the work service that is working on the result
 	 * @param w
 	 * @return
+	 * @throws GridUnresolvableHostException 
 	 */
-	public GridWorkService getGridWorkService(GridResult r);
+	public GridWorkService getGridWorkService(GridResult r) throws GridUnresolvableHostException;
 	
 	/**
 	 * Get the work service from a FQDN.  This should be done only when the host is truly known, e.g. 
@@ -103,6 +107,26 @@ public interface GridHostResolver {
 	 * @throws GridException
 	 */
 	public boolean isFinished(GridResult g) throws GridException;
+	
+	
+	/*
+	 * Provision a FileHandle to a remote WorkService
+	 * 
+	 * @param file
+	 * @param destination
+	 * @throws GridException
+	 */
+	//public void move(FileHandle file, GridWorkService destination) throws GridException;
+	
+	/*
+	 * Provision a FileGroup to a remote WorkService
+	 * 
+	 * @param file
+	 * @param destination
+	 * @throws GridException
+	 */
+	//public void move(FileGroup file, GridWorkService destination) throws GridException;
+	
 	
 	/*
 	 * Instances of GridHostResolver must declare the following method as abstract.  This provides a mechanism for 

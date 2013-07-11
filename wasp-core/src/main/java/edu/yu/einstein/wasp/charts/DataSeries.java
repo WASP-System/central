@@ -205,12 +205,14 @@ public class DataSeries {
 	
 	@JsonIgnore
 	public int getRowCount(){
-		return rowLabels.size();
+		return data.size();
 	}
 	
 	@JsonIgnore
 	public int getColCount(){
-		return colLabels.size();
+		if (getRowCount() == 0)
+			return 0;
+		return data.get(0).size();
 	}
 
 }

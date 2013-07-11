@@ -22,6 +22,12 @@ public class Panel implements ViewPanel{
 	
 	private Integer order;
 	
+	private String execOnRenderCode = "";
+	
+	private String execOnResizeCode = "";
+	
+	private String execOnExpandCode = "";
+	
 	private boolean isResizable = false;
 	
 	private boolean isMaximizable = true;
@@ -165,6 +171,35 @@ public class Panel implements ViewPanel{
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
 	}
+
+	public String getExecOnRenderCode() {
+		return execOnRenderCode;
+	}
+
+	public void setExecOnRenderCode(String execOnRenderCode) {
+		this.execOnRenderCode = execOnRenderCode;
+	}
+
+	public String getExecOnResizeCode() {
+		if (execOnResizeCode == null || execOnResizeCode.isEmpty())
+			return execOnRenderCode;
+		return execOnResizeCode;
+	}
+
+	public void setExecOnResizeCode(String execOnResizeCode) {
+		this.execOnResizeCode = execOnResizeCode;
+	}
+
+	public String getExecOnExpandCode() {
+		if (execOnExpandCode == null || execOnExpandCode.isEmpty())
+			return execOnRenderCode;
+		return execOnExpandCode;
+	}
+
+	public void setExecOnExpandCode(String execOnExpandCode) {
+		this.execOnExpandCode = execOnExpandCode;
+	}
+
 	
 
 }
