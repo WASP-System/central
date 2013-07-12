@@ -674,6 +674,11 @@ window.onload = function (){
     	return false; // avoid 
     }
       
+    function loadNewPageWithAjax(theUrl){
+    	doGetWithAjax(theUrl);
+    	return false;
+    }
+      
 /*     
     $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
     	var o = {};
