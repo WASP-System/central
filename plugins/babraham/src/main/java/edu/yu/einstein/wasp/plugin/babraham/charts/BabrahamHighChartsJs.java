@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
  * @author asmclellan
  *
  */
-public class FastQCHighChartsJs extends HighChartsJsBase {
+public class BabrahamHighChartsJs extends HighChartsJsBase {
 
 	private static final String HEX_RED = "#F6CECE";
 	private static final String HEX_YELLOW = "#F5ECCE";

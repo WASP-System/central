@@ -8,35 +8,42 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<bean id="babrahamPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>babraham</value>
-		</constructor-arg>
-	</bean>
-	
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.babraham" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.babraham" ref="babraham.WaspPluginBean" method="process" />
-	
-	<bean id="babraham.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.BabrahamPlugin">
-		<constructor-arg name="pluginName" ref="babrahamPluginArea" />
+	<bean id="babraham.fastqc.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
+		<constructor-arg name="pluginName" ref="babraham.fastQCArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.babraham" />
-		<!-- 
 		<property name="provides" >
 			<set>
-				<ref bean="babraham" />
+				<ref bean="babraham.fastqc" />
 			</set>
 		</property>
-		 -->
-		<!-- 
 		<property name="handles" >
 			<set>
-				<ref bean="babrahamPluginArea" />
+				<ref bean="babraham.fastQCArea" />
 			</set>
 		</property>
-		 -->
 	</bean>
+	
+	<bean id="babraham.fastqscreen.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin">
+		<constructor-arg name="pluginName" ref="babraham.fastQScreenArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.babraham" />
+		<property name="provides" >
+			<set>
+				<ref bean="babraham.fastqscreen" />
+			</set>
+		</property>
+		<property name="handles" >
+			<set>
+				<ref bean="babraham.fastQScreenArea" />
+			</set>
+		</property>
+	</bean>
+	
+	<!-- statics for batch job tasks required for sending messages (to distinguish which babraham task is talking e.g. fastqc or fastqscreen) -->
+	<bean id="babrahamBatchJobTask" class="edu.yu.einstein.wasp.plugin.babraham.messages.tasks.BabrahamBatchJobTask"/>
 
 </beans>

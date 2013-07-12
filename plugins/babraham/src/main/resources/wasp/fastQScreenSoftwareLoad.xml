@@ -9,26 +9,26 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean id="fastQScreenArea" class="java.lang.String">
+  <bean id="babraham.fastQScreenArea" class="java.lang.String">
 		<constructor-arg>
-			<value>fastQScreen</value>
+			<value>fastqscreen</value>
 		</constructor-arg>
   </bean>
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{fastQScreenArea}" />
+    <property name="baseArea" ref="{babraham.fastQScreenArea" />
   </bean>
 
-  <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  <bean id="babraham.fastqscreen" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.babraham.software.FastQScreen</value></property>
     <property name="name" value="FastQ Screen" />
-    <property name="area" value="#{fastQScreenArea}" />
+    <property name="area" ref="babraham.fastQScreenArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{fastQScreenArea}" />
+         <property name="area" ref="babraham.fastQScreenArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.4</value>

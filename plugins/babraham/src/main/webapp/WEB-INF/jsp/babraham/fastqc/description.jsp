@@ -3,8 +3,8 @@
 <%-- message keys link to internationalized text. Conversions can be specified in the .properties files in /src/main/resources/i18n --%>
 
 <h1>
-	<fmt:message key="pageTitle.babraham/description.label" />
+	<fmt:message key="pageTitle.babraham/fastqc/description.label" />
 </h1>
 <div class="instructions">
-	<fmt:message key="babraham.maintext.label" />
+	<fmt:message key="fastqc.maintext.label" />
 </div>

@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.grid.work.GridResultImpl;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.ViewPanelProviding;
-import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCHighChartsJs;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamHighChartsJs;
 import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
@@ -151,7 +151,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspBoxPlot bp = WaspChart.getChart(jsonObject, WaspBoxPlot.class);
-		String html = FastQCHighChartsJs.getPerBaseSeqQualityPlotHtml(bp);
+		String html = BabrahamHighChartsJs.getPerBaseSeqQualityPlotHtml(bp);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("chart: { type: 'boxplot' }"));
 	}
@@ -163,7 +163,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart, null, null, null, null, 0, null);
+		String html = BabrahamHighChartsJs.getBasicSpline(chart, null, null, null, null, 0, null);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Sequence Duplication Level' }"));
 	}
@@ -175,7 +175,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		String html = FastQCHighChartsJs.getKeyValueTableRepresentation(chart);
+		String html = BabrahamHighChartsJs.getKeyValueTableRepresentation(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("<h3>Basic Statistics</h3>"));
 	}
@@ -187,7 +187,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		String html = FastQCHighChartsJs.getTableRepresentation(chart);
+		String html = BabrahamHighChartsJs.getTableRepresentation(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("<h3>Overrepresented sequences</h3>"));
 	}
@@ -199,7 +199,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart,2, null, null, null, 0, null);
+		String html = BabrahamHighChartsJs.getBasicSpline(chart,2, null, null, null, 0, null);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Quality Score Distribution Over all Sequences' },"));
 	}
@@ -211,7 +211,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getSplineForBases(chart);
+		String html = BabrahamHighChartsJs.getSplineForBases(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Quality Score Distribution Over all Sequences' },"));
 	}
@@ -223,7 +223,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
+		String html = BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Per Base GC Content' },"));
 	}
@@ -235,7 +235,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getSplineForPerSequenceGC(chart);
+		String html = BabrahamHighChartsJs.getSplineForPerSequenceGC(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Per Sequence GC Content' },"));
 	}
@@ -247,7 +247,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_N_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
+		String html = BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'N content acrosss all bases' },"));
 	}
@@ -259,7 +259,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.KMER_PROFILES);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		String html = FastQCHighChartsJs.getTableRepresentation(chart);
+		String html = BabrahamHighChartsJs.getTableRepresentation(chart);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("<h3>Kmer Content</h3>"));
 	}
@@ -271,7 +271,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		String html = FastQCHighChartsJs.getBasicSpline(chart, 10, null, null, null, 0, null);
+		String html = BabrahamHighChartsJs.getBasicSpline(chart, 10, null, null, null, 0, null);
 		logger.debug(html);
 		Assert.assertTrue(html.contains("title: { text: 'Distribution of sequence lengths over all sequences' },"));
 	}
