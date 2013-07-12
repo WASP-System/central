@@ -1054,4 +1054,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void addLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM, Job job) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
 
 	  public void setJobForLibraryOnCell(SampleSource cellLibrary, Job job) throws MetadataException;
+	  
+	  public void enumerateSamplesForMPS(List<Sample> allSamples, List<Sample> submittedMacromolecules, List<Sample> submittedLibraries, List<Sample> facilityLibraries);
+	  
 }

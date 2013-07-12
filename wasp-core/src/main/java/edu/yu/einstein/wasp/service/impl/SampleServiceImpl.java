@@ -3122,7 +3122,31 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				meta.add( (SampleSourceMeta) metahelper.getMetaByName(JOB_ID) ); // may be new OR existing
 				sampleSourceMetaDao.setMeta(meta, cellLibrary.getId());
 			}
-
+			
+			/**
+			 *  {@inheritDoc}
+			 */
+			@Override
+			public void enumerateSamplesForMPS(List<Sample> allSamples, List<Sample> submittedMacromolecules, List<Sample> submittedLibraries, List<Sample> facilityLibraries){
+				Assert.assertParameterNotNull(allSamples, "allSamples list cannot be null");
+				Assert.assertParameterNotNull(submittedMacromolecules, "submittedMacromolecules list cannot be null");
+				Assert.assertParameterNotNull(submittedLibraries, "submittedLibraries list cannot be null");
+				Assert.assertParameterNotNull(facilityLibraries, "facilityLibraries list cannot be null");
+				
+				for(Sample s : allSamples){
+					  if(s.getParent()==null){
+						  if(s.getSampleType().getIName().toLowerCase().contains("library")){
+							  submittedLibraries.add(s);
+						  }
+						  else if(s.getSampleType().getIName().toLowerCase().contains("dna") || s.getSampleType().getIName().toLowerCase().contains("rna")){
+							  submittedMacromolecules.add(s);
+						  }
+					  }
+					  else if(s.getParent()!=null && s.getSampleType().getIName().toLowerCase().contains("library")){
+						  facilityLibraries.add(s);
+					  }
+				}
+			}
 
 }
 

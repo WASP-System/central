@@ -1549,84 +1549,82 @@ public class JobController extends WaspController {
 
 	private void getSampleLibraryRunData(Integer jobId, ModelMap m) throws SampleTypeException {
 		
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
+		  Job job = jobService.getJobByJobId(jobId);
+		  m.addAttribute("job", job);
 		
 		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-		  List<Sample> allJobLibraries = new ArrayList<Sample>();  //could have gotten this from allJobLibraries = jobService.getLibraries(job);
 		  List<Sample> submittedMacromoleculeList = new ArrayList<Sample>();
 		  List<Sample> submittedLibraryList = new ArrayList<Sample>();
 		  List<Sample> facilityLibraryList = new ArrayList<Sample>();
-		  
-		  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
-		  
-		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();
-		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
-		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+		  sampleService.enumerateSamplesForMPS(allJobSamples, submittedMacromoleculeList, submittedLibraryList, facilityLibraryList);
 
-		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
-		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
-		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
-		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
-		  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
-
-		  for(Sample s : allJobSamples){
-			  if(s.getParent()==null){
-				  if(s.getSampleType().getIName().toLowerCase().contains("library")){
-					  submittedLibraryList.add(s);
-				  }
-				  else{
-					  submittedMacromoleculeList.add(s);
-				  }
-			  }
-			  else{
-				  facilityLibraryList.add(s);
-			  }
-			  
-			  //also for each job's sample, get the qcStatus; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)
-			  if(s.getSampleType().getIName().toLowerCase().contains("library")){
-				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(s)));
-				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
-			  }
-			  else{
-				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
-				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
-			  }
-		  }
-		  
+		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
+		  m.addAttribute("submittedLibraryList", submittedLibraryList);
+		  //not used on webpage: m.addAttribute("facilityLibraryList", facilityLibraryList);
+	
 		  //consolidate job's libraries
+		  List<Sample> allJobLibraries = new ArrayList<Sample>();//could have gotten this from allJobLibraries = jobService.getLibraries(job);
 		  allJobLibraries.addAll(submittedLibraryList);
 		  allJobLibraries.addAll(facilityLibraryList);
 		  
-		  //consolidate job's submitted objects: submitted macromoleucles and submitted libraries
-		  //could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
+		  //consolidate job's submitted objects: submitted macromolecules and submitted libraries
+		  List<Sample> submittedObjectList = new ArrayList<Sample>();//could have gotten this from submittedObjectList = jobService.getSubmittedSamples(job);
 		  submittedObjectList.addAll(submittedMacromoleculeList);
 		  submittedObjectList.addAll(submittedLibraryList);
+		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list used on the web page 
+		  	  
+		  //For each job's sample, get the qcStatus and comments; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)
+		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
+		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
+		  for(Sample s : allJobSamples){
+			  //if(s.getSampleType().getIName().toLowerCase().contains("library")){
+			  if(allJobLibraries.contains(s)){//user-submitted libraries and facility-generated libraries
+				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getLibraryQCStatus(s)));
+				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
+			  }
+			  else if (submittedMacromoleculeList.contains(s)){
+				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
+				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
+			  }
+		  }	 
+		  m.addAttribute("qcStatusMap", qcStatusMap);
+		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  
 		  //for each submittedMacromolecule, get list of it's facility-generated libraries; also determine if this sampleMacromolecule should have a library made from it
+		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
+		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
 		  for(Sample macromolecule : submittedMacromoleculeList){
 			  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
 			  boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(macromolecule);
-			  logger.debug("setting sample " + macromolecule.getId() + " (" + macromolecule.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
+			  //logger.debug("setting sample " + macromolecule.getId() + " (" + macromolecule.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
 			  createLibraryStatusMap.put(macromolecule, isSampleWaitingForLibraryCreation);
 		  }
+		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
+		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		  
 		  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
+		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  for(Sample userSubmittedLibrary : submittedLibraryList){//do this just to get the userSubmitted Library in a list
 			  List<Sample> tempUserSubmittedLibraryList = new ArrayList<Sample>();
 			  tempUserSubmittedLibraryList.add(userSubmittedLibrary);
 			  submittedLibrarySubmittedLibraryListMap.put(userSubmittedLibrary, tempUserSubmittedLibraryList);
 		  }
-		  
-		  //for each submittedMacromolecule or submittedLibrary, get species and get receviedStatus
+		  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
+
+		  //for each submittedObject (a submittedMacromolecule or a submittedLibrary), get species and get receviedStatus
+		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();		  
+		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();		 
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 		  }
+		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
+		  m.addAttribute("receivedStatusMap", receivedStatusMap);
 		  
 		  //for each job's library, get its adaptor info and determine whether the library should be assigned to a platformUnit
+		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
+		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
+		  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
 		  int numberOfLibrariesAwaitingPlatformUnitPlacement = 0;
 		  for(Sample library : allJobLibraries){
 			  
@@ -1643,8 +1641,11 @@ public class JobController extends WaspController {
 				  libraryAdaptorsetMap.put(library, adaptor.getAdaptorset()); 
 			  }catch(Exception e){  }		  
 		  }
-		  
-		  //???want it?? Set<SampleSource> cellLibrariesForJob = sampleService.getCellLibrariesForJob(job);
+		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
+		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
+		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
+		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
+		 
 		  Map<Sample, List<Sample>> libraryCellListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
@@ -1652,21 +1653,18 @@ public class JobController extends WaspController {
 
 		  Map<Sample, Map<Sample, Float>> cellLibraryPMLoadedMap = new HashMap<Sample, Map<Sample, Float>>();
 		  
+		  //for each job's library, get cell, platformUnit, and run info
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
 			  libraryCellListMap.put(library, cellsForLibrary);
 			  for(Sample cell : cellsForLibrary){			  
 				  try{
-					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));
+					  cellIndexMap.put(cell, sampleService.getCellIndex(cell));//cell's position on flowcell (ie.: lane 3)
 					  Sample platformUnit = sampleService.getPlatformUnitForCell(cell);
 					  cellPUMap.put(cell, platformUnit);
 					  
-					  //Map<Sample, Float> libraryPMLoadedMap = new HashMap<Sample, Float>();
 					  Float pMLoaded = sampleService.getConcentrationOfLibraryAddedToCell(cell, library);
-					 // libraryPMLoadedMap.put(library, pMLoaded);
 					  if(cellLibraryPMLoadedMap.containsKey(cell)){
-						  //Map<Sample, Float> existing_libraryPMLoadedMap = cellLibraryPMLoadedMap.get(cell);
-						  //existing_libraryPMLoadedMap.put(library, pMLoaded);
 						  cellLibraryPMLoadedMap.get(cell).put(library, pMLoaded);
 					  }
 					  else{
@@ -1675,31 +1673,24 @@ public class JobController extends WaspController {
 						  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
 					  }
 					  
-					  /////******MUST USE THIS FOR REAL List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+					  List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+					  //For testing only: List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
 					  if(!runList.isEmpty()){
 						  Run run = runList.get(0);
-						  cellRunMap.put(cell, run);
-						  
+						  cellRunMap.put(cell, run);						  
 					  }
 				  }catch(Exception e){}
 			  }
 		  }
-		  /*
-		  for(Sample library : allJobLibraries){
-			  List<Sample> cellList = libraryCellListMap.get(library);
-			  for(Sample cell : cellList){
-				  Map<Sample,Float> libraryPMLoadedMap = cellLibraryPMLoadedMap.get(cell);
-				  Float pmLoaded = libraryPMLoadedMap.get(library);
-				  System.out.println("----------Library : cell : pmLoaded = " + library.getName() + " : " + cell.getName() + " : " + pmLoaded);
-			  }
-		  }
-		   */
+		  m.addAttribute("libraryCellListMap", libraryCellListMap);
+		  m.addAttribute("cellIndexMap", cellIndexMap);
+		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
+		  m.addAttribute("cellRunMap", cellRunMap);
+		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);		  
+		 
+		  //calculate the rowspans needed for the web, as the table display is rather complex, and determining these numbers is very hard to do at the web, as there are multiple dependencies. It is easier to perform here.
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
-
-		  //calculate the rowspans needed for the web, as the table display is rather complex. 
-		  //this is very very hard to do at the web, as there are multiple dependencies. easier to perform here
 		  for(Sample submittedObject : submittedObjectList){
 			  
 			  int numLibraries = 0;
@@ -1738,42 +1729,10 @@ public class JobController extends WaspController {
 				  submittedObjectCellRowspan.put(submittedObject, numCells);
 			  }
 		  }
-		  
-
-		  
-		  m.addAttribute("job",job);
-		  //not actually used by webpage   m.addAttribute("submittedLibraryList", submittedLibraryList);
-		  //not actually used on webpage m.addAttribute("facilityLibraryList", facilityLibraryList);
-		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list  
-		  m.addAttribute("submittedMacromoleculeList", submittedMacromoleculeList);//needed to distinguish submittedMacromoleucle from submitted Library
-
-		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
-		  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
-		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
-		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
-		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
-		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
-		  m.addAttribute("numberOfLibrariesAwaitingPlatformUnitPlacement", numberOfLibrariesAwaitingPlatformUnitPlacement);
-		  
-		  m.addAttribute("libraryCellListMap", libraryCellListMap);
-		  m.addAttribute("cellIndexMap", cellIndexMap);
-		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
-		  m.addAttribute("cellRunMap", cellRunMap);
-		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);
-		  
 		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
 		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
-		 
-		  //turns out I need this
-		  m.addAttribute("submittedLibraryList", submittedLibraryList);
-		
-		  m.addAttribute("receivedStatusMap", receivedStatusMap);
-		  m.addAttribute("qcStatusMap", qcStatusMap);
-		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
-		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
 		  
-		  
-		  //the dropdown box
+		  //fill up drop-down box that is used to assign a library to a flow cell's lane
 		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
 		  m.addAttribute("availableAndCompatiblePlatformUnitListOnForm", availableAndCompatiblePlatformUnitListOnForm);
 		  Map<Sample, List<Sample>> platformUnitCellListMapOnForm = new HashMap<Sample, List<Sample>>();
@@ -1782,7 +1741,6 @@ public class JobController extends WaspController {
 		  Map<Sample, Adaptorset> libraryAdaptorsetMapOnForm = new HashMap<Sample, Adaptorset>();
 		  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
 
-		  //fill up drop-down box
 		  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
 			  //System.out.println("PU: " + platformUnit.getName());
 			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
@@ -1807,7 +1765,7 @@ public class JobController extends WaspController {
 				  tempLibraryList.addAll(controlLibrariesOnCellList);
 				  tempLibraryList.addAll(librariesWithoutControlsOnCellList);
 				  
-				  //for each library on this form, get its adaptor info
+				  //for each library on this drop-down list, get its adaptor info
 				  for(Sample library : tempLibraryList){
 					  Adaptor adaptor;
 					  try{ 
@@ -1823,10 +1781,9 @@ public class JobController extends WaspController {
 		  m.addAttribute("cellControlLibraryListMapOnForm", cellControlLibraryListMapOnForm);
 		  m.addAttribute("cellLibraryWithoutControlListMapOnForm", cellLibraryWithoutControlListMapOnForm);
 		  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
-		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);
-		  
-		
+		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);		  
 	}
+	
 	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/updateConcentration", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobUpdateConcentrationToCellPostPage(
