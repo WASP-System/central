@@ -1158,10 +1158,9 @@ public class JobController extends WaspController {
 		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
-		   	logger.warn("Job unexpectedly Not found in database");
-		   	errorMessage = "Unexpected Error. Job Not found in database.";
-		   	waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
 		}
 		m.addAttribute("job", job);
 		
@@ -1202,11 +1201,11 @@ public class JobController extends WaspController {
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
 			  MultipartHttpServletRequest request, 
-			  HttpServletResponse response
+			  HttpServletResponse response,
 			  //since this is now an ajax call, we no longer need/use these 2 @RequestParam parameters
 			  ///@RequestParam("file_description") String fileDescription, 
-			  ///@RequestParam("file_upload") MultipartFile mpFile
-			  ) throws SampleTypeException {
+			  ///@RequestParam("file_upload") MultipartFile mpFile,
+			  ModelMap m) throws SampleTypeException {
 
 		String errorMessage = "";
 		String successMessage = "";
@@ -1214,8 +1213,8 @@ public class JobController extends WaspController {
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
-		   	waspErrorMessage("job.jobNotFound.error"); 
-			return "redirect:/dashboard.do";
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
 		}
 
 		List<MultipartFile> mpFiles = request.getFiles("file_upload");
@@ -1261,19 +1260,19 @@ public class JobController extends WaspController {
 			  @RequestParam(value="coverageMapOnly", required=false) String coverageMapOnly,//used as flag to only display coverage map, from button on samples page
 			  ModelMap m) throws SampleTypeException {
 		
-		if(coverageMapOnly==null){
-			coverageMapOnly="";
-		}
-		m.addAttribute("coverageMapOnly", coverageMapOnly);
-		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
-		   	waspErrorMessage("job.jobNotFound.error"); 
-			return "redirect:/dashboard.do";
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
 		}		
 		m.addAttribute("job", job);
 		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
+		
+		if(coverageMapOnly==null){
+			coverageMapOnly="";
+		}
+		m.addAttribute("coverageMapOnly", coverageMapOnly);		
 		
 		//request for which libraries/samples should go on which lanes
 		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
@@ -1330,13 +1329,21 @@ public class JobController extends WaspController {
 		
 		return "job/home/requests";
 	}
-  
+  //not reviewed yet 
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
 			  @RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
 			  @RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
 			  ModelMap m) throws SampleTypeException {						
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("job", job);
 		
 		if(addLibrariesToPlatformUnitErrorMessage==null){
 			addLibrariesToPlatformUnitErrorMessage="";
@@ -1347,15 +1354,12 @@ public class JobController extends WaspController {
 			addLibrariesToPlatformUnitSuccessMessage="";
 		}
 		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
-			
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
 		
 		getSampleLibraryRunData(jobId, m);
 		
 		return "job/home/addLibrariesToCell";
 	}
-	
+	//not reviewed yet 
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
@@ -1363,7 +1367,15 @@ public class JobController extends WaspController {
 			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
 			  @RequestParam("libraryId") List<Integer> libraryIdList,
 			  ModelMap m) throws SampleTypeException {						
-	/*
+	
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
+		/*
 		System.out.println("---cellId="+cellId);
 		for(String s : libConcInCellPicoMAsStringList){
 			System.out.println("------"+s);
@@ -1486,7 +1498,14 @@ public class JobController extends WaspController {
 			  @RequestParam(value="updateConcentrationToCellLibraryErrorMessage", required=false) String updateConcentrationToCellLibraryErrorMessage,
 			  @RequestParam(value="updateConcentrationToCellLibrarySuccessMessage", required=false) String updateConcentrationToCellLibrarySuccessMessage,
 			  ModelMap m) throws SampleTypeException {
-						
+			
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
 		if(updateConcentrationToCellLibraryErrorMessage==null){
 			updateConcentrationToCellLibraryErrorMessage="";
 		}
