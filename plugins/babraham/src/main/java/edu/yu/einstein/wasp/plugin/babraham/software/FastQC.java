@@ -234,7 +234,7 @@ public class FastQC extends SoftwarePackage{
 		chart.addProperty(QC_ANALYSIS_RESULT, bs.getResult());
 		DataSeries ds = new DataSeries();
 		ds.setColLabels(bs.getAttributes());
-		ds.setData((List<? extends List<Object>>) bs.getDataPoints());
+		ds.setDataFromString(bs.getDataPoints());
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
@@ -261,7 +261,7 @@ public class FastQC extends SoftwarePackage{
 			);
 		DataSeries ds = new DataSeries();
 		ds.setColLabels(os.getAttributes());
-		ds.setData((List<? extends List<Object>>) os.getDataPoints());
+		ds.setDataFromString(os.getDataPoints());
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
@@ -524,7 +524,7 @@ public class FastQC extends SoftwarePackage{
 				);
 		DataSeries ds = new DataSeries();
 		ds.setColLabels(ok.getAttributes());
-		ds.setData((List<? extends List<Object>>) ok.getDataPoints());
+		ds.setDataFromString(ok.getDataPoints());
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
