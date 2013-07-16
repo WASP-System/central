@@ -7,8 +7,6 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
@@ -25,8 +23,6 @@ import edu.yu.einstein.wasp.plugin.ViewPanel;
 public class FastQCPlugin extends BabrahamPluginBase{
 
 	private static final long serialVersionUID = -4008147590778610484L;
-
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow";
 

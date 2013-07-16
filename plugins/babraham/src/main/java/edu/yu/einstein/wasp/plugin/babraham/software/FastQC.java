@@ -30,7 +30,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
-import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -54,10 +54,17 @@ public class FastQC extends SoftwarePackage{
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
 	
-	public static final String QC_ANALYSIS_RESULT = "result";
+	public static final String QC_ANALYSIS_RESULT_KEY = "result";
+	
+	public static final String QC_ANALYSIS_RESULT_PASS = "pass";
+	
+	public static final String QC_ANALYSIS_RESULT_WARN = "warn";
+	
+	public static final String QC_ANALYSIS_RESULT_FAIL = "fail";
 	
 	public static class PlotType{
 		// meta keys for charts produced
+		public static final String QC_RESULT_SUMMARY = "result_summary";
 		public static final String BASIC_STATISTICS = "fastqc_basic_statistics";
 		public static final String DUPLICATION_LEVELS = "fastqc_duplication_levels";
 		public static final String KMER_PROFILES = "fastqc_kmer_profiles";
@@ -205,33 +212,129 @@ public class FastQC extends SoftwarePackage{
 	 * @param result
 	 * @return
 	 * @throws GridException
-	 * @throws FastQCDataParseException
+	 * @throws BabrahamDataParseException
 	 * @throws JSONException 
 	 */
-	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, FastQCDataParseException, JSONException {
-		Map<String,JSONObject> output = new HashMap<String, JSONObject>();
+	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, BabrahamDataParseException, JSONException {
+		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
 		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
+		output.put(PlotType.QC_RESULT_SUMMARY, getParsedQCResults(mMap));
 		output.put(PlotType.BASIC_STATISTICS, getParsedBasicStatistics(mMap));
 		output.put(PlotType.PER_BASE_QUALITY, getParsedPerBaseQualityData(mMap));
-		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		output.put(PlotType.PER_SEQUENCE_QUALITY, getPerSequenceQualityScores(mMap));
 		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, getPerBaseSequenceContent(mMap));
 		output.put(PlotType.PER_BASE_GC_CONTENT, getPerBaseGcContent(mMap));
 		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, getPerSequenceGcContent(mMap));
 		output.put(PlotType.PER_BASE_N_CONTENT, getPerBaseNContent(mMap));
+		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, getSequenceLengthDist(mMap));
+		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		output.put(PlotType.OVERREPRESENTED_SEQUENCES, getOverrepresentedSequences(mMap));
 		output.put(PlotType.KMER_PROFILES, getOverrepresentedKmers(mMap));
-		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, getSequenceLengthDist(mMap));
+		
 		return output;
 	}
 	
+	private List<String> getQCResultsDataRow(final FastQCDataModule module, String comment){
+		List<String> row = new ArrayList<>();
+		row.add(module.getName());
+		row.add(module.getResult());
+		row.add(comment);
+		return row;
+	}
+	
+	private JSONObject getParsedQCResults(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
+		WaspChart chart = new WaspChart();
+		chart.setTitle("FastQC Results Summary");
+		DataSeries ds = new DataSeries();
+		ds.addColLabel("FastQC Module");
+		ds.addColLabel("Result");
+		ds.addColLabel("Reason (if " + QC_ANALYSIS_RESULT_WARN + "/" + QC_ANALYSIS_RESULT_FAIL + ")");
+		FastQCDataModule module = moduleMap.get(PlotType.PER_BASE_QUALITY);
+		String comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "The lower quartile for at least one base is less than 10, or if a median value is less than 25.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "The lower quartile for at least one base is less than 5 or if a median value is less than 20.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.DUPLICATION_LEVELS);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "Non-unique sequences make up more than 20% of the total.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "Non-unique sequences make up more than 50% of the total.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.PER_SEQUENCE_QUALITY);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "The most frequently observed mean quality is below 27 - this equates to a 0.2% error rate.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "The most frequently observed mean quality is below 20 - this equates to a 1% error rate.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.PER_BASE_SEQUENCE_CONTENT);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "The difference between A and T, or G and C is greater than 10% in at least one position.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "The difference between A and T, or G and C is greater than 20% in at least one position.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.PER_BASE_GC_CONTENT);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "The GC content of any base strays more than 5% from the mean GC content.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "The GC content of any base strays more than 10% from the mean GC content.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.PER_SEQUENCE_GC_CONTENT);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "The sum of the deviations from the normal distribution represents more than 15% of the reads.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "The sum of the deviations from the normal distribution represents more than 30% of the reads.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.PER_BASE_N_CONTENT);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "At least one position shows an N content of >5%.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "At least one position shows an N content of >20%.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.OVERREPRESENTED_SEQUENCES);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "At least one sequence is found to represent more than 0.1% of the total.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "At least one sequence is found to represent more than 1% of the total.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.KMER_PROFILES);
+		comment = "";
+		// no comments for this
+		ds.addRow(getQCResultsDataRow(module, comment));
+		
+		module = moduleMap.get(PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
+		comment = "";
+		if (module.getResult().equals(QC_ANALYSIS_RESULT_WARN))
+			comment = "All sequences are not the same length.";
+		else if (module.getResult().equals(QC_ANALYSIS_RESULT_FAIL))
+			comment = "At least one sequence has zero length.";
+		ds.addRow(getQCResultsDataRow(module, comment));
+		chart.addDataSeries(ds);
+		return chart.getAsJSON();
+	}
 	
 	
-	private JSONObject getParsedBasicStatistics(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getParsedBasicStatistics(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule bs = moduleMap.get(PlotType.BASIC_STATISTICS);
 		WaspChart chart = new WaspChart();
 		chart.setTitle(bs.getName());
-		chart.addProperty(QC_ANALYSIS_RESULT, bs.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, bs.getResult());
 		DataSeries ds = new DataSeries();
 		ds.setColLabels(bs.getAttributes());
 		ds.setDataFromString(bs.getDataPoints());
@@ -239,11 +342,11 @@ public class FastQC extends SoftwarePackage{
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getOverrepresentedSequences(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getOverrepresentedSequences(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule os = moduleMap.get(PlotType.OVERREPRESENTED_SEQUENCES);
 		WaspChart chart = new WaspChart();
 		chart.setTitle(os.getName());
-		chart.addProperty(QC_ANALYSIS_RESULT, os.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, os.getResult());
 		chart.setDescription("\n" + 
 				"A normal high-throughput library will contain a diverse set of sequences, with no individual sequence making up a tiny fraction of the whole. " + 
 				"Finding that a single sequence is very overrepresented in the set either means that it is highly biologically significant, or indicates " + 
@@ -266,14 +369,14 @@ public class FastQC extends SoftwarePackage{
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getParsedPerBaseQualityData(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getParsedPerBaseQualityData(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule perBaseQual = moduleMap.get(PlotType.PER_BASE_QUALITY);
 		WaspBoxPlot boxPlot = new WaspBoxPlot();
 		boxPlot.setTitle("Quality scores across all bases");
 		boxPlot.setxAxisLabel("position in read (bp)");
 		boxPlot.setyAxisLabel("Quality Score");
 		boxPlot.setDescription("This view shows an overview of the range of quality values across all bases at each position in the FastQ file.");
-		boxPlot.addProperty(QC_ANALYSIS_RESULT, perBaseQual.getResult());
+		boxPlot.addProperty(QC_ANALYSIS_RESULT_KEY, perBaseQual.getResult());
 		for (List<String> row : perBaseQual.getDataPoints()){
 			try{
 				boxPlot.addBoxAndWhiskers(
@@ -286,20 +389,20 @@ public class FastQC extends SoftwarePackage{
 					);
 				boxPlot.addRunningMeanValue(row.get(0), Double.valueOf(row.get(1)));
 			} catch (NumberFormatException e){
-				throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+				throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 			} catch (NullPointerException e){
-				throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+				throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 			}
 		}
 		return boxPlot.getAsJSON();
 	}
 	
-	private JSONObject getSequenceDuplicationLevels(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getSequenceDuplicationLevels(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule dl = moduleMap.get(PlotType.DUPLICATION_LEVELS);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("Sequence Duplication Level");
 		chart.setyAxisLabel("% Duplicate Relative to Unique");
-		chart.addProperty(QC_ANALYSIS_RESULT, dl.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, dl.getResult());
 		chart.setDescription("In a diverse library most sequences will occur only once in the final set. A low level of duplication may indicate a very high " + 
 				"level of coverage of the target sequence, but a high level of duplication is more likely to indicate some kind of enrichment bias (eg PCR " + 
 				"over amplification).\n" + 
@@ -321,20 +424,20 @@ public class FastQC extends SoftwarePackage{
 				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getPerSequenceQualityScores(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getPerSequenceQualityScores(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule psq = moduleMap.get(PlotType.PER_SEQUENCE_QUALITY);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("Quality Score");
 		chart.setyAxisLabel("Sequence Count");
-		chart.addProperty(QC_ANALYSIS_RESULT, psq.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, psq.getResult());
 		chart.setTitle("Quality Score Distribution Over all Sequences");
 		chart.setDescription("The per sequence quality score report allows you to see if a subset of your sequences have universally low quality values. " + 
 				"It is often the case that a subset of sequences will have universally poor quality, often because they are poorly imaged (on the edge of " + 
@@ -350,20 +453,20 @@ public class FastQC extends SoftwarePackage{
 				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getPerBaseSequenceContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getPerBaseSequenceContent(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule pbsq = moduleMap.get(PlotType.PER_BASE_SEQUENCE_CONTENT);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("position in read (bp)");
 		chart.setyAxisLabel("proportion of base (%)");
-		chart.addProperty(QC_ANALYSIS_RESULT, pbsq.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, pbsq.getResult());
 		chart.setTitle("Quality Score Distribution Over all Sequences");
 		chart.setDescription("Per Base Sequence Content plots out the proportion of each base position in a file for which each of the four normal DNA " + 
 				"bases has been called.\n" + 
@@ -390,9 +493,9 @@ public class FastQC extends SoftwarePackage{
 				dsC.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(4)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(dsA);
 		chart.addDataSeries(dsC);
@@ -401,12 +504,12 @@ public class FastQC extends SoftwarePackage{
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getPerBaseGcContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getPerBaseGcContent(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule pbgc = moduleMap.get(PlotType.PER_BASE_GC_CONTENT);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("position in read (bp)");
 		chart.setyAxisLabel("% GC");
-		chart.addProperty(QC_ANALYSIS_RESULT, pbgc.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, pbgc.getResult());
 		chart.setTitle("Per Base GC Content");
 		chart.setDescription("Per Base GC Content plots out the GC content of each base position in a file.\n" + 
 				"In a random library you would expect that there would be little to no difference between the different bases of a sequence run, so the " + 
@@ -422,20 +525,20 @@ public class FastQC extends SoftwarePackage{
 				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getPerSequenceGcContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getPerSequenceGcContent(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule psgc = moduleMap.get(PlotType.PER_SEQUENCE_GC_CONTENT);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("Mean GC content (%)");
 		chart.setyAxisLabel("count per read");
-		chart.addProperty(QC_ANALYSIS_RESULT, psgc.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, psgc.getResult());
 		chart.setTitle("Per Sequence GC Content");
 		chart.setDescription("This module measures the GC content across the whole length of each sequence in a file and compares it to a modelled normal " + 
 				"distribution of GC content.\n" + 
@@ -460,9 +563,9 @@ public class FastQC extends SoftwarePackage{
 				data.add(Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(dsActual);
 		
@@ -475,12 +578,12 @@ public class FastQC extends SoftwarePackage{
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getPerBaseNContent(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getPerBaseNContent(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule pbnc = moduleMap.get(PlotType.PER_BASE_N_CONTENT);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("position in read (bp)");
 		chart.setyAxisLabel("% N");
-		chart.addProperty(QC_ANALYSIS_RESULT, pbnc.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, pbnc.getResult());
 		chart.setDescription("If a sequencer is unable to make a base call with sufficient confidence then it will normally substitute an N rather than " + 
 				"a conventional base call. This module plots out the percentage of base calls at each position for which an N was called.\n" + 
 				"It's not unusual to see a very low proportion of Ns appearing in a sequence, especially nearer the end of a sequence. However, if this " + 
@@ -496,19 +599,19 @@ public class FastQC extends SoftwarePackage{
 				ds.addRowWithSingleColumn(dataRow.get(0), Double.valueOf(dataRow.get(1)));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to convert string values to Double");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to convert string values to Double");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to convert string values to Double");
 		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getOverrepresentedKmers(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getOverrepresentedKmers(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule ok = moduleMap.get(PlotType.KMER_PROFILES);
 		WaspChart chart = new WaspChart();
 		chart.setTitle(ok.getName());
-		chart.addProperty(QC_ANALYSIS_RESULT, ok.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, ok.getResult());
 		chart.setDescription("\n" + 
 				"The analysis of overrepresented sequences will spot an increase in any exactly duplicated sequences, but there are a different subset of " + 
 				"problems where it will not work:\n" +
@@ -529,12 +632,12 @@ public class FastQC extends SoftwarePackage{
 		return chart.getAsJSON();
 	}
 	
-	private JSONObject getSequenceLengthDist(final Map<String, FastQCDataModule> moduleMap) throws FastQCDataParseException, JSONException{
+	private JSONObject getSequenceLengthDist(final Map<String, FastQCDataModule> moduleMap) throws BabrahamDataParseException, JSONException{
 		FastQCDataModule pbgc = moduleMap.get(PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
 		WaspChart2D chart = new WaspChart2D();
 		chart.setxAxisLabel("sequence length (bp)");
 		chart.setyAxisLabel("count");
-		chart.addProperty(QC_ANALYSIS_RESULT, pbgc.getResult());
+		chart.addProperty(QC_ANALYSIS_RESULT_KEY, pbgc.getResult());
 		chart.setTitle("Distribution of sequence lengths over all sequences");
 		chart.setDescription("Some high throughput sequencers generate sequence fragments of uniform length, but others can contain reads of wildly varying " +
 				"lengths. Even within uniform length libraries some pipelines will trim sequences to remove poor quality base calls from the end.\n" +
@@ -557,13 +660,15 @@ public class FastQC extends SoftwarePackage{
 				ds.addRowWithSingleColumn(length, lengthCounts.get(length));
 			}
 		} catch (NumberFormatException e){
-			throw new FastQCDataParseException("Caught NumberFormatException attempting to get numeric value of string values");
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to get numeric value of string values");
 		} catch (NullPointerException e){
-			throw new FastQCDataParseException("Caught NullPointerException attempting to get numeric value of string values");
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to get numeric value of string values");
 		}
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}
+	
+	
 	
 	
 	

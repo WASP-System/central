@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.json.JSONException;
 
+import edu.yu.einstein.wasp.web.panel.WebContent;
+
 /**
  * Base class for producing web-charts / tables
  * @author asmclellan
@@ -20,6 +22,10 @@ public class WebChartsBase {
 	protected static String DESCRIPTION_DIV_SUFFIX = "_description";
 	protected static String DEFAULT_DIV_PREFIX = "chart";
 	
+	public static String getUniqueContainerId(){
+		return "_" + UUID.randomUUID().toString();
+	}
+	
 	/**
 	 * Return a chart container with both 'chart' and 'description' divs populated with provided contents
 	 * @param chartDivContents
@@ -27,17 +33,16 @@ public class WebChartsBase {
 	 * @return
 	 */
 	public static String getSimpleContainerCode(String chartDivContents, String descriptionDivContents){
-		StringBuilder id = new StringBuilder();
-		return getSimpleContainerCode(DEFAULT_DIV_PREFIX, chartDivContents, descriptionDivContents, id);
+		return getSimpleContainerCode(DEFAULT_DIV_PREFIX, chartDivContents, descriptionDivContents);
 	}
 	
 	/**
 	 * Return a chart container with both 'chart' and 'description' divs populated with provided contents.
-	 * If supplied id is empty a random UUID will be set as the id value (modifies provided object):
+	 * A random UUID will be set as the containerId value :
 	 * <ul>
-	 * <li>container div will have class of '[prefix]_container' and id of '[prefix]_container_[id]'</li>
-	 * <li>chart div will have class of '[prefix]_chart' and id of '[prefix]_chart_[id]'</li>
-	 * <li>description div will have class of '[description]_chart' and id of '[description]_chart_[id]'</li>
+	 * <li>container div will have class of '[prefix]_container' and id of '[prefix]_container_[containerId]'</li>
+	 * <li>chart div will have class of '[prefix]_chart' and id of '[prefix]_chart_[containerId]'</li>
+	 * <li>description div will have class of '[description]_chart' and id of '[description]_chart_[containerId]'</li>
 	 * </ul>
 	 * 
 	 * @param prefix (for element id and class name)
@@ -46,13 +51,29 @@ public class WebChartsBase {
 	 * @param id (as suffix for id of element). If this value is not set, it will be set to a random UUID
 	 * @return
 	 */
-	public static String getSimpleContainerCode(String prefix, String chartDivContents, String descriptionDivContents, StringBuilder id){
+	public static String getSimpleContainerCode(String prefix, String chartDivContents, String descriptionDivContents){
+		return getSimpleContainerCode(prefix, chartDivContents, descriptionDivContents, getUniqueContainerId());
+	}
+	
+	/**
+	 * Return a chart container with both 'chart' and 'description' divs populated with provided contents.
+	 * <ul>
+	 * <li>container div will have class of '[prefix]_container' and id of '[prefix]_container_[containerId]'</li>
+	 * <li>chart div will have class of '[prefix]_chart' and id of '[prefix]_chart_[containerId]'</li>
+	 * <li>description div will have class of '[description]_chart' and id of '[description]_chart_[containerId]'</li>
+	 * </ul>
+	 * 
+	 * @param prefix (for element id and class name)
+	 * @param chartDivContents
+	 * @param descriptionDivContents
+	 * @param containerId (as suffix for id of element). If this value is not set, it will be set to a random UUID
+	 * @return
+	 */
+	public static String getSimpleContainerCode(String prefix, String chartDivContents, String descriptionDivContents, String containerId){
 		StringBuilder sb = new StringBuilder();
-		if (id.toString().isEmpty())
-			id.append("_" + UUID.randomUUID().toString());
-		sb.append("<div class='" + prefix + CONTAINER_DIV_SUFFIX + "' id='" + prefix + CONTAINER_DIV_SUFFIX + id + "'>\n");
-		sb.append("<div class='" + prefix + CONTENTS_DIV_SUFFIX + "' id='" + prefix + CONTENTS_DIV_SUFFIX + id + "'>" + chartDivContents + "</div>\n");
-		sb.append("<div class='" + prefix + DESCRIPTION_DIV_SUFFIX + "' id='" + prefix + DESCRIPTION_DIV_SUFFIX + id + "'><p>" + descriptionDivContents.replaceAll("[\n\r]", "<br /><br />") + "</p></div>\n");
+		sb.append("<div class='" + prefix + CONTAINER_DIV_SUFFIX + "' id='" + prefix + CONTAINER_DIV_SUFFIX + containerId + "'>\n");
+		sb.append("<div class='" + prefix + CONTENTS_DIV_SUFFIX + "' id='" + prefix + CONTENTS_DIV_SUFFIX + containerId + "'>" + chartDivContents + "</div>\n");
+		sb.append("<div class='" + prefix + DESCRIPTION_DIV_SUFFIX + "' id='" + prefix + DESCRIPTION_DIV_SUFFIX + containerId + "'><p>" + descriptionDivContents.replaceAll("[\n\r]", "<br /><br />") + "</p></div>\n");
 		sb.append("</div>\n");
 		return sb.toString();
 	}
@@ -63,7 +84,7 @@ public class WebChartsBase {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static String getKeyValueTableRepresentation(final WaspChart basicStats) throws Exception{
+	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats) throws Exception{
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
@@ -84,7 +105,9 @@ public class WebChartsBase {
 			sb.append("<tr><th>" + key + ": </th><td>" + strVal + "</td></tr>\n");
 		}
 		sb.append("</table>\n");
-		return getSimpleContainerCode(sb.toString(), basicStats.getDescription());
+		WebContent content = new WebContent();
+		content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getDescription()));
+		return content;
 	}
 	
 	/**
@@ -93,7 +116,7 @@ public class WebChartsBase {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static String getTableRepresentation(final WaspChart basicStats) throws JSONException{
+	public static WebContent getTableRepresentation(final WaspChart basicStats) throws JSONException{
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
@@ -119,7 +142,9 @@ public class WebChartsBase {
 			sb.append("</tr>\n");
 		}
 		sb.append("</table>\n");
-		return getSimpleContainerCode(sb.toString(), basicStats.getDescription());
+		WebContent content = new WebContent();
+		content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getDescription()));
+		return content;
 	}
 	
 	public static String getRounded(String number, int decimalPlaces){

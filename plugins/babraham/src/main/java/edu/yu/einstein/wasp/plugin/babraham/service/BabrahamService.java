@@ -16,7 +16,8 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
+import edu.yu.einstein.wasp.plugin.ViewPanel;
+import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.web.panel.Panel;
@@ -37,17 +38,17 @@ public interface BabrahamService extends WaspService {
 		 * @param gridResult
 		 * @return
 		 * @throws GridException
-		 * @throws FastQCDataParseException
+		 * @throws BabrahamDataParseException
 		 */
-		public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws GridException, FastQCDataParseException;
+		public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws GridException, BabrahamDataParseException;
 
 		/**
 		 * Returns a map of FastQCDataModule objects. This data structure represents the output of FastQC data.
 		 * @param inStream
 		 * @return
-		 * @throws FastQCDataParseException
+		 * @throws BabrahamDataParseException
 		 */
-		public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws FastQCDataParseException;
+		public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws BabrahamDataParseException;
 
 		/**
 		 * Save JSON representing parsed output of provided software associated with the provided fileGroup
@@ -74,6 +75,6 @@ public interface BabrahamService extends WaspService {
 		 * @param filegroup
 		 * @return
 		 */
-		public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup);
+		public Set<ViewPanel> getFastQCDataToDisplay(FileGroup filegroup);
 
 }

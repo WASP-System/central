@@ -1,8 +1,8 @@
 package edu.yu.einstein.wasp.charts.highchartsjs;
 
 import java.awt.Color;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.WebChartsBase;
+import edu.yu.einstein.wasp.web.panel.WebContent;
 
 /**
  * Base Class for producing HighChartsJs charts (www.highcharts.com)
@@ -28,19 +29,19 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	
 	private static String Y_AXIS_NAME = "yAxis";
 	
-	private static final String HIGHCHART_DIV_PREFIX = "highchart";
+	protected static final String HIGHCHART_DIV_PREFIX = "highchart";
 	
 	public enum ChartType{
 		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT, NONE;
 	}
 	
-	public static Set<URL> getScriptDependencies() {
-		Set<URL> dependencies =  new HashSet<URL>();
+	public static Set<URI> getScriptDependencies() {
+		Set<URI> dependencies =  new HashSet<URI>();
 		try {
-			dependencies.add(new URL("http://code.highcharts.com/highcharts.js"));
-			dependencies.add(new URL("http://code.highcharts.com/highcharts-more.js"));
-			dependencies.add(new URL("http://code.highcharts.com/modules/exporting.js"));
-		} catch (MalformedURLException e) {
+			dependencies.add(new URI("http://code.highcharts.com/highcharts.js"));
+			dependencies.add(new URI("http://code.highcharts.com/highcharts-more.js"));
+			dependencies.add(new URI("http://code.highcharts.com/modules/exporting.js"));
+		} catch (URISyntaxException e) {
 			logger.warn(e.getLocalizedMessage());
 		}
 		
@@ -53,8 +54,8 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @param title
 	 * @return
 	 */
-	public static String getContainerStartCode(ChartType chartType, String title){
-		return getContainerStartCode(chartType, title, false, null);
+	public static String getContainerStartCode(ChartType chartType, String containerId, String title){
+		return getHCScriptStartCode(chartType, containerId, title, false);
 	}
 	
 	/**
@@ -65,20 +66,15 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @param description
 	 * @return
 	 */
-	public static String getContainerStartCode(ChartType chartType, String title, boolean displayLegend, String description){
+	public static String getHCScriptStartCode(ChartType chartType, String containerId, String title, boolean displayLegend){
 		StringBuilder sb = new StringBuilder();
-		StringBuilder id = new StringBuilder();
-		
-		sb.append(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", description, id)); // value of id get set in here
-		if (!chartType.equals(ChartType.NONE)){
-			sb.append("<script>\n$(function () {\n$('#" + HIGHCHART_DIV_PREFIX +  CONTENTS_DIV_SUFFIX + id + "').highcharts({\n");
-			sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
-			if (title != null && !title.isEmpty())
-				sb.append("title: { text: '" + title + "' },\n");
-			//if (subTitle != null && !subTitle.isEmpty())
-			//	sb.append("subtitle: { text: '" + subTitle + "' },\n");
-			sb.append("legend: { enabled: " + displayLegend + " },\n");
-		}
+		sb.append("<script>\n$(function () {\n$('#" + HIGHCHART_DIV_PREFIX +  CONTENTS_DIV_SUFFIX + containerId + "').highcharts({\n");
+		sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
+		if (title != null && !title.isEmpty())
+			sb.append("title: { text: '" + title + "' },\n");
+		//if (subTitle != null && !subTitle.isEmpty())
+		//	sb.append("subtitle: { text: '" + subTitle + "' },\n");
+		sb.append("legend: { enabled: " + displayLegend + " },\n");
 		return sb.toString();
 	}
 	
@@ -198,7 +194,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * Terminates a chart. Do not call this methods unless getContainerStartCode() has been called first
 	 * @return
 	 */
-	public static String getContainerEndCode(){
+	public static String getHCScriptEndCode(){
 		return "\n});\n});\n</script>";
 	}
 	
@@ -208,7 +204,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @return
 	 * @throws JSONException
 	 */
-	public static String getBasicSpline(final WaspChart2D chart) throws JSONException{
+	public static WebContent getBasicSpline(final WaspChart2D chart) throws JSONException{
 		return getBasicSpline(chart, null, null, null, null, null, null);
 	}
 
@@ -226,15 +222,20 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @return
 	 * @throws JSONException
 	 */
-	public static String getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws JSONException{
+	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws JSONException{
+		WebContent content = new WebContent();
+		String containerId = getUniqueContainerId();
+		content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getDescription(), containerId));
 		DataSeries ds = chart.getDataSeries().get(0);
 		StringBuilder sb = new StringBuilder();
-		sb.append(getContainerStartCode(ChartType.SPLINE, chart.getTitle(), false, chart.getDescription()));
+		sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), false));
 		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels(), xTickInterval));
 		sb.append(getBasicYAxisCode(chart.getyAxisLabel(), yMin, yMax));
 		sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));
-		sb.append(getContainerEndCode());
-		return sb.toString();
+		sb.append(getHCScriptEndCode());
+		content.setScriptCode(sb.toString());
+		content.setScriptDependencies(getScriptDependencies());
+		return content;
 	}
 	
 	
