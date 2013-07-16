@@ -51,7 +51,7 @@ public class SelAddNewUser extends SelBaseTest {
     * @param confEmailOkUrl
     * @throws Exception
     */
-  	@Test (groups = "integration-tests", dataProvider = "DP2")
+  	@Test (groups = {"integration-tests", "add-new-user"}, dataProvider = "DP2")
 	public void navigateNewUserForm(String sLogin, String fName, String lName, String email, 
 										String password, String locale, String primaryuserid, String title, 
 										String building_room, String address, String phone, String fax, 
@@ -126,7 +126,7 @@ public class SelAddNewUser extends SelBaseTest {
      * 
      * @throws SQLException
      */
-    @Test (groups="integration-tests")
+    @Test (groups={"integration-tests", "add-new-user"})
   	public void confirmEmailAuth() throws SQLException {
   		Statement s = connection.createStatement();
   		s.executeQuery("Select cea.authcode, up.email from confirmemailauth cea, userpending up where up.id=cea.userpendingid");

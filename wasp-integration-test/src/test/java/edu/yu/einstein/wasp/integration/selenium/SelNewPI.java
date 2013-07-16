@@ -55,7 +55,7 @@ public class SelNewPI extends SelBaseTest {
      * @param sNewUserPICreated
      * @throws Exception
      */
-  	@Test (groups = "integration-tests", dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "submit-new-pi"}, dataProvider = "DP1")
 	public void navigateNewPIForm(String sUrl, String sLogin, String sFName, String sLName, 
 									String sEmail, String pwd, String locale, String sLab, 
 									String title, String sInst, String sDept, String building_room, 
