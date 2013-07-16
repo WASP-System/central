@@ -230,7 +230,6 @@ public class FastQC extends SoftwarePackage{
 		output.put(PlotType.DUPLICATION_LEVELS, getSequenceDuplicationLevels(mMap));
 		output.put(PlotType.OVERREPRESENTED_SEQUENCES, getOverrepresentedSequences(mMap));
 		output.put(PlotType.KMER_PROFILES, getOverrepresentedKmers(mMap));
-		
 		return output;
 	}
 	
@@ -789,7 +788,7 @@ public class FastQC extends SoftwarePackage{
 		deviationPercent /= totalCount;
 		deviationPercent *= 100;
 		
-		//logger.debug("Percentage deviation from normality is "+deviationPercent);
+		logger.trace("Percentage deviation from normality is "+deviationPercent);
 		
 		return theoreticalDistribution;
 	}

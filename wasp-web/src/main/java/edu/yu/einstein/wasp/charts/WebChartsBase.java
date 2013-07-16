@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.json.JSONException;
 
+import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.web.panel.WebContent;
 
 /**
@@ -82,27 +83,31 @@ public class WebChartsBase {
 	 * each row represents a key-value pair where the first data point is heading (key) and the second data point is it's value.
 	 * @param basicStats
 	 * @return
-	 * @throws JSONException
+	 * @throws ChartException 
 	 */
-	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats) throws Exception{
+	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats) throws ChartException{
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
 		sb.append("<table class='keyValueTable' >\n");
-		for (List<Object> row : data){
-			if (row.size() != 2)
-				throw new Exception("Data is of wrong format for this representation (must be two columns)");
-			String key = (String) row.get(0);
-			String strVal = (String) row.get(1);
-			try{
-				Double.parseDouble(strVal);
-				// got here so must be castable to double
-				if (strVal.contains("."))
-					strVal = getRounded(strVal, 2);
-				else
-					strVal = getDecimalSeperated(strVal);
-			} catch(NumberFormatException e){}
-			sb.append("<tr><th>" + key + ": </th><td>" + strVal + "</td></tr>\n");
+		if (data.isEmpty()){
+			sb.append("<tr><td>No data to display</td></tr>\n");
+		} else {
+			for (List<Object> row : data){
+				if (row.size() != 2)
+					throw new ChartException("Data is of wrong format for this representation (must be two columns)");
+				String key = (String) row.get(0);
+				String strVal = (String) row.get(1);
+				try{
+					Double.parseDouble(strVal);
+					// got here so must be castable to double
+					if (strVal.contains("."))
+						strVal = getRounded(strVal, 2);
+					else
+						strVal = getDecimalSeperated(strVal);
+				} catch(NumberFormatException e){}
+				sb.append("<tr><th>" + key + ": </th><td>" + strVal + "</td></tr>\n");
+			}
 		}
 		sb.append("</table>\n");
 		WebContent content = new WebContent();
@@ -116,30 +121,35 @@ public class WebChartsBase {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static WebContent getTableRepresentation(final WaspChart basicStats) throws JSONException{
+	public static WebContent getTableRepresentation(final WaspChart basicStats){
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
 		sb.append("<table class='standardTable' >\n");
-		sb.append("<tr>\n");
-		for (String headerElement : basicStats.getDataSeries().get(0).getColLabels())
-			sb.append("<th>" + headerElement + "</th>\n");
-		sb.append("</tr>\n");
-		for (List<Object> row : data){
+		if (data.isEmpty()){
+			sb.append("<tr><td>No data to display</td></tr>\n");
+		} else {
 			sb.append("<tr>\n");
-			for (Object element : row){
-				String strVal = (String) element;
-				try{
-					Double.parseDouble(strVal);
-					// got here so must be castable to double
-					if (strVal.contains("."))
-						strVal = getRounded(strVal, 2);
-					else
-						strVal = getDecimalSeperated(strVal);
-				} catch(NumberFormatException e){}
-				sb.append("<td>" + strVal + "</td>\n");
-			}
+			List<String> colLabels = basicStats.getDataSeries().get(0).getColLabels();
+			for (String headerElement : colLabels)
+				sb.append("<th>" + headerElement + "</th>\n");
 			sb.append("</tr>\n");
+			for (List<Object> row : data){
+				sb.append("<tr>\n");
+				for (Object element : row){
+					String strVal = (String) element;
+					try{
+						Double.parseDouble(strVal);
+						// got here so must be castable to double
+						if (strVal.contains("."))
+							strVal = getRounded(strVal, 2);
+						else
+							strVal = getDecimalSeperated(strVal);
+					} catch(NumberFormatException e){}
+					sb.append("<td>" + strVal + "</td>\n");
+				}
+				sb.append("</tr>\n");
+			}
 		}
 		sb.append("</table>\n");
 		WebContent content = new WebContent();

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.WebChartsBase;
+import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.web.panel.WebContent;
 
 /**
@@ -35,16 +36,11 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT, NONE;
 	}
 	
-	public static Set<URI> getScriptDependencies() {
+	public static Set<URI> getScriptDependencies() throws URISyntaxException {
 		Set<URI> dependencies =  new HashSet<URI>();
-		try {
-			dependencies.add(new URI("http://code.highcharts.com/highcharts.js"));
-			dependencies.add(new URI("http://code.highcharts.com/highcharts-more.js"));
-			dependencies.add(new URI("http://code.highcharts.com/modules/exporting.js"));
-		} catch (URISyntaxException e) {
-			logger.warn(e.getLocalizedMessage());
-		}
-		
+		dependencies.add(new URI("http://code.highcharts.com/highcharts.js"));
+		dependencies.add(new URI("http://code.highcharts.com/highcharts-more.js"));
+		dependencies.add(new URI("http://code.highcharts.com/modules/exporting.js"));
 		return dependencies;
 	}
 	
@@ -170,23 +166,31 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	}
 	
 		
-	public static String getBasicSeriesCode(final BasicHighChartsSeries series) throws JSONException{
-		Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
-		seriesSet.add(series);
-		return getBasicSeriesCode(seriesSet);
+	public static String getBasicSeriesCode(final BasicHighChartsSeries series) throws ChartException{
+		try{
+			Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
+			seriesSet.add(series);
+			return getBasicSeriesCode(seriesSet);
+		} catch(Exception e){
+			throw new ChartException("Unexpected error caught rendering chart", e);
+		}
 	}
 	
-	public static String getBasicSeriesCode(final Set<BasicHighChartsSeries> seriesSet) throws JSONException{
-		StringBuilder sb = new StringBuilder();
-		sb.append("series: [");
-		int seriesCount = 0;
-		for (BasicHighChartsSeries series : seriesSet){
-			if (seriesCount++ > 0)
-				sb.append(",");
-			sb.append(series.getInnerHtml());
+	public static String getBasicSeriesCode(final Set<BasicHighChartsSeries> seriesSet) throws ChartException{
+		try{
+			StringBuilder sb = new StringBuilder();
+			sb.append("series: [");
+			int seriesCount = 0;
+			for (BasicHighChartsSeries series : seriesSet){
+				if (seriesCount++ > 0)
+					sb.append(",");
+				sb.append(series.getInnerHtml());
+			}
+			sb.append("]\n");	
+			return sb.toString();
+		} catch(Exception e){
+			throw new ChartException("Unexpected error caught rendering chart", e);
 		}
-		sb.append("]\n");	
-		return sb.toString();
 	}
 	
 	
@@ -202,9 +206,9 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * Get a basic spline chart.
 	 * @param chart
 	 * @return
-	 * @throws JSONException
+	 * @throws ChartException 
 	 */
-	public static WebContent getBasicSpline(final WaspChart2D chart) throws JSONException{
+	public static WebContent getBasicSpline(final WaspChart2D chart) throws ChartException {
 		return getBasicSpline(chart, null, null, null, null, null, null);
 	}
 
@@ -220,22 +224,26 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @param yMin
 	 * @param yMax
 	 * @return
-	 * @throws JSONException
+	 * @throws ChartException 
 	 */
-	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws JSONException{
-		WebContent content = new WebContent();
-		String containerId = getUniqueContainerId();
-		content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getDescription(), containerId));
-		DataSeries ds = chart.getDataSeries().get(0);
-		StringBuilder sb = new StringBuilder();
-		sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), false));
-		sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels(), xTickInterval));
-		sb.append(getBasicYAxisCode(chart.getyAxisLabel(), yMin, yMax));
-		sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));
-		sb.append(getHCScriptEndCode());
-		content.setScriptCode(sb.toString());
-		content.setScriptDependencies(getScriptDependencies());
-		return content;
+	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws ChartException{
+		try{
+			WebContent content = new WebContent();
+			String containerId = getUniqueContainerId();
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getDescription(), containerId));
+			DataSeries ds = chart.getDataSeries().get(0);
+			StringBuilder sb = new StringBuilder();
+			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), false));
+			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels(), xTickInterval));
+			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), yMin, yMax));
+			sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));
+			sb.append(getHCScriptEndCode());
+			content.setScriptCode(sb.toString());
+			content.setScriptDependencies(getScriptDependencies());
+			return content;
+		} catch(Exception e){
+			throw new ChartException("Unexpected error caught rendering chart", e);
+		}
 	}
 	
 	

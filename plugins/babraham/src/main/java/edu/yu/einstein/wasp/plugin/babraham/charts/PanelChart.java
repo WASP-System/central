@@ -2,11 +2,10 @@ package edu.yu.einstein.wasp.plugin.babraham.charts;
 
 import java.net.URI;
 
-import org.json.JSONException;
-
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
+import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
@@ -33,7 +32,11 @@ public class PanelChart{
 	}
 	
 	public static ViewPanel getQCResultsSummaryPanel(WaspChart chart) throws PanelException{
-		return getViewPanel(chart.getTitle(), 1, BabrahamHighChartsJs.getQCSummaryTableRepresentation(chart));
+		try {
+			return getViewPanel(chart.getTitle(), 1, BabrahamHighChartsJs.getQCSummaryTableRepresentation(chart));
+		} catch (BabrahamDataParseException e1) {
+			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		}
 	}
 	
 	public static ViewPanel getBasicStatsPanel(WaspChart chart) throws PanelException{
@@ -55,7 +58,7 @@ public class PanelChart{
 	public static ViewPanel getPerSeqQualityPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 4, BabrahamHighChartsJs.getBasicSpline(chart,2, null, null, null, 0, null));
-		} catch (JSONException e1) {
+		} catch (ChartException e1) {
 			throw new PanelException("Caught unexpected exception generating Panel", e1);
 		}
 	}
@@ -71,7 +74,7 @@ public class PanelChart{
 	public static ViewPanel getPerBaseGcContentPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 6, BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100));
-		} catch (JSONException e1) {
+		} catch (ChartException e1) {
 			throw new PanelException("Caught unexpected exception generating Panel", e1);
 		}
 	}
@@ -87,7 +90,7 @@ public class PanelChart{
 	public static ViewPanel getPerBaseNContentPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 8, BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100));
-		} catch (JSONException e1) {
+		} catch (ChartException e1) {
 			throw new PanelException("Caught unexpected exception generating Panel", e1);
 		}
 	}
@@ -96,7 +99,7 @@ public class PanelChart{
 	public static ViewPanel getSeqLengthDistributionPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 9, BabrahamHighChartsJs.getBasicSpline(chart, 10, null, null, null, 0, null));
-		} catch (JSONException e1) {
+		} catch (ChartException e1) {
 			throw new PanelException("Caught unexpected exception generating Panel", e1);
 		}
 	}
@@ -104,25 +107,17 @@ public class PanelChart{
 	public static ViewPanel getSeqDuplicationPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 10, BabrahamHighChartsJs.getBasicSpline(chart, null, null, null, null, 0, null));
-		} catch (JSONException e1) {
+		} catch (ChartException e1) {
 			throw new PanelException("Caught unexpected exception generating Panel", e1);
 		}
 	}
 
-	public static ViewPanel getOverrepresentedSeqPanel(WaspChart chart) throws PanelException{
-		try {
-			return getViewPanel(chart.getTitle(), 11, BabrahamHighChartsJs.getTableRepresentation(chart));
-		} catch (JSONException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
-		}
+	public static ViewPanel getOverrepresentedSeqPanel(WaspChart chart) throws PanelException {
+		return getViewPanel(chart.getTitle(), 11, BabrahamHighChartsJs.getTableRepresentation(chart));
 	}
 	
 	public static ViewPanel getKmerProfilesPanel(WaspChart chart) throws PanelException{
-		try {
-			return getViewPanel(chart.getTitle(), 12, BabrahamHighChartsJs.getTableRepresentation(chart));
-		} catch (JSONException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
-		}
+		return getViewPanel(chart.getTitle(), 12, BabrahamHighChartsJs.getTableRepresentation(chart));
 	}
 
 }
