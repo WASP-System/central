@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	}
 	
 	public static Set<URL> getScriptDependencies() {
-		Set<URL> dependencies =  new HashSet<URL>();
+		Set<URL> dependencies =  new LinkedHashSet<URL>();
 		try {
 			dependencies.add(new URL("http://code.highcharts.com/highcharts.js"));
 			dependencies.add(new URL("http://code.highcharts.com/highcharts-more.js"));

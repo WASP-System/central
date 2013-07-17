@@ -10,17 +10,7 @@ Ext.define('Ext.wasp.Portal', {
     requires: ['Ext.wasp.PortalPanel', 'Ext.wasp.PortalColumn', 'Ext.wasp.GridPortlet', 'Ext.wasp.ChartPortlet'],
 
     getTools: function(){
-        return [/*{
-            xtype: 'tool',
-            type: 'gear',
-            handler: function(e, target, header, tool){
-                var portlet = header.ownerCt;
-                portlet.setLoading('Loading...');
-                Ext.defer(function() {
-                    portlet.setLoading(false);
-                }, 2000);
-            }
-        },*/{
+        return [{
         	xtype: 'tool',
         	type: 'maximize',
         	handler: function(e, target, header, tool){
@@ -100,71 +90,7 @@ Ext.define('Ext.wasp.Portal', {
                     xtype: 'tabpanel',
                     region: 'center',
                     activeTab: 0,
-                    items: [{
-                    	//id: 'wasp-tab1',
-        	            xtype: 'panel',
-                        title: 'Tab 1',
-                        layout:'card',
-						activeItem: 1,
-                        items: [{
-                        	layout: 'fit'
-                        },{
-                        	//id: 'wasp-portal1',
-    	                	xtype: 'portalpanel',
-		                    items: [{
-		                       // id: 'col-1',
-		                        items: [{
-		                            //id: 'portlet-2',
-		                            title: 'Portlet 2',
-		                            tools: this.getTools(),
-		                            closable: false,
-		                            html: content,
-		                            listeners: {
-		                                'close': Ext.bind(this.onPortletClose, this)
-		                            }
-		                        }]
-		                    },{
-		                        //id: 'col-2',
-		                        items: [{
-		                            //id: 'portlet-3',
-		                            title: 'Portlet 3',
-		                            tools: this.getTools(),
-		                            html: '<div id=\'highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b\'></div>',
-		                            listeners: {
-		                                'close': Ext.bind(this.onPortletClose, this),
-		                                'render': Ext.bind(this.onPortletRender, this),
-		                                'resize': Ext.bind(this.onPortletRender, this)
-		                            }
-		                        }]
-		                    }]
-                        }]
-                    },{
-                    	//id: 'wasp-tab2',
-                    	xtype: 'panel',
-                    	title: 'Tab 2',
-                    	layout: 'card',
-                    	activeItem: 1,
-                    	items: [{
-                        	layout: 'fit'
-                        },{
-                        	xtype: 'portalpanel',
-		                    items: [{
-		                        //id: 'col-4',
-		                        items: [{
-		                            //id: 'portlet-4',
-		                            title: 'Portlet 4',
-		                            tools: this.getTools(),
-		                            closable: false,
-		                            html: content,
-		                            listeners: {
-		                                'close': Ext.bind(this.onPortletClose, this)
-		                            }
-		                        }]
-		                    },{
-		                    	//id: 'col-5'
-		                    }]
-                    	}]
-                    }]
+                    items: []
                 }]
             }]
         });
@@ -175,24 +101,6 @@ Ext.define('Ext.wasp.Portal', {
         this.showMsg('"' + portlet.title + '" was removed');
     },
     
-    onPortletRender: function(portlet) {
-		$('#highChartContainer_089d7b82-c5b5-49f9-9dca-f514931f394b').highcharts({
-			chart: { type: 'spline' },
-			title: { text: 'Sequence Duplication Level >= 14.0' },
-			legend: { enabled: false },
-			xAxis: { categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10++'],
-			title: { text: 'Sequence Duplication Level' }},
-			yAxis: { title: { text: '% Duplicate Relative to Unique' }
-		},series: [{ 
-			name: '% Duplication', 
-			color: '#ff0000', 
-			animation:false, 
-			marker: { enabled: false }, 
-			data: [[100],[6.339399637364851],[1.6139502607839187],[0.8148098403957648],[0.5433931009782195],[0.37326796946701585],[0.29380162514270364],[0.2383990329729367],[0.19083115080697513],[1.5165760078794799]]
-			}]
-		});
-    },
-
     showMsg: function(msg) {
         var el = Ext.get('wasp-msg'),
             msgId = Ext.id();

@@ -1,10 +1,12 @@
 <script type="text/javascript"	src="/wasp/scripts/jquery/jquery.cookie.js"></script>
 
+<script type="text/javascript"	src="https://github.com/rgrove/lazyload/raw/master/lazyload.js"></script>
+
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
-<script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script>
-<script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script>
+<!--script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script-->
+<!--script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script-->
+<!--script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script-->
 
 <!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
 <!--link rel="stylesheet" type="text/css"	href="/wasp/scripts/extjs/resources/css/ext-all.css" /-->
@@ -257,6 +259,7 @@ function toggle(d) {
 }
 
 var tabs, tabCounter=0;
+var jscssfilesadded=""; //list of external script/css files already added
 
 function click(d) {
 	if (d.jid==undefined) {
@@ -281,220 +284,147 @@ function click(d) {
 	
 	//var tabs = $('#mytabs').tabs({closable: true});
   
-  $.ajax({
-      url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
-      type: 'GET',
-      dataType: 'json',
-      success: function (result) {
-      	return;
-    	if (d.type=='dummy') return;  
-      
-      	//d3.select('#detailview').select("h3").remove();
-      	//d3.select('#detailview').select("tbody").remove();
-      	
-      	//remove all existing tabs first
-      	var tabpanel = Ext.getCmp('wasp-tabpanel');
-      	if(tabpanel===undefined) {
-      		// alert if the tabpanel is undefined
-      		extPortal.showMsg("wasp-tabpanel is not defined!");
-      		return;
-      	}
-      	tabpanel.removeAll();
-
-      	
-/*      $.each(result, function (index, item) {
-			var num_tabs = $("div#tabs ul li").length + 1;
-
-             $("div#tabs ul").append(
-                 "<li><a href='#tab" + num_tabs + "'>" + index + "</a></li>"
-             );
-			$("div#tabs").append(
-                 "<div id='tab" + num_tabs + "'>" + item + "</div>"
-             );
-             $("div#tabs").tabs("refresh");
-      	});
-*/      
-
-		var sdArray = new Array();	// to store all script dependencies from the plugins
-		var cdArray = new Array();  // to store all css dependencies from the plugins
-		
-		$.each(result, function (index, item) {
-			var tabTitle;
-			
-			if ((d.type.split('-'))[0]=="filetype") {
-				tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
-				
-				//var tablist = d3.select('#detailview').append("div").attr("id", "mytabs").append("ul");
-				//var tabs = $("#mytabs").tabs();
-				
-	
-		      	//$.each(result, function (index, item) {
-		      		//$("#mytabs").tabs('add',item,index);
-		      		//$tabs.tabs('add', '#tabs-'+tabCounter, 'Tab '+tabCounter);
-		      		//$tabs.tabs('add', '#tab1', 'Tab '+tabCounter);
-		      		//tabCounter++;
-		      		//tabtitle=index;
-		      		//tabcontent=item;
-		      		//addtab();
-		      	//});
-		        return;
-			} else {
-				tabTitle = index; //d.name+" Details";
+	$.ajax({
+		url: '/wasp/jobresults/getDetailsJson.do?node='+dstr,
+		type: 'GET',
+		dataType: 'json',
+		success: function (result) {
+			//return;
+			if (d.type=='dummy') return;  
+	      
+			//remove all existing tabs from tabpanel first
+			var tabpanel = Ext.getCmp('wasp-tabpanel');
+			if(tabpanel===undefined) {
+				// alert if the tabpanel is undefined
+				extPortal.showMsg("wasp-tabpanel is not defined!");
+				return;
 			}
-			
-			//tabTitle = index;
-			tabCounter++;
-			var tab = tabpanel.add({
-				xtype: 'panel',
-                title: tabTitle,
-                layout:'card',
-				activeItem: 1,
-                items: [{
-                    layout: 'fit'
-                }]
-			});
-			var ptlpnl = tab.add({
-                //id: 'wasp-portal1',
-	            xtype: 'portalpanel'});
-	        var ptlcol1 = ptlpnl.add({id: 'col-1'});
-	        var ptlcol2 = ptlpnl.add({id: 'col-2'});
-	            
-	        $.each(item, function (index1, item1) {
-	        	for (var i1 in item1.content.scriptDependencies){
-	        		if (sdArray.indexOf(item1.content.scriptDependencies[i1])<0) {
-	        			sdArray.push(item1.content.scriptDependencies[i1]);
-	        		}
-	        	}
-	        	for (var i1 in item1.content.cssDependencies){
-	        		if (cdArray.indexOf(item1.content.cssDependencies[i1])<0) {
-	        			cdArray.push(item1.content.cssDependencies[i1]);
-	        		}
-	        	}
-	        	
-	            ptlcol1.add({
-                    //id: 'portlet-2',
-                    title: item1.title,
-                    tools: extPortal.getTools(),
-                    closable: false,
-                    html: item1.content.htmlContent,
-                    listeners: {
-                        'close': Ext.bind(extPortal.onPortletClose, extPortal)
-                    }
-	            });
-	        });
-	        tabpanel.setActiveTab(tab);
-			
-//	        $( "<div id='tab"+tabCounter+"'></div>" ).appendTo( "#mytabs" );
-	     	//d3.select('#detailview').append("h3").html(headStr);
-	      	//var table = d3.select('#detailview').append("tbody");
-/*	      	var table = d3.select("#tab"+tabCounter).append("tbody");
-	        $.each(item, function (index1, item1) {
-	         	var row = table.append("tr");
-	         	row.append("td").html(index1);
+			tabpanel.removeAll();
 	
-	         	if (typeof item1 == 'string' || item1 instanceof String) {
-	          		row.append("td").html(item1);
-	         	} else if (item1.targetLink != undefined) {
-	         		row.append("td").html('<a href="'+item1.targetLink+'">'+item1.label+'</a>');
-	          	} else {
-	          		var td = row.append("td");
-	          		$.each(item1, function (index2, item2) {
-	          			var row2 = td.append("tr");
-	              		row2.append("td").html(index2);
-	              		row2.append("td").html(item2);
-	          		});
-	          	}
-	        });
-	        tabs.doComponentLayout();
-*/
+			var jsList = new Array(), cssList = new Array();
+			$.each(result, function (index, item) {
+				$.each(item, function(index1, item1){
+					for(var i=0,len=item1.content.scriptDependencies.length; i<len; i++) {
+						if (jscssfilesadded.indexOf("["+item1.content.scriptDependencies[i]+"]")==-1){ //if the file not been loaded before
+							jsList.push(item1.content.scriptDependencies[i]);
+							jscssfilesadded+="["+item1.content.scriptDependencies[i]+"]";
+						}
+					}
+					for(var i=0,len=item1.content.cssDependencies.length; i<len; i++) {
+						if (jscssfilesadded.indexOf("["+item1.content.cssDependencies[i]+"]")==-1){ //if the file not been loaded before
+							cssList.push(item1.content.cssDependencies[i]);
+							jscssfilesadded+="["+item1.content.cssDependencies[i]+"]";
+						}
+					}
+				});
+			});
+	    	
+			var createPortal = function(){
+				$.each(result, function (index, item) {
+					var tabTitle;
+					
+					if ((d.type.split('-'))[0]=="filetype") {
+						tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
+				        return;
+					} else {
+						tabTitle = index; //d.name+" Details";
+					}
+					
+					tabCounter++;
 
-/*	        $( "<li><a href='#tab"+tabCounter+"'>"+tabTitle+"</a></li>" )
-				.appendTo( "#mytabs .ui-tabs-nav" );
-		    $('#mytabs').tabs("refresh");
-		    $('#mytabs').tabs("option", "active", -1);
-*/		});
+					var tab = tabpanel.add({
+						xtype: 'panel',
+				        title: tabTitle,
+				        layout:'card',
+						activeItem: 1,
+				        items: [{
+				            layout: 'fit'
+				        }]
+					});
+					var ptlpnl = tab.add({xtype: 'portalpanel'});
+				    var ptlcol1 = ptlpnl.add({id: 'col-1'});
+				    var ptlcol2 = ptlpnl.add({id: 'col-2'});
+	
+			        $.each(item, function (index1, item1) {
+			            ptlcol1.add({
+		                    //id: 'portlet-2',
+		                    title: item1.title,
+		                    tools: extPortal.getTools(),
+		                    closable: false,
+		                    html: item1.content.htmlContent,
+		                    listeners: {
+								'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
+								'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
+								'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
+		                    }
+			            });
+		        	});
+			   		
+			        tabpanel.setActiveTab(tab);
+				});
+			};
+			
+			// load all css then all js then create portal
+	   		if(cssList.length>0) {
+	        	LazyLoad.css(cssList, function () {
+	        		if(jsList.length>0) {
+			        	LazyLoad.js(jsList, function () {
+			        		createPortal();
+						});
+	        		} else { createPortal(); }
+				});
+	   		} else {
+	    		if(jsList.length>0) {
+		        	LazyLoad.js(jsList, function () {
+		        		createPortal();
+					});
+	    		} else { createPortal(); }
+	   		}
+		}
+	});
 
-   		var oHead = document.getElementsByTagName('HEAD').item(0);
-   		if (sdArray.length>0) {
-			// get a list of existing scripts
-	   		var esArray = oHead.getElementsByTagName('script');
-	   		var essrcArray = new Array();
-	   		for(var i=0,len=esArray.length; i<len;i++) {
-	   			essrcArray.push(esArray[i].getAttribute('src'));
-	   		}
-			// if the plugin returns script is not in existing, add it to HEAD
-	   		for(var i=0,len=sdArray.length; i<len;i++) {
-	   			if (essrcArray.indexOf(sdArray[i])<0) {
-					var oScript= document.createElement("script");
-					oScript.type = "text/javascript";
-					oScript.src = sdArray[i];
-					oHead.appendChild(oScript);
-	   			}
-	   		}
-   		}
-   		if (cdArray.length>0) {
-			// get a list of existing css files
-	   		var elArray = oHead.getElementsByTagName('link');
-	   		var elhrefArray = new Array();
-	   		for(var i=0,len=elArray.length; i<len;i++) {
-	   			elhrefArray.push(elArray[i].getAttribute('href'));
-	   		}
-			// if the plugin returns script is not in existing, add it to HEAD
-	   		for(var i=0,len=cdArray.length; i<len;i++) {
-	   			if (elhrefArray.indexOf(cdArray[i])<0) {
-					var oScript= document.createElement("link");
-					oScript.type = "text/css";
-					oScript.rel = "stylesheet";
-					oScript.href = cdArray[i];
-					oHead.appendChild(oScript);
-	   			}
-	   		}
-   		}
-     }
-  });
-  
-  if (d.children == '') {
-	  
-	  $.ajax({
-	      url: '/wasp/jobresults/getTreeJson.do?node='+dstr,
-	      type: 'GET',
-	      dataType: 'json',
-	      success: function (result) {
-      		if (result.children != '') {
-	    	  d.children = result.children;
-      		  update(d);
-      		}
-      	}
-      });
-  }
+	if (d.children == '') {
+		$.ajax({
+			url: '/wasp/jobresults/getTreeJson.do?node='+dstr,
+			type: 'GET',
+			dataType: 'json',
+			success: function (result) {
+				if (result.children != '') {
+					d.children = result.children;
+					update(d);
+				}
+			}
+		});
+	}
 
-  if (d.myid !== activeNode.myid && d.type !== activeNode.type) {
-  	toggle(d);
-    activeNode.myid = d.myid;
-    activeNode.type = d.type;
-  }
+	if (d.myid !== activeNode.myid && d.type !== activeNode.type) {
+		toggle(d);
+		activeNode.myid = d.myid;
+		activeNode.type = d.type;
+	}
 }
 
+
 function color(d) {
-	  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
-	}
+	return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+}
 
 function onMouseOver(d)
 {
-    d3.select(this).select("circle").attr("r", 5);
-    d3.select(this).select("text").style("font-weight", "bold");
-  if (d.parent)
-  {
-  }
+	d3.select(this).select("circle").attr("r", 5);
+	d3.select(this).select("text").style("font-weight", "bold");
+	if (d.parent)
+	{
+	}
 }
 
 function onMouseOut(d)
 {
-    d3.select(this).select("circle").attr("r", 4.5);
-    d3.select(this).select("text").style("font-weight", "normal");
-  if (d.parent)
-  {
-  }
+	d3.select(this).select("circle").attr("r", 4.5);
+	d3.select(this).select("text").style("font-weight", "normal");
+	if (d.parent)
+	{
+	}
 }
 
 </script>

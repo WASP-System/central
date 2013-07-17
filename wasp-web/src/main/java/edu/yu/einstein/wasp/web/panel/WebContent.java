@@ -3,6 +3,7 @@ package edu.yu.einstein.wasp.web.panel;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -19,8 +20,8 @@ public class WebContent {
 	private Set<URL> cssDependencies;
 
 	public WebContent() {
-		scriptDependencies = new HashSet<URL>();
-		cssDependencies = new HashSet<URL>();
+		scriptDependencies = new LinkedHashSet<URL>();
+		cssDependencies = new LinkedHashSet<URL>();
 		htmlContent = "";
 	}
 	
