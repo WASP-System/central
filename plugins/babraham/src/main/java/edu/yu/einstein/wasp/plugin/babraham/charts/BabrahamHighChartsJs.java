@@ -13,7 +13,7 @@ import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
-import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
+import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.web.Tooltip;
 import edu.yu.einstein.wasp.web.panel.WebContent;
@@ -31,7 +31,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	private static final String HEX_BLUE = "#0101DF";
 
 	
-	public static WebContent getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot) throws BabrahamDataParseException {
+	public static WebContent getPerBaseSeqQualityPlotHtml(final WaspBoxPlot waspBoxPlot) throws ChartException {
 		try {
 			DataSeries boxPlotDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.BOX_AND_WHISKER);
 			DataSeries meanDS = waspBoxPlot.getDataSeries(WaspBoxPlot.BoxPlotSeries.RUNNING_MEAN);
@@ -57,11 +57,11 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
-			throw new BabrahamDataParseException("Unexpected exception caught processing data", e);
+			throw new ChartException("Unexpected exception caught processing data", e);
 		}
 	}
 	
-	public static WebContent getSplineForBases(final WaspChart2D chart) throws BabrahamDataParseException{
+	public static WebContent getSplineForBases(final WaspChart2D chart) throws ChartException{
 		try {
 			DataSeries dsA = chart.getDataSeries("% A");
 			DataSeries dsC = chart.getDataSeries("% C");
@@ -85,11 +85,11 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
-			throw new BabrahamDataParseException("Unexpected exception caught processing data", e);
+			throw new ChartException("Unexpected exception caught processing data", e);
 		}
 	}
 	
-	public static WebContent getSplineForPerSequenceGC(final WaspChart2D chart) throws BabrahamDataParseException{
+	public static WebContent getSplineForPerSequenceGC(final WaspChart2D chart) throws ChartException{
 		try {
 			DataSeries dsActual = chart.getDataSeries("GC count per read");
 			DataSeries dsTheory = chart.getDataSeries("Theoretical Distribution");
@@ -109,11 +109,11 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
-			throw new BabrahamDataParseException("Unexpected exception caught processing data", e);
+			throw new ChartException("Unexpected exception caught processing data", e);
 		}
 	}
 	
-	public static WebContent getQCSummaryTableRepresentation(final WaspChart basicStats) throws BabrahamDataParseException {
+	public static WebContent getQCSummaryTableRepresentation(final WaspChart basicStats) throws ChartException {
 		try{
 			List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 			WebContent content = new WebContent();
@@ -144,7 +144,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getDescription()));
 			return content;
 		} catch (Exception e) {
-			throw new BabrahamDataParseException("Unexpected exception caught processing data", e);
+			throw new ChartException("Unexpected exception caught processing data", e);
 		}
 	}
 

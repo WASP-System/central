@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	}
 	
 	public static Set<URI> getScriptDependencies() throws URISyntaxException {
-		Set<URI> dependencies =  new HashSet<URI>();
+		Set<URI> dependencies =  new LinkedHashSet<URI>(); // load order is important
 		dependencies.add(new URI("http://code.highcharts.com/highcharts.js"));
 		dependencies.add(new URI("http://code.highcharts.com/highcharts-more.js"));
 		dependencies.add(new URI("http://code.highcharts.com/modules/exporting.js"));

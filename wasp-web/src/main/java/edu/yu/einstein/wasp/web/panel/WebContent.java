@@ -2,7 +2,7 @@ package edu.yu.einstein.wasp.web.panel;
 
 
 import java.net.URI;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -21,8 +21,8 @@ public class WebContent {
 	private Set<URI> cssDependencies;
 
 	public WebContent() {
-		scriptDependencies = new HashSet<URI>();
-		cssDependencies = new HashSet<URI>();
+		scriptDependencies = new LinkedHashSet<URI>();
+		cssDependencies = new LinkedHashSet<URI>();
 		html = "";
 		script = "";
 	}

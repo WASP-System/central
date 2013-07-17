@@ -8,7 +8,6 @@ import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
-import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.web.panel.Panel;
 import edu.yu.einstein.wasp.web.panel.WebContent;
 
@@ -34,15 +33,15 @@ public class PanelChart{
 	public static ViewPanel getQCResultsSummaryPanel(WaspChart chart) throws PanelException{
 		try {
 			return getViewPanel(chart.getTitle(), 1, BabrahamHighChartsJs.getQCSummaryTableRepresentation(chart));
-		} catch (BabrahamDataParseException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getBasicStatsPanel(WaspChart chart) throws PanelException{
 		try {
 			return getViewPanel(chart.getTitle(), 2, BabrahamHighChartsJs.getKeyValueTableRepresentation(chart));
-		} catch (Exception e) {
+		} catch (ChartException e) {
 			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
@@ -50,7 +49,7 @@ public class PanelChart{
 	public static ViewPanel getPerBaseSeqQualityPanel(WaspBoxPlot chart) throws PanelException{
 		try {
 			return getViewPanel(chart.getTitle(), 3, BabrahamHighChartsJs.getPerBaseSeqQualityPlotHtml(chart));
-		} catch (BabrahamDataParseException e) {
+		} catch (ChartException e) {
 			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
@@ -58,40 +57,40 @@ public class PanelChart{
 	public static ViewPanel getPerSeqQualityPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 4, BabrahamHighChartsJs.getBasicSpline(chart,2, null, null, null, 0, null));
-		} catch (ChartException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getGetPerBaseSeqContentPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 5, BabrahamHighChartsJs.getSplineForBases(chart));
-		} catch (BabrahamDataParseException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getPerBaseGcContentPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 6, BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100));
-		} catch (ChartException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getPerSeqGcContentPanel(WaspChart2D chart) throws PanelException{
 		try {
 			return getViewPanel(chart.getTitle(), 7, BabrahamHighChartsJs.getSplineForPerSequenceGC(chart));
-		} catch (BabrahamDataParseException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getPerBaseNContentPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 8, BabrahamHighChartsJs.getBasicSpline(chart, 5, null, null, null, 0, 100));
-		} catch (ChartException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
@@ -99,16 +98,16 @@ public class PanelChart{
 	public static ViewPanel getSeqLengthDistributionPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 9, BabrahamHighChartsJs.getBasicSpline(chart, 10, null, null, null, 0, null));
-		} catch (ChartException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 	
 	public static ViewPanel getSeqDuplicationPanel(WaspChart2D chart) throws PanelException {
 		try {
 			return getViewPanel(chart.getTitle(), 10, BabrahamHighChartsJs.getBasicSpline(chart, null, null, null, null, 0, null));
-		} catch (ChartException e1) {
-			throw new PanelException("Caught unexpected exception generating Panel", e1);
+		} catch (ChartException e) {
+			throw new PanelException("Caught unexpected exception generating Panel", e);
 		}
 	}
 

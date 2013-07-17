@@ -40,7 +40,6 @@ import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.web.panel.Panel;
 
 @Service
 @Transactional("entityManager")

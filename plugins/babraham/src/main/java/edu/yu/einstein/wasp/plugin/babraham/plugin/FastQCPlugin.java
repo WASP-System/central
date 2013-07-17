@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
+import edu.yu.einstein.wasp.web.panel.PanelTab;
 
 /**
  * 
@@ -80,23 +81,18 @@ public class FastQCPlugin extends BabrahamPluginBase{
 		return new Hyperlink("fastqc.hyperlink.label", "/babraham/fastqc/description.do");
 	}
 
+	
 	@Override
-	public Status getStatus(Object handle) {
+	public Status getStatus(FileGroup fileGroup) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/**
-	 * Get a set of ViewPanels for a given handle which in this case must be a FileGroup otherwise a ClassCastException is thrown.
-	 */
+
 	@Override
-	public Set<? extends ViewPanel> getViewPanels(Object handle){
-		FileGroup fg;
-		if (FileHandle.class.isInstance(handle))
-			fg = (FileGroup) handle;
-		else
-			throw new ClassCastException("Expected 'handle' to be of type FileHandle but it cannot be cast to one");
-		return babrahamService.getFastQCDataToDisplay(fg);
+	public PanelTab getViewPanelTab(FileGroup fileGroup) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

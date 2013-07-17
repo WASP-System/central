@@ -24,16 +24,16 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.ViewPanelProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.web.panel.FileDataTabViewing;
 
 /**
  * 
  */
-public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobProviding, ClientMessageI, ViewPanelProviding {
+public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobProviding, ClientMessageI, FileDataTabViewing {
 
 	private static final long serialVersionUID = -1918438365161307850L;
 
