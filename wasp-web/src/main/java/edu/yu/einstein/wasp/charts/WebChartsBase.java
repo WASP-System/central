@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.json.JSONException;
 
 import edu.yu.einstein.wasp.exception.ChartException;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
+import edu.yu.einstein.wasp.web.WebContent;
 
 /**
  * Base class for producing web-charts / tables

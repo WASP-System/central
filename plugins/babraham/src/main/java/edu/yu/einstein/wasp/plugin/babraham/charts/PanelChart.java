@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.viewpanel.Panel;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
+import edu.yu.einstein.wasp.web.WebContent;
 
 public class PanelChart{
 	

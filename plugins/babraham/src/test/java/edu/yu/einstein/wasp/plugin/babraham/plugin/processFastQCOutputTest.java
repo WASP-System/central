@@ -26,7 +26,7 @@ import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
-import edu.yu.einstein.wasp.viewpanel.WebContent;
+import edu.yu.einstein.wasp.web.WebContent;
 
 public class processFastQCOutputTest {
 	

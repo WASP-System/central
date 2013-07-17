@@ -14,7 +14,7 @@ public class Panel implements ViewPanel{
 	
 	private String description = "";
 	
-	private WebContent content;
+	private Content content;
 	
 	private Integer width;
 	
@@ -36,13 +36,13 @@ public class Panel implements ViewPanel{
 	
 	public Panel() {}
 	
-	public Panel(String title, WebContent content) {
+	public Panel(String title, Content content) {
 		this.title = title;
 		this.content = content;
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, Integer order, WebContent content,
+			Integer height, Integer order, Content content,
 			boolean isResizable, boolean isMaximizable, boolean isCloseable) {
 		this.title = title;
 		this.description = description;
@@ -56,7 +56,7 @@ public class Panel implements ViewPanel{
 	}
 
 	public Panel(String title, String description, Integer width,
-			Integer height, WebContent content) {
+			Integer height, Content content) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
@@ -128,11 +128,11 @@ public class Panel implements ViewPanel{
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WebContent getContent() {
+	public Content getContent() {
 		return content;
 	}
 
-	public void setContent(WebContent content) {
+	public void setContent(Content content) {
 		this.content = content;
 	}
 
