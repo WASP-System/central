@@ -16,11 +16,11 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 /**
  * 
@@ -71,10 +71,10 @@ public interface BabrahamService extends WaspService {
 		public JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, FileGroup fileGroup) throws JSONException, MetadataException;
 
 		/**
-		 * Get a Set of Panel objects for the given fileGroup
+		 * Get a Set of WebPanel objects for the given fileGroup
 		 * @param filegroup
 		 * @return
 		 */
-		public Set<ViewPanel> getFastQCDataToDisplay(FileGroup filegroup);
+		public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup);
 
 }

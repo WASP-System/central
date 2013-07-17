@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.web;
+package edu.yu.einstein.wasp.viewpanel;
 
 
 import java.net.URI;

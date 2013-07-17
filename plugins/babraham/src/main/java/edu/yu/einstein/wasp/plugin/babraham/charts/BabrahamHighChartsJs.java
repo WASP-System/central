@@ -15,8 +15,8 @@ import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
+import edu.yu.einstein.wasp.viewpanel.WebContent;
 import edu.yu.einstein.wasp.web.Tooltip;
-import edu.yu.einstein.wasp.web.WebContent;
 
 /**
  * Highcharts JS implementation of Babraham plots that require a custom implementation (http://www.highcharts.com)

@@ -1,14 +1,12 @@
 package edu.yu.einstein.wasp.viewpanel;
 
-import edu.yu.einstein.wasp.plugin.ViewPanel;
-
 /**
  * Class for describing a generic vizualisation panel. Plugins may be asked to return a Panel object for displaying data.
  * The panel data may be used by any web rendering tool for presenting a panel within a view.
  * @author asmclellan
  *
  */
-public class Panel implements ViewPanel{
+public class Panel {
 
 	private String title = "";
 	
@@ -21,12 +19,6 @@ public class Panel implements ViewPanel{
 	private Integer height;
 	
 	private Integer order;
-	
-	private String execOnRenderCode = "";
-	
-	private String execOnResizeCode = "";
-	
-	private String execOnExpandCode = "";
 	
 	private boolean isResizable = false;
 	
@@ -41,8 +33,7 @@ public class Panel implements ViewPanel{
 		this.content = content;
 	}
 
-	public Panel(String title, String description, Integer width,
-			Integer height, Integer order, Content content,
+	public Panel(String title, String description, Integer width, Integer height, Integer order, Content content,
 			boolean isResizable, boolean isMaximizable, boolean isCloseable) {
 		this.title = title;
 		this.description = description;
@@ -55,8 +46,7 @@ public class Panel implements ViewPanel{
 		this.isCloseable = isCloseable;
 	}
 
-	public Panel(String title, String description, Integer width,
-			Integer height, Content content) {
+	public Panel(String title, String description, Integer width, Integer height, Content content) {
 		this.title = title;
 		this.description = description;
 		this.width = width;
@@ -64,10 +54,6 @@ public class Panel implements ViewPanel{
 		this.content = content;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public String getTitle() {
 		return title;
 	}
@@ -76,10 +62,6 @@ public class Panel implements ViewPanel{
 		this.title = title;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -88,10 +70,6 @@ public class Panel implements ViewPanel{
 		this.description = description;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Integer getWidth() {
 		return width;
 	}
@@ -100,10 +78,6 @@ public class Panel implements ViewPanel{
 		this.width = width;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Integer getHeight() {
 		return height;
 	}
@@ -112,10 +86,6 @@ public class Panel implements ViewPanel{
 		this.height = height;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Integer getOrder() {
 		return order;
 	}
@@ -124,10 +94,6 @@ public class Panel implements ViewPanel{
 		this.order = order;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Content getContent() {
 		return content;
 	}
@@ -136,10 +102,6 @@ public class Panel implements ViewPanel{
 		this.content = content;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean isResizable() {
 		return isResizable;
 	}
@@ -148,10 +110,6 @@ public class Panel implements ViewPanel{
 		this.isResizable = isResizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean isMaximizable() {
 		return isMaximizable;
 	}
@@ -160,10 +118,6 @@ public class Panel implements ViewPanel{
 		this.isMaximizable = isMaximizable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public boolean isCloseable() {
 		return isCloseable;
 	}
@@ -171,46 +125,6 @@ public class Panel implements ViewPanel{
 	public void setCloseable(boolean isCloseable) {
 		this.isCloseable = isCloseable;
 	}
-
-	/**
-	 * Returns code that is to be executed when a panel is rendered. This might be a jQuery function for example. 
-	 */
-	public String getExecOnRenderCode() {
-		return execOnRenderCode;
-	}
-
-	public void setExecOnRenderCode(String execOnRenderCode) {
-		this.execOnRenderCode = execOnRenderCode;
-	}
-
-	/**
-	 * Returns code that is to be executed when a panel is resized. This might be a jQuery function for example. 
-	 * If not set but 'execOnRender' code is set, this code will be called on resize, otherwise returns an empty string.
-	 */
-	public String getExecOnResizeCode() {
-		if (execOnResizeCode == null || execOnResizeCode.isEmpty())
-			return execOnRenderCode;
-		return execOnResizeCode;
-	}
-
-	public void setExecOnResizeCode(String execOnResizeCode) {
-		this.execOnResizeCode = execOnResizeCode;
-	}
-
-	/**
-	 * Returns code that is to be executed when a panel is expanded. This might be a jQuery function for example. 
-	 * If not set but 'execOnRender' code is set, this code will be called on expanding, otherwise returns an empty string.
-	 */
-	public String getExecOnExpandCode() {
-		if (execOnExpandCode == null || execOnExpandCode.isEmpty())
-			return execOnRenderCode;
-		return execOnExpandCode;
-	}
-
-	public void setExecOnExpandCode(String execOnExpandCode) {
-		this.execOnExpandCode = execOnExpandCode;
-	}
-
 	
 
 }
