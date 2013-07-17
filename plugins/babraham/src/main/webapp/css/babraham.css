@@ -33,6 +33,14 @@
 		color: #292929;
 	}
 	
+	.chart_credit {
+		font-family: sans-serif;
+		font-size: 9;
+		color: #B4B4B4;
+		text-align: right;
+		padding-top: 5px;
+	}
+	
 	.standardTable {
 		background-color: #FFFFFF
 	}
@@ -46,6 +54,7 @@
 		text-align: right;
 		padding-right: 10px;
 	}
+
 	
 	
 </style>
