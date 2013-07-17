@@ -5,7 +5,6 @@
 package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
@@ -14,8 +13,6 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.web.panel.PanelTab;
 
 /**
