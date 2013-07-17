@@ -17,11 +17,11 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="{babraham.fastQScreenArea" />
+    <property name="baseArea" ref="babraham.fastQScreenArea" />
   </bean>
 
   <bean id="babraham.fastqscreen" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.babraham.software.FastQScreen</value></property>
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen</value></property>
     <property name="name" value="FastQ Screen" />
     <property name="area" ref="babraham.fastQScreenArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />

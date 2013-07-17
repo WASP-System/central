@@ -21,7 +21,7 @@
   </bean>
 
   <bean id="babraham.fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.babraham.software.FastQC</value></property>
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQC</value></property>
     <property name="name" value="FastQC" />
     <property name="area" ref="babraham.fastQCArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
