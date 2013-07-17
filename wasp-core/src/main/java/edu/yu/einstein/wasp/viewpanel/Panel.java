@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.web.panel;
+package edu.yu.einstein.wasp.viewpanel;
 
 import edu.yu.einstein.wasp.plugin.ViewPanel;
 

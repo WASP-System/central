@@ -13,7 +13,7 @@ import org.springframework.integration.support.MessageBuilder;
 import edu.yu.einstein.wasp.Hyperlink;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.web.panel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * 

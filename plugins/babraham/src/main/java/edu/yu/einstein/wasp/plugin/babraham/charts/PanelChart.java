@@ -8,8 +8,8 @@ import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.plugin.ViewPanel;
-import edu.yu.einstein.wasp.web.panel.Panel;
-import edu.yu.einstein.wasp.web.panel.WebContent;
+import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.WebContent;
 
 public class PanelChart{
 	

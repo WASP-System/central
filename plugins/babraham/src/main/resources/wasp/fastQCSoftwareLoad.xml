@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="byName">
     
-  <bean id="babraham.fastQCArea" class="java.lang.String">
+  <bean id="fastQCArea" class="java.lang.String">
 		<constructor-arg>
 			<value>fastqc</value>
 		</constructor-arg>
@@ -17,18 +17,18 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQCUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="babraham.fastQCArea" />
+    <property name="baseArea" ref="fastQCArea" />
   </bean>
 
-  <bean id="babraham.fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQC</value></property>
     <property name="name" value="FastQC" />
-    <property name="area" ref="babraham.fastQCArea" />
+    <property name="area" ref="fastQCArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="babraham.fastQCArea" />
+         <property name="area" ref="fastQCArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.10.1</value>

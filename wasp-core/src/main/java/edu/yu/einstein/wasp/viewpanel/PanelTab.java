@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.web.panel;
+package edu.yu.einstein.wasp.viewpanel;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

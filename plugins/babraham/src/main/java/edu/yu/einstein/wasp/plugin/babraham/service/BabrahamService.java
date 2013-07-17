@@ -20,7 +20,7 @@ import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
-import edu.yu.einstein.wasp.web.panel.Panel;
+import edu.yu.einstein.wasp.viewpanel.Panel;
 
 /**
  * 

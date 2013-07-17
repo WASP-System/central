@@ -8,37 +8,39 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.babraham" />
+	<!-- channels for communications with these plugins. -->
+	<int:channel id="wasp.channel.plugin.fastqc" />
+	
+	<int:channel id="wasp.channel.plugin.fastqcscreen" />
 
-	<bean id="babraham.fastqc.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
-		<constructor-arg name="pluginName" ref="babraham.fastQCArea" />
+	<bean id="fastqcPlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
+		<constructor-arg name="pluginName" ref="fastQCArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.babraham" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.fastqc" />
 		<property name="provides" >
 			<set>
-				<ref bean="babraham.fastqc" />
+				<ref bean="fastqc" />
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="babraham.fastQCArea" />
+				<ref bean="fastQCArea" />
 			</set>
 		</property>
 	</bean>
 	
-	<bean id="babraham.fastqscreen.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin">
-		<constructor-arg name="pluginName" ref="babraham.fastQScreenArea" />
+	<bean id="fastqscreenPlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin">
+		<constructor-arg name="pluginName" ref="fastQScreenArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.babraham" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.fastqcscreen" />
 		<property name="provides" >
 			<set>
-				<ref bean="babraham.fastqscreen" />
+				<ref bean="fastqscreen" />
 			</set>
 		</property>
 		<property name="handles" >
 			<set>
-				<ref bean="babraham.fastQScreenArea" />
+				<ref bean="fastQScreenArea" />
 			</set>
 		</property>
 	</bean>

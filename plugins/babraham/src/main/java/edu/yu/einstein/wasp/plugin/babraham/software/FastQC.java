@@ -14,6 +14,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
@@ -28,7 +29,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -45,8 +46,12 @@ public class FastQC extends SoftwarePackage{
 	@Autowired
 	private FastqService fastqService;
 	
+	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
+	// as Software and use @Qualifier to specify the casava bean. 
+	// Seems to be an issue for batch but not Web which accepts IlluminaSequenceRunProcessor.
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	@Qualifier(value="casava") 
+	private Software casava;
 	
 	/**
 	 * 

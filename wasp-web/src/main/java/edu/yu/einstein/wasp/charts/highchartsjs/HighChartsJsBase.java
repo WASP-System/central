@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.WebChartsBase;
 import edu.yu.einstein.wasp.exception.ChartException;
-import edu.yu.einstein.wasp.web.panel.WebContent;
+import edu.yu.einstein.wasp.viewpanel.WebContent;
 
 /**
  * Base Class for producing HighChartsJs charts (www.highcharts.com)
