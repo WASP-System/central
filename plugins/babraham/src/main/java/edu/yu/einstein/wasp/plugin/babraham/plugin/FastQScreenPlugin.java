@@ -80,7 +80,7 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 
 	@Override
 	public Hyperlink getDescriptionPageHyperlink() {
-		return new Hyperlink("fastqc.hyperlink.label", "/babraham/fastqc/description.do");
+		return new Hyperlink("fastqscreen.hyperlink.label", "/babraham/fastqscreen/description.do");
 	}
 
 
