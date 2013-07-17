@@ -20,12 +20,12 @@ import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridResultImpl;
-import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.babraham.charts.PanelChart;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
+import edu.yu.einstein.wasp.viewpanel.Panel;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 
 public class processFastQCOutputTest {
@@ -148,7 +148,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.QC_RESULT_SUMMARY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		ViewPanel panel = PanelChart.getQCResultsSummaryPanel(chart);
+		Panel panel = PanelChart.getQCResultsSummaryPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -162,7 +162,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspBoxPlot chart = WaspChart.getChart(jsonObject, WaspBoxPlot.class);
-		ViewPanel panel = PanelChart.getPerBaseSeqQualityPanel(chart);
+		Panel panel = PanelChart.getPerBaseSeqQualityPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -176,7 +176,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.DUPLICATION_LEVELS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getSeqDuplicationPanel(chart);
+		Panel panel = PanelChart.getSeqDuplicationPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -190,7 +190,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.BASIC_STATISTICS);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		ViewPanel panel = PanelChart.getBasicStatsPanel(chart);
+		Panel panel = PanelChart.getBasicStatsPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -204,7 +204,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.OVERREPRESENTED_SEQUENCES);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		ViewPanel panel = PanelChart.getOverrepresentedSeqPanel(chart);
+		Panel panel = PanelChart.getOverrepresentedSeqPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -218,7 +218,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_QUALITY);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getPerSeqQualityPanel(chart);
+		Panel panel = PanelChart.getPerSeqQualityPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -232,7 +232,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_SEQUENCE_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getGetPerBaseSeqContentPanel(chart);
+		Panel panel = PanelChart.getGetPerBaseSeqContentPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -246,7 +246,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getPerBaseGcContentPanel(chart);
+		Panel panel = PanelChart.getPerBaseGcContentPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -260,7 +260,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_SEQUENCE_GC_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getPerSeqGcContentPanel(chart);
+		Panel panel = PanelChart.getPerSeqGcContentPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -274,7 +274,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.PER_BASE_N_CONTENT);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getPerBaseNContentPanel(chart);
+		Panel panel = PanelChart.getPerBaseNContentPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		Assert.assertTrue(html.contains("title: { text: 'N content acrosss all bases' },"));
@@ -287,7 +287,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.KMER_PROFILES);
 		Assert.assertNotNull(jsonObject);
 		WaspChart chart = WaspChart.getChart(jsonObject, WaspChart.class);
-		ViewPanel panel = PanelChart.getKmerProfilesPanel(chart);
+		Panel panel = PanelChart.getKmerProfilesPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
@@ -301,7 +301,7 @@ public class processFastQCOutputTest {
 		JSONObject jsonObject = getJSONForModule(moduleList, FastQC.PlotType.SEQUENCE_LENGTH_DISTRIBUTION);
 		Assert.assertNotNull(jsonObject);
 		WaspChart2D chart = WaspChart.getChart(jsonObject, WaspChart2D.class);
-		ViewPanel panel = PanelChart.getSeqLengthDistributionPanel(chart);
+		Panel panel = PanelChart.getSeqLengthDistributionPanel(chart);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);

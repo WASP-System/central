@@ -5,12 +5,14 @@ import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.yu.einstein.wasp.viewpanel.Content;
+
 /**
  * 
  * @author asmclellan
  *
  */
-public class WebContent {
+public class WebContent extends Content {
 	
 	private String html;
 	

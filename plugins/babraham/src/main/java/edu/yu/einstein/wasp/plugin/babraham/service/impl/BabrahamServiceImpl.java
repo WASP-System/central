@@ -33,13 +33,13 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.ViewPanel;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.viewpanel.Panel;
 
 @Service
 @Transactional("entityManager")
@@ -199,8 +199,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<ViewPanel> getFastQCDataToDisplay(FileGroup filegroup){
-		Set<ViewPanel> panels = new LinkedHashSet<>();
+	public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup){
+		Set<Panel> panels = new LinkedHashSet<>();
 		// TODO: code here
 		return panels;
 	}
