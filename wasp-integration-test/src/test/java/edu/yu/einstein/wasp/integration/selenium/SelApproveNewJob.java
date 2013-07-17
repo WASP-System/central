@@ -35,7 +35,7 @@ public class SelApproveNewJob extends SelBaseTest{
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests"}, dataProvider = "DP1")
 	public void approveNewJob(String sUserName, String sUserPass, String jobId, String id, String jobName) throws Exception {   
   		
   		SeleniumHelper.login(sUserName, sUserPass);	     	
