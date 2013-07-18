@@ -35,8 +35,7 @@
 	<tr>
 		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
-				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">
-					
+				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
 					<label>Name:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
 					<label>Type:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
