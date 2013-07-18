@@ -64,7 +64,7 @@
 				</c:otherwise>
 			</c:choose>
 		</td>
-		<c:choose><%--LEFT OFF HERE on friday --%>
+		<c:choose>
 			<c:when test="${fn:length(libraryList)==0}">
 				<td class="DataTD" style="text-align:center; white-space:nowrap;">no libraries</td>
 				<td class="DataTD" style="text-align:center; white-space:nowrap;">no runs</td>
@@ -73,7 +73,7 @@
 				<c:forEach items="${libraryList}" var="library" varStatus="statusLibrary">
 					<c:if test="${!statusLibrary.first}"><tr></c:if>	
 						<td class="DataTD" style="text-align:center; white-space:nowrap;" rowspan="1">
-							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
+							<label>Name:</label> <a id="librarydetail_roAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/library/${library.getId()}/librarydetail_ro.do" />");' ><c:out value="${library.getName()}" /></a><br />
 							<label>Type:</label> <c:out value="${library.getSampleType().getName()}" /><br />
 							<c:if test="${submittedLibraryList.contains(library)}">
 								<label>Species:</label> <c:out value="${submittedObjectOrganismMap.get(library)}" /><br />
@@ -105,11 +105,12 @@
 							</c:if>
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
+							
 								<c:if test="${fn:length(addLibraryToPlatformUnitSuccessMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
 									<br /><span style="color:green;font-weight:bold"><c:out value="${addLibraryToPlatformUnitSuccessMessage}" /></span>
 								</c:if>	
-								<%--MUST REMOVE THE false part of the next if statement!!!!!!!!!!***************############# --%>
-								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true || assignLibraryToPlatformUnitStatusMap.get(library) == false}'> 
+								
+								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true}'> 
 			 															 							
  	 								<form  method='post' name='addLibToCell_${library.getId()}' id="addLibToCell_${library.getId()}" action="" 
  	 									onsubmit='	var s = document.getElementById("cellId_${library.getId()}"); 
@@ -134,52 +135,52 @@
     												}
  	 												
  	 												
- 	 												postFormWithoutMoving("addLibToCell_${library.getId()}","<c:url value="/job/${job.getId()}/library/${library.getId()}/addToCell.do" />"); 
+ 	 												postFormWithAjax("addLibToCell_${library.getId()}","<c:url value="/job/${job.getId()}/library/${library.getId()}/addToCell.do" />"); 
  	 												return false;' >
 										<table class='data' style="margin: 0 auto;">
-										<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
-										<tr>
-										<td>
-										<br />
-										<select style="font-size:x-small;" name="cellId" id="cellId_<c:out value="${library.getId()}" />" size="1" >
-										<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
-										<c:forEach items="${availableAndCompatiblePlatformUnitListOnForm}" var="platformUnitOnForm">
-										<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${platformUnitOnForm.getName()}" /> [<c:out value="${platformUnitOnForm.getSampleSubtype().getName()}" />]</option>
-										<c:set value="${platformUnitCellListMapOnForm.get(platformUnitOnForm)}" var="cellListOnForm" />
-										<c:forEach items="${cellListOnForm}" var="cellOnForm">
-										<option style="color:red; font-weight: bold;" value="<c:out value="${cellOnForm.getSampleId()}" />">&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.cell.label" />: <c:out value="${cellOnForm.getName()}" /></option>				
-										 <c:set value="${cellControlLibraryListMapOnForm.get(cellOnForm)}" var="controlLibraryListOnForm" />
-										 <c:forEach items="${controlLibraryListOnForm}" var="controlLibraryOnForm">
-										 <option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.libraryControl.label" />: <c:out value="${controlLibraryOnForm.getName()}" />									
-										 <c:set var="adaptor" value="${libraryAdaptorMapOnForm.get(controlLibraryOnForm)}" scope="page" />
-										 &nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
-										 </option>
-										 </c:forEach>
-										 
-										 <c:set value="${cellLibraryWithoutControlListMapOnForm.get(cellOnForm)}" var="libraryListOnForm" />
-										 <c:forEach items="${libraryListOnForm}" var="libraryOnForm">
-										 <option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.library.label" />: <c:out value="${libraryOnForm.getName()}" />									
-										 <c:set var="adaptorOnForm" value="${libraryAdaptorMapOnForm.get(libraryOnForm)}" scope="page" />
-										 &nbsp;-&nbsp;<c:out value="${adaptorOnForm.getAdaptorset().getName()}"/>&nbsp;[<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptorOnForm.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptorOnForm.getBarcodesequence()}"/>)]
-										 </option>
-										 </c:forEach>
-										 
-										</c:forEach>
-										</c:forEach>						
-										</select>
-											<br /><fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${library.getId()}" />" size='3' maxlength='5'>
-											<c:if test="${fn:length(addLibraryToPlatformUnitErrorMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
-												<br /><span style="color:red;font-weight:bold"><c:out value="${addLibraryToPlatformUnitErrorMessage}" /></span>
-											</c:if>
-											<br /><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input type='reset' value='Reset'/>
+											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+											<tr>
+												<td>
+													<br />
+													<select style="font-size:x-small;" name="cellId" id="cellId_<c:out value="${library.getId()}" />" size="1" >
+														<option value="0"><fmt:message key="listJobSamples.selectPlatformUnitCell.label" /></option>
+														<c:forEach items="${availableAndCompatiblePlatformUnitListOnForm}" var="platformUnitOnForm">
+															<option value="0"><fmt:message key="listJobSamples.platformUnit.label" />: <c:out value="${platformUnitOnForm.getName()}" /> [<c:out value="${platformUnitOnForm.getSampleSubtype().getName()}" />]</option>
+															<c:set value="${platformUnitCellListMapOnForm.get(platformUnitOnForm)}" var="cellListOnForm" />
+															<c:forEach items="${cellListOnForm}" var="cellOnForm">
+																<option style="color:red; font-weight: bold;" value="<c:out value="${cellOnForm.getSampleId()}" />">&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.cell.label" />: <c:out value="${cellOnForm.getName()}" /></option>				
+											 					<c:set value="${cellControlLibraryListMapOnForm.get(cellOnForm)}" var="controlLibraryListOnForm" />
+											 					<c:forEach items="${controlLibraryListOnForm}" var="controlLibraryOnForm">
+											 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.libraryControl.label" />: <c:out value="${controlLibraryOnForm.getName()}" />									
+											 						<c:set var="adaptor" value="${libraryAdaptorMapOnForm.get(controlLibraryOnForm)}" scope="page" />
+																	 &nbsp;-&nbsp;<c:out value="${adaptor.getAdaptorset().getName()}"/>&nbsp;[<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptor.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptor.getBarcodesequence()}"/>)]
+											 						</option>
+											 					</c:forEach>
+											 
+											 					<c:set value="${cellLibraryWithoutControlListMapOnForm.get(cellOnForm)}" var="libraryListOnForm" />
+											 					<c:forEach items="${libraryListOnForm}" var="libraryOnForm">
+											 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<fmt:message key="listJobSamples.library.label" />: <c:out value="${libraryOnForm.getName()}" />									
+											 						<c:set var="adaptorOnForm" value="${libraryAdaptorMapOnForm.get(libraryOnForm)}" scope="page" />
+											 						&nbsp;-&nbsp;<c:out value="${adaptorOnForm.getAdaptorset().getName()}"/>&nbsp;[<fmt:message key="listJobSamples.index.label" /> <c:out value="${adaptorOnForm.getBarcodenumber()}"/>&nbsp;(<c:out value="${adaptorOnForm.getBarcodesequence()}"/>)]
+											 						</option>
+											 					</c:forEach>
+											 
+															</c:forEach>
+														</c:forEach>						
+													</select>
+													<br /><fmt:message key="listJobSamples.finalConcentrationPM.label" />: <input type='text' name='libConcInCellPicoM' id="libConcInCellPicoM_<c:out value="${library.getId()}" />" size='3' maxlength='5'>
+													<c:if test="${fn:length(addLibraryToPlatformUnitErrorMessage)>0 && libraryIdAssociatedWithMessage == library.getId()}">
+														<br /><span style="color:red;font-weight:bold"><c:out value="${addLibraryToPlatformUnitErrorMessage}" /></span>
+													</c:if>
+													<br /><input type='submit' value='<fmt:message key="listJobSamples.submit.label" />'/>&nbsp;<input type='reset' value='Reset'/>
 																	
-										</td>
+											</td>
 										</tr>
-										</table>
-									</form> 	 							
-	 							</c:if>
- 	 						</c:if>
- 	 						</sec:authorize>	
+									</table>
+								</form> 	 							
+	 						</c:if>
+ 	 					</c:if>
+ 	 					</sec:authorize>	
 						</td>
 						
 						<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>		   				
@@ -230,10 +231,10 @@
 									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
 									
 									<sec:authorize access="hasRole('su') or hasRole('ft')">									
-									[<a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
+									[<a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
 									 
-									 	<div  id="updatePM_${cell.getId()}_${library.getId()}" style="display:none;">
-									 	<form  style="display:inline;" method='post'  action="" 
+									 	<div  id="updatePM_DIV_${cell.getId()}_${library.getId()}" style="display:none;">
+									 	<form  style="display:inline;" method='post'  id="updatePM_${cell.getId()}_${library.getId()}" action="" 
 	 	 									onsubmit='	 	 									
 	 	 										var newConcentrationInPM = document.getElementById("newConcentrationInPM_${cell.getId()}_${library.getId()}"); 
 	 	 										if(newConcentrationInPM.value =="" || newConcentrationInPM.value.replace(/^\s+|\s+$/g, "") ==""){ //trim from both ends
@@ -249,8 +250,8 @@
 													newConcentrationInPM.focus();
 													return false;
 	    										}	    												
-	 	 										postFormWithoutMoving("updatePM_${cell.getId()}_${library.getId()}","<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/updateConcentration.do" />"); 
-	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithoutMoving(this, "<c:url value="/job/${job.getId()}/samples.do" />");' />
+	 	 										postFormWithAjax("updatePM_${cell.getId()}_${library.getId()}","<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/updateConcentration.do" />"); 
+	 												return false;' ><input type='text' name='newConcentrationInPM' id="newConcentrationInPM_${cell.getId()}_${library.getId()}"  size='3' maxlength='5'  /> pM <input type='submit' value='Update'/><input class="button" type="button" value="Cancel" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' />
 	 	 								</form>
 	 	 								</div>	
 									

@@ -15,8 +15,8 @@
 </div>
 
 <div id="tabs">	
-  <ul>	 
-	    <li><a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
+  <ul>	 <%-- 
+  	    <li><a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
 		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
 		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
 		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
@@ -25,6 +25,17 @@
 		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/jobresults/treeview/job/${job.getId()}.do" />");' >Data Treeview</a></li>
 		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
 	    <li><a id="dataBySamplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />");' >Data By Samples</a></li>
+		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
+  		--%>
+	    <li><a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
+		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
+		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
+		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
+		<li><a id="requestsAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/requests.do" />");' >Requests</a></li>
+	    <li><a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Samples, Libraries &amp; Runs</a></li>
+		<li><a id="dataByTreeViewAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/jobresults/treeview/job/${job.getId()}.do" />");' >Data Treeview</a></li>
+		<li><a id="dataByRunsAnchor"  href="javascript:void(0);" onclick='loadIFrameAnotherWay(this, "<c:url value="/datadisplay/mps/jobs/${job.getId()}/runs.do" />");' >Data By Runs</a></li>
+	    <li><a id="dataBySamplesAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />");' >Data By Samples</a></li>
 		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
 	</ul>
 
