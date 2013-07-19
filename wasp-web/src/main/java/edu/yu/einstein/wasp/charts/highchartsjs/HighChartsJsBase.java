@@ -1,10 +1,8 @@
 package edu.yu.einstein.wasp.charts.highchartsjs;
 
 import java.awt.Color;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,16 +36,11 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 		AREA, AREASPLINE, BAR, COLUMN, LINE, PIE, SCATTER, SPLINE, BOXPLOT, NONE;
 	}
 	
-	public static Set<URL> getScriptDependencies() {
-		Set<URL> dependencies =  new LinkedHashSet<URL>();
-		try {
-			dependencies.add(new URL("http://code.highcharts.com/highcharts.js"));
-			dependencies.add(new URL("http://code.highcharts.com/highcharts-more.js"));
-			dependencies.add(new URL("http://code.highcharts.com/modules/exporting.js"));
-		} catch (MalformedURLException e) {
-			logger.warn(e.getLocalizedMessage());
-		}
-		
+	public static Set<URI> getScriptDependencies() throws URISyntaxException {
+		Set<URI> dependencies =  new LinkedHashSet<URI>(); // load order is important
+		dependencies.add(new URI("http://code.highcharts.com/highcharts.js"));
+		dependencies.add(new URI("http://code.highcharts.com/highcharts-more.js"));
+		dependencies.add(new URI("http://code.highcharts.com/modules/exporting.js"));
 		return dependencies;
 	}
 	
