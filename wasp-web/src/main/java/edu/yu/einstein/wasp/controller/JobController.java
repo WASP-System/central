@@ -1926,39 +1926,45 @@ public class JobController extends WaspController {
 			  ModelMap m) throws SampleTypeException {
 
 		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		m.addAttribute("job", job);
-		Sample macromoleculeSample;		
 		
+		Sample macromoleculeSample = null;
 		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-		for(Sample s : allJobSamples){
-			if(s.getId().intValue() == macromolSampleId.intValue()){
-				macromoleculeSample = s;
-				//errorMessage="";
-				m.addAttribute("macromoleculeSample", macromoleculeSample);
-				m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample, "Other"));
-				
-				String[] roles = {"ft"};
-				List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getId(), roles, "library");
-				if(librarySampleSubtypes.isEmpty()){
-					//////waspErrorMessage("sampleDetail.sampleSubtypeNotFound.error");
-					errorMessage="Unexpected Error: sampleSubtype Not Found";
-					m.addAttribute("errorMessage", errorMessage);
-					return "job/home/createLibrary";
-				}
-				SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
-				List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype);
-				prepareAdaptorsetsAndAdaptors(job, libraryMeta, m);
-				
-				Sample library = new Sample();
-				library.setSampleSubtype(librarySampleSubtype);
-				library.setSampleType(sampleService.getSampleTypeDao().getSampleTypeByIName("facilityLibrary"));
-				library.setSampleMeta(libraryMeta);
-				m.addAttribute("sample", library); 
-				
+		for(Sample sample : allJobSamples){
+			if(sample.getId().intValue()==macromolSampleId){
+				macromoleculeSample = sample;
 				break;
 			}
 		}
-		m.addAttribute("errorMessage", errorMessage);
+		if(macromoleculeSample==null){
+			logger.warn("Macromolecule sample unexpectedly not part of this job");
+		   	m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job"); 
+			return "job/home/message";
+		}		
+		m.addAttribute("macromoleculeSample", macromoleculeSample);
+		m.addAttribute("organism", sampleService.getNameOfOrganism(macromoleculeSample, "Other"));
+		
+		String[] roles = {"ft"};
+		List<SampleSubtype> librarySampleSubtypes = sampleService.getSampleSubtypesForWorkflowByRole(job.getWorkflow().getId(), roles, "library");
+		if(librarySampleSubtypes.isEmpty()){
+			errorMessage="Unexpected Error: sampleSubtype Not Found";
+			m.addAttribute("errorMessage", errorMessage);
+			return "job/home/message";
+		}
+		SampleSubtype librarySampleSubtype = librarySampleSubtypes.get(0); // should be one
+		List<SampleMeta> libraryMeta = SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(librarySampleSubtype);
+		prepareAdaptorsetsAndAdaptors(job, libraryMeta, m);
+		
+		Sample library = new Sample();
+		library.setSampleSubtype(librarySampleSubtype);
+		library.setSampleType(sampleService.getSampleTypeDao().getSampleTypeByIName("facilityLibrary"));
+		library.setSampleMeta(libraryMeta);
+		m.addAttribute("sample", library); 
 			
 		return "job/home/createLibrary";
 	}
@@ -1975,15 +1981,32 @@ public class JobController extends WaspController {
 				 */ 
 				ModelMap m) throws MetadataException {
 			
-		  //creating a new facilityGenerated Library via a JSON call
+		  	//creating a new facilityGenerated Library via a JSON call
 		  
-		  String errorMessage = "";
+			Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.warn("Job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
+			}
+			m.addAttribute("job", job);
+			
+			Sample parentMacromolecule = null;
+			List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+			for(Sample sample : allJobSamples){
+				if(sample.getId().intValue()==macromolSampleId){
+					parentMacromolecule = sample;
+					break;
+				}
+			}
+			if(parentMacromolecule==null){
+				logger.warn("Macromolecule sample unexpectedly not part of this job");
+			   	m.addAttribute("errorMessage", "Macromolecule sample unexpectedly not part of this job"); 
+				return "job/home/message";
+			}	
+		  
 		  
 		  try{			  
-				Job jobForThisSample = jobService.getJobByJobId(jobId);
-				Sample parentMacromolecule = sampleService.getSampleById(macromolSampleId);
-				//TODO confirm job exists; confirm parentMacromolecule exists; confirm parentMacromolecule part of this job. If not, throw new Excpetion
-	
 				Sample libraryForm = JsonHelperWebapp.constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
 				libraryForm.setName(libraryForm.getName().trim());//from the form
 
@@ -1995,7 +2018,7 @@ public class JobController extends WaspController {
 				BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
 				//perform an additional validation of Sample to make sure that Sample.name is unique within this job
 				//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
-				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), new Integer(-1), jobForThisSample, result);
+				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), new Integer(-1), job, result);
 				
 				//retrieve Sample.metadata from the form AND validate it too
 				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
@@ -2005,9 +2028,9 @@ public class JobController extends WaspController {
 					libraryForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
 					libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(libraryForm.getSampleSubtype(), metaFromForm));
 					m.put("sample", libraryForm);
-					m.put("job", jobForThisSample);
+					m.put("job", job);
 					m.put("macromoleculeSample", parentMacromolecule);
-					prepareAdaptorsetsAndAdaptors(jobForThisSample, libraryForm.getSampleMeta(), m);
+					prepareAdaptorsetsAndAdaptors(job, libraryForm.getSampleMeta(), m);
 					m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule, "Other"));
 					//need next line to send the bindingResult, with the errors, to the jsp (it's not automatic in this case)
 					m.addAttribute(BindingResult.MODEL_KEY_PREFIX+result.getObjectName(), result);//http://static.springsource.org/autorepo/docs/spring/2.5.x/api/org/springframework/validation/BindingResult.html
@@ -2022,94 +2045,19 @@ public class JobController extends WaspController {
 				libraryForm.setIsActive(new Integer(1));
 				SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
 				managedLibraryFromForm.setParent(parentMacromolecule);
-				sampleService.createFacilityLibraryFromMacro(jobForThisSample, managedLibraryFromForm, metaFromForm);
-				
-				return "redirect:/job/"+jobId+"/samples.do";			  
+				sampleService.createFacilityLibraryFromMacro(job, managedLibraryFromForm, metaFromForm);
+				String successMessage = "New Library Successfully Created";
+				int newLibraryId = managedLibraryFromForm.getSampleObject().getId().intValue();
+				return "redirect:/job/"+jobId+"/library/"+newLibraryId+"/librarydetail_ro.do?successMessage="+successMessage;			  
 		  }
 		  catch(Exception e){
-			  	e.printStackTrace();
-				errorMessage = "Creation Of New Library Failed: Unexpected Error";
-				return "redirect:/job/"+jobId+"/macromolecule/"+macromolSampleId+"/createLibrary.do?errorMessage="+errorMessage;
+				String errorMessage = "Creation Of New Library Record Failed: Unexpected Error";
+				logger.warn(errorMessage);
+			   	m.addAttribute("errorMessage", errorMessage); 
+				return "job/home/message";
 		  }
 	 }
 	
-	  /* ********************* NO LONGER USED	
-	  @RequestMapping(value = "/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method = RequestMethod.POST)//here, macromolSampleId represents a macromolecule (genomic DNA or RNA) submitted to facility for conversion to a library
-	  @PreAuthorize("hasRole('su') or hasRole('ft')")
-	  public String createLibrary(@PathVariable("macromolSampleId") Integer macromolSampleId,
-			  @PathVariable("jobId") Integer jobId, 
-			  @Valid Sample libraryForm, BindingResult result, 
-			  SessionStatus status, 
-			  ModelMap m) {
-
-		  //display the new library as read-only. add success message, and display. Cannot go directly back to samples.jsp, as that is displayed in a div, but this POST will land back in IFRAME
-		  
-		  // must add something like this
-		  //String returnString = validateJobIdAndSampleId(jobId, macromolSampleId, null);
-		  //if (returnString != null)
-			//  return returnString;
-		  // 
-		  
-		  //cannot do it this way; cancel would return via Iframe and that is NOT desired. Instead, cancel is handled directly in the jsp
-		  ///if ( request.getParameter("submit").equals("Cancel") ){//equals(messageService.getMessage("userDetail.cancel.label")
-			//  return "redirect:/sampleDnaToLibrary/listJobSamples/" + jobId + ".do";
-		  //}
-
-		  String successMessage = "";
-		  String errorMessage = "";
-		  Sample parentMacromolecule = sampleService.getSampleDao().getSampleBySampleId(macromolSampleId);
-		  Job jobForThisSample = jobService.getJobByJobId(jobId);
-
-		  m.addAttribute("organism", sampleService.getNameOfOrganism(parentMacromolecule, "Other"));
-		  
-		  libraryForm.setName(libraryForm.getName().trim());
-		  SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId());
-		  validateSampleNameUnique(libraryForm.getName(), macromolSampleId, jobForThisSample, result);
-
-		  // get validated metadata from 
-		  List<SampleMeta> sampleMetaListFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result);
-
-		  if (result.hasErrors()) {
-			  libraryForm.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, sampleMetaListFromForm));
-			  libraryForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()));
-			  libraryForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
-			  prepareSelectListData(m);//doubt that this is required here; really only needed for meta relating to country or state
-			  //waspErrorMessage("sampleDetail.updated.error");
-			  prepareAdaptorsetsAndAdaptors(jobForThisSample, libraryForm.getSampleMeta(), m);
-			  m.put("macromoleculeSample", parentMacromolecule);
-			  m.put("job", jobForThisSample);
-			  m.put("sample", libraryForm); 
-			  return "job/home/createLibrary";
-		  }
-
-		  //all OK so create/save new library
-		  libraryForm.setSubmitterLabId(parentMacromolecule.getSubmitterLabId());//needed??
-		  libraryForm.setSubmitterUserId(parentMacromolecule.getSubmitterUserId());//needed??
-		  libraryForm.setSubmitterJobId(parentMacromolecule.getSubmitterJobId());//needed??
-		  libraryForm.setIsActive(new Integer(1));
-		  SampleWrapper managedLibraryFromForm = new SampleWrapperWebapp(libraryForm);
-		   try {
-			  managedLibraryFromForm.setParent(parentMacromolecule);
-			  sampleService.createFacilityLibraryFromMacro(jobForThisSample, managedLibraryFromForm, sampleMetaListFromForm);
-			  successMessage="New Library Successfully Created";
-			  return "redirect:/job/"+jobId+"/library/"+managedLibraryFromForm.getSampleObject().getId()+"/librarydetail_ro.do?successMessage="+successMessage;
-		  } catch (SampleParentChildException e) {
-			  logger.warn(e.getLocalizedMessage());
-			  errorMessage="Library Creation Unexpectedly Failed.";
-			  m.put("errorMessage", errorMessage); 
-			  m.put("job", jobService.getJobByJobId(jobId));
-			  //waspErrorMessage("libraryCreated.sample_problem.error");
-			  return "job/home/error";
-		  } catch (MessagingException e) {
-			  logger.warn(e.getLocalizedMessage());
-			  errorMessage="Library Creation Unexpectedly Failed.";
-			  m.put("errorMessage", errorMessage); 
-			  m.put("job", jobService.getJobByJobId(jobId));
-			  //waspErrorMessage("libraryCreated.message_fail.error");
-			  return "job/home/message";
-		  } 
-	 }
-	 **************************/
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_ro", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSampleDetailPage(@PathVariable("jobId") Integer jobId, 
@@ -2188,23 +2136,7 @@ public class JobController extends WaspController {
 		
 		return "job/home/sampledetail_rw";
 	}	
-	// *************remove next two private methods and replace with JsonHelperWebapp static methods
-	/*
-	private <T extends WaspModel> T constructInstanceFromJson(String jsonString, Class<T> clazz) throws Exception{
-		
-		//convert jsonString to some object (if meta entries present, they will be ignored due to the om.configure setting)
-		ObjectMapper om = new ObjectMapper();
-		om.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);//http://stackoverflow.com/questions/4486787/jackson-with-json-unrecognized-field-not-marked-as-ignorable
-		T obj = om.readValue(jsonString, clazz);
-		return obj;
-	}
-	private Map<String,String> constructMapFromJson(String jsonString) throws Exception{
-		
-		ObjectMapper om = new ObjectMapper();
-		Map<String,String> map = om.readValue(jsonString, new TypeReference<HashMap<String,String>>() { });
-		return map;
-	}
-	*/
+	
 	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -2282,33 +2214,7 @@ public class JobController extends WaspController {
 		}
 	}
 		
-	  /**
-	   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
-	   * @param formSample
-	   * @param originalSample
-	   * @param job
-	   * @param result
-	   */
-	// ********************* Remove this and use sampleService.validateSampleNameUniqueWithinJob()
-	/*
-	  private void validateSampleNameUnique(String sampleName, Integer sampleId, Job job, BindingResult result){
-		  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
-		  List<Sample> samplesInThisJob = job.getSample();
-		  for(Sample eachSampleInThisJob : samplesInThisJob){
-			  if(eachSampleInThisJob.getId().intValue() != sampleId.intValue()){
-				  if( sampleName.equals(eachSampleInThisJob.getName()) ){
-					  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
-					  Errors errors=new BindException(result.getTarget(), "sample");
-					  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
-					  // usage: errors.rejectValue(field, errorString, default errorString)
-					  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
-					  result.addAllErrors(errors);
-					  break;
-				  }
-			  }
-		  }
-	  }	
-	  */ 
+	 
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_ro", method=RequestMethod.GET)
 		  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 		  public String jobLibraryDetailPage(@PathVariable("jobId") Integer jobId, 
