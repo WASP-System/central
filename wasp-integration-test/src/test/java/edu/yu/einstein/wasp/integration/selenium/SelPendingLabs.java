@@ -44,8 +44,6 @@ public class SelPendingLabs extends SelBaseTest{
 	  driver.findElement(By.linkText("Tasks")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")), "Unable to locate 'Department Administration Tasks' link.");
 	  Assert.assertTrue(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).isDisplayed());	  
-
-	  //driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).click();
 	  driver.findElement(By.linkText("Department Administration Tasks")).click();
 	  
 	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sPiEmail),"Lab "+ sPiEmail +" not found");

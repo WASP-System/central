@@ -60,22 +60,13 @@ public class SelApproveNewJob extends SelBaseTest{
 	   	driver.findElement(By.xpath("//input[@id='acctQuote.cell_cost']")).clear();
 	   	driver.findElement(By.xpath("//input[@id='acctQuote.cell_cost']")).sendKeys("300");
 	   	driver.findElement(By.xpath("//a[@id='sData']")).click();
-	   	pause(5000);
 	   	
     	//DEPARTMENT ADMIN APPROVAL
    	    driver.findElement(By.linkText("Tasks")).click();
   	    driver.findElement(By.linkText("Department Administration Tasks")).click();
   	    driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
-  	    radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));		
-		/*
-  	    for (int i = 0; i < radios.size(); i++) {
-
-				  radios.get(i).click(); 
-			  
-	      }
-	      */
-  	    //driver.findElement(By.xpath("//input[@type='hidden' and @value='"+id+"']/input[@type='radio' and @value='APPROVED']"));
+  	    //radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));		
   	    driver.findElement(By.xpath("//form[@id='"+formName+"']/input[@type='radio' and @value='APPROVED']")).click();
 
 	   	pause(5000);
@@ -92,7 +83,7 @@ public class SelApproveNewJob extends SelBaseTest{
   	      driver.findElement(By.linkText("Facility Manager Tasks")).click();
   	      driver.findElement(By.xpath("//a[contains(.,'"+jobId+"')]")).click();
 	  	  
-  	      radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
+  	      //radios = driver.findElements(By.xpath("//input[@type='radio' and @value='APPROVED']"));
 		  /*
   	      for (int i = 0; i < radios.size(); i++) {  
 				  radios.get(i).click(); 
