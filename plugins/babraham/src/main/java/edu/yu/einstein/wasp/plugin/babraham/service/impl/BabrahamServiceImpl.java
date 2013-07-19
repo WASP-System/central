@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +58,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	private Software fastqc;
 	
 	@Autowired
-	@Qualifier("fastqcscreen")
-	private Software fastqcscreen;
+	@Qualifier("fastqscreen")
+	private Software fastqscreen;
 	
 	/**
 	 * {@inheritDoc}
