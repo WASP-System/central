@@ -25,36 +25,40 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.RunService;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 
 /**
  * 
  */
-public class BabrahamPlugin extends WaspPlugin 
-		implements 
-			BatchJobProviding,
-			ClientMessageI {
+public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobProviding, ClientMessageI, FileDataTabViewing {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private static final long serialVersionUID = -1918438365161307850L;
 
-	@Autowired
-	private GridHostResolver waspGridHostResolver;
 
-	@Autowired
-	private GridFileService waspGridFileService;
-
-	@Autowired
-	private RunService runService;
-	
-	@Autowired
-	private MessageChannelRegistry messageChannelRegistry;
-
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babrahamQC.mainFlow";
-
-	public BabrahamPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
+	public BabrahamPluginBase(String pluginName, Properties waspSiteProperties,	MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
 	}
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Autowired
+	protected GridHostResolver waspGridHostResolver;
+
+	@Autowired
+	protected GridFileService waspGridFileService;
+
+	@Autowired
+	protected RunService runService;
+	
+	@Autowired
+	protected MessageChannelRegistry messageChannelRegistry;
+	
+	@Autowired
+	protected BabrahamService babrahamService;
+
 
 	/**
 	 * Methods with the signature: Message<String> methodname(Message<String> m)
@@ -90,13 +94,13 @@ public class BabrahamPlugin extends WaspPlugin
 			
 			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
 			
-			logger.info("Sending launch message to flow " + FLOW_NAME + " on with id: " + id);
-			runService.launchBatchJob(FLOW_NAME, jobParameters);
+			logger.info("Sending launch message to flow " + getBatchJobName(BatchJobTask.GENERIC) + " on with id: " + id);
+			runService.launchBatchJob(getBatchJobName(BatchJobTask.GENERIC), jobParameters);
 			
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
-			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
+			return MessageBuilder.withPayload("Unable to launch FastQC").build();
 		}
 		
 	}
@@ -121,47 +125,11 @@ public class BabrahamPlugin extends WaspPlugin
 		return id;
 	}
 
-	/**
-	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// TODO Auto-generated method stub
 
-	}
-
-	/**
-	 * Wasp plugins implement DisposableBean to give authors the ability to tear down on shutdown.
-	 */
-	@Override
-	public void destroy() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	private Message<String> helloWorldHelp() {
-		String mstr = "\nBabraham plugin: hello world!\n" +
-				"wasp -T babraham -t helloWorld\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
+	protected abstract Message<String> helloWorldHelp();
 	
-	private Message<String> launchTestFlowHelp() {
-		String mstr = "\nBabraham plugin: launch the test flow.\n" +
-				"wasp -T babraham -t launchTestFlow -m \'{id:\"1\"}\'\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return FLOW_NAME;
-		return null;
-	}
-	
-	@Override
-	public String getBatchJobName(String batchJobType) {
-		return getBatchJobNameByArea(batchJobType, null);
-	}
+	protected abstract Message<String> launchTestFlowHelp();
+
 
 
 }

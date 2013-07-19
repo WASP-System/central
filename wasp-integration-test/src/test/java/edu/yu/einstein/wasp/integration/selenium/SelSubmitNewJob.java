@@ -39,7 +39,7 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
 	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
@@ -63,7 +63,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();
+    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();// set @value to 2 when testing on barcelona and to 1 when local
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	

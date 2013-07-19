@@ -32,7 +32,7 @@ import edu.yu.einstein.wasp.service.SampleService;
 
 /**
  * QCRunSuccessSplitter listens for run success messages, obtains all of the FASTQ file groups
- * and Launches the Babraham QC pipeline for each.
+ * and Launches the Babraham QC pipelines for each.
  * 
  * @author calder
  *
@@ -83,20 +83,25 @@ public class QCRunSuccessSplitter extends AbstractMessageSplitter {
 				if (fg.getFileType().equals(fastqService.getFastqFileType())) {
 					Map<String, String> jobParameters = new HashMap<String, String>();
 					jobParameters.put(WaspJobParameters.FILE_GROUP_ID, fg.getId().toString());
-					BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
-							new BatchJobLaunchContext(BabrahamPlugin.FLOW_NAME, jobParameters) );
-					try {
-						Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-						logger.debug("preparing new message to send: " + launchMessage);
-						outputMessages.add(launchMessage);
-					} catch (WaspMessageBuildingException e) {
-						throw new MessagingException(e.getLocalizedMessage(), e);
-					}
+					outputMessages.add(prepareMessage(FastQCPlugin.FLOW_NAME, jobParameters));
+					outputMessages.add(prepareMessage(FastQScreenPlugin.FLOW_NAME, jobParameters));
 				}
 			}
 			
 		}
 		return outputMessages;
+	}
+	
+	private Message<BatchJobLaunchContext> prepareMessage(String flowname, Map<String, String> jobParameters){
+		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
+				new BatchJobLaunchContext(flowname, jobParameters) );
+		try {
+			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+			logger.debug("preparing new message to send: " + launchMessage);
+			return launchMessage;
+		} catch (WaspMessageBuildingException e) {
+			throw new MessagingException(e.getLocalizedMessage(), e);
+		}
 	}
 
 }

@@ -1,0 +1,60 @@
+<style>
+
+	.highchart_container{
+		font-family: sans-serif;
+		font-size: 12;
+		color: #292929;
+		background-color: #F5F5F5;
+		margin-bottom: 10px;
+		padding: 10px;
+	}
+	
+	.chart_container{
+		font-family: sans-serif;
+		font-size: 12;
+		color: #292929;
+		background-color: #F5F5F5;
+		margin-bottom: 10px;
+		padding: 10px;
+	}
+	
+	.chart_container table {
+		font-family: sans-serif;
+		font-size: 12;
+		color: #292929;
+		margin: auto;
+	}
+	
+	.chart_credit {
+		font-family: sans-serif;
+		font-size: 9;
+		color: #B4B4B4;
+		text-align: right;
+		padding-top: 5px;
+	}
+	
+	.standardTable {
+		background-color: #FFFFFF
+	}
+	
+	.standardTable td,th {
+		padding:0px 5px 0px 5px;
+	}
+	
+	.standardTable th {
+		text-align: center;
+	}
+
+
+	.keyValueTable th{
+		text-align: right;
+		padding-right: 10px;
+	}
+	
+	.center{
+		text-align: center;
+	}
+
+	
+	
+</style>

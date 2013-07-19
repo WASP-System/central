@@ -3,10 +3,6 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.tasklet;
 
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONObject;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -19,12 +15,9 @@ import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.util.MetaHelper;
 
 /**
  * @author calder
