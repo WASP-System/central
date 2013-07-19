@@ -2313,60 +2313,76 @@ public class JobController extends WaspController {
 		  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 		  public String jobLibraryDetailPage(@PathVariable("jobId") Integer jobId, 
 				  @PathVariable("libraryId") Integer libraryId, 
-				  @RequestParam(value="successMessage", required=false) String successMessage, 
+				  @RequestParam(value="successMessage", required=false) String successMessage,//used to display update success message 
 				  ModelMap m) throws SampleTypeException {
 
-			Job job = jobService.getJobByJobId(jobId);
-			m.addAttribute("job", job);
+		  	Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.warn("Job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
+			}
 			
-			String errorMessage = "Error locating requested Job or Sample in database";
-
-			Sample theRequestedSample = null;
-			SampleWrapperWebapp sampleManaged;
-			List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-			for(Sample sample : allJobSamples){
-				if(sample.getId().intValue() == libraryId.intValue()){
-					theRequestedSample = sample;
-					errorMessage="";
+			boolean sampleIsPartOfJob = false;		
+			for(Sample sample : job.getSample()){//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+				if(sample.getId().intValue()==libraryId){
+					sampleIsPartOfJob = true;
 					break;
 				}
+			}
+			if(!sampleIsPartOfJob){
+				logger.warn("Sample unexpectedly not part of this job");
+			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+				return "job/home/message";
 			}
 			
 			try{
 				libraryDetail(jobId, libraryId, m);
-			}catch(Exception e){errorMessage = e.getMessage();}
+			}catch(Exception e){
+				logger.warn(e.getMessage());
+			   	m.addAttribute("errorMessage", e.getMessage()); 
+				return "job/home/message";				
+			}			
 			
-			m.addAttribute("errorMessage", errorMessage);
-			m.addAttribute("successMessage", successMessage);//only coming from CreateLibrary; do not ever set this 
+			if(successMessage==null){
+				successMessage="";
+			}
+			m.addAttribute("successMessage", successMessage);//only coming from CreateLibrary and update the library; do not ever set this 
 			return "job/home/librarydetail_ro";
 		}
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_rw", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')") /* or hasRole('jv-' + #jobId) */
 	  public String jobLibraryDetailRWPage(@PathVariable("jobId") Integer jobId, 
 			  @PathVariable("libraryId") Integer libraryId, ModelMap m) throws SampleTypeException {
 
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		
-		String errorMessage = "Error locating requested Job or Sample in database";
-
-		Sample theRequestedSample = null;
-		SampleWrapperWebapp sampleManaged;
-		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-		for(Sample sample : allJobSamples){
-			if(sample.getId().intValue() == libraryId.intValue()){
-				theRequestedSample = sample;
-				errorMessage="";
-				break;
+		  Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.warn("Job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
 			}
-		}
-		
-		try{
-			libraryDetail(jobId, libraryId, m);
-		}catch(Exception e){errorMessage = e.getMessage();}
-		
-		m.addAttribute("errorMessage", errorMessage);
-		return "job/home/librarydetail_rw";
+			
+			boolean sampleIsPartOfJob = false;		
+			for(Sample sample : job.getSample()){//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+				if(sample.getId().intValue()==libraryId){
+					sampleIsPartOfJob = true;
+					break;
+				}
+			}
+			if(!sampleIsPartOfJob){
+				logger.warn("Sample unexpectedly not part of this job");
+			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+				return "job/home/message";
+			}
+			
+			try{
+				libraryDetail(jobId, libraryId, m);
+			}catch(Exception e){
+				logger.warn(e.getMessage());
+			   	m.addAttribute("errorMessage", e.getMessage()); 
+				return "job/home/message";				
+			}		
+			return "job/home/librarydetail_rw";
 	}
 	  
 	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
@@ -2380,12 +2396,27 @@ public class JobController extends WaspController {
 		 */ 
 		ModelMap m) throws MetadataException {
 			
-			String errorMessage = "";
-
-			try{
-				Job jobForThisSample = jobDao.getJobByJobId(jobId);	
-				//TODO confirm job exists; confirm sample exists; confirm sample part of this job. It not, throw new Excpetion
-
+			Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.warn("Job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
+			}
+			
+			boolean sampleIsPartOfJob = false;		
+			for(Sample sample : job.getSample()){//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+				if(sample.getId().intValue()==libraryId){
+					sampleIsPartOfJob = true;
+					break;
+				}
+			}
+			if(!sampleIsPartOfJob){
+				logger.warn("Sample unexpectedly not part of this job");
+			   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+				return "job/home/message";
+			}
+			
+			try{				
 				Sample libraryForm = JsonHelperWebapp.constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
 				libraryForm.setName(libraryForm.getName().trim());//from the form
 
@@ -2397,7 +2428,7 @@ public class JobController extends WaspController {
 				BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
 				//perform an additional validation of Sample to make sure that Sample.name is unique within this job
 				//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
-				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), libraryId, jobForThisSample, result);
+				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), libraryId, job, result);
 				
 				//retrieve Sample.metadata from the form AND validate it too
 				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
@@ -2426,64 +2457,17 @@ public class JobController extends WaspController {
 				library.setName(libraryForm.getName());
 				SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
 				sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);
-				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
+				String successMessage = "Update Successfully Completed";
+				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do?successMessage="+successMessage;
 
 			}catch(Exception e){
-				e.printStackTrace();
-				errorMessage = "Update Failed: Unexpected Error";
-				return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_rw.do?errorMessage="+errorMessage;
+				String errorMessage = "Update Failed: Unexpected Error";
+				logger.warn(e.getMessage() + ": " + errorMessage);
+			   	m.addAttribute("errorMessage", errorMessage); 
+				return "job/home/message";
 			}
 	}
-		
-	/* ********************* NO LONGER USED
-	@RequestMapping(value = "/{jobId}/library/{libraryId}/librarydetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
-		@PreAuthorize("hasRole('su') or hasRole('ft')")
-		public String updateJobLibraryDetailRW(@PathVariable("jobId") Integer jobId, 
-				@PathVariable("libraryId") Integer libraryId, @Valid Sample libraryForm, BindingResult result, 
-				SessionStatus status, ModelMap m) throws MetadataException {
-			
-				if ( request.getParameter("submit").equals("Cancel") ){
-					return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-				} 
-
-				Job jobForThisSample = jobDao.getJobByJobId(jobId);
 				
-				String errorMessage = "Error locating requested Job or Sample in database";
-
-				List<Sample> allJobSamples = jobForThisSample.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-				for(Sample s : allJobSamples){
-					if(s.getId().intValue() == libraryId.intValue()){			
-						errorMessage="";
-						break;
-					}
-				}
-				m.addAttribute("errorMessage", errorMessage);
-			  	if(!"".equals(errorMessage)){
-			  		return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-			  	}
-			  	libraryForm.setName(libraryForm.getName().trim());
-			  
-			  	Sample library = sampleService.getSampleDao().getSampleBySampleId(libraryId); 
-			  	validateSampleNameUnique(libraryForm.getName(), libraryId, jobDao.getJobByJobId(jobId), result);
-			  	SampleWrapperWebapp managedLibrary = new SampleWrapperWebapp(library);
-			  	List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, 
-					  sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryForm.getSampleSubtypeId()), result); 
-			  	if(result.hasErrors()){
-				  //waspErrorMessage("sampleDetail.updated.error");
-				  libraryForm.setSampleMeta(metaFromForm);
-				  libraryDetail(jobId, libraryForm, libraryId, m);
-				  return "job/home/librarydetail_rw";
-			  	}
-			  // all ok so save 
-			  library.setName(libraryForm.getName());
-			  sampleService.updateExistingSampleViaSampleWrapper(managedLibrary, metaFromForm);			  	
-
-			  	//what if the update fails??
-			  	
-			  	return "redirect:/job/"+jobId+"/library/"+libraryId+"/librarydetail_ro.do";
-		}
-		//end no longer used *****************/
-		
 	 /**
 	   * Handles preparation of model for display of library details. Makes a detached Sample object.
 	   * @param jobId
