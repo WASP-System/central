@@ -1,51 +1,48 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?coverageMapOnly=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);"  onclick='loadNewPage(this, "<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
-<br />
-
+<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
+<br /><br />	
 
 <form  method='post' name='addLibrariesToCell' id="addLibrariesToCell" action="" 
-	 	 									onsubmit='	var s = document.getElementById("cellId"); 
-	 	 												var sVal = s.options[s.selectedIndex].value; 
-	 	 												if(sVal=="0" || sVal==""){
-	 	 													alert("Please select a cell"); s.focus(); return false; 
-	 	 												} 
-	 	 												
-	 	 												var libConcInCellPicoMArray = document.getElementsByName("libConcInCellPicoM");
-	 	 												var atLeastOneTextboxWithValidValue = false;
-	 	 												for(var i = 0; i < libConcInCellPicoMArray.length; i++){
-	 	 													//alert("the value I typed in is " + libConcInCellPicoMArray[i].value);
-	 	 													if(libConcInCellPicoMArray[i].value != ""){
-	 	 														//alert("the value I typed in which is not blank is " + libConcInCellPicoMArray[i].value);
-	 	 														
-	 	 													 	if(libConcInCellPicoMArray[i].value.replace(/^\s+|\s+$/g, "") ==""){
-	 	 															//alert("the value I typed in which is not blank is but needs help is" + libConcInCellPicoMArray[i].value);
-	 	 														
-	 	 															libConcInCellPicoMArray[i].value = "";
-	 	 															continue;	 	 															
-	 	 														}
-	 	 														else{
-	 	 															var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
-	    															if (!regExpr.test(libConcInCellPicoMArray[i].value)) {
-	    																alert("Please provide a numeric value in the indicated textbox containing " + libConcInCellPicoMArray[i].value);
-																		//libConcInCellPicoMArray[i].value = "";
-																		libConcInCellPicoMArray[i].focus();
-																		return false;
-	    															}
-	    														}
-	    														atLeastOneTextboxWithValidValue=true;	    														
-	 	 													}	 	 														
-	 	 												}
-	 	 												if(atLeastOneTextboxWithValidValue==false){
-	 	 													alert("You must provide a concentration for at least one library");
-	 	 													return false;
-	 	 												}	
-	 	 												 											
-	 	 												postFormWithoutMoving("addLibrariesToCell","<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />"); 
-	 	 												return false;' >
-
-
+	onsubmit='	var s = document.getElementById("cellId"); 
+				var sVal = s.options[s.selectedIndex].value; 
+				if(sVal=="0" || sVal==""){
+					alert("Please select a cell"); s.focus(); return false; 
+				} 
+				
+				var libConcInCellPicoMArray = document.getElementsByName("libConcInCellPicoM");
+				var atLeastOneTextboxWithValidValue = false;
+				for(var i = 0; i < libConcInCellPicoMArray.length; i++){
+					//alert("the value I typed in is " + libConcInCellPicoMArray[i].value);
+					if(libConcInCellPicoMArray[i].value != ""){
+						//alert("the value I typed in which is not blank is " + libConcInCellPicoMArray[i].value);
+						
+					 	if(libConcInCellPicoMArray[i].value.replace(/^\s+|\s+$/g, "") ==""){
+							//alert("the value I typed in which is not blank is but needs help is" + libConcInCellPicoMArray[i].value);
+						
+							libConcInCellPicoMArray[i].value = "";
+							continue;	 	 															
+						}
+						else{
+							var regExpr = new RegExp("^[0-9]+\.?[0-9]*$");//modified from http://stackoverflow.com/questions/469357/html-text-input-allow-only-numeric-input (modified example 14)
+								if (!regExpr.test(libConcInCellPicoMArray[i].value)) {
+									alert("Please provide a numeric value in the indicated textbox containing " + libConcInCellPicoMArray[i].value);
+						//libConcInCellPicoMArray[i].value = "";
+						libConcInCellPicoMArray[i].focus();
+						return false;
+								}
+							}
+							atLeastOneTextboxWithValidValue=true;	    														
+					}	 	 														
+				}
+				if(atLeastOneTextboxWithValidValue==false){
+					alert("You must provide a concentration for at least one library");
+					return false;
+				}	
+				 											
+				postFormWithAjax("<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />"); 
+				return false;' >
 
 <table class="data" style="margin: 0px 0px">
 
@@ -217,8 +214,7 @@
 		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
 		   					<c:if test='${qcStatusMap.get(library) == "PASSED"}'>
 		   					
-		   						<%--MUST REMOVE THE false part of the next if statement!!!!!!!!!!***************############# --%>
-								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true || assignLibraryToPlatformUnitStatusMap.get(library) == false}'> 
+		   						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true }'> 
 				 					 <input type='text' name='libConcInCellPicoM'  size='3' maxlength='5'>
 				 					<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
 				 								

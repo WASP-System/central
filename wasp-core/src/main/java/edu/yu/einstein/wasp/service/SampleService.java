@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.dao.SampleDao;
@@ -1057,4 +1058,13 @@ public interface SampleService extends WaspMessageHandlingService {
 	  
 	  public void enumerateSamplesForMPS(List<Sample> allSamples, List<Sample> submittedMacromolecules, List<Sample> submittedLibraries, List<Sample> facilityLibraries);
 	  
+	  /**
+	   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
+	   * @param formSample
+	   * @param originalSample
+	   * @param job
+	   * @param result
+	   */
+	  public void validateSampleNameUniqueWithinJob(String sampleName, Integer sampleId, Job job, BindingResult result);
+	
 }

@@ -50,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import edu.yu.einstein.wasp.MetaMessage;
+import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleWrapperWebapp;
 import edu.yu.einstein.wasp.dao.AdaptorsetDao;
@@ -1983,7 +1984,7 @@ public class JobController extends WaspController {
 				Sample parentMacromolecule = sampleService.getSampleById(macromolSampleId);
 				//TODO confirm job exists; confirm parentMacromolecule exists; confirm parentMacromolecule part of this job. If not, throw new Excpetion
 	
-				Sample libraryForm = constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
+				Sample libraryForm = JsonHelperWebapp.constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
 				libraryForm.setName(libraryForm.getName().trim());//from the form
 
 				//programmatically validate constraints on Sample attributes (note: will NOT examine sample.metadata); see http://static.springsource.org/spring/docs/3.0.0.RC3/reference/html/ch05s07.html (see part 5.7.3 Configuring a DataBinder)
@@ -1994,10 +1995,10 @@ public class JobController extends WaspController {
 				BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
 				//perform an additional validation of Sample to make sure that Sample.name is unique within this job
 				//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
-				validateSampleNameUnique(libraryForm.getName(), new Integer(-1), jobForThisSample, result);
+				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), new Integer(-1), jobForThisSample, result);
 				
 				//retrieve Sample.metadata from the form AND validate it too
-				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
+				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
 							
 				if(result.hasErrors()){
 					libraryForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(libraryForm.getSampleTypeId()));
@@ -2112,62 +2113,83 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_ro", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSampleDetailPage(@PathVariable("jobId") Integer jobId, 
-			  @PathVariable("sampleId") Integer sampleId, ModelMap m) throws SampleTypeException {
-
-		Job job = jobService.getJobByJobId(jobId);
-		m.addAttribute("job", job);
-		
-		String errorMessage = "Error locating requested Job or Sample in database";
-
-		Sample theRequestedSample = null;
-		SampleWrapperWebapp sampleManaged;
-		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-		for(Sample sample : allJobSamples){
-			if(sample.getId().intValue() == sampleId.intValue()){
-				theRequestedSample = sample;
-				errorMessage="";
-				sampleManaged = new SampleWrapperWebapp(theRequestedSample);
-				m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(theRequestedSample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
-				
-				//this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
-				m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
-				
-				m.addAttribute("sample", theRequestedSample);
-				break;
-			}
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		return "job/home/sampledetail_ro";
-	}
-	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_rw", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public String jobSampleDetailRWPage(@PathVariable("jobId") Integer jobId, 
 			  @PathVariable("sampleId") Integer sampleId, 
-			  @RequestParam(value="errorMessage", required=false) String errorMessage,
+			  @RequestParam(value="successMessage", required=false) String successMessage,//used when a macromolecule sample is successfully updated
 			  ModelMap m) throws SampleTypeException {
 
 		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		m.addAttribute("job", job);
 		
 		Sample theRequestedSample = null;
-		SampleWrapperWebapp sampleManaged;
 		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
 		for(Sample sample : allJobSamples){
-			if(sample.getId().intValue() == sampleId.intValue()){
+			if(sample.getId().intValue()==sampleId){
 				theRequestedSample = sample;
-				sampleManaged = new SampleWrapperWebapp(theRequestedSample);
-				m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(theRequestedSample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
-				
-				//this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
-				m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
-				
-				m.addAttribute("sample", theRequestedSample);
 				break;
 			}
 		}
-		m.addAttribute("errorMessage", errorMessage);
+		if(theRequestedSample==null){
+			logger.warn("Sample unexpectedly not part of this job");
+		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			return "job/home/message";
+		}
+				
+		SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(theRequestedSample);
+		m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(theRequestedSample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
+		m.addAttribute("organisms", sampleService.getOrganismsPlusOther());//needed for the organism meta to be interpreted properly during metadata display
+		
+		m.addAttribute("sample", theRequestedSample);
+		
+		if(successMessage==null){
+			successMessage="";
+		}
+		m.addAttribute("successMessage", successMessage);
+		
+		return "job/home/sampledetail_ro";
+	}
+	@RequestMapping(value="/{jobId}/sample/{sampleId}/sampledetail_rw", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')") /* or hasRole('jv-' + #jobId) */
+	  public String jobSampleDetailRWPage(@PathVariable("jobId") Integer jobId, 
+			  @PathVariable("sampleId") Integer sampleId, 
+			  ModelMap m) throws SampleTypeException {
+
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		m.addAttribute("job", job);
+		
+		Sample theRequestedSample = null;
+		List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+		for(Sample sample : allJobSamples){
+			if(sample.getId().intValue()==sampleId){
+				theRequestedSample = sample;
+				break;
+			}
+		}
+		if(theRequestedSample==null){
+			logger.warn("Sample unexpectedly not part of this job");
+		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			return "job/home/message";
+		}
+				
+		SampleWrapperWebapp sampleManaged = new SampleWrapperWebapp(theRequestedSample);
+		m.addAttribute("normalizedSampleMeta", SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(theRequestedSample.getSampleSubtype(), sampleManaged.getAllSampleMeta()) );
+		m.addAttribute("organisms", sampleService.getOrganismsPlusOther());//needed for the organism meta to be interpreted properly during metadata display
+		
+		m.addAttribute("sample", theRequestedSample);
+		
 		return "job/home/sampledetail_rw";
 	}	
+	// *************remove next two private methods and replace with JsonHelperWebapp static methods
+	/*
 	private <T extends WaspModel> T constructInstanceFromJson(String jsonString, Class<T> clazz) throws Exception{
 		
 		//convert jsonString to some object (if meta entries present, they will be ignored due to the om.configure setting)
@@ -2182,7 +2204,7 @@ public class JobController extends WaspController {
 		Map<String,String> map = om.readValue(jsonString, new TypeReference<HashMap<String,String>>() { });
 		return map;
 	}
-	
+	*/
 	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
 	@PreAuthorize("hasRole('su') or hasRole('ft')")
 	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
@@ -2194,13 +2216,28 @@ public class JobController extends WaspController {
 			 */ 
 			ModelMap m) throws MetadataException {
 		
-		String errorMessage = "";
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
+		boolean sampleIsPartOfJob = false;		
+		for(Sample sample : job.getSample()){//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
+			if(sample.getId().intValue()==sampleId){
+				sampleIsPartOfJob = true;
+				break;
+			}
+		}
+		if(!sampleIsPartOfJob){
+			logger.warn("Sample unexpectedly not part of this job");
+		   	m.addAttribute("errorMessage", "Sample unexpectedly not part of this job"); 
+			return "job/home/message";
+		}
 
 		try{
-			Job jobForThisSample = jobService.getJobByJobId(jobId);	
-			//TODO confirm job exists; confirm sample exists; confirm sample part of this job. It not, throw new Excpetion
-
-			Sample sampleForm = constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
+			Sample sampleForm = JsonHelperWebapp.constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
 			sampleForm.setName(sampleForm.getName().trim());//from the form
 
 			//programmatically validate constraints on Sample attributes (note: will NOT examine sample.metadata); see http://static.springsource.org/spring/docs/3.0.0.RC3/reference/html/ch05s07.html (see part 5.7.3 Configuring a DataBinder)
@@ -2209,18 +2246,18 @@ public class JobController extends WaspController {
 			//binder.bind(propertyValues); //Don't know how to set this, but apparently works fine (at least in this case) without it. Perhaps the validator from WASPController has already dealt with this step??
 			binder.validate();// validate the target object, in this case, sampleForm
 			BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
-			//perform an additional validation of Sample to make sure that Sample.name is unique within this job
+			//next, validate Sample to make sure that Sample.name is unique within this job
 			//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
-			validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
+			sampleService.validateSampleNameUniqueWithinJob(sampleForm.getName(), sampleId, job, result);
 			
 			//retrieve Sample.metadata from the form AND validate it too
-			List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(sampleForm.getSampleSubtypeId()), result); 
+			List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(sampleForm.getSampleSubtypeId()), result); 
 									
 			if(result.hasErrors()){
 				sampleForm.setId(sampleId);//since this sampleForm was created thru json, it curretly lacks id
 				sampleForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(sampleForm.getSampleTypeId()));
 				sampleForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(sampleForm.getSampleSubtypeId()));
-				m.put("job", jobForThisSample);
+				m.put("job", job);
 				m.put("sample", sampleForm); 
 				m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sampleForm.getSampleSubtype(), metaFromForm));
 				m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
@@ -2234,72 +2271,17 @@ public class JobController extends WaspController {
 			sample.setName(sampleForm.getName());
 			SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample);
 			sampleService.updateExistingSampleViaSampleWrapper(managedSample, metaFromForm);
-			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
+			String successMessage = "Update Successfully Completed";
+			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do?successMessage="+successMessage;
 
 		}catch(Exception e){
-			e.printStackTrace();
-			errorMessage = "Update Failed: Unexpected Error";
-			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_rw.do?errorMessage="+errorMessage;
+			String errorMessage = "Update Failed: Unexpected Error";
+			logger.warn(e.getMessage() + ": " + errorMessage);
+		   	m.addAttribute("errorMessage", errorMessage); 
+			return "job/home/message";
 		}
 	}
-	/* ********************* NO LONGER USED
-	@RequestMapping(value = "/{jobId}/sample/{sampleId}/sampledetail_rw", method = RequestMethod.POST)//sampleId represents a macromolecule (genomic DNA or RNA) , but that could change as this evolves
-	@PreAuthorize("hasRole('su') or hasRole('ft')")
-	public String updateJobSampleDetailRW(@PathVariable("jobId") Integer jobId, 
-			@PathVariable("sampleId") Integer sampleId, @Valid Sample sampleForm, BindingResult result, 
-			SessionStatus status, ModelMap m) throws MetadataException {
 		
-			if ( request.getParameter("submit").equals("Cancel") ){
-				return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
-			} 
-
-			Job jobForThisSample = jobDao.getJobByJobId(jobId);
-			
-			String errorMessage = "Error locating requested Job or Sample in database";
-
-			List<Sample> allJobSamples = jobForThisSample.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
-			for(Sample s : allJobSamples){
-				if(s.getId().intValue() == sampleId.intValue()){			
-					errorMessage="";
-					break;
-				}
-			}
-			m.addAttribute("errorMessage", errorMessage);
-		  	if(!"".equals(errorMessage)){
-		  		return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
-		  	}
-			
-			
-			sampleForm.setName(sampleForm.getName().trim());//from the form
-			validateSampleNameUnique(sampleForm.getName(), sampleId, jobForThisSample, result);
-	  
-			Sample sample = sampleService.getSampleById(sampleId);//sampleDao.getSampleBySampleId(sampleId); 
-			SampleWrapperWebapp managedSample = new SampleWrapperWebapp(sample);
-			List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromRequestAndTemplateToSubtype(request, sample.getSampleSubtype(), result); // gets meta and adds back to managed sampleForm as it is not persisted
-			if(result.hasErrors()){
-				sampleForm.setSampleType(sampleService.getSampleTypeDao().getSampleTypeBySampleTypeId(sampleForm.getSampleTypeId()));
-				sampleForm.setSampleSubtype(sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(sampleForm.getSampleSubtypeId()));
-				m.put("job", jobForThisSample);
-				m.put("sample", sampleForm); 
-				m.addAttribute("normalizedSampleMeta",SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(sample.getSampleSubtype(), metaFromForm));
-
-				//this is needed for the organism meta to be interpreted properly during metadata display; added by Rob 5-2-13
-				m.addAttribute("organisms", sampleService.getOrganismsPlusOther());
-
-				return "job/home/sampledetail_rw";
-			}
-			sample.setName(sampleForm.getName());
-	  
-			sampleService.updateExistingSampleViaSampleWrapper(managedSample, metaFromForm);
-
-			///waspMessage("sampleDetail.updated_success.label");
-			return "redirect:/job/"+jobId+"/sample/"+sampleId+"/sampledetail_ro.do";
-
-		}
-		//end no longer used *****************/
-	
-	
-	
 	  /**
 	   * See if Sample name has changed between sample objects and if so check if the new name is unique within the job.
 	   * @param formSample
@@ -2307,6 +2289,8 @@ public class JobController extends WaspController {
 	   * @param job
 	   * @param result
 	   */
+	// ********************* Remove this and use sampleService.validateSampleNameUniqueWithinJob()
+	/*
 	  private void validateSampleNameUnique(String sampleName, Integer sampleId, Job job, BindingResult result){
 		  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
 		  List<Sample> samplesInThisJob = job.getSample();
@@ -2323,7 +2307,8 @@ public class JobController extends WaspController {
 				  }
 			  }
 		  }
-	  }	 
+	  }	
+	  */ 
 	  @RequestMapping(value="/{jobId}/library/{libraryId}/librarydetail_ro", method=RequestMethod.GET)
 		  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 		  public String jobLibraryDetailPage(@PathVariable("jobId") Integer jobId, 
@@ -2401,7 +2386,7 @@ public class JobController extends WaspController {
 				Job jobForThisSample = jobDao.getJobByJobId(jobId);	
 				//TODO confirm job exists; confirm sample exists; confirm sample part of this job. It not, throw new Excpetion
 
-				Sample libraryForm = constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
+				Sample libraryForm = JsonHelperWebapp.constructInstanceFromJson(jsonString, Sample.class);//this is set to silently ignore any paramaters that are not part of a Sample
 				libraryForm.setName(libraryForm.getName().trim());//from the form
 
 				//programmatically validate constraints on Sample attributes (note: will NOT examine sample.metadata); see http://static.springsource.org/spring/docs/3.0.0.RC3/reference/html/ch05s07.html (see part 5.7.3 Configuring a DataBinder)
@@ -2412,10 +2397,10 @@ public class JobController extends WaspController {
 				BindingResult result = binder.getBindingResult(); // get BindingResult that currently includes any validation errors from the Sample validation, and also use it later for additional, direct, validations (such as validating metadata)
 				//perform an additional validation of Sample to make sure that Sample.name is unique within this job
 				//TODO: Actually, if samples are shared between  jobs, then we should also extend the validation to include ALL jobs this sample is a part of
-				validateSampleNameUnique(libraryForm.getName(), libraryId, jobForThisSample, result);
+				sampleService.validateSampleNameUniqueWithinJob(libraryForm.getName(), libraryId, jobForThisSample, result);
 				
 				//retrieve Sample.metadata from the form AND validate it too
-				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
+				List<SampleMeta> metaFromForm = SampleWrapperWebapp.getValidatedMetaFromJsonAndTemplateToSubtype(JsonHelperWebapp.constructMapFromJson(jsonString), sampleService.getSampleSubtypeById(libraryForm.getSampleSubtypeId()), result); 
 										
 				if(result.hasErrors()){
 					

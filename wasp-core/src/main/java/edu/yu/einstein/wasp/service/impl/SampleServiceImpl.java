@@ -29,6 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
@@ -3148,5 +3151,26 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				}
 			}
 
+			/**
+			 *  {@inheritDoc}
+			 */
+			@Override
+			 public void validateSampleNameUniqueWithinJob(String sampleName, Integer sampleId, Job job, BindingResult result){
+				  //confirm that, if a new sample.name was supplied on the form, it is different from all other sample.name in this job
+				  List<Sample> samplesInThisJob = job.getSample();
+				  for(Sample eachSampleInThisJob : samplesInThisJob){
+					  if(eachSampleInThisJob.getId().intValue() != sampleId.intValue()){
+						  if( sampleName.equals(eachSampleInThisJob.getName()) ){
+							  // adding an error to 'result object' linked to the 'name' field as the name chosen already exists
+							  Errors errors=new BindException(result.getTarget(), "sample");
+							  // reject value on the 'name' field with the message defined in sampleDetail.updated.nameClashError
+							  // usage: errors.rejectValue(field, errorString, default errorString)
+							  errors.rejectValue("name", "sampleDetail.nameClash.error", "sampleDetail.nameClash.error (no message has been defined for this property)");
+							  result.addAllErrors(errors);
+							  break;
+						  }
+					  }
+				  }
+			  }	 
 }
 

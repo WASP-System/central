@@ -12,14 +12,6 @@
 			<c:if test="${fn:length(errorMessage)>0}">
 				<tr><td colspan="2" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
 			</c:if>
-			<%-- 
-			<c:if test="${fn:length(successMessage)>0}">
-				<tr><td colspan="2" align="center" style="color:green;font-weight:bold"><c:out value="${successMessage}" /></td></tr>
-			</c:if>
-			--%>
-			<%-- 
-			<tr><td colspan="2" align="center"><input name="bu" id="bu" class="button" type="button" value="Submit" onclick='postFormWithAjax("addJobViewerFormId","<c:url value="/job/${job.getId()}/viewerManager.do" />"); return false;' /></td></tr>
-			--%>
 			<tr><td colspan="2" align="center"><input type='submit' value='Submit'/></td></tr>
 		</c:if>	
 		

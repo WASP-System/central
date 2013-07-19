@@ -12,15 +12,7 @@
 			<c:if test="${fn:length(errorMessage)>0}">
 				<tr><td colspan="3" align="center" style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></td></tr>
 			</c:if>
-			<%-- 
-			<c:if test="${fn:length(successMessage)>0}">
-				<tr><td colspan="3" align="center" style="color:green;font-weight:bold"><c:out value="${successMessage}" /></td></tr>
-			</c:if>
-			--%>
 			<tr><td align="center" colspan="3">
-				<%-- 
-				<input name="bu" id="bu" class="button" type="button" value="Submit" onclick='postFormWithAjax("commentFormId","<c:url value="/job/${job.getId()}/comments.do" />"); return false;' />
-				--%>
 				<input type='submit' value='Submit'/>
 			</td></tr>
 		</c:if>
