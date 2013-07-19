@@ -8,21 +8,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -35,11 +36,12 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 @Transactional("entityManager")
@@ -50,6 +52,14 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	@Qualifier("fastqc")
+	private Software fastqc;
+	
+	@Autowired
+	@Qualifier("fastqcscreen")
+	private Software fastqcscreen;
 	
 	/**
 	 * {@inheritDoc}
@@ -197,12 +207,20 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws PanelException 
 	 */
 	@Override
-	public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup){
-		Set<Panel> panels = new LinkedHashSet<>();
-		// TODO: code here
-		return panels;
+	public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException{
+		PanelTab panelTab = new PanelTab();
+		for (Field field: PlotType.class.getDeclaredFields()){
+			try {
+				JSONObject json = getJsonForParsedSoftwareOutputByKey(field.getName(), fastqc, fileGroup);
+				//json.
+			} catch (JSONException | MetadataException e) {
+				throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
+			}
+		}
+		return panelTab;
 	}
 
 }

@@ -6,21 +6,20 @@ package edu.yu.einstein.wasp.plugin.babraham.service;
 
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
-import edu.yu.einstein.wasp.viewpanel.Panel;
-import edu.yu.einstein.wasp.viewpanel.WebPanel;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
  * 
@@ -72,9 +71,10 @@ public interface BabrahamService extends WaspService {
 
 		/**
 		 * Get a Set of WebPanel objects for the given fileGroup
-		 * @param filegroup
+		 * @param fileGroup
 		 * @return
+		 * @throws PanelException 
 		 */
-		public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup);
+		public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException;
 
 }
