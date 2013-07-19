@@ -34,6 +34,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
@@ -212,14 +213,23 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Override
 	public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		for (Field field: PlotType.class.getDeclaredFields()){
-			try {
-				JSONObject json = getJsonForParsedSoftwareOutputByKey(field.getName(), fastqc, fileGroup);
-				//json.
-			} catch (JSONException | MetadataException e) {
-				throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
-			}
+		try {
+			panelTab.addPanel(FastQCPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroup)));
+			panelTab.addPanel(FastQCPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroup)));
+		} catch (JSONException | MetadataException e) {
+			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
 		}
+	
 		return panelTab;
 	}
 
