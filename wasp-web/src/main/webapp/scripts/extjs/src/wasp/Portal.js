@@ -42,7 +42,7 @@ Ext.define('Ext.wasp.Portal', {
         Ext.apply(this, {
             id: 'wasp-viewport',
             renderTo: 'resultpanel',
-            width: 1400,
+            width: 1500,
             height: 800,
             layout: {
                 type: 'border',
@@ -53,14 +53,14 @@ Ext.define('Ext.wasp.Portal', {
                 xtype: 'box',
                 region: 'north',
                 height: 20,
-                html: 'Job Result Portal'
+                //html: 'Job Result Portal'
             },{
                 xtype: 'container',
                 region: 'center',
                 layout: 'border',
                 items: [{
                     id: 'wasp-options',
-                    title: 'D3 Treeview',
+                    title: 'Job Treeview',
                     region: 'west',
                     animCollapse: true,
                     width: 400,

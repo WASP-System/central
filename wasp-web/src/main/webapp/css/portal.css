@@ -25,7 +25,7 @@
     z-index: 1;
 }
 .x-border-layout-ct {
-    background: #DFE8F6;
+    background: #FFFFE6;
 }
 .x-portal-body {
     padding: 0 0 0 8px;
@@ -66,3 +66,5 @@
 .info {
     background-image:url(../shared/icons/fam/information.png);
 }
+
+

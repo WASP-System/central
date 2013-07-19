@@ -19,9 +19,9 @@
 
 
 <script type="text/javascript">
-var margin = {top: 20, right: 80, bottom: 20, left: 20},
-    width = 460 - margin.right - margin.left,
-    height = 700 - margin.top - margin.bottom,
+var margin = {top: 20, right: 30, bottom: 20, left: 20},
+    width = 360 - margin.right - margin.left,
+    height = 600 - margin.top - margin.bottom,
     i = 0,
     duration = 500,
     branch_length = 100,
@@ -29,7 +29,7 @@ var margin = {top: 20, right: 80, bottom: 20, left: 20},
     root=new Object();
     
 var barHeight = 20,
-	barWidth = width * .6;
+	barWidth = width * .5;
 
 var tree = d3.layout.tree().size([height, 100]);
 
@@ -260,6 +260,7 @@ function toggle(d) {
 
 var tabs, tabCounter=0;
 var jscssfilesadded=""; //list of external script/css files already added
+var numcol = 2;
 
 function click(d) {
 	if (d.jid==undefined) {
@@ -342,12 +343,14 @@ function click(d) {
 				        }]
 					});
 					var ptlpnl = tab.add({xtype: 'portalpanel'});
-				    var ptlcol1 = ptlpnl.add({id: 'col-1'});
-				    var ptlcol2 = ptlpnl.add({id: 'col-2'});
-	
+				    var ptlcolArray = new Array;
+				    for(var i=0;i<numcol;i++) {
+				    	ptlcolArray.push(ptlpnl.add({id: 'col-'+(i+1)}));
+				    }
+
+				    var colid = 0;
 			        $.each(item, function (index1, item1) {
-			            ptlcol1.add({
-		                    //id: 'portlet-2',
+			            ptlcolArray[colid++].add({
 		                    title: item1.title,
 		                    tools: extPortal.getTools(),
 		                    closable: false,
@@ -358,6 +361,7 @@ function click(d) {
 								'expand': Ext.bind(new Function("portlet", item1.execOnExpandCode), extPortal)
 		                    }
 			            });
+			            colid %= numcol;
 		        	});
 			   		
 			        tabpanel.setActiveTab(tab);
