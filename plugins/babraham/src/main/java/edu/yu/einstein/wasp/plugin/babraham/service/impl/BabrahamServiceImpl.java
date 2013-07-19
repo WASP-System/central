@@ -33,12 +33,13 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.viewpanel.Panel;
 
 @Service
 @Transactional("entityManager")
@@ -63,7 +64,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws FastQCDataParseException{
+	public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws BabrahamDataParseException{
 		Map<String, FastQCDataModule> dataModules = new HashMap<String, FastQCDataModule>();
 		try{
 			BufferedReader br = new BufferedReader(new InputStreamReader(inStream)); 
@@ -81,9 +82,9 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 					if (isFirstLine){
 						isFirstLine = false;
 						if (line.contains("No such file or directory"))
-							throw new FastQCDataParseException("Unable to find fastqc_data.txt file");
+							throw new BabrahamDataParseException("Unable to find fastqc_data.txt file");
 						if (!line.startsWith("##FastQC"))
-							throw new FastQCDataParseException("Unexpected first line. Suspect wrong file or file corrupt");
+							throw new BabrahamDataParseException("Unexpected first line. Suspect wrong file or file corrupt");
 						continue;
 					}
 					if (line.startsWith(">>")){
@@ -95,12 +96,13 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						processingModule = true;
 						String[] elements = line.substring(2).split("\t");
 						if (elements.length != 2)
-							throw new FastQCDataParseException("Problem parsing line: value must contain 2 elements (name and result). Instead got " + elements.length + " elements");
+							throw new BabrahamDataParseException("Problem parsing line: value must contain 2 elements (name and result). Instead got " 
+									+ elements.length + " elements");
 						String name = elements[0];
 						String result = elements[1];
 						String iname = FastQCDataModule.getModuleINameFromName(name);
 						if (iname == null)
-							throw new FastQCDataParseException("Unable to obtain a valid fastqc module iname for name '" + name + "'");
+							throw new BabrahamDataParseException("Unable to obtain a valid fastqc module iname for name '" + name + "'");
 						dataModules.put(iname, new FastQCDataModule());
 						currentModule = dataModules.get(iname);
 						currentModule.setName(name);
@@ -130,7 +132,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						String[] elements = line.split("\t");
 						// check number of data values matches the number of data attributes
 						if (elements.length != currentModule.getAttributes().size())
-							throw new FastQCDataParseException("line contains " + elements.length + " tab-delimited elements which does not match expected number (" + currentModule.getAttributes().size() + ")");
+							throw new BabrahamDataParseException("line contains " + elements.length 
+									+ " tab-delimited elements which does not match expected number (" + currentModule.getAttributes().size() + ")");
 						for (String element: elements)
 							row.add(element);
 						currentModule.getDataPoints().add(row);
@@ -140,7 +143,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			br.close();
 		} catch (IOException e){
 			logger.warn(e.getLocalizedMessage());
-			throw new FastQCDataParseException("Unable to parse from InputStream");
+			throw new BabrahamDataParseException("Unable to parse from InputStream");
 		}
 		return dataModules;
 	}
@@ -149,7 +152,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws FastQCDataParseException{
+	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws BabrahamDataParseException{
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		try {
@@ -161,10 +164,10 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			GridResult r = transportConnection.sendExecToRemote(w);
 			return processFastQCOutput(r.getStdOutStream());
 		} catch (MisconfiguredWorkUnitException e) {
-			throw new FastQCDataParseException("Caught MisconfiguredWorkUnitException when trying to parse FastQC output: " + e.getLocalizedMessage());
+			throw new BabrahamDataParseException("Caught MisconfiguredWorkUnitException when trying to parse FastQC output: " + e.getLocalizedMessage());
 		} 
 		catch (GridException e) {
-			throw new FastQCDataParseException("Caught GridException when trying to parse FastQC output: " + e.getLocalizedMessage());
+			throw new BabrahamDataParseException("Caught GridException when trying to parse FastQC output: " + e.getLocalizedMessage());
 		} 
 	}
 	
@@ -190,6 +193,16 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			fileGroupMeta = new ArrayList<FileGroupMeta>();
 		fgMetahelper.setMetaList(fileGroupMeta);
 		return new JSONObject(fgMetahelper.getMetaValueByName(key));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup){
+		Set<Panel> panels = new LinkedHashSet<>();
+		// TODO: code here
+		return panels;
 	}
 
 }

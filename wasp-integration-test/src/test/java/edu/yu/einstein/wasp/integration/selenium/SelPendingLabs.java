@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
  * @author nvolnova
  *
  */
+
 public class SelPendingLabs extends SelBaseTest{
   
   @BeforeClass
@@ -35,7 +36,7 @@ public class SelPendingLabs extends SelBaseTest{
    * @param sApprovedUrl
    * @throws Exception
    */
-  @Test (groups = "integration-tests",  dataProvider = "DP1")
+  @Test (groups = {"integration-tests", "pending-lab-approval"},  dataProvider = "DP1")
   public void pendingLabApprove(String sUserName, String sUserPass, String sPiEmail, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass);	 

@@ -1,19 +1,23 @@
-package edu.yu.einstein.wasp.web.panel;
+package edu.yu.einstein.wasp.viewpanel;
 
 
+import java.net.URI;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import edu.yu.einstein.wasp.viewpanel.Content;
 
 /**
  * 
  * @author asmclellan
  *
  */
-public class WebContent {
+public class WebContent extends Content {
 	
-	private String htmlContent;
+	private String html;
+	
+	private String script;
 	
 	private Set<URL> scriptDependencies;
 	
@@ -22,23 +26,32 @@ public class WebContent {
 	public WebContent() {
 		scriptDependencies = new LinkedHashSet<URL>();
 		cssDependencies = new LinkedHashSet<URL>();
-		htmlContent = "";
+		html = "";
+		script = "";
 	}
 	
-	public String getHtmlContent() {
-		return htmlContent;
+	public String getHtmlCode() {
+		return this.html;
 	}
 
-	public void setHtmlContent(String htmlContent) {
-		this.htmlContent = htmlContent;
+	public void setHtmlCode(String htmlCode) {
+		this.html = htmlCode;
+	}
+	
+	public String getScriptCode() {
+		return this.script;
+	}
+
+	public void setScriptCode(String scriptCode) {
+		this.script = scriptCode;
 	}
 
 	public Set<URL> getScriptDependencies() {
 		return scriptDependencies;
 	}
 
-	public void setScriptDependencies(Set<URL> scriptDependencies) {
-		this.scriptDependencies = scriptDependencies;
+	public void setScriptDependencies(Set<URL> set) {
+		this.scriptDependencies = set;
 	}
 	
 	public void addScriptDependency(URL dependency){

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	
+	<!-- for job, call with parameter 'fileGroupId' -->
+	<batch:flow id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow">
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCStart" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQCTasklet" scope="step">
+					<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+
+		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
+							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:flow>
+
+</beans>

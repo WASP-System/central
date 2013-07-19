@@ -42,8 +42,9 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.web.panel.Panel;
-import edu.yu.einstein.wasp.web.panel.WebContent;
+import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.WebContent;
+import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
 @Controller
 @Transactional
@@ -261,7 +262,7 @@ public class ResultViewController extends WaspController {
 			
 			StringBuilder sb;
 			WebContent webContent;
-			Panel panel;
+			WebPanel panel;
 			int panelId = 1;
 			
 			sb = new StringBuilder();
@@ -313,7 +314,7 @@ public class ResultViewController extends WaspController {
 			sb.append("<td>Sequence Length Distribution</td>\n");
 			sb.append("</tr>\n");
 			sb.append("</table>\n");
-			webContent.setHtmlContent(sb.toString());
+			webContent.setHtmlCode(sb.toString());
 			jsDetails.put("panel"+panelId, new Panel("FastQC Results Summary", webContent));
 			panelId++;
 
@@ -328,15 +329,15 @@ public class ResultViewController extends WaspController {
 			sb.append("<tr><th>Sequence length: </th><td>101</td></tr>\n");
 			sb.append("<tr><th>%GC: </th><td>42</td></tr>\n");
 			sb.append("</table>\n");
-			webContent.setHtmlContent(sb.toString());
+			webContent.setHtmlCode(sb.toString());
 			jsDetails.put("panel"+panelId, new Panel("Basic Statistics", webContent));
 			panelId++;
 
 			sb = new StringBuilder();
 			webContent = new WebContent();
 			webContent.setScriptDependencies(HighChartsJsBase.getScriptDependencies());
-			webContent.setHtmlContent("<div id='highchart_contents_1e58dcd5-deb1-4865-a473-f49d1fc9c7e2' style='margin: auto'></div>");
-			panel = new Panel("Quality scores across all bases", webContent);
+			webContent.setHtmlCode("<div id='highchart_contents_1e58dcd5-deb1-4865-a473-f49d1fc9c7e2' style='margin: auto'></div>");
+			panel = new WebPanel("Quality scores across all bases", webContent);
 			sb.append("$('#highchart_contents_1e58dcd5-deb1-4865-a473-f49d1fc9c7e2').highcharts({\n");
 			sb.append("chart: { type: 'boxplot' },\n");
 			sb.append("title: { text: 'Quality scores across all bases' },\n");
@@ -363,8 +364,8 @@ public class ResultViewController extends WaspController {
 			sb = new StringBuilder();
 			webContent = new WebContent();
 			webContent.setScriptDependencies(HighChartsJsBase.getScriptDependencies());
-			webContent.setHtmlContent("<div id='highchart_contents_954d1749-770c-4d52-bd11-3e3097b9d91e' style='margin: auto'></div>");
-			panel = new Panel("Quality Score Distribution Over all Sequences", webContent);
+			webContent.setHtmlCode("<div id='highchart_contents_954d1749-770c-4d52-bd11-3e3097b9d91e' style='margin: auto'></div>");
+			panel = new WebPanel("Quality Score Distribution Over all Sequences", webContent);
 			sb.append("$('#highchart_contents_954d1749-770c-4d52-bd11-3e3097b9d91e').highcharts({\n");
 			sb.append("chart: { type: 'spline' },\n");
 			sb.append("title: { text: 'Quality Score Distribution Over all Sequences' },\n");
@@ -394,8 +395,8 @@ public class ResultViewController extends WaspController {
 			sb = new StringBuilder();
 			webContent = new WebContent();
 			webContent.setScriptDependencies(HighChartsJsBase.getScriptDependencies());
-			webContent.setHtmlContent("<div id='highchart_contents_9fde1169-1c53-4ddb-adec-1de0834b5e7f' style='margin: auto'></div>");
-			panel = new Panel("Quality Score Distribution Over all Sequences", webContent);
+			webContent.setHtmlCode("<div id='highchart_contents_9fde1169-1c53-4ddb-adec-1de0834b5e7f' style='margin: auto'></div>");
+			panel = new WebPanel("Quality Score Distribution Over all Sequences", webContent);
 			sb.append("$('#highchart_contents_9fde1169-1c53-4ddb-adec-1de0834b5e7f').highcharts({\n");
 			sb.append("chart: { type: 'spline' },\n");
 			sb.append("title: { text: 'Quality Score Distribution Over all Sequences' },\n");
@@ -420,8 +421,8 @@ public class ResultViewController extends WaspController {
 			sb = new StringBuilder();
 			webContent = new WebContent();
 			webContent.setScriptDependencies(HighChartsJsBase.getScriptDependencies());
-			webContent.setHtmlContent("<div id='highchart_contents_ebe17501-3d7f-417a-8eb5-8ac9cefa985d' style='margin: auto'></div>");
-			panel = new Panel("Per Base GC Content", webContent);
+			webContent.setHtmlCode("<div id='highchart_contents_ebe17501-3d7f-417a-8eb5-8ac9cefa985d' style='margin: auto'></div>");
+			panel = new WebPanel("Per Base GC Content", webContent);
 			sb.append("$('#highchart_contents_ebe17501-3d7f-417a-8eb5-8ac9cefa985d').highcharts({\n");
 			sb.append("chart: { type: 'spline' },\n");
 			sb.append("title: { text: 'Per Base GC Content' },\n");

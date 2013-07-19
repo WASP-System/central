@@ -113,8 +113,22 @@ public class DataSeries {
 		return data;
 	}
 
-	public void setData(List<? extends List<Object>> data) {
-		this.data = (List<List<Object>>) data;
+	public void setData(List<List<Object>> data) {
+		this.data = data;
+	}
+	
+	/*
+	 * Not easy to cast List<List<String>> to List<List<Object>> and casting to List<List<? extends Object>> also cause trouble when compiling.
+	 * If there is a better way without looping please change this
+	 */
+	public void setDataFromString(List<List<String>> data) {
+		this.data = new ArrayList<>();
+		for (List<String> row : data){
+			List<Object> newRow = new ArrayList<>();
+			for (String entry: row)
+				newRow.add(entry);
+			this.data.add(newRow);
+		}
 	}
 
 	

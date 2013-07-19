@@ -1,0 +1,101 @@
+/**
+ * Created by Wasp System Eclipse Plugin
+ * @author 
+ */
+package edu.yu.einstein.wasp.plugin.babraham.plugin;
+
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.integration.Message;
+import org.springframework.integration.MessageChannel;
+import org.springframework.integration.support.MessageBuilder;
+
+import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
+
+/**
+ * 
+ */
+public class FastQScreenPlugin extends BabrahamPluginBase{
+
+	
+	private static final long serialVersionUID = -7670661469622558826L;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.babraham.fastqscreen.mainFlow";
+
+	public FastQScreenPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
+		super(pluginName, waspSiteProperties, channel);
+	}
+
+
+	/**
+	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Wasp plugins implement DisposableBean to give authors the ability to tear down on shutdown.
+	 */
+	@Override
+	public void destroy() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected Message<String> helloWorldHelp() {
+		String mstr = "\nBabraham FastQ Screen plugin: hello world!\n" +
+				"wasp -T fastqscreen -t helloWorld\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	@Override
+	protected Message<String> launchTestFlowHelp() {
+		String mstr = "\nBabraham FastQ Screen plugin: launch the test flow.\n" +
+				"wasp -T fastqscreen -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	@Override
+	public String getBatchJobNameByArea(String batchJobType, String area){
+		if (batchJobType.equals(BatchJobTask.GENERIC))
+			return FLOW_NAME;
+		return null;
+	}
+	
+	@Override
+	public String getBatchJobName(String batchJobType) {
+		return getBatchJobNameByArea(batchJobType, null);
+	}
+
+	@Override
+	public Hyperlink getDescriptionPageHyperlink() {
+		return new Hyperlink("fastqscreen.hyperlink.label", "/babraham/fastqscreen/description.do");
+	}
+
+
+	@Override
+	public Status getStatus(FileGroup fileGroup) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public PanelTab getViewPanelTab(FileGroup fileGroup) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+}

@@ -25,10 +25,16 @@ public class BabrahamController extends WaspController {
 	@Autowired
 	private BabrahamService babrahamService;
 	
-	@RequestMapping(value="/description", method=RequestMethod.GET)
-	public String displayDescription(ModelMap m){
+	@RequestMapping(value="/fastqc/description", method=RequestMethod.GET)
+	public String displayFastQcDescription(ModelMap m){
 		logger.debug("service said: " + babrahamService.performAction());
-		return "babraham/description";
+		return "babraham/fastqc/description";
+	}
+	
+	@RequestMapping(value="/fastqscreen/description", method=RequestMethod.GET)
+	public String displayFastQScreenDescription(ModelMap m){
+		logger.debug("service said: " + babrahamService.performAction());
+		return "babraham/fastqscreen/description";
 	}
 
 }

@@ -34,7 +34,7 @@ public class SelConfigureWorkflow extends SelBaseTest{
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "config-workflow"},  dataProvider = "DP1")
 	public void configureWorkflow(String sUserName, String sUserPass, String id) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);

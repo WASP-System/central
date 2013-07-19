@@ -69,8 +69,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.plugin.pluginName)
 	 * @param pluginRegistry handle to the {@link WaspPluginRegistry}
 	 */
-	public WaspPlugin(String pluginName, Properties waspSiteProperties,
-			MessageChannel channel) {
+	public WaspPlugin(String pluginName, Properties waspSiteProperties,	MessageChannel channel) {
 		Assert.assertParameterNotNull(pluginName, "plugin must be assigned a name");
 		this.setPluginName(pluginName);
 		this.waspSiteProperties = waspSiteProperties;
