@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.babraham.charts.FastQCParseModule;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -53,6 +53,10 @@ public class FastQC extends SoftwarePackage{
 	 * 
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
+	
+	public static final String COMBINATION_FASTQ_FILE = "all.fastq";
+	
+	public static final String OUTPUT_FOLDER = "fastqcResults";
 	
 	public static final String QC_ANALYSIS_RESULT_KEY = "result";
 	
@@ -188,20 +192,12 @@ public class FastQC extends SoftwarePackage{
 		}
 		
 		String opts = "--noextract --nogroup --quiet";
+		if (fileGroup.getSoftwareGeneratedBy().equals(casava))
+			opts += " --casava";
 		
-		for (int i = 0; i < segments; i++) {
-			int dir = i+1;
-			command += "mkdir " + dir + "\n";
-			// if casava, use casava mode
-			if (fileGroup.getSoftwareGeneratedBy().equals(casava)) {
-				command += "fastqc --casava " + opts + " --outdir " + i + " " + fileList[i] + "\n";
-			} else {
-				// otherwise treat like fastq
-				String name = i + ".fq";
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name + "\n";
-			}
-		}
-
+		command += "mkdir " + OUTPUT_FOLDER + "\n";
+		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE + " && fastqc " + opts + " --outdir " + 
+				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE + "\n";
 		return command;
 	}
 	
@@ -219,18 +215,18 @@ public class FastQC extends SoftwarePackage{
 	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, BabrahamDataParseException, JSONException {
 		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
 		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
-		output.put(PlotType.QC_RESULT_SUMMARY, FastQCParseModule.getParsedQCResults(mMap));
-		output.put(PlotType.BASIC_STATISTICS, FastQCParseModule.getParsedBasicStatistics(mMap));
-		output.put(PlotType.PER_BASE_QUALITY, FastQCParseModule.getParsedPerBaseQualityData(mMap));
-		output.put(PlotType.PER_SEQUENCE_QUALITY, FastQCParseModule.getPerSequenceQualityScores(mMap));
-		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, FastQCParseModule.getPerBaseSequenceContent(mMap));
-		output.put(PlotType.PER_BASE_GC_CONTENT, FastQCParseModule.getPerBaseGcContent(mMap));
-		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, FastQCParseModule.getPerSequenceGcContent(mMap));
-		output.put(PlotType.PER_BASE_N_CONTENT, FastQCParseModule.getPerBaseNContent(mMap));
-		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, FastQCParseModule.getSequenceLengthDist(mMap));
-		output.put(PlotType.DUPLICATION_LEVELS, FastQCParseModule.getSequenceDuplicationLevels(mMap));
-		output.put(PlotType.OVERREPRESENTED_SEQUENCES, FastQCParseModule.getOverrepresentedSequences(mMap));
-		output.put(PlotType.KMER_PROFILES, FastQCParseModule.getOverrepresentedKmers(mMap));
+		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap));
+		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap));
+		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap));
+		output.put(PlotType.PER_SEQUENCE_QUALITY, BabrahamQCParseModule.getPerSequenceQualityScores(mMap));
+		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, BabrahamQCParseModule.getPerBaseSequenceContent(mMap));
+		output.put(PlotType.PER_BASE_GC_CONTENT, BabrahamQCParseModule.getPerBaseGcContent(mMap));
+		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, BabrahamQCParseModule.getPerSequenceGcContent(mMap));
+		output.put(PlotType.PER_BASE_N_CONTENT, BabrahamQCParseModule.getPerBaseNContent(mMap));
+		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, BabrahamQCParseModule.getSequenceLengthDist(mMap));
+		output.put(PlotType.DUPLICATION_LEVELS, BabrahamQCParseModule.getSequenceDuplicationLevels(mMap));
+		output.put(PlotType.OVERREPRESENTED_SEQUENCES, BabrahamQCParseModule.getOverrepresentedSequences(mMap));
+		output.put(PlotType.KMER_PROFILES, BabrahamQCParseModule.getOverrepresentedKmers(mMap));
 		return output;
 	}
 	

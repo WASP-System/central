@@ -14,6 +14,7 @@ import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
@@ -23,7 +24,7 @@ import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
  * @author asmclellan
  *
  */
-public class FastQCParseModule {
+public class BabrahamQCParseModule {
 
 	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham.css";
 	
@@ -478,9 +479,40 @@ public class FastQCParseModule {
 		return chart.getAsJSON();
 	}
 	
-	
-	
-	
+	public static JSONObject getParsedFastqScreenStatistics(final BabrahamDataModule module) throws JSONException, BabrahamDataParseException {
+		WaspChart2D chart = new WaspChart2D();
+		chart.setTitle(module.getName());
+		chart.setDescription(getCredits());
+		chart.setxAxisLabel("Library");
+		chart.setyAxisLabel("% Mapped");
+		chart.setDescription("When running a sequencing pipeline it is useful to know that your sequencing runs contain the types of sequence they're " +
+				"supposed to.\n" +
+				"FastQ Screen allows you to set up a standard set of libraries against which all of your sequences can be searched. Your search libraries " + 
+				"might contain the genomes of all of the organisms you work on, along with PhiX, Vectors or other contaminants commonly seen in sequencing " + 
+				"experiments." + getCredits());
+		DataSeries ds1 = new DataSeries("One hit / one library");
+		DataSeries ds2 = new DataSeries("Multiple hits / one library");
+		DataSeries ds3 = new DataSeries("One hit / multiple libraries");
+		DataSeries ds4 = new DataSeries("Multiple hits / multiple libraries");
+		try{
+			for (List<String> row : module.getDataPoints()){
+				ds1.addRowWithSingleColumn(row.get(0), Double.parseDouble(row.get(2)));
+				ds2.addRowWithSingleColumn(row.get(0), Double.parseDouble(row.get(3)));
+				ds3.addRowWithSingleColumn(row.get(0), Double.parseDouble(row.get(4)));
+				ds4.addRowWithSingleColumn(row.get(0), Double.parseDouble(row.get(5)));
+			}
+		} catch (NumberFormatException e){
+			throw new BabrahamDataParseException("Caught NumberFormatException attempting to get numeric value of string values");
+		} catch (NullPointerException e){
+			throw new BabrahamDataParseException("Caught NullPointerException attempting to get numeric value of string values");
+		}
+		
+		chart.addDataSeries(ds1);
+		chart.addDataSeries(ds2);
+		chart.addDataSeries(ds3);
+		chart.addDataSeries(ds4);
+		return chart.getAsJSON();
+	}
 	
 	/*
 	 * The following method for getting a theoretical modal distribution is modified from part of the FastQC source code (Version 0.10.1)

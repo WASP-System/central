@@ -17,6 +17,7 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.service.WaspService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -33,7 +34,7 @@ public interface BabrahamService extends WaspService {
 		public String performAction();
 
 		/**
-		 * Returns a map of FastQCDataModule objects. Gets the output from a grid result
+		 * Returns a map of FastQCDataModule objects. Output data to parse obtained from a GridResult.
 		 * @param gridResult
 		 * @return
 		 * @throws GridException
@@ -42,12 +43,29 @@ public interface BabrahamService extends WaspService {
 		public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws GridException, BabrahamDataParseException;
 
 		/**
-		 * Returns a map of FastQCDataModule objects. This data structure represents the output of FastQC data.
+		 * Returns a map of FastQCDataModule objects. Parses the output from an input stream.
 		 * @param inStream
 		 * @return
 		 * @throws BabrahamDataParseException
 		 */
 		public Map<String, FastQCDataModule> processFastQCOutput(InputStream inStream) throws BabrahamDataParseException;
+		
+
+		/**
+		 * Returns a data structure containing parsed FastQ Screen data. Output data to parse obtained from a GridResult.
+		 * @param gridResult
+		 * @return
+		 * @throws BabrahamDataParseException
+		 */
+		public BabrahamDataModule parseFastQScreenOutput(GridResult gridResult) throws BabrahamDataParseException;
+		
+		/**
+		 * Parses the output from an input stream containing FastQ Screen data.
+		 * @param inStream
+		 * @return
+		 * @throws BabrahamDataParseException
+		 */
+		public BabrahamDataModule processFastQScreenOutput(InputStream inStream) throws BabrahamDataParseException;
 
 		/**
 		 * Save JSON representing parsed output of provided software associated with the provided fileGroup
@@ -57,6 +75,16 @@ public interface BabrahamService extends WaspService {
 		 * @throws MetadataException 
 		 */
 		public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, FileGroup fileGroup) throws MetadataException;
+		
+		/**
+		 * Save JSON representing parsed output of provided software associated with the provided fileGroup
+		 * @param json
+		 * @param key
+		 * @param software
+		 * @param fileGroup
+		 * @throws MetadataException
+		 */
+		public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, FileGroup fileGroup) throws MetadataException;
 
 		/**
 		 * Retrieve JSON representing parsed output of provided software associated with the provided fileGroup
@@ -76,5 +104,9 @@ public interface BabrahamService extends WaspService {
 		 * @throws PanelException 
 		 */
 		public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException;
+
+		
+
+
 
 }

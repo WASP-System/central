@@ -12,6 +12,7 @@ import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
+import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase.ChartType;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
 import edu.yu.einstein.wasp.exception.ChartException;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
@@ -75,7 +76,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), true));
 			sb.append(getBasicXAxisCode(chart.getxAxisLabel()));
 			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, 100));
-			Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
+			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(dsG, false, false, Color.RED));
 			seriesSet.add(new BasicHighChartsSeries(dsA, false, false, Color.BLUE));
 			seriesSet.add(new BasicHighChartsSeries(dsT, false, false, Color.GREEN));
@@ -101,7 +102,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), true));
 			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), 0, 100));
 			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, null));
-			Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
+			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(dsActual, false, false, Color.RED));
 			seriesSet.add(new BasicHighChartsSeries(dsTheory, false, false, Color.BLUE));
 			sb.append(getBasicSeriesCode(seriesSet));
@@ -147,6 +148,32 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			throw new ChartException("Unexpected exception caught processing data", e);
 		}
 	}
-
 	
+	public static WebContent getBarChartFastQScreen(final WaspChart2D chart) throws ChartException{
+		try{
+			List<DataSeries> ds = chart.getDataSeries();
+			if (ds.size() != 4)
+				throw new ChartException("Expected 4 data series but got ");
+			WebContent content = new WebContent();
+			content.setScriptDependencies(getScriptDependencies());
+			String containerId = getUniqueContainerId();
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getDescription(), containerId));
+			StringBuilder sb = new StringBuilder();
+			sb.append(getHCScriptStartCode(ChartType.COLUMN, containerId, chart.getTitle(), true));
+			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.get(0).getRowLabels()));
+			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, 100));
+			sb.append("plotOptions: { column: { stacking: 'normal' } },\n");
+			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
+			seriesSet.add(new BasicHighChartsSeries(ds.get(3), false, false, Color.RED));
+			seriesSet.add(new BasicHighChartsSeries(ds.get(2), false, false, Color.BLUE));
+			seriesSet.add(new BasicHighChartsSeries(ds.get(1), false, false, Color.ORANGE));
+			seriesSet.add(new BasicHighChartsSeries(ds.get(0), false, false, Color.GREEN));
+			sb.append(getBasicSeriesCode(seriesSet));
+			sb.append(getHCScriptEndCode());
+			content.setScriptCode(sb.toString());
+			return content;
+		} catch(Exception e){
+			throw new ChartException("Unexpected error caught rendering chart", e);
+		}
+	}
 }
