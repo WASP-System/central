@@ -932,6 +932,11 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("job", job);
 		
+		User jobSubmitter = job.getUser();
+		m.addAttribute("jobSubmitter", jobSubmitter);
+		User jobPI = job.getLab().getUser();
+		m.addAttribute("jobPI", jobPI);
+		
 		List<JobUser> jobUserList = job.getJobUser();
 		List<User> additionalJobViewers = new ArrayList<User>();
 		for(JobUser jobUser : jobUserList){

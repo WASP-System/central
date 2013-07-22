@@ -16,8 +16,8 @@
 		</c:if>	
 		
 		<tr><th colspan="2" class="label" nowrap><fmt:message key="listJobSamples.jobViewers.label" /></th></tr>
-		<tr><td ><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
-		<tr><td ><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>
+		<tr><td ><c:out value="${jobSubmitter.firstName}" /> <c:out value="${jobSubmitter.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobSubmitter.label" /></td></tr>
+		<tr><td ><c:out value="${jobPI.firstName}" /> <c:out value="${jobPI.lastName}" /></td><td><fmt:message key="jobdetail_for_import.jobPI.label" /></td></tr>
 	
 		<c:forEach items="${additionalJobViewers}" var="additionalJobViewer">
 			<tr><td ><c:out value="${additionalJobViewer.getFirstName()} ${additionalJobViewer.getLastName()}"/></td>
