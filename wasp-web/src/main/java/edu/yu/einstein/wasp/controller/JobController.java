@@ -991,10 +991,10 @@ public class JobController extends WaspController {
 			newViewerEmailAddress="";
 		}
 
-		if("".equals(newViewerEmailAddress)){
-			errorMessage = "Update Failed: Please provide an email address";
-			return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
-		}
+		//if("".equals(newViewerEmailAddress)){
+		//	errorMessage = "Update Failed: Please provide an email address";
+		//	return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+		//}
 
 		try{
 			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
@@ -1003,7 +1003,7 @@ public class JobController extends WaspController {
 		}
 		catch(Exception e){		    
 		  logger.warn(e.getMessage());
-		  errorMessage = "Update Unexpectedly Failed";
+		  errorMessage = messageService.getMessage(e.getMessage());
 		}
 		
 		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
@@ -1040,7 +1040,7 @@ public class JobController extends WaspController {
 		}
 		catch(Exception e){		    
 		  logger.warn(e.getMessage());
-		  errorMessage = "Update Unexpectedly Failed";
+		  errorMessage = e.getMessage();
 		}
 		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
 	}
