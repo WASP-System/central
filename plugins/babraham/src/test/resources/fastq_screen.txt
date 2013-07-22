@@ -1,0 +1,9 @@
+#Fastq_screen version: 0.4.1
+Library	%Unmapped	%One_hit_one_library	%Multiple_hits_one_library	%One_hit_multiple_libraries	%Multiple_hits_multiple_libraries
+Human	0.26	90.60	6.29	0.06	2.79
+Mouse	97.16	0.00	0.00	0.19	2.65
+Ecoli	99.89	0.08	0.00	0.00	0.03
+Yeast	99.91	0.00	0.03	0.00	0.06
+PhiX	42.13	57.87	0.00	0.00	0.00
+Adapters	85.22	0.17	14.60	0.00	0.01
+Vectors	99.92	0.00	0.00	0.01	0.07

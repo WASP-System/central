@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.viewpanel.WebPanel;
  *
  */
 @Service
-public class FastQCPanelRenderer {
+public class BabrahamPanelRenderer {
 
 	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham.css";
 	
@@ -145,7 +145,7 @@ public class FastQCPanelRenderer {
 	
 	public static Panel getOverrepresentedSeqPanel(JSONObject chartJson) throws PanelException {
 		try {
-			WaspChart chart = WaspChart.getChart(chartJson, WaspChart2D.class);
+			WaspChart chart = WaspChart.getChart(chartJson, WaspChart.class);
 			return getViewPanel(chart.getTitle(), 11, BabrahamHighChartsJs.getTableRepresentation(chart));
 		} catch (JSONException e) {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);
@@ -155,9 +155,18 @@ public class FastQCPanelRenderer {
 	
 	public static Panel getKmerProfilesPanel(JSONObject chartJson) throws PanelException{
 		try {
-			WaspChart chart = WaspChart.getChart(chartJson, WaspChart2D.class);
+			WaspChart chart = WaspChart.getChart(chartJson, WaspChart.class);
 			return getViewPanel(chart.getTitle(), 12, BabrahamHighChartsJs.getTableRepresentation(chart));
 		} catch (JSONException e) {
+			throw new PanelException("Caught unexpected exception generating WebPanel", e);
+		}
+	}
+	
+	public static Panel getFastQScreenPanel(JSONObject chartJson) throws PanelException{
+		try {
+			WaspChart2D chart = WaspChart.getChart(chartJson, WaspChart2D.class);
+			return getViewPanel(chart.getTitle(), 1, BabrahamHighChartsJs.getBarChartFastQScreen(chart));
+		} catch (ChartException | JSONException e) {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);
 		}
 	}
