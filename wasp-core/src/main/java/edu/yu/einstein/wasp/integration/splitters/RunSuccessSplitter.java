@@ -71,7 +71,7 @@ public class RunSuccessSplitter extends AbstractMessageSplitter{
 		}
 		RunStatusMessageTemplate runStatusMessageTemplate = new RunStatusMessageTemplate((Message<WaspStatus>) message);
 		if (!runStatusMessageTemplate.getStatus().equals(WaspStatus.COMPLETED) || !runStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
-			logger.warn("Message has the wrong status or payload value. Check filter and imput channel are correct");
+			logger.warn("Message has the wrong status or payload value. Check filter and input channel are correct");
 			return outputMessages; // empty list
 		}
 		Run run = runService.getRunDao().getRunByRunId(runStatusMessageTemplate.getRunId());

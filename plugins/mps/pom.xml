@@ -77,11 +77,6 @@
 		</plugins>
 		<resources>
 			<resource>
-				<targetPath>WEB-INF</targetPath>
-				<filtering>true</filtering>
-				<directory>src/main/webapp/WEB-INF</directory>
-			</resource>
-			<resource>
 				<targetPath>.</targetPath>
 				<filtering>true</filtering>
 				<directory>src/main/resources</directory>

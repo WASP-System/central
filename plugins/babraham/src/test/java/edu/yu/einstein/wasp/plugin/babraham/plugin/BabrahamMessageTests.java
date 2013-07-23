@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunDao;
+import edu.yu.einstein.wasp.fileformat.plugin.RunSuccessFastqcSplitter;
 import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -63,7 +64,7 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 	private MessagingTemplate messagingTemplate;
 	
 	@Autowired
-	private QCRunSuccessSplitter qcRunSuccessSplitter;
+	private RunSuccessFastqcSplitter qcRunSuccessSplitter;
 	
 	private final Logger logger = LoggerFactory.getLogger(BabrahamMessageTests.class);
 	
@@ -173,8 +174,8 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
 		logger.debug("Message recieved by handleMessage(): "+message.toString());
-		BatchJobLaunchContext c = (BatchJobLaunchContext) message.getPayload();
-		logger.debug(c.getJobName() +":"+ c.getJobParameters().get(WaspJobParameters.FILE_GROUP_ID));
+		WaspStatus status = (WaspStatus) message.getPayload();
+		logger.debug(status.toString());
 	}
 
 }
