@@ -1,9 +1,7 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
@@ -17,20 +15,11 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
  * 
  */
 public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
-
-	private Integer runId;
-
-	public Integer getRunId() {
-		return runId;
-	}
-
-	public void setRunId(Integer runId) {
-		this.runId = runId;
-	}
-
+	
 	public RunStatusMessageTemplate(Integer runId) {
 		super();
-		this.runId = runId;
+		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN);
+		setRunId(runId);
 	}
 	
 	public RunStatusMessageTemplate(Message<WaspStatus> message){
@@ -38,37 +27,15 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		if (message.getHeaders().containsKey(WaspJobParameters.RUN_ID))
-			runId = (Integer) message.getHeaders().get(WaspJobParameters.RUN_ID);
+			setRunId((Integer) message.getHeaders().get(WaspJobParameters.RUN_ID));
 	}
 
-	/**
-	 * Build a Spring Integration Message using the runId header and the
-	 * runStatus as payload.
-	 * 
-	 * @return {@link Message}<{@link WaspStatus}>
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException {
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
+	public Integer getRunId() {
+		return (Integer) getHeader(WaspJobParameters.RUN_ID);
+	}
 
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.RUN)
-						.setHeader(TARGET_KEY, "batch")
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.RUN_ID, runId)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch (Exception e) {
-			throw new WaspMessageBuildingException("build() failed to build message: " + e.getMessage());
-		}
-		return message;
+	public void setRunId(Integer runId) {
+		setHeader(WaspJobParameters.RUN_ID, runId);
 	}
 
 	/**
@@ -76,9 +43,10 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message) {
-		if (this.task == null)
-			return actUponMessage(message, this.runId);
-		return actUponMessage(message, this.runId, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getRunId());
+		return actUponMessage(message, getRunId(), task);
 	}
 	
 	/**
@@ -86,9 +54,10 @@ public class RunStatusMessageTemplate extends WaspStatusMessageTemplate {
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message) {
-		if (this.task == null)
-			return actUponMessage(message, this.runId);
-		return actUponMessage(message, this.runId, null);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getRunId());
+		return actUponMessage(message, getRunId(), null);
 	}
 
 	// Statics.........

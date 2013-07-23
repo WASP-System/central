@@ -1,15 +1,11 @@
 package edu.yu.einstein.wasp.plugin.babraham.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
-import edu.yu.einstein.wasp.plugin.babraham.messages.BabrahamMessageType;
 
 /**
  * Handling Babraham Status messages.
@@ -18,20 +14,10 @@ import edu.yu.einstein.wasp.plugin.babraham.messages.BabrahamMessageType;
  * 
  */
 public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTemplate {
-
-	private Integer fileGroupId;
-
-	public Integer getFileGroupId() {
-		return fileGroupId;
-	}
-
-	public void setFileGroupId(Integer fileGroupId) {
-		this.fileGroupId = fileGroupId;
-	}
-
+	
 	public BabrahamStatusMessageTemplate(Integer fileGroupId) {
 		super();
-		this.fileGroupId = fileGroupId;
+		setFileGroupId(fileGroupId);
 	}
 	
 	public BabrahamStatusMessageTemplate(Message<WaspStatus> message){
@@ -39,47 +25,28 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		if (message.getHeaders().containsKey(WaspJobParameters.FILE_GROUP_ID))
-			fileGroupId = (Integer) message.getHeaders().get(WaspJobParameters.FILE_GROUP_ID);
+			setFileGroupId((Integer) message.getHeaders().get(WaspJobParameters.FILE_GROUP_ID));
 	}
 
-	/**
-	 * Build a Spring Integration Message using the fileGroupId header and the
-	 * runStatus as payload.
-	 * 
-	 * @return {@link Message}<{@link WaspStatus}>
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException {
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, BabrahamMessageType.BABRAHAM)
-						.setHeader(TARGET_KEY, "batch")
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch (Exception e) {
-			throw new WaspMessageBuildingException("build() failed to build message: " + e.getMessage());
-		}
-		return message;
+	public Integer getFileGroupId() {
+		return (Integer) getHeader(WaspJobParameters.FILE_GROUP_ID);
 	}
+
+	public void setFileGroupId(Integer fileGroupId) {
+		setHeader(WaspJobParameters.FILE_GROUP_ID, fileGroupId);
+	}
+
+	
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message) {
-		if (this.task == null)
-			return actUponMessage(message, this.fileGroupId);
-		return actUponMessage(message, this.fileGroupId, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getFileGroupId());
+		return actUponMessage(message, getFileGroupId(), task);
 	}
 	
 	/**
@@ -87,9 +54,10 @@ public class BabrahamStatusMessageTemplate extends SimpleBabrahamStatusMessageTe
 	 */
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message) {
-		if (this.task == null)
-			return actUponMessage(message, this.fileGroupId);
-		return actUponMessage(message, this.fileGroupId, null);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
+			return actUponMessage(message, getFileGroupId());
+		return actUponMessage(message, getFileGroupId(), null);
 	}
 
 	// Statics.........
