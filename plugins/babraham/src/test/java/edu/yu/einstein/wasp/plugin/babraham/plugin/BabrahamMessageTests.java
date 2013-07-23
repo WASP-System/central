@@ -63,9 +63,11 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 	
 	private final Logger logger = LoggerFactory.getLogger(BabrahamMessageTests.class);
 	
-	private final Integer ID = 1;
+	private final int ID = 1;
 	
 	private FileType fastq;
+	
+	private FileType bam;
 	
 	private FileGroup fastqFg;
 	
@@ -90,6 +92,10 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 		fastq.setId(ID);
 		fastq.doUpdate(); // ensure uuid set
 		
+		bam = new FileType();
+		bam.setId(ID+1);
+		bam.doUpdate(); // ensure uuid set
+		
 		fastqFg = new FileGroup();
 		fastqFg.setId(ID);
 		fastqFg.setFileType(fastq);
@@ -111,9 +117,6 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 		try {
 			// add mocks to splitter (replacing Autowired versions)
 			// could also use ReflectionTestUtils.setField(splitter, "runService", mockRunService) - essential if no setters
-			Run run = new Run();
-			run.setId(1);
-			
 			PowerMockito.when(mockFastqService.getFastqFileType()).thenReturn(fastq);
 			PowerMockito.when(mockFileService.getFileGroupById(ID)).thenReturn(fastqFg);
 			
@@ -128,6 +131,32 @@ public class BabrahamMessageTests extends AbstractTestNGSpringContextTests imple
 			while (messages.size() < 2 && repeats++ < 10)
 				Thread.sleep(50);
 			Assert.assertEquals(messages.size(), 2);
+		} catch (Exception e){
+			// caught an unexpected exception
+			e.printStackTrace();
+			Assert.fail("Caught Exception: "+e.getMessage());
+		}
+					
+	}
+	
+	@Test (groups = "unit-tests-batch-integration")
+	public void NotFastQFileTest() throws Exception{
+		try {
+			// add mocks to splitter (replacing Autowired versions)
+			// could also use ReflectionTestUtils.setField(splitter, "runService", mockRunService) - essential if no setters
+			PowerMockito.when(mockFastqService.getFastqFileType()).thenReturn(bam);
+			PowerMockito.when(mockFileService.getFileGroupById(ID)).thenReturn(fastqFg);
+			FileStatusMessageTemplate template = new FileStatusMessageTemplate(ID);
+			template.setStatus(WaspStatus.CREATED);
+			Message<WaspStatus> fastqCreatedMessage = template.build();
+			logger.info("runSuccessTest(): Sending message via 'outbound rmi gateway': "+fastqCreatedMessage.toString());
+			Message<?> replyMessage = messagingTemplate.sendAndReceive(outMessageChannel, fastqCreatedMessage);
+			if (replyMessage != null)
+				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+			int repeats = 0;
+			while (messages.size() < 2 && repeats++ < 10)
+				Thread.sleep(50);
+			Assert.assertEquals(messages.size(), 0);
 		} catch (Exception e){
 			// caught an unexpected exception
 			e.printStackTrace();
