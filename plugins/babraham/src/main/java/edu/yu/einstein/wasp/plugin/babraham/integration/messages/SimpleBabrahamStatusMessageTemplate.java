@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.babraham.messages.templates;
+package edu.yu.einstein.wasp.plugin.babraham.integration.messages;
 
 import org.springframework.integration.Message;
 
@@ -8,7 +8,6 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.plugin.babraham.messages.BabrahamMessageType;
 
 /**
  * Handling WaspRunStatus messages.

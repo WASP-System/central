@@ -12,4 +12,8 @@
 	<!-- common definitions -->
 	<import resource="babraham-plugin-context-common.xml" />
 	
+	<int:splitter input-channel="wasp.channel.notification.file" output-channel="wasp.channel.batch">
+		<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter" />
+	</int:splitter>
+	
 </beans>

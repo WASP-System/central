@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.babraham.messages.templates;
+package edu.yu.einstein.wasp.plugin.babraham.integration.messages;
 
 import org.springframework.integration.Message;
 
