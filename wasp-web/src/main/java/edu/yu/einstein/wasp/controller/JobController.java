@@ -972,7 +972,7 @@ public class JobController extends WaspController {
 		
 		newViewerEmailAddress = newViewerEmailAddress==null?"":newViewerEmailAddress.trim();
 		try{
-			jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. Only superuser, jobSubmitter, and the job's PI can do this, else exception 
 			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerAdded.label"));
 		}
 		catch(Exception e){	
@@ -998,7 +998,7 @@ public class JobController extends WaspController {
 		}
 
 		try{
-			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action.
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. Only superuser, the job submitter, the job PI, and where a jobViewer is the webViewer can do this, else exception 
 			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerRemoved.label"));
 
 			//DO NOT PERFORM; will result in messy problem since this is now an ajax call!
@@ -1034,59 +1034,49 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
+		populateComments(job, m);
+		return "job/home/comments";
+	}
+
+	private void populateComments(Job job, ModelMap m){
+		
 		m.addAttribute("job", job);
 		
-		class MetaMessageDateComparatorLIFO implements Comparator<MetaMessage> {//last date is first
+		class LIFOMetaMessageDateComparator implements Comparator<MetaMessage> {//last date is first
 			@Override
 			public int compare(MetaMessage arg0, MetaMessage arg1) {
 				return arg1.getDate().compareTo(arg0.getDate());
 			}
 		}
 		
-		//get the user-submitted job comment (if any); order LastInFirstOut
-		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(jobId);
+		//get user-submitted job comments (if any); order LastInFirstOut
+		List<MetaMessage> userSubmittedJobCommentsList = jobService.getUserSubmittedJobComment(job.getId());
 		for (MetaMessage metaMessage: userSubmittedJobCommentsList){
-			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage (see line 180 below) 
+			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));//carriage return was inserted at time of INSERT to deal with line-break. Change it to <br /> for proper html display (using c:out escapeXml=false). Note that other html was escpaped at INSERT stage 
 		}
-		Collections.sort(userSubmittedJobCommentsList, new MetaMessageDateComparatorLIFO());		
+		Collections.sort(userSubmittedJobCommentsList, new LIFOMetaMessageDateComparator());		
 		m.addAttribute("userSubmittedJobCommentsList", userSubmittedJobCommentsList);
 		
 		//get the facility-generated job comments (if any); order LastInFirstOut
-		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(jobId);
+		List<MetaMessage> facilityJobCommentsList = jobService.getAllFacilityJobComments(job.getId());
 		for (MetaMessage metaMessage: facilityJobCommentsList){
 			metaMessage.setValue(StringUtils.replace(metaMessage.getValue(), "\r\n" ,"<br />"));
 		}
-		Collections.sort(facilityJobCommentsList, new MetaMessageDateComparatorLIFO());
+		Collections.sort(facilityJobCommentsList, new LIFOMetaMessageDateComparator());
 		m.addAttribute("facilityJobCommentsList", facilityJobCommentsList);
 		
-		boolean permissionToAddEditComment = false;
+		//permit job's submitter and job's PI to add a comment, as well as superuser, ftech, da:
+		boolean permissionToAddEditComment = false;//currently, no mechanism to edit exists on these comments on the webpage
 		try{
 			permissionToAddEditComment = authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*') ");
 		}catch(Exception e){
 			logger.warn(e.getMessage());
 		}
-		//also permit job's submitter and job's PI to add a comment:
 		User me = authenticationService.getAuthenticatedUser();
-		if(me.getId().intValue() == job.getUserId().intValue() || me.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
+		if((permissionToAddEditComment==false) && me.getId().intValue() == job.getUserId().intValue() || me.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
 			permissionToAddEditComment=true;
 		}
 		m.addAttribute("permissionToAddEditComment", permissionToAddEditComment);
-		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		
-		if(successMessage==null){
-			successMessage="";
-		}
-		m.addAttribute("successMessage", successMessage);
-
-		return "job/home/comments";
-	}
-
-	private void populateComments(Job job, ModelMap m){
-		
 	}
 	
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.POST)
@@ -1095,39 +1085,35 @@ public class JobController extends WaspController {
 			  @RequestParam("comment") String comment,
 			  ModelMap m) throws SampleTypeException {
 		
-		String errorMessage = "";
-		String successMessage = "";
-		
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		m.addAttribute("job", job);
 		
-		String trimmedComment = comment==null?null:comment.trim();  //StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
-		if(trimmedComment==null||trimmedComment.length()==0){
-			errorMessage = messageService.getMessage("jobComment.jobCommentEmpty.error");
-			return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
-		}
+		comment = comment==null?"":comment.trim();  //StringEscapeUtils.escapeXml(comment.trim());//any standard html/xml [Supports only the five basic XML entities (gt, lt, quot, amp, apos)] will be converted to characters like &gt; //http://commons.apache.org/lang/api-3.1/org/apache/commons/lang3/StringEscapeUtils.html#escapeXml%28java.lang.String%29
 
-		try{
-			if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
-				jobService.setFacilityJobComment(jobId, trimmedComment);
-				successMessage = "Update Successful: Comment Added";
-			}
-			else{
-				jobService.setUserSubmittedJobComment(jobId, trimmedComment);
-				successMessage = "Update Successful: Comment Added";
-			}
-		}catch(Exception e){
-			logger.warn(e.getMessage());
-			errorMessage = "Update Unexpectedly Failed";
-			//errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
+		if("".equals(comment)){
+			m.addAttribute("errorMessage", messageService.getMessage("jobComment.jobCommentEmpty.error"));
 		}
-		
-		return "redirect:/job/"+jobId+"/comments.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+		else{
+			try{
+				if(authenticationService.hasPermission("hasRole('su') or hasRole('fm') or hasRole('ft') or hasRole('da-*')")){
+					jobService.setFacilityJobComment(jobId, comment);
+				}
+				else{
+					jobService.setUserSubmittedJobComment(jobId, comment);
+				}
+				m.addAttribute("successMessage", messageService.getMessage("jobComment.jobCommentAdded.label"));
+			}catch(Exception e){
+				String errorMessage = messageService.getMessage("jobComment.jobCommentCreate.error");
+				logger.warn(errorMessage);
+				m.addAttribute("errorMessage", errorMessage);
+			}
+		}
+		populateComments(job, m);
+		return "job/home/comments";
 	}
 	
 	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.GET)
