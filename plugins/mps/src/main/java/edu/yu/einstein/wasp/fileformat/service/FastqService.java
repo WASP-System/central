@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.filetype.service;
+package edu.yu.einstein.wasp.fileformat.service;
 
 import java.util.UUID;
 

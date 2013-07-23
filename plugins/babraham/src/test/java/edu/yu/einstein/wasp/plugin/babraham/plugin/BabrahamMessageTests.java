@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.dao.RunDao;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;

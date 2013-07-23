@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.filetype.service.impl;
+package edu.yu.einstein.wasp.fileformat.service.impl;
 
 import java.util.UUID;
 
@@ -12,8 +12,9 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.InvalidFileTypeException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.filetype.service.FileTypeService;
+import edu.yu.einstein.wasp.filetype.service.impl.FileTypeServiceImpl;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;

@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.filetype.FastqComparator;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
+import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
