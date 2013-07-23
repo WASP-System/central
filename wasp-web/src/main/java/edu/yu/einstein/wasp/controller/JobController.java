@@ -1001,17 +1001,19 @@ public class JobController extends WaspController {
 		}
 
 		try{
-			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action.			
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action.
+			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerRemoved.label"));
+
+			//DO NOT PERFORM; will result in messy problem since this is now an ajax call!
 			//If (me.getId().intValue() == userId.intValue() is true, then a user is removing him/her self from being a job viewer.
 			//Normally, I would execute the doReauth() if me.getId().intValue() == userId.intValue()
 			//However, if we performed the doReauth(), then, since the return is to a method demanding the viewer is a viewer of this job,
-			//an execption will be thrown and it will look like a mess. 
+			//an exception will be thrown and it will look like a mess. 
 			//To avoid, simply don't execute this doReathu(). It's not a problem, since the user is removing him/her self.
 			//User me = authenticationService.getAuthenticatedUser();
 			//if (me.getId().intValue() == userId.intValue()) {
 			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
 			//}	
-			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerRemoved.label"));
 		}
 		catch(Exception e){		    
 			String errorMessage = messageService.getMessage(e.getMessage());
