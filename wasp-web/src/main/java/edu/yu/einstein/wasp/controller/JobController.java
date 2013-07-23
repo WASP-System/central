@@ -930,6 +930,12 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
+		populateViewerManager(job, m);
+		return "job/home/viewerManager";
+	}
+
+	private void populateViewerManager(Job job, ModelMap m){
+		
 		m.addAttribute("job", job);
 		
 		User jobSubmitter = job.getUser();
@@ -937,48 +943,25 @@ public class JobController extends WaspController {
 		User jobPI = job.getLab().getUser();
 		m.addAttribute("jobPI", jobPI);
 		
-		List<JobUser> jobUserList = job.getJobUser();
-		List<User> additionalJobViewers = new ArrayList<User>();
-		for(JobUser jobUser : jobUserList){
-			if(jobUser.getUser().getId().intValue() != job.getUserId().intValue() && jobUser.getUser().getId().intValue() != job.getLab().getPrimaryUserId().intValue()){
-				additionalJobViewers.add(jobUser.getUser());
-			}
+		List<User> jobViewers = new ArrayList<User>();
+		for(JobUser jobUser : job.getJobUser()){
+			jobViewers.add(jobUser.getUser());
 		}
-		class SubmitterLastNameFirstNameComparator implements Comparator<User> {
+		class LastNameFirstNameComparator implements Comparator<User> {
 			@Override
 			public int compare(User arg0, User arg1) {
 				return arg0.getLastName().concat(arg0.getFirstName()).compareToIgnoreCase(arg1.getLastName().concat(arg1.getFirstName()));
 			}
 		}
-		Collections.sort(additionalJobViewers, new SubmitterLastNameFirstNameComparator());
-		m.addAttribute("additionalJobViewers", additionalJobViewers);
-
+		Collections.sort(jobViewers, new LastNameFirstNameComparator());
+		m.addAttribute("jobViewers", jobViewers);
+		
 		User currentWebViewer = authenticationService.getAuthenticatedUser();
-		Boolean currentWebViewerIsSuperuserSubmitterOrPI = false;
-		if(authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue()){
-			currentWebViewerIsSuperuserSubmitterOrPI = true; //superuser, job's submitter, job's PI
-		}
-		m.addAttribute("currentWebViewerIsSuperuserSubmitterOrPI", currentWebViewerIsSuperuserSubmitterOrPI);
 		m.addAttribute("currentWebViewer", currentWebViewer);
 		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		
-		if(successMessage==null){
-			successMessage="";
-		}
-		m.addAttribute("successMessage", successMessage);
-
-		if(newViewerEmailAddress==null){
-			newViewerEmailAddress="";
-		}
-		m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
-		
-		return "job/home/viewerManager";
+		m.addAttribute("currentWebViewerIsSuperuserOrJobSubmitterOrJobPI", authenticationService.isSuperUser() || currentWebViewer.getId().intValue() == job.getUserId().intValue() || currentWebViewer.getId().intValue() == job.getLab().getPrimaryUserId().intValue());
 	}
-
+	
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPostPage(@PathVariable("jobId") Integer jobId, @RequestParam("newViewerEmailAddress") String newViewerEmailAddress, ModelMap m) throws SampleTypeException {
@@ -990,28 +973,19 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		
-		String errorMessage = "";
-		String successMessage = "";
-		if(newViewerEmailAddress==null){
-			newViewerEmailAddress="";
-		}
-
-		//if("".equals(newViewerEmailAddress)){
-		//	errorMessage = "Update Failed: Please provide an email address";
-		//	return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
-		//}
-
+		newViewerEmailAddress = newViewerEmailAddress==null?"":newViewerEmailAddress.trim();
 		try{
-			   jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
-			   successMessage="Update Successful: New job viewer added.";
-			   newViewerEmailAddress="";
+			jobService.addJobViewer(jobId, newViewerEmailAddress);//performs checks to see if this is a legal action. 
+			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerAdded.label"));
 		}
-		catch(Exception e){		    
-		  logger.warn(e.getMessage());
-		  errorMessage = messageService.getMessage(e.getMessage());
+		catch(Exception e){	
+			String errorMessage = messageService.getMessage(e.getMessage());
+			logger.warn(errorMessage);		  
+			m.addAttribute("errorMessage", errorMessage);
+			m.addAttribute("newViewerEmailAddress", newViewerEmailAddress);
 		}
-		
-		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage+"&newViewerEmailAddress="+newViewerEmailAddress;
+		populateViewerManager(job, m);
+		return "job/home/viewerManager";
 	}
 	
 	@RequestMapping(value="/{jobId}/user/{userId}/removeJobViewer", method=RequestMethod.GET)
@@ -1026,11 +1000,8 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 
-		String errorMessage = "";
-		String successMessage = "";
 		try{
-			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action. 
-			
+			jobService.removeJobViewer(jobId, userId);//performs checks to see if this is a legal action.			
 			//If (me.getId().intValue() == userId.intValue() is true, then a user is removing him/her self from being a job viewer.
 			//Normally, I would execute the doReauth() if me.getId().intValue() == userId.intValue()
 			//However, if we performed the doReauth(), then, since the return is to a method demanding the viewer is a viewer of this job,
@@ -1040,14 +1011,15 @@ public class JobController extends WaspController {
 			//if (me.getId().intValue() == userId.intValue()) {
 			//	doReauth();//do this if the person performing the action is the person being removed from viewing this job (note: it cannot be the submitter or the pi)
 			//}	
-			
-			successMessage="Update Successful: User removed";
+			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.jobViewerRemoved.label"));
 		}
 		catch(Exception e){		    
-		  logger.warn(e.getMessage());
-		  errorMessage = e.getMessage();
+			String errorMessage = messageService.getMessage(e.getMessage());
+			logger.warn(errorMessage);		  
+			m.addAttribute("errorMessage", errorMessage);
 		}
-		return "redirect:/job/"+jobId+"/viewerManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+		populateViewerManager(job, m);
+		return "job/home/viewerManager";
 	}
 	
 	@RequestMapping(value="/{jobId}/comments", method=RequestMethod.GET)

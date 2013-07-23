@@ -1435,7 +1435,11 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			  throw new Exception("listJobSamples.illegalOperation.label");			  
 		  }
 		  
-		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim()) || ! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
+		  if(newViewerEmailAddress==null || "".equals(newViewerEmailAddress.trim())){
+			  throw new Exception("listJobSamples.missingEmailAddress.label");
+		  }
+		  
+		  if(! StringHelper.isStringAValidEmailAddress(newViewerEmailAddress) ){
 			  throw new Exception("listJobSamples.invalidFormatEmailAddress.label");
 		  }
 		  User newViewerToBeAddedToJob = userDao.getUserByEmail(newViewerEmailAddress.trim());
