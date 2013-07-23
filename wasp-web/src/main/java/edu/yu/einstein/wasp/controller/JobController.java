@@ -919,9 +919,6 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
-			  //@RequestParam(value="errorMessage", required=false) String errorMessage,
-			  //@RequestParam(value="successMessage", required=false) String successMessage,
-			  //@RequestParam(value="newViewerEmailAddress", required=false) String newViewerEmailAddress,
 			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
