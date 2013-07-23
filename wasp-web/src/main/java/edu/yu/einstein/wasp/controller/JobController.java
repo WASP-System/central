@@ -1129,6 +1129,12 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
+		populateFileUploadPage(job, m);
+		return "job/home/fileUploadManager";
+	}
+
+	private void populateFileUploadPage(Job job, ModelMap m){
+		
 		m.addAttribute("job", job);
 		
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
@@ -1150,33 +1156,17 @@ public class JobController extends WaspController {
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
-		
-		if(errorMessage==null){
-			errorMessage="";
-		}
-		if(successMessage==null){
-			successMessage="";
-		}
-		m.addAttribute("errorMessage", errorMessage);
-		m.addAttribute("successMessage", successMessage);
-		
-		return "job/home/fileUploadManager";
 	}
-
+	
 	//Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
 	@RequestMapping(value="/{jobId}/fileUploadManager", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobFileUploadPostPage(@PathVariable("jobId") Integer jobId,
 			  MultipartHttpServletRequest request, 
 			  HttpServletResponse response,
-			  //since this is now an ajax call, we no longer need/use these 2 @RequestParam parameters
-			  ///@RequestParam("file_description") String fileDescription, 
-			  ///@RequestParam("file_upload") MultipartFile mpFile,
+			  //since this is now an ajax call, we no longer need/use @RequestParam("file_description") String fileDescription, @RequestParam("file_upload") MultipartFile mpFile,
 			  ModelMap m) throws SampleTypeException {
-
-		String errorMessage = "";
-		String successMessage = "";
-		
+	
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
@@ -1186,39 +1176,43 @@ public class JobController extends WaspController {
 
 		List<MultipartFile> mpFiles = request.getFiles("file_upload");
 	    if(mpFiles.isEmpty()){
-	    	logger.warn("The uploaded file List is unexpectedly empty");
-	    	errorMessage = "Upload Failed: Select a file AND provide a description";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+	    	logger.warn(errorMessage);
+	    	m.addAttribute("errorMessage", errorMessage);
+	    	populateFileUploadPage(job, m);
+			return "job/home/fileUploadManager";
 	    }
 	   	MultipartFile mpFile = mpFiles.get(0);
 	   	if(mpFile==null){
-	   		logger.warn("The uploaded file is unexpectedly null");
-		   	errorMessage = "Upload Failed: Unexpected Error";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	   		String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+	    	logger.warn(errorMessage);
+	    	m.addAttribute("errorMessage", errorMessage);
+	    	populateFileUploadPage(job, m);
+			return "job/home/fileUploadManager";
 		}
 		
 	   	String fileDescription = request.getParameter("file_description");
+	    fileDescription = fileDescription==null?"":fileDescription.trim();
 	    
-	    if(fileDescription==null || "".equals(fileDescription)){
-	    	logger.warn("The fileDescription is unexpectedly null");
-	    	errorMessage = "Upload Failed: Select a file AND provide a description";
-	    	return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage;
+	    if("".equals(fileDescription)){
+	    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+	    	logger.warn(errorMessage);
+	    	m.addAttribute("errorMessage", errorMessage);
+	    	populateFileUploadPage(job, m);
+			return "job/home/fileUploadManager";
 	    }	    
-	    /*			
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
-			//waspErrorMessage("listJobSamples.fileUploadFailed.error");
-	    */			
+	   			
 		Random randomNumberGenerator = new Random(System.currentTimeMillis());
 		try{
 			fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
-			successMessage = "File Successfully Uploaded";
+			m.addAttribute("successMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
 		} catch(FileUploadException e){
-			logger.warn(e.getMessage());			
-			errorMessage = "Upload Failed: Unexpected Error";
+			String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+			logger.warn(errorMessage);
+			m.addAttribute("errorMessage", errorMessage);
 		}
-		return "redirect:/job/"+jobId+"/fileUploadManager.do?errorMessage="+errorMessage+"&successMessage="+successMessage;
+		populateFileUploadPage(job, m);
+		return "job/home/fileUploadManager";
 	}
 	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)

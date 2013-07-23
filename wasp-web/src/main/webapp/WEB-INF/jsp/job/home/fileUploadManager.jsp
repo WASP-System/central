@@ -18,18 +18,18 @@ In the end we used the jquery form plug (http://malsup.com/jquery/form/). Its us
 <form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
-			<td colspan="3" class="label-centered" style="background-color:#FAF2D6">Upload A New File</td>
+			<td colspan="3" class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadUploadNewFile.label"/></td>
 		</tr>
 		<tr class="FormData">
-			<td class="label-centered" style="background-color:#FAF2D6">Select File To Upload</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Provide A Brief Description</td>
-			<td class="label-centered" style="background-color:#FAF2D6">Action</td>
+			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadSelectFileToUpload.label"/></td>
+			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.fileUploadProvideBriefDescription.label"/></td>
+			<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 		</tr>
 		<tr>
 			<td class="DataTD value-centered"><input type="file" name="file_upload" /></td>
 			<td class="DataTD value-centered" ><input type="text" maxlength="30" name="file_description" /></td>
 			<td align="center">
-				<input type="reset" name="reset" value="Reset" />
+				<input type="reset" name="reset" value="<fmt:message key="listJobSamples.file_reset.label" />" />
 				<%--I don't know why, but having uploadJqueryForm("fileUploadFormId") wired through onsubmit via a regular submit button makes for Major problems!!!! use the button below --%>
 				<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("fileUploadFormId")' ><fmt:message key="listJobSamples.file_upload.label" /></a>
 			</td>
@@ -55,7 +55,7 @@ In the end we used the jquery form plug (http://malsup.com/jquery/form/). Its us
 		 		  			<!--  <a href="<wasp:url fileAccessor="${fileHandle}" />" > -->
 		 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 		 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
-	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' >View</a>
+	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
 	 		  				</c:if>
 		 		  			</td>
 		 		  		</tr>
