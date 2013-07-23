@@ -19,7 +19,7 @@
 		<c:if test='${fn:length(userSubmittedJobCommentsList) > 0}'>
 			<tr>
 				<th class="label" nowrap><fmt:message key="jobComment.jobCommentDate.label"/></th>
-				<th class="label" nowrap>Submitted By</th>
+				<th class="label" nowrap><fmt:message key="jobComment.jobCommentSubmittedBy.label"/></th>
 				<th class="label" nowrap><fmt:message key="jobComment.jobSubmitterComment.label"/></th>
 			</tr>	
 			<c:forEach items="${userSubmittedJobCommentsList}" var="userSubmittedJobComment">
@@ -35,7 +35,7 @@
 		<c:if test='${fn:length(facilityJobCommentsList) > 0}'>
 			<tr>
 				<th class="label" nowrap><fmt:message key="jobComment.jobCommentDate.label"/></th>
-				<th class="label" nowrap>Submitted By</th>
+				<th class="label" nowrap><fmt:message key="jobComment.jobCommentSubmittedBy.label"/></th>
 				<th class="label" nowrap><fmt:message key="jobComment.facilityComment.label"/></th>
 			</tr>	
 			<c:forEach items="${facilityJobCommentsList}" var="facilityJobComment">
