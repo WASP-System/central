@@ -1300,8 +1300,8 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
-			  @RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
+			  //@RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
+			  //@RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
 			  ModelMap m) throws SampleTypeException {						
 		
 		Job job = jobService.getJobByJobId(jobId);
@@ -1310,18 +1310,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		m.addAttribute("job", job);
-		
-		if(addLibrariesToPlatformUnitErrorMessage==null){
-			addLibrariesToPlatformUnitErrorMessage="";
-		}
-		m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
-		
-		if(addLibrariesToPlatformUnitSuccessMessage==null){
-			addLibrariesToPlatformUnitSuccessMessage="";
-		}
-		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
-		
+
 		getSampleLibraryRunData(job, m);
 		
 		return "job/home/addLibrariesToCell";
@@ -1342,15 +1331,6 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		
-		/*
-		System.out.println("---cellId="+cellId);
-		for(String s : libConcInCellPicoMAsStringList){
-			System.out.println("------"+s);
-		}
-		for(Integer integer : libraryIdList){
-			System.out.println("--------"+integer);
-		}
-	*/
 		String addLibrariesToPlatformUnitErrorMessage = "";
 		String addLibrariesToPlatformUnitSuccessMessage = "";
 		
@@ -1450,7 +1430,16 @@ public class JobController extends WaspController {
 		else if( numLibrariesSuccessfullyAdded > 1 ){
 			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " Libraries Successfully Added";
 		}
-		return "redirect:/job/"+jobId+"/addLibrariesToCell.do?addLibrariesToPlatformUnitErrorMessage="+addLibrariesToPlatformUnitErrorMessage+"&addLibrariesToPlatformUnitSuccessMessage="+addLibrariesToPlatformUnitSuccessMessage;
+		
+		getSampleLibraryRunData(job, m);
+		
+		if(addLibrariesToPlatformUnitErrorMessage.length()>0)
+			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
+		else if(addLibrariesToPlatformUnitSuccessMessage.length()>0)
+			m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
+
+		return "job/home/addLibrariesToCell";
+		//return "redirect:/job/"+jobId+"/addLibrariesToCell.do?addLibrariesToPlatformUnitErrorMessage="+addLibrariesToPlatformUnitErrorMessage+"&addLibrariesToPlatformUnitSuccessMessage="+addLibrariesToPlatformUnitSuccessMessage;
 	}
 	
 	
