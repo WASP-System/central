@@ -222,11 +222,13 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 						String[] elements = line.split("\t");
 						// check number of data values matches the number of data attributes
 						if (elements.length != dataModule.getAttributes().size())
-							throw new BabrahamDataParseException("line contains " + elements.length 
+							logger.debug("line contains " + elements.length 
 									+ " tab-delimited elements which does not match expected number (" + dataModule.getAttributes().size() + ")");
-						for (String element: elements)
-							row.add(element);
-						dataModule.getDataPoints().add(row);
+						else {
+							for (String element: elements)
+								row.add(element);
+							dataModule.getDataPoints().add(row);
+						}
 					}
 				}
 			}
