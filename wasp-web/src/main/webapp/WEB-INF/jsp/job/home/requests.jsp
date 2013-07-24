@@ -3,10 +3,10 @@
 <div id="user_requested_coverage_data" >
 	<c:choose>
 		<c:when test="${totalNumberCellsRequested==0}"><%--   value will be >=0    --%>
-			<h2 style="font-weight:bold">Lane Usage Requested: None</h2>	
+			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.cellUsageRequestedNone.label"/></h2>	
 		</c:when>
 		<c:when test="${totalNumberCellsRequested>0}">
-		    <h2 style="font-weight:bold">Lane Usage Requested:</h2>		
+		    <h2 style="font-weight:bold"><fmt:message key="listJobSamples.cellUsageRequested.label"/>:</h2>		
 			<table class="data">
 			<tr class="FormData">
 				<td class="label-centered" style="background-color:#FAF2D6">&nbsp;</td><c:forEach var="i" begin="0" end="${totalNumberCellsRequested - 1}" ><td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.cell.label" /> <c:out value="${i + 1}" /></td></c:forEach>
@@ -35,7 +35,7 @@
 <c:if test='${onlyDisplayCellsRequested != "true"}'>
 	<div>
 		<c:if test="${not empty controlList}">
-			<h2 style="font-weight:bold">Sample Pairing Requested:</h2>		
+			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.samplePairingRequested.label"/>:</h2>		
 			<table class="data">
 				<tr class="FormData">
 					<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${controlLabel}" /></td>
