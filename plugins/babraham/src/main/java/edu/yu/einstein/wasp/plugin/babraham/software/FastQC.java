@@ -219,9 +219,9 @@ public class FastQC extends SoftwarePackage{
 	 * @throws BabrahamDataParseException
 	 * @throws JSONException 
 	 */
-	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, BabrahamDataParseException, JSONException {
+	public Map<String,JSONObject> parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
 		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
-		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
+		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(resultsDir);
 		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap));
 		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap));
 		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap));

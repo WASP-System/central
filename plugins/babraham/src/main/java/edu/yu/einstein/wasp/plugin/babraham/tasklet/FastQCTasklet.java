@@ -14,7 +14,6 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.service.FileService;
@@ -65,7 +64,7 @@ public class FastQCTasklet extends WaspTasklet {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
 			// parse and save output
-			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result), fastqc, fileGroupId);
+			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result.getResultsDirectory()), fastqc, fileGroupId);
 			return RepeatStatus.FINISHED;
 		}
 		

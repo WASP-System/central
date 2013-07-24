@@ -165,13 +165,13 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws BabrahamDataParseException{
+	public Map<String, FastQCDataModule> parseFastQCOutput(String resultsDir) throws BabrahamDataParseException{
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		try {
 			GridWorkService workService = hostResolver.getGridWorkService(w);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
-			String resultsDir = gridResult.getResultsDirectory() + "/" + FastQC.OUTPUT_FOLDER;
+			resultsDir += "/" + FastQC.OUTPUT_FOLDER;
 			w.setWorkingDirectory(resultsDir);
 			w.addCommand("cat fastqc_data.txt");
 			GridResult r = transportConnection.sendExecToRemote(w);
@@ -245,13 +245,13 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * @return 
 	 */
 	@Override
-	public BabrahamDataModule parseFastQScreenOutput(GridResult gridResult) throws BabrahamDataParseException{
+	public BabrahamDataModule parseFastQScreenOutput(String resultsDir) throws BabrahamDataParseException{
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		try {
 			GridWorkService workService = hostResolver.getGridWorkService(w);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
-			String resultsDir = gridResult.getResultsDirectory() + "/" + FastQScreen.OUTPUT_FOLDER;
+			resultsDir +=  "/" + FastQScreen.OUTPUT_FOLDER;
 			w.setWorkingDirectory(resultsDir);
 			w.addCommand("cat *_screen.txt");
 			GridResult r = transportConnection.sendExecToRemote(w);

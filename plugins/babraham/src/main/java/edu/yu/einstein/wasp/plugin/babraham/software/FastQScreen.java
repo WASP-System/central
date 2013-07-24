@@ -3,7 +3,6 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.fileformat.service.FastqService;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -207,7 +205,7 @@ public class FastQScreen extends SoftwarePackage {
 	 * @throws BabrahamDataParseException
 	 * @throws JSONException 
 	 */
-	public JSONObject parseOutput(GridResult result) throws GridException, BabrahamDataParseException, JSONException {
-		return BabrahamQCParseModule.getParsedFastqScreenStatistics(babrahamService.parseFastQScreenOutput(result));
+	public JSONObject parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
+		return BabrahamQCParseModule.getParsedFastqScreenStatistics(babrahamService.parseFastQScreenOutput(resultsDir));
 	}
 }

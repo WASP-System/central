@@ -66,7 +66,7 @@ public class BabrahamQCTests {
 		GridResult result = new GridResultImpl();
 		
 		try {
-			PowerMockito.when(mockBabrahamServiceImpl.parseFastQScreenOutput(result)).thenReturn(module);
+			PowerMockito.when(mockBabrahamServiceImpl.parseFastQScreenOutput(result.getResultsDirectory())).thenReturn(module);
 		} catch (BabrahamDataParseException e) {
 			logger.warn(e.getLocalizedMessage());
 			return null;
@@ -75,7 +75,7 @@ public class BabrahamQCTests {
 		FastQScreen fastQScreen = new FastQScreen();
 		ReflectionTestUtils.setField(fastQScreen, "babrahamService", mockBabrahamServiceImpl);
 		JSONObject output = null;
-		output = fastQScreen.parseOutput(result);
+		output = fastQScreen.parseOutput(result.getResultsDirectory());
 		return output;
 	}
 	
@@ -83,7 +83,7 @@ public class BabrahamQCTests {
 		GridResult result = new GridResultImpl();
 		
 		try {
-			PowerMockito.when(mockBabrahamServiceImpl.parseFastQCOutput(result)).thenReturn(moduleList);
+			PowerMockito.when(mockBabrahamServiceImpl.parseFastQCOutput(result.getResultsDirectory())).thenReturn(moduleList);
 		} catch (BabrahamDataParseException e) {
 			logger.warn(e.getLocalizedMessage());
 			return null;
@@ -92,7 +92,7 @@ public class BabrahamQCTests {
 		FastQC fastQC = new FastQC();
 		ReflectionTestUtils.setField(fastQC, "babrahamService", mockBabrahamServiceImpl);
 		Map<String, JSONObject> output = null;
-		output = fastQC.parseOutput(result);
+		output = fastQC.parseOutput(result.getResultsDirectory());
 		return output.get(plotType);
 	}
 	
