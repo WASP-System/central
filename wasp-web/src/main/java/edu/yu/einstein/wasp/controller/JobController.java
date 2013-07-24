@@ -1457,13 +1457,6 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, 
-			  //@RequestParam(value="addLibraryToPlatformUnitErrorMessage", required=false) String addLibraryToPlatformUnitErrorMessage,
-			  //@RequestParam(value="addLibraryToPlatformUnitSuccessMessage", required=false) String addLibraryToPlatformUnitSuccessMessage,
-			  //@RequestParam(value="libraryIdAssociatedWithMessage", required=false) Integer libraryIdAssociatedWithMessage,
-			  //@RequestParam(value="removeLibraryFromCellErrorMessage", required=false) String removeLibraryFromCellErrorMessage,
-			  //@RequestParam(value="removeLibraryFromCellSuccessMessage", required=false) String removeLibraryFromCellSuccessMessage,
-			 // @RequestParam(value="updateConcentrationToCellLibraryErrorMessage", required=false) String updateConcentrationToCellLibraryErrorMessage,
-			 // @RequestParam(value="updateConcentrationToCellLibrarySuccessMessage", required=false) String updateConcentrationToCellLibrarySuccessMessage,
 			  ModelMap m) throws SampleTypeException {
 			
 		Job job = jobService.getJobByJobId(jobId);
@@ -1472,43 +1465,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		/*
-		if(updateConcentrationToCellLibraryErrorMessage==null){
-			updateConcentrationToCellLibraryErrorMessage="";
-		}
-		m.addAttribute("updateConcentrationToCellLibraryErrorMessage", updateConcentrationToCellLibraryErrorMessage);
 		
-		if(updateConcentrationToCellLibrarySuccessMessage==null){
-			updateConcentrationToCellLibrarySuccessMessage="";
-		}
-		m.addAttribute("updateConcentrationToCellLibrarySuccessMessage", updateConcentrationToCellLibrarySuccessMessage);
-
-		
-		if(addLibraryToPlatformUnitErrorMessage==null){
-			addLibraryToPlatformUnitErrorMessage="";
-		}
-		m.addAttribute("addLibraryToPlatformUnitErrorMessage", addLibraryToPlatformUnitErrorMessage);
-		
-		if(addLibraryToPlatformUnitSuccessMessage==null){
-			addLibraryToPlatformUnitSuccessMessage="";
-		}
-		m.addAttribute("addLibraryToPlatformUnitSuccessMessage", addLibraryToPlatformUnitSuccessMessage);
-		
-		if(removeLibraryFromCellErrorMessage==null){
-			removeLibraryFromCellErrorMessage="";
-		}
-		m.addAttribute("removeLibraryFromCellErrorMessage", removeLibraryFromCellErrorMessage);
-
-		if(removeLibraryFromCellSuccessMessage==null){
-			removeLibraryFromCellSuccessMessage="";
-		}
-		m.addAttribute("removeLibraryFromCellSuccessMessage", removeLibraryFromCellSuccessMessage);
-
-		if(libraryIdAssociatedWithMessage==null){
-			libraryIdAssociatedWithMessage = new Integer(-1);
-		}
-		m.addAttribute("libraryIdAssociatedWithMessage", libraryIdAssociatedWithMessage);
-		*/
 		getSampleLibraryRunData(job, m);
 		
 		return "job/home/samples";
@@ -1711,16 +1668,12 @@ public class JobController extends WaspController {
 		  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
 
 		  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
-			  //System.out.println("PU: " + platformUnit.getName());
 			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 			  
 			  List<Sample> cellList = new ArrayList<Sample>();
 			  int numberOfIndexedCellsOnPlatformUnit = indexedCellsOnPlatformUnitMap.size();
-			  ///System.out.println("---numberOfIndexedCellsOnPlatformUnit: " + numberOfIndexedCellsOnPlatformUnit);
 			  for(int i = 1; i <= numberOfIndexedCellsOnPlatformUnit; i++){
-				  ///System.out.println("------"+i);
 				  Sample cell = indexedCellsOnPlatformUnitMap.get(new Integer(i));
-				  ///System.out.println("----------"+cell.getName());
 				  cellList.add(cell);
 				  List<Sample> controlLibrariesOnCellList = sampleService.getControlLibrariesOnCell(cell);
 				  cellControlLibraryListMapOnForm.put(cell, controlLibrariesOnCellList);
