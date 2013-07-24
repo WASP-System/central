@@ -1322,7 +1322,7 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
 		
-		getSampleLibraryRunData(jobId, m);
+		getSampleLibraryRunData(job, m);
 		
 		return "job/home/addLibrariesToCell";
 	}
@@ -1509,14 +1509,13 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryIdAssociatedWithMessage);
 		
-		getSampleLibraryRunData(jobId, m);
+		getSampleLibraryRunData(job, m);
 		
 		return "job/home/samples";
 	}
 
-	private void getSampleLibraryRunData(Integer jobId, ModelMap m) throws SampleTypeException {
+	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
 		
-		  Job job = jobService.getJobByJobId(jobId);
 		  m.addAttribute("job", job);
 		
 		  List<Sample> allJobSamples = job.getSample();//userSubmitted Macro, userSubmitted Library, facilityGenerated Library
@@ -1655,6 +1654,8 @@ public class JobController extends WaspController {
 		  m.addAttribute("cellRunMap", cellRunMap);
 		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);		  
 		 
+		  /* No longer needed or used. When tried, turns out that rendering is very different for each browser, so forget this. Currently, the value for submittedObjectLibraryRowspan is calculated easily directly on the web page
+		   //
 		  //calculate the rowspans needed for the web, as the table display is rather complex, and determining these numbers is very hard to do at the web, as there are multiple dependencies. It is easier to perform here.
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
@@ -1698,6 +1699,7 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
 		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
+		  */
 		  
 		  //fill up drop-down box that is used to assign a library to a flow cell's lane
 		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
@@ -1759,18 +1761,23 @@ public class JobController extends WaspController {
 			  @PathVariable("cellId") Integer cellId, 
 			  @RequestParam("newConcentrationInPM") String newConcentrationInPM, ModelMap m) throws SampleTypeException {
 
-		String updateConcentrationToCellLibraryErrorMessage = "";
-		String updateConcentrationToCellLibrarySuccessMessage = "";
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		
 		try {
 			sampleService.setLibraryOnCellConcentration(sampleService.getCellLibrary(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryId)), Float.parseFloat(newConcentrationInPM.trim()));
-			updateConcentrationToCellLibrarySuccessMessage="Concentration successfully updated";
+			m.addAttribute("updateConcentrationToCellLibrarySuccessMessage", messageService.getMessage("listJobSamples.updateConcentrationToCellLibrarySuccessMessage.label")); 
 		} catch (Exception e) {
 			logger.warn("Problem occurred updating library concentration on cell: " + e.getLocalizedMessage());
-			updateConcentrationToCellLibraryErrorMessage ="Unexpected error. Update failed.";
+			m.addAttribute("updateConcentrationToCellLibraryErrorMessage", messageService.getMessage("listJobSamples.updateConcentrationToCellLibraryErrorMessage.error"));
 		}
-		
-		return "redirect:/job/"+jobId+"/samples.do?updateConcentrationToCellLibraryErrorMessage="+updateConcentrationToCellLibraryErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&updateConcentrationToCellLibrarySuccessMessage=" + updateConcentrationToCellLibrarySuccessMessage;
+		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
+		getSampleLibraryRunData(job, m);		
+		return "job/home/samples";
 	}
 	
 	@RequestMapping(value="/{jobId}/cell/{cellId}/library/{libraryId}/removeLibrary", method=RequestMethod.GET)
@@ -1778,21 +1785,27 @@ public class JobController extends WaspController {
 	  public String jobRemoveLibraryFromCellPage(
 			  @PathVariable("jobId") Integer jobId, 
 			  @PathVariable("cellId") Integer cellId, 
-			  @PathVariable("libraryId") Integer libraryId){ 
+			  @PathVariable("libraryId") Integer libraryId, 
+			  ModelMap m) throws SampleTypeException{ 
 
-		String removeLibraryFromCellErrorMessage = "";
-		String removeLibraryFromCellSuccessMessage = "";
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		
 		try{
 			sampleService.removeLibraryFromCellOfPlatformUnit(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryId));
-			removeLibraryFromCellSuccessMessage="Library successfully removed from specified cell";
+			m.addAttribute("removeLibraryFromCellSuccessMessage", messageService.getMessage("listJobSamples.removeLibraryFromCellSuccessMessage.label"));
 		}
 		catch(Exception e){
 			logger.warn(e.getMessage() + ": removeLibraryFromCellOfPlatformUnit(cell, library) threw exception");
-			removeLibraryFromCellErrorMessage = "Unexpected error. Unable to remove library.";
+			m.addAttribute("removeLibraryFromCellErrorMessage", messageService.getMessage("listJobSamples.removeLibraryFromCellErrorMessage.error"));
 		}
-			
-		return "redirect:/job/"+jobId+"/samples.do?removeLibraryFromCellErrorMessage="+removeLibraryFromCellErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&removeLibraryFromCellSuccessMessage=" + removeLibraryFromCellSuccessMessage;
+		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
+		getSampleLibraryRunData(job, m);		
+		return "job/home/samples";	
 	}
 	
 	@RequestMapping(value="/{jobId}/library/{libraryId}/addToCell", method=RequestMethod.POST)

@@ -31,9 +31,12 @@
 			<c:set value="${submittedLibrarySubmittedLibraryListMap.get(submittedObject)}" var="libraryList"/>
 		</c:otherwise>
 	</c:choose>
+	<c:set value="${fn:length(libraryList)}" var="sizeOfLibraryList"/>
 	
 	<tr>
-		<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
+	<%-- 	<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${submittedObjectLibraryRowspan.get(submittedObject)}"  style="text-align:center; white-space:nowrap;">
+	--%>
+			<td class="DataTD"  style="text-align:center; white-space:nowrap;" rowspan="${sizeOfLibraryList==0?1:sizeOfLibraryList}"  style="text-align:center; white-space:nowrap;">
 			<c:choose>
 				<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">					
 					<label>Name:</label> <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/sample/${submittedObject.getId()}/sampledetail_ro.do" />");' ><c:out value="${submittedObject.getName()}" /></a><br />
