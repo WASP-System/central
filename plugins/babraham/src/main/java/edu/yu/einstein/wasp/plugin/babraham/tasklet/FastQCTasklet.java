@@ -37,7 +37,7 @@ public class FastQCTasklet extends WaspTasklet {
 	@Autowired
 	private GridHostResolver hostResolver;
 
-	private FileGroup fileGroup;
+	private Integer fileGroupId;
 
 	/**
 	 * 
@@ -48,10 +48,10 @@ public class FastQCTasklet extends WaspTasklet {
 
 	public FastQCTasklet(String fileGroupId) {
 		Assert.assertParameterNotNull(fileGroupId);
-		Integer fgid = Integer.valueOf(fileGroupId);
-		this.fileGroup = fileService.getFileGroupById(fgid);
+		this.fileGroupId = Integer.valueOf(fileGroupId);
+		
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -65,12 +65,12 @@ public class FastQCTasklet extends WaspTasklet {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
 			// parse and save output
-			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result), fastqc, fileGroup);
+			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result), fastqc, fileGroupId);
 			return RepeatStatus.FINISHED;
 		}
 		
 		// get work unit
-		WorkUnit w = fastqc.getFastQC(fileGroup);
+		WorkUnit w = fastqc.getFastQC(fileGroupId);
 		
 		// execute it
 		GridResult result = hostResolver.execute(w);

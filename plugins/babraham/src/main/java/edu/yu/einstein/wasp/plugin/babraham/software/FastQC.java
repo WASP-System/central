@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
@@ -28,6 +29,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -36,6 +38,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder / asmclellan
  *
  */
+@Transactional("entityManager")
 public class FastQC extends SoftwarePackage{
 
 	
@@ -85,6 +88,9 @@ public class FastQC extends SoftwarePackage{
 	@Autowired
 	BabrahamService babrahamService;
 	
+	@Autowired
+	FileService fileService;
+	
 	
 	/**
 	 * 
@@ -119,7 +125,7 @@ public class FastQC extends SoftwarePackage{
 	 * @param fileGroup
 	 * @return
 	 */
-	public WorkUnit getFastQC(FileGroup fileGroup) {
+	public WorkUnit getFastQC(Integer fileGroupId) {
 		
 		WorkUnit w = new WorkUnit();
 		
@@ -154,6 +160,7 @@ public class FastQC extends SoftwarePackage{
 		// s1.R2.001
 		// s1.R1.002
 		// s1.R2.002
+		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
 		Collections.sort(files, new FastqComparator(fastqService));
 		w.setRequiredFiles(files);

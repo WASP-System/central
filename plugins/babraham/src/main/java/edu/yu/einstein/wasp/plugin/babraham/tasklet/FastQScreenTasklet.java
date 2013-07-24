@@ -37,7 +37,7 @@ public class FastQScreenTasklet extends WaspTasklet {
 	@Autowired
 	private GridHostResolver hostResolver;
 
-	private FileGroup fileGroup;
+	private Integer fileGroupId;
 	
 	public static final String FASTQSCREEN_PLOT_META_KEY = "fastqscreen_plot";
 
@@ -50,8 +50,7 @@ public class FastQScreenTasklet extends WaspTasklet {
 
 	public FastQScreenTasklet(String fileGroupId) {
 		Assert.assertParameterNotNull(fileGroupId);
-		Integer fgid = Integer.valueOf(fileGroupId);
-		this.fileGroup = fileService.getFileGroupById(fgid);
+		this.fileGroupId = Integer.valueOf(fileGroupId);
 	}
 
 	/**
@@ -67,12 +66,12 @@ public class FastQScreenTasklet extends WaspTasklet {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
 			// parse and save output
-			babrahamService.saveJsonForParsedSoftwareOutput(fastqscreen.parseOutput(result), FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroup);
+			babrahamService.saveJsonForParsedSoftwareOutput(fastqscreen.parseOutput(result), FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 			return RepeatStatus.FINISHED;
 		}
 		
 		// get work unit
-		WorkUnit w = fastqscreen.getFastQScreen(fileGroup);
+		WorkUnit w = fastqscreen.getFastQScreen(fileGroupId);
 		
 		// execute it
 		GridResult result = hostResolver.execute(w);

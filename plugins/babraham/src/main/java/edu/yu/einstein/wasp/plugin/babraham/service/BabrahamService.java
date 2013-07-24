@@ -74,7 +74,7 @@ public interface BabrahamService extends WaspService {
 		 * @param fileGroup
 		 * @throws MetadataException 
 		 */
-		public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, FileGroup fileGroup) throws MetadataException;
+		public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, Integer fileGroupId) throws MetadataException;
 		
 		/**
 		 * Save JSON representing parsed output of provided software associated with the provided fileGroup
@@ -84,7 +84,7 @@ public interface BabrahamService extends WaspService {
 		 * @param fileGroup
 		 * @throws MetadataException
 		 */
-		public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, FileGroup fileGroup) throws MetadataException;
+		public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, Integer fileGroupId) throws MetadataException;
 
 		/**
 		 * Retrieve JSON representing parsed output of provided software associated with the provided fileGroup
@@ -95,7 +95,7 @@ public interface BabrahamService extends WaspService {
 		 * @throws JSONException
 		 * @throws MetadataException
 		 */
-		public JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, FileGroup fileGroup) throws JSONException, MetadataException;
+		public JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, Integer fileGroupId) throws JSONException, MetadataException;
 
 		/**
 		 * Get a Set of WebPanel objects for the given fileGroup
@@ -103,7 +103,15 @@ public interface BabrahamService extends WaspService {
 		 * @return
 		 * @throws PanelException 
 		 */
-		public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException;
+		public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException;
+
+		/**
+		 * Get a Set of WebPanel objects for the given fileGroup
+		 * @param fileGroupId
+		 * @return
+		 * @throws PanelException
+		 */
+		public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException;
 
 		
 

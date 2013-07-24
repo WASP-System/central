@@ -266,30 +266,30 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, FileGroup fileGroup) throws MetadataException{
+	public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, Integer fileGroupId) throws MetadataException{
 		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
 		for (String metaKeyName : JsonByKey.keySet())
 			fgMetahelper.setMetaValueByName(metaKeyName, JsonByKey.get(metaKeyName).toString());
-		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileGroup);
+		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileService.getFileGroupById(fileGroupId));
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, FileGroup fileGroup) throws MetadataException{
+	public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, Integer fileGroupId) throws MetadataException{
 		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
 		fgMetahelper.setMetaValueByName(key, json.toString());
-		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileGroup);
+		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileService.getFileGroupById(fileGroupId));
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public  JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, FileGroup fileGroup) throws JSONException, MetadataException{
+	public  JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, Integer fileGroupId) throws JSONException, MetadataException{
 		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
-		List<FileGroupMeta> fileGroupMeta = fileGroup.getFileGroupMeta();
+		List<FileGroupMeta> fileGroupMeta = fileService.getFileGroupById(fileGroupId).getFileGroupMeta();
 		if (fileGroupMeta == null)
 			fileGroupMeta = new ArrayList<FileGroupMeta>();
 		fgMetahelper.setMetaList(fileGroupMeta);
@@ -301,26 +301,43 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * @throws PanelException 
 	 */
 	@Override
-	public PanelTab getFastQCDataToDisplay(FileGroup fileGroup) throws PanelException{
+	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
 		try {
-			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroup)));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroup)));
+			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroupId)));
 		} catch (JSONException | MetadataException e) {
 			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
 		}
 	
 		return panelTab;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws PanelException 
+	 */
+	@Override
+	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
+		PanelTab panelTab = new PanelTab();
+		try {
+			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreen.FASTQ_SCREEN_AREA, fastqscreen, fileGroupId)));
+		} catch (JSONException | MetadataException e) {
+			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
+		}
+	
+		return panelTab;
+	}
+
 
 }

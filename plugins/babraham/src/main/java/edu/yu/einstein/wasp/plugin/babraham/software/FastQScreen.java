@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
@@ -26,12 +28,14 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author calder
  *
  */
+@Transactional("entityManager")
 public class FastQScreen extends SoftwarePackage {
 
 	@Autowired
@@ -46,6 +50,9 @@ public class FastQScreen extends SoftwarePackage {
 	
 	@Autowired
 	BabrahamService babrahamService;
+	
+	@Autowired
+	FileService fileService;
 
 	/**
 	 * 
@@ -88,7 +95,7 @@ public class FastQScreen extends SoftwarePackage {
 		
 	}
 
-	public WorkUnit getFastQScreen(FileGroup fileGroup) {
+	public WorkUnit getFastQScreen(Integer fileGroupId) {
 		WorkUnit w = new WorkUnit();
 		
 		// require fastqc
@@ -123,6 +130,7 @@ public class FastQScreen extends SoftwarePackage {
 		// s1.R1.002
 		// s1.R2.002
 		//we'll just use the forward reads for fastq_screen
+		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileHandle> files = getUpToFiveRandomForwardReadFiles(fileGroup); 
 		Collections.sort(files, new FastqComparator(fastqService));
 		w.setRequiredFiles(files);
@@ -143,7 +151,8 @@ public class FastQScreen extends SoftwarePackage {
 	 */
 	private List<FileHandle> getUpToFiveRandomForwardReadFiles(FileGroup fileGroup){
 		
-		List<FileHandle> allFastqFiles = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+		List<FileHandle> allFastqFiles= new ArrayList<FileHandle>(fileGroup.getFileHandles());
+		
 		List<FileHandle> forwardReadFastqFiles = new ArrayList<FileHandle>();
 		for(FileHandle fh : allFastqFiles){
 			if(fastqService.getFastqReadSegmentNumber(fh)==1){//forward read

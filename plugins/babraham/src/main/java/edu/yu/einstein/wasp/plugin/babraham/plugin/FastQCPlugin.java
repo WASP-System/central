@@ -141,7 +141,7 @@ public class FastQCPlugin extends BabrahamPluginBase{
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
-		return babrahamService.getFastQCDataToDisplay(fileGroup);
+		return babrahamService.getFastQCDataToDisplay(fileGroup.getId());
 	}
 
 }
