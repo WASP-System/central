@@ -41,6 +41,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -57,7 +58,9 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 	
 	@Mock private RunDao mockRunDao;
 	
-	@Mock private FastqService fastqService;
+	@Mock private FastqService mockFastqService;
+	
+	@Mock private FileService mockFileService;
 	
 	@Autowired
 	@Qualifier("wasp.channel.run.success")
@@ -82,7 +85,7 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 	
 	private SampleSource libraryCell;
 	
-	private FileGroup fileGroup;
+	private Set<FileGroup> fileGroups = new HashSet<>();
 	
 	private Job job;
 	
@@ -97,7 +100,7 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 		Assert.assertNotNull(mockRunService);
 		Assert.assertNotNull(mockSampleService);
 		Assert.assertNotNull(qcRunSuccessSplitter);
-		Assert.assertNotNull(fastqService);
+		Assert.assertNotNull(mockFastqService);
 		inMessageChannel.subscribe(this);
 		messagingTemplate = new MessagingTemplate();
 		messagingTemplate.setReceiveTimeout(2000);
@@ -115,10 +118,11 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 		libraryCell = new SampleSource();
 		libraryCell.setId(Integer.valueOf(CELL_LIBRARY_ID));
 		fastq = new FileType();
-		fileGroup = new FileGroup();
+		FileGroup fileGroup = new FileGroup();
 		fastq.doUpdate(); // ensure uuid set
 		fileGroup.setFileType(fastq);
 		fileGroup.setId(1);
+		fileGroups.add(fileGroup);
 		libraryCell.getFileGroups().add(fileGroup);
 		
 		libraryCells = new HashSet<SampleSource>();
@@ -132,7 +136,8 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 		// could also use ReflectionTestUtils.setField(qcRunSuccessSplitter, "runService", mockRunService) - essential if no setters
 		ReflectionTestUtils.setField(qcRunSuccessSplitter, "runService", mockRunService);
 		ReflectionTestUtils.setField(qcRunSuccessSplitter, "sampleService", mockSampleService);
-		ReflectionTestUtils.setField(qcRunSuccessSplitter, "fastqService", fastqService);
+		ReflectionTestUtils.setField(qcRunSuccessSplitter, "fastqService", mockFastqService);
+		ReflectionTestUtils.setField(qcRunSuccessSplitter, "fileService", mockFileService);
 	}
 	
 	@AfterClass
@@ -159,8 +164,8 @@ public class FileFormatMessageTests extends AbstractTestNGSpringContextTests imp
 			PowerMockito.when(mockRunService.getRunDao()).thenReturn(mockRunDao);
 			PowerMockito.when(mockRunDao.getRunByRunId(1)).thenReturn(run);
 			PowerMockito.when(mockRunService.getCellLibrariesOnSuccessfulRunCells(Mockito.any(Run.class))).thenReturn(libraryCells);
-			
-			PowerMockito.when(fastqService.getFastqFileType()).thenReturn(fastq);
+			PowerMockito.when(mockFileService.getFilesForCellLibrary(Mockito.any(SampleSource.class))).thenReturn(fileGroups);
+			PowerMockito.when(mockFastqService.getFastqFileType()).thenReturn(fastq);
 			
 			RunStatusMessageTemplate template = new RunStatusMessageTemplate(RUN_ID);
 			template.setStatus(WaspStatus.COMPLETED);

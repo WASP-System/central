@@ -20,12 +20,16 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.FileStatusMessageTemplate;
-import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin;
 import edu.yu.einstein.wasp.service.FileService;
 
+/**
+ * 
+ * @author asmclellan
+ *
+ */
 public class BabrahamFastqMessageSplitter extends AbstractMessageSplitter{
 	
 	@Autowired

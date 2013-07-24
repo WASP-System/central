@@ -11,7 +11,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
 							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQ_SCREEN}" />
 							<property name="status" value="STARTED" />
@@ -34,7 +34,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
 							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQ_SCREEN}" />
 							<property name="status" value="COMPLETED" />

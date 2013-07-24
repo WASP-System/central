@@ -9,6 +9,7 @@
 	
 	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.fileformat.service.impl.FastqServiceImpl" />
 	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
+	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
 	<mockito:mock id="waspSiteProperties" class="java.util.Properties" />
 	<mockito:mock id="gridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService" />
