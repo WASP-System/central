@@ -1457,13 +1457,13 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="addLibraryToPlatformUnitErrorMessage", required=false) String addLibraryToPlatformUnitErrorMessage,
-			  @RequestParam(value="addLibraryToPlatformUnitSuccessMessage", required=false) String addLibraryToPlatformUnitSuccessMessage,
-			  @RequestParam(value="libraryIdAssociatedWithMessage", required=false) Integer libraryIdAssociatedWithMessage,
-			  @RequestParam(value="removeLibraryFromCellErrorMessage", required=false) String removeLibraryFromCellErrorMessage,
-			  @RequestParam(value="removeLibraryFromCellSuccessMessage", required=false) String removeLibraryFromCellSuccessMessage,
-			  @RequestParam(value="updateConcentrationToCellLibraryErrorMessage", required=false) String updateConcentrationToCellLibraryErrorMessage,
-			  @RequestParam(value="updateConcentrationToCellLibrarySuccessMessage", required=false) String updateConcentrationToCellLibrarySuccessMessage,
+			  //@RequestParam(value="addLibraryToPlatformUnitErrorMessage", required=false) String addLibraryToPlatformUnitErrorMessage,
+			  //@RequestParam(value="addLibraryToPlatformUnitSuccessMessage", required=false) String addLibraryToPlatformUnitSuccessMessage,
+			  //@RequestParam(value="libraryIdAssociatedWithMessage", required=false) Integer libraryIdAssociatedWithMessage,
+			  //@RequestParam(value="removeLibraryFromCellErrorMessage", required=false) String removeLibraryFromCellErrorMessage,
+			  //@RequestParam(value="removeLibraryFromCellSuccessMessage", required=false) String removeLibraryFromCellSuccessMessage,
+			 // @RequestParam(value="updateConcentrationToCellLibraryErrorMessage", required=false) String updateConcentrationToCellLibraryErrorMessage,
+			 // @RequestParam(value="updateConcentrationToCellLibrarySuccessMessage", required=false) String updateConcentrationToCellLibrarySuccessMessage,
 			  ModelMap m) throws SampleTypeException {
 			
 		Job job = jobService.getJobByJobId(jobId);
@@ -1472,7 +1472,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		
+		/*
 		if(updateConcentrationToCellLibraryErrorMessage==null){
 			updateConcentrationToCellLibraryErrorMessage="";
 		}
@@ -1508,7 +1508,7 @@ public class JobController extends WaspController {
 			libraryIdAssociatedWithMessage = new Integer(-1);
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryIdAssociatedWithMessage);
-		
+		*/
 		getSampleLibraryRunData(job, m);
 		
 		return "job/home/samples";
@@ -1816,20 +1816,21 @@ public class JobController extends WaspController {
 			  @RequestParam("cellId") Integer cellId, 
 			  @RequestParam("libConcInCellPicoM") String libConcInCellPicoM, ModelMap m) throws SampleTypeException {
 
-		String addLibraryToPlatformUnitErrorMessage = "";
-		String addLibraryToPlatformUnitSuccessMessage = "";
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
 		
-		Job job = jobService.getJobByJobId(jobId);		
 		Sample cell = sampleService.getSampleById(cellId);
 		Sample library = sampleService.getSampleById(libraryId);
-		List<Sample> jobLibraries = jobService.getLibraries(job);
-		
+		List<Sample> jobLibraries = jobService.getLibraries(job);		
 		Float libConcInCellPicoMFloat = 0.0f;
 
-		if (jobId == null || jobId == 0 || job == null || job.getId() == null) {
-			addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.jobIdNotFound.error"); 
-		}
-		else if(cellId == null || cellId == 0){//user selected a flowcell from dropdown box (parameter cellSampleId == 0); we should actually prevent this with javascript
+		String addLibraryToPlatformUnitErrorMessage = null;
+
+		if(cellId == null || cellId == 0){//user selected a flowcell from dropdown box (parameter cellSampleId == 0); we should actually prevent this with javascript
 			addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.cellIsFlowCell.error");
 		}
 		else if (cell == null || cell.getId() == null) {
@@ -1874,27 +1875,32 @@ public class JobController extends WaspController {
 			}
 		}		
 		
-		if( "".equals(addLibraryToPlatformUnitErrorMessage) ){
+		if( addLibraryToPlatformUnitErrorMessage==null ){
 			try{
 				  sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat, job);
-				  addLibraryToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
+				  m.addAttribute("addLibraryToPlatformUnitSuccessMessage", messageService.getMessage("platformunit.libAdded.success"));
 			} catch(SampleTypeException ste){
 				addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
-				logger.warn(ste.getMessage()); // print more detailed error to warn logs
+				//logger.warn(ste.getMessage()); // print more detailed error to warn logs
 			} catch(SampleMultiplexException sme){
 				addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");
-				logger.warn(sme.getMessage()); // print more detailed error to debug logs
+				//logger.warn(sme.getMessage()); // print more detailed error to debug logs
 			} catch(SampleException se){
 				addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorNotFound.error");
-				logger.warn(se.getMessage()); // print more detailed error to warn logs
+				//logger.warn(se.getMessage()); // print more detailed error to warn logs
 			} catch(MetadataException me){
 				addLibraryToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorBarcodeNotFound.error");
-				logger.warn(me.getMessage()); // print more detailed error to warn logs
+				//logger.warn(me.getMessage()); // print more detailed error to warn logs
 			}	
 		}
 
-		return "redirect:/job/"+jobId+"/samples.do?addLibraryToPlatformUnitErrorMessage="+addLibraryToPlatformUnitErrorMessage+"&libraryIdAssociatedWithMessage="+libraryId + "&addLibraryToPlatformUnitSuccessMessage=" + addLibraryToPlatformUnitSuccessMessage;
-		
+		if( addLibraryToPlatformUnitErrorMessage!=null && addLibraryToPlatformUnitErrorMessage.length()>0 ){
+			m.addAttribute("addLibraryToPlatformUnitErrorMessage", addLibraryToPlatformUnitErrorMessage);
+			logger.warn(addLibraryToPlatformUnitErrorMessage);
+		}
+		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
+		getSampleLibraryRunData(job, m);		
+		return "job/home/samples";	
 	}
 	
 	@RequestMapping(value="/{jobId}/macromolecule/{macromolSampleId}/createLibrary", method=RequestMethod.GET)
