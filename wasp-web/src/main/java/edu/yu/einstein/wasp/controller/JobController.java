@@ -1218,7 +1218,7 @@ public class JobController extends WaspController {
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobRequestsPage(@PathVariable("jobId") Integer jobId, 
-			  @RequestParam(value="coverageMapOnly", required=false) String coverageMapOnly,//used as flag to only display coverage map, from button on samples page
+			  @RequestParam(value="onlyDisplayCellsRequested", required=false) String onlyDisplayCellsRequested,//used as flag to only display coverage map, from button on samples page
 			  ModelMap m) throws SampleTypeException {
 		
 		Job job = jobService.getJobByJobId(jobId);
@@ -1228,22 +1228,28 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}		
 		m.addAttribute("job", job);
-		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
-		
-		if(coverageMapOnly==null){
-			coverageMapOnly="";
-		}
-		m.addAttribute("coverageMapOnly", coverageMapOnly);		
+		m.addAttribute("onlyDisplayCellsRequested", onlyDisplayCellsRequested==null?"false":onlyDisplayCellsRequested);
 		
 		//request for which libraries/samples should go on which lanes
-		m.addAttribute("coverageMap", jobService.getCoverageMap(job));
-		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection().size());		
-
-		if("true".equalsIgnoreCase(coverageMapOnly)){//just display coverageMap
+		getCellsRequested(job, m);		
+		if("true".equalsIgnoreCase(onlyDisplayCellsRequested)){//just display coverageMap
 			return "job/home/requests";
 		}
 		
 		//samplePairingRequest
+		getSamplePairsRequested(job, m);		
+		//software request
+		getSoftwareRequested(job, m);		
+		
+		return "job/home/requests";
+	}
+	
+	private void getCellsRequested(Job job, ModelMap m){
+		//which libraries/samples should go on which lanes
+		m.addAttribute("cellsRequestedMap", jobService.getCoverageMap(job));
+		m.addAttribute("totalNumberCellsRequested", job.getJobCellSelection()==null?0:job.getJobCellSelection().size());		
+	}
+	private void getSamplePairsRequested(Job job, ModelMap m){
 		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
 		List<Sample> controlList = new ArrayList<Sample>();
 		//m.addAttribute("submittedSamplesList", submittedSamplesList);
@@ -1274,8 +1280,8 @@ public class JobController extends WaspController {
 		if(testLabel.equalsIgnoreCase(temp)){testLabel = "Test";}
 		m.addAttribute("controlLabel", controlLabel);
 		m.addAttribute("testLabel", testLabel);
-		
-		//software request
+	}
+	private void getSoftwareRequested(Job job, ModelMap m){
 		List<Software> softwareList = jobService.getSoftwareForJob(job);
 		m.addAttribute("softwareList", softwareList);
 		Map<Software, List<JobMeta>> softwareAndSyncdMetaMap = new HashMap<Software, List<JobMeta>>();
@@ -1287,9 +1293,9 @@ public class JobController extends WaspController {
 			softwareAndSyncdMetaMap.put(sw, softwareMetaList);
 		}	
 		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
-		
-		return "job/home/requests";
+		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
 	}
+	
   //not reviewed yet 
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
