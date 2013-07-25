@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 public interface FileService extends WaspService {
@@ -197,6 +198,8 @@ public interface FileService extends WaspService {
 	public void removeUploadedFileFromJobDraft(Integer jobDraftId, Integer fileGroupId, Integer fileHandleId) throws FileNotFoundException;
 
 	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
+	
+	public Map<String, PanelTab> getPanelTabSetByFileType(FileGroup fileGroup);
 
 	public FileType getFileType(Integer id);
 

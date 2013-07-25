@@ -91,6 +91,8 @@ import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -831,6 +833,18 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (plugins.size() > 1)
 			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 		return plugins.get(0).getFileDetails(filegroup.getId());
+	}
+	
+	@Override
+	public Map<String, PanelTab> getPanelTabSetByFileType(FileGroup fileGroup) {
+		String area = fileGroup.getFileType().getIName();
+		List<FileDataTabViewing> plugins = pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+		
+		Map<String, PanelTab> paneltabMap = new HashMap<String, PanelTab>();
+		for (FileDataTabViewing plugin : plugins) {
+			paneltabMap.put(plugin.getPluginName(), plugin.getViewPanelTab(fileGroup));
+		}
+		return paneltabMap;
 	}
 
 	@Override

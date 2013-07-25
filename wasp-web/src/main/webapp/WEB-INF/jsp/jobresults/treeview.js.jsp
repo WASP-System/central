@@ -354,7 +354,7 @@ function click(d) {
 		                    title: item1.title,
 		                    tools: extPortal.getTools(),
 		                    closable: false,
-		                    html: item1.content.htmlContent,
+		                    html: item1.content.htmlCode,
 		                    listeners: {
 								'render': Ext.bind(new Function("portlet", item1.execOnRenderCode), extPortal),
 								'resize': Ext.bind(new Function("portlet", item1.execOnResizeCode), extPortal),
