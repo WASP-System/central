@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.babraham.messages;
+package edu.yu.einstein.wasp.plugin.babraham.integration.messages;
 
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 

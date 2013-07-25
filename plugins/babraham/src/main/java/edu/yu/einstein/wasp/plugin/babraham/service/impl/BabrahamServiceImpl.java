@@ -10,19 +10,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.MisconfiguredWorkUnitException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
@@ -33,13 +33,18 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
+import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
+import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
+import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
-import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 @Service
 @Transactional("entityManager")
@@ -50,6 +55,14 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	@Qualifier("fastqc")
+	private Software fastqc;
+	
+	@Autowired
+	@Qualifier("fastqscreen")
+	private Software fastqscreen;
 	
 	/**
 	 * {@inheritDoc}
@@ -152,13 +165,13 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, FastQCDataModule> parseFastQCOutput(GridResult gridResult) throws BabrahamDataParseException{
+	public Map<String, FastQCDataModule> parseFastQCOutput(String resultsDir) throws BabrahamDataParseException{
 		WorkUnit w = new WorkUnit();
 		w.setProcessMode(ProcessMode.SINGLE);
 		try {
 			GridWorkService workService = hostResolver.getGridWorkService(w);
 			GridTransportConnection transportConnection = workService.getTransportConnection();
-			String resultsDir = gridResult.getResultsDirectory();
+			resultsDir += "/" + FastQC.OUTPUT_FOLDER;
 			w.setWorkingDirectory(resultsDir);
 			w.addCommand("cat fastqc_data.txt");
 			GridResult r = transportConnection.sendExecToRemote(w);
@@ -175,20 +188,110 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, FileGroup fileGroup) throws MetadataException{
-		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
-		for (String metaKeyName : JsonByKey.keySet())
-			fgMetahelper.setMetaValueByName(metaKeyName, JsonByKey.get(metaKeyName).toString());
-		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileGroup);
+	public BabrahamDataModule processFastQScreenOutput(InputStream inStream) throws BabrahamDataParseException{
+		BabrahamDataModule dataModule = new BabrahamDataModule();
+		dataModule.setName("FastQ Screen");
+		dataModule.setIName(FastQScreen.FASTQ_SCREEN_AREA);
+		try{
+			BufferedReader br = new BufferedReader(new InputStreamReader(inStream)); 
+			boolean keepReading = true;
+			int lineNumber = 0;
+			while (keepReading){
+				lineNumber++;
+				String line = null;
+				line = br.readLine();
+				//logger.debug("processing line: " + line);
+				if (line == null)
+					keepReading = false;
+				else{
+					if (lineNumber == 1){
+						if (line.contains("No such file or directory"))
+							throw new BabrahamDataParseException("Unable to find *_screen.txt file");
+						if (!line.startsWith("#Fastq_screen"))
+							throw new BabrahamDataParseException("Unexpected first line. Suspect wrong file or file corrupt");
+						continue;
+					} else if (lineNumber == 2){
+						// header
+						List<String> attributes = new ArrayList<String>();
+						for (String attrib : line.split("\t")) // split on tabs
+							attributes.add(attrib.replaceAll("_", " "));
+						dataModule.setAttributes(attributes);
+					} else {
+						// must be data points
+						List<String> row = new ArrayList<String>();
+						String[] elements = line.split("\t");
+						// check number of data values matches the number of data attributes
+						if (elements.length != dataModule.getAttributes().size())
+							logger.debug("line contains " + elements.length 
+									+ " tab-delimited elements which does not match expected number (" + dataModule.getAttributes().size() + ")");
+						else {
+							for (String element: elements)
+								row.add(element);
+							dataModule.getDataPoints().add(row);
+						}
+					}
+				}
+			}
+			br.close();
+		} catch (IOException e){
+			logger.warn(e.getLocalizedMessage());
+			throw new BabrahamDataParseException("Unable to parse from InputStream");
+		}
+		return dataModule;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @return 
+	 */
+	@Override
+	public BabrahamDataModule parseFastQScreenOutput(String resultsDir) throws BabrahamDataParseException{
+		WorkUnit w = new WorkUnit();
+		w.setProcessMode(ProcessMode.SINGLE);
+		try {
+			GridWorkService workService = hostResolver.getGridWorkService(w);
+			GridTransportConnection transportConnection = workService.getTransportConnection();
+			resultsDir +=  "/" + FastQScreen.OUTPUT_FOLDER;
+			w.setWorkingDirectory(resultsDir);
+			w.addCommand("cat *_screen.txt");
+			GridResult r = transportConnection.sendExecToRemote(w);
+			return processFastQScreenOutput(r.getStdOutStream());
+		} catch (MisconfiguredWorkUnitException e) {
+			throw new BabrahamDataParseException("Caught MisconfiguredWorkUnitException when trying to parse FastQScreen output: " + e.getLocalizedMessage());
+		} 
+		catch (GridException e) {
+			throw new BabrahamDataParseException("Caught GridException when trying to parse FastQScreen output: " + e.getLocalizedMessage());
+		} 
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public  JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, FileGroup fileGroup) throws JSONException, MetadataException{
+	public void saveJsonForParsedSoftwareOutput(Map<String, JSONObject> JsonByKey, Software software, Integer fileGroupId) throws MetadataException{
 		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
-		List<FileGroupMeta> fileGroupMeta = fileGroup.getFileGroupMeta();
+		for (String metaKeyName : JsonByKey.keySet())
+			fgMetahelper.setMetaValueByName(metaKeyName, JsonByKey.get(metaKeyName).toString());
+		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileService.getFileGroupById(fileGroupId));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveJsonForParsedSoftwareOutput(JSONObject json, String key, Software software, Integer fileGroupId) throws MetadataException{
+		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
+		fgMetahelper.setMetaValueByName(key, json.toString());
+		fileService.saveFileGroupMeta((List<FileGroupMeta>) fgMetahelper.getMetaList(), fileService.getFileGroupById(fileGroupId));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public  JSONObject getJsonForParsedSoftwareOutputByKey(String key, Software software, Integer fileGroupId) throws JSONException, MetadataException{
+		MetaHelper fgMetahelper = new MetaHelper(software.getIName(), FileGroupMeta.class);
+		List<FileGroupMeta> fileGroupMeta = fileService.getFileGroupById(fileGroupId).getFileGroupMeta();
 		if (fileGroupMeta == null)
 			fileGroupMeta = new ArrayList<FileGroupMeta>();
 		fgMetahelper.setMetaList(fileGroupMeta);
@@ -197,12 +300,46 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	
 	/**
 	 * {@inheritDoc}
+	 * @throws PanelException 
 	 */
 	@Override
-	public Set<Panel> getFastQCDataToDisplay(FileGroup filegroup){
-		Set<Panel> panels = new LinkedHashSet<>();
-		// TODO: code here
-		return panels;
+	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
+		PanelTab panelTab = new PanelTab();
+		try {
+			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroupId)));
+		} catch (JSONException | MetadataException e) {
+			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
+		}
+	
+		return panelTab;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @throws PanelException 
+	 */
+	@Override
+	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
+		PanelTab panelTab = new PanelTab();
+		try {
+			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreen.FASTQ_SCREEN_AREA, fastqscreen, fileGroupId)));
+		} catch (JSONException | MetadataException e) {
+			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
+		}
+	
+		return panelTab;
+	}
+
 
 }

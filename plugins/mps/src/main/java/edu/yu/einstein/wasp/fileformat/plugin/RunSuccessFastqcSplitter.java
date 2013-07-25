@@ -1,12 +1,10 @@
 /**
  * 
  */
-package edu.yu.einstein.wasp.plugin.babraham.plugin;
+package edu.yu.einstein.wasp.fileformat.plugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -16,28 +14,27 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 
-import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.FileStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 /**
- * QCRunSuccessSplitter listens for run success messages, obtains all of the FASTQ file groups
- * and Launches the Babraham QC pipelines for each.
+ * RunSuccessFastqcSplitter listens for run success messages, obtains all of the FASTQ file groups
+ * and sends notification messages for each to announce creation of fastq file
  * 
- * @author calder
+ * @author asmclellan
  *
  */
-public class QCRunSuccessSplitter extends AbstractMessageSplitter {
+public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 	
 	@Autowired
 	private SampleService sampleService;
@@ -48,12 +45,15 @@ public class QCRunSuccessSplitter extends AbstractMessageSplitter {
 	@Autowired
 	private FastqService fastqService;
 	
+	@Autowired
+	private FileService fileService;
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * 
 	 */
-	public QCRunSuccessSplitter() {
+	public RunSuccessFastqcSplitter() {
 		//
 	}
 
@@ -62,8 +62,8 @@ public class QCRunSuccessSplitter extends AbstractMessageSplitter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<Message<BatchJobLaunchContext>> splitMessage(Message<?> message) {
-		List<Message<BatchJobLaunchContext>> outputMessages = new ArrayList<Message<BatchJobLaunchContext>>();
+	protected List<Message<WaspStatus>> splitMessage(Message<?> message) {
+		List<Message<WaspStatus>> outputMessages = new ArrayList<>();
 		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
 			logger.warn("Message is not of the correct type (a Run message). Check filter and imput channel are correct");
 			return outputMessages; // empty list
@@ -78,30 +78,22 @@ public class QCRunSuccessSplitter extends AbstractMessageSplitter {
 		Set<SampleSource> cellLibraries = runService.getCellLibrariesOnSuccessfulRunCells(run);
 		
 		for (SampleSource cellLib : cellLibraries) {
-			Set<FileGroup> fgs = cellLib.getFileGroups();
+			Set<FileGroup> fgs = fileService.getFilesForCellLibrary(cellLib);
 			for (FileGroup fg : fgs) {
 				if (fg.getFileType().equals(fastqService.getFastqFileType())) {
-					Map<String, String> jobParameters = new HashMap<String, String>();
-					jobParameters.put(WaspJobParameters.FILE_GROUP_ID, fg.getId().toString());
-					outputMessages.add(prepareMessage(FastQCPlugin.FLOW_NAME, jobParameters));
-					outputMessages.add(prepareMessage(FastQScreenPlugin.FLOW_NAME, jobParameters));
+					FileStatusMessageTemplate messageTemplate = new FileStatusMessageTemplate(fg.getId());
+					messageTemplate.setStatus(WaspStatus.CREATED);
+					try {
+						outputMessages.add(messageTemplate.build());
+					} catch (WaspMessageBuildingException e) {
+						throw new MessagingException(e.getLocalizedMessage(), e);
+					}
 				}
 			}
 			
 		}
 		return outputMessages;
 	}
-	
-	private Message<BatchJobLaunchContext> prepareMessage(String flowname, Map<String, String> jobParameters){
-		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( 
-				new BatchJobLaunchContext(flowname, jobParameters) );
-		try {
-			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
-			logger.debug("preparing new message to send: " + launchMessage);
-			return launchMessage;
-		} catch (WaspMessageBuildingException e) {
-			throw new MessagingException(e.getLocalizedMessage(), e);
-		}
-	}
+
 
 }

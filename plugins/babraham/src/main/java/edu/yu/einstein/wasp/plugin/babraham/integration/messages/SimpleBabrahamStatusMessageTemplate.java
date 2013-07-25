@@ -1,16 +1,13 @@
-package edu.yu.einstein.wasp.plugin.babraham.messages.templates;
+package edu.yu.einstein.wasp.plugin.babraham.integration.messages;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
-import edu.yu.einstein.wasp.plugin.babraham.messages.BabrahamMessageType;
 
 /**
  * Handling WaspRunStatus messages.
@@ -23,6 +20,7 @@ public class SimpleBabrahamStatusMessageTemplate extends WaspStatusMessageTempla
 
 	public SimpleBabrahamStatusMessageTemplate() {
 		super();
+		setHeader(WaspMessageType.HEADER_KEY, BabrahamMessageType.BABRAHAM);
 	}
 	
 	public SimpleBabrahamStatusMessageTemplate(Message<WaspStatus> message){
@@ -32,40 +30,12 @@ public class SimpleBabrahamStatusMessageTemplate extends WaspStatusMessageTempla
 	}
 
 	/**
-	 * Build a Spring Integration Message using the fileGroupId header and the
-	 * runStatus as payload.
-	 * 
-	 * @return {@link Message}<{@link WaspStatus}>
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException {
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, BabrahamMessageType.BABRAHAM)
-						.setHeader(TARGET_KEY, "batch")
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(EXIT_DESCRIPTION_HEADER, exitDescription)
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch (Exception e) {
-			throw new WaspMessageBuildingException("build() failed to build message: " + e.getMessage());
-		}
-		return message;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		return actUponMessage(message, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		return actUponMessage(message, task);
 	}
 	
 	/**

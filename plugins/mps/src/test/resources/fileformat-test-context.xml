@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:mockito="http://www.mockito.org/spring/mockito" default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
+		http://www.mockito.org/spring/mockito https://bitbucket.org/kubek2k/springockito/raw/tip/springockito/src/main/resources/spring/mockito.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.fileformat.service.impl.FastqServiceImpl" />
+	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
+	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
+	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
+	<mockito:mock id="waspSiteProperties" class="java.util.Properties" />
+	<mockito:mock id="gridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService" />
+
+	<int:splitter input-channel="wasp.channel.run.success" output-channel="wasp.channel.batch">
+		<bean class="edu.yu.einstein.wasp.fileformat.plugin.RunSuccessFastqcSplitter" />
+	</int:splitter>
+	
+	<int:channel id="wasp.channel.run.success" />
+	<int:publish-subscribe-channel id="wasp.channel.batch" />
+
+</beans>

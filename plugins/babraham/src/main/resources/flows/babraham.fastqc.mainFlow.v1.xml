@@ -5,13 +5,13 @@
 		
 	
 	<!-- for job, call with parameter 'fileGroupId' -->
-	<batch:flow id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow">
+	<batch:job id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow">
 		<batch:step id="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.notifyQCStart" next="edu.yu.einstein.wasp.plugin.babraham.fastqc.mainFlow.fastQC">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
 							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
 							<property name="status" value="STARTED" />
@@ -34,7 +34,7 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.integration.messages.templates.BabrahamStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
 							<constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" />
 							<property name="task" value="#{babrahamBatchJobTask.FASTQC}" />
 							<property name="status" value="COMPLETED" />
@@ -43,6 +43,6 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-	</batch:flow>
+	</batch:job>
 
 </beans>

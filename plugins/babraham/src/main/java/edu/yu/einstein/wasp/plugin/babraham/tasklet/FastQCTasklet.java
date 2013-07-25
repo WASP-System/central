@@ -14,7 +14,6 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.service.FileService;
@@ -37,7 +36,7 @@ public class FastQCTasklet extends WaspTasklet {
 	@Autowired
 	private GridHostResolver hostResolver;
 
-	private FileGroup fileGroup;
+	private Integer fileGroupId;
 
 	/**
 	 * 
@@ -48,10 +47,10 @@ public class FastQCTasklet extends WaspTasklet {
 
 	public FastQCTasklet(String fileGroupId) {
 		Assert.assertParameterNotNull(fileGroupId);
-		Integer fgid = Integer.valueOf(fileGroupId);
-		this.fileGroup = fileService.getFileGroupById(fgid);
+		this.fileGroupId = Integer.valueOf(fileGroupId);
+		
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -65,12 +64,12 @@ public class FastQCTasklet extends WaspTasklet {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
 			// parse and save output
-			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result), fastqc, fileGroup);
+			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result.getResultsDirectory()), fastqc, fileGroupId);
 			return RepeatStatus.FINISHED;
 		}
 		
 		// get work unit
-		WorkUnit w = fastqc.getFastQC(fileGroup);
+		WorkUnit w = fastqc.getFastQC(fileGroupId);
 		
 		// execute it
 		GridResult result = hostResolver.execute(w);

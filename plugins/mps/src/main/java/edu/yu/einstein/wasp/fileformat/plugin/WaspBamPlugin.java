@@ -71,11 +71,6 @@ public class WaspBamPlugin extends WaspPlugin implements ClientMessageI, FileTyp
 	}
 
 	@Override
-	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("waspBam.hyperlink.label", "/wasp-bam/description.do");
-	}
-	
-	@Override
 	public Map<String, Hyperlink> getFileDetails(Integer fileGroupId) {
 		FileGroup fg = fileGroupDao.getById(fileGroupId);
 		Set<FileHandle> fhSet = fg.getFileHandles();

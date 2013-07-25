@@ -1,19 +1,18 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
-import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.exception.WaspMessageInitializationException;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
-import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 
 public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 
 	public GenericStatusMessageTemplate(){
 		super();
+		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.GENERIC);
 	}
 	
 	public GenericStatusMessageTemplate(Message<WaspStatus> message){
@@ -23,36 +22,12 @@ public class GenericStatusMessageTemplate extends WaspStatusMessageTemplate {
 	}
 	
 	/**
-	 * Build a generic Spring Integration Message using task header if not null, and the WaspStatus as payload .
-	 * @return
-	 * @throws WaspMessageBuildingException
-	 */
-	@Override
-	public Message<WaspStatus> build() throws WaspMessageBuildingException{
-		if (this.status == null)
-			throw new WaspMessageBuildingException("no status message defined");
-		Message<WaspStatus> message = null;
-		try {
-			message = MessageBuilder.withPayload(status)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.GENERIC)
-						.setHeader(TARGET_KEY, target)
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.setHeader(WaspTask.HEADER_KEY, task)
-						.setPriority(status.getPriority())
-						.build();
-		} catch(Exception e){
-			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
-		}
-		return message;
-	}
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		return actUponMessage(message, this.task);
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		return actUponMessage(message, task);
 	}
 	
 	/**

@@ -31,6 +31,10 @@
 		<int:priority-queue />
 	</int:channel>
 	
+	<int:channel id="wasp.channel.priority.file">
+		<int:priority-queue />
+	</int:channel>
+	
 	<!-- other queue channels -->
 	<int:channel id="wasp.channel.queue.launch">
 		<int:queue />
@@ -51,6 +55,8 @@
 	<int:publish-subscribe-channel id="wasp.channel.notification.analysis" />
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.default" />
+	
+	<int:publish-subscribe-channel id="wasp.channel.notification.file" />
 	
 	<int:publish-subscribe-channel id="wasp.channel.notification.abort" />
 	
@@ -78,6 +84,10 @@
 	</int:bridge>
 		
 	<int:bridge id="wasp.channel.bridge.default"  input-channel="wasp.channel.priority.default" output-channel="wasp.channel.notification.default">
+		<int:poller max-messages-per-poll="1" fixed-rate="10" />
+	</int:bridge>
+	
+	<int:bridge id="wasp.channel.bridge.file"  input-channel="wasp.channel.priority.file" output-channel="wasp.channel.notification.file">
 		<int:poller max-messages-per-poll="1" fixed-rate="10" />
 	</int:bridge>
 	
@@ -130,6 +140,7 @@
 		<int:mapping value="#{waspMessageType.LIBRARY}" channel="wasp.channel.priority.library"/>
 		<int:mapping value="#{waspMessageType.ANALYSIS}" channel="wasp.channel.priority.analysis"/>
 		<int:mapping value="#{waspMessageType.GENERIC}" channel="wasp.channel.priority.default"/>
+		<int:mapping value="#{waspMessageType.FILE}" channel="wasp.channel.priority.file"/>
 	</int:header-value-router>
 		
 	
