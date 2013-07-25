@@ -2,9 +2,9 @@
 
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-	<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}">
+	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
-	</c:if>
+	<%--</c:if> --%>
 </sec:authorize>
 <br /><br />	
 					

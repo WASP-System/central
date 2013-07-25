@@ -4,14 +4,22 @@
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
 <br /><br />	
 
-<form  method='post' name='addLibrariesToCell' id="addLibrariesToCell" action="" 
-	onsubmit='	var s = document.getElementById("cellId"); 
+<form  method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
+	onsubmit='	 
+				var s = document.getElementById("cellId"); 
 				var sVal = s.options[s.selectedIndex].value; 
 				if(sVal=="0" || sVal==""){
 					alert("Please select a cell"); s.focus(); return false; 
 				} 
 				
-				var libConcInCellPicoMArray = document.getElementsByName("libConcInCellPicoM");
+				var libConcInCellPicoMArray = [];				
+				var inputElementsOnThisForm = this.getElementsByTagName("input");
+				for(var i = 0; i < inputElementsOnThisForm.length; i++) {
+    				if(inputElementsOnThisForm[i].name.indexOf("libConcInCellPicoM_") == 0) {
+        				libConcInCellPicoMArray.push(inputElementsOnThisForm[i]);
+    				}
+				}
+
 				var atLeastOneTextboxWithValidValue = false;
 				for(var i = 0; i < libConcInCellPicoMArray.length; i++){
 					//alert("the value I typed in is " + libConcInCellPicoMArray[i].value);
@@ -40,8 +48,8 @@
 					alert("You must provide a concentration for at least one library");
 					return false;
 				}	
-				 											
-				postFormWithAjax("<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />"); 
+				 										
+				postFormWithAjax("addLibrariesToCellId", "<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />"); 
 				return false;' >
 
 <table class="data" style="margin: 0px 0px">
@@ -219,7 +227,9 @@
 		   					<c:if test='${qcStatusMap.get(library) == "PASSED"}'>
 		   					
 		   						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true }'> 
-				 					 <input type='text' name='libConcInCellPicoM'  size='3' maxlength='5'>
+				 					 <%--<input type='text' name='libConcInCellPicoM'  size='3' maxlength='5'>				 					   
+				 					  <br />--%>
+				 					 <input type='text' name="libConcInCellPicoM_${library.getId()}"  size='3' maxlength='5'>
 				 					<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
 				 								
 				 				</c:if>		

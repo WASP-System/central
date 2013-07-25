@@ -1296,12 +1296,9 @@ public class JobController extends WaspController {
 		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
 	}
 	
-  //not reviewed yet 
-	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
+ 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 
-			  //@RequestParam(value="addLibrariesToPlatformUnitErrorMessage", required=false) String addLibrariesToPlatformUnitErrorMessage,
-			  //@RequestParam(value="addLibrariesToPlatformUnitSuccessMessage", required=false) String addLibrariesToPlatformUnitSuccessMessage,
 			  ModelMap m) throws SampleTypeException {						
 		
 		Job job = jobService.getJobByJobId(jobId);
@@ -1320,10 +1317,9 @@ public class JobController extends WaspController {
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
 			  @RequestParam("cellId") Integer cellId, 
-			  @RequestParam("libConcInCellPicoM") List<String> libConcInCellPicoMAsStringList,
 			  @RequestParam("libraryId") List<Integer> libraryIdList,
 			  ModelMap m) throws SampleTypeException {						
-	
+
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
@@ -1333,113 +1329,201 @@ public class JobController extends WaspController {
 		
 		String addLibrariesToPlatformUnitErrorMessage = "";
 		String addLibrariesToPlatformUnitSuccessMessage = "";
-		
-		if(libConcInCellPicoMAsStringList.size()!=libraryIdList.size()){
-			addLibrariesToPlatformUnitErrorMessage="Update Failed: Unexpected parameter mismatch";
+
+		if(cellId==null || cellId.intValue()<=0){//could occur, user forgot to select a cell
+			logger.warn("No Cell Selected");
+			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", messageService.getMessage("platformunit.noCellSelected.error")); 
+			getSampleLibraryRunData(job, m);			
+			return "job/home/addLibrariesToCell";
+		}
+		Sample cell = sampleService.getSampleById(cellId);
+		if(cell==null || cell.getId()==null || cell.getId().intValue()<=0){//rather unlikely error
+			logger.warn("CellId not valid");
+			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", messageService.getMessage("platformunit.invalidCellId.error")); 
+			getSampleLibraryRunData(job, m);			
+			return "job/home/addLibrariesToCell";
 		}
 		
-		if( "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+		List<String> libConcInCellPicoMAsStringList = new ArrayList<String>();
+		for(Integer libraryId : libraryIdList){
+			String param = "libConcInCellPicoM_"+libraryId.intValue();
+			String value = request.getParameter(param);			
+			libConcInCellPicoMAsStringList.add(value);
+		}
+
+		boolean parameterMismatchError = false;
+		if(libConcInCellPicoMAsStringList.size()!=libraryIdList.size()){
+			addLibrariesToPlatformUnitErrorMessage=messageService.getMessage("platformunit.unexpectedParamaterMismatch.error");
+			parameterMismatchError=true;
+		}
+		
+		boolean platformUnitError = false;
+		if( ! parameterMismatchError ){
 			// ensure platform unit is available
 			try{
 				Sample platformUnit = sampleService.getPlatformUnitForCell(sampleService.getSampleById(cellId));
 				if( ! sampleService.getAvailableAndCompatiblePlatformUnits(jobService.getJobByJobId(jobId)).contains(platformUnit) ){
 					addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.flowcellStateError.error");
+					platformUnitError = true;
 				}
 			}catch(Exception e){
 				addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.flowcellNotFoundNotUnique.error");
+				platformUnitError = true;
 			}
 		}		
 		int numLibrariesSuccessfullyAdded = 0;
 		int numLibrariesFailedAddedDueToSampleTypeOrAdaptorError = 0;
 		int numLibrariesFailedAddedDueToMultiplexError = 0;
 		int numLibrariesFailedAddedDueToParseFloatError = 0;
+		int numLibrariesFailedAddedDueToLibraryNotInDatabaseError = 0;
+		int numLibrariesFailedAddedDueToUnknownError = 0;
+		int numLibrariesWithoutpMConcentration = 0;
 		List<Sample> librariesThatFailedDueToMultiplexErrors = new ArrayList<Sample>();
 		List<Sample> librariesThatFailedDueToParseFloatErrors = new ArrayList<Sample>();
+		List<Sample> librariesThatFailedDueToSampleTypeOrAdaptorErrors = new ArrayList<Sample>();
+		List<Sample> librariesThatFailedDueToUnknownErrors = new ArrayList<Sample>();
 		
-		if( "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+		if( parameterMismatchError==false && platformUnitError==false ){
 			for(int i = 0; i < libraryIdList.size(); i++){
 				
-				if("".equals(libConcInCellPicoMAsStringList.get(i).trim())){
-					  continue;
+				if("".equals(libConcInCellPicoMAsStringList.get(i).trim())){//user chose to NOT add this library to this cell
+					numLibrariesWithoutpMConcentration++;
+					continue;
 				}
-				
+				Sample library = sampleService.getSampleById(libraryIdList.get(i));
+				if(library==null || library.getId()==null || library.getId().intValue()<=0){//rather unlikely error
+					numLibrariesFailedAddedDueToLibraryNotInDatabaseError++;
+					continue;
+				}
 				try{
-					  Float libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoMAsStringList.get(i).trim()));
-					  sampleService.addLibraryToCell(sampleService.getSampleById(cellId), sampleService.getSampleById(libraryIdList.get(i)), libConcInCellPicoMFloat, jobService.getJobByJobId(jobId));
-					  //addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
-					  numLibrariesSuccessfullyAdded++;
-				} catch(SampleTypeException ste){
+					Float libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoMAsStringList.get(i).trim()));					
+					sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat, jobService.getJobByJobId(jobId));
+					//addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
+					numLibrariesSuccessfullyAdded++;
+				} catch(NumberFormatException e){//libConcInCellPicoMAsStringList.get(i).trim() didn't parse to float; javascript on webpage should reduce this a lot
+					logger.warn(e.getMessage());
+					numLibrariesFailedAddedDueToParseFloatError++;
+					librariesThatFailedDueToParseFloatErrors.add(library);						
+				} catch(SampleMultiplexException sme){//index already on cell
+					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");//index already on cell; might happen alot
+					logger.warn(sme.getMessage()); // print more detailed error to debug logs
+					numLibrariesFailedAddedDueToMultiplexError++;
+					librariesThatFailedDueToMultiplexErrors.add(library);
+				} catch(SampleTypeException ste){//unlikely to occur
 					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.sampleType.error");
 					logger.warn(ste.getMessage()); // print more detailed error to warn logs
 					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-				} catch(SampleMultiplexException sme){
-					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.multiplex.error");//index already on cell
-					logger.warn(sme.getMessage()); // print more detailed error to debug logs
-					numLibrariesFailedAddedDueToMultiplexError++;
-					librariesThatFailedDueToMultiplexErrors.add(sampleService.getSampleById(libraryIdList.get(i)));
-				} catch(SampleException se){
+					librariesThatFailedDueToSampleTypeOrAdaptorErrors.add(library);
+				} catch(SampleException se){//unlikely to occur
 					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorNotFound.error");
 					logger.warn(se.getMessage()); // print more detailed error to warn logs
 					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-				} catch(MetadataException me){
+					librariesThatFailedDueToSampleTypeOrAdaptorErrors.add(library);
+				} catch(MetadataException me){//unlikely to occur
 					//addLibrariesToPlatformUnitErrorMessage = messageService.getMessage("platformunit.adaptorBarcodeNotFound.error");
 					logger.warn(me.getMessage()); // print more detailed error to warn logs
 					numLibrariesFailedAddedDueToSampleTypeOrAdaptorError++;
-				} catch(NumberFormatException e){//libConcInCellPicoMAsStringList.get(i) didn't parse to float
-					logger.warn(e.getMessage());
-					numLibrariesFailedAddedDueToParseFloatError++;
-					librariesThatFailedDueToParseFloatErrors.add(sampleService.getSampleById(libraryIdList.get(i)));						
+					librariesThatFailedDueToSampleTypeOrAdaptorErrors.add(library);
+				} catch(Exception e){//unlikely
+					numLibrariesFailedAddedDueToUnknownError++;
+					librariesThatFailedDueToUnknownErrors.add(library);
 				}
 			}
 		}
-		
-		if(numLibrariesFailedAddedDueToMultiplexError>0){
-			if(numLibrariesFailedAddedDueToMultiplexError==1){
-				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Indexing Conflicts:";
+		if(numLibrariesWithoutpMConcentration==libraryIdList.size()){//no library concentrations at all were provided by user
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
 			}
-			if(numLibrariesFailedAddedDueToMultiplexError>1){
-				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToMultiplexError + " Libraries Not Added Due To Indexing Conflicts:";
+			addLibrariesToPlatformUnitErrorMessage += messageService.getMessage("platformunit.libraryConcentrationsNotProvided.error");
+		}
+		
+		if(numLibrariesFailedAddedDueToLibraryNotInDatabaseError >0){//unexpected
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
+			}
+			
+			if(numLibrariesFailedAddedDueToLibraryNotInDatabaseError==1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToLibraryNotInDatabaseError + " " + messageService.getMessage("platformunit.libraryNotFoundInDatabase.error");
+			}
+			else if(numLibrariesFailedAddedDueToLibraryNotInDatabaseError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToLibraryNotInDatabaseError + " " + messageService.getMessage("platformunit.librariesNotFoundInDatabase.error");
+			}
+			//there is no way to enumerate them
+		}		
+		if(numLibrariesFailedAddedDueToParseFloatError >0){
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
+			}
+			
+			if(numLibrariesFailedAddedDueToParseFloatError==1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToParseFloatError + " " + messageService.getMessage("platformunit.libraryConcentrationNotNumber.error");
+			}
+			else if(numLibrariesFailedAddedDueToParseFloatError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToParseFloatError + " " + messageService.getMessage("platformunit.librariesConcentrationNotNumber.error");
+			}
+			for(Sample s : librariesThatFailedDueToParseFloatErrors){
+				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
+			}
+		}
+		if(numLibrariesFailedAddedDueToMultiplexError>0){
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
+			}
+			
+			if(numLibrariesFailedAddedDueToMultiplexError==1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToMultiplexError + " "+ messageService.getMessage("platformunit.libraryIndexConflict.error");
+			}
+			else if(numLibrariesFailedAddedDueToMultiplexError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToMultiplexError + " "+ messageService.getMessage("platformunit.librariesIndexConflict.error");
 			}
 			for(Sample s : librariesThatFailedDueToMultiplexErrors){
 				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
 			}
 		}
 		if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError >0){
-			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError==1){
-				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Unexpected SampleType or Adaptor Errors";
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
 			}
-			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError>1){
-				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToSampleTypeOrAdaptorError + " Libraries Not Added Due To Unexpected SampleType or Adaptor Errors";
+			
+			if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError==1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToSampleTypeOrAdaptorError + " " + messageService.getMessage("platformunit.librarySampleTypeOrAdaptorProblem.error");
+			}
+			else if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToSampleTypeOrAdaptorError + " " + messageService.getMessage("platformunit.librariesSampleTypeOrAdaptorProblem.error");
+			}
+			for(Sample s : librariesThatFailedDueToSampleTypeOrAdaptorErrors){
+				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
 			}
 		}
-		if(numLibrariesFailedAddedDueToParseFloatError >0){
-			if(numLibrariesFailedAddedDueToParseFloatError==1){
-				addLibrariesToPlatformUnitErrorMessage += "One Library Not Added Due To Concentration Not Expressed As Number";
+		if(numLibrariesFailedAddedDueToUnknownError >0){
+			if( ! "".equals(addLibrariesToPlatformUnitErrorMessage) ){
+				addLibrariesToPlatformUnitErrorMessage += "<br />";
 			}
-			if(numLibrariesFailedAddedDueToParseFloatError>1){
-				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToParseFloatError + " Libraries Not Added Due To Concentration Not Expressed As Number";
+			
+			if(numLibrariesFailedAddedDueToUnknownError==1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToUnknownError + " " + messageService.getMessage("platformunit.libraryUnknownProblem.error");
 			}
-			for(Sample s : librariesThatFailedDueToParseFloatErrors){
+			else if(numLibrariesFailedAddedDueToSampleTypeOrAdaptorError>1){
+				addLibrariesToPlatformUnitErrorMessage += numLibrariesFailedAddedDueToUnknownError + " " + messageService.getMessage("platformunit.librariesUnknownProblem.error");
+			}
+			for(Sample s : librariesThatFailedDueToUnknownErrors){
 				addLibrariesToPlatformUnitErrorMessage += "<br />"+s.getName();
 			}
 		}
 		
 		if( numLibrariesSuccessfullyAdded == 1 ){
-			addLibrariesToPlatformUnitSuccessMessage = "One Library Successfully Added";
+			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " " + messageService.getMessage("platformunit.libraryAdded.label");
 		}
 		else if( numLibrariesSuccessfullyAdded > 1 ){
-			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " Libraries Successfully Added";
+			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " " + messageService.getMessage("platformunit.librariesAdded.label");
 		}
 		
 		getSampleLibraryRunData(job, m);
 		
-		if(addLibrariesToPlatformUnitErrorMessage.length()>0)
-			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
-		else if(addLibrariesToPlatformUnitSuccessMessage.length()>0)
-			m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
+		m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
+		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
 
 		return "job/home/addLibrariesToCell";
-		//return "redirect:/job/"+jobId+"/addLibrariesToCell.do?addLibrariesToPlatformUnitErrorMessage="+addLibrariesToPlatformUnitErrorMessage+"&addLibrariesToPlatformUnitSuccessMessage="+addLibrariesToPlatformUnitSuccessMessage;
 	}
 	
 	
