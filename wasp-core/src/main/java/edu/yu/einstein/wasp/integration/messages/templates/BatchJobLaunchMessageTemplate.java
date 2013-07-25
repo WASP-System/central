@@ -19,17 +19,9 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	
 	private BatchJobLaunchContext batchJobLaunchContext;
 	
-	
-	public BatchJobLaunchContext getBatchJobLaunchContext() {
-		return batchJobLaunchContext;
-	}
-
-	public void setBatchJobLaunchContext(BatchJobLaunchContext batchJobLaunchContext) {
-		this.batchJobLaunchContext = batchJobLaunchContext;
-	}
-
 	public BatchJobLaunchMessageTemplate(BatchJobLaunchContext batchJobLaunchContext){
 		super();
+		setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB);
 		this.batchJobLaunchContext = batchJobLaunchContext;
 	}
 	
@@ -38,6 +30,15 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 		if (!isMessageOfCorrectType(message))
 			throw new WaspMessageInitializationException("message is not of the correct type");
 		batchJobLaunchContext = message.getPayload();
+	}
+	
+	
+	public BatchJobLaunchContext getBatchJobLaunchContext() {
+		return batchJobLaunchContext;
+	}
+
+	public void setBatchJobLaunchContext(BatchJobLaunchContext batchJobLaunchContext) {
+		this.batchJobLaunchContext = batchJobLaunchContext;
 	}
 	
 		
@@ -54,12 +55,8 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 
 		try {
 			message = MessageBuilder.withPayload(batchJobLaunchContext)
-						.setHeader(WaspMessageType.HEADER_KEY, WaspMessageType.LAUNCH_BATCH_JOB)
-						.setHeader(TARGET_KEY, "batch")
-						.setHeader(WaspJobTask.HEADER_KEY, task)
-						.setHeader(USER_KEY, userCreatingMessage)
-						.setHeader(COMMENT_KEY, comment)
-						.build();
+					.copyHeaders(getHeaders())
+					.build();
 		} catch(Exception e){
 			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
 		}
@@ -75,14 +72,16 @@ public class BatchJobLaunchMessageTemplate extends WaspMessageTemplate{
 	 */
 	@Override
 	public boolean actUponMessage(Message<?> message){
-		if (this.task != null)
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task != null)
 			return actUponMessage(message);
-		return actUponMessage(message, this.task);
+		return actUponMessage(message, task);
 	}
 	
 	@Override
 	public boolean actUponMessageIgnoringTask(Message<?> message) {
-		if (this.task == null)
+		String task = (String) getHeader(WaspJobTask.HEADER_KEY);
+		if (task == null)
 			return actUponMessage(message);
 		return actUponMessage(message, null);
 	}

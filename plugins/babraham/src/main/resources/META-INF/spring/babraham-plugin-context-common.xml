@@ -48,6 +48,6 @@
 	</bean>
 	
 	<!-- statics for batch job tasks required for sending messages (to distinguish which babraham task is talking e.g. fastqc or fastqscreen) -->
-	<bean id="babrahamBatchJobTask" class="edu.yu.einstein.wasp.plugin.babraham.messages.tasks.BabrahamBatchJobTask"/>
+	<bean id="babrahamBatchJobTask" class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamBatchJobTask"/>
 
 </beans>

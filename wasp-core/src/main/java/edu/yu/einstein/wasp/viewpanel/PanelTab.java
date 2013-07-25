@@ -16,6 +16,8 @@ public class PanelTab {
 	
 	private int numberOfColumns = 2; //default
 	
+	public PanelTab(){}
+	
 	public PanelTab(Set<Panel> panels, String name, int numberOfColumns) {
 		this.panels = panels;
 		this.name = name;

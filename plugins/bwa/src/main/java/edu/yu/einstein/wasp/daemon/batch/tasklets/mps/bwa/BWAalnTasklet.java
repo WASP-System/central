@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionExponential;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
