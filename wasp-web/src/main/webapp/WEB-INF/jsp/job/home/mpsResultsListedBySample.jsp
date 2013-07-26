@@ -4,7 +4,7 @@
 
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	<c:if test="${statusSubmittedObject.index>0}">
-		<tr class="FormData"><td colspan="13" class="label-centered" style="height:1px;background-color:black; white-space:nowrap;"></td></tr>
+		<tr class="FormData"><td colspan="13" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 	</c:if>
 	<c:if test="${statusSubmittedObject.first}">
 		<tr class="FormData">
