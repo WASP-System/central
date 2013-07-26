@@ -1172,8 +1172,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	   * {@inheritDoc}
 	   */
 	  @Override
+	  //DO NOT USE. this method calls setJobForLibraryOnCell(cell, library); which is not a good idea, as job is derived from library.getJob (not good if a sample is on two jobs)
+	  //USE addLibraryToCell(Sample cell, Sample library, Float libConcInCellPicoM, Job job in) instead (see below)
 	  public void addLibraryToCell(Sample cell, Sample library, Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException{
 		  // TODO: Write test!!
+		//DO NOT USE
 		  Assert.assertParameterNotNull(cell, "No cell provided");
 		  Assert.assertParameterNotNullNotZero(cell.getId(), "Invalid cell Provided");
 		  Assert.assertParameterNotNull(library, "No library provided");

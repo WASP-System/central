@@ -1397,7 +1397,7 @@ public class JobController extends WaspController {
 				}
 				try{
 					Float libConcInCellPicoMFloat = new Float(Float.parseFloat(libConcInCellPicoMAsStringList.get(i).trim()));					
-					sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat, jobService.getJobByJobId(jobId));
+					sampleService.addLibraryToCell(cell, library, libConcInCellPicoMFloat, job);
 					//addLibrariesToPlatformUnitSuccessMessage = messageService.getMessage("platformunit.libAdded.success");
 					numLibrariesSuccessfullyAdded++;
 				} catch(NumberFormatException e){//libConcInCellPicoMAsStringList.get(i).trim() didn't parse to float; javascript on webpage should reduce this a lot
