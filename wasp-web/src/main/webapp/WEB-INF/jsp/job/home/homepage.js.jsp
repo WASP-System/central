@@ -585,13 +585,21 @@ function closeAllRuns(){
 	}	
 }
 
-window.onload = function (){
-	loadNewPage('fakeAnchor', '<c:url value="/job/${job.getId()}/basic.do" />'); 
-}
+
 
 </script>
  
 <script type="text/javascript">
+  
+//WE MUST HAVE THIS NEXT LINE
+window.onload = function (){
+	//loadNewPageWithAjax('<c:url value="/job/${job.getId()}/basic.do" />'); 
+	//to avoid hardcoding, use below code (from http://stackoverflow.com/questions/906486/how-can-i-programmatically-invoke-an-onclick-event-from-a-anchor-tag-while-kee)
+	var firstTabAnchor = document.getElementById('first_tab').getElementsByTagName('a')[0];
+	if (typeof firstTabAnchor.onclick == "function") {
+		firstTabAnchor.onclick.apply(firstTabAnchor);
+	} 
+}
   
   //used for comments, viewerManager 
     function postFormWithAjax(formObjectId, theUrl){
@@ -607,6 +615,7 @@ window.onload = function (){
             	$('#viewerFrame').html("Unexpected Failure");
             }
         });
+    	confirmViewerVisible(); 
     	return false; // avoid to execute the actual submit of the form 
     }
     
@@ -641,6 +650,7 @@ window.onload = function (){
             	$('#viewerFrame').html("Unexpected Failure");
         	}
         });
+    	confirmViewerVisible();  
     	return false;
     }	
   
@@ -656,7 +666,8 @@ window.onload = function (){
          },
          dataType:"text" 
        }).submit();       
-       return false;//I added this last line. Not sure if it's required 
+    	confirmViewerVisible();  
+    	return false;//I added this last line. Not sure if it's required 
     }
      
       //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
@@ -671,15 +682,28 @@ window.onload = function (){
             	$('#viewerFrame').html("Unexpected Failure");
             }
         });
+    	confirmViewerVisible();  
     	return false; // avoid 
     }
       
     function loadNewPageWithAjax(theUrl){
     	doGetWithAjax(theUrl);
+    	confirmViewerVisible();  
     	return false;
     }
+    
+    function confirmViewerVisible(){
+    	var viewerFrame = document.getElementById("viewerFrame");
+    	var viewerFrame2 = document.getElementById("viewerFrame2");
+    	if(viewerFrame.style.display=="none"){
+    		viewerFrame.style.display="block";
+    		if(typeof viewerFrame2 != 'undefined' && viewerFrame2 != null && viewerFrame2.style.display == "block"){
+    			viewerFrame2.style.display = "none";
+    		}
+    	}
+    }
       
-/*     
+/*      
     $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
     	var o = {};
     	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 

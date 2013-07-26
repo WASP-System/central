@@ -27,7 +27,11 @@
 	    <li><a id="dataBySamplesAnchor"  href="javascript:void(0);" onclick='loadNewPage(this, "<c:url value="/datadisplay/mps/jobs/${job.jobId}/samples.do" />");' >Data By Samples</a></li>
 		<li><a id="aggregateAnalysisAnchor"  href="javascript:void(0);" onclick='alert("not yet implemented"); return false;' >Analysis</a></li>
   		--%>
-	    <li><a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a></li>
+  		
+	    <li><div id="first_tab">
+	    		<a id="basicAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/basic.do" />");' >Basic</a>
+	    	</div>
+	    </li>
 		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
 		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
 		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
