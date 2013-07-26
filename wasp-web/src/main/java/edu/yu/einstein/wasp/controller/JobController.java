@@ -1312,7 +1312,7 @@ public class JobController extends WaspController {
 		
 		return "job/home/addLibrariesToCell";
 	}
-	//not reviewed yet 
+	 
 	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.POST)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPostPage(@PathVariable("jobId") Integer jobId,
@@ -1649,6 +1649,8 @@ public class JobController extends WaspController {
 
 		  Map<Sample, Map<Sample, Float>> cellLibraryPMLoadedMap = new HashMap<Sample, Map<Sample, Float>>();
 		  
+		  Map<Sample, String> showPlatformunitViewMap = new HashMap<Sample, String>();//for displaying web anchor link to platformunit
+		  
 		  //for each job's library, get cell, platformUnit, and run info
 		  for(Sample library : allJobLibraries){
 			  List<Sample>  cellsForLibrary = sampleService.getCellsForLibrary(library, job);
@@ -1669,8 +1671,10 @@ public class JobController extends WaspController {
 						  cellLibraryPMLoadedMap.put(cell, libraryPMLoadedMap);
 					  }
 					  
+					  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
+					  
 					  List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-					  //For testing only: List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+					  //For testing only:  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
 					  if(!runList.isEmpty()){
 						  Run run = runList.get(0);
 						  cellRunMap.put(cell, run);						  
@@ -1680,9 +1684,10 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("libraryCellListMap", libraryCellListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
-		  m.addAttribute("cellPUMap", cellPUMap);//currently not used on web
+		  m.addAttribute("cellPUMap", cellPUMap);//currently set on web, but not used 
 		  m.addAttribute("cellRunMap", cellRunMap);
-		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);		  
+		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);
+		  m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap); //for displaying web anchor link to platformunit
 		 
 		  /* No longer needed or used. When tried, turns out that rendering is very different for each browser, so forget this. Currently, the value for submittedObjectLibraryRowspan is calculated easily directly on the web page
 		   //

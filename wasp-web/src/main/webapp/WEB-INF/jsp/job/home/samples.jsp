@@ -1,7 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+
 <sec:authorize access="hasRole('su') or hasRole('ft')">
-	<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
 	<%--</c:if> --%>
@@ -224,17 +225,27 @@
 									
 									<c:choose>
 										<c:when test="${empty cellRunMap.get(cell)}">
-											<c:out value="${pu.getName()}" />
+											<sec:authorize access="hasRole('su') or hasRole('ft')">
+												<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
+											</sec:authorize>
+											<sec:authorize access="not hasRole('su') and not hasRole('ft')">
+												<c:out value="${pu.getName()}" />
+											</sec:authorize>
 										</c:when>
 										<c:otherwise>
-											<c:out value="${run.getName()}" />
+											<sec:authorize access="hasRole('su') or hasRole('ft')">
+												<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
+											</sec:authorize>
+											<sec:authorize access="not hasRole('su') and not hasRole('ft')">
+												<c:out value="${run.getName()}" />
+											</sec:authorize>
 										</c:otherwise>
 									</c:choose>	
 																	
 									(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)
 									
 									<sec:authorize access="hasRole('su') or hasRole('ft')">									
-									[<a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | <a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
+									[<c:if test="${empty cellRunMap.get(cell)}"><a href="javascript:void(0);" onclick='if(confirm("Permanently remove library from this lane?")){loadNewPageWithAjax("<c:url value="/job/${job.getId()}/cell/${cell.getId()}/library/${library.getId()}/removeLibrary.do" />");}'>remove</a> | </c:if><a href="javascript:void(0);" onclick='var obj = document.getElementById("updatePM_DIV_${cell.getId()}_${library.getId()}"); obj.style.display="inline";'>update</a>] 
 									 
 									 	<div  id="updatePM_DIV_${cell.getId()}_${library.getId()}" style="display:none;">
 									 	<form  style="display:inline;" method='post'  id="updatePM_${cell.getId()}_${library.getId()}" action="" 

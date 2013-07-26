@@ -1,9 +1,9 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
+
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
-<br /><br />	
-
+<br /><br />
 <form  method='post' name='addLibrariesToCell' id="addLibrariesToCellId" action="" 
 	onsubmit='	 
 				var s = document.getElementById("cellId"); 
@@ -104,7 +104,7 @@
 		<tr class="FormData">
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Macromolecule</td>
 			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Library</td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.finalConcentrationPM.label" /></td>			
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;">Runs</td>			
 		</tr>	
 	</c:if>
 	
@@ -186,8 +186,24 @@
 							</c:if>
 							
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>								
-								
-								<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>	
+								<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true }'> 
+				 					 <table class='data' style="margin: 5px 5px 5px 5px;">
+											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
+											<tr>
+												<td>				 					  
+				 					  				<fmt:message key="listJobSamples.finalConcentrationPM.label" />: 
+				 					 				<input type='text' name="libConcInCellPicoM_${library.getId()}"  size='3' maxlength='5'>
+				 									<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
+				 								</td>
+				 							</tr>
+				 						</table>
+				 				</c:if>							
+ 	 						 </c:if> 	 						
+						</td>								   				
+		   				
+		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
+		   					<c:if test='${qcStatusMap.get(library) == "PASSED"}'>			 				
+				 				<c:set value="${libraryCellListMap.get(library)}" var="cellList"/>	
 			   					<c:choose>
 			   					<c:when test="${fn:length(cellList)==0}">
 			   						<br />
@@ -203,47 +219,38 @@
 										<c:set value="${cellLibraryPMLoadedMap.get(cell)}" var="libraryPMLoadedMap" />
 										
 										<c:set value="${libraryPMLoadedMap.get(library)}" var="pMLoaded" />
-										
-										
+																				
 										<c:choose>
 											<c:when test="${empty cellRunMap.get(cell)}">
-												<c:out value="${pu.getName()}" />
+												<sec:authorize access="hasRole('su') or hasRole('ft')">
+													<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${pu.getName()}" /></a>
+												</sec:authorize>
+												<sec:authorize access="not hasRole('su') and not hasRole('ft')">
+													<c:out value="${pu.getName()}" />
+												</sec:authorize>
 											</c:when>
 											<c:otherwise>
-												<c:out value="${run.getName()}" />
+												<sec:authorize access="hasRole('su') or hasRole('ft')">
+													<a href="<c:url value="/${showPlatformunitViewMap.get(pu)}" />"><c:out value="${run.getName()}" /></a>
+												</sec:authorize>
+												<sec:authorize access="not hasRole('su') and not hasRole('ft')">
+													<c:out value="${run.getName()}" />
+												</sec:authorize>
 											</c:otherwise>
-										</c:choose>																			
+										</c:choose>																				
 										(<c:out value="${pMLoaded}" /> pM; Lane <c:out value="${laneIndex}" />)											
 										<br />
 			   						</c:forEach>
 			   					</c:otherwise>
-			   					</c:choose>										
- 	 						 </c:if> 	 						
-						</td>
-						
-								   				
-		   				
-		   				<td class="DataTD" style="text-align:center; white-space:nowrap;">
-		   					<c:if test='${qcStatusMap.get(library) == "PASSED"}'>
-		   					
-		   						<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == true }'> 
-				 					 <%--<input type='text' name='libConcInCellPicoM'  size='3' maxlength='5'>				 					   
-				 					  <br />--%>
-				 					 <input type='text' name="libConcInCellPicoM_${library.getId()}"  size='3' maxlength='5'>
-				 					<input type='hidden' name='libraryId' value='<c:out value="${library.getId()}" />'/>	
-				 								
-				 				</c:if>		
-		   					</c:if>
-		   				    
+			   					</c:choose>				
+				 				
+		   					</c:if>		   				    
 		   				</td>	   				
 					<c:if test="${!statusLibrary.last}"></tr></c:if>
 				</c:forEach>
 			</c:otherwise>
 		</c:choose>
 	</tr>
-	
-	
-	
 </c:forEach>
 </table>
 </form>
