@@ -255,9 +255,15 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
+	
 	<definition name="job/home/addLibrariesToCell" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
-	</definition>	
+	</definition>
+	
+	<definition name="job/home/mpsResultsListedBySample" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/mpsResultsListedBySample.jsp" />
+	</definition>
+		
 	<definition name="job/home/sampledetail_ro" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampledetail_ro.jsp" />
 	</definition>

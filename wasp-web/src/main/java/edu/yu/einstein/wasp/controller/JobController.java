@@ -1526,6 +1526,22 @@ public class JobController extends WaspController {
 		return "job/home/addLibrariesToCell";
 	}
 	
+	@RequestMapping(value="/{jobId}/mpsResultsListedBySample", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobMpsResultsListedBySamplePage(@PathVariable("jobId") Integer jobId, 
+			  ModelMap m) throws SampleTypeException {
+			
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
+		getSampleLibraryRunData(job, m);
+		
+		return "job/home/mpsResultsListedBySample";
+	}
 	
 	@RequestMapping(value="/{jobId}/samples", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
@@ -1673,8 +1689,9 @@ public class JobController extends WaspController {
 					  
 					  showPlatformunitViewMap.put(platformUnit, sampleService.getPlatformunitViewLink(platformUnit));//for displaying web anchor link to platformunit
 					  
-					  List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
-					  //For testing only:  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
+					  //List<Run> runList = runService.getSuccessfullyCompletedRunsForPlatformUnit(platformUnit);//WHY IS THIS A LIST rather than a singleton?
+					  //For testing only:  
+					  List<Run> runList = runService.getRunsForPlatformUnit(platformUnit);
 					  if(!runList.isEmpty()){
 						  Run run = runList.get(0);
 						  cellRunMap.put(cell, run);						  
@@ -1684,13 +1701,13 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("libraryCellListMap", libraryCellListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
-		  m.addAttribute("cellPUMap", cellPUMap);//currently set on web, but not used 
+		  m.addAttribute("cellPUMap", cellPUMap); 
 		  m.addAttribute("cellRunMap", cellRunMap);
 		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);
 		  m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap); //for displaying web anchor link to platformunit
 		 
-		  /* No longer needed or used. When tried, turns out that rendering is very different for each browser, so forget this. Currently, the value for submittedObjectLibraryRowspan is calculated easily directly on the web page
-		   //
+		  //Next calculations ONLY NEEDED FOR mpsResultsListedBySample.jsp; do NOT remove this part please; needed for proper table display
+		  //submittedObjectCellRowspan and submittedObjectCellRowspan
 		  //calculate the rowspans needed for the web, as the table display is rather complex, and determining these numbers is very hard to do at the web, as there are multiple dependencies. It is easier to perform here.
 		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
 		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
@@ -1734,7 +1751,6 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
 		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
-		  */
 		  
 		  //fill up drop-down box that is used to assign a library to a flow cell's lane
 		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job

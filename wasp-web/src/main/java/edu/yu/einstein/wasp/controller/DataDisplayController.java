@@ -302,13 +302,13 @@ public class DataDisplayController extends WaspController {
 		  System.out.println("Platform Unit: " + platformUnit.getName());
 		  List<Sample> cells = platformUnitOrderedCellListMap.get(platformUnit);
 		  for(Sample cell : cells){
-			  System.out.println("--Cell: " + cell.getName());
+			  //System.out.println("--Cell: " + cell.getName());
 			  List<Sample> libraries = cellLibraryListMap.get(cell);
 			  for(Sample library : libraries){
-				  System.out.print("----Libraries: " + library.getName());
+				  //System.out.print("----Libraries: " + library.getName());
 				  Sample macromolecule = libraryMacromoleculeMap.get(library);
 				  if(macromolecule != null && macromolecule.getId()!=null){
-					  System.out.println(" (Parent Sample: " + macromolecule.getName() + ")");
+					  //System.out.println(" (Parent Sample: " + macromolecule.getName() + ")");
 				  }
 				  else{System.out.println("");}
 			  }
