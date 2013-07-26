@@ -131,3 +131,4 @@
 		</c:choose>
 </c:forEach>
 </table>
+<br /><br />
