@@ -1,4 +1,4 @@
-var robsFavoriteNumber = 17;
+var robsFavoriteNumber = 1;
 
 function robdisplayalert(){
 	alert("This is the rob test. Rob's favorite number = " + robsFavoriteNumber);
