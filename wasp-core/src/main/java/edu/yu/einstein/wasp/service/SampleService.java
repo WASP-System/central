@@ -1067,4 +1067,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public void validateSampleNameUniqueWithinJob(String sampleName, Integer sampleId, Job job, BindingResult result);
 	
+	  public String getNameOfOrganismForAlignmentRequest(Sample sample, String defaultValue);
+	  public String getNameOfGenomeForAlignmentRequest(Sample sample, String defaultValue);
+	  public String getNameOfGenomeBuildForAlignmentRequest(Sample sample, String defaultValue);
+	  
 }

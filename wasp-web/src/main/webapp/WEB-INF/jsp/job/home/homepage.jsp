@@ -34,6 +34,9 @@
 	    </li>
 		<li><a id="viewerManagerAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/viewerManager.do" />");' >Share</a></li>
 		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/comments.do" />");' >Comments</a></li>
+		<%--
+		<li><a id="commentsAnchor"  href="javascript:void(0);" onclick='loadNewPageThenLoadJSWithAjax("<c:url value="/job/${job.getId()}/comments.do" />", "/wasp/scripts/js/robtest.js");' >Comments New</a></li>
+		--%>
 		<li><a id="fileUploadAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/fileUploadManager.do" />");' >Uploaded Files</a></li>
 		<li><a id="requestsAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/requests.do" />");' >Requests</a></li>
 	    <li><a id="samplesAnchor"  href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Samples, Libraries &amp; Runs</a></li>

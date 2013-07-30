@@ -1,6 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
+<%-- 
+<br />
+<a class="button" href="javascript:void(0);"  onclick='robdisplayalert();' >activate robDisplayAlert()</a>
+<br /><br />
+--%>
 
 <form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<c:url value="/job/${job.getId()}/comments.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0; width:600px" >

@@ -74,5 +74,29 @@
 			</c:otherwise>
 		</c:choose>
 	</div>
+	
+	<div>
+		<h2 style="font-weight:bold">Alignments Requested:</h2>
+		<table class="data">
+			<tr class="FormData">
+				<td class="label-centered" style="background-color:#FAF2D6">Submitted Sample</td>
+				<td class="label-centered" style="background-color:#FAF2D6">Alignments Requested</td>
+			</tr>
+   			<c:forEach items="${submittedSamplesList}" var="submittedSample">
+   				<c:set value="${sampleGenomesForAlignmentListMap.get(submittedSample)}" var="genomesForAlignmentList" scope="request" />
+  	  				<tr class="FormData">
+  	  					<td class="value-centered">
+  	  						<label>Name:</label> <c:out value="${submittedSample.getName()}" /><br />
+  	  						<label>Species:</label> <c:out value="${genomesForAlignmentList.get(0)}" />
+  	  					</td>
+  	  					<td class="value-centered">
+  	  						<label>Species:</label> <c:out value="${genomesForAlignmentList.get(1)}" /><br />
+  	  						<label>Genome:</label> <c:out value="${genomesForAlignmentList.get(2)}" /><br />
+  	  						<label>Build:</label> <c:out value="${genomesForAlignmentList.get(3)}" /><br />
+  	  					</td>
+  	  				</tr>
+ 				</c:forEach> 
+		</table>
+	</div>	
 </c:if>
 <br /><br />

@@ -702,8 +702,49 @@ window.onload = function (){
     		}
     	}
     }
-      
-/*      
+     
+    function loadNewScriptAjax(scriptLocation){
+    	$.ajax({
+            type: "GET",
+            url: scriptLocation,
+            dataType: "script",
+            success: function (response) {
+                //$('#viewerFrame').html(response);
+            },
+            error: function (response) {
+            	$('#viewerFrame').html("Unexpected Failure with loadNewScriptAjax()");
+            }
+     	});
+    	/* could have used this too!
+    	$.getScript(scriptLocation)
+    	.done(function(script, textStatus) {
+    	  console.log( textStatus );
+    	
+    	})
+    	.fail(function(jqxhr, settings, exception) {
+    	  $( "#viewerFrame" ).text( "Triggered ajaxError handler." );
+    	});
+    	*/
+    	return false;  
+    }
+    
+    function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) {
+    	$.ajax({
+            type: "GET",
+            url: theUrl,
+            success: function (response) {
+                $('#viewerFrame').html(response);//the webpage 
+                loadNewScriptAjax(scriptLocation);//the js script 
+            },
+            error: function (response) {
+            	$('#viewerFrame').html("Unexpected Failure");
+            }
+        });
+    	confirmViewerVisible();  
+    	return false; // avoid 
+    }
+    
+/*          
     $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
     	var o = {};
     	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 

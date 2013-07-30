@@ -102,6 +102,7 @@ import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
@@ -170,6 +171,8 @@ public class JobController extends WaspController {
 	private FilterService filterService;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private GenomeService genomeService;
 	@Autowired
 	private JobService jobService;
 	@Autowired
@@ -1239,7 +1242,25 @@ public class JobController extends WaspController {
 		//samplePairingRequest
 		getSamplePairsRequested(job, m);		
 		//software request
-		getSoftwareRequested(job, m);		
+		getSoftwareRequested(job, m);
+		//getSubmittedSamplesAndOrganism_Genome_BuildForAlignment
+		getOrganism_Genome_BuildForAlignment(job, m);
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		Map<Sample, List<String>> sampleGenomesForAlignmentListMap = new HashMap<Sample, List<String>>();
+		for(Sample submittedSample : submittedSamplesList){
+			String organismOfTheSample = sampleService.getNameOfOrganism(submittedSample, "?");
+			String organismForAlignment = sampleService.getNameOfOrganismForAlignmentRequest(submittedSample, "?");
+			String genomeForAlignment = sampleService.getNameOfGenomeForAlignmentRequest(submittedSample, "?");
+			String buildForAlignment = sampleService.getNameOfGenomeBuildForAlignmentRequest(submittedSample, "?");
+			List<String> encodedList = new ArrayList<String>();
+			encodedList.add(organismOfTheSample);
+			encodedList.add(organismForAlignment);
+			encodedList.add(genomeForAlignment);
+			encodedList.add(buildForAlignment);
+			sampleGenomesForAlignmentListMap.put(submittedSample, encodedList);
+		}
+		m.addAttribute("submittedSamplesList", submittedSamplesList);
+		m.addAttribute("sampleGenomesForAlignmentListMap", sampleGenomesForAlignmentListMap);
 		
 		return "job/home/requests";
 	}
@@ -1295,7 +1316,25 @@ public class JobController extends WaspController {
 		m.addAttribute("softwareAndSyncdMetaMap", softwareAndSyncdMetaMap);
 		m.addAttribute("parentArea", "job");//do not remove; it's needed for the metadata related to the software display below
 	}
-	
+	private void getOrganism_Genome_BuildForAlignment(Job job, ModelMap m){
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		Map<Sample, List<String>> sampleGenomesForAlignmentListMap = new HashMap<Sample, List<String>>();
+		for(Sample submittedSample : submittedSamplesList){
+			String organismOfTheSample = sampleService.getNameOfOrganism(submittedSample, "?");
+			String organismForAlignment = sampleService.getNameOfOrganismForAlignmentRequest(submittedSample, "?");
+			String genomeForAlignment = sampleService.getNameOfGenomeForAlignmentRequest(submittedSample, "?");
+			String buildForAlignment = sampleService.getNameOfGenomeBuildForAlignmentRequest(submittedSample, "?");
+			List<String> encodedList = new ArrayList<String>();
+			encodedList.add(organismOfTheSample);
+			encodedList.add(organismForAlignment);
+			encodedList.add(genomeForAlignment);
+			encodedList.add(buildForAlignment);
+			sampleGenomesForAlignmentListMap.put(submittedSample, encodedList);
+			//System.out.println("------"+ submittedSample.getName() + " : " + organismOfTheSample + " : " + organismForAlignment + " : " + genomeForAlignment + " : " + buildForAlignment);
+		}
+		m.addAttribute("submittedSamplesList", submittedSamplesList);
+		m.addAttribute("sampleGenomesForAlignmentListMap", sampleGenomesForAlignmentListMap);
+	}
  	@RequestMapping(value="/{jobId}/addLibrariesToCell", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft')")
 	  public String jobAddLibrariesToCellPage(@PathVariable("jobId") Integer jobId, 

@@ -3177,8 +3177,59 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  }	
 			
 			
+			@Override
+			public String getNameOfOrganismForAlignmentRequest(Sample sample, String defaultValue){
+				final String ORGANISM_META_AREA = "genome";
+				final String ORGANISM_META_KEY = "genomeString";
+				Assert.assertParameterNotNull(sample, "sample cannot be null");
+				Assert.assertParameterNotNull(defaultValue, "defaultValue cannot be null");
+				String organismName = defaultValue; // default
+				try{	
+					 String codedString = MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta());
+					 String array [] = codedString.split("::");
+					 Integer genomeId = new Integer(array[0]);
+					 organismName = genomeService.getOrganismMap().get(genomeId).getName();
+				}
+				catch(Exception me){
+					logger.debug("Unable to identify organism alignment request for sampleId " + sample.getId() + " taking default");
+				}
+				return organismName;
+			}
 			
+			@Override
+			public String getNameOfGenomeForAlignmentRequest(Sample sample, String defaultValue){
+				final String ORGANISM_META_AREA = "genome";
+				final String ORGANISM_META_KEY = "genomeString";
+				Assert.assertParameterNotNull(sample, "sample cannot be null");
+				Assert.assertParameterNotNull(defaultValue, "defaultValue cannot be null");
+				String genomeName = defaultValue; // default
+				try{	
+					 String codedString = MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta());
+					 String array [] = codedString.split("::");
+					 genomeName = array[1];
+				}
+				catch(Exception me){
+					logger.debug("Unable to identify genome alignment request for sampleId " + sample.getId() + " taking default");
+				}
+				return genomeName;
+			}
 			
-			
+			@Override
+			public String getNameOfGenomeBuildForAlignmentRequest(Sample sample, String defaultValue){
+				final String ORGANISM_META_AREA = "genome";
+				final String ORGANISM_META_KEY = "genomeString";
+				Assert.assertParameterNotNull(sample, "sample cannot be null");
+				Assert.assertParameterNotNull(defaultValue, "defaultValue cannot be null");
+				String genomeBuildName = defaultValue; // default
+				try{	
+					 String codedString = MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, sample.getSampleMeta());
+					 String array [] = codedString.split("::");
+					 genomeBuildName = array[2];
+				}
+				catch(Exception me){
+					logger.debug("Unable to identify genome build alignment request for sampleId " + sample.getId() + " taking default");
+				}
+				return genomeBuildName;
+			}
 }
 
