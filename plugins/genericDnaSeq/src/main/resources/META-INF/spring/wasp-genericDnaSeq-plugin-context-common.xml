@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	default-autowire="byName"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="waspGenericDnaSeqPluginDomain" class="java.lang.String">
+		<constructor-arg>
+			<value>edu.yu.einstein.wasp.genericDnaSeq</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="waspGenericDnaSeqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>wasp-genericDnaSeqPlugin</value>
+		</constructor-arg>
+	</bean>
+	
+	<!-- channel for communications with this plugin. -->
+	<int:channel id="wasp.channel.plugin.wasp-genericDnaSeq" />
+	
+	<bean id="wasp-genericDnaSeq.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.assay.WaspGenericDnaSeqPlugin">
+		<constructor-arg name="pluginName" ref="waspGenericDnaSeqPluginArea" />
+		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-genericDnaSeq" />
+		<property name="handles">
+			<set>
+				<ref bean="waspGenericDnaSeqPluginArea" />
+			</set>
+		</property>
+	</bean>
+
+</beans>
