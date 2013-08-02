@@ -591,7 +591,7 @@ function closeAllRuns(){
  
 <script type="text/javascript">
   
-//WE MUST HAVE THIS NEXT LINE
+//WE MUST HAVE THIS NEXT LINE 
 window.onload = function (){
 	//loadNewPageWithAjax('<c:url value="/job/${job.getId()}/basic.do" />'); 
 	//to avoid hardcoding, use below code (from http://stackoverflow.com/questions/906486/how-can-i-programmatically-invoke-an-onclick-event-from-a-anchor-tag-while-kee)
@@ -604,15 +604,18 @@ window.onload = function (){
   //used for comments, viewerManager 
     function postFormWithAjax(formObjectId, theUrl){
     	var frm = $("#" + formObjectId);
+    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel; http://stackoverflow.com/questions/1331335/how-to-get-the-selected-tab-panel-element-in-jquery-ui-tabs 
     	$.ajax({
             type: frm.attr('method'),
             url: theUrl,
             data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
             success: function (response) {
-                $('#viewerFrame').html(response);
+                //$('#viewerFrame').html(response);
+            	selectedPanel.html(response);
             },
             error: function (response) {
-            	$('#viewerFrame').html("Unexpected Failure");
+            	//$('#viewerFrame').html("Unexpected Failure");
+            	selectedPanel.html("Unexpected Failure");
             }
         });
     	confirmViewerVisible(); 
@@ -622,7 +625,8 @@ window.onload = function (){
   //used for the samples and libraries 
     //look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
     function postFormWithAjaxJson(formObjectId, theUrl){
-    	var frm = $("#" + formObjectId);    	
+    	var frm = $("#" + formObjectId);  
+    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
     	var serializedObject = {};
     	var a = frm.serializeArray(); //http://api.jquery.com/serializeArray/ 
     	$.each(a, function() {
@@ -644,10 +648,12 @@ window.onload = function (){
             data: jsonData,
             contentType: 'application/json',
             success: function (response) {
-                $('#viewerFrame').html(response);
+                //$('#viewerFrame').html(response);
+            	selectedPanel.html(response);
             },
     		error: function (response) {
-            	$('#viewerFrame').html("Unexpected Failure");
+            	//$('#viewerFrame').html("Unexpected Failure");
+    			selectedPanel.html("Unexpected Failure");
         	}
         });
     	confirmViewerVisible();  
@@ -658,11 +664,14 @@ window.onload = function (){
     //from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
   	//using plugin jquery.form.js  see http://malsup.com/jquery/form/
     function uploadJqueryForm(formObjectId){
-    	var frm = $("#" + formObjectId);
+    	
+  		var frm = $("#" + formObjectId);
+       	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
       // $("#form22123").ajaxForm({ 
     	frm.ajaxForm({ 
         success:function(data) { 
-              $('#viewerFrame').html(data);
+              //$('#viewerFrame').html(data);
+        	selectedPanel.html(data);
          },
          dataType:"text" 
        }).submit();       
@@ -672,14 +681,17 @@ window.onload = function (){
      
       //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
     function doGetWithAjax(theUrl) {
+       	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
     	$.ajax({
             type: "GET",
             url: theUrl,
             success: function (response) {
-                $('#viewerFrame').html(response);
+                //$('#viewerFrame').html(response);
+            	selectedPanel.html(response);
             },
             error: function (response) {
             	$('#viewerFrame').html("Unexpected Failure");
+            	selectedPanel.html("Unexpected Failure");
             }
         });
     	confirmViewerVisible();  
@@ -704,6 +716,9 @@ window.onload = function (){
     }
      
     function loadNewScriptAjax(scriptLocation){
+      	
+    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+      	 
     	$.ajax({
             type: "GET",
             url: scriptLocation,
@@ -712,7 +727,8 @@ window.onload = function (){
                 //$('#viewerFrame').html(response);
             },
             error: function (response) {
-            	$('#viewerFrame').html("Unexpected Failure with loadNewScriptAjax()");
+            	//$('#viewerFrame').html("Unexpected Failure with loadNewScriptAjax()"); 
+            	selectedPanel.html("Unexpected Failure with loadNewScriptAjax()");
             }
      	});
     	/* could have used this too!
@@ -729,22 +745,49 @@ window.onload = function (){
     }
     
     function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) {
-    	$.ajax({
+     	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+     	 $.ajax({
             type: "GET",
             url: theUrl,
             success: function (response) {
-                $('#viewerFrame').html(response);//the webpage 
+                //$('#viewerFrame').html(response);//the webpage 
+                selectedPanel.html(response);//the webpage  
                 loadNewScriptAjax(scriptLocation);//the js script 
             },
             error: function (response) {
-            	$('#viewerFrame').html("Unexpected Failure");
+            	//$('#viewerFrame').html("Unexpected Failure");
+            	selectedPanel.html(response);//the webpage
             }
         });
     	confirmViewerVisible();  
     	return false; // avoid 
     }
     
-/*          
+    function findDivForActiveTab(element){
+    	alert("inside function findDivForActiveTab()");
+    	/*
+    	var divForActiveTab = element.parentNode;
+    	counter = 0;
+    	//while(divIdForThisTab && divIdForThisTab.id != "ui-tabs-3" ){ 
+    	while( divForActiveTab && divForActiveTab.id.indexOf("ui-tabs") != 0 ){
+    		//alert("Counter: " + counter + " and id: " + divForActiveTab.tagName );
+    	
+    		divForActiveTab = divForActiveTab.parentNode;
+    		counter++;
+    		
+    		if(counter > 10){
+    			break;
+    		}
+    	}
+    	alert("Shoud have now found it; my id is " + divForActiveTab.id);
+    	*/
+    	// return divForActiveTab; 
+    	var selectedPanel = $('#tabs').find("[aria-expanded=true]"); //$("#tabs div.ui-tabs-panel[aria-hidden='false']");//$('#tabs').find("[aria-expanded=true]"); //$("#tabs div.ui-tabs-panel:not(.ui-tabs-hide)");
+    	//alert("and using the jquery idea, selectedPanel is = " + selectedPanel.name);
+    	selectedPanel.html("this is a test");
+   
+    }
+/*              
     $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
     	var o = {};
     	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
