@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.fileformat.service.FastqService;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -57,7 +56,13 @@ public class FastQC extends SoftwarePackage{
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
 	
-	public static final String COMBINATION_FASTQ_FILE = "all.fastq";
+	public static final String COMBINATION_FASTQ_FILE_PREFIX = "all";
+	
+	public static final String COMBINATION_FASTQ_FILE_NAME = COMBINATION_FASTQ_FILE_PREFIX + ".fastq";
+	
+	public static final String OUTPUT_ZIP_FILE_NAME = COMBINATION_FASTQ_FILE_PREFIX + "_fastqc.zip";
+	
+	public static final String OUTPUT_DATA_FILE_TO_EXTRACT = COMBINATION_FASTQ_FILE_PREFIX + "_fastqc/fastqc_data.txt";
 	
 	public static final String OUTPUT_FOLDER = "fastqcResults";
 	
@@ -203,8 +208,8 @@ public class FastQC extends SoftwarePackage{
 			opts += " --casava";
 		
 		command += "mkdir " + OUTPUT_FOLDER + "\n";
-		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE + " && fastqc " + opts + " --outdir " + 
-				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE + "\n";
+		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE_NAME + " && fastqc " + opts + " --outdir " + 
+				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE_NAME + "\n";
 		return command;
 	}
 	
