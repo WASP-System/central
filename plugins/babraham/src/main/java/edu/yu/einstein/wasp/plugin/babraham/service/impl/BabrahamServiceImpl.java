@@ -30,15 +30,14 @@ import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
-import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.service.FileService;
@@ -89,13 +88,17 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 				String line = null;
 				line = br.readLine();
 				//logger.debug("processing line: " + line);
-				if (line == null)
+				if (line == null){
 					keepReading = false;
+					if (isFirstLine)
+						throw new BabrahamDataParseException("Unable to extract data from " + FastQC.OUTPUT_DATA_FILE_TO_EXTRACT + ". File doesn't exist!"); 
+				}
 				else{
 					if (isFirstLine){
 						isFirstLine = false;
-						if (line.contains("No such file or directory"))
-							throw new BabrahamDataParseException("Unable to find fastqc_data.txt file");
+						if (line.startsWith("caution: filename not matched"))
+							throw new BabrahamDataParseException("Unable to extract " + FastQC.OUTPUT_DATA_FILE_TO_EXTRACT + " file from " + 
+									FastQC.OUTPUT_ZIP_FILE_NAME + " archive");
 						if (!line.startsWith("##FastQC"))
 							throw new BabrahamDataParseException("Unexpected first line. Suspect wrong file or file corrupt");
 						continue;
@@ -173,7 +176,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 			GridTransportConnection transportConnection = workService.getTransportConnection();
 			resultsDir += "/" + FastQC.OUTPUT_FOLDER;
 			w.setWorkingDirectory(resultsDir);
-			w.addCommand("cat fastqc_data.txt");
+			w.addCommand("unzip -p " + FastQC.OUTPUT_ZIP_FILE_NAME + " " + FastQC.OUTPUT_DATA_FILE_TO_EXTRACT);
 			GridResult r = transportConnection.sendExecToRemote(w);
 			return processFastQCOutput(r.getStdOutStream());
 		} catch (MisconfiguredWorkUnitException e) {

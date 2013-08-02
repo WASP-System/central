@@ -2844,10 +2844,11 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			  Sample controlSample = this.getSampleById(controlSampleId);
 			  Assert.assertParameterNotNull(controlSample.getId(), "Control sample does not exist!");
 
+			  /* this concept is specific for help-tag; DO NOT INCLUDE 
 			  if (!this.isLibrary(controlSample)){
 				  throw new SampleTypeException("Expected 'library' but got Sample of type '" + controlSample.getSampleType().getIName() + "' instead.");
 			  }
-
+			  */
 			  SampleSource newSampleSource = new SampleSource(); 
 			  newSampleSource.setSample(testSample);
 			  newSampleSource.setSourceSample(controlSample);
