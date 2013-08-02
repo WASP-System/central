@@ -300,57 +300,53 @@ public class SgeWorkService implements GridWorkService, ApplicationContextAware 
 		boolean ended = false;
 		boolean started = false;
 		boolean died = false;
-		boolean doTestStatus = true;
-		final int INCREMENT_FACTOR = 2;
-		final int NEVER_TIME_OUT = -1;
-		final int ZERO_TIME_OUT = 0;
-		Integer waitMs = 1000;
-		int repeatCount = 0;
-		int totalWaitedMs = 0;
-		do {
-			if (!ended){
-				if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) 
-					ended = isJobEnded(g);
-				else
-					ended = isTaskArrayEnded(g);
-			}
-			if (!started)
-				started = isJobStarted(g);
-			logger.debug("Job status semaphores (repeat, started, ended): " + ++repeatCount + ", " + started + ", " + ended);
-			
-			try {
-				died = didDie(g, jobname, started, ended);
-			} catch (SAXException e) {
-				// TODO: improve this logic
-				logger.warn("caught SAXException, skipping as if job has not died");
-				e.printStackTrace();
-				died = false;
-			}
-			if (!died)
-				doTestStatus = false;
-			else { //died
-				if (nfsTimeout == ZERO_TIME_OUT){
-					logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
-					doTestStatus = false;
+		started = isJobStarted(g);
+		if (!g.getMode().equals(ExecutionMode.TASK_ARRAY)) 
+			ended = isJobEnded(g);
+		else
+			ended = isTaskArrayEnded(g);
+		logger.debug("Job status semaphores (started, ended): " + started + ", " + ended);
+		if (started && !ended){
+			final int INCREMENT_FACTOR = 2;
+			final int NEVER_TIME_OUT = -1;
+			final int ZERO_TIME_OUT = 0;
+			Integer waitMs = 1000;
+			int totalWaitedMs = 0;
+			boolean timedOut = false;
+			do {
+				try {
+					died = didDie(g, jobname, started, ended);
+				} catch (SAXException e) {
+					// TODO: improve this logic
+					logger.warn("caught SAXException, skipping as if job has not died");
+					e.printStackTrace();
+					died = false;
 				}
-				else {
-					logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
-					try {
-						Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
-					} catch (InterruptedException e) {
-						logger.warn(e.getLocalizedMessage());
+				if (died) { 
+					// maybe end file not there yet due to nfs problem so hasn't actually died. 
+					if (nfsTimeout == ZERO_TIME_OUT){
+						logger.debug("job unknown and 'end' semaphore missing. Assuming job failed.");
+						timedOut = true;
 					}
-					if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
-						doTestStatus = false;
-						logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+					else {
+						logger.debug("job unknown and 'end' semaphore missing. Waiting " + waitMs + " ms then checking status again");
+						try {
+							Thread.sleep(waitMs); // wait a bit and see if file appears on nfs
+						} catch (InterruptedException e) {
+							logger.warn(e.getLocalizedMessage());
+						}
+						if ( totalWaitedMs >= nfsTimeout && nfsTimeout != NEVER_TIME_OUT){
+							logger.debug("job unknown and 'end' semaphore missing. Wait timeout of " + nfsTimeout + " ms exceeded so job failure assumed");
+							timedOut = true;
+						}
+						totalWaitedMs += waitMs;
+						waitMs *= INCREMENT_FACTOR;
+						if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
+							waitMs = nfsTimeout - totalWaitedMs;
 					}
-					totalWaitedMs += waitMs;
-					waitMs *= INCREMENT_FACTOR;
-					if (totalWaitedMs + waitMs > nfsTimeout && nfsTimeout != NEVER_TIME_OUT)
-						waitMs = nfsTimeout - totalWaitedMs;
 				}
-			}
-		} while (doTestStatus);
+			} while (died && !timedOut);
+		}
 		
 		logger.debug("Job Status (ended, died): " + ended + ", " + died);
 		if (died) {

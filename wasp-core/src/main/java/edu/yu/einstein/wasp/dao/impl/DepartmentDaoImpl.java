@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Department;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu.einstein.wasp.dao.DepartmentDao {
 
@@ -45,7 +45,7 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Department getDepartmentByDepartmentId (final int departmentId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", departmentId);
@@ -70,7 +70,7 @@ public class DepartmentDaoImpl extends WaspDaoImpl<Department> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Department getDepartmentByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

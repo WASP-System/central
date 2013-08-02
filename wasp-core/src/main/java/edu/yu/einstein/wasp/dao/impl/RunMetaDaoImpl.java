@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.RunMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class RunMetaDaoImpl extends WaspMetaDaoImpl<RunMeta> implements edu.yu.einstein.wasp.dao.RunMetaDao {
 
@@ -44,7 +44,7 @@ public class RunMetaDaoImpl extends WaspMetaDaoImpl<RunMeta> implements edu.yu.e
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public RunMeta getRunMetaByRunMetaId (final int runMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", runMetaId);
@@ -69,7 +69,7 @@ public class RunMetaDaoImpl extends WaspMetaDaoImpl<RunMeta> implements edu.yu.e
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public RunMeta getRunMetaByKRunId (final String k, final int runId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

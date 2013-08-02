@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.WorkflowSampleSubtype;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubtype> implements edu.yu.einstein.wasp.dao.WorkflowSampleSubtypeDao {
 
@@ -44,7 +44,7 @@ public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubt
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowSampleSubtype getWorkflowSampleSubtypeByWorkflowsamplesubtypeId (final Integer workflowsamplesubtypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", workflowsamplesubtypeId);
@@ -69,7 +69,7 @@ public class WorkflowSampleSubtypeDaoImpl extends WaspDaoImpl<WorkflowSampleSubt
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowSampleSubtype getWorkflowSampleSubtypeByWorkflowIdSampleSubtypeId (final Integer workflowId, final Integer sampleSubtypeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("workflowId", workflowId);

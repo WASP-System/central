@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Roleset;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einstein.wasp.dao.RolesetDao {
 
@@ -44,7 +44,7 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Roleset getRolesetByRolesetId (final int rolesetId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("is", rolesetId);
@@ -69,7 +69,7 @@ public class RolesetDaoImpl extends WaspDaoImpl<Roleset> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Roleset getRolesetByParentroleIdChildroleId (final int parentroleId, final int childroleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("parentroleId", parentroleId);

@@ -34,12 +34,14 @@ import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
+import edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.BabrahamDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
+import edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -336,7 +338,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
 		try {
-			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreen.FASTQ_SCREEN_AREA, fastqscreen, fileGroupId)));
+			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId)));
 		} catch (JSONException | MetadataException e) {
 			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
 		}

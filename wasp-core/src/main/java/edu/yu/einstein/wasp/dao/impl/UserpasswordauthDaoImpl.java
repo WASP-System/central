@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Userpasswordauth;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> implements edu.yu.einstein.wasp.dao.UserpasswordauthDao {
 
@@ -44,7 +44,7 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Userpasswordauth getUserpasswordauthByUserId (final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", userId);
@@ -69,7 +69,7 @@ public class UserpasswordauthDaoImpl extends WaspDaoImpl<Userpasswordauth> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Userpasswordauth getUserpasswordauthByAuthcode (final String authcode) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("authcode", authcode);

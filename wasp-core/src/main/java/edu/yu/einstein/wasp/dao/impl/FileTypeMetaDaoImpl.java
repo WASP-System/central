@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.dao.FileTypeMetaDao;
 import edu.yu.einstein.wasp.model.FileTypeMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileTypeMetaDaoImpl extends WaspMetaDaoImpl<FileTypeMeta> implements FileTypeMetaDao {
 
@@ -45,7 +45,7 @@ public class FileTypeMetaDaoImpl extends WaspMetaDaoImpl<FileTypeMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileTypeMeta getFileTypeMetaByFileTypeMetaId (final int fileTypeMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", fileTypeMetaId);
@@ -70,7 +70,7 @@ public class FileTypeMetaDaoImpl extends WaspMetaDaoImpl<FileTypeMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileTypeMeta getFileTypeMetaByKFileTypeId (final String k, final int fileTypeId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

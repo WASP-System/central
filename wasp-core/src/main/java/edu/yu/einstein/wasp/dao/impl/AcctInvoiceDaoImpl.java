@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctInvoice;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.yu.einstein.wasp.dao.AcctInvoiceDao {
 
@@ -44,7 +44,7 @@ public class AcctInvoiceDaoImpl extends WaspDaoImpl<AcctInvoice> implements edu.
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctInvoice getAcctInvoiceByInvoiceId (final int invoiceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", invoiceId);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> implements edu.yu.einstein.wasp.dao.AdaptorsetMetaDao {
 
@@ -44,7 +44,7 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AdaptorsetMeta getAdaptorsetMetaByAdaptorsetMetaId (final Integer adaptorsetMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", adaptorsetMetaId);
@@ -69,7 +69,7 @@ public class AdaptorsetMetaDaoImpl extends WaspMetaDaoImpl<AdaptorsetMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AdaptorsetMeta getAdaptorsetMetaByKAdaptorsetId (final String k, final Integer adaptorsetId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

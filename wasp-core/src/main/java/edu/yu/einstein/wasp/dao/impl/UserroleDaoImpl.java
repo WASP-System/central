@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Userrole;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.einstein.wasp.dao.UserroleDao {
 
@@ -44,7 +44,7 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Userrole getUserroleByUserroleId (final int userroleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", userroleId);
@@ -69,7 +69,7 @@ public class UserroleDaoImpl extends WaspDaoImpl<Userrole> implements edu.yu.ein
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Userrole getUserroleByUserIdRoleId (final int userId, final int roleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("userId", userId);

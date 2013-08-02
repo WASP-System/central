@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements edu.yu.einstein.wasp.dao.SampleSourceDao {
 
@@ -49,7 +49,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSource getSampleSourceBySampleSourceId (final int sampleSourceId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleSourceId);
@@ -74,7 +74,7 @@ public class SampleSourceDaoImpl extends WaspDaoImpl<SampleSource> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleSource getSampleSourceBySampleIdMultiplexindex (final int sampleId, final int multiplexindex) {
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);

@@ -21,7 +21,7 @@ import edu.yu.einstein.wasp.model.FileHandle;
  * @author calder
  *
  */
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.einstein.wasp.dao.FileGroupDao {
 
@@ -45,7 +45,7 @@ public class FileGroupDaoImpl extends WaspDaoImpl<FileGroup> implements edu.yu.e
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileGroup getFileGroupById (final Integer id) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", id);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.LabPending;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu.einstein.wasp.dao.LabPendingDao {
 
@@ -44,7 +44,7 @@ public class LabPendingDaoImpl extends WaspDaoImpl<LabPending> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public LabPending getLabPendingByLabPendingId (final int labPendingId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", labPendingId);
