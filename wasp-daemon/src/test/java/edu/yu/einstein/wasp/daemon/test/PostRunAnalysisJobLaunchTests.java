@@ -322,7 +322,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			// validate proper completion of alignment step and that it was called with expected parameters
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
 			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
-			JobParameters params = je.getJobInstance().getJobParameters();
+			JobParameters params = je.getJobParameters();
 			Assert.assertEquals(params.getParameters().size(), 3);
 			Assert.assertNotNull(params.getString("libraryCellIdList"));
 			Assert.assertNotNull(params.getString("p1"));

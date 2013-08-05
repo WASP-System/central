@@ -7,8 +7,6 @@ import java.util.Set;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 
@@ -656,11 +654,11 @@ public interface JobExplorerWasp extends JobExplorer {
 	// other methods
 	
 	/**
-	 * Get all the job instances that match the parameters provided as a Map.
+	 * Get all the job executions that match the parameters provided as a Map.
 	 * @param parameterMap
 	 * @return
 	 */
-	public List<JobInstance> getJobInstancesMatchingParameters(Map<String, Set<String>> parameterMap);
+	public List<JobExecution> getJobExecutionsMatchingParameters(Map<String, Set<String>> parameterMap);
 	
 	/**
 	 * Given a parameter map key, attempt to get the requested parameter and cast to requested type.
@@ -696,13 +694,6 @@ public interface JobExplorerWasp extends JobExplorer {
 	 * @return
 	 */
 	public JobExecution getMostRecentlyStartedJobExecutionInList(List<JobExecution> jobExecutions);
-	
-	/**
-	 * Obtains the list of job parameters for a given JobExecution
-	 * @param stepExecution
-	 * @return
-	 */
-	public JobParameters getJobParameters(JobExecution jobExecution);
 	
 	/**
 	 * Obtains job name for a given JobExecution

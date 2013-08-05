@@ -18,6 +18,8 @@
 		<jdbc:script location="${testDb.data.script}" />
 	</jdbc:initialize-database>
 	
+
+	
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="batchDataSource" />
 	</bean>
