@@ -1,57 +1,28 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <script type="text/javascript" src="http://malsup.github.com/jquery.form.js"></script>
-<style>
-	.pageContainer {width:100%; overflow:hidden; }
-	.selectionLeft {float:left; width:15%; margin-right:0.2cm; border:3px solid black; overflow:auto;}
-	.viewerRight {float:left; width:80%; padding-left:0.2cm; border-left:0px solid black; overflow:auto; }
-	.selectionLeft div {margin:5px 0px 5px 6px;}
-</style>
 
 <script type="text/javascript">
 
 $(document).ready(function() {
 	
-	  $(function() {
+	$(function() {
 		    $( "#tabs" ).tabs();
-		  }); 
+	}); 
 
-	
-	   /* this was used to pull data from the hidden Iframe and display it in a visible div
-	   (but is no longer used). This was attempt 2 to deal with uploading a file. It's no longer used  
-	  $("#hiddenIFrame").load(function() { ////http://blog.manki.in/2011/08/ajax-fie-upload.html 
-		  
-		  var responseText = $('#hiddenIFrame').contents().find('body').html();
-		  
-		  if (!responseText) {
-			    return;
-		  }
-		  
-		  $('#viewerFrame').html(responseText);
-		  //clear contents of iframe; don't know which is best 
-		  this.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe 
-		  this.contentDocument.location.href = "about:blank"; ///'/img/logo.png';
-		});
-	  */
-	  
-	  
-	  
-	  
-	//////$("#viewerFrame").load('<c:url value="/sampleDnaToLibrary/jobDetails/${job.getId()}.do" />');
-	
 	//http://api.jqueryui.com/dialog/
 	$("#modalDialog").dialog({
         autoOpen: false,
         modal: true,
         height: 800,
         width: 800,
-        position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
+        position: { my: "right top", at: "right top", of: window } //http://docs.jquery.com/UI/API/1.8/Position
     });
 	$("#modalessDialog").dialog({
         autoOpen: false,
         modal: false,
         height: 800,
         width: 800,
-        position: { my: "right top", at: "right top", of: window }//http://docs.jquery.com/UI/API/1.8/Position
+        position: { my: "right top", at: "right top", of: window } 
     }); 
 	
 	$("#smallModalessDialog").dialog({
@@ -59,36 +30,10 @@ $(document).ready(function() {
         modal: false,
         height: 400,
         width: 400,
-        position: { my: "right top", at: "right top", of: window } <%--could user "#container" too, which is set by wasp css --%>
+        position: { my: "right top", at: "right top", of: window } 
     });
-	/*
-	 $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
-	    	var o = {};
-	    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
-	    	$.each(a, function() {
-	    		if (o[this.name]) {
-	    			if (!o[this.name].push) {
-	    				o[this.name] = [o[this.name]];
-	    			}
-	    			o[this.name].push(this.value || '');
-	    		} else {
-	    			o[this.name] = this.value || '';
-	    		}
-	    	});
-	    	return o;
-	    };
- */
+	
 });
-
-
-//globals 
-unhighlightedAnchorColor = "";
-unhighlightedAnchorBackground = "";
-unhighlightedAnchorFontWeight = "";
-highlightedAnchorColor = "red";
-highlightedAnchorBackground = "Aqua";
-highlightedAnchorFontWeight = "bold";
-urlDisplayedOnRight = "";
 
 function showModalDialog(url){
 	//http://clarkupdike.blogspot.com/2009/03/basic-example-of-jquerys-uidialog.html
@@ -103,8 +48,7 @@ function showSmallModalessDialog(url){
 	$("#smallModalessIframeId").attr("src", url);
 	$( "#smallModalessDialog" ).dialog("open");
 }
-function showPopupWindow(url) 
-{	
+function showPopupWindow(url){//not currently used, but could be useful in future	
 	//from http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
 	//also could see http://stackoverflow.com/questions/10728207/position-a-window-on-screen 
 	 var width  = 1200;
@@ -125,704 +69,136 @@ function showPopupWindow(url)
 	 return false;
 }
 
-function toggleExpandHide(thisAnchorObject){
 
-	var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
-	var temp = "runDivToToggle_" + runIdNumberToToggle;
-	var runDivToToggle = document.getElementById(temp);
-	var parentDiv = thisAnchorObject.parentNode;
-	
-	if(runDivToToggle.style.display == "none"){//selected region is closed, so open it 
-		runDivToToggle.style.display = "block";
-		thisAnchorObject.innerHTML = "hide";
-		parentDiv.style.border= "1px dashed gray";
-		//parentDiv.style.borderRight="";//in case of overflow and need for horizontal scrollbar 
-		
-		//in case this expand/hide anchor (the thisAnchorObject object) happens to be highlighted, then unhighlight it 
-		//(note: it can become highlighted in certain situations; see this method, below) 
-		thisAnchorObject.style.color = unhighlightedAnchorColor;
-		thisAnchorObject.style.background = unhighlightedAnchorBackground; 
-		thisAnchorObject.style.fontWeight = unhighlightedAnchorFontWeight;
-		thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toLowerCase();
-	}
-	else{//it's open, so close it 
-		runDivToToggle.style.display = "none";
-		thisAnchorObject.innerHTML = "expand";		
-		parentDiv.style.border= "";
-				
-		//when closing (hiding) this area, 
-		//if ANY of its internal anchors (within this area) are highlighted, 
-		//then leave them highlighted and ALSO highlight the hide/expand anchor (to indicate that some detail anchor, now hidden, is currently hightlighted) 
-		var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
-		for(var i = 0; i < allAnchorsInRunDivToToggle.length; i++){
-			if(allAnchorsInRunDivToToggle[i].style.color == highlightedAnchorColor){
-				thisAnchorObject.style.color = highlightedAnchorColor;
-				thisAnchorObject.style.background = highlightedAnchorBackground; 
-				thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
-				thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();				
-				break;
+//used for comments, viewerManager 
+function postFormWithAjax(formObjectId, theUrl){
+	var frm = $("#" + formObjectId);
+	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel; http://stackoverflow.com/questions/1331335/how-to-get-the-selected-tab-panel-element-in-jquery-ui-tabs 
+	$.ajax({
+        type: frm.attr('method'),
+        url: theUrl,
+        data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
+        success: function (response) {
+        	selectedPanel.html(response);
+        },
+        error: function (response) {
+        	selectedPanel.html("Unexpected Failure");
+        }
+    });
+	return false; // avoid to execute the actual submit of the form 
+}
+    
+//used for the samples and libraries; this way, the objects on the page are sent as json objects 
+//look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
+function postFormWithAjaxJson(formObjectId, theUrl){
+	var frm = $("#" + formObjectId);  
+	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+	var serializedObject = {};
+	var a = frm.serializeArray(); //http://api.jquery.com/serializeArray/ 
+	$.each(a, function() {
+		if (serializedObject[this.name]) {
+			if (!serializedObject[this.name].push) {
+				serializedObject[this.name] = [serializedObject[this.name]];
 			}
-		}		
-	}
-}
-
-function loadIFrameAnotherWay(thisAnchorObject, url){//alert("I am here with url of : " + url);
-	///var viewerFrame = document.getElementById("viewerFrame");
-	///var viewerFrame2 = document.getElementById("viewerFrame2");
-	///if(viewerFrame.style.display=="block"){
-	///	viewerFrame.style.display="none";
-	///	viewerFrame2.style.display = "block";
-	///} 
-	//thisAnchorObject.href=url; 
-	
-	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
-	
-	var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
-	myIframe.src = url;
-	myIframe.style.width="100%";
-	myIframe.style.height="1000px";
-	//note: neither of the two next lines works in Firefox. It doesn't know height of what, with %.  
-	//see http://www.daniweb.com/web-development/web-design-html-and-css/threads/283687/css-height-in-not-working 
-	//myIframe.style.height="100%";  
-	//myIframe.height="100%"; 
-
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="block"){
-		viewerFrame.style.display="none";
-		viewerFrame2.style.display = "block";
-	} 
-}
-
-function loadIFrame(thisAnchorObject, url){//alert("I am here with url of : " + url);
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="block"){
-		viewerFrame.style.display="none";
-		viewerFrame2.style.display = "block";
-	} 
-	thisAnchorObject.href=url;
-}
-function populateIFrame(thisAnchorObject, url){
-
-	var targetId = thisAnchorObject.target;
-	if(targetId == ""){
-		return false;
-	}
-	
-	// no longer needed: var myIframeObj = document.getElementById("myIframe"); 
-	var myIframeObj = document.getElementById(targetId);
-	if(myIframeObj.src.indexOf(url)===-1){//they are different, so execute 
-		myIframeObj.src = url;//simply changes the src information stored in myIframe object (save for next time); this actually has no effect on making the http call 
-		thisAnchorObject.href=url;//it is this line that actually makes the http call 
-	}
-	else{
-		thisAnchorObject.href = "javascript:void(0);";
-		alert("The viewport on the right is currently displaying this information");
-		return false;
-	}
-}
-
-function loadNewPage(thisAnchorObject, urlToDisplay) {
-	
-	//from http://bytes.com/topic/javascript/answers/658337-loading-html-pages-inside-div-id-x-div 
-//	if(urlDisplayedOnRight == urlToDisplay){//urlDisplayedOnRight is a javascript global variable 
-//		alert("The viewport on the right is currently displaying this information");
-//		return false;
-//	} 
-	
-	///var viewerFrame = document.getElementById("viewerFrame");
-	///var viewerFrame2 = document.getElementById("viewerFrame2");
-	///if(viewerFrame.style.display=="none"){
-	///	viewerFrame.style.display="block";
-	///	viewerFrame2.style.display = "none";
-	///} 
-	
-	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
-
-	var req = new XMLHttpRequest();
-	req.open("GET", urlToDisplay, false);
-	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
-	req.send(null);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to load data. Please try again.";
-	}
-	else if(req.status == 599){//session expired; user defined 
-		document.location.href = '<c:url value="/auth/login.do" />';
-		return;
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
-	
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="none"){
-		viewerFrame.style.display="block";
-		viewerFrame2.style.display = "none";
-		var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
-		myIframe.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe
-	}
-
-	//how one could possibly get javascript with ajax and then add it to dom 
-	//http://ntt.cc/2008/02/10/4-ways-to-dynamically-load-external-javascriptwith-source.html 
-	/*
-	var oHead = document.getElementsByTagName('HEAD').item(0);
-	var oScript = document.createElement( "script" );
-	oScript.language = "javascript";
-	oScript.type = "text/javascript";
-	oScript.id = "sId";
-	oScript.defer = true;
-	oScript.text = 'function test12345(){alert("inside the 1234567890 alert within homepage.js.jsp");}';  
-	oHead.appendChild( oScript );	
-	*/
-}
-function loadNewPageWithoutMoving(thisAnchorObject, urlToDisplay) {
-	
-	var req = new XMLHttpRequest();
-	req.open("GET", urlToDisplay, false);
-	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
-	req.send(null);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
-		page = "Error! Unable to load data. Please try again.";
-	}
-	else if(req.status == 599){//session expired; user defined 
-		document.location.href = '<c:url value="/auth/login.do" />';
-		return;
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	urlDisplayedOnRight = urlToDisplay;//I think no longer used 
-	
-	var viewerFrame = document.getElementById("viewerFrame");
-	var viewerFrame2 = document.getElementById("viewerFrame2");
-	if(viewerFrame.style.display=="none"){
-		viewerFrame.style.display="block";
-		viewerFrame2.style.display = "none";
-		var myIframe = document.getElementById("myIframe");//ok, works with the tabs 
-		myIframe.src = "about:blank";  //http://stackoverflow.com/questions/1785040/how-to-clear-the-content-of-an-iframe 
-	}
-}
-function postForm(formId, urlToPost) {//added 5-16-13 
-	//alert("yes, I am in postForm");alert("url: "+urlToPost);alert("formId = " + formId);
-	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
-	//alert("urlToPost: " + urlToPost);
-	var theForm = document.getElementById(formId);
-	//alert("theForm name = "+ theForm.name);
-	var arrayOfInputs = theForm.getElementsByTagName("input");
-	var arrayOfTextInputs = [];
-	
-	for(var i = 0; i < arrayOfInputs.length; i++ ){
-		if(arrayOfInputs[i].type == 'text' || arrayOfInputs[i].type == 'hidden'){
-			arrayOfTextInputs.push(arrayOfInputs[i]);
+			serializedObject[this.name].push(this.value || '');
+		} else {
+			serializedObject[this.name] = this.value || '';
 		}
-	}
+	});
+	var jsonData = JSON.stringify(serializedObject);// such as {"sampleSubtypeId":"5","sampleTypeId":"2"} 
 	
-	var arrayOfTextAreas = theForm.getElementsByTagName("textarea");
-	for(var i = 0; i < arrayOfTextAreas.length; i++ ){
-		arrayOfTextInputs.push(arrayOfTextAreas[i]);
-	}
-	
-	var inputParameters = "";
-	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
-		var theName = arrayOfTextInputs[i].getAttribute("name");
-		var theValue = arrayOfTextInputs[i].value;
-		if(i>0){
-			inputParameters += "&";
-		}
-		inputParameters += theName + "=" + theValue; 
-	}
-	
-	var arrayOfSelects = theForm.getElementsByTagName("select");
-	for(var i = 0; i < arrayOfSelects.length; i++ ){
-		var s = arrayOfSelects[i];
-		var theName = s.getAttribute("name");
-		var theValue = s.options[s.selectedIndex].value;
-		if(inputParameters != ""){
-			inputParameters += "&";
-		}
-		inputParameters += theName + "=" + theValue; 
-	}
-	
-	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
-
-	var req = new XMLHttpRequest();
-	req.open("POST", urlToPost, false);
-	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
-	//xmlhttp.send("fname=Henry&lname=Ford"); 
-	req.send(inputParameters);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to process form data. Please try again.";
-	}
-	else if(req.status == 599){//session expired; user defined 
-		document.location.href = '<c:url value="/auth/login.do" />';
-		return;
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	//document.location.href = "http://www.google.com"; //works  
-	
-	//document.getElementById("tab-1").innerHTML = page;
-	
-	/*FOR GET FOR TESTING
-	var req = new XMLHttpRequest();
-	req.open("GET", urlToPost, false);
-	req.send(null);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to load data. Please try again.";
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	*/
-}
-
-function postFormWithoutMoving(formId, urlToPost) {//added 5-16-13 
-	//alert("yes, I am in postForm");alert("url: "+urlToPost);alert("formId = " + formId);
-	//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
-	//alert("urlToPost: " + urlToPost);
-	var theForm = document.getElementById(formId);
-	//alert("theForm name = "+ theForm.name);
-	var arrayOfInputs = theForm.getElementsByTagName("input");
-	var arrayOfTextInputs = [];
-	
-	for(var i = 0; i < arrayOfInputs.length; i++ ){
-		if(arrayOfInputs[i].type == 'text' || arrayOfInputs[i].type == 'hidden'){
-			arrayOfTextInputs.push(arrayOfInputs[i]);
-		}
-	}
-	
-	var arrayOfTextAreas = theForm.getElementsByTagName("textarea");
-	for(var i = 0; i < arrayOfTextAreas.length; i++ ){
-		arrayOfTextInputs.push(arrayOfTextAreas[i]);
-	}
-	
-	var inputParameters = "";
-	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
-		var theName = arrayOfTextInputs[i].getAttribute("name");
-		var theValue = arrayOfTextInputs[i].value;
-		if(i>0){
-			inputParameters += "&";
-		}
-		inputParameters += theName + "=" + theValue; 
-	}
-
-	var arrayOfSelects = theForm.getElementsByTagName("select");
-	for(var i = 0; i < arrayOfSelects.length; i++ ){
-		var s = arrayOfSelects[i];
-		var theName = s.getAttribute("name");
-		var theValue = s.options[s.selectedIndex].value;
-		if(inputParameters != ""){
-			inputParameters += "&";
-		}
-		inputParameters += theName + "=" + theValue; 
-	}
-
-	var req = new XMLHttpRequest();
-	req.open("POST", urlToPost, false);
-	req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	req.setRequestHeader("X-Requested-With","XMLHttpRequest");//it's ajax 
-	//xmlhttp.send("fname=Henry&lname=Ford"); 
-	req.send(inputParameters);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to process form data. Please try again.";
-	}
-	else if(req.status == 599){//session expired; user defined 
-		document.location.href = '<c:url value="/auth/login.do" />';
-		return;
-	}
-
-	document.getElementById("viewerFrame").innerHTML = page;
-	//document.getElementById("tab-1").innerHTML = page;
-	
-	/*FOR GET FOR TESTING
-	var req = new XMLHttpRequest();
-	req.open("GET", urlToPost, false);
-	req.send(null);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to load data. Please try again.";
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-	*/
-}
-
-
-function postMultipartForm(formId, urlToPost) {//added 5-17-13 
-//don't think being used !!!  
-//http://www.w3schools.com/ajax/ajax_xmlhttprequest_send.asp 
-	//http://stackoverflow.com/questions/5933949/how-to-send-multipart-form-data-form-content-by-ajax-no-jquery 
-	//alert("urlToPost: " + urlToPost); 
-	
-	var boundary=Math.random().toString().substr(2);
-	
-	var theForm = document.getElementById(formId);
-	var arrayOfInputs = theForm.getElementsByTagName("input");
-	var arrayOfTextInputs = [];
-	for(var i = 0; i < arrayOfInputs.length; i++ ){
-		if(arrayOfInputs[i].type == 'text'){
-			arrayOfTextInputs.push(arrayOfInputs[i]);
-		}
-	}
-	var inputParameters = "";
-	for(var i = 0; i < arrayOfTextInputs.length; i++ ){
-		var theName = arrayOfTextInputs[i].getAttribute("name");
-		var theValue = arrayOfTextInputs[i].value;
-		if(i>0){
-			inputParameters += "&";
-		}
-		inputParameters += theName + "=" + theValue; 
-	}
-	$('html, body').animate({ scrollTop: 0 }, 0); //got to top of page: http://www.nomadjourney.com/2009/09/go-to-top-of-page-using-jquery/ 
-
-	var req = new XMLHttpRequest();
-	req.open("POST", urlToPost, false);
-	req.setRequestHeader("content-type", "multipart/form-data; charset=utf-8; boundary=" + boundary);	
-	//xmlhttp.send("fname=Henry&lname=Ford"); 
-	req.send(inputParameters);
-	var page = req.responseText;
-	if(req.status == 404 || req.status == 500){
-		page = "Error! Unable to process form data. Please try again.";
-	}
-	document.getElementById("viewerFrame").innerHTML = page;
-}
-
-
-
-function toggleAnchors(thisAnchorObject){
-	
-	//anchor is already the currently highlighted anchor, so nothing needed to be done 
-	if(thisAnchorObject.style.color == highlightedAnchorColor){
-		return;
-	}
-	
-	//change this anchor to highlighted attributes 
-	thisAnchorObject.style.color = highlightedAnchorColor;// for example "blue" 
-	thisAnchorObject.style.background = highlightedAnchorBackground;
-	thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
-	thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();
-	
-	//for all other anchors (in div with id selectionLeftDiv), change back to the original, unhilighted attributes 
-	var selectionLeftDiv = document.getElementById("selectionLeft");
-	var allAnchors = selectionLeftDiv.getElementsByTagName("a");
-	for(var i = 0; i < allAnchors.length; i++){
-		if(thisAnchorObject.id != allAnchors[i].id){
-			allAnchors[i].style.color = unhighlightedAnchorColor;
-			allAnchors[i].style.background = unhighlightedAnchorBackground; 
-			allAnchors[i].style.fontWeight = unhighlightedAnchorFontWeight;	
-			allAnchors[i].innerHTML = allAnchors[i].innerHTML.toLowerCase();
-		}
-	}
-}
-
-function toggleViewerFrame(toggleButton){
-	var viewerFrame = document.getElementById('viewerFrame');
-	if(toggleButton.value == "Show Viewport"){
-		toggleButton.value = "Hide Viewport";
-		viewerFrame.style.display = "block";
-	}
-	else if(toggleButton.value == "Hide Viewport"){
-		toggleButton.value = "Show Viewport";
-		viewerFrame.style.display = "none";	
-	}	
-}
-function openAllRuns(){
-	
-	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
-	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
-	for(var i = 0; i < runExpandAnchorArray.length; i++){
-		thisAnchorObject = runExpandAnchorArray[i];
-		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
-		var temp = "runDivToToggle_" + runIdNumberToToggle;
-		var runDivToToggle = document.getElementById(temp);
-		var parentDiv = thisAnchorObject.parentNode;
-		
-		if(runDivToToggle.style.display == "none"){//selected region is closed, so open it. If it's open, then do nothing 
-			runDivToToggle.style.display = "block";
-			thisAnchorObject.innerHTML = "hide";
-			parentDiv.style.border= "1px dashed gray";
-			
-			//in case this expand/hide anchor (the thisAnchorObject object) happens to be highlighted, then unhighlight it 
-			//(note: it can become highlighted in certain situations. See function toggleExpandHide() above) 
-			thisAnchorObject.style.color = unhighlightedAnchorColor;
-			thisAnchorObject.style.background = unhighlightedAnchorBackground; 
-			thisAnchorObject.style.fontWeight = unhighlightedAnchorFontWeight;
-			thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toLowerCase();
-		}
-	}
-}
-function closeAllRuns(){
-	//for first line, see http://stackoverflow.com/questions/10111668/find-all-elements-whose-id-begins-with-a-common-string 
-	var runExpandAnchorArray = document.querySelectorAll('*[id^="runExpandAnchor"]');
-	for(var i = 0; i < runExpandAnchorArray.length; i++){
-		thisAnchorObject = runExpandAnchorArray[i];
-		var runIdNumberToToggle = thisAnchorObject.id.split("_").pop();
-		var temp = "runDivToToggle_" + runIdNumberToToggle;
-		var runDivToToggle = document.getElementById(temp);
-		var parentDiv = thisAnchorObject.parentNode;
-		
-		if(runDivToToggle.style.display == "block"){//selected region is open, so close it. If it's closed, then do nothing 
-			runDivToToggle.style.display = "none";
-			thisAnchorObject.innerHTML = "expand";		
-			parentDiv.style.border= "";
-					
-			//when closing (hiding) this area, 
-			//if ANY of its internal anchors (within this area) are highlighted, 
-			//then leave them highlighted and ALSO highlight the hide/expand anchor (to indicate that some detail anchor, now hidden, is currently hightlighted) 
-			var allAnchorsInRunDivToToggle = runDivToToggle.getElementsByTagName("a");
-			for(var z = 0; z < allAnchorsInRunDivToToggle.length; z++){
-				if(allAnchorsInRunDivToToggle[z].style.color == highlightedAnchorColor){
-					thisAnchorObject.style.color = highlightedAnchorColor;
-					thisAnchorObject.style.background = highlightedAnchorBackground; 
-					thisAnchorObject.style.fontWeight = highlightedAnchorFontWeight;
-					thisAnchorObject.innerHTML = thisAnchorObject.innerHTML.toUpperCase();				
-					break;
-				}
-			}
-		}
-	}	
-}
-
-
-
-</script>
- 
-<script type="text/javascript">
+	$.ajax({
+        type: frm.attr('method'),
+        url: theUrl,
+        //dataType : 'json', //dataType specifies the data coming back from server (in this case it's html, not json) 
+        data: jsonData,
+        contentType: 'application/json',
+        success: function (response) {
+        	selectedPanel.html(response);
+        },
+		error: function (response) {
+			selectedPanel.html("Unexpected Failure");
+    	}
+    });
+	return false;
+}	
   
-//WE MUST HAVE THIS NEXT LINE 
-window.onload = function (){
+//used here to upload files via ajax 
+//from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
+//uses plugin jquery.form.js; see script tag at top of this page:  see http://malsup.com/jquery/form/
+function uploadJqueryForm(formObjectId){	
+	var frm = $("#" + formObjectId);
+   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+	frm.ajaxForm({ 
+    success:function(data) { 
+    	selectedPanel.html(data);
+     },
+     dataType:"text" 
+   }).submit();       
+	return false;//I added this last line. Not sure if it's required 
+}
+     
+//used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
+function doGetWithAjax(theUrl) {
+   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+	$.ajax({
+        type: "GET",
+        url: theUrl,
+        success: function (response) {
+        	selectedPanel.html(response);
+        },
+        error: function (response) {
+        	selectedPanel.html("Unexpected Failure");
+        }
+    });
+	return false; // avoid 
+}
+//used to navigate  
+function loadNewPageWithAjax(theUrl){
+	doGetWithAjax(theUrl);
+	return false;
+}
+
+// the next two functions are no longer needed; can simply load the script from the ajax-called page using a script tag and storing/calling the .js page in /wasp/scripts/js           
+function loadNewScriptAjax(scriptLocation){  //no longer used    	
+    var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel       	 
+    $.ajax({
+        type: "GET",
+        url: scriptLocation,
+        dataType: "script",
+        success: function (response) {
+          	selectedPanel.html(response);
+        },
+        error: function (response) {
+           	selectedPanel.html("Unexpected Failure with loadNewScriptAjax()");
+        }
+     });
+    return false;  
+}
+function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) { //no longer used   
+   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
+  	 $.ajax({
+        type: "GET",
+        url: theUrl,
+        success: function (response) {
+            selectedPanel.html(response);//the webpage  
+            loadNewScriptAjax(scriptLocation);//the js script 
+        },
+        error: function (response) {
+        	selectedPanel.html(response);//the webpage
+        }
+    });    	 
+  	return false; // avoid 
+}
+
+//Next call is No Longer Used: I previously used this to load up something on page load 
+//window.onload = function (){ 
 	//loadNewPageWithAjax('<c:url value="/job/${job.getId()}/basic.do" />'); 
 	//to avoid hardcoding, use below code (from http://stackoverflow.com/questions/906486/how-can-i-programmatically-invoke-an-onclick-event-from-a-anchor-tag-while-kee)
-	var firstTabAnchor = document.getElementById('first_tab').getElementsByTagName('a')[0];
-	if (typeof firstTabAnchor.onclick == "function") {
-		firstTabAnchor.onclick.apply(firstTabAnchor);
-	} 
-}
-  
-  //used for comments, viewerManager 
-    function postFormWithAjax(formObjectId, theUrl){
-    	var frm = $("#" + formObjectId);
-    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel; http://stackoverflow.com/questions/1331335/how-to-get-the-selected-tab-panel-element-in-jquery-ui-tabs 
-    	$.ajax({
-            type: frm.attr('method'),
-            url: theUrl,
-            data: frm.serialize(), // for example sampleSubtypeId=5&sampleTypeId=2&name=input1 
-            success: function (response) {
-                //$('#viewerFrame').html(response);
-            	selectedPanel.html(response);
-            },
-            error: function (response) {
-            	//$('#viewerFrame').html("Unexpected Failure");
-            	selectedPanel.html("Unexpected Failure");
-            }
-        });
-    	confirmViewerVisible(); 
-    	return false; // avoid to execute the actual submit of the form 
-    }
+//	var firstTabAnchor = document.getElementById('first_tab').getElementsByTagName('a')[0];
+//	if (typeof firstTabAnchor.onclick == "function") {
+//		firstTabAnchor.onclick.apply(firstTabAnchor);
+//	} 
+//} 
     
-  //used for the samples and libraries 
-    //look at this, it's good: http://blog.springsource.org/2010/01/25/ajax-simplifications-in-spring-3-0/
-    function postFormWithAjaxJson(formObjectId, theUrl){
-    	var frm = $("#" + formObjectId);  
-    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-    	var serializedObject = {};
-    	var a = frm.serializeArray(); //http://api.jquery.com/serializeArray/ 
-    	$.each(a, function() {
-    		if (serializedObject[this.name]) {
-    			if (!serializedObject[this.name].push) {
-    				serializedObject[this.name] = [serializedObject[this.name]];
-    			}
-    			serializedObject[this.name].push(this.value || '');
-    		} else {
-    			serializedObject[this.name] = this.value || '';
-    		}
-    	});
-    	var jsonData = JSON.stringify(serializedObject);// such as {"sampleSubtypeId":"5","sampleTypeId":"2"} 
-    	
-    	$.ajax({
-            type: frm.attr('method'),
-            url: theUrl,
-            //dataType : 'json', //coming back from server
-            data: jsonData,
-            contentType: 'application/json',
-            success: function (response) {
-                //$('#viewerFrame').html(response);
-            	selectedPanel.html(response);
-            },
-    		error: function (response) {
-            	//$('#viewerFrame').html("Unexpected Failure");
-    			selectedPanel.html("Unexpected Failure");
-        	}
-        });
-    	confirmViewerVisible();  
-    	return false;
-    }	
-  
-    //used here to upload files via ajax 
-    //from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ 
-  	//using plugin jquery.form.js  see http://malsup.com/jquery/form/
-    function uploadJqueryForm(formObjectId){
-    	
-  		var frm = $("#" + formObjectId);
-       	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-      // $("#form22123").ajaxForm({ 
-    	frm.ajaxForm({ 
-        success:function(data) { 
-              //$('#viewerFrame').html(data);
-        	selectedPanel.html(data);
-         },
-         dataType:"text" 
-       }).submit();       
-    	confirmViewerVisible();  
-    	return false;//I added this last line. Not sure if it's required 
-    }
-     
-      //used on viewerManager to remove a viewer via an ajax GET, using only parth variable parameters in the rest part of URL 
-    function doGetWithAjax(theUrl) {
-       	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-    	$.ajax({
-            type: "GET",
-            url: theUrl,
-            success: function (response) {
-                //$('#viewerFrame').html(response);
-            	selectedPanel.html(response);
-            },
-            error: function (response) {
-            	$('#viewerFrame').html("Unexpected Failure");
-            	selectedPanel.html("Unexpected Failure");
-            }
-        });
-    	confirmViewerVisible();  
-    	return false; // avoid 
-    }
-      
-    function loadNewPageWithAjax(theUrl){
-    	doGetWithAjax(theUrl);
-    	confirmViewerVisible();  
-    	return false;
-    }
-    
-    function confirmViewerVisible(){
-    	var viewerFrame = document.getElementById("viewerFrame");
-    	var viewerFrame2 = document.getElementById("viewerFrame2");
-    	if(viewerFrame.style.display=="none"){
-    		viewerFrame.style.display="block";
-    		if(typeof viewerFrame2 != 'undefined' && viewerFrame2 != null && viewerFrame2.style.display == "block"){
-    			viewerFrame2.style.display = "none";
-    		}
-    	}
-    }
-     
-    function loadNewScriptAjax(scriptLocation){
-      	
-    	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-      	 
-    	$.ajax({
-            type: "GET",
-            url: scriptLocation,
-            dataType: "script",
-            success: function (response) {
-                //$('#viewerFrame').html(response);
-            },
-            error: function (response) {
-            	//$('#viewerFrame').html("Unexpected Failure with loadNewScriptAjax()"); 
-            	selectedPanel.html("Unexpected Failure with loadNewScriptAjax()");
-            }
-     	});
-    	/* could have used this too!
-    	$.getScript(scriptLocation)
-    	.done(function(script, textStatus) {
-    	  console.log( textStatus );
-    	
-    	})
-    	.fail(function(jqxhr, settings, exception) {
-    	  $( "#viewerFrame" ).text( "Triggered ajaxError handler." );
-    	});
-    	*/
-    	return false;  
-    }
-    
-    function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) {
-     	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
-     	 $.ajax({
-            type: "GET",
-            url: theUrl,
-            success: function (response) {
-                //$('#viewerFrame').html(response);//the webpage 
-                selectedPanel.html(response);//the webpage  
-                loadNewScriptAjax(scriptLocation);//the js script 
-            },
-            error: function (response) {
-            	//$('#viewerFrame').html("Unexpected Failure");
-            	selectedPanel.html(response);//the webpage
-            }
-        });
-    	confirmViewerVisible();  
-    	return false; // avoid 
-    }
-    
-    function findDivForActiveTab(element){
-    	alert("inside function findDivForActiveTab()");
-    	/*
-    	var divForActiveTab = element.parentNode;
-    	counter = 0;
-    	//while(divIdForThisTab && divIdForThisTab.id != "ui-tabs-3" ){ 
-    	while( divForActiveTab && divForActiveTab.id.indexOf("ui-tabs") != 0 ){
-    		//alert("Counter: " + counter + " and id: " + divForActiveTab.tagName );
-    	
-    		divForActiveTab = divForActiveTab.parentNode;
-    		counter++;
-    		
-    		if(counter > 10){
-    			break;
-    		}
-    	}
-    	alert("Shoud have now found it; my id is " + divForActiveTab.id);
-    	*/
-    	// return divForActiveTab; 
-    	var selectedPanel = $('#tabs').find("[aria-expanded=true]"); //$("#tabs div.ui-tabs-panel[aria-hidden='false']");//$('#tabs').find("[aria-expanded=true]"); //$("#tabs div.ui-tabs-panel:not(.ui-tabs-hide)");
-    	//alert("and using the jquery idea, selectedPanel is = " + selectedPanel.name);
-    	selectedPanel.html("this is a test");
-   
-    }
-/*              
-    $.fn.serializeObject = function() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery   
-    	var o = {};
-    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
-    	$.each(a, function() {
-    		if (o[this.name]) {
-    			if (!o[this.name].push) {
-    				o[this.name] = [o[this.name]];
-    			}
-    			o[this.name].push(this.value || '');
-    		} else {
-    			o[this.name] = this.value || '';
-    		}
-    	});
-    	return o;
-    };
- */   
-    /*
-   function serializeObject() { //http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery  
-    	var o = {};
-    	var a = this.serializeArray(); //http://api.jquery.com/serializeArray/ 
-    	$.each(a, function() {
-    		if (o[this.name]) {
-    			if (!o[this.name].push) {
-    				o[this.name] = [o[this.name]];
-    			}
-    			o[this.name].push(this.value || '');
-    		} else {
-    			o[this.name] = this.value || '';
-    		}
-    	});
-    	return o;
-    };
-    */
-    
-
-      
-   
 </script>
