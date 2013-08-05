@@ -7,4 +7,3 @@
 	<h2 style="color:red;font-weight:bold"><c:out value="${errorMessage}" /></h2>
 </c:if>
 <br />
-<br />

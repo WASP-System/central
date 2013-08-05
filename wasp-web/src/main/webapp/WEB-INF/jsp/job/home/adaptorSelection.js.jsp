@@ -7,7 +7,9 @@
 			$('tr#row_adaptor').hide();
 		}
 	});
-	
+	 
+/* 	this function has been added directly to meta_rw.jsp (it wouldn't be loaded to dom via ajax call, however the document.ready call above is executed!)
+    
     $(function(){
 		$('select#adaptorset').change(function() {      
 				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
@@ -38,4 +40,5 @@
 				$('tr#row_adaptor').show();
 		   	});
 	    });
+*/ 
 </script>

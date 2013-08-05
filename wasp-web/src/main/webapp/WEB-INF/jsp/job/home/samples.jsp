@@ -1,14 +1,12 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<br />
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-
 <sec:authorize access="hasRole('su') or hasRole('ft')">
 	<%--<c:if test="${numberOfLibrariesAwaitingPlatformUnitPlacement>1}"> --%>
 		<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/addLibrariesToCell.do" />");' >Assign Multiple Libraries</a><br />
 	<%--</c:if> --%>
 </sec:authorize>
-<br /><br />	
-					
+<br /><br />					
 <table class="data" style="margin: 0px 0px">
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	 
@@ -282,4 +280,4 @@
 	</tr>
 </c:forEach>
 </table>
-<br /><br />
+<br />

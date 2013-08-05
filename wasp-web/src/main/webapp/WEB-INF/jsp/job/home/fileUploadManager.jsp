@@ -1,20 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
-
-<%--
-see here for explanation of the 2 ways to upload file via ajax: http://stackoverflow.com/questions/1686099/file-upload-via-ajax-within-jquery 
-method2,  (the easier of the two): targeting to a hidden iframe to enable the file post to work see: http://blog.manki.in/2011/08/ajax-fie-upload.html worked well but Andy didn't want it this way 
-method1 using flash swf, can be implemented with this jquery plugin http://www.uploadify.com/
-In the end we used the jquery form plug (http://malsup.com/jquery/form/). Its use is described well in http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
-(Note that we did NOT use the Html5 FormObject method, as some browsers do not yet support it).
---%>
-
-<%-- example using the target = hidden iFrame worked nicely but Andy didn't like it. It only requires the target attribute to be set in the form tag, as is here, and to have a hidden iframe
-<form action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" target="hiddenIFrame">
---%>
-
-<%--need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
+<%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
+<%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
+<br />
 <form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<tr class="FormData">
@@ -72,4 +60,4 @@ In the end we used the jquery form plug (http://malsup.com/jquery/form/). Its us
 		</c:forEach>
 	</table>
 </form>
-<br /><br />
+<br />

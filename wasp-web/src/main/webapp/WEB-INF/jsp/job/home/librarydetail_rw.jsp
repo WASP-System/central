@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<br />
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
-<br />
-<br />
+<br /><br /><br />
 <form:form   cssClass="FormGrid" commandName="sample" method='post' name='editLibraryForm' id='editLibraryFormId' action="" >
 	<table class="EditTable ui-widget ui-widget-content">
 	 	<tr class="FormData"><td colspan="3" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_rw.libraryDetails.label" /></td></tr>
@@ -27,4 +27,4 @@
 	     </sec:authorize>
 	</table>
 </form:form>
-<br /><br />
+<br />

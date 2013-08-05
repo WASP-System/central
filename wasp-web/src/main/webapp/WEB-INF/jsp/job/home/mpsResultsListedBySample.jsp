@@ -1,7 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<br />
 <table class="data">
-
 <c:forEach items="${submittedObjectList}" var="submittedObject" varStatus="statusSubmittedObject">
 	<c:if test="${statusSubmittedObject.index>0}">
 		<tr class="FormData"><td colspan="13" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
@@ -143,4 +142,4 @@
 		</c:choose>
 </c:forEach>
 </table>
-<br /><br />
+<br />

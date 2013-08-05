@@ -99,4 +99,4 @@
 		</table>
 	</div>	
 </c:if>
-<br /><br />
+<br />

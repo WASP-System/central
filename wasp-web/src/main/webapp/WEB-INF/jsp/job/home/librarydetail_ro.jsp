@@ -1,10 +1,8 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
-
+<br />
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
-<br />
-<br />
+<br /><br /><br />
 <table class="EditTable ui-widget ui-widget-content">
    	<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_ro.libraryDetails.label" /></td></tr>
   	 <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.libraryName.label" />: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
@@ -18,5 +16,4 @@
 	 </sec:authorize>	
 	 </td></tr>
 </table>
-
-<br /><br />
+<br />

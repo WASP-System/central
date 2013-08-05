@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <sec:authorize access="hasRole('su') or hasRole('ft')">
-
+<br />
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a><br />
 <br /><br />
@@ -255,4 +255,4 @@
 </table>
 </form>
 </sec:authorize>
-<br /><br />
+<br />

@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<div >
+<br />
 <table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobSubmitter.label" />:</td><td class="DataTD"><c:out value="${job.user.firstName}" /> <c:out value="${job.user.lastName}" /></td></tr>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobPI.label" />:</td><td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /></td></tr>
@@ -26,8 +26,5 @@
 	<c:forEach items="${extraJobDetailsMap.keySet()}" var="detailKey">
 		<tr class="FormData"><td class="CaptionTD"><fmt:message key="${detailKey}" />:</td><td class="DataTD"><c:out value="${extraJobDetailsMap.get(detailKey)}" /></td></tr>
 	</c:forEach>
-	
-
 </table>
-</div>
-<br /><br />
+<br />

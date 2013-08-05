@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+<br />
 <a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/samples.do" />");' >Back To: Samples, Libraries &amp; Runs</a>
-<br />
-<br />
+<br /><br /><br />
 <form:form cssClass="FormGrid" commandName="sample" method='post' name='editMacromoleculeForm' id='editMacromoleculeFormId' action="" >
 	<form:hidden path='sampleSubtypeId' />
 	<form:hidden path='sampleTypeId' />
@@ -26,4 +26,4 @@
 	    </sec:authorize>
 	</table>
 </form:form>	
-<br /><br />
+<br />

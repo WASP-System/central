@@ -1,7 +1,6 @@
-<%@ include file="/WEB-INF/jsp/taglib.jsp" %>
- 
+<%@ include file="/WEB-INF/jsp/taglib.jsp" %> 
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
-
+<br />
 <form  method='post' id='addJobViewerFormId' onsubmit='postFormWithAjax("addJobViewerFormId","<c:url value="/job/${job.getId()}/viewerManager.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0px">
 	
@@ -40,4 +39,4 @@
 		</c:forEach>		
 	</table>
 </form>
-<br /><br />
+<br />

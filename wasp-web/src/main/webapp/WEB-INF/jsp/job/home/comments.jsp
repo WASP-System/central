@@ -1,5 +1,4 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- 
 <script type="text/javascript" src="/wasp/scripts/js/robtest.js"></script>
@@ -7,7 +6,7 @@
 <a class="button" href="javascript:void(0);"  onclick='alert("first of 2"); robdisplayalert();' >activate robDisplayAlert()</a>
 <br /><br />
 --%>
-
+<br />
 <form  method='post' name='commentForm' id='commentFormId' onsubmit='postFormWithAjax("commentFormId","<c:url value="/job/${job.getId()}/comments.do" />"); return false;'>
 	<table class="data" style="margin: 0px 0; width:600px" >
 		<c:if test='${permissionToAddEditComment==true}'>
@@ -55,4 +54,4 @@
 		</c:if>
 	</table>
 </form>
-<br /><br />
+<br />
