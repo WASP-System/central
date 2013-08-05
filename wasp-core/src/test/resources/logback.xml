@@ -16,10 +16,10 @@
 <pattern>%le %-1r [%c{1}] %m%n</pattern>
 </encoder>
 </appender>
-<logger name="edu.yu.einstein.wasp" level="TRACE"/>
+<logger name="edu.yu.einstein.wasp" level="DEBUG"/>
 <logger name="org.hibernate" level="DEBUG"/>
 <logger name="org.hsqldb" level="DEBUG"/>
-<logger name="org.springframework.jdbc" level="TRACE"/>
+<logger name="org.springframework.jdbc" level="DEBUG"/>
 <logger name="org.apache.commons.dbcp" level="DEBUG"/>
 <root level="INFO">
 <appender-ref ref="stdout"/>

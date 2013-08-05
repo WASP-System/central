@@ -64,7 +64,7 @@ public class JdbcWaspJobExecutionDao extends JdbcJobExecutionDao implements Wasp
 					if (valIndex > 1)
 						sql += ",";
 					sql += " :val" + compositeValIndex;
-					parameterSource.addValue("val" + compositeValIndex, val, Types.BIGINT);		
+					parameterSource.addValue("val" + compositeValIndex, val, Types.VARCHAR);		
 					valIndex++;
 				}
 				sql += " ) )";
