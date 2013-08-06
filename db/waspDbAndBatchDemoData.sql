@@ -138,7 +138,7 @@ VALUES
 	(48,'2013-03-12 12:39:39','2013-03-12 18:20:20',X'01B47218078741528C565AFEFC7253CA',2,47,'TCGAAG','illuminaTrueseqDnaIndexed47',1,'TruSeq Adaptor, Index 47 (TCGAAG)','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC',NULL),
 	(49,'2013-03-12 12:39:39','2013-03-12 18:20:20',X'CD9B9B90F34F4181B24501C730C24BD5',2,48,'TCGGCA','illuminaTrueseqDnaIndexed48',1,'TruSeq Adaptor, Index 48 (TCGGCA)','AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC',NULL);
 
-/*!40000 ALTER TABLE `adaptor` ENABLE KEYS */;
+/*!40000 ALTER TABLE `adaptor` ENABLE KEYS */; 
 UNLOCK TABLES;
 
 
@@ -267,20 +267,20 @@ LOCK TABLES `BATCH_JOB_EXECUTION_PARAMS` WRITE;
 
 INSERT INTO `BATCH_JOB_EXECUTION_PARAMS` (`JOB_EXECUTION_ID`, `TYPE_CD`, `KEY_NAME`, `STRING_VAL`, `DATE_VAL`, `LONG_VAL`, `DOUBLE_VAL`, `IDENTIFYING`)
 VALUES
-	(1,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'1'),
-	(2,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'1'),
-	(2,'STRING','sampleId','21','1969-12-31 19:00:00',0,0,'1'),
-	(3,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'1'),
-	(3,'STRING','sampleId','22','1969-12-31 19:00:00',0,0,'1'),
-	(4,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'1'),
-	(4,'STRING','sampleId','23','1969-12-31 19:00:00',0,0,'1'),
-	(5,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'1'),
-	(5,'STRING','sampleId','24','1969-12-31 19:00:00',0,0,'1'),
-	(6,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'1'),
-	(7,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'1'),
-	(7,'STRING','sampleId','25','1969-12-31 19:00:00',0,0,'1'),
-	(8,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'1'),
-	(8,'STRING','sampleId','26','1969-12-31 19:00:00',0,0,'1'),
+	(1,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'Y'),
+	(2,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'Y'),
+	(2,'STRING','sampleId','21','1969-12-31 19:00:00',0,0,'Y'),
+	(3,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'Y'),
+	(3,'STRING','sampleId','22','1969-12-31 19:00:00',0,0,'Y'),
+	(4,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'Y'),
+	(4,'STRING','sampleId','23','1969-12-31 19:00:00',0,0,'Y'),
+	(5,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'Y'),
+	(5,'STRING','sampleId','24','1969-12-31 19:00:00',0,0,'Y'),
+	(6,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'Y'),
+	(7,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'Y'),
+	(7,'STRING','sampleId','25','1969-12-31 19:00:00',0,0,'Y'),
+	(8,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'Y'),
+	(8,'STRING','sampleId','26','1969-12-31 19:00:00',0,0,'Y'),
 	(9,'STRING','jobId','1','1969-12-31 19:00:00',0,0,'N'),
 	(9,'STRING','sampleId','24','1969-12-31 19:00:00',0,0,'N'),
 	(10,'STRING','jobId','2','1969-12-31 19:00:00',0,0,'N'),
@@ -3599,7 +3599,7 @@ VALUES
 	(2007,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'BD04EFFF5A5F4D9899AE2B6B587A5956','bwa','range','0:20',NULL,'en_US','aln-d',0),
 	(2008,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'5B0353C1F3FF4CEB834E0E87B0AE597D','bwa','default','16',NULL,'en_US','aln-d',0),
 	(2009,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'522B8024DC2A45919FE75DEFE73C1848','bwa','label','Disallow long deletion within INT bp of 3\' end. (aln -d)',NULL,'en_US','aln-d',0),
-	(2010,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'A0ED471F0E15400BBC0069E6003E84AA','bwa','tooltip','Disallow a long deletion within INT bp towards the 3’-end [16]',NULL,'en_US','aln-d',0),
+	(2010,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'A0ED471F0E15400BBC0069E6003E84AA','bwa','tooltip','Disallow a long deletion within INT bp towards the 3���-end [16]',NULL,'en_US','aln-d',0),
 	(2011,'2013-08-05 19:04:25','2013-08-05 19:04:25',X'91A2EE729E9845E1829E5BA8BBF9E21B','bwa','error','A value for the disallow long deletion must be specified',NULL,'en_US','aln-d',0),
 	(2012,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'E04B707364A9476E92726F6BB3AD424A','bwa','constraint','NotEmpty',NULL,'en_US','aln-i',0),
 	(2013,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'97623174ACC044339190150952874BDF','bwa','metaposition','50',NULL,'en_US','aln-i',0),
@@ -3615,7 +3615,7 @@ VALUES
 	(2023,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'74A6EA264D5E4D4BB7C100C62FAD6796','bwa','range','-1:250',NULL,'en_US','aln-l',0),
 	(2024,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'1FE796B66ED74865877BE910EAB53D8E','bwa','default','32',NULL,'en_US','aln-l',0),
 	(2025,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'C9139246871C43FEA26D2B94B439B8B0','bwa','label','Take the first INT subsequence as seed. -1 for infinity. (aln -l)',NULL,'en_US','aln-l',0),
-	(2026,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'4A2CD5580B8E47FF8148CDE1A370AE27','bwa','tooltip','Take the first INT subsequence as seed. If INT is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for ‘-k 2’. [32]',NULL,'en_US','aln-l',0),
+	(2026,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'4A2CD5580B8E47FF8148CDE1A370AE27','bwa','tooltip','Take the first INT subsequence as seed. If INT is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for ���-k 2���. [32]',NULL,'en_US','aln-l',0),
 	(2027,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'75F11BBCEBD54FCDBFCEEBF4D398B4B5','bwa','error','A value for the seed must be specified',NULL,'en_US','aln-l',0),
 	(2028,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'137CB0186F464E229815B6DD5A29D500','bwa','constraint','NotEmpty',NULL,'en_US','aln-k',0),
 	(2029,'2013-08-05 19:04:25','2013-08-05 19:04:26',X'8E58C09817DC47DEAD7A53956DC3ABA5','bwa','metaposition','70',NULL,'en_US','aln-k',0),
