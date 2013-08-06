@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class MetadataException extends Exception{
+public class MetadataException extends WaspException {
 	
 	/**
 	 * 

@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class UnexpectedMessagePayloadValueException extends Exception {
+public class UnexpectedMessagePayloadValueException extends WaspException {
 
 	/**
 	 * 

@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class ParameterValueRetrievalException extends Exception {
+public class ParameterValueRetrievalException extends WaspException {
 
 	/**
 	 * 
