@@ -36,7 +36,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public List<E> setMeta(final List<E> metaList, final int modelParentId) throws MetadataException{
 		List<E> returnMetaList = new ArrayList<E>();
 		String parentClassName = StringUtils.substringBefore(entityClass.getSimpleName(), "Meta");
@@ -64,7 +64,7 @@ public abstract class WaspMetaDaoImpl<E extends MetaBase> extends WaspDaoImpl<E>
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public E setMeta(final E meta) throws MetadataException{
 		String parentClassName = StringUtils.substringBefore(entityClass.getSimpleName(), "Meta");
 		String modelParentIdEntityName = null;

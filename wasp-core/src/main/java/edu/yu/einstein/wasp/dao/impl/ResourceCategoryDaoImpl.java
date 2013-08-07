@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> implements edu.yu.einstein.wasp.dao.ResourceCategoryDao {
 
@@ -45,7 +45,7 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCategory getResourceCategoryByResourceCategoryId (final Integer resourceCategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", resourceCategoryId);
@@ -70,7 +70,7 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCategory getResourceCategoryByIName (final String iName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -95,7 +95,7 @@ public class ResourceCategoryDaoImpl extends WaspDaoImpl<ResourceCategory> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCategory getResourceCategoryByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.UserPending;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.yu.einstein.wasp.dao.UserPendingDao {
 
@@ -30,7 +30,7 @@ public class UserPendingDaoImpl extends WaspDaoImpl<UserPending> implements edu.
   }
 
   @Override
-  @Transactional
+  @Transactional("entityManager")
   public UserPending getUserPendingByUserPendingId (final int userPendingId) {
     HashMap<String, Integer> m = new HashMap<String, Integer>();
     m.put("id", userPendingId);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.LabPendingMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class LabPendingMetaDaoImpl extends WaspMetaDaoImpl<LabPendingMeta> implements edu.yu.einstein.wasp.dao.LabPendingMetaDao {
 
@@ -44,7 +44,7 @@ public class LabPendingMetaDaoImpl extends WaspMetaDaoImpl<LabPendingMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public LabPendingMeta getLabPendingMetaByLabPendingMetaId (final int labPendingMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", labPendingMetaId);
@@ -69,7 +69,7 @@ public class LabPendingMetaDaoImpl extends WaspMetaDaoImpl<LabPendingMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public LabPendingMeta getLabPendingMetaByKLabpendingId (final String k, final int labpendingId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
