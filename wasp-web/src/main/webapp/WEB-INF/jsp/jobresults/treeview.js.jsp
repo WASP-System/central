@@ -29,7 +29,7 @@ var margin = {top: 20, right: 30, bottom: 20, left: 20},
     root=new Object();
     
 var barHeight = 20,
-	barWidth = width * .5;
+	barWidth = width * .75;
 
 var tree = d3.layout.tree().size([height, 100]);
 
@@ -133,12 +133,12 @@ function update(source) {
       .data(nodes, function(d) { return d.id || (d.id = ++i); });
   
   var nodeEnter = node.enter().append("svg:g")
-  .attr("class", "node")
-  .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-  .style("opacity", 1e-6)
-  .on("click", click)
-  .on("mouseover", onMouseOver)
-  .on("mouseout", onMouseOut);
+	  .attr("class", "node")
+	  .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+	  .style("opacity", 1e-6)
+	  .on("click", click)
+	  .on("mouseover", onMouseOver)
+	  .on("mouseout", onMouseOut);
 
 	// Enter any new nodes at the parent's previous position.
 	nodeEnter.append("svg:rect")
@@ -291,7 +291,7 @@ function click(d) {
 		dataType: 'json',
 		success: function (result) {
 			//return;
-			if (d.type=='dummy') return;  
+			if (d.type!='filegroup') return;  
 	      
 			//remove all existing tabs from tabpanel first
 			var tabpanel = Ext.getCmp('wasp-tabpanel');
@@ -303,8 +303,8 @@ function click(d) {
 			tabpanel.removeAll();
 	
 			var jsList = new Array(), cssList = new Array();
-			$.each(result, function (index, item) {
-				$.each(item, function(index1, item1){
+			$.each(result.paneltablist, function (index, item) {
+				$.each(item.panels, function(index1, item1){
 					for(var i=0,len=item1.content.scriptDependencies.length; i<len; i++) {
 						if (jscssfilesadded.indexOf("["+item1.content.scriptDependencies[i]+"]")==-1){ //if the file not been loaded before
 							jsList.push(item1.content.scriptDependencies[i]);
@@ -321,7 +321,37 @@ function click(d) {
 			});
 	    	
 			var createPortal = function(){
-				$.each(result, function (index, item) {
+				var summarygrid = Ext.create('Ext.wasp.GridPortlet', {
+					myData: result.statuslist
+				});
+				var summarytab = tabpanel.add({
+                	id: 'summary-tab',
+                	xtype: 'panel',
+                	title: 'Summary',
+                	layout: 'card',
+                	activeItem: 1,
+                	items: [{
+                    	layout: 'fit'
+                    },{
+                    	xtype: 'portalpanel',
+	                    //items: [{
+	                        //id: 'col-',
+	                        items: [{
+	                            //id: 'portlet-',
+	                        	xtype: 'portlet',
+	                            title: 'List of Plugins',
+	                            //tools: extPortal.getTools(),
+	                            //frame: false,
+	                            closable: false,
+	                            collapsible: false,
+	                            draggable: false,
+	                            items: summarygrid
+	                        }]
+	                    //}]
+                	}]
+				});
+				
+				$.each(result.paneltablist, function (index, item) {
 					var tabTitle;
 					
 					if ((d.type.split('-'))[0]=="filetype") {
@@ -333,8 +363,10 @@ function click(d) {
 					
 					tabCounter++;
 
+					var tabid = 'tab-'+tabCounter;
 					var tab = tabpanel.add({
 						xtype: 'panel',
+						id: tabid,
 				        title: tabTitle,
 				        layout:'card',
 						activeItem: 1,
@@ -344,12 +376,14 @@ function click(d) {
 					});
 					var ptlpnl = tab.add({xtype: 'portalpanel'});
 				    var ptlcolArray = new Array;
+				    
+				    numcol = item.numberOfColumns;
 				    for(var i=0;i<numcol;i++) {
-				    	ptlcolArray.push(ptlpnl.add({id: 'col-'+(i+1)}));
+				    	ptlcolArray.push(ptlpnl.add({id: tabid+'-col-'+(i+1)}));
 				    }
 
 				    var colid = 0;
-			        $.each(item, function (index1, item1) {
+			        $.each(item.panels, function (index1, item1) {
 			            ptlcolArray[colid++].add({
 		                    title: item1.title,
 		                    tools: extPortal.getTools(),
@@ -363,9 +397,9 @@ function click(d) {
 			            });
 			            colid %= numcol;
 		        	});
-			   		
-			        tabpanel.setActiveTab(tab);
 				});
+			   		
+				tabpanel.setActiveTab(0);
 			};
 			
 			// load all css then all js then create portal

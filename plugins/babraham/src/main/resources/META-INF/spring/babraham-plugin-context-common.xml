@@ -25,7 +25,7 @@
 		<property name="handles" >
 			<set>
 				<ref bean="fastQCArea" />
-				<value>#{fastqFileType.getArea()}</value>
+				<value>#{fastqFileType.getIName()}</value>
 			</set>
 		</property>
 	</bean>
@@ -42,7 +42,7 @@
 		<property name="handles" >
 			<set>
 				<ref bean="fastQScreenArea" />
-				<value>#{fastqFileType.getArea()}</value>
+				<value>#{fastqFileType.getIName()}</value>
 			</set>
 		</property>
 	</bean>

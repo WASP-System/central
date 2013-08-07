@@ -6,8 +6,6 @@ Ext.define('Ext.wasp.GridPortlet', {
     ],
     height: 300,
     myData: [
-//        ['3m Co',                               71.72, 0.02,  0.03,  '9/1 12:00am'],
-//        ['Alcoa Inc',                           29.01, 0.42,  1.47,  '9/1 12:00am'],
 //        ['Altria Group Inc',                    83.81, 0.28,  0.34,  '9/1 12:00am'],
 //        ['American Express Company',            52.55, 0.01,  0.02,  '9/1 12:00am'],
 //        ['American International Group, Inc.',  64.13, 0.31,  0.49,  '9/1 12:00am'],
@@ -41,24 +39,11 @@ Ext.define('Ext.wasp.GridPortlet', {
      * Custom function used for column renderer
      * @param {Object} val
      */
-    change: function(val) {
-        if (val > 0) {
+    status: function(val) {
+        if (val == 'COMPLETED') {
             return '<span style="color:green;">' + val + '</span>';
-        } else if (val < 0) {
+        } else {
             return '<span style="color:red;">' + val + '</span>';
-        }
-        return val;
-    },
-
-    /**
-     * Custom function used for column renderer
-     * @param {Object} val
-     */
-    pctChange: function(val) {
-        if (val > 0) {
-            return '<span style="color:green;">' + val + '%</span>';
-        } else if (val < 0) {
-            return '<span style="color:red;">' + val + '%</span>';
         }
         return val;
     },
@@ -67,9 +52,8 @@ Ext.define('Ext.wasp.GridPortlet', {
 
         var store = Ext.create('Ext.data.ArrayStore', {
             fields: [
-               {name: 'company'},
-               {name: 'change',     type: 'float'},
-               {name: 'pctChange',  type: 'float'}
+               {name: 'plugins'},
+               {name: 'status'}
             ],
             data: this.myData
         });
@@ -81,24 +65,18 @@ Ext.define('Ext.wasp.GridPortlet', {
             stripeRows: true,
             columnLines: true,
             columns: [{
-                id       :'company',
-                text   : 'Company',
+                id       :'plugins',
+                text   : 'Name',
                 //width: 120,
                 flex: 1,
                 sortable : true,
-                dataIndex: 'company'
+                dataIndex: 'plugins'
             },{
-                text   : 'Change',
-                width    : 75,
+                text   : 'Status',
+                width    : 200,
                 sortable : true,
-                renderer : this.change,
-                dataIndex: 'change'
-            },{
-                text   : '% Change',
-                width    : 75,
-                sortable : true,
-                renderer : this.pctChange,
-                dataIndex: 'pctChange'
+                renderer : this.status,
+                dataIndex: 'status'
             }]
         });
 

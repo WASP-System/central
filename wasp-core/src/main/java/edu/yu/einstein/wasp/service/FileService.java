@@ -41,6 +41,7 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
 
 @Service
 public interface FileService extends WaspService {
@@ -199,7 +200,8 @@ public interface FileService extends WaspService {
 
 	public Map<String, Hyperlink> getFileDetailsByFileType(FileGroup filegroup);
 	
-	public Map<String, PanelTab> getPanelTabSetByFileType(FileGroup fileGroup);
+	public Map<String, Status> getStatusListByFileGroup(FileGroup fileGroup);
+	public Map<String, PanelTab> getPanelTabSetByFileGroup(FileGroup fileGroup);
 
 	public FileType getFileType(Integer id);
 
