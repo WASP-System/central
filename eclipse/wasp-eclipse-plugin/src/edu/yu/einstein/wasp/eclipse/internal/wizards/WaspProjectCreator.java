@@ -1,13 +1,11 @@
 package edu.yu.einstein.wasp.eclipse.internal.wizards;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -18,7 +16,6 @@ import java.util.Properties;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
@@ -66,11 +63,14 @@ import edu.yu.einstein.wasp.eclipse.internal.Messages;
  * then the text will be removed from the file name and the file will be included.
  * 
  * Additional placeholders for content within the files include "___pluginname___" (uncapitalized 
- * plugin name), "___Pluginname___" (capitalized plugin name), and "___package___" (full java
- * package name).  
+ * plugin name), "___PLUGINNAME___" (capitalized plugin name), "___Pluginname___" (first letter capitalized plugin name), 
+ * and "___package___" (full java package name).  
  * 
- * A special comment using 5 slashes (/////) at the end of a line preceeding the FORM, RES, PIP, 
+ * A special comment using '/////' or '#////' (depending on file type)  at the end of a line preceding the FORM, RES, PIP, 
  * and VIZ strings will include that line based on the user's selection. 
+ * 
+ * Can also include blocks of code between lines starting with '////>' or '#///>' (preceding the FORM, RES, PIP, 
+ * and VIZ strings) and ending with '////<' or '#///<'
  * 
  * @author calder
  *
@@ -197,39 +197,58 @@ public class WaspProjectCreator {
 
 	private static void rewrite(File file, String name, String pkg, 
 			boolean web, boolean resource, boolean pipeline, boolean viz) {
-
-		String cname = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
+		
+		String cAllName = name.toUpperCase();
+		String cName = name.toLowerCase().substring(0, 1).toUpperCase() + name.toLowerCase().substring(1);
 
 		List<String> lines = new ArrayList<String>();
 
 		try {
+			boolean inRemovableBlock = false;
+			boolean keepBlock = true;
 			BufferedReader in = new BufferedReader(new FileReader(file));
 			String line = in.readLine();
 			while (line != null) {
 				
 				line = line.replaceAll("___pluginname___", name);
-				line = line.replaceAll("___Pluginname___", cname);
+				line = line.replaceAll("___Pluginname___", cName);
+				line = line.replaceAll("___PLUGINNAME___", cAllName);
 				line = line.replaceAll("___package___", pkg);
 				
 				// marked for possible removal
-				if (line.contains("/////")) {
+				if (line.contains("////") || line.contains("#///")) {
 					boolean keep = false;
-					int pos = line.indexOf("/////");
-					String rem = line.substring(pos+5);
-					line = line.substring(0, pos-1);
-					if (web && rem.contains("FORM"))
-						keep = true;
-					if (resource && rem.contains("RES"))
-						keep = true;
-					if (pipeline && rem.contains("PIP"))
-						keep = true;
-					if (viz && rem.contains("VIZ"))
-						keep = true;
+					if (line.contains("////<") || line.contains("#///<")){
+						inRemovableBlock = false;
+					} else if (inRemovableBlock){
+						keep = keepBlock;
+					} else {
+						int pos = -1;
+						if (line.contains("#///"))
+							pos = line.indexOf("#///"); // must check this variant first
+						else 
+							pos = line.indexOf("////");
+						String rem = line.substring(pos+5);
+						if (web && rem.contains("FORM"))
+							keep = true;
+						if (resource && rem.contains("RES"))
+							keep = true;
+						if (pipeline && rem.contains("PIP"))
+							keep = true;
+						if (viz && rem.contains("VIZ"))
+							keep = true;
+						if (line.contains("////>") || line.contains("#///>")){
+							inRemovableBlock = true;
+							keepBlock = keep;
+							keep = false; // don't keep the line with the special comment
+						} else {
+							line = line.substring(0, pos-1); // trim off the special comment
+						}
+					}
 					if (!keep) {
 						line = in.readLine();
 						continue;
 					}
-						
 				}
 				
 				lines.add(line);

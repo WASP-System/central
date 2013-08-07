@@ -4,6 +4,7 @@ import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 
 /**
  * Checked exception ___Pluginname___Exception
+ * @author 
  */
 public class ___Pluginname___RuntimeException extends WaspRuntimeException {
 

@@ -22,22 +22,20 @@ import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing;
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP
+import edu.yu.einstein.wasp.plugin.WaspPlugin; ///// PIP
+import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.service.RunService;
 
 /**
- * 
+ * @author 
  */
 public class ___Pluginname___Plugin extends WaspPlugin 
 		implements 
 			BatchJobProviding,	///// PIP
+			WebInterfacing, ///// VIZ
 			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -49,12 +47,9 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	private GridFileService waspGridFileService;
 
 	@Autowired
-	private RunService runService;
-	
-	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow";
+	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow"; ///// PIP
 
 	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
@@ -155,17 +150,35 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
+////> PIP
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(BatchJobTask.GENERIC))
+	public String getBatchJobNameByArea(String batchJobType, String area){ 
+		if (batchJobType.equals(BatchJobTask.GENERIC)) 
 			return FLOW_NAME;
 		return null;
 	}
-	
+
+	/** 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getBatchJobName(String batchJobType) {
 		return getBatchJobNameByArea(batchJobType, null);
 	}
-
+	
+////<
+////> VIZ
+	/** 
+	 * {@inheritDoc} 
+	 */
+	@Override
+	public Hyperlink getDescriptionPageHyperlink() {
+		return new Hyperlink("___pluginname___.hyperlink.label", "/___pluginname___/description.do");
+	}
+	
+////<
 
 }
