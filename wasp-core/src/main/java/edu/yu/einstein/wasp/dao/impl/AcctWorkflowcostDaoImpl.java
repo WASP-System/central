@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctWorkflowcost;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> implements edu.yu.einstein.wasp.dao.AcctWorkflowcostDao {
 
@@ -44,7 +44,7 @@ public class AcctWorkflowcostDaoImpl extends WaspDaoImpl<AcctWorkflowcost> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctWorkflowcost getAcctWorkflowcostByWorkflowId (final Integer workflowId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", workflowId);

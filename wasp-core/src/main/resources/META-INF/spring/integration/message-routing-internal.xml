@@ -116,13 +116,13 @@
 		</bean>
 	</int:router>	
 	
-	<int:channel id="wasp.channel.run.success" />
+	<int:publish-subscribe-channel id="wasp.channel.notification.run.success" />
 	
-	<int:filter input-channel="wasp.channel.notification.run" output-channel="wasp.channel.run.success" >
+	<int:filter input-channel="wasp.channel.notification.run" output-channel="wasp.channel.notification.run.success" >
 		<bean class="edu.yu.einstein.wasp.integration.filters.RunSuccessFilter" />
 	</int:filter>
 		
-	<int:splitter input-channel="wasp.channel.run.success" output-channel="wasp.channel.batch">
+	<int:splitter input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.batch">
 		<bean class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter" />
 	</int:splitter>
 		

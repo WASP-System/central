@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.SoftwareMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SoftwareMetaDaoImpl extends WaspMetaDaoImpl<SoftwareMeta> implements edu.yu.einstein.wasp.dao.SoftwareMetaDao {
 
@@ -44,7 +44,7 @@ public class SoftwareMetaDaoImpl extends WaspMetaDaoImpl<SoftwareMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SoftwareMeta getSoftwareMetaBySoftwareMetaId (final Integer softwareMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", softwareMetaId);
@@ -69,7 +69,7 @@ public class SoftwareMetaDaoImpl extends WaspMetaDaoImpl<SoftwareMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SoftwareMeta getSoftwareMetaByKSoftwareId (final String k, final Integer softwareId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctLedger;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu.einstein.wasp.dao.AcctLedgerDao {
 
@@ -44,7 +44,7 @@ public class AcctLedgerDaoImpl extends WaspDaoImpl<AcctLedger> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctLedger getAcctLedgerByLedgerId (final int ledgerId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", ledgerId);

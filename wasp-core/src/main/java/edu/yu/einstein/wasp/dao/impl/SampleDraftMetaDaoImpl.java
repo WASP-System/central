@@ -29,7 +29,7 @@ import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.service.SampleService;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> implements edu.yu.einstein.wasp.dao.SampleDraftMetaDao {
 
@@ -56,7 +56,7 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleDraftMeta getSampleDraftMetaBySampleDraftMetaId (final int sampleDraftMetaId) {
 		
     	HashMap<String, Integer> m = new HashMap<String, Integer>();
@@ -82,7 +82,7 @@ public class SampleDraftMetaDaoImpl extends WaspMetaDaoImpl<SampleDraftMeta> imp
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleDraftMeta getSampleDraftMetaByKSampledraftId (final String k, final int sampledraftId) {
 		
     	HashMap<String, Object> m = new HashMap<String, Object>();

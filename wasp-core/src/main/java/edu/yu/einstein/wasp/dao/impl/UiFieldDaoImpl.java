@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.UiField;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einstein.wasp.dao.UiFieldDao {
 

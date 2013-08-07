@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implements edu.yu.einstein.wasp.dao.JobDraftMetaDao {
 
@@ -44,7 +44,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftMeta getJobDraftMetaByJobDraftMetaId (final Integer jobDraftMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobDraftMetaId);
@@ -69,7 +69,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftMeta getJobDraftMetaByKJobDraftId (final String k, final Integer jobDraftId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
@@ -94,7 +94,7 @@ public class JobDraftMetaDaoImpl extends WaspMetaDaoImpl<JobDraftMeta> implement
 	 *
 	 */
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public void replaceByJobDraftId (final String area, final int jobDraftId, final List<JobDraftMeta> metaList) {
 		entityManager.createNativeQuery("delete from jobdraftmeta where jobDraftId=:jobDraftId and k like :area").setParameter("jobDraftId", jobDraftId).setParameter("area", area + ".%").executeUpdate();
 
