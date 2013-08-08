@@ -2,32 +2,42 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.___pluginname___.plugin;
+package ___package___.plugin;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
+import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP
 import edu.yu.einstein.wasp.plugin.WaspPlugin; ///// PIP
-import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// VIZ
+import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
 
 /**
  * @author 
@@ -35,10 +45,14 @@ import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 public class ___Pluginname___Plugin extends WaspPlugin 
 		implements 
 			BatchJobProviding,	///// PIP
-			WebInterfacing, ///// VIZ
+			WebInterfacing, ///// FORM
+			FileDataTabViewing, ///// VIZ
 			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	private WaspMessageHandlingService waspMessageHandlingService;
 
 	@Autowired
 	private GridHostResolver waspGridHostResolver;
@@ -49,7 +63,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "___package___.___pluginname___.mainFlow"; ///// PIP
+	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
 
 	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
@@ -90,7 +104,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
 			
 			logger.info("Sending launch message to flow " + FLOW_NAME + " on with id: " + id);
-			runService.launchBatchJob(FLOW_NAME, jobParameters);
+			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
@@ -170,15 +184,32 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 ////<
-////> VIZ
+////> VIZ FORM
 	/** 
 	 * {@inheritDoc} 
 	 */
 	@Override
 	public Hyperlink getDescriptionPageHyperlink() {
-		return new Hyperlink("___pluginname___.hyperlink.label", "/___pluginname___/description.do");
+		return new Hyperlink("___pluginname___.hyperlink.label", "/___pluginname___/displayDescription.do");
 	}
 	
 ////<
+////> VIZ	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Status getStatus(FileGroup fileGroup) {
+		return Status.UNKNOWN;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+////<
 }

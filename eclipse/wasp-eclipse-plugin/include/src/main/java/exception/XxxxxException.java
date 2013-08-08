@@ -1,4 +1,4 @@
-package ___package___.___pluginname___.exception;
+package ___package___.exception;
 
 import edu.yu.einstein.wasp.exception.WaspException;
 

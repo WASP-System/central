@@ -112,7 +112,7 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 						// create project
 						WaspProjectCreator.createProject(
 								configPage.getProjectName(),
-								configPage.getProjectNamespace(), loc, web);
+								configPage.getProjectNamespace(), loc, web, resource, pipeline, viz);
 						// copy files and rewrite placeholders
 						WaspProjectCreator.copyAndRewriteFiles(name, namespace, loc, project, projectRoot, web, resource, pipeline, viz);
 

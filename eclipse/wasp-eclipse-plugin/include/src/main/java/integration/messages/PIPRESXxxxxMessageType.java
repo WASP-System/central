@@ -2,7 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author
  */
-package ___package___.___pluginname___.integration.messages;
+package ___package___.integration.messages;
 
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 
@@ -12,6 +12,6 @@ import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
  */
 public class ___Pluginname___MessageType extends WaspMessageType{
 	
-	public static final String ___PLUGINNAME___ = "___package___.___pluginname___";
+	public static final String ___PLUGINNAME___ = "___package___";
 
 }

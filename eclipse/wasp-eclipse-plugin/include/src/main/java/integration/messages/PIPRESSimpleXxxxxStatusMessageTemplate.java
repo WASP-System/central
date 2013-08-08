@@ -1,4 +1,4 @@
-package ___package___.___pluginname___.integration.messages;
+package ___package___.integration.messages;
 
 import org.springframework.integration.Message;
 

@@ -2,11 +2,7 @@
  * Created by Wasp System Eclipse Plugin
  * @author
  */
-package ___package___.___pluginname___.tasklet;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+package ___package___.tasklet;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -41,7 +37,7 @@ public class ___Pluginname___Tasklet extends WaspTasklet {
 	}
 
 	public ___Pluginname___Tasklet(String jobId) {
-		this.job = jobService.getJobById(Integer.parseInt(jobId));
+		this.job = jobService.getJobByJobId(Integer.parseInt(jobId));
 	}
 
 	/**

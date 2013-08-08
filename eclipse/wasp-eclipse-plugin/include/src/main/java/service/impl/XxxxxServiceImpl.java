@@ -2,12 +2,12 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.___pluginname___.service.impl;
+package ___package___.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ___package___.___pluginname___.service.___Pluginname___Service;
+import ___package___.service.___Pluginname___Service;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;

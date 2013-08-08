@@ -10,9 +10,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
@@ -91,7 +93,7 @@ public class WaspProjectCreator {
 	 *             Eclipse failed to create the project
 	 */
 	public static IProject createProject(String name, String namespace,
-			IPath location, boolean web) throws CoreException {
+			IPath location, boolean web, boolean resource, boolean pipeline, boolean viz) throws CoreException {
 		Assert.isNotNull(name);
 		Assert.isTrue(name.trim().length() > 0);
 
@@ -102,7 +104,7 @@ public class WaspProjectCreator {
 
 		try {
 			// create project and configure maven
-			configureMaven(name, namespace, project, location, web);
+			configureMaven(name, namespace, project, location, web, resource, pipeline, viz);
 			// configure additional project natures (e.g. spring)
 			configureNatures(project);
 			// add package folders to the project
@@ -213,7 +215,7 @@ public class WaspProjectCreator {
 				line = line.replaceAll("___pluginname___", name);
 				line = line.replaceAll("___Pluginname___", cName);
 				line = line.replaceAll("___PLUGINNAME___", cAllName);
-				line = line.replaceAll("___package___", pkg);
+				line = line.replaceAll("___package___", pkg + ".wasp.plugin." + name.toLowerCase());
 				
 				// marked for possible removal
 				if (line.contains("////") || line.contains("#///")) {
@@ -279,7 +281,7 @@ public class WaspProjectCreator {
 	 * @throws CoreException
 	 */
 	private static void configureMaven(String name, String namespace,
-			IProject project, IPath location, boolean web) throws CoreException {
+			IProject project, IPath location, boolean web, boolean resource, boolean pipeline, boolean viz) throws CoreException {
 		
 		String propertiesFile = "/META-INF/maven/edu.yu.einstein.wasp/wasp-eclipse/pom.properties";
 		Bundle bundle = Platform.getBundle("wasp-eclipse");
@@ -397,18 +399,40 @@ public class WaspProjectCreator {
 		
 		// put all folders to be created here...
 		
-		String javaPackage = "src/main/java/" + ns + "/" + name.toLowerCase();
+		String javaPackage = "src/main/java/" + ns + "/wasp/plugin/" + name.toLowerCase();
 		String javaRes = "src/main/resources";
+		Set<String> folderSet = new LinkedHashSet<String>();
+		folderSet.add("src/main/java");
+		folderSet.add("src/test/java");
+		folderSet.add("src/test/resources");
+		folderSet.add("target/classes");
+		folderSet.add("target/test-classes");
+		folderSet.add(javaRes + "/i18n/en_US");
+		folderSet.add(javaRes + "/wasp");
+		folderSet.add(javaRes + "/META-INF/spring");
+		folderSet.add(javaRes + "/images/" + name.toLowerCase());
+		folderSet.add(javaPackage + "/exception");
+		folderSet.add(javaPackage + "/service/impl");
+		folderSet.add(javaPackage + "/plugin");
 
-		String[] folders = { "src/main/java",  javaPackage + "/plugin", javaPackage + "/controller", javaPackage + "/tasklet",
-				javaPackage + "/software", javaPackage + "/resource", javaPackage + "/filetype", 
-				javaPackage + "/service/impl", javaRes + "/wasp", javaRes + "/META-INF/spring", javaRes + "/META-INF/tiles", javaRes + "/flows",
-				javaRes + "/i18n/en_US", javaRes + "/images/" + name.toLowerCase() , "src/main/webapp/WEB-INF/jsp/" + name.toLowerCase(),
-				"src/test/java", "src/test/resources", "target/classes", "target/test-classes" };
-
+		if(resource || pipeline){
+			folderSet.add(javaPackage + "/integration/messages");
+			folderSet.add(javaRes + "/flows");
+			folderSet.add(javaPackage + "/tasklet");
+			if (resource){
+				folderSet.add(javaPackage + "/software");
+			}
+		}
+		
+		if (web || viz){
+			folderSet.add(javaPackage + "/controller");
+			folderSet.add(javaRes + "/META-INF/tiles");
+			folderSet.add("src/main/webapp/WEB-INF/jsp/" + name.toLowerCase());
+		}
+		
 		IProjectConfigurationManager mavenConfig = MavenPlugin.getProjectConfigurationManager();
 
-		mavenConfig.createSimpleProject(project, location, model, folders, config, new NullProgressMonitor());
+		mavenConfig.createSimpleProject(project, location, model, (String[]) folderSet.toArray(), config, new NullProgressMonitor());
 		
 
 	}
