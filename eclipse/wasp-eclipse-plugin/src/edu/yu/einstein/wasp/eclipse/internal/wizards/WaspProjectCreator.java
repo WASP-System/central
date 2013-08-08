@@ -118,7 +118,7 @@ public class WaspProjectCreator {
 
 	}
 
-	public static void copyAndRewriteFiles(String name, String namespace, IPath location, IProject project, IPath projectRoot,
+	public static void copyAndRewriteFiles(String name, String namespace, String description, IPath location, IProject project, IPath projectRoot,
 			boolean web, boolean resource, boolean pipeline, boolean viz) {
 		Bundle bundle = Platform.getBundle("wasp-eclipse-plugin");
 		Enumeration<URL> files = bundle.findEntries("include", "*", true);
@@ -190,14 +190,14 @@ public class WaspProjectCreator {
 				e.printStackTrace();
 			}
 
-			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace,
+			rewrite(new File(projectRoot + File.separator + lname + File.separator + dest.toFile().getPath()), lname, namespace, description,
 					web, resource, pipeline, viz);
 
 		}
 
 	}
 
-	private static void rewrite(File file, String name, String pkg, 
+	private static void rewrite(File file, String name, String pkg, String description,
 			boolean web, boolean resource, boolean pipeline, boolean viz) {
 		
 		String cAllName = name.toUpperCase();
@@ -215,7 +215,8 @@ public class WaspProjectCreator {
 				line = line.replaceAll("___pluginname___", name);
 				line = line.replaceAll("___Pluginname___", cName);
 				line = line.replaceAll("___PLUGINNAME___", cAllName);
-				line = line.replaceAll("___package___", pkg + ".wasp.plugin." + name.toLowerCase());
+				line = line.replaceAll("___package___", pkg + "." + name.toLowerCase());
+				line = line.replaceAll("___description___", description);
 				
 				// marked for possible removal
 				if (line.contains("////") || line.contains("#///")) {
@@ -315,7 +316,7 @@ public class WaspProjectCreator {
 		// parent
 		Parent parent = new Parent();
 		parent.setGroupId("edu.yu.einstein.wasp");
-		parent.setArtifactId("wasp-plugin");
+		parent.setArtifactId("plugins");
 		parent.setVersion(version);
 		model.setParent(parent);
 
@@ -399,7 +400,8 @@ public class WaspProjectCreator {
 		
 		// put all folders to be created here...
 		
-		String javaPackage = "src/main/java/" + ns + "/wasp/plugin/" + name.toLowerCase();
+		String javaMainPackage = "src/main/java/" + ns + "/" + name.toLowerCase();
+		String javaTestPackage = "src/test/java/" + ns + "/" + name.toLowerCase();
 		String javaRes = "src/main/resources";
 		Set<String> folderSet = new LinkedHashSet<String>();
 		folderSet.add("src/main/java");
@@ -411,28 +413,32 @@ public class WaspProjectCreator {
 		folderSet.add(javaRes + "/wasp");
 		folderSet.add(javaRes + "/META-INF/spring");
 		folderSet.add(javaRes + "/images/" + name.toLowerCase());
-		folderSet.add(javaPackage + "/exception");
-		folderSet.add(javaPackage + "/service/impl");
-		folderSet.add(javaPackage + "/plugin");
-
+		folderSet.add(javaMainPackage + "/exception");
+		folderSet.add(javaMainPackage + "/service/impl");
+		folderSet.add(javaMainPackage + "/plugin");
 		if(resource || pipeline){
-			folderSet.add(javaPackage + "/integration/messages");
+			folderSet.add(javaMainPackage + "/integration/messages");
 			folderSet.add(javaRes + "/flows");
-			folderSet.add(javaPackage + "/tasklet");
+			folderSet.add(javaMainPackage + "/tasklet");
+			folderSet.add(javaTestPackage + "/integration/messages");
 			if (resource){
-				folderSet.add(javaPackage + "/software");
+				folderSet.add(javaMainPackage + "/software");
 			}
 		}
 		
 		if (web || viz){
-			folderSet.add(javaPackage + "/controller");
+			folderSet.add(javaMainPackage + "/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
 			folderSet.add("src/main/webapp/WEB-INF/jsp/" + name.toLowerCase());
 		}
 		
 		IProjectConfigurationManager mavenConfig = MavenPlugin.getProjectConfigurationManager();
+		String[] folderArray = new String[folderSet.size()];
+		int i = 0;
+		for (String folder: folderSet)
+			folderArray[i++] = folder;
 
-		mavenConfig.createSimpleProject(project, location, model, (String[]) folderSet.toArray(), config, new NullProgressMonitor());
+		mavenConfig.createSimpleProject(project, location, model, folderArray, config, new NullProgressMonitor());
 		
 
 	}

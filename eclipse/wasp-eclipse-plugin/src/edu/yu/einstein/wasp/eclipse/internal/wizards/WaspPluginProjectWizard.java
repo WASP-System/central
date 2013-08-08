@@ -108,13 +108,12 @@ public class WaspPluginProjectWizard extends Wizard implements INewWizard {
 						
 						String name = configPage.getProjectName();
 						String namespace = configPage.getProjectNamespace();
+						String description = configPage.getProjectDescription();
 						
 						// create project
-						WaspProjectCreator.createProject(
-								configPage.getProjectName(),
-								configPage.getProjectNamespace(), loc, web, resource, pipeline, viz);
+						WaspProjectCreator.createProject(name, namespace, loc, web, resource, pipeline, viz);
 						// copy files and rewrite placeholders
-						WaspProjectCreator.copyAndRewriteFiles(name, namespace, loc, project, projectRoot, web, resource, pipeline, viz);
+						WaspProjectCreator.copyAndRewriteFiles(name, namespace, description, loc, project, projectRoot, web, resource, pipeline, viz);
 
 					} catch (Exception e) {
 						MessageDialog.openError(getShell(),

@@ -13,6 +13,7 @@ public class Messages extends NLS {
 	public static String WizardConfigurationPage_locationButtonMessage;
 	public static String WizardConfigurationPage_projectName;
 	public static String WizardConfigurationPage_projectNamespace;
+	public static String WizardConfigurationPage_projectDescription;
 	public static String WizardConfigurationPage_projectGroup;
 	public static String WizardConfigurationPage_featureGroup;
 	public static String WizardConfigurationPage_featureForms;

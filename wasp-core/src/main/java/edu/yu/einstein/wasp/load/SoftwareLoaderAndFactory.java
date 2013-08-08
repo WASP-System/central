@@ -39,12 +39,16 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 	private ResourceType resourceType;
 	
 	private T software;
+	
+	private String description = "";
+	
+	private List<SoftwareMeta> meta;
 
+	private int isActive = 1;
+	
 	public void setResourceType(ResourceType resourceType) {
 		this.resourceType = resourceType;
 	}
-
-	private List<SoftwareMeta> meta;
 
 	public void setMeta(List<SoftwareMeta> meta) {
 		this.meta = meta;
@@ -54,8 +58,6 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 		meta = metaLoadWrapper.getMeta(SoftwareMeta.class);
 	}
 
-	private int isActive = 1;
-
 	public int getIsActive() {
 		return isActive;
 	}
@@ -64,8 +66,20 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 		this.isActive = isActive;
 	}
 	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	@PostConstruct
 	public void init(){
+		SoftwareMeta descriptionMeta = new SoftwareMeta();
+		descriptionMeta.setK(area + ".description");
+		descriptionMeta.setV(description);
+		meta.add(descriptionMeta);
 		softwareLoadService.updateUiFields(uiFields);
 		software = softwareLoadService.update(resourceType, meta, iname, name, isActive, clazz);
 	}
