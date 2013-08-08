@@ -68,6 +68,7 @@ import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -94,6 +95,9 @@ import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 
 @Service
@@ -830,6 +834,35 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 		if (plugins.size() > 1)
 			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 		return plugins.get(0).getFileDetails(filegroup.getId());
+	}
+	
+	@Override
+	public Map<String, Status> getStatusListByFileGroup(FileGroup fileGroup) {
+		String area = fileGroup.getFileType().getIName();
+		List<FileDataTabViewing> plugins = pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+		
+		Map<String, Status> paneltabMap = new HashMap<String, Status>();
+		for (FileDataTabViewing plugin : plugins) {
+			paneltabMap.put(plugin.getPluginName(), plugin.getStatus(fileGroup));
+		}
+		return paneltabMap;
+	}
+
+	@Override
+	public Map<String, PanelTab> getPanelTabSetByFileGroup(FileGroup fileGroup) {
+		String area = fileGroup.getFileType().getIName();
+		List<FileDataTabViewing> plugins = pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+		
+		Map<String, PanelTab> paneltabMap = new HashMap<String, PanelTab>();
+		for (FileDataTabViewing plugin : plugins) {
+			try {
+				paneltabMap.put(plugin.getPluginName(), plugin.getViewPanelTab(fileGroup));
+			} catch (PanelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return paneltabMap;
 	}
 
 	@Override
