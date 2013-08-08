@@ -8,16 +8,13 @@ import java.util.Set;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParameter;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.repository.dao.ExecutionContextDao;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.batch.core.repository.dao.JobInstanceDao;
 
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobExecutionDao;
-import edu.yu.einstein.wasp.batch.core.extension.dao.WaspJobInstanceDao;
 import edu.yu.einstein.wasp.batch.core.extension.dao.WaspStepExecutionDao;
 import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
@@ -29,20 +26,17 @@ import edu.yu.einstein.wasp.exception.ParameterValueRetrievalException;
  */
 public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplorerWasp{
 	
-	private WaspJobInstanceDao waspJobInstanceDao;
-	
 	private WaspStepExecutionDao stepExecutionDao;
 	
 	private WaspJobExecutionDao jobExecutionDao;
 	
 		
-	public WaspBatchJobExplorer(WaspJobInstanceDao waspJobInstanceDao,
+	public WaspBatchJobExplorer(JobInstanceDao jobInstanceDao,
             WaspJobExecutionDao waspJobExecutionDao,
             WaspStepExecutionDao stepExecutionDao,
             ExecutionContextDao ecDao) {
-		super(waspJobInstanceDao, waspJobExecutionDao, stepExecutionDao, ecDao);
+		super(jobInstanceDao, waspJobExecutionDao, stepExecutionDao, ecDao);
 		this.jobExecutionDao = waspJobExecutionDao;
-		this.waspJobInstanceDao = waspJobInstanceDao;
 		this.stepExecutionDao = stepExecutionDao;
 	}
 	
@@ -403,12 +397,12 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<JobInstance> getJobInstancesMatchingParameters(Map<String, Set<String>> parameterMap){
-		List<JobInstance> masterJobInstances = new ArrayList<JobInstance>();
-		for (Long jobInstanceId: waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap)){
-			masterJobInstances.add(this.getJobInstance(jobInstanceId));
+	public List<JobExecution> getJobExecutionsMatchingParameters(Map<String, Set<String>> parameterMap){
+		List<JobExecution> masterJobExecutions = new ArrayList<JobExecution>();
+		for (Long jobExecutionId: jobExecutionDao.getJobExecutionIdsByMatchingParameters(parameterMap)){
+			masterJobExecutions.add(this.getJobExecution(jobExecutionId));
 		}
-		return masterJobInstances;
+		return masterJobExecutions;
 	}
 	
 	/**
@@ -434,7 +428,7 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 	 */
 	@Override
 	public String getJobParameterValueByKey(JobExecution je, String key) throws ParameterValueRetrievalException{
-		Map<String, JobParameter> parameters = jobExecutionDao.getJobParameters(je).getParameters();
+		Map<String, JobParameter> parameters = je.getJobParameters().getParameters();
 		if (parameters == null)
 			throw new ParameterValueRetrievalException("Parameter value returned was null for key '" + key + "'");
 		try{
@@ -467,13 +461,6 @@ public class WaspBatchJobExplorer extends SimpleJobExplorer implements JobExplor
 		return jobExecutions.get(0);  // first in list should be most recent
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public JobParameters getJobParameters(JobExecution jobExecution) {
-		return jobExecutionDao.getJobParameters(jobExecution);
-	}
 
 	/**
 	 * {@inheritDoc}

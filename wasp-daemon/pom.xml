@@ -124,11 +124,6 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.7</version>
-		</dependency>
 		<!--  if you use aspects in your spring config with, say, jdbc:initalize-database configuration clause, most likely you’ll get assertion error in your JUnit test.
 		The possible workaround would be to switch to aspectjweaver of version 1.6.9. (not latest version 1.6.12) -->
 		<!--
