@@ -1759,7 +1759,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 
 			// add file type nodes to library
-			children.addAll(getFileNodesByLibrary(library));
+			children.addAll(getFileNodesByLibrary(library, null));
 
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("cell")) {
@@ -1767,7 +1767,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			Sample cell = sampleService.getSampleById(id);
 			Sample library = sampleService.getSampleById(pid);
 
-			children.addAll(getFileNodesByCellLibrary(cell, library));
+			//children.addAll(getFileNodesByCellLibrary(cell, library));
+			children.addAll(getFileNodesByLibrary(library, cell));
 			
 			curNode.put("children", children);
 		} else if (type.equalsIgnoreCase("run")) {
@@ -1809,22 +1810,47 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		return curNode;
 	}
 
-	private List<Map> getFileNodesByLibrary(Sample library) {
+	private List<Map> getFileNodesByLibrary(Sample library, Sample cell) throws SampleTypeException {
 		List<Map> fileTypeNodes = new ArrayList<Map>();
-		Set<FileGroup> fgSet = library.getFileGroups();
-		Map<Integer, FileType> ftMap = new HashMap<Integer, FileType>();
+		Set<FileGroup> fgSet;
+		if (cell == null) {
+			fgSet = library.getFileGroups();
+		} else {
+			fgSet = sampleService.getCellLibrary(cell, library).getFileGroups();
+		}
+		Map<FileType, Set<FileGroup>> ftMap = new HashMap<FileType, Set<FileGroup>>();
 		for (FileGroup fg : fgSet) {
-			ftMap.put(fg.getFileTypeId(), fg.getFileType());
+			FileType ft = fg.getFileType();
+			if (!ftMap.containsKey(ft)) {
+				ftMap.put(ft, new HashSet<FileGroup>());
+			}
+			
+			Set<FileGroup> fgByTypeSet = ftMap.get(ft);
+			fgByTypeSet.add(fg);
 		}
 		
-		for (FileType ft : ftMap.values()) {
+		for (FileType ft : ftMap.keySet()) {
 			Map ftNode = new HashMap();
 
 			ftNode.put("name", "File Type: " + ft.getName());
 			ftNode.put("myid", ft.getId());
 			ftNode.put("type", "filetype-"+ft.getIName());
 			ftNode.put("libid", library.getId());
-			ftNode.put("children", "");
+			
+			List<Map> children = new ArrayList<Map>();
+			Set<FileGroup> fgByTypeSet = ftMap.get(ft);
+			for (FileGroup fg : fgByTypeSet) {
+				Map fgNode = new HashMap();
+
+				fgNode.put("name", "File Group: " + fg.getDescription());
+				fgNode.put("myid", fg.getId());
+				fgNode.put("type", "filegroup");
+				fgNode.put("children", "");
+				
+				children.add(fgNode);
+			}
+			
+			ftNode.put("children", children);
 			
 			fileTypeNodes.add(ftNode);
 		}

@@ -64,7 +64,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 */
 	public static String getHCScriptStartCode(ChartType chartType, String containerId, String title, boolean displayLegend){
 		StringBuilder sb = new StringBuilder();
-		sb.append("<script>\n$(function () {\n$('#" + HIGHCHART_DIV_PREFIX +  CONTENTS_DIV_SUFFIX + containerId + "').highcharts({\n");
+		sb.append("$(function () {\n$('#" + HIGHCHART_DIV_PREFIX +  CONTENTS_DIV_SUFFIX + containerId + "').highcharts({\n");
 		sb.append("chart: { type: '" + chartType.toString().toLowerCase() +"' },\n");
 		if (title != null && !title.isEmpty())
 			sb.append("title: { text: '" + title + "' },\n");
@@ -199,7 +199,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @return
 	 */
 	public static String getHCScriptEndCode(){
-		return "\n});\n});\n</script>";
+		return "\n});\n});";
 	}
 	
 	/**
