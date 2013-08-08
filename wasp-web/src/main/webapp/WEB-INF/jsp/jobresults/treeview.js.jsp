@@ -19,19 +19,18 @@
 
 
 <script type="text/javascript">
-var margin = {top: 20, right: 30, bottom: 20, left: 20},
-    width = 360 - margin.right - margin.left,
-    height = 600 - margin.top - margin.bottom,
-    i = 0,
-    duration = 500,
-    branch_length = 100,
-    min_branch_int = 40,
-    root=new Object();
+var margin = {top: 20, right: 30, bottom: 20, left: 20};
+var treeviewWidth,
+	treeviewHeight,
+	i = 0,
+	duration = 500,
+	branch_length = 100,
+	min_branch_int = 40,
+	root=new Object();
     
-var barHeight = 20,
-	barWidth = width * .75;
+var barHeight = 20,	barWidth;
 
-var tree = d3.layout.tree().size([height, 100]);
+var tree = d3.layout.tree().size([treeviewHeight, 100]);
 
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
@@ -42,6 +41,7 @@ root.myid=${myid};
 root.type="${type}";
 root.jid=-1;
 root.pid=-1;
+
 var seen = [];
 var rootstr = JSON.stringify(root, function(key, val) {
    if (typeof val == "object") {
@@ -53,7 +53,7 @@ var rootstr = JSON.stringify(root, function(key, val) {
 });
  
 var activeNode = {myid: null, type: null};
-	
+
 
 Ext.require([
     'Ext.layout.container.*',
@@ -67,13 +67,22 @@ Ext.require([
 var extPortal;
 
 Ext.onReady(function(){
-    extPortal = Ext.create('Ext.wasp.Portal');
-//	Ext.Msg.alert('Alert',"${myid}");
+	extPortal = Ext.create('Ext.wasp.Portal', {width: $('#content').width()});
+//	Ext.Msg.alert('Alert',$('#content').width());
 
+	jQuery(window).bind('resize', function() {
+			extPortal.setWidth($('#content').width());
+		}).trigger('resize');
+
+	treeviewWidth = $('#content').width() * 0.3 - margin.left - margin.right;
+	treeviewHeight = $('#content').height() - margin.top - margin.bottom;
+	barWidth = treeviewWidth * .5;
+	barHeight = 20;
+	
 	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 		vis = d3.select("#treeview").append("svg:svg")
-		.attr("width", width + margin.right + margin.left)
-		.attr("height", height + margin.top + margin.bottom)
+		.attr("width", treeviewWidth)
+		.attr("height", treeviewHeight)
 		.attr("pointer-events", "all")
 		.append("svg:g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -82,8 +91,8 @@ Ext.onReady(function(){
 	
 	
 	  vis.append("rect")
-	    .attr("width", width + margin.right + margin.left)
-	    .attr("height", height + margin.top + margin.bottom)
+	    .attr("width", treeviewWidth)
+	    .attr("height", treeviewHeight)
 	    .attr('fill', '#fff')
 	    .attr('fill-opacity', '0');
 	
@@ -118,33 +127,33 @@ function collapse(d) {
 
 function update(source) {
 
-  // Compute the new tree layout.
-  var nodes = tree.nodes(root); //.reverse();
+	// Compute the new tree layout.
+	var nodes = tree.nodes(root); //.reverse();
 
-  // Normalize for fixed-depth.
-//  nodes.forEach(function(d) { d.y = d.depth * branch_length; });
-// Compute the "layout".
-  nodes.forEach(function(n, i) {
-    n.x = i * barHeight;
-  });
+	// Normalize for fixed-depth.
+//	nodes.forEach(function(d) { d.y = d.depth * branch_length; });
+//	Compute the "layout".
+	nodes.forEach(function(n, i) {
+		n.x = i * barHeight;
+	});
+
+	// Update the nodes
+	var node = vis.selectAll("g.node")
+		.data(nodes, function(d) { return d.id || (d.id = ++i); });
   
-  // Update the nodes
-  var node = vis.selectAll("g.node")
-      .data(nodes, function(d) { return d.id || (d.id = ++i); });
-  
-  var nodeEnter = node.enter().append("svg:g")
-	  .attr("class", "node")
-	  .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-	  .style("opacity", 1e-6)
-	  .on("click", click)
-	  .on("mouseover", onMouseOver)
-	  .on("mouseout", onMouseOut);
+	var nodeEnter = node.enter().append("svg:g")
+		.attr("class", "node")
+		.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+		.style("opacity", 1e-6)
+		.on("click", click)
+		.on("mouseover", onMouseOver)
+		.on("mouseout", onMouseOut);
 
 	// Enter any new nodes at the parent's previous position.
 	nodeEnter.append("svg:rect")
 	  .attr("y", -barHeight / 2)
 	  .attr("height", barHeight)
-	  .attr("width", barWidth)
+	  .attr("width", localBarWidth)
 	  .style("fill", color)
 	  .on("dblclick", toggle);
 	
@@ -276,12 +285,15 @@ function click(d) {
 
 	var seen = [];
 	var dstr = JSON.stringify(d, function(key, val) {
-	   if (typeof val == "object") {
-	        if (seen.indexOf(val) >= 0)
-	            return undefined;
-	        seen.push(val);
-	    }
-	    return val; });
+		if (key == "parent" || key == "children") {	//don't stringify the parent/children nodes
+			return undefined;
+		} else if (typeof val == "object") {
+			if (seen.indexOf(val) >= 0)
+				return undefined;
+			seen.push(val);
+		} 
+		return val; 
+	});
 	
 	//var tabs = $('#mytabs').tabs({closable: true});
   
@@ -321,9 +333,7 @@ function click(d) {
 			});
 	    	
 			var createPortal = function(){
-				var summarygrid = Ext.create('Ext.wasp.GridPortlet', {
-					myData: result.statuslist
-				});
+				var summarygrid = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist });
 				var summarytab = tabpanel.add({
                 	id: 'summary-tab',
                 	xtype: 'panel',
@@ -442,6 +452,14 @@ function click(d) {
 	}
 }
 
+function localBarWidth(d) {
+	var lbw = barWidth;
+	//alert(source.name);
+	if (d.name.length>30) {
+		lbw += 7 * (d.name.length-30);
+	}
+	return lbw;
+}
 
 function color(d) {
 	return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";

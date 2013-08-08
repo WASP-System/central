@@ -3967,10 +3967,10 @@
  */
 /* including package ext-theme-base */
 /* line 1, ../../../ext-theme-base/sass/src/Component.scss */
-.x-body {
+/* .x-body {
   margin: 0;
 }
-
+ */
 /* line 5, ../../../ext-theme-base/sass/src/Component.scss */
 img {
   border: 0;
@@ -5677,13 +5677,13 @@ svg, vml {
 
 /* including package ext-theme-neutral */
 /* line 1, ../../../ext-theme-neutral/sass/src/Component.scss */
-.x-body {
+/* .x-body {
   color: black;
   font-size: 13px;
   font-family: helvetica, arial, verdana, sans-serif;
   background: #f5f5f5;
 }
-
+ */
 /* line 13, ../../../ext-theme-neutral/sass/src/Component.scss */
 .x-animating-size,
 .x-collapsed {
@@ -18746,10 +18746,10 @@ body.x-nbr .x-tab-default-right-frameInfo {
 
 /* including package ext-theme-neptune */
 /* line 1, ../../sass/src/Component.scss */
-body {
+/* body {
   background-color: #f5f5f5;
 }
-
+ */
 /* line 246, ../../../ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small {
   border-color: transparent;
