@@ -219,7 +219,7 @@ public class WaspProjectCreator {
 				line = line.replaceAll("___description___", description);
 				
 				// marked for possible removal
-				if (line.contains("////") || line.contains("#///")) {
+				if (line.contains("////") || line.contains("#///") || inRemovableBlock) {
 					boolean keep = false;
 					if (line.contains("////<") || line.contains("#///<")){
 						inRemovableBlock = false;
