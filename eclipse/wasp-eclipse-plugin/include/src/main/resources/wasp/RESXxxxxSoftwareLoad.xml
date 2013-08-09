@@ -11,19 +11,19 @@
     
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="___pluginname___UiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" ref="___pluginname___Area" />
+    <property name="baseArea" ref="___pluginname___PluginArea" />
   </bean>
 
   <bean id="___pluginname___" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">___package___.software.___Pluginname___</value></property>
     <property name="name" value="___Pluginname___" />
     <property name="description" value="___description___" />
-    <property name="area" ref="___pluginname___Area" />
+    <property name="area" ref="___pluginname___PluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" ref="___pluginname___Area" />
+         <property name="area" ref="___pluginname___PluginArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.0.0</value> <!-- TODO: set correct version -->

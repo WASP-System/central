@@ -9,6 +9,8 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageHandlingException;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -18,7 +20,9 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 
-public abstract class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements WaspMessageHandlingService {
+@Service
+@Transactional
+public class WaspMessageHandlingServiceImpl extends WaspServiceImpl implements WaspMessageHandlingService {
 	
 	private int messageTimeoutInMillis;
 	

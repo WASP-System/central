@@ -5,18 +5,15 @@
 package ___package___.plugin;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
@@ -37,7 +34,6 @@ import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
-import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
 
 /**
  * @author 
@@ -52,6 +48,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
+	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
 	private WaspMessageHandlingService waspMessageHandlingService;
 
 	@Autowired

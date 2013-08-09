@@ -9,6 +9,6 @@ import edu.yu.einstein.wasp.model.FileType;
  */
 public interface FileTypeLoadService extends WaspLoadService {
 
-	public FileType update(String iname, String name, String description, int isActive);
+	public FileType update(String iname, String name, String description, String extension, int isActive);
 
 }

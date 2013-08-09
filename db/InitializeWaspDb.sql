@@ -588,6 +588,7 @@ CREATE TABLE `filetype` (
   `updated` datetime DEFAULT NULL,
   `uuid` binary(16) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `extension` varchar(255) DEFAULT NULL,
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,

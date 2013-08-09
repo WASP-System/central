@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.load;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -79,6 +80,8 @@ public class SoftwareLoaderAndFactory<T extends Software> extends WaspResourceLo
 		SoftwareMeta descriptionMeta = new SoftwareMeta();
 		descriptionMeta.setK(area + ".description");
 		descriptionMeta.setV(description);
+		if (meta == null)
+			meta = new ArrayList<SoftwareMeta>();
 		meta.add(descriptionMeta);
 		softwareLoadService.updateUiFields(uiFields);
 		software = softwareLoadService.update(resourceType, meta, iname, name, isActive, clazz);
