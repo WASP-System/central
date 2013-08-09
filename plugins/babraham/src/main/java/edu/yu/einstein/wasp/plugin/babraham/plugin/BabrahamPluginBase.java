@@ -92,7 +92,7 @@ public abstract class BabrahamPluginBase extends WaspPlugin implements BatchJobP
 			if (id == null)
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
-			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
+			jobParameters.put(WaspJobParameters.FILE_GROUP_ID, id.toString());
 			
 			logger.info("Sending launch message to flow " + getBatchJobName(BatchJobTask.GENERIC) + " on with id: " + id);
 			runService.launchBatchJob(getBatchJobName(BatchJobTask.GENERIC), jobParameters);

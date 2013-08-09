@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * 
  */
 public abstract class WaspPlugin extends HashMap<String, String> implements
-		InitializingBean, DisposableBean, WaspPluginI, ClientMessageI {
+		InitializingBean, DisposableBean, WaspPluginI, ClientMessageI, Comparable<WaspPlugin> {
 
 	private static final long serialVersionUID = 44139013862650632L;
 
@@ -54,6 +54,8 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	private Set<String> handles = new HashSet<String>();
 
 	private String pluginName;
+	
+	private String pluginDescription = "";
 
 	private Properties waspSiteProperties;
 
@@ -190,12 +192,25 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		return pluginName;
 	}
 
+
 	/**
 	 * @param pluginName
 	 *            the pluginName to set
 	 */
 	public void setPluginName(String pluginName) {
 		this.pluginName = pluginName;
+	}
+	
+	/**
+	 * @param pluginDescription
+	 *            the pluginDescription to set
+	 */
+	public void setPluginDescription(String pluginDescription) {
+		this.pluginDescription = pluginDescription;
+	}
+	
+	public String getPluginDescription() {
+		return pluginDescription;
 	}
 
 	/**
@@ -211,6 +226,11 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 */
 	public void setMessageChannel(MessageChannel messageChannel) {
 		this.messageChannel = messageChannel;
+	}
+	
+	@Override
+	public int compareTo(WaspPlugin o){
+		return getPluginName().compareToIgnoreCase(o.getPluginName());
 	}
 	
 	

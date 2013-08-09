@@ -41,7 +41,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 public class ___Pluginname___Plugin extends WaspPlugin 
 		implements 
 			BatchJobProviding,	///// PIP
-			WebInterfacing, ///// FORM
+			WebInterfacing, ///// FORM RES
 			FileDataTabViewing, ///// VIZ
 			ClientMessageI {
 
@@ -89,8 +89,6 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
 		
-		Map<String, String> jobParameters = new HashMap<String, String>();
-		
 		logger.info("launching test flow");
 		
 		try {
@@ -98,15 +96,14 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			if (id == null)
 				return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
 			
-			jobParameters.put(WaspJobParameters.RUN_ID, id.toString());
-			
-			logger.info("Sending launch message to flow " + FLOW_NAME + " on with id: " + id);
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
 			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
-			
+			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
-			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
+			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
+			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();
 		}
 		
 	}
@@ -181,7 +178,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 ////<
-////> VIZ FORM
+////> VIZ FORM RES
 	/** 
 	 * {@inheritDoc} 
 	 */

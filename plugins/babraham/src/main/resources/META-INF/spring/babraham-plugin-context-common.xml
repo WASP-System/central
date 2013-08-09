@@ -12,11 +12,15 @@
 	<int:channel id="wasp.channel.plugin.fastqc" />
 	
 	<int:channel id="wasp.channel.plugin.fastqcscreen" />
+	
+	<int:service-activator input-channel="wasp.channel.plugin.fastqc" ref="fastqcPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.fastqcscreen" ref="fastqscreenPlugin" method="process" />
 
 	<bean id="fastqcPlugin" class="edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin">
 		<constructor-arg name="pluginName" ref="fastQCArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.fastqc" />
+		<property name="pluginDescription" value="A quality control tool for high throughput sequence data." />
 		<property name="provides" >
 			<set>
 				<ref bean="fastqc" />
@@ -34,6 +38,7 @@
 		<constructor-arg name="pluginName" ref="fastQScreenArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.fastqcscreen" />
+		<property name="pluginDescription" value="FastQ Screen allows you to screen a library of sequences in FastQ format against a set of sequence databases so you can see if the composition of the library matches with what you expect." />
 		<property name="provides" >
 			<set>
 				<ref bean="fastqscreen" />

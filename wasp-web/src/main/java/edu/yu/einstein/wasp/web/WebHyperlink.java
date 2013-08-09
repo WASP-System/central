@@ -70,7 +70,7 @@ public class WebHyperlink extends Hyperlink implements Comparable<WebHyperlink>{
 
 	@Override
 	public int compareTo(WebHyperlink o) {
-		return getLabel().compareTo(o.getLabel());
+		return getLabel().compareToIgnoreCase(o.getLabel());
 	}
 
 

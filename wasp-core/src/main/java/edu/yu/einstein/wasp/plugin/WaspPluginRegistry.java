@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.plugin;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,10 +106,13 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	private Message<String> list() {
 		String reply = "\nRegistered Wasp System plugins:\n"
 				+ "-------------------------------\n\n";
-		for (String name : plugins.keySet()) {
-			reply += name + "\n";
+		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(plugins.values());
+		Collections.sort(pluginList);
+		for (WaspPlugin plugin : pluginList) {
+			reply += plugin.getPluginName() + "\n";
+			if (plugin.getPluginDescription() != null && !plugin.getPluginDescription().isEmpty()) 
+				reply += "     -> " + plugin.getPluginDescription() + "\n";
 		}
-
 		return MessageBuilder.withPayload(reply).build();
 	}
 
