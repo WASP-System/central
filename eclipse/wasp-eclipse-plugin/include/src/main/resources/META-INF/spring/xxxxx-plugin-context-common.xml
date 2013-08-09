@@ -26,11 +26,13 @@
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginname___" />
 		<property name="pluginDescription" value="___description___" />
+////> RES
 		<property name="provides" >
 			<set>
-				<ref bean="___pluginname___" />
+				<ref bean="___pluginname___" /> 
 			</set>
 		</property>
+////<
 		<property name="handles" >
 			<set>
 				<ref bean="___pluginname___PluginArea" />
