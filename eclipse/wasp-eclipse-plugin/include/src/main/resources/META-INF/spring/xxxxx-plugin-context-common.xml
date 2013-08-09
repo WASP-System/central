@@ -37,9 +37,5 @@
 			</set>
 		</property>
 	</bean>
-	
-
-	<!-- statics for tasks associated with messages  -->
-	<bean id="___pluginname___BatchJobTask" class="___package___.integration.messages.___Pluginname___BatchJobTask"/>
 
 </beans>

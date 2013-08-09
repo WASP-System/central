@@ -4,12 +4,12 @@
  */
 package ___package___.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashMap; ///// PIP RES
+import java.util.Map; ///// PIP RES
 import java.util.Properties;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONException; ///// PIP RES
+import org.json.JSONObject; ///// PIP RES
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,29 +18,29 @@ import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;
-import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.Hyperlink;  ///// FORM RES VIZ
+import edu.yu.einstein.wasp.exception.PanelException; ///// VIZ
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP RES
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
+import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP RES
+import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP RES
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
-import edu.yu.einstein.wasp.model.FileGroup;
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP
-import edu.yu.einstein.wasp.plugin.WaspPlugin; ///// PIP
-import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
+import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP RES
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM RES
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
-import edu.yu.einstein.wasp.viewpanel.PanelTab;
+import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 
 /**
  * @author 
  */
 public class ___Pluginname___Plugin extends WaspPlugin 
 		implements 
-			BatchJobProviding,	///// PIP
+			BatchJobProviding,	///// PIP RES
 			WebInterfacing, ///// FORM RES
 			FileDataTabViewing, ///// VIZ
 			ClientMessageI {
@@ -60,7 +60,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
-	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP
+	public static final String FLOW_NAME = "___package___.mainFlow"; ///// PIP RES
 
 	public ___Pluginname___Plugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
@@ -91,7 +91,7 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		return MessageBuilder.withPayload(mstr).build();
 	}
 
-////> PIP
+////> PIP RES
 	public Message<String> launchTestFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
@@ -141,27 +141,6 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		return id;
 	}
 	
-////<
-
-	/**
-	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * Wasp plugins implement DisposableBean to give authors the ability to tear down on shutdown.
-	 */
-	@Override
-	public void destroy() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-	
-////> PIP
 	/**
 	 * {@inheritDoc}
 	 */
@@ -209,4 +188,22 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	}
 	
 ////<
+	
+	/**
+	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Wasp plugins implement DisposableBean to give authors the ability to tear down on shutdown.
+	 */
+	@Override
+	public void destroy() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
 }

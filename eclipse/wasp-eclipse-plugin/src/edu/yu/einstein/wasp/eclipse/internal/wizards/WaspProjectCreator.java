@@ -343,7 +343,7 @@ public class WaspProjectCreator {
 		List<Dependency> deps = new ArrayList<Dependency>();
 		Dependency wasp = new Dependency();
 		wasp.setGroupId("edu.yu.einstein.wasp");
-		if (web) {
+		if (web || resource || viz) {
 			wasp.setArtifactId("wasp-web");
 		} else {
 			wasp.setArtifactId("wasp-core");
