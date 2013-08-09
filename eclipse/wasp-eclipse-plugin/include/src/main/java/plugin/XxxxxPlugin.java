@@ -84,7 +84,14 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			
 		return (Message<String>) MessageBuilder.withPayload("sent a Hello World").build();
 	}
-		
+	
+	private Message<String> helloWorldHelp() {
+		String mstr = "\n___Pluginname___ plugin: hello world!\n" +
+				"wasp -T ___pluginname___ -t helloWorld\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+
+////> PIP
 	public Message<String> launchTestFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return launchTestFlowHelp();
@@ -98,14 +105,20 @@ public class ___Pluginname___Plugin extends WaspPlugin
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + FLOW_NAME + " and id: " + id);
-			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			jobParameters.put(WaspJobParameters.TEST_ID, id.toString());
+			waspMessageHandlingService.launchBatchJob(FLOW_NAME, jobParameters);
 			return (Message<String>) MessageBuilder.withPayload("Initiating test flow on id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
 			logger.warn("unable to build message to launch batch job " + FLOW_NAME);
 			return MessageBuilder.withPayload("Unable to launch batch job " + FLOW_NAME).build();
 		}
 		
+	}
+	
+	private Message<String> launchTestFlowHelp() {
+		String mstr = "\n___Pluginname___ plugin: launch the test flow.\n" +
+				"wasp -T ___pluginname___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 	/**
@@ -127,6 +140,8 @@ public class ___Pluginname___Plugin extends WaspPlugin
 		}
 		return id;
 	}
+	
+////<
 
 	/**
 	 * Wasp plugins implement InitializingBean to give authors an opportunity to initialize at runtime.
@@ -144,18 +159,6 @@ public class ___Pluginname___Plugin extends WaspPlugin
 	public void destroy() throws Exception {
 		// TODO Auto-generated method stub
 
-	}
-
-	private Message<String> helloWorldHelp() {
-		String mstr = "\n___Pluginname___ plugin: hello world!\n" +
-				"wasp -T ___pluginname___ -t helloWorld\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	private Message<String> launchTestFlowHelp() {
-		String mstr = "\n___Pluginname___ plugin: launch the test flow.\n" +
-				"wasp -T ___pluginname___ -t launchTestFlow -m \'{id:\"1\"}\'\n";
-		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 ////> PIP
