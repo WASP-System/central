@@ -379,7 +379,7 @@ public class WaspProjectCreator {
 		build.addPlugin(plugin2);
 
 		// resources
-		if (web) {
+		if (web || resource || viz) {
 			Resource res = new Resource();
 			res.setTargetPath("WEB-INF");
 			res.setFiltering(true);
@@ -429,6 +429,8 @@ public class WaspProjectCreator {
 		if (web || viz || resource){
 			folderSet.add(javaMainPackage + "/controller");
 			folderSet.add(javaRes + "/META-INF/tiles");
+			folderSet.add(javaRes + "/css");
+			folderSet.add(javaRes + "/scripts");
 			folderSet.add("src/main/webapp/WEB-INF/jsp/" + name.toLowerCase());
 		}
 		

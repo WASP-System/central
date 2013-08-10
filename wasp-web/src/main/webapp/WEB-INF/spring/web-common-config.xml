@@ -48,6 +48,7 @@
 			<list>
 				<value>WEB-INF/jsp</value>
 				<value>images</value>
+				<value>css</value>
 			</list>
 		</constructor-arg> 
 		<constructor-arg name="resourceUrlFilter" value="${catalina.home}/waspPlugins"/>
