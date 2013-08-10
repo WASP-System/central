@@ -8,6 +8,10 @@ Ext.define('Ext.wasp.Portal', {
 
     extend: 'Ext.container.Container',
     requires: ['Ext.wasp.PortalPanel', 'Ext.wasp.PortalColumn', 'Ext.wasp.GridPortlet', 'Ext.wasp.ChartPortlet'],
+    
+    width: 1500,
+    height: 800,
+    headerheight: 20,
 
     getTools: function(){
         return [{
@@ -42,8 +46,8 @@ Ext.define('Ext.wasp.Portal', {
         Ext.apply(this, {
             id: 'wasp-viewport',
             renderTo: 'resultpanel',
-            width: 1500,
-            height: 800,
+            width: this.width,
+            height: this.height,
             layout: {
                 type: 'border',
                 padding: '0 5 5 5' // pad the layout from the window edges
@@ -52,8 +56,8 @@ Ext.define('Ext.wasp.Portal', {
                 id: 'wasp-header',
                 xtype: 'box',
                 region: 'north',
-                height: 20,
-                //html: 'Job Result Portal'
+                //html: 'Job Result Portal',
+                height: this.headerheight
             },{
                 xtype: 'container',
                 region: 'center',
@@ -63,7 +67,7 @@ Ext.define('Ext.wasp.Portal', {
                     title: 'Job Treeview',
                     region: 'west',
                     animCollapse: true,
-                    width: 400,
+                    width: this.width*0.3,
                     minWidth: 250,
                     maxWidth: 700,
                     split: true,
