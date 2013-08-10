@@ -23,7 +23,7 @@ import edu.yu.einstein.wasp.viewpanel.WebPanel;
 @Service
 public class BabrahamPanelRenderer {
 
-	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham.css";
+	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham/babraham.css";
 	
 
 	private static Panel getViewPanel(String title, int order, WebContent content) throws PanelException{
