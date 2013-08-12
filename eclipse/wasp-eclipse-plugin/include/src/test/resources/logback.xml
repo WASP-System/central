@@ -18,7 +18,7 @@
 </appender>
 <logger name="org.springframework.integration" level="DEBUG"/>
 <logger name="edu.yu.einstein.wasp" level="DEBUG"/>
-<logger name="___package___.___pluginname___" level="DEBUG"/>
+<logger name="___package___" level="DEBUG"/>
 <root level="INFO">
 <appender-ref ref="stdout"/>
 </root>
