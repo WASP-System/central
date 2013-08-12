@@ -2,13 +2,13 @@
  * Created by Wasp System Eclipse Plugin
  * @author 
  */
-package ___package___.test.integration.messages;
+package ___package___.integration.messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ___package___.___pluginname___.plugin.___Pluginname___Plugin;
+import ___package___.plugin.___Pluginname___Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -50,7 +50,6 @@ public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextT
 	
 	// define constants
 	private final Integer TEST_ID = 1;
-	private final String BATCH_JOB_NAME_WRONG = "notARealJobName";
 	private final long MESSAGE_TIMEOUT = 2000L; // ms
 	private final int MESSAGE_WAIT_INTERVAL = 50; // ms
 	

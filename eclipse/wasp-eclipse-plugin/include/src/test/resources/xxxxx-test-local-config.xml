@@ -13,7 +13,7 @@
 	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
 	<!--  e.g. <mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />  -->
 
-///> PIP RES
+////> PIP RES
 	<mockito:mock id ="authenticationService" class="edu.yu.einstein.wasp.service.AuthenticationService"/>
 	
 	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter"/>
@@ -28,7 +28,7 @@
  	
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
  	
- ///<
+////<
  	
 	<!-- import configuration files  -->
 	<import resource="___pluginname___-test-persistence-config.xml" />
