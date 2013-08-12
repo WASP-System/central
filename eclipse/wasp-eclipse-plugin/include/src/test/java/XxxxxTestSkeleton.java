@@ -52,8 +52,8 @@ public class ___Pluginname___TestSkeleton extends AbstractTestNGSpringContextTes
 			// TODO: Test logic here. 
 			Assert.assertTrue(true); // pass  default
 		} catch (Exception e){
-			 // caught an unexpected exception
-			Assert.fail("testSuccessfulJobLaunch(): Caught Exception: "+e.getMessage());
+			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());
+			throw e; // re-throw the exception
 		}
 	}
 	

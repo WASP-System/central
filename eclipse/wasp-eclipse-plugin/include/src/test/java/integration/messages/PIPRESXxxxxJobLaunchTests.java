@@ -154,8 +154,8 @@ public class ___Pluginname___JobLaunchTests extends AbstractTestNGSpringContextT
 			BatchStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(___Pluginname___Plugin.FLOW_NAME)).getStatus();
 			Assert.assertEquals(jobExecutionStatus, BatchStatus.COMPLETED);
 		} catch (Exception e){
-			 // caught an unexpected exception
-			Assert.fail("testSuccessfulJobLaunch(): Caught Exception: "+e.getMessage());
+			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());
+			throw e; // re-throw the exception
 		}
 	}
 	
