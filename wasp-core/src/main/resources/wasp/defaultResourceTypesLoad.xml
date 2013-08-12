@@ -6,7 +6,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
   <bean id="genericPluginResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="Genetic Plugin" />
+    <property name="name" value="Generic Plugin" />
     <property name="area" value="genericPlugin" />
   </bean>
    
