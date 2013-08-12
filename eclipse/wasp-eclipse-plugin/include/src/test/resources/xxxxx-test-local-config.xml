@@ -13,6 +13,7 @@
 	<!-- e.g. Entitymanager for DAOs. Set up fresh mocks in tests instead.  -->
 	<!--  e.g. <mockito:mock id="gridHostResolver" class="edu.yu.einstein.wasp.grid.GridHostResolver" />  -->
 
+////> RES PIP
 	<mockito:mock id ="authenticationService" class="edu.yu.einstein.wasp.service.AuthenticationService"/>
 	
 	<mockito:mock id ="runSuccessSplitter" class="edu.yu.einstein.wasp.integration.splitters.RunSuccessSplitter"/>
@@ -30,5 +31,5 @@
  	
 	<!-- import configuration files  -->
 	<import resource="___pluginname___-test-persistence-config.xml" />
-		
+////<
 </beans>
