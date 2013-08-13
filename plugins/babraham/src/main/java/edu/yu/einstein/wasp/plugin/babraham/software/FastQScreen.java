@@ -27,6 +27,7 @@ import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
@@ -51,6 +52,9 @@ public class FastQScreen extends SoftwarePackage {
 	
 	@Autowired
 	FileService fileService;
+	
+	@Autowired
+	private MessageServiceWebapp messageService;
 
 	/**
 	 * 
@@ -206,6 +210,6 @@ public class FastQScreen extends SoftwarePackage {
 	 * @throws JSONException 
 	 */
 	public JSONObject parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
-		return BabrahamQCParseModule.getParsedFastqScreenStatistics(babrahamService.parseFastQScreenOutput(resultsDir));
+		return BabrahamQCParseModule.getParsedFastqScreenStatistics(babrahamService.parseFastQScreenOutput(resultsDir), messageService);
 	}
 }

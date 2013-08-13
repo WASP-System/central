@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -43,6 +44,9 @@ public class FastQC extends SoftwarePackage{
 	
 	@Autowired
 	private FastqService fastqService;
+	
+	@Autowired
+	private MessageServiceWebapp messageService;
 	
 	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
 	// as Software and use @Qualifier to specify the casava bean. 
@@ -227,18 +231,18 @@ public class FastQC extends SoftwarePackage{
 	public Map<String,JSONObject> parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
 		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
 		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(resultsDir);
-		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap));
-		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap));
-		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap));
-		output.put(PlotType.PER_SEQUENCE_QUALITY, BabrahamQCParseModule.getPerSequenceQualityScores(mMap));
-		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, BabrahamQCParseModule.getPerBaseSequenceContent(mMap));
-		output.put(PlotType.PER_BASE_GC_CONTENT, BabrahamQCParseModule.getPerBaseGcContent(mMap));
-		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, BabrahamQCParseModule.getPerSequenceGcContent(mMap));
-		output.put(PlotType.PER_BASE_N_CONTENT, BabrahamQCParseModule.getPerBaseNContent(mMap));
-		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, BabrahamQCParseModule.getSequenceLengthDist(mMap));
-		output.put(PlotType.DUPLICATION_LEVELS, BabrahamQCParseModule.getSequenceDuplicationLevels(mMap));
-		output.put(PlotType.OVERREPRESENTED_SEQUENCES, BabrahamQCParseModule.getOverrepresentedSequences(mMap));
-		output.put(PlotType.KMER_PROFILES, BabrahamQCParseModule.getOverrepresentedKmers(mMap));
+		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap, messageService));
+		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap, messageService));
+		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap, messageService));
+		output.put(PlotType.PER_SEQUENCE_QUALITY, BabrahamQCParseModule.getPerSequenceQualityScores(mMap, messageService));
+		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, BabrahamQCParseModule.getPerBaseSequenceContent(mMap, messageService));
+		output.put(PlotType.PER_BASE_GC_CONTENT, BabrahamQCParseModule.getPerBaseGcContent(mMap, messageService));
+		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, BabrahamQCParseModule.getPerSequenceGcContent(mMap, messageService));
+		output.put(PlotType.PER_BASE_N_CONTENT, BabrahamQCParseModule.getPerBaseNContent(mMap, messageService));
+		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, BabrahamQCParseModule.getSequenceLengthDist(mMap, messageService));
+		output.put(PlotType.DUPLICATION_LEVELS, BabrahamQCParseModule.getSequenceDuplicationLevels(mMap, messageService));
+		output.put(PlotType.OVERREPRESENTED_SEQUENCES, BabrahamQCParseModule.getOverrepresentedSequences(mMap, messageService));
+		output.put(PlotType.KMER_PROFILES, BabrahamQCParseModule.getOverrepresentedKmers(mMap, messageService));
 		return output;
 	}
 	

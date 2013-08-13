@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 
 import edu.yu.einstein.wasp.charts.DataSeries;
+import edu.yu.einstein.wasp.service.MessageService;
 
 /**
  * 
@@ -123,9 +124,17 @@ public class BasicHighChartsSeries{
 	 * @return
 	 */
 	public String getHtml() throws JSONException{
+		return getHtml(null);
+	}
+	
+	/**
+	 * gets HTML string to be inserted into HighCharts code to define this series
+	 * @return
+	 */
+	public String getHtml(MessageService messageService) throws JSONException{
 		StringBuilder sb = new StringBuilder();
 		sb.append("series: [");
-		sb.append(getInnerHtml());	
+		sb.append(getInnerHtml(messageService));	
 		sb.append("]\n");	
 		return sb.toString();
 	}
@@ -136,9 +145,24 @@ public class BasicHighChartsSeries{
 	 * @throws JSONException
 	 */
 	public String getInnerHtml() throws JSONException{
+		return getInnerHtml(null);
+	}
+	
+	/**
+	 * simply gets the series as an element which may be combined with other series
+	 * @return
+	 * @throws JSONException
+	 */
+	public String getInnerHtml(MessageService messageService) throws JSONException{
 		String seriesName = "";
-		if (ds.getName() != null && !ds.getName().isEmpty())
-			seriesName =  "name: '" + ds.getName() + "', ";
+		String name = "";
+		if (messageService == null){
+			name = ds.getName();
+		} else {
+			name = ds.getLocalizedName(messageService);
+		}
+		if (ds.getName() != null && !name.isEmpty())
+			seriesName =  "name: '" + name + "', ";
 		String seriesColor = "";
 		if (color != null){
 			String red = Integer.toHexString(color.getRed());

@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.json.JSONException;
 
 import edu.yu.einstein.wasp.exception.ChartException;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 
 /**
@@ -86,9 +87,31 @@ public class WebChartsBase {
 	 * @throws ChartException 
 	 */
 	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats) throws ChartException{
+		return getKeyValueTableRepresentation(basicStats, null);
+	}
+	
+	/**
+	 * each row represents a key-value pair where the first data point is heading (key) and the second data point is it's value.
+	 * Providing a MessageService instance enables internationalization of
+	 * title and description (assumes chart title and description parameter values are localization property keys).
+	 * @param basicStats
+	 * @param messageService
+	 * @return
+	 * @throws ChartException 
+	 */
+	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats, MessageService messageService) throws ChartException{
+		String description;
+		String title;
+		if (messageService == null){
+			description = basicStats.getDescription();
+			title = basicStats.getTitle();
+		} else {
+			description = basicStats.getLocalizedDescription(messageService);
+			title = basicStats.getLocalizedTitle(messageService);
+		}
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
+		sb.append("<h3>" + title + "</h3>\n");
 		sb.append("<table class='keyValueTable' >\n");
 		if (data.isEmpty()){
 			sb.append("<tr><td>No data to display</td></tr>\n");
@@ -111,7 +134,7 @@ public class WebChartsBase {
 		}
 		sb.append("</table>\n");
 		WebContent content = new WebContent();
-		content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getDescription()));
+		content.setHtmlCode(getSimpleContainerCode(sb.toString(), description));
 		return content;
 	}
 	
@@ -122,9 +145,31 @@ public class WebChartsBase {
 	 * @throws JSONException
 	 */
 	public static WebContent getTableRepresentation(final WaspChart basicStats){
+		return getTableRepresentation(basicStats, null);
+	}
+	
+	/**
+	 * First row is column labels followed by rows of data.
+	 * Providing a MessageService instance enables internationalization of
+	 * title and description (assumes chart title and description parameter values are localization property keys).
+	 * @param basicStats
+	 * @param messageService
+	 * @return
+	 * @throws JSONException
+	 */
+	public static WebContent getTableRepresentation(final WaspChart basicStats, MessageService messageService){
+		String description;
+		String title;
+		if (messageService == null){
+			description = basicStats.getDescription();
+			title = basicStats.getTitle();
+		} else {
+			description = basicStats.getLocalizedDescription(messageService);
+			title = basicStats.getLocalizedTitle(messageService);
+		}
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<h3>" + basicStats.getTitle() + "</h3>\n");
+		sb.append("<h3>" + title + "</h3>\n");
 		sb.append("<table class='standardTable' >\n");
 		if (data.isEmpty()){
 			sb.append("<tr><td>No data to display</td></tr>\n");
@@ -153,7 +198,7 @@ public class WebChartsBase {
 		}
 		sb.append("</table>\n");
 		WebContent content = new WebContent();
-		content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getDescription()));
+		content.setHtmlCode(getSimpleContainerCode(sb.toString(), description));
 		return content;
 	}
 	

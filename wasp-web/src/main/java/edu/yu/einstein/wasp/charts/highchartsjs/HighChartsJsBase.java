@@ -15,6 +15,7 @@ import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
 import edu.yu.einstein.wasp.charts.WebChartsBase;
 import edu.yu.einstein.wasp.exception.ChartException;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 
 /**
@@ -165,8 +166,12 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 		return sb.toString();
 	}
 	
-		
 	public static String getBasicSeriesCode(final BasicHighChartsSeries series) throws ChartException{
+		return getBasicSeriesCode(series, null);
+	}
+	
+		
+	public static String getBasicSeriesCode(final BasicHighChartsSeries series, MessageService messageService) throws ChartException{
 		try{
 			Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
 			seriesSet.add(series);
@@ -177,6 +182,10 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	}
 	
 	public static String getBasicSeriesCode(final Set<BasicHighChartsSeries> seriesSet) throws ChartException{
+		return getBasicSeriesCode(seriesSet, null);
+	}
+	
+	public static String getBasicSeriesCode(final Set<BasicHighChartsSeries> seriesSet, MessageService messageService) throws ChartException{
 		try{
 			StringBuilder sb = new StringBuilder();
 			sb.append("series: [");
@@ -184,7 +193,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 			for (BasicHighChartsSeries series : seriesSet){
 				if (seriesCount++ > 0)
 					sb.append(",");
-				sb.append(series.getInnerHtml());
+				sb.append(series.getInnerHtml(messageService));
 			}
 			sb.append("]\n");	
 			return sb.toString();
@@ -209,9 +218,20 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @throws ChartException 
 	 */
 	public static WebContent getBasicSpline(final WaspChart2D chart) throws ChartException {
-		return getBasicSpline(chart, null, null, null, null, null, null);
+		return getBasicSpline(chart, null, null, null, null, null, null, null);
 	}
-
+	
+	/**
+	 * Get a basic spline chart. Providing a MessageService instance enables internationalization of
+	 * title and description (assumes chart title and description parameter values are localization property keys).
+	 * @param chart
+	 * @param messageService
+	 * @return
+	 * @throws ChartException 
+	 */
+	public static WebContent getBasicSpline(final WaspChart2D chart, MessageService messageService) throws ChartException {
+		return getBasicSpline(chart, null, null, null, null, null, null, messageService);
+	}
 	
 	/**
 	 * Get a basic spline chart. Except for chart, which must be provided, all other parameter values may be null
@@ -227,16 +247,57 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @throws ChartException 
 	 */
 	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax) throws ChartException{
+		return getBasicSpline(chart, xTickInterval, yTickInterval, xMin, xMax, yMin, yMax, null);
+	}
+	
+	/**
+	 * Get a basic spline chart. Except for chart, which must be provided, all other parameter values may be null
+	 * in which case HighCharts default values will be used.
+	 * Providing a MessageService instance enables internationalization of
+	 * title and description (assumes chart title and description parameter values are localization property keys).
+	 * @param chart
+	 * @param xTickInterval
+	 * @param yTickInterval
+	 * @param xMin
+	 * @param xMax
+	 * @param yMin
+	 * @param yMax
+	 * @param messageService
+	 * @return
+	 * @throws ChartException 
+	 */
+	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax, MessageService messageService) throws ChartException{
 		try{
-			WebContent content = new WebContent();
-			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getDescription(), containerId));
 			DataSeries ds = chart.getDataSeries().get(0);
+			WebContent content = new WebContent();
+			String containerId = getUniqueContainerId();;
+			String description;
+			String title;
+			String xAxisLabel;
+			String yAxisLabel;
+			List<String> rowLabels;
+			if (messageService != null){
+				description = chart.getDescription();
+				title = chart.getTitle();
+				xAxisLabel = chart.getxAxisLabel();
+				yAxisLabel = chart.getyAxisLabel();
+				rowLabels = ds.getRowLabels();
+			} else {
+				description = chart.getLocalizedDescription(messageService);
+				title = chart.getLocalizedTitle(messageService);
+				xAxisLabel = chart.getLocalizedXAxisLabel(messageService);
+				yAxisLabel = chart.getLocalizedYAxisLabel(messageService);
+				rowLabels = ds.getLocalizedRowLabels(messageService);
+			}
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", description, containerId));
+			
 			StringBuilder sb = new StringBuilder();
-			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getTitle(), false));
-			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.getRowLabels(), xTickInterval));
-			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), yMin, yMax));
-			sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED)));
+			
+			
+			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, title, false));
+			sb.append(getBasicXAxisCode(xAxisLabel, rowLabels, xTickInterval));
+			sb.append(getBasicYAxisCode(yAxisLabel, yMin, yMax));
+			sb.append(getBasicSeriesCode(new BasicHighChartsSeries(ds, false, false, Color.RED), messageService));
 			sb.append(getHCScriptEndCode());
 			content.setScriptCode(sb.toString());
 			content.setScriptDependencies(getScriptDependencies());
