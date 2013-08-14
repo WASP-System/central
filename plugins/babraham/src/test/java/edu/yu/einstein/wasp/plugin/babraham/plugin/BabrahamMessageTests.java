@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.plugin.babraham.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,7 +31,6 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.FileStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter;
 import edu.yu.einstein.wasp.service.FileService;
 

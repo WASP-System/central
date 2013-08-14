@@ -71,10 +71,10 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	
 	public static WebContent getSplineForBases(final WaspChart2D chart, MessageService messageService) throws ChartException{
 		try {
-			DataSeries dsA = chart.getDataSeries("% A");
-			DataSeries dsC = chart.getDataSeries("% C");
-			DataSeries dsT = chart.getDataSeries("% T");
-			DataSeries dsG = chart.getDataSeries("% G");
+			DataSeries dsA = chart.getDataSeries("fastqc.perSequenceContent_ds1Name.label");
+			DataSeries dsC = chart.getDataSeries("fastqc.perSequenceContent_ds2Name.label");
+			DataSeries dsT = chart.getDataSeries("fastqc.perSequenceContent_ds3Name.label");
+			DataSeries dsG = chart.getDataSeries("fastqc.perSequenceContent_ds4Name.label");
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
@@ -100,8 +100,8 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	
 	public static WebContent getSplineForPerSequenceGC(final WaspChart2D chart, MessageService messageService) throws ChartException{
 		try {
-			DataSeries dsActual = chart.getDataSeries("GC count per read");
-			DataSeries dsTheory = chart.getDataSeries("Theoretical Distribution");
+			DataSeries dsActual = chart.getDataSeries("fastqc.perSequenceGcContent_ds1Name.label");
+			DataSeries dsTheory = chart.getDataSeries("fastqc.perSequenceGcContent_ds2Name.label");
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();

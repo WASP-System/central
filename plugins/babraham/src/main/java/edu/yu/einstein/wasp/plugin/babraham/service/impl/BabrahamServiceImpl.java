@@ -42,7 +42,7 @@ import edu.yu.einstein.wasp.plugin.babraham.software.FastQCDataModule;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQScreen;
 import edu.yu.einstein.wasp.plugin.babraham.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
@@ -55,7 +55,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	private MessageServiceWebapp messageServiceWebapp;
+	@Qualifier("messageServiceWebapp")
+	private MessageService messageService;
 	
 	@Autowired
 	private FileService fileService;
@@ -314,18 +315,18 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
 		try {
-			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroupId), messageServiceWebapp));
-			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroupId), messageServiceWebapp));
+			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_QUALITY, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseNContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_N_CONTENT, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_GC_CONTENT, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerSeqGcContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_SEQUENCE_GC_CONTENT, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getGetPerBaseSeqContentPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_SEQUENCE_CONTENT, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqDuplicationPanel(getJsonForParsedSoftwareOutputByKey(PlotType.DUPLICATION_LEVELS, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getKmerProfilesPanel(getJsonForParsedSoftwareOutputByKey(PlotType.KMER_PROFILES, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getOverrepresentedSeqPanel(getJsonForParsedSoftwareOutputByKey(PlotType.OVERREPRESENTED_SEQUENCES, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getSeqLengthDistributionPanel(getJsonForParsedSoftwareOutputByKey(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, fastqc, fileGroupId), messageService));
+			panelTab.addPanel(BabrahamPanelRenderer.getPerBaseSeqQualityPanel(getJsonForParsedSoftwareOutputByKey(PlotType.PER_BASE_QUALITY, fastqc, fileGroupId), messageService));
 		} catch (JSONException | MetadataException e) {
 			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
 		}
@@ -341,7 +342,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
 		try {
-			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId), messageServiceWebapp));
+			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId), messageService));
 		} catch (JSONException | MetadataException e) {
 			throw new PanelException("Caught unexpected exception whilst preparing panel.", e);
 		}

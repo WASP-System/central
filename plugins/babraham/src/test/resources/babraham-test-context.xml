@@ -12,14 +12,27 @@
 	
 	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.fileformat.service.impl.FastqServiceImpl" />
 	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
-	
+	<mockito:mock id="waspSqlService" class="edu.yu.einstein.wasp.service.impl.WaspSqlServiceImpl" />
 
+	
+	<bean id="messageServiceWebapp" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
+	
 	<int:splitter input-channel="wasp.channel.notification.file" output-channel="wasp.channel.batch">
 		<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter" />
 	</int:splitter>
 	
 	<int:channel id="wasp.channel.notification.file" />
 	<int:publish-subscribe-channel id="wasp.channel.batch" />
+	
+	<bean id="propertiesLoadService" class="edu.yu.einstein.wasp.plugin.babraham.stubs.PropertiesLoadServiceImpl" />
+	
+	<bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
+	
+	<!-- import internationalized messaging. -->
+  	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle">
+  		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" />
+  		<property name="runSQL" value="false" />
+  	</bean>
 	
 
 </beans>

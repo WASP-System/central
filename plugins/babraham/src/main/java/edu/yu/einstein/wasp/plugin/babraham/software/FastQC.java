@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
@@ -29,7 +28,7 @@ import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.service.FileService;
-import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
@@ -38,7 +37,6 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder / asmclellan
  *
  */
-@Transactional("entityManager")
 public class FastQC extends SoftwarePackage{
 
 	
@@ -46,7 +44,8 @@ public class FastQC extends SoftwarePackage{
 	private FastqService fastqService;
 	
 	@Autowired
-	private MessageServiceWebapp messageService;
+	@Qualifier("messageServiceWebapp")
+	private MessageService messageService;
 	
 	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
 	// as Software and use @Qualifier to specify the casava bean. 

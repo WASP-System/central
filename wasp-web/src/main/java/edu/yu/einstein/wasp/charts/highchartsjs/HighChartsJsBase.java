@@ -276,7 +276,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 			String xAxisLabel;
 			String yAxisLabel;
 			List<String> rowLabels;
-			if (messageService != null){
+			if (messageService == null){
 				description = chart.getDescription();
 				title = chart.getTitle();
 				xAxisLabel = chart.getxAxisLabel();
