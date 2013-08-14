@@ -18,7 +18,7 @@ public class TestWaspChart {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private String testJson = "{\"dataSeries\":[{\"rowLabels\":[\"1\",\"2\"],\"name\":\"box and whisker\",\"data\":[[1.1,1.6,2,3.5,4],[1.9,2.5,3.3,4,5.2]],\"properties\":{},\"colLabels\":[\"low\",\"lq\",\"median\",\"uq\",\"high\"]}],\"yAxisLabel\":\"Y-Axis\",\"title\":\"My Boxplot\",\"description\":\"A nice boxplot of great data\",\"properties\":{},\"xAxisLabel\":\"X-axis\"}";
+	private String testJson = "{\"dataSeries\":[{\"rowLabels\":[\"1\",\"2\"],\"name\":\"waspBoxPlot.boxAndWhisker.label\",\"data\":[[1.1,1.6,2,3.5,4],[1.9,2.5,3.3,4,5.2]],\"properties\":{},\"colLabels\":[\"waspBoxPlot.boxAndWhisker_low.label\",\"waspBoxPlot.boxAndWhisker_lq.label\",\"waspBoxPlot.boxAndWhisker_median.label\",\"waspBoxPlot.boxAndWhisker_uq.label\",\"waspBoxPlot.boxAndWhisker_high.label\"]}],\"yAxisLabel\":\"Y-Axis\",\"title\":\"My Boxplot\",\"description\":\"A nice boxplot of great data\",\"properties\":{},\"xAxisLabel\":\"X-axis\"}";
 	
 	private WaspBoxPlot testBoxPlot;
 	
