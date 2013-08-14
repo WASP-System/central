@@ -9,6 +9,7 @@ import edu.yu.einstein.wasp.charts.DataSeries;
 import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.charts.WaspChart;
 import edu.yu.einstein.wasp.charts.WaspChart2D;
+import edu.yu.einstein.wasp.charts.WebChartsBase;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries;
 import edu.yu.einstein.wasp.charts.highchartsjs.BasicHighChartsSeries.Type;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
@@ -48,7 +49,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", waspBoxPlot.getLocalizedDescription(messageService), containerId));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.BOXPLOT, containerId, waspBoxPlot.getLocalizedTitle(messageService), false));
-			sb.append(getBasicXAxisCode(waspBoxPlot.getLocalizedXAxisLabel(messageService), boxPlotDS.getRowLabels(), 5));
+			sb.append(getBasicXAxisCode(waspBoxPlot.getLocalizedXAxisLabel(messageService), boxPlotDS.getLocalizedRowLabels(messageService), 5));
 			sb.append("plotOptions: { series: { groupPadding: 0} },\n");
 			sb.append("yAxis: { title: { text: '" + waspBoxPlot.getLocalizedYAxisLabel(messageService) + "' },\n ");
 			sb.append("plotBands: ["); 
@@ -81,8 +82,8 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getLocalizedTitle(messageService), true));
-			sb.append(getBasicXAxisCode(chart.getxAxisLabel()));
-			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, 100));
+			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService)));
+			sb.append(getBasicYAxisCode(chart.getLocalizedYAxisLabel(messageService), 0, 100));
 			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(dsG, false, false, Color.RED));
 			seriesSet.add(new BasicHighChartsSeries(dsA, false, false, Color.BLUE));
@@ -108,8 +109,8 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getLocalizedTitle(messageService), true));
-			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), 0, 100));
-			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, null));
+			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), 0, 100));
+			sb.append(getBasicYAxisCode(chart.getLocalizedYAxisLabel(messageService), 0, null));
 			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(dsActual, false, false, Color.RED));
 			seriesSet.add(new BasicHighChartsSeries(dsTheory, false, false, Color.BLUE));
@@ -132,8 +133,8 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			sb.append("<h3>" + basicStats.getLocalizedTitle(messageService) + "</h3>\n");
 			sb.append("<table class='standardTable' >\n");
 			sb.append("<tr>\n");
-			sb.append("<th>" +  basicStats.getDataSeries().get(0).getColLabels().get(0) + "</th>\n");
-			sb.append("<th>" + basicStats.getDataSeries().get(0).getColLabels().get(1) + "</th>\n");
+			sb.append("<th>" +  basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(0) + "</th>\n");
+			sb.append("<th>" + basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(1) + "</th>\n");
 			sb.append("</tr>\n");
 			for (List<Object> row : data){
 				sb.append("<tr>\n");
@@ -170,8 +171,8 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.COLUMN, containerId, chart.getLocalizedTitle(messageService), true));
-			sb.append(getBasicXAxisCode(chart.getxAxisLabel(), ds.get(0).getRowLabels()));
-			sb.append(getBasicYAxisCode(chart.getyAxisLabel(), 0, 100));
+			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), ds.get(0).getLocalizedRowLabels(messageService)));
+			sb.append(getBasicYAxisCode(chart.getLocalizedYAxisLabel(messageService), 0, 100));
 			sb.append("plotOptions: { column: { stacking: 'normal' } },\n");
 			Set<BasicHighChartsSeries> seriesSet = new LinkedHashSet<BasicHighChartsSeries>();
 			seriesSet.add(new BasicHighChartsSeries(ds.get(3), false, false, Color.RED));
@@ -191,6 +192,18 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	
 	public static WebContent getBasicSpline(final WaspChart2D chart, Integer xTickInterval, Integer yTickInterval, Integer xMin, Integer xMax, Integer yMin, Integer yMax, MessageService messageService) throws ChartException{
 		WebContent content = HighChartsJsBase.getBasicSpline(chart, xTickInterval, yTickInterval, xMin, xMax, yMin, yMax, messageService);
+		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
+		return content;
+	}
+	
+	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats, MessageService messageService) throws ChartException{
+		WebContent content = WebChartsBase.getKeyValueTableRepresentation(basicStats, messageService);
+		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
+		return content;
+	}
+	
+	public static WebContent getTableRepresentation(final WaspChart basicStats, MessageService messageService){
+		WebContent content = WebChartsBase.getTableRepresentation(basicStats, messageService);
 		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
 		return content;
 	}

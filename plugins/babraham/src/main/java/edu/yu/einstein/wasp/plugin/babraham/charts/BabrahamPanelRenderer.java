@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.plugin.babraham.charts;
 
 import java.net.URI;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,8 @@ import edu.yu.einstein.wasp.viewpanel.WebPanel;
 public class BabrahamPanelRenderer {
 
 	public static final String BABRAHAM_CHARTS_CSS_PATH = "/wasp/css/babraham/babraham.css";
+	
+	private static final int LONG_LIST_CUTOFF = 20;
 	
 
 	private static Panel getViewPanel(String title, int order, WebContent content) throws PanelException{
@@ -147,6 +150,9 @@ public class BabrahamPanelRenderer {
 	public static Panel getOverrepresentedSeqPanel(JSONObject chartJson, MessageService messageService) throws PanelException {
 		try {
 			WaspChart chart = WaspChart.getChart(chartJson, WaspChart.class);
+			List<List<Object>> data = chart.getDataSeries().get(0).getData();  
+			if (LONG_LIST_CUTOFF < data.size())
+				chart.getDataSeries().get(0).setData(data.subList(0, LONG_LIST_CUTOFF));
 			return getViewPanel(chart.getLocalizedTitle(messageService), 11, BabrahamHighChartsJs.getTableRepresentation(chart, messageService));
 		} catch (JSONException e) {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);
@@ -157,6 +163,9 @@ public class BabrahamPanelRenderer {
 	public static Panel getKmerProfilesPanel(JSONObject chartJson, MessageService messageService) throws PanelException{
 		try {
 			WaspChart chart = WaspChart.getChart(chartJson, WaspChart.class);
+			List<List<Object>> data = chart.getDataSeries().get(0).getData();  
+			if (LONG_LIST_CUTOFF < data.size())
+				chart.getDataSeries().get(0).setData(data.subList(0, LONG_LIST_CUTOFF));
 			return getViewPanel(chart.getLocalizedTitle(messageService), 12, BabrahamHighChartsJs.getTableRepresentation(chart, messageService));
 		} catch (JSONException e) {
 			throw new PanelException("Caught unexpected exception generating WebPanel", e);

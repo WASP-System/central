@@ -28,7 +28,7 @@ public class MessageServiceImpl implements MessageService {
 		try {
 			message = messageSource.getMessage(key, null, locale);
 		} catch (Throwable e) {
-			logger.warn("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
+			logger.trace("Cannot resolve message '" + key + "' from messageSource (" + e.getMessage() + ")");
 		}
 		return message;
 	}

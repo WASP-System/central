@@ -139,8 +139,8 @@ public class BabrahamQCParseModule {
 		colList.add("fastqc.basicStats_plot_col4.label");
 		colList.add("fastqc.basicStats_plot_col5.label");
 		colList.add("fastqc.basicStats_plot_col6.label");
-		ds.setColLabels(colList);
 		ds.setDataFromString(bs.getDataPoints());
+		ds.setColLabels(colList);
 		chart.addDataSeries(ds);
 		return chart.getAsJSON();
 	}

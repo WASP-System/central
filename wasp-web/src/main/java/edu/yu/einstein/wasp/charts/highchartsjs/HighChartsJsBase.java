@@ -175,7 +175,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 		try{
 			Set<BasicHighChartsSeries> seriesSet = new HashSet<BasicHighChartsSeries>();
 			seriesSet.add(series);
-			return getBasicSeriesCode(seriesSet);
+			return getBasicSeriesCode(seriesSet, messageService);
 		} catch(Exception e){
 			throw new ChartException("Unexpected error caught rendering chart", e);
 		}
@@ -208,7 +208,7 @@ public abstract class HighChartsJsBase extends WebChartsBase{
 	 * @return
 	 */
 	public static String getHCScriptEndCode(){
-		return "\n});\n});";
+		return "\n});});";
 	}
 	
 	/**

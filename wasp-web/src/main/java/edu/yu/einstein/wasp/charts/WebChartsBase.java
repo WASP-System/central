@@ -120,6 +120,8 @@ public class WebChartsBase {
 				if (row.size() != 2)
 					throw new ChartException("Data is of wrong format for this representation (must be two columns)");
 				String key = (String) row.get(0);
+				if (messageService != null)
+					key = messageService.getMessage(key);
 				String strVal = (String) row.get(1);
 				try{
 					Double.parseDouble(strVal);
@@ -160,12 +162,15 @@ public class WebChartsBase {
 	public static WebContent getTableRepresentation(final WaspChart basicStats, MessageService messageService){
 		String description;
 		String title;
+		List<String> colLabels;
 		if (messageService == null){
 			description = basicStats.getDescription();
 			title = basicStats.getTitle();
+			colLabels = basicStats.getDataSeries().get(0).getColLabels();
 		} else {
 			description = basicStats.getLocalizedDescription(messageService);
 			title = basicStats.getLocalizedTitle(messageService);
+			colLabels = basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService);
 		}
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
@@ -175,7 +180,6 @@ public class WebChartsBase {
 			sb.append("<tr><td>No data to display</td></tr>\n");
 		} else {
 			sb.append("<tr>\n");
-			List<String> colLabels = basicStats.getDataSeries().get(0).getColLabels();
 			for (String headerElement : colLabels)
 				sb.append("<th>" + headerElement + "</th>\n");
 			sb.append("</tr>\n");
