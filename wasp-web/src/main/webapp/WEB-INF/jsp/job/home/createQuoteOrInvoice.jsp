@@ -89,9 +89,9 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Submitted Sample</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalSubmittedSampleCostReason' id='additionalSubmittedSamplesReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSampleCostNumSubmittedSamples' id='additionalSubmittedSampleCostNumSubmittedSamples'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSamplesCostPricePerUnit' id='additionalSubmittedSamplesCostPricePerUnit' >.00</td>
+	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalSubmittedSampleCostReason' id='additionalSubmittedSampleCostReason'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSampleCostUnits' id='additionalSubmittedSampleCostUnits'></td>
+	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalSubmittedSampleCostPricePerUnit' id='additionalSubmittedSampleCostPricePerUnit' >.00</td>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
 <tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
@@ -120,10 +120,11 @@
 			<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 				<c:choose>
 					<c:when test="${submittedMacromoleculeList.contains(submittedObject)}">
-						<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedObject.getId()}" type="text" maxlength="4" size="4" name="costPerLibrary_${submittedObject.getId()}" />.00
+						<c:out value="${localCurrencyIcon}" /><input style="text-align:right;" name="libraryCost_${submittedObject.getId()}" type="text" maxlength="4" size="4" />.00
 					</c:when>
 					<c:otherwise>
 						N/A
+						<input type='hidden' name="libraryCost_${submittedObject.getId()}" value='0'/>			 				
 					</c:otherwise>
 				</c:choose>
 			</td>
@@ -141,7 +142,7 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
 	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalLibCostReason' id='additionalLibCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalLibCostNumLib' id='additionalLibCostNumLib'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalLibCostUnits' id='additionalLibCostUnits'></td>
 	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalLibCostPricePerUnit' id='additionalLibCostPricePerUnit' >.00</td>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
@@ -158,11 +159,11 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runsMachine' id='runsMachine'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runsReadLength' id='runsReadLength'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runsReadType' id='runsReadType'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runsNumberLanes' id='runsNumberLanes'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runsPricePerUnit' id='runsPricePerUnit' >.00</td>
+	<tr><td align='center'><input type='text' size='20' maxlength='44' name='runCostMachine' id='runCostMachine'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='runCostReadLength' id='runCostReadLength'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostReadType' id='runCostReadType'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostNumberLanes' id='runCostNumberLanes'></td>
+	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='6' maxlength='6' name='runCostPricePerLane' id='runCostPricePerLane' >.00</td>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
 <tr><td colspan="6" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
@@ -176,9 +177,9 @@
 		<td class="label-centered" style="background-color:#FAF2D6">Cost/Lane</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
-	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalRunsCostReason' id='additionalRunsCostReason'></td>
-	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunsCostNum' id='additionalRunsCostNum'></td>
-	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunsCostPricePerUnit' id='additionalRunsCostPricePerUnit' >.00</td>
+	<tr><td align='center'><input type='text' size='20' maxlength='44' name='additionalRunCostReason' id='additionalRunCostReason'></td>
+	<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunCostUnits' id='additionalRunCostUnits'></td>
+	<td align='center'><c:out value="${localCurrencyIcon}" /><input type='text' style="text-align:right;" size='4' maxlength='4' name='additionalRunCostPricePerUnit' id='additionalRunCostPricePerUnit' >.00</td>
 	<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 </tr>
 <tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
@@ -188,20 +189,23 @@
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
 		<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${localCurrencyIcon}" /> Or %</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Discount</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
 	</tr>
 	<tr>
-		<td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>
-		<td align='center'><select name='discountReason123' id='discountReason123' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Departmental Cost Share'>Facility Discount</select></td>
+		<%-- <td align='center'><input onkeydown='robtest_autocomplete(this);'  type='text' size='20' maxlength='44' name='discountReason' id='discountReason'></td>--%>
+		<td align='center'><select name='discountReason' id='discountReason' size='1'><option value=''>--SELECT--<option value='Institutional Cost Share'>Institutional Cost Share<option value='Departmental Cost Share'>Departmental Cost Share<option value='Center Cost Share'>Center Cost Share<option value='Facility Credit'>Facility Credit<option value='Departmental Cost Share'>Facility Discount</select></td>
 		<td align='center'><select name='discountType' id='discountType' size='1'><option value=''>--SELECT--<option value='%'>%<option value='<c:out value="${localCurrencyIcon}" />'><c:out value="${localCurrencyIcon}" /></select></td>
 		<td align='center'><input type='text' style="text-align:right;" size='4' maxlength='4' name='discountValue' id='discountValue'>.00</td>
 		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 	</tr>
 	<tr><td colspan="5" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
+</div>
+</div>
+</sec:authorize>
+
 <%-- <select name='user_conc_by_fluorometry[]' id='user_conc_by_fluorometry[]' size='1'><option value=''>--SELECT--<option value='YES'>YES <option value='NO'>NO </select>
 <table >
 	<tr class="FormData">
@@ -245,6 +249,3 @@
 <tr><td colspan="7" align="center"><input style="width:300" type="button" class="addRow" value="ADD ANOTHER LIBRARY"/></td></tr>
 </table>
 --%>
-</div>
-</div>
-</sec:authorize>
