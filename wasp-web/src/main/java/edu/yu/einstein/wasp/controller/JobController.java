@@ -1,6 +1,10 @@
 package edu.yu.einstein.wasp.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -8,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -85,6 +91,7 @@ import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -95,6 +102,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
@@ -107,6 +115,7 @@ import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -114,7 +123,18 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
-
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 
 @Controller
 @Transactional
@@ -181,6 +201,8 @@ public class JobController extends WaspController {
 	private AuthenticationService authenticationService;
 	@Autowired
 	private AdaptorService adaptorService;
+	@Autowired
+	private ResourceService resourceService;
 	@Autowired
 	private RunService runService;
 	@Autowired
@@ -906,6 +928,16 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		m.addAttribute("jobStatus", jobService.getJobStatus(job));
 		
+		
+		String submitterInstitution = "";
+		String pIInstitution = "";
+		try{
+			submitterInstitution = MetaHelper.getMetaValue("user", "institution", job.getUser().getUserMeta());
+			pIInstitution = MetaHelper.getMetaValue("user", "institution", job.getLab().getUser().getUserMeta());
+		}catch(Exception e){}
+		m.addAttribute("submitterInstitution", submitterInstitution);	
+		m.addAttribute("pIInstitution", pIInstitution);	
+		
 		//linkedHashMap because insert order is guaranteed
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);	
@@ -920,6 +952,77 @@ public class JobController extends WaspController {
 		return "job/home/basic";
 	}
   
+	@RequestMapping(value="/{jobId}/costManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCostPage(@PathVariable("jobId") Integer jobId,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		populateCostPage(job, m);
+		return "job/home/costManager";
+	}
+
+	private void populateCostPage(Job job, ModelMap m){
+		
+		m.addAttribute("job", job);
+		
+		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		for(JobFile jf: job.getJobFile()){
+			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			//include only quotes and invoices
+			if( fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_") || fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
+				fileGroups.add(fileGroup);
+				List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+				for(FileHandle fh : fileGroup.getFileHandles()){
+					fileHandles.add(fh);
+					String mimeType = fileService.getMimeType(fh.getFileName());
+					if(!mimeType.isEmpty()){
+						fileHandlesThatCanBeViewedList.add(fh);
+					}
+				}
+				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+			}			
+		}
+		m.addAttribute("fileGroups", fileGroups);
+		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+	}
+	
+	@RequestMapping(value="/{jobId}/createQuoteOrInvoice", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public String createJobQuoteOrInvoicePage(@PathVariable("jobId") Integer jobId,
+			  ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		getSampleLibraryRunData(job, m);
+ 		//String localCurrencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
+ 		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+ 		m.addAttribute("numberOfLanesRequested", job.getJobCellSelection().size());
+ 		
+ 		ResourceType resourceType = resourceService.getResourceTypeDao().getResourceTypeByIName("mps");
+ 		List<ResourceCategory>  activeSequencingMachineList = new ArrayList<ResourceCategory>();
+ 		for(ResourceCategory rc : resourceService.getResourceCategoryDao().getActiveResourceCategories()){
+ 			if(rc.getResourceTypeId()==resourceType.getId().intValue()){
+ 				activeSequencingMachineList.add(rc);
+ 			}
+ 		}
+ 		m.addAttribute("sequencingMachines", activeSequencingMachineList); 		
+
+		return "job/home/createQuoteOrInvoice";
+	}
+	
 	@RequestMapping(value="/{jobId}/viewerManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobViewerManagerPage(@PathVariable("jobId") Integer jobId, 
@@ -1146,6 +1249,10 @@ public class JobController extends WaspController {
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
+			//exclude quotes and invoices
+			if(fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_")||fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
+				continue;
+			}
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
@@ -1218,6 +1325,353 @@ public class JobController extends WaspController {
 		populateFileUploadPage(job, m);
 		return "job/home/fileUploadManager";
 	}
+	
+	
+	
+	public static final Font BIG_BOLD =  new Font(FontFamily.TIMES_ROMAN, 13, Font.BOLD );
+	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
+	public static final Font NORMAL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 11, Font.BOLD );
+	public static final Font TINY_BOLD =  new Font(FontFamily.TIMES_ROMAN, 8, Font.BOLD );
+	
+	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
+			   ModelMap m, HttpServletResponse response) throws SampleTypeException {
+
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+			String errorMessage = messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+		   	logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(errorMessage);
+		   	}catch(Exception e){}
+		}
+		try{
+			response.setContentType("application/pdf");
+			
+	 	    OutputStream outputStream = response.getOutputStream();			
+	 	    Document document = new Document();
+	 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
+	 	    document.open();
+	 	    Paragraph header = new Paragraph();
+	 	    header.add(new Chunk("Epigenomics Shared Facility", BIG_BOLD));
+	 	    document.add(header);	 	    
+	 	      	      
+	 	    LineSeparator line = new LineSeparator(); 
+	 	    line.setOffset(new Float(-5.0));
+	 	    document.add(line);
+	 	    document.close();
+	 	    
+		}catch(Exception e){
+			String errorMessage = "Major problems encountered while previewing pdf file";
+			logger.warn(errorMessage);
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(errorMessage);
+		   	}catch(Exception e2){}
+		}
+	}
+	
+	
+	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobCreateQuotePage(@PathVariable("jobId") Integer jobId,
+			   ModelMap m) throws SampleTypeException {
+		
+		//see here for simple use of com.itextpdf.text.pdf.PdfWriter    http://viralpatel.net/blogs/generate-pdf-file-in-java-using-itext-jar/
+ 		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		
+		Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		try{
+	 		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
+		 	int costPerLibrary = 500;
+		 	int costPerRun = 1000;
+
+			User submitter = job.getUser();
+			List<UserMeta> userMetaList = submitter.getUserMeta();
+			String submitterTitle = MetaHelper.getMetaValue("user", "title", userMetaList);
+			String submitterInstitution = MetaHelper.getMetaValue("user", "institution", userMetaList);
+			String submitterBuildingRoom = MetaHelper.getMetaValue("user", "building_room", userMetaList);
+			String submitterAddress = MetaHelper.getMetaValue("user", "address", userMetaList);
+			String submitterCity = MetaHelper.getMetaValue("user", "city", userMetaList);
+			String submitterState = MetaHelper.getMetaValue("user", "state", userMetaList);
+			String submitterCountry = MetaHelper.getMetaValue("user", "country", userMetaList);
+			String submitterZip = MetaHelper.getMetaValue("user", "zip", userMetaList);
+			String submitterPhone = MetaHelper.getMetaValue("user", "phone", userMetaList);		
+			
+			Lab lab = job.getLab();
+			String labDepartment = lab.getDepartment().getName();//Genetics, Internal, External, Cell Biology (External means not Einstein, and used for pricing)
+			String pricingSchedule = "Internal";
+			if(labDepartment.equalsIgnoreCase("external")){
+				pricingSchedule = "External";
+			}
+			
+			User pI = lab.getUser();
+			List<UserMeta> pIMetaList = pI.getUserMeta();
+			String pITitle = MetaHelper.getMetaValue("user", "title", pIMetaList);
+			String pIInstitution = MetaHelper.getMetaValue("user", "institution", pIMetaList);
+			String pIBuildingRoom = MetaHelper.getMetaValue("user", "building_room", pIMetaList);
+			String pIAddress = MetaHelper.getMetaValue("user", "address", pIMetaList);
+			String pICity = MetaHelper.getMetaValue("user", "city", pIMetaList);
+			String pIState = MetaHelper.getMetaValue("user", "state", pIMetaList);
+			String pICountry = MetaHelper.getMetaValue("user", "country", pIMetaList);
+			String pIZip = MetaHelper.getMetaValue("user", "zip", pIMetaList);
+			String pIPhone = MetaHelper.getMetaValue("user", "phone", pIMetaList);
+			
+			List<JobResourcecategory> jobResourcecategoryList = job.getJobResourcecategory();
+			StringBuffer jobMachineListSB = new StringBuffer();
+			int count = 0;
+	 	 	for(JobResourcecategory jrc: jobResourcecategoryList){
+	 	 		if(count==0){
+	 	 			jobMachineListSB.append(jrc.getResourceCategory().getName());
+	 	 		}else{ jobMachineListSB.append(", ").append(jrc.getResourceCategory().getName()); }
+	 	 		count++;	 	 		
+	 	 	}
+			String jobMachineList = new String(jobMachineListSB);
+			List<JobMeta> jobMetaList = job.getJobMeta();
+			String readLength = null;
+			String readType = null;
+			for(JobMeta jm : jobMetaList){
+				if(jm.getK().toLowerCase().indexOf("readlength")>-1){
+					readLength = jm.getV();
+				}
+				else if(jm.getK().toLowerCase().indexOf("readtype")>-1){
+					readType = jm.getV();
+				}
+			}
+			
+			int numberOfLanesRequested = job.getJobCellSelection().size();
+	 	 	
+	 	    File localFile = fileService.createTempFile();
+	 	    OutputStream fileOS = new FileOutputStream(localFile);			
+			//OutputStream fileOS = new FileOutputStream(new File("/Users/robertdubin/testQuote.pdf"));
+	 	    Document document = new Document();
+	 	    PdfWriter.getInstance(document, fileOS).setInitialLeading(10);
+	 	    document.open();
+	 	    
+	 	    
+	 	    Image image;
+	 	    try{
+	 	    	image = Image.getInstance("/Users/robertdubin/Documents/images/Einstein_Logo.png");
+	 	    	image.setAlignment(Image.MIDDLE);
+	 	    	image.scaleToFit(1000, 50);//72 is about 1 inch in height
+	 	    	document.add(image);
+	 	    }catch(Exception e){}
+	 	    
+	 	    Paragraph header = new Paragraph();
+	 	    header.add(new Chunk("Epigenomics Shared Facility", BIG_BOLD));
+	 	    document.add(header);	 	    
+	 	      	      
+	 	    LineSeparator line = new LineSeparator(); 
+	 	    line.setOffset(new Float(-5.0));
+	 	    document.add(line);
+	 	        
+	 	    Paragraph facilityManager = new Paragraph(); 
+	 	    facilityManager.setSpacingBefore(4);
+	 	    facilityManager.setSpacingAfter(25);
+		 	facilityManager.setLeading(10);
+	 	    Chunk facilityManagerNameAndAddress = new Chunk("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)", TINY_BOLD);
+	 	    facilityManager.add(facilityManagerNameAndAddress);
+		 	facilityManager.add(Chunk.NEWLINE);
+	 	    Chunk facilityManagerEmailPhone = new Chunk("Email:shahinaq.maqbool@einstein.yu.edu Phone:718-678-1163", TINY_BOLD);
+	 	    facilityManager.add(facilityManagerEmailPhone);
+	 	    facilityManager.add(Chunk.NEWLINE);
+	 	    facilityManager.setAlignment(Element.ALIGN_CENTER);
+	 	    document.add(facilityManager);
+	 	    
+	 	    PdfPTable toTheAttentionOftable = new PdfPTable(2);
+	 	    toTheAttentionOftable.getDefaultCell().setBorder(0);
+	 	    toTheAttentionOftable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	    toTheAttentionOftable.addCell(new Phrase("Submitter:", NORMAL_BOLD));
+	 	    toTheAttentionOftable.addCell(new Phrase("PI:", NORMAL_BOLD));
+	 	  	toTheAttentionOftable.addCell(new Phrase(submitterTitle + " " + submitter.getNameFstLst(), NORMAL));
+	 	  	toTheAttentionOftable.addCell(new Phrase(pITitle + " " + pI.getNameFstLst(), NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterInstitution, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIInstitution, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterBuildingRoom, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIBuildingRoom, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterAddress, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIAddress, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterCity + ", " + submitterState + " " + submitterCountry, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pICity + ", " + pIState + " " + pICountry, NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(submitter.getEmail(), NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(pI.getEmail(), NORMAL));	 	    
+	 	    toTheAttentionOftable.addCell(new Phrase(submitterPhone, NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(pIPhone, NORMAL));	 	   
+	 	    document.add(toTheAttentionOftable);
+
+	 	    Paragraph reasonForDocument = new Paragraph();
+	 	    reasonForDocument.setSpacingBefore(15);
+	 	    reasonForDocument.setSpacingAfter(15);
+	 	    reasonForDocument.add(new Chunk("Re: ", NORMAL_BOLD));
+	 	    reasonForDocument.add(new Phrase("Estimated costs for Job ID " + job.getId() +". ", NORMAL));
+	 	    document.add(reasonForDocument);
+	 	
+	 	    LineSeparator line2 = new LineSeparator(); 
+	 	    document.add(line);
+	 	    
+	 	    
+	 	    Paragraph jobDetails = new Paragraph();
+	 	    jobDetails.setSpacingBefore(15);
+	 	    jobDetails.setSpacingAfter(5);
+	 	 
+	 	    
+	 	    jobDetails.add(new Chunk("Job Details:", NORMAL_BOLD));jobDetails.add(Chunk.NEWLINE);
+	 	 	jobDetails.setLeading(15);
+	 	 	jobDetails.add(new Phrase("Job ID: " + job.getId(), NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	jobDetails.add(new Phrase("Job Name: " + job.getName(), NORMAL));jobDetails.add(Chunk.NEWLINE);	 	 	
+	 	    SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy"); //("yyyy/MM/dd");
+	 	 	jobDetails.add(new Phrase("Submitted: " + formatter.format(job.getCreated()), NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	jobDetails.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	String platform = jobResourcecategoryList.size()==1?"Platform: ":"Platforms: ";
+	 	 	jobDetails.add(new Phrase(platform + jobMachineList, NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	if(readType!=null){
+	 	 		jobDetails.add(new Phrase("Read Type: " + readType, NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	}
+	 	 	if(readLength!=null){
+	 	 		jobDetails.add(new Phrase("Read Length: " + readLength, NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	}
+	 	 	if(numberOfLanesRequested>0){
+	 	 		jobDetails.add(new Phrase("Lanes Requested: " + numberOfLanesRequested, NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	}
+	 	 	jobDetails.add(new Phrase("Samples: " + job.getSample().size(), NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	jobDetails.add(new Phrase("Pricing Schecule: " + pricingSchedule, NORMAL));jobDetails.add(Chunk.NEWLINE);
+	 	 	document.add(jobDetails);
+	 	
+	 	 	Paragraph sampleLibraryTitle = new Paragraph();
+	 	 	sampleLibraryTitle.setSpacingBefore(5);
+	 	 	sampleLibraryTitle.setSpacingAfter(5);
+	 	 	sampleLibraryTitle.add(new Chunk("Samples & Library Preparations:", NORMAL_BOLD));
+	 	 	document.add(sampleLibraryTitle);
+	 	 	
+	 	 	PdfPTable sampleLibraryTable = new PdfPTable(5);
+	 	 	sampleLibraryTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	 	sampleLibraryTable.setWidths(new float[]{0.3f, 2f, 0.6f, 1f, 1f});
+	 		PdfPCell cellNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
+	 		cellNo.setHorizontalAlignment(Element.ALIGN_CENTER);
+	 		sampleLibraryTable.addCell(cellNo);
+	 		PdfPCell cellSample = new PdfPCell(new Phrase("Sample", NORMAL_BOLD));
+	 		cellSample.setHorizontalAlignment(Element.ALIGN_CENTER);
+	 		sampleLibraryTable.addCell(cellSample);
+	 		PdfPCell cellMaterial = new PdfPCell(new Phrase("Material", NORMAL_BOLD));
+	 		cellMaterial.setHorizontalAlignment(Element.ALIGN_CENTER);
+	 		sampleLibraryTable.addCell(cellMaterial);
+	 		PdfPCell needLib = new PdfPCell(new Phrase("Need Library", NORMAL_BOLD));
+	 		needLib.setHorizontalAlignment(Element.ALIGN_CENTER);
+	 		sampleLibraryTable.addCell(needLib);
+	 		PdfPCell runOnLane = new PdfPCell(new Phrase("On Lane(s)", NORMAL_BOLD));
+	 		runOnLane.setHorizontalAlignment(Element.ALIGN_CENTER);
+	 		sampleLibraryTable.addCell(runOnLane);
+	 		
+	 		int sampleCounter = 1;
+	 		int libraryConstructionsRequired = 0;
+	 		int cumulativeCostForAllLibraries = 0;
+	 		Map<Sample,String> coverageMap = jobService.getCoverageMap(job);
+	 		
+	 		for(Sample sample : job.getSample()){
+	 			if(sample.getParentId()!=null){
+	 				continue;
+	 			}
+	 			sampleLibraryTable.addCell(new Phrase(""+sampleCounter, NORMAL));
+	 			sampleLibraryTable.addCell(new Phrase(sample.getName(), NORMAL));
+	 			sampleLibraryTable.addCell(new Phrase(sample.getSampleType().getName(), NORMAL));
+	 			if(!"library".equalsIgnoreCase(sample.getSampleType().getIName())){
+	 				libraryConstructionsRequired++;
+	 				sampleLibraryTable.addCell(new Phrase("YES  ("+currencyIcon + costPerLibrary + ")", NORMAL));
+	 				cumulativeCostForAllLibraries += costPerLibrary;
+	 			}
+	 			else{
+	 				sampleLibraryTable.addCell(new Phrase("NO", NORMAL));
+	 			}
+	 			String coverageString = coverageMap.get(sample);
+	 			StringBuffer runOnWhichLanesSB = new StringBuffer();
+	 			char testChar = '1';
+	 			for(int i = 0; i < coverageString.length(); i++){
+	 				if(coverageString.charAt(i) == testChar){//run on lane i+1
+	 					if(runOnWhichLanesSB.length()>0){
+	 						runOnWhichLanesSB.append(", " + (i+1));
+	 					}
+	 					else{
+	 						runOnWhichLanesSB.append(i+1);
+	 					}
+	 				}
+	 			}
+	 			String runOnWhichLanes = new String(runOnWhichLanesSB);
+	 			sampleLibraryTable.addCell(new Phrase(runOnWhichLanes, NORMAL));
+	 			sampleCounter++;
+	 		}
+	 		document.add(sampleLibraryTable);
+	 	
+	 		Paragraph anticipatedCosts = new Paragraph();
+	 		anticipatedCosts.setSpacingBefore(15);
+	 		anticipatedCosts.setSpacingAfter(5);
+	 		anticipatedCosts.add(new Chunk("Anticipated Costs:", NORMAL_BOLD));
+	 	 	document.add(anticipatedCosts);
+	 		
+	 	    PdfPTable costTable = new PdfPTable(2);
+	 	    costTable.getDefaultCell().setBorder(0);
+	 	    costTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	    int costForAllLibraries = libraryConstructionsRequired * costPerLibrary;
+	 	    costTable.addCell(new Phrase("Library Constructions (" + libraryConstructionsRequired + " x " + currencyIcon+costPerLibrary + ")", NORMAL_BOLD));
+	 	    costTable.addCell(new Phrase(currencyIcon + costForAllLibraries, NORMAL_BOLD));
+	 	    costTable.addCell(new Phrase("Library Constructions", NORMAL_BOLD));
+	 	    costTable.addCell(new Phrase(currencyIcon + cumulativeCostForAllLibraries, NORMAL_BOLD));
+	 	    int costForAllRuns = costPerRun * numberOfLanesRequested;
+	 	    costTable.addCell(new Phrase("Sequencing Runs (" + numberOfLanesRequested + " x " + currencyIcon+costPerRun + ")", NORMAL_BOLD));
+	 	    costTable.addCell(new Phrase(currencyIcon + costForAllRuns, NORMAL_BOLD));
+	 	    int additionalMultiplexingCost = 0;
+	 	    costTable.addCell(new Phrase("Additional Multiplexing Charge", NORMAL_BOLD));
+	 	    costTable.addCell(new Phrase(currencyIcon + additionalMultiplexingCost, NORMAL_BOLD));
+	    	int subtotal = costForAllLibraries + costForAllRuns + additionalMultiplexingCost;
+	    	int finalCost = subtotal;
+	 	    if("internal".equalsIgnoreCase(pricingSchedule)){
+	 	    	
+	 		    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
+		    	costTable.addCell(new Phrase(currencyIcon + subtotal, NORMAL_BOLD));
+			    costTable.addCell(new Phrase(" ", NORMAL_BOLD));
+		    	costTable.addCell(new Phrase(" ", NORMAL_BOLD));
+		 
+	 	    	float institutionalDiscountFraction = 0.25f;
+	 	    	float institutionalDiscountPercentForDisplay = institutionalDiscountFraction * 100;
+	 	    	float discount = subtotal * institutionalDiscountFraction;
+	 	    	finalCost = subtotal - (int)discount;
+	 	    	costTable.addCell(new Phrase("Institutional Cost Share (" + institutionalDiscountPercentForDisplay + "%)", NORMAL_BOLD));
+	 	    	costTable.addCell(new Phrase("(" + currencyIcon + (int)discount + ")", NORMAL_BOLD));
+	 	    	
+	 	    }
+	 	    else{
+	 		    costTable.addCell(new Phrase(" ", NORMAL_BOLD));
+		    	costTable.addCell(new Phrase(" ", NORMAL_BOLD));
+	 	    }
+	 	    costTable.addCell(new Phrase("Estimated Total Cost", NORMAL_BOLD));
+	    	costTable.addCell(new Phrase(currencyIcon + finalCost, NORMAL_BOLD));
+	 	    document.add(costTable);
+	 	    	 		
+	 	    document.close();
+	 	    
+	 	    fileOS.close(); 
+	 	     
+	 	    DateFormat dateFormat2 = new SimpleDateFormat("yyyy_MM_dd");
+	 	   	Date now = new Date();
+	 	    fileService.saveLocalJobFile(job, localFile, "Job"+job.getId()+"_Quote_"+dateFormat2.format(now)+".pdf", "Job"+job.getId()+"_Quote_"+dateFormat2.format(now), randomNumberGenerator);
+	 	    
+			m.addAttribute("successMessage", "New Quote Saved");
+		} catch(Exception e){
+			String errorMessage = "Major problems saving this pdf";
+			logger.warn(errorMessage);
+			m.addAttribute("errorMessage", errorMessage);
+			logger.warn("-------the exception message is : " + e.getMessage());
+		}
+		
+		populateCostPage(job, m);
+		return "job/home/costManager";
+	}
+	
 	
 	@RequestMapping(value="/{jobId}/requests", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")

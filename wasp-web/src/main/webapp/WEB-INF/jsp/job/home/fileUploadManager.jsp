@@ -44,6 +44,7 @@
 		 		  			<td class="DataTD value-centered"><a href="<c:url value="/file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 		 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
 	 		  					| <a href="javascript:void(0);" onclick='parent.showModalessDialog("<c:url value="/file/fileHandle/${fileHandle.getId()}/view.do" />");' ><fmt:message key="listJobSamples.file_view.label"/></a>
+	 		  					| <a href="javascript:void(0);" onclick='doGetWithAjax("<c:url value="/job/${job.getId()}/createQuote.do" />");' >CreateQuote</a>
 	 		  				</c:if>
 		 		  			</td>
 		 		  		</tr>

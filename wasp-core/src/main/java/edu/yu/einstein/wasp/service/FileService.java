@@ -11,6 +11,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -245,6 +246,9 @@ public interface FileService extends WaspService {
 
 	public String generateUniqueBaseFileName(SampleSource cellLibrary);
 
+	public File createTempFile() throws FileUploadException;
+	
+	public void saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException;
 
 }
 

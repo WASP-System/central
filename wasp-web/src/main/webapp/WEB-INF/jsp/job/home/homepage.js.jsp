@@ -28,10 +28,11 @@ $(document).ready(function() {
 	$("#smallModalessDialog").dialog({
         autoOpen: false,
         modal: false,
-        height: 400,
-        width: 400,
+        height: 500,
+        width: 500,
         position: { my: "right top", at: "right top", of: window } 
     });
+	
 	
 });
 
@@ -190,7 +191,36 @@ function loadNewPageThenLoadJSWithAjax(theUrl, scriptLocation) { //no longer use
     });    	 
   	return false; // avoid 
 }
-
+function robtest_autocomplete(obj) {
+	var jQueryObject = $(obj);
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
+    jQueryObject.autocomplete({
+      source: availableTags
+    });
+}
 //Next call is No Longer Used: I previously used this to load up something on page load 
 //window.onload = function (){ 
 	//loadNewPageWithAjax('<c:url value="/job/${job.getId()}/basic.do" />'); 
