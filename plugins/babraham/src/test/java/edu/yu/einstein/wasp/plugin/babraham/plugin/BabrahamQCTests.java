@@ -253,7 +253,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<h3>Overrepresented Sequences</h3>"));
+		Assert.assertTrue(html.contains("<h3>Over-represented Sequences</h3>"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -317,7 +317,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		Panel panel = BabrahamPanelRenderer.getPerBaseNContentPanel(jsonObject, messageService);
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
-		Assert.assertTrue(html.contains("title: { text: 'N content acrosss all bases' },"));
+		Assert.assertTrue(html.contains("title: { text: 'N content across all bases' },"));
 	}
 	
 	@Test (groups = "unit-tests")

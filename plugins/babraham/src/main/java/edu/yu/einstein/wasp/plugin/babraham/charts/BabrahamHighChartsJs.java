@@ -133,14 +133,14 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			sb.append("<h3>" + basicStats.getLocalizedTitle(messageService) + "</h3>\n");
 			sb.append("<table class='standardTable' >\n");
 			sb.append("<tr>\n");
-			sb.append("<th>" +  basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(0) + "</th>\n");
-			sb.append("<th>" + basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(1) + "</th>\n");
+			sb.append("<th>" +  basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(1) + "</th>\n");
+			sb.append("<th>" + basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(0) + "</th>\n");
 			sb.append("</tr>\n");
 			for (List<Object> row : data){
 				sb.append("<tr>\n");
 				String moduleName = (String) row.get(0);
 				String result = (String) row.get(1);
-				String comment = (String)  row.get(2);
+				String comment = messageService.getMessage((String)  row.get(2));
 				if (result.equals(FastQC.QC_ANALYSIS_RESULT_PASS))
 					result = Tooltip.getSuccessHtmlString(comment);
 				else if (result.equals(FastQC.QC_ANALYSIS_RESULT_WARN))
