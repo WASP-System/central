@@ -17284,7 +17284,7 @@ body.x-nbr .x-grid-row-editor-buttons-default-top-frameInfo {
   padding: 8px 12px 7px 12px;
   border-width: 0 0 0 0;
   border-style: solid;
-  background-color: #f5d589;/*#4b9cd7;*/
+  background-color: #f2d89b;/*#4b9cd7;*/
 }
 
 /* line 189, ../../../ext-theme-base/sass/etc/mixins/frame.scss */
@@ -17981,7 +17981,7 @@ body.x-nbr .x-tab-default-right-frameInfo {
 }
 /* line 551, ../../../ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-default-active .x-tab-inner {
-  color: #f0c980;
+  color: #666666;
 }
 /* line 566, ../../../ext-theme-neutral/sass/src/tab/Tab.scss */
 .x-tab-default-active .x-tab-glyph {
