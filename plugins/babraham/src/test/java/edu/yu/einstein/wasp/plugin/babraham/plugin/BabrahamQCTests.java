@@ -41,7 +41,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 	
 	
 	@Autowired
-	@Qualifier("messageServiceWebapp")
+	@Qualifier("messageServiceWebappImpl")
 	private MessageService messageService;
 	
 	@Mock BabrahamServiceImpl mockBabrahamServiceImpl;

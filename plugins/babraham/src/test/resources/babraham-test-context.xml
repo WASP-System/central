@@ -15,7 +15,7 @@
 	<mockito:mock id="waspSqlService" class="edu.yu.einstein.wasp.service.impl.WaspSqlServiceImpl" />
 
 	
-	<bean id="messageServiceWebapp" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
+	<bean id="messageServiceWebappImpl" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
 	
 	<int:splitter input-channel="wasp.channel.notification.file" output-channel="wasp.channel.batch">
 		<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter" />

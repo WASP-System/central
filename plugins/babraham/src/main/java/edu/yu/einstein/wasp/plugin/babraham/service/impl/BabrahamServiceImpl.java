@@ -55,7 +55,7 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	@Qualifier("messageServiceWebapp")
+	@Qualifier("messageServiceWebappImpl")
 	private MessageService messageService;
 	
 	@Autowired
