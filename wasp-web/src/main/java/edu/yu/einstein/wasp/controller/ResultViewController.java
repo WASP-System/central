@@ -40,14 +40,17 @@ import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
 import edu.yu.einstein.wasp.viewpanel.Panel;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 import edu.yu.einstein.wasp.viewpanel.WebContent;
 import edu.yu.einstein.wasp.viewpanel.WebPanel;
 
@@ -246,23 +249,20 @@ public class ResultViewController extends WaspController {
 				//jsDetails.putAll(fileService.getPanelTabSetByFileType(fgSet.iterator().next()));
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
-				Map<String, Status> statusMap = fileService.getStatusListByFileGroup(fg);
-				String[][] statusArray = new String[statusMap.size()][2];
-				Set<Entry<String, Status>> entries = statusMap.entrySet();
-				Iterator<Entry<String, Status>> entriesIterator = entries.iterator();
-
+				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
+				String[][] statusArray = new String[plugins.size()][3];
+				Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
 				int i = 0;
-				while(entriesIterator.hasNext()){
-
-					Entry<String, Status> mapping = entriesIterator.next();
-
-				    statusArray[i][0] = mapping.getKey();
-				    statusArray[i][1] = mapping.getValue().toString();
-
-				    i++;
+				for (FileDataTabViewing plugin: plugins){
+					Status status = plugin.getStatus(fg);
+					statusArray[i][0] = plugin.getPluginName();
+				    statusArray[i][1] = plugin.getPluginDescription();
+				    statusArray[i++][2] = status.toString();
+				    if (status.equals(Status.COMPLETED))
+				    	pluginPanelTabs.put(plugin.getPluginName(), plugin.getViewPanelTab(fg));
 				}
 				jsDetailsTabs.put("statuslist", statusArray);
-				jsDetailsTabs.put("paneltablist",fileService.getPanelTabSetByFileGroup(fg));
+				jsDetailsTabs.put("paneltablist",pluginPanelTabs);
 			}
 				
 			//jsDetailsTabs = testTabPanelMockup(jsDetailsTabs, jsDetails);

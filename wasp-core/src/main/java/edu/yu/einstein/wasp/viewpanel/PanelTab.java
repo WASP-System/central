@@ -14,6 +14,8 @@ public class PanelTab {
 	
 	private String name = "";
 	
+	private String description = "";
+	
 	private int numberOfColumns = 2; //default
 	
 	public PanelTab(){}
@@ -42,6 +44,14 @@ public class PanelTab {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public int getNumberOfColumns() {

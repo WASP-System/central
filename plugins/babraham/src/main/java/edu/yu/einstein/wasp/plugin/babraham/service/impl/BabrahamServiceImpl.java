@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
@@ -55,7 +56,6 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	@Qualifier("messageServiceWebappImpl")
 	private MessageService messageService;
 	
 	@Autowired
@@ -68,6 +68,14 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Autowired
 	@Qualifier("fastqscreen")
 	private Software fastqscreen;
+	
+	@Autowired
+	@Qualifier("fastqcPlugin")
+	private WaspPlugin fastqcPlugin;
+	
+	@Autowired
+	@Qualifier("fastqscreenPlugin")
+	private WaspPlugin fastqscreenPlugin;
 	
 	/**
 	 * {@inheritDoc}
@@ -314,6 +322,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Override
 	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
+		panelTab.setName(fastqcPlugin.getPluginName());
+		panelTab.setDescription(fastqcPlugin.getPluginDescription());
 		try {
 			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId), messageService));
 			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId), messageService));
@@ -341,6 +351,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Override
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
+		panelTab.setName(fastqscreenPlugin.getPluginName());
+		panelTab.setDescription(fastqscreenPlugin.getPluginDescription());
 		try {
 			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId), messageService));
 		} catch (JSONException | MetadataException e) {

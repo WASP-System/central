@@ -44,7 +44,6 @@ public class FastQC extends SoftwarePackage{
 	private FastqService fastqService;
 	
 	@Autowired
-	@Qualifier("messageServiceWebappImpl")
 	private MessageService messageService;
 	
 	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must

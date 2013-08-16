@@ -232,6 +232,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 				@Override public Set<?> getProvides() { return null;	}
 				@Override public Set<?> getHandles() { return null;	}
 				@Override public String getPluginName() { return null; }
+				@Override public String getPluginDescription() { return null; }
 			};
 			
 			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
@@ -264,6 +265,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}
 			@Override public String getPluginName() { return null; }
+			@Override public String getPluginDescription() { return null; }
 		};
 		
 		List<JobMeta> jobMetaList = new ArrayList<JobMeta>();

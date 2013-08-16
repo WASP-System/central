@@ -5,7 +5,7 @@ Ext.define('Ext.wasp.GridPortlet', {
         'Ext.data.ArrayStore'
     ],
     height: 300,
-    myData: [
+     myData: [
 //        ['Altria Group Inc',                    83.81, 0.28,  0.34,  '9/1 12:00am'],
 //        ['American Express Company',            52.55, 0.01,  0.02,  '9/1 12:00am'],
 //        ['American International Group, Inc.',  64.13, 0.31,  0.49,  '9/1 12:00am'],
@@ -53,6 +53,7 @@ Ext.define('Ext.wasp.GridPortlet', {
         var store = Ext.create('Ext.data.ArrayStore', {
             fields: [
                {name: 'plugins'},
+               {name: 'description'},
                {name: 'status'}
             ],
             data: this.myData
@@ -64,16 +65,22 @@ Ext.define('Ext.wasp.GridPortlet', {
             store: store,
             stripeRows: true,
             columnLines: true,
+            forceFit: true,
             columns: [{
                 id       :'plugins',
                 text   : 'Name',
-                //width: 120,
-                flex: 1,
+                width    : 200,
                 sortable : true,
                 dataIndex: 'plugins'
             },{
+                text   : 'Description',
+                //width: 120,
+                flex: 1,
+                sortable : true,
+                dataIndex: 'description'
+            },{
                 text   : 'Status',
-                width    : 200,
+                width    : 150,
                 sortable : true,
                 renderer : this.status,
                 dataIndex: 'status'

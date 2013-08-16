@@ -92,6 +92,7 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -837,32 +838,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 	}
 	
 	@Override
-	public Map<String, Status> getStatusListByFileGroup(FileGroup fileGroup) {
+	public List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup) {
 		String area = fileGroup.getFileType().getIName();
-		List<FileDataTabViewing> plugins = pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
-		
-		Map<String, Status> paneltabMap = new HashMap<String, Status>();
-		for (FileDataTabViewing plugin : plugins) {
-			paneltabMap.put(plugin.getPluginName(), plugin.getStatus(fileGroup));
-		}
-		return paneltabMap;
-	}
-
-	@Override
-	public Map<String, PanelTab> getPanelTabSetByFileGroup(FileGroup fileGroup) {
-		String area = fileGroup.getFileType().getIName();
-		List<FileDataTabViewing> plugins = pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
-		
-		Map<String, PanelTab> paneltabMap = new HashMap<String, PanelTab>();
-		for (FileDataTabViewing plugin : plugins) {
-			try {
-				paneltabMap.put(plugin.getPluginName(), plugin.getViewPanelTab(fileGroup));
-			} catch (PanelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return paneltabMap;
+		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
 	}
 
 	@Override

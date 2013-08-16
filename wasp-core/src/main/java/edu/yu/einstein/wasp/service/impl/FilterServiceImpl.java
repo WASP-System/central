@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +41,6 @@ public class FilterServiceImpl implements FilterService {
 	}
 	
 	@Autowired
-	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
 	@Autowired

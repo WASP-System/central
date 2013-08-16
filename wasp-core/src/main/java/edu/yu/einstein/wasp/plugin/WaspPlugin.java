@@ -209,6 +209,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		this.pluginDescription = pluginDescription;
 	}
 	
+	@Override
 	public String getPluginDescription() {
 		return pluginDescription;
 	}

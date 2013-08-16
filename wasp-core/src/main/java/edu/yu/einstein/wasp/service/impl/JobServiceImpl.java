@@ -32,7 +32,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.integration.MessagingException;
 import org.springframework.stereotype.Service;
@@ -264,7 +263,6 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	private AuthenticationService authenticationService;
 	
 	@Autowired
-	@Qualifier("messageServiceImpl")
 	private MessageService messageService;
 
 	@Autowired

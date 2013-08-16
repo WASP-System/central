@@ -52,7 +52,6 @@ public class FastQScreen extends SoftwarePackage {
 	FileService fileService;
 	
 	@Autowired
-	@Qualifier("messageServiceWebappImpl")
 	private MessageService messageService;
 
 	/**

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,6 @@ public class PluginController extends WaspController {
 	private MessageService messageService;
 
 	@Autowired
-	@Qualifier("messageServiceWebappImpl")
 	public void setMessageService(MessageService messageService) {
 		this.messageService = messageService;
 	}
