@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
@@ -33,6 +34,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  *
  */
+@Transactional("entityManager")
 public class FastQScreen extends SoftwarePackage {
 
 	@Autowired

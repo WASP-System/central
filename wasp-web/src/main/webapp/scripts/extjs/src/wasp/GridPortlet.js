@@ -42,6 +42,8 @@ Ext.define('Ext.wasp.GridPortlet', {
     status: function(val) {
         if (val == 'COMPLETED') {
             return '<span style="color:green;">Completed</span>';
+        } else if (val == 'STARTED') {
+            return '<span style="color:green;">Running</span>';
         } else if (val == 'UNKNOWN') {
             return '<span style="color:orange;">Not Invoked</span>';
         } else {
