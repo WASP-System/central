@@ -46,7 +46,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", waspBoxPlot.getLocalizedDescription(messageService), containerId));
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", waspBoxPlot.getLocalizedDescription(messageService), containerId) + getFastQcCredits(messageService));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.BOXPLOT, containerId, waspBoxPlot.getLocalizedTitle(messageService), false));
 			sb.append(getBasicXAxisCode(waspBoxPlot.getLocalizedXAxisLabel(messageService), boxPlotDS.getLocalizedRowLabels(messageService), 5));
@@ -62,7 +62,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			seriesSet.add(new BasicHighChartsSeries(meanDS, Type.SPLINE, false, false, Color.RED));
 			sb.append(getBasicSeriesCode(seriesSet, messageService));
 			sb.append(getHCScriptEndCode());
-			sb.append(getFastQcCredits(messageService));
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
@@ -79,7 +78,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getFastQcCredits(messageService));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getLocalizedTitle(messageService), true));
 			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService)));
@@ -91,7 +90,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			seriesSet.add(new BasicHighChartsSeries(dsC, false, false, Color.BLACK));
 			sb.append(getBasicSeriesCode(seriesSet, messageService));
 			sb.append(getHCScriptEndCode());
-			sb.append(getFastQcCredits(messageService));
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
@@ -106,7 +104,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getFastQcCredits(messageService));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.SPLINE, containerId, chart.getLocalizedTitle(messageService), true));
 			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), 0, 100));
@@ -116,7 +114,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			seriesSet.add(new BasicHighChartsSeries(dsTheory, false, false, Color.BLUE));
 			sb.append(getBasicSeriesCode(seriesSet, messageService));
 			sb.append(getHCScriptEndCode());
-			sb.append(getFastQcCredits(messageService));
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch (Exception e) {
@@ -152,8 +149,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 				sb.append("</tr>\n");
 			}
 			sb.append("</table>\n");
-			sb.append(getFastQcCredits(messageService));
-			content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getLocalizedDescription(messageService)));
+			content.setHtmlCode(getSimpleContainerCode(sb.toString(), basicStats.getLocalizedDescription(messageService)) + getFastQcCredits(messageService));
 			return content;
 		} catch (Exception e) {
 			throw new ChartException("Unexpected exception caught processing data", e);
@@ -168,7 +164,7 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			String containerId = getUniqueContainerId();
-			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId));
+			content.setHtmlCode(getSimpleContainerCode(HIGHCHART_DIV_PREFIX, "", chart.getLocalizedDescription(messageService), containerId) + getFastQScreenCredits(messageService));
 			StringBuilder sb = new StringBuilder();
 			sb.append(getHCScriptStartCode(ChartType.COLUMN, containerId, chart.getLocalizedTitle(messageService), true));
 			sb.append(getBasicXAxisCode(chart.getLocalizedXAxisLabel(messageService), ds.get(0).getLocalizedRowLabels(messageService)));
@@ -181,7 +177,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			seriesSet.add(new BasicHighChartsSeries(ds.get(0), false, false, Color.GREEN));
 			sb.append(getBasicSeriesCode(seriesSet, messageService));
 			sb.append(getHCScriptEndCode());
-			sb.append(getFastQScreenCredits(messageService));
 			content.setScriptCode(sb.toString());
 			return content;
 		} catch(Exception e){
