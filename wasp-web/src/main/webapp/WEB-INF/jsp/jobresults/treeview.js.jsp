@@ -349,7 +349,7 @@ function click(d) {
 	                        items: [{
 	                            //id: 'portlet-',
 	                        	xtype: 'portlet',
-	                            title: 'List of Plugins',
+	                            title: 'Completion Status for Plugins Handling this Data',
 	                            //tools: extPortal.getTools(),
 	                            //frame: false,
 	                            closable: false,
