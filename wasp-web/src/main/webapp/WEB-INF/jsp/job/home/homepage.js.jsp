@@ -21,7 +21,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: false,
         height: 800,
-        width: 600,
+        width: 650,
         position: { my: "right top", at: "right top", of: window } 
     }); 
 	

@@ -1338,93 +1338,49 @@ public class JobController extends WaspController {
 	  public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
 			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
 			  ModelMap m, HttpServletResponse response) throws SampleTypeException {
-
-		System.out.println("---------Inside 1");
 		
 		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
 		String errorMessage = "";
 		String footerHtml = "<br /></body></html>";
 		
+		//Firstly deal with any unexpected errors (sections a-e).
+		//a. here deal with unexpected job error (ie.: not found in database)
 		Job job = jobService.getJobByJobId(jobId);
-		if(job.getId()==null){
-			errorMessage = messageService.getMessage("job.jobUnexpectedlyNotFound.error");
+		if(job.getId()==null){//inform user and get out of here
+			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml); return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
+		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
 		List<Sample>  allJobSamplesList = job.getSample();//all samples in this job (from the database)
 		
 		List<Sample> submittedObjectList = new ArrayList<Sample>();
 		for(Integer submittedObjectId : submittedObjectIdList){
 			Sample submittedObject = sampleService.getSampleById(submittedObjectId);
 			if(submittedObject.getId()==null){
-				errorMessage = "At least one sample unexpectedly not found in database";
+				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedObjectId.intValue() + ") unexpectedly not found in database";
 			}
-			if(!allJobSamplesList.contains(submittedObject)){
-				errorMessage = "At least one sample unexpectedly not part of this job";
+			else if(!allJobSamplesList.contains(submittedObject)){
+				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedObjectId.intValue() + ") unexpectedly not part of this job";
 			}
-			if(!"".equals(errorMessage)){
-				logger.warn(errorMessage);
-			   	try{
-			   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-			   		return;
-			   	}catch(Exception e){logger.warn(e.getMessage()); return;}
-			}
+			
 			submittedObjectList.add(submittedObject);
 		}
 		
-		//get and examine (for completeness) the form's data
-		//1. library construction costs
-		Map<Sample, Integer> submittedObjectLibraryCostMap = new HashMap<Sample, Integer>();
-		for(Sample submittedObject : submittedObjectList){
-			String param = "libraryCost_"+submittedObject.getId().intValue();
-			String value = request.getParameter(param);
-			
-			if(value != null){
-				value = value.trim();
-			}
-			
-			if(value==null || "".equals(value)){
-				errorMessage += "<br />No library cost provided for sample " + submittedObject.getName();
-				continue;
-			}
-			
-			if(value.matches("\\D")){//any character in string that is not a digit 
-				errorMessage += "<br />Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
-			}
-			else{				
-				try{					
-					Integer libCost = new Integer(value);
-					submittedObjectLibraryCostMap.put(submittedObject, libCost);
-				}catch(Exception e){errorMessage += "<br />at the exception Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";}
-			}
-		}
-		if(!"".equals(errorMessage)){
-			logger.warn(errorMessage);
-		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
-		}
-
-		//2. sequence runs and costs
+		//c. here get the runCost parameters and check for highly unexpected errors
 		String param = "runCostMachine";
 		String [] runCostMachineArray = request.getParameterValues(param);
-
 		param = "runCostReadLength";
 		String [] runCostReadLengthArray = request.getParameterValues(param);
-
 		param = "runCostReadType";
 		String [] runCostReadTypeArray = request.getParameterValues(param);
-
 		param = "runCostNumberLanes";
 		String [] runCostNumberLanesArray = request.getParameterValues(param);
-
 		param = "runCostPricePerLane";
-		String [] runCostPricePerLaneArray = request.getParameterValues(param);
-	
+		String [] runCostPricePerLaneArray = request.getParameterValues(param);	
 		if(runCostMachineArray==null || runCostReadLengthArray==null || runCostReadTypeArray==null || 
 				runCostNumberLanesArray==null || runCostPricePerLaneArray==null){
 			errorMessage = "Unexpected problem interpreting sequence run information";
@@ -1432,8 +1388,7 @@ public class JobController extends WaspController {
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
-		}
-			
+		}			
 		int numberOfRunRows = runCostMachineArray.length;
 		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
@@ -1444,86 +1399,20 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
-		boolean [] runRowIsCompletelyEmpty = new boolean[numberOfRunRows];
-		boolean [] runRowIsMissingSomething = new boolean[numberOfRunRows];
-		boolean [] runRowIsComplete = new boolean[numberOfRunRows];
-		int numberRunRowsCompletelyEmpty = 0;
-		int numberRunRowsMissingSomething = 0;
-		int numberRunRowsComplete = 0;
-		
-		try{
-			for(int i = 0; i < numberOfRunRows; i++){ 
-				if( "".equals(runCostMachineArray[i].trim())	 &&
-					"".equals(runCostReadLengthArray[i].trim())	 &&
-					"".equals(runCostReadTypeArray[i].trim())	 &&
-					"".equals(runCostNumberLanesArray[i].trim()) &&
-					"".equals(runCostPricePerLaneArray[i].trim()) ){
-					numberRunRowsCompletelyEmpty++;
-					numberRunRowsMissingSomething++;
-					runRowIsCompletelyEmpty[i]=true;
-					runRowIsMissingSomething[i]=true;
-					runRowIsComplete[i]=false;
-					continue;
-				}
-				if( "".equals(runCostMachineArray[i].trim())    ||
-					"".equals(runCostReadLengthArray[i].trim())	||
-					"".equals(runCostReadTypeArray[i].trim())	||
-					"".equals(runCostNumberLanesArray[i].trim()) ||
-					"".equals(runCostPricePerLaneArray[i].trim()) ){
-						errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - Please review";
-				}
-				try{
-					if(!"".equals(runCostNumberLanesArray[i].trim())){
-						Integer numLanes = new Integer(runCostNumberLanesArray[i].trim());
-					}
-				}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes";}
-				try{
-					if(!"".equals(runCostPricePerLaneArray[i].trim())){
-						Integer pricePerLane = new Integer(runCostPricePerLaneArray[i].trim());
-					}
-				}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero";}
-				if(!"".equals(errorMessage)){
-					numberRunRowsMissingSomething++;
-					runRowIsCompletelyEmpty[i]=false;
-					runRowIsMissingSomething[i]=true;
-					runRowIsComplete[i]=false;
-				}
-				else{
-					numberRunRowsComplete++;
-					runRowIsCompletelyEmpty[i]=false;
-					runRowIsMissingSomething[i]=false;
-					runRowIsComplete[i]=true;
-				}
-			}
-		}
-		catch(Exception e){errorMessage += "<br />Unexpected error interpreting sequence run information";}
-		
-		if(!"".equals(errorMessage)){
-			logger.warn(errorMessage);
-		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
-		}
-		
-		//3. additional costs:
+		//d. here get the additionalCost parameters and check for highly unexpected errors
 		param = "additionalCostReason";
 		String [] additionalCostReasonArray = request.getParameterValues(param);
-
 		param = "additionalCostUnits";
 		String [] additionalCostUnitsArray = request.getParameterValues(param);
-
 		param = "additionalCostPricePerUnit";
 		String [] additionalCostPricePerUnitArray = request.getParameterValues(param);
-
 		if(additionalCostReasonArray==null || additionalCostUnitsArray==null || additionalCostPricePerUnitArray==null){
 			errorMessage = "Unexpected problem interpreting additional cost information";
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
-		}
-			
+		}			
 		int numberOfAdditionalCostRows = additionalCostReasonArray.length;
 		if(additionalCostUnitsArray.length != numberOfAdditionalCostRows && additionalCostPricePerUnitArray.length != numberOfAdditionalCostRows){
 			errorMessage = "Unexpected problem interpreting additional cost information";
@@ -1533,6 +1422,117 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
+		//e. here get the discount/credit parameters and check for highly unexpected errors
+		param = "discountReason";
+		String [] discountReasonArray = request.getParameterValues(param);
+		param = "discountType";//to distinguish whether discount is supplied as $ or %
+		String [] discountTypeArray = request.getParameterValues(param);
+		param = "discountValue";
+		String [] discountValueArray = request.getParameterValues(param);
+		if(discountReasonArray==null || discountTypeArray==null || discountValueArray==null){
+			errorMessage = "Unexpected problem interpreting discount/credit information";
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}			
+		int numberOfDiscountRows = discountReasonArray.length;
+		if(discountTypeArray.length != numberOfDiscountRows && discountValueArray.length != numberOfDiscountRows){
+			errorMessage = "Unexpected problem interpreting discount/credit information";
+			try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}
+		//if the job was found in the database, but there was some other unexpected error, inform user and get out of here.		
+		if(!"".equals(errorMessage)){
+			logger.warn(errorMessage);
+		   	try{
+		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   		return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+		}
+				
+		//Secondly, deal with expected errors (person left out data on the form or filled in a letter when a number was needed)
+		//1. library construction costs (no empty entries permitted if the submitted sample is a library; must enter 0 if no charge for that library).
+		Map<Sample, Integer> submittedObjectLibraryCostMap = new HashMap<Sample, Integer>();
+		for(Sample submittedObject : submittedObjectList){
+			String param2 = "libraryCost_"+submittedObject.getId().intValue();
+			String value = request.getParameter(param2);
+			
+			if(value != null){
+				value = value.trim();
+			}
+			
+			if(value==null || "".equals(value)){
+				errorMessage += "<br />No library cost provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
+				continue;
+			}
+			
+			if(value.matches("\\D")){//any character in string that is not a digit 
+				errorMessage += "<br />Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";
+			}
+			else{				
+				try{					
+					Integer libCost = new Integer(value);
+					submittedObjectLibraryCostMap.put(submittedObject, libCost);
+				}catch(Exception e){errorMessage += "<br />Invalid library cost ("+ value + ") provided for sample " + submittedObject.getName() + "; whole numbers only; if no charge, enter zero";}
+			}
+		}
+				
+		//2. sequence runs and costs (optional, so an empty row is allowed; it just won't be used in any way)		
+		boolean [] runRowIsCompletelyEmpty = new boolean[numberOfRunRows];
+		boolean [] runRowIsMissingSomething = new boolean[numberOfRunRows];
+		boolean [] runRowIsComplete = new boolean[numberOfRunRows];
+		int numberRunRowsCompletelyEmpty = 0;
+		int numberRunRowsMissingSomething = 0;
+		int numberRunRowsComplete = 0;
+		
+		for(int i = 0; i < numberOfRunRows; i++){ 
+			if( "".equals(runCostMachineArray[i].trim())	 &&
+				"".equals(runCostReadLengthArray[i].trim())	 &&
+				"".equals(runCostReadTypeArray[i].trim())	 &&
+				"".equals(runCostNumberLanesArray[i].trim()) &&
+				"".equals(runCostPricePerLaneArray[i].trim()) ){
+				numberRunRowsCompletelyEmpty++;
+				numberRunRowsMissingSomething++;
+				runRowIsCompletelyEmpty[i]=true;
+				runRowIsMissingSomething[i]=true;
+				runRowIsComplete[i]=false;
+				continue;
+			}
+			if( "".equals(runCostMachineArray[i].trim())    ||
+				"".equals(runCostReadLengthArray[i].trim())	||
+				"".equals(runCostReadTypeArray[i].trim())	||
+				"".equals(runCostNumberLanesArray[i].trim()) ||
+				"".equals(runCostPricePerLaneArray[i].trim()) ){
+					errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - Please review";
+			}
+			try{
+				if(!"".equals(runCostNumberLanesArray[i].trim())){
+					Integer numLanes = new Integer(runCostNumberLanesArray[i].trim());
+				}
+			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes";}
+			try{
+				if(!"".equals(runCostPricePerLaneArray[i].trim())){
+					Integer pricePerLane = new Integer(runCostPricePerLaneArray[i].trim());
+				}
+			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero";}
+			if(!"".equals(errorMessage)){
+				numberRunRowsMissingSomething++;
+				runRowIsCompletelyEmpty[i]=false;
+				runRowIsMissingSomething[i]=true;
+				runRowIsComplete[i]=false;
+			}
+			else{
+				numberRunRowsComplete++;
+				runRowIsCompletelyEmpty[i]=false;
+				runRowIsMissingSomething[i]=false;
+				runRowIsComplete[i]=true;
+			}
+		}
+		
+		//3. additional costs (optional, so empty rows allowed; it just won't be used in any way)
 		boolean [] additionalCostsCompletelyEmpty = new boolean[numberOfAdditionalCostRows];
 		boolean [] additionalCostsIsMissingSomething = new boolean[numberOfAdditionalCostRows];
 		boolean [] additionalCostsIsComplete = new boolean[numberOfAdditionalCostRows];
@@ -1540,48 +1540,97 @@ public class JobController extends WaspController {
 		int numberAdditionalCostsMissingSomething = 0;
 		int numberAdditionalCostsComplete = 0;
 
-		try{
-			for(int i = 0; i < numberOfAdditionalCostRows; i++){
-				if( "".equals(additionalCostReasonArray[i].trim())	 &&
-					"".equals(additionalCostUnitsArray[i].trim())	 &&
-					"".equals(additionalCostPricePerUnitArray[i].trim()) ){
-						numberAdditionalCostsCompletelyEmpty++;
-						numberAdditionalCostsMissingSomething++;
-						additionalCostsCompletelyEmpty[i]=true;
-						additionalCostsIsMissingSomething[i]=true;
-						additionalCostsIsComplete[i]=false;
-						continue;
-				}
-				else if( "".equals(additionalCostReasonArray[i].trim())	 ||
-						 "".equals(additionalCostUnitsArray[i].trim())	 ||
-						 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
-							errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - Please review";
-				}
-				try{
-					if(!"".equals(additionalCostUnitsArray[i].trim())){
-						Integer numUnits = new Integer(additionalCostUnitsArray[i].trim());
-					}
-				}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units";}
-				try{
-					if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
-						Integer pricePerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
-					}
-				}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero";}
-				if(!"".equals(errorMessage)){
+		for(int i = 0; i < numberOfAdditionalCostRows; i++){
+			if( "".equals(additionalCostReasonArray[i].trim())	 &&
+				"".equals(additionalCostUnitsArray[i].trim())	 &&
+				"".equals(additionalCostPricePerUnitArray[i].trim()) ){
+					numberAdditionalCostsCompletelyEmpty++;
 					numberAdditionalCostsMissingSomething++;
-					additionalCostsCompletelyEmpty[i]=false;
+					additionalCostsCompletelyEmpty[i]=true;
 					additionalCostsIsMissingSomething[i]=true;
 					additionalCostsIsComplete[i]=false;
+					continue;
+			}
+			else if( "".equals(additionalCostReasonArray[i].trim())	 ||
+					 "".equals(additionalCostUnitsArray[i].trim())	 ||
+					 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
+						errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - Please review";
+			}
+			try{
+				if(!"".equals(additionalCostUnitsArray[i].trim())){
+					Integer numUnits = new Integer(additionalCostUnitsArray[i].trim());
 				}
-				else{
-					numberAdditionalCostsComplete++;
-					additionalCostsCompletelyEmpty[i]=false;
-					additionalCostsIsMissingSomething[i]=false;
-					additionalCostsIsComplete[i]=true;
+			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units";}
+			try{
+				if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
+					Integer pricePerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
+				}
+			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero";}
+			if(!"".equals(errorMessage)){
+				numberAdditionalCostsMissingSomething++;
+				additionalCostsCompletelyEmpty[i]=false;
+				additionalCostsIsMissingSomething[i]=true;
+				additionalCostsIsComplete[i]=false;
+			}
+			else{
+				numberAdditionalCostsComplete++;
+				additionalCostsCompletelyEmpty[i]=false;
+				additionalCostsIsMissingSomething[i]=false;
+				additionalCostsIsComplete[i]=true;
+			}
+		}
+				
+		//4. discounts/credits (optional, so empty rows allowed; it just won't be used in any way)		
+		boolean [] discountsCompletelyEmpty = new boolean[numberOfDiscountRows];
+		boolean [] discountsIsMissingSomething = new boolean[numberOfDiscountRows];
+		boolean [] discountsIsComplete = new boolean[numberOfDiscountRows];
+		int numberDiscountsCompletelyEmpty = 0;
+		int numberDiscountsMissingSomething = 0;
+		int numberDiscountsComplete = 0;
+
+ 		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
+
+ 		for(int i = 0; i < numberOfDiscountRows; i++){
+			if( "".equals(discountReasonArray[i].trim())	 &&
+				"".equals(discountTypeArray[i].trim())	 &&
+				"".equals(discountValueArray[i].trim()) ){
+					numberDiscountsCompletelyEmpty++;
+					numberDiscountsMissingSomething++;
+					discountsCompletelyEmpty[i]=true;
+					discountsIsMissingSomething[i]=true;
+					discountsIsComplete[i]=false;
+					continue;
+			}
+			else if( "".equals(discountReasonArray[i].trim())	 ||
+					 "".equals(discountTypeArray[i].trim())	 ||
+					 "".equals(discountValueArray[i].trim()) ){
+						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - Please review";
+			}
+			if(!"".equals(discountTypeArray[i].trim())){
+					if( !currencyIcon.equals(discountTypeArray[i].trim()) && !"%".equals(discountTypeArray[i].trim())){
+						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %";
 				}
 			}
-		}catch(Exception e){errorMessage += "<br />Unexpected error interpreting additional costs information";}
+			try{
+				if(!"".equals(discountValueArray[i].trim())){
+					Integer discountValue = new Integer(discountValueArray[i].trim());
+				}
+			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)";}
+			if(!"".equals(errorMessage)){
+				numberDiscountsMissingSomething++;
+				discountsCompletelyEmpty[i]=false;
+				discountsIsMissingSomething[i]=true;
+				discountsIsComplete[i]=false;
+			}
+			else{
+				numberDiscountsComplete++;
+				discountsCompletelyEmpty[i]=false;
+				discountsIsMissingSomething[i]=false;
+				discountsIsComplete[i]=true;
+			}
+		}
 		
+ 		//if the user input contains errors, inform user and get out of here.
 		if(!"".equals(errorMessage)){
 			logger.warn(errorMessage);
 		   	try{
@@ -1590,7 +1639,7 @@ public class JobController extends WaspController {
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
-		//develop the pdf 
+		//all ok, so develop the pdf 
 		try{
 			response.setContentType("application/pdf");
 			
@@ -1598,8 +1647,11 @@ public class JobController extends WaspController {
 	 	    Document document = new Document();
 	 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
 	 	    document.open();
+	 	    
+	 	    
+	 	    
 	 	    Paragraph header = new Paragraph();
-	 	    header.add(new Chunk("Epigenomics Shared Facility-do you like this name??? Leslie", BIG_BOLD));
+	 	    header.add(new Chunk("Epigenomics Shared Facility-do you like this name???999000999000 Leslie", BIG_BOLD));
 	 	    document.add(header);	 	    
 	 	      	      
 	 	    LineSeparator line = new LineSeparator(); 
@@ -1611,6 +1663,9 @@ public class JobController extends WaspController {
 	 	    	header2.add(new Chunk("My name is robert", BIG_BOLD));
 	 	    	document.add(header2);
 	 	   }
+	 	    
+	 	    
+	 	    
 	 	    
 	 	    document.close();
 	 	    

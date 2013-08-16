@@ -160,7 +160,7 @@
 <tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
-<span style='font-weight:bold'>4. Discounts Expected For This Job: </span><br /><br />
+<span style='font-weight:bold'>4. Discounts / Credits Expected For This Job: </span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
 		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
