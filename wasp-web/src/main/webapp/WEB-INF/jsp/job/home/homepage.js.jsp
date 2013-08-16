@@ -21,7 +21,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: false,
         height: 800,
-        width: 800,
+        width: 600,
         position: { my: "right top", at: "right top", of: window } 
     }); 
 	
@@ -70,6 +70,12 @@ function showPopupWindow(url){//not currently used, but could be useful in futur
 	 return false;
 }
 
+//used to send contents of form via GET request and display response in modelessdialog 
+function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){
+	var frm = $("#" + formObjectId);
+	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+	return false; 
+}
 
 //used for comments, viewerManager 
 function postFormWithAjax(formObjectId, theUrl){
