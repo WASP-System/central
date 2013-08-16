@@ -125,6 +125,7 @@ import edu.yu.einstein.wasp.web.Tooltip;
 
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
@@ -1646,10 +1647,8 @@ public class JobController extends WaspController {
 	 	    OutputStream outputStream = response.getOutputStream();			
 	 	    Document document = new Document();
 	 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
-	 	    document.open();
-	 	    
-	 	    
-	 	    
+	 	    document.open();	 	    
+	 	    /*
 	 	    Paragraph header = new Paragraph();
 	 	    header.add(new Chunk("Epigenomics Shared Facility-do you like this name???999000999000 Leslie", BIG_BOLD));
 	 	    document.add(header);	 	    
@@ -1663,10 +1662,19 @@ public class JobController extends WaspController {
 	 	    	header2.add(new Chunk("My name is robert", BIG_BOLD));
 	 	    	document.add(header2);
 	 	   }
-	 	    
-	 	    
-	 	    
-	 	    
+	 	    */
+	 	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
+	 	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
+	 	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
+	 	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
+	 	    String title = "Epigenomics Shared Facility";
+	 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
+	 	    addressTheLetterToSubmitterAndPI(document, job);
+	 	    addReasonForLetter(document, "Estimated costs for Job ID " + job.getId());
+	 	    document.add(new LineSeparator());
+	 	    Paragraph incompleteJobDetailsParagraph = addCommonJobDetails(document, job);
+	 	    ////addMPSJobDetails(document, incompleteJobDetailsParagraph, job);
+	 	    document.add(incompleteJobDetailsParagraph);
 	 	    document.close();
 	 	    
 		}catch(Exception e){
@@ -1679,6 +1687,143 @@ public class JobController extends WaspController {
 		System.out.println("-----------Inside 2");
 	}
 	
+	private void addLetterhead(Document document, String imageLocation, String title, List<String> justUnderLetterheadLineList) throws DocumentException{
+		
+		 try{
+	 	    	Image image = Image.getInstance(imageLocation);
+	 	    	if(image != null){
+	 	    		image.setAlignment(Image.MIDDLE);
+	 	    		image.scaleToFit(1000, 50);//72 is about 1 inch in height
+	 	    		document.add(image);
+	 	    	}
+	 	    }catch(Exception e){}
+	 	    
+	 	    Paragraph letterTitle = new Paragraph();
+	 	    letterTitle.add(new Chunk(title, BIG_BOLD));
+	 	    document.add(letterTitle);	 	    
+	 	      	      
+	 	    LineSeparator line = new LineSeparator(); 
+	 	    line.setOffset(new Float(-5.0));
+	 	    document.add(line);
+
+	 	    if(!justUnderLetterheadLineList.isEmpty()){
+	 	    	Paragraph justUnderLetterhead = new Paragraph(); 
+	 	    	justUnderLetterhead.setSpacingBefore(4);
+	 	    	justUnderLetterhead.setSpacingAfter(25);
+	 	    	justUnderLetterhead.setLeading(10);
+	 	    	for(String text : justUnderLetterheadLineList){
+	 	    		Chunk textUnderTheLetterheadLine = new Chunk(text, TINY_BOLD);
+	 	    		justUnderLetterhead.add(textUnderTheLetterheadLine);
+	 	    		justUnderLetterhead.add(Chunk.NEWLINE);
+	 	    	}
+		 	/*
+	 	    Chunk facilityManagerNameAndAddress = new Chunk("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)", TINY_BOLD);
+	 	    facilityManager.add(facilityManagerNameAndAddress);
+		 	facilityManager.add(Chunk.NEWLINE);
+	 	    Chunk facilityManagerEmailPhone = new Chunk("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163", TINY_BOLD);
+	 	    facilityManager.add(facilityManagerEmailPhone);
+	 	    facilityManager.add(Chunk.NEWLINE);
+	 	    */
+	 	    	justUnderLetterhead.setAlignment(Element.ALIGN_CENTER);
+	 	    	document.add(justUnderLetterhead);
+	 	    }
+	}
+	
+	private void addressTheLetterToSubmitterAndPI(Document document, Job job) throws DocumentException, MetadataException{
+		User submitter = job.getUser();
+		List<UserMeta> userMetaList = submitter.getUserMeta();
+		String submitterTitle = MetaHelper.getMetaValue("user", "title", userMetaList);
+		String submitterInstitution = MetaHelper.getMetaValue("user", "institution", userMetaList);
+		String submitterBuildingRoom = MetaHelper.getMetaValue("user", "building_room", userMetaList);
+		String submitterAddress = MetaHelper.getMetaValue("user", "address", userMetaList);
+		String submitterCity = MetaHelper.getMetaValue("user", "city", userMetaList);
+		String submitterState = MetaHelper.getMetaValue("user", "state", userMetaList);
+		String submitterCountry = MetaHelper.getMetaValue("user", "country", userMetaList);
+		String submitterZip = MetaHelper.getMetaValue("user", "zip", userMetaList);
+		String submitterPhone = MetaHelper.getMetaValue("user", "phone", userMetaList);		
+		
+		Lab lab = job.getLab();
+		String labDepartment = lab.getDepartment().getName();//Genetics, Internal, External, Cell Biology (External means not Einstein, and used for pricing)
+		String pricingSchedule = "Internal";
+		if(labDepartment.equalsIgnoreCase("external")){
+			pricingSchedule = "External";
+		}
+		
+		User pI = lab.getUser();
+		if(submitter.getId().intValue()!=pI.getId().intValue()){
+			List<UserMeta> pIMetaList = pI.getUserMeta();
+			String pITitle = MetaHelper.getMetaValue("user", "title", pIMetaList);
+			String pIInstitution = MetaHelper.getMetaValue("user", "institution", pIMetaList);
+			String pIBuildingRoom = MetaHelper.getMetaValue("user", "building_room", pIMetaList);
+			String pIAddress = MetaHelper.getMetaValue("user", "address", pIMetaList);
+			String pICity = MetaHelper.getMetaValue("user", "city", pIMetaList);
+			String pIState = MetaHelper.getMetaValue("user", "state", pIMetaList);
+			String pICountry = MetaHelper.getMetaValue("user", "country", pIMetaList);
+			String pIZip = MetaHelper.getMetaValue("user", "zip", pIMetaList);
+			String pIPhone = MetaHelper.getMetaValue("user", "phone", pIMetaList);
+			
+	 	    PdfPTable toTheAttentionOftable = new PdfPTable(2);
+	 	    toTheAttentionOftable.getDefaultCell().setBorder(0);
+	 	    toTheAttentionOftable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	    toTheAttentionOftable.addCell(new Phrase("Submitter:", NORMAL_BOLD));
+	 	    toTheAttentionOftable.addCell(new Phrase("Lab PI:", NORMAL_BOLD));
+	 	  	toTheAttentionOftable.addCell(new Phrase(submitterTitle + " " + submitter.getNameFstLst(), NORMAL));
+	 	  	toTheAttentionOftable.addCell(new Phrase(pITitle + " " + pI.getNameFstLst(), NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterInstitution, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIInstitution, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterBuildingRoom, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIBuildingRoom, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterAddress, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pIAddress, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterCity + ", " + submitterState + " " + submitterCountry, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(pICity + ", " + pIState + " " + pICountry, NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(submitter.getEmail(), NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(pI.getEmail(), NORMAL));	 	    
+	 	    toTheAttentionOftable.addCell(new Phrase(submitterPhone, NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(pIPhone, NORMAL));	 	   
+	 	    document.add(toTheAttentionOftable);
+		}
+		else{//submitter is the lab PI
+	 	    PdfPTable toTheAttentionOftable = new PdfPTable(1);
+	 	    toTheAttentionOftable.getDefaultCell().setBorder(0);
+	 	    toTheAttentionOftable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	    toTheAttentionOftable.addCell(new Phrase("Submitter/Lab PI:", NORMAL_BOLD));
+	 	  	toTheAttentionOftable.addCell(new Phrase(submitterTitle + " " + submitter.getNameFstLst(), NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterInstitution, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterBuildingRoom, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterAddress, NORMAL));
+	 		toTheAttentionOftable.addCell(new Phrase(submitterCity + ", " + submitterState + " " + submitterCountry, NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(submitter.getEmail(), NORMAL));
+	 	    toTheAttentionOftable.addCell(new Phrase(submitterPhone, NORMAL));
+	 	    document.add(toTheAttentionOftable);				
+		}
+	}
+	
+	private void addReasonForLetter(Document document, String reason) throws DocumentException{
+ 	    Paragraph reasonForDocument = new Paragraph();
+ 	    reasonForDocument.setSpacingBefore(15);
+ 	    reasonForDocument.setSpacingAfter(15);
+ 	    reasonForDocument.add(new Chunk("Re: ", NORMAL_BOLD));
+ 	    reasonForDocument.add(new Phrase(reason, NORMAL));
+ 	    document.add(reasonForDocument);
+	}
+	
+	private Paragraph addCommonJobDetails(Document document, Job job){
+ 	    Paragraph commonJobDetailsParagraph = new Paragraph();
+ 	    commonJobDetailsParagraph.setSpacingBefore(15);
+ 	    commonJobDetailsParagraph.setSpacingAfter(5);
+ 	   	commonJobDetailsParagraph.add(new Chunk("Job Details:", NORMAL_BOLD));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+ 	  	commonJobDetailsParagraph.setLeading(15);
+ 		commonJobDetailsParagraph.add(new Phrase("Job ID: " + job.getId(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+ 		commonJobDetailsParagraph.add(new Phrase("Job Name: " + job.getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);	 	 	
+ 	    SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy"); //("yyyy/MM/dd");
+ 	    commonJobDetailsParagraph.add(new Phrase("Submitted: " + formatter.format(job.getCreated()), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	//if(job is completed????){
+ 	 	//	commonJobDetails.add(new Phrase("Completed: " + formatter.format(get the date, ask andy how), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	//}
+ 	    commonJobDetailsParagraph.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+ 	    return commonJobDetailsParagraph;
+	}
 	
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
@@ -1821,7 +1966,7 @@ public class JobController extends WaspController {
 	 	    document.add(reasonForDocument);
 	 	
 	 	    LineSeparator line2 = new LineSeparator(); 
-	 	    document.add(line);
+	 	    document.add(line2);
 	 	    
 	 	    
 	 	    Paragraph jobDetails = new Paragraph();
