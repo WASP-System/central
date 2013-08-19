@@ -106,12 +106,14 @@ public class WaspPluginRegistry implements ClientMessageI, BeanPostProcessor {
 	private Message<String> list() {
 		String reply = "\nRegistered Wasp System plugins:\n"
 				+ "-------------------------------\n\n";
+		int index = 1;
 		List<WaspPlugin> pluginList = new ArrayList<WaspPlugin>(plugins.values());
 		Collections.sort(pluginList);
 		for (WaspPlugin plugin : pluginList) {
-			reply += plugin.getPluginName() + "\n";
+			reply += index++ + ") " + plugin.getPluginName();
 			if (plugin.getPluginDescription() != null && !plugin.getPluginDescription().isEmpty()) 
-				reply += "     -> " + plugin.getPluginDescription() + "\n";
+				reply += " -> " + plugin.getPluginDescription();
+			reply += "\n";
 		}
 		return MessageBuilder.withPayload(reply).build();
 	}
