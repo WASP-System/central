@@ -123,6 +123,7 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -132,6 +133,7 @@ import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -1489,6 +1491,12 @@ public class JobController extends WaspController {
 		int numberRunRowsMissingSomething = 0;
 		int numberRunRowsComplete = 0;
 		
+		List<String> machineList = new ArrayList<String>();
+		List<String> readLengthList = new ArrayList<String>();
+		List<String> readTypeList = new ArrayList<String>();
+		List<Integer> numLanesList = new ArrayList<Integer>();
+		List<Integer> pricePerLaneList = new ArrayList<Integer>();
+		
 		for(int i = 0; i < numberOfRunRows; i++){ 
 			if( "".equals(runCostMachineArray[i].trim())	 &&
 				"".equals(runCostReadLengthArray[i].trim())	 &&
@@ -1509,14 +1517,16 @@ public class JobController extends WaspController {
 				"".equals(runCostPricePerLaneArray[i].trim()) ){
 					errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - Please review";
 			}
+			Integer numLanes=null;
+			Integer pricePerLane=null;
 			try{
 				if(!"".equals(runCostNumberLanesArray[i].trim())){
-					Integer numLanes = new Integer(runCostNumberLanesArray[i].trim());
+					numLanes = new Integer(runCostNumberLanesArray[i].trim());
 				}
 			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for no. lanes";}
 			try{
 				if(!"".equals(runCostPricePerLaneArray[i].trim())){
-					Integer pricePerLane = new Integer(runCostPricePerLaneArray[i].trim());
+					pricePerLane = new Integer(runCostPricePerLaneArray[i].trim());
 				}
 			}catch(Exception e){errorMessage += "<br />Row " +(i+1)+ " in Sequence Run section is missing information - whole number required for cost/lane; if no charge, enter zero";}
 			if(!"".equals(errorMessage)){
@@ -1530,6 +1540,11 @@ public class JobController extends WaspController {
 				runRowIsCompletelyEmpty[i]=false;
 				runRowIsMissingSomething[i]=false;
 				runRowIsComplete[i]=true;
+				machineList.add(runCostMachineArray[i].trim());
+				readLengthList.add(runCostReadLengthArray[i].trim());
+				readTypeList.add(runCostReadTypeArray[i].trim());
+				numLanesList.add(numLanes); 
+				pricePerLaneList.add(pricePerLane);
 			}
 		}
 		
@@ -1672,9 +1687,11 @@ public class JobController extends WaspController {
 	 	    addressTheLetterToSubmitterAndPI(document, job);
 	 	    addReasonForLetter(document, "Estimated costs for Job ID " + job.getId());
 	 	    document.add(new LineSeparator());
-	 	    Paragraph incompleteJobDetailsParagraph = addCommonJobDetails(document, job);
-	 	    ////addMPSJobDetails(document, incompleteJobDetailsParagraph, job);
-	 	    document.add(incompleteJobDetailsParagraph);
+	 	    Paragraph jobDetailsParagraph = addCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
+	 	    document.add(jobDetailsParagraph);//add the paragraph to the document
+	 	    int libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedObjectList, submittedObjectLibraryCostMap);
+	 	    int sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
 	 	    document.close();
 	 	    
 		}catch(Exception e){
@@ -1808,7 +1825,7 @@ public class JobController extends WaspController {
  	    document.add(reasonForDocument);
 	}
 	
-	private Paragraph addCommonJobDetails(Document document, Job job){
+	private Paragraph addCommonJobDetails(Job job){
  	    Paragraph commonJobDetailsParagraph = new Paragraph();
  	    commonJobDetailsParagraph.setSpacingBefore(15);
  	    commonJobDetailsParagraph.setSpacingAfter(5);
@@ -1823,6 +1840,220 @@ public class JobController extends WaspController {
  	 	//}
  	    commonJobDetailsParagraph.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
  	    return commonJobDetailsParagraph;
+	}
+	
+	private Paragraph addMPSDetailsToJobDetailsParagraph(Job job, Paragraph jobDetailsParagraph){
+		
+		List<JobResourcecategory> jobResourcecategoryList = job.getJobResourcecategory();
+		StringBuffer jobMachineListSB = new StringBuffer();
+		int count = 0;
+ 	 	for(JobResourcecategory jrc: jobResourcecategoryList){
+ 	 		if(count==0){
+ 	 			jobMachineListSB.append(jrc.getResourceCategory().getName());
+ 	 		}else{ jobMachineListSB.append(", ").append(jrc.getResourceCategory().getName()); }
+ 	 		count++;	 	 		
+ 	 	}
+		String jobMachineList = new String(jobMachineListSB);
+		List<JobMeta> jobMetaList = job.getJobMeta();
+		String readLength = null;
+		String readType = null;
+		for(JobMeta jm : jobMetaList){
+			if(jm.getK().toLowerCase().indexOf("readlength")>-1){
+				readLength = jm.getV();
+			}
+			else if(jm.getK().toLowerCase().indexOf("readtype")>-1){
+				readType = jm.getV();
+			}
+		}
+		
+		int numberOfLanesRequested = job.getJobCellSelection().size();
+		String platform = jobResourcecategoryList.size()==1?"Platform: ":"Platforms: ";
+		jobDetailsParagraph.add(new Phrase(platform + jobMachineList, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	if(readType!=null){
+ 	 		jobDetailsParagraph.add(new Phrase("Read Type: " + readType, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	}
+ 	 	if(readLength!=null){
+ 	 		jobDetailsParagraph.add(new Phrase("Read Length: " + readLength, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	}
+ 	 	if(numberOfLanesRequested>0){
+ 	 		jobDetailsParagraph.add(new Phrase("Lanes Requested: " + numberOfLanesRequested, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	}
+ 	 	jobDetailsParagraph.add(new Phrase("Samples: " + job.getSample().size(), NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	
+ 	 	/* Simply let the user select any appropriate discounts
+ 	 	Lab lab = job.getLab();
+		String labDepartment = lab.getDepartment().getName();//Genetics, Internal, External, Cell Biology (External means not Einstein, and used for pricing)
+		String pricingSchedule = "Internal";
+		if(labDepartment.equalsIgnoreCase("external")){
+			pricingSchedule = "External";
+		} 	 	
+ 	 	jobDetailsParagraph.add(new Phrase("Pricing Schecule: " + pricingSchedule, NORMAL));jobDetailsParagraph.add(Chunk.NEWLINE);
+ 	 	*/
+		
+		return jobDetailsParagraph;
+	}
+	
+	private int addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(Document document, Job job, List<Sample> submittedSampleList, Map<Sample, Integer> submittedObjectLibraryCostMap) throws DocumentException{
+		
+ 	 	Paragraph sampleLibraryTitle = new Paragraph();
+ 	 	sampleLibraryTitle.setSpacingBefore(5);
+ 	 	sampleLibraryTitle.setSpacingAfter(5);
+ 	 	sampleLibraryTitle.add(new Chunk("Submitted Samples, Lane/Multiplex Request & Library Construction Costs:", NORMAL_BOLD));
+ 	 	document.add(sampleLibraryTitle);
+ 	 	
+ 	 	PdfPTable sampleLibraryTable = new PdfPTable(5);
+ 	 	sampleLibraryTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+ 	 	sampleLibraryTable.setWidths(new float[]{0.3f, 2f, 0.6f, 1f, 1f});
+ 		PdfPCell cellNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
+ 		cellNo.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		sampleLibraryTable.addCell(cellNo);
+ 		PdfPCell cellSample = new PdfPCell(new Phrase("Sample", NORMAL_BOLD));
+ 		cellSample.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		sampleLibraryTable.addCell(cellSample);
+ 		PdfPCell cellMaterial = new PdfPCell(new Phrase("Material", NORMAL_BOLD));
+ 		cellMaterial.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		sampleLibraryTable.addCell(cellMaterial);
+ 		PdfPCell runOnLane = new PdfPCell(new Phrase("Run On Lane(s)", NORMAL_BOLD));
+ 		runOnLane.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		sampleLibraryTable.addCell(runOnLane);
+ 		PdfPCell libCostCell = new PdfPCell(new Phrase("Library Cost", NORMAL_BOLD));
+ 		libCostCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		sampleLibraryTable.addCell(libCostCell);
+
+ 		int sampleCounter = 1;
+ 		int cumulativeCostForAllLibraries = 0;
+ 		Map<Sample,String> coverageMap = jobService.getCoverageMap(job);//a user-submitted request: which samples are to be run on which lanes 
+		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+
+ 		for(Sample sample : submittedSampleList){
+ 			
+ 			sampleLibraryTable.addCell(new Phrase(""+sampleCounter, NORMAL));
+ 			sampleLibraryTable.addCell(new Phrase(sample.getName(), NORMAL));
+ 			sampleLibraryTable.addCell(new Phrase(sample.getSampleType().getName(), NORMAL));
+ 
+ 			String coverageString = coverageMap.get(sample);
+ 			StringBuffer runOnWhichLanesSB = new StringBuffer();
+ 			char testChar = '1';
+ 			for(int i = 0; i < coverageString.length(); i++){
+ 				if(coverageString.charAt(i) == testChar){//run on lane i+1
+ 					if(runOnWhichLanesSB.length()>0){
+ 						runOnWhichLanesSB.append(", " + (i+1));
+ 					}
+ 					else{
+ 						runOnWhichLanesSB.append(i+1);
+ 					}
+ 				}
+ 			}
+ 			String runOnWhichLanes = new String(runOnWhichLanesSB);
+ 			sampleLibraryTable.addCell(new Phrase(runOnWhichLanes, NORMAL));
+ 
+ 			if("library".equalsIgnoreCase(sample.getSampleType().getIName())){
+ 				PdfPCell cost = new PdfPCell(new Phrase("N/A", NORMAL));
+ 				cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+ 				sampleLibraryTable.addCell(cost);
+ 			}
+ 			else{
+ 				Integer libCost = submittedObjectLibraryCostMap.get(sample);
+ 				cumulativeCostForAllLibraries += libCost.intValue();
+ 				////sampleLibraryTable.addCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
+ 				PdfPCell cost = new PdfPCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
+ 				cost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+ 				sampleLibraryTable.addCell(cost);
+ 			}
+ 			sampleCounter++;
+ 		}
+ 		
+ 		for(int i = 0; i < 4; i++){//4 empty cells with no border
+ 			PdfPCell cell = new PdfPCell(new Phrase(""));
+ 			cell.setBorder(Rectangle.NO_BORDER);
+ 			sampleLibraryTable.addCell(cell);
+ 		}
+ 		PdfPCell totalLibCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeCostForAllLibraries, NORMAL_BOLD));
+ 		totalLibCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+ 		totalLibCost.setBorderWidth(2f);
+ 		totalLibCost.setBorderColor(BaseColor.BLACK);
+		sampleLibraryTable.addCell(totalLibCost);
+			
+ 		document.add(sampleLibraryTable);
+ 		return cumulativeCostForAllLibraries;
+	}
+	
+	private int addSequenceRunsAndCostAsTable(Document document, Job job, List<String> machineList, 
+											List<String> readLengthList, List<String> readTypeList, 
+											List<Integer> numLanesList, List<Integer> pricePerLaneList) throws DocumentException{
+		
+		int cumulativeCostForAllSequenceRuns = 0;
+		
+	 	Paragraph sequenceRunTitle = new Paragraph();
+	 	sequenceRunTitle.setSpacingBefore(5);
+	 	sequenceRunTitle.setSpacingAfter(5);
+	 	if(machineList.size()==0){
+		 	sequenceRunTitle.add(new Chunk("Sequence Runs: No Sequence Runs To Be Performed", NORMAL_BOLD));
+		 	document.add(sequenceRunTitle);
+		 	return cumulativeCostForAllSequenceRuns;
+	 	}
+	 	sequenceRunTitle.add(new Chunk("Sequence Runs And Costs:", NORMAL_BOLD));
+ 	 	document.add(sequenceRunTitle);
+ 
+ 	 	PdfPTable runTable = new PdfPTable(7);
+ 	 	runTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+ 	 	runTable.setWidths(new float[]{0.3f, 1.1f, 0.4f, 0.5f, 0.4f, 0.6f, 0.9f});
+ 		PdfPCell cellRunNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
+ 		cellRunNo.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellRunNo);
+ 		PdfPCell cellMachine = new PdfPCell(new Phrase("Machine", NORMAL_BOLD));
+ 		cellMachine.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellMachine);
+ 		PdfPCell cellReadLength = new PdfPCell(new Phrase("Length", NORMAL_BOLD));
+ 		cellReadLength.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellReadLength);
+ 		PdfPCell cellReadType = new PdfPCell(new Phrase("Type", NORMAL_BOLD));
+ 		cellReadType.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellReadType);
+ 		PdfPCell cellNumLanes = new PdfPCell(new Phrase("Lanes", NORMAL_BOLD));
+ 		cellNumLanes.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellNumLanes);
+ 		PdfPCell cellPricePerLane = new PdfPCell(new Phrase("Cost/Lane", NORMAL_BOLD));
+ 		cellPricePerLane.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(cellPricePerLane);
+ 		PdfPCell totalPerRun = new PdfPCell(new Phrase("Cost/Run", NORMAL_BOLD));
+ 		totalPerRun.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		runTable.addCell(totalPerRun);
+
+ 		int runCounter = 1;
+		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+
+		for(int i = 0; i < machineList.size(); i++){
+			runTable.addCell(new Phrase(""+runCounter, NORMAL));
+			runTable.addCell(new Phrase(machineList.get(i), NORMAL));
+			runTable.addCell(new Phrase(readLengthList.get(i), NORMAL));
+			runTable.addCell(new Phrase(readTypeList.get(i), NORMAL));
+			Integer numLanes = numLanesList.get(i);
+			runTable.addCell(new Phrase(numLanes.toString(), NORMAL));
+			Integer pricePerLane = pricePerLaneList.get(i);
+			runTable.addCell(new Phrase(currencyIcon + " " + pricePerLane.toString(), NORMAL));
+			Integer totalCostPerSequenceRun = numLanes * pricePerLane;
+			PdfPCell totalCostPerSequenceRunCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerSequenceRun.toString(), NORMAL));
+			totalCostPerSequenceRunCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			runTable.addCell(totalCostPerSequenceRunCell);
+				
+			//runTable.addCell(new Phrase(currencyIcon + " " + totalCostPerSequenceRun.toString(), NORMAL));
+			cumulativeCostForAllSequenceRuns += totalCostPerSequenceRun.intValue();
+			runCounter++;
+		}
+ 		for(int i = 0; i < 6; i++){//4 empty cells with no border
+ 			PdfPCell cell = new PdfPCell(new Phrase(""));
+ 			cell.setBorder(Rectangle.NO_BORDER);
+ 			runTable.addCell(cell);
+ 		}
+ 		PdfPCell totalRunCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeCostForAllSequenceRuns, NORMAL_BOLD));
+ 		totalRunCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+ 		totalRunCost.setBorderWidth(2f);
+ 		totalRunCost.setBorderColor(BaseColor.BLACK);
+		runTable.addCell(totalRunCost);
+
+		document.add(runTable);		
+		return cumulativeCostForAllSequenceRuns;
 	}
 	
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
