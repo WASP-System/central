@@ -333,7 +333,14 @@ function click(d) {
 			});
 	    	
 			var createPortal = function(){
-				var summarygrid = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist });
+				var summaryPanel;
+				if (result.statuslist.length > 0){
+					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist });
+				} else{
+					summaryPanel = {
+						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
+					}
+				}
 				var summarytab = tabpanel.add({
                 	id: 'summary-tab',
                 	xtype: 'panel',
@@ -355,7 +362,7 @@ function click(d) {
 	                            closable: false,
 	                            collapsible: false,
 	                            draggable: false,
-	                            items: summarygrid
+	                            items: summaryPanel
 	                        }]
 	                    //}]
                 	}]

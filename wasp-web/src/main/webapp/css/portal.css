@@ -67,4 +67,12 @@
     background-image:url(../shared/icons/fam/information.png);
 }
 
+.noPlugin {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: center;
+	font-size: 14pt;
+	color: red;
+}
+
 
