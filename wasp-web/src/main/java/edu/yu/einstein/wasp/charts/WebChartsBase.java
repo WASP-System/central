@@ -87,7 +87,7 @@ public class WebChartsBase {
 	 * @throws ChartException 
 	 */
 	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats) throws ChartException{
-		return getKeyValueTableRepresentation(basicStats, null);
+		return getKeyValueTableRepresentation(basicStats, true, null);
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class WebChartsBase {
 	 * @return
 	 * @throws ChartException 
 	 */
-	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats, MessageService messageService) throws ChartException{
+	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats, boolean showTitle, MessageService messageService) throws ChartException{
 		String description;
 		String title;
 		if (messageService == null){
@@ -111,7 +111,8 @@ public class WebChartsBase {
 		}
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<h3>" + title + "</h3>\n");
+		if (showTitle)
+			sb.append("<h3>" + title + "</h3>\n");
 		sb.append("<table class='keyValueTable' >\n");
 		if (data.isEmpty()){
 			sb.append("<tr><td>No data to display</td></tr>\n");
@@ -147,7 +148,7 @@ public class WebChartsBase {
 	 * @throws JSONException
 	 */
 	public static WebContent getTableRepresentation(final WaspChart basicStats){
-		return getTableRepresentation(basicStats, null);
+		return getTableRepresentation(basicStats, true, null);
 	}
 	
 	/**
@@ -159,7 +160,7 @@ public class WebChartsBase {
 	 * @return
 	 * @throws JSONException
 	 */
-	public static WebContent getTableRepresentation(final WaspChart basicStats, MessageService messageService){
+	public static WebContent getTableRepresentation(final WaspChart basicStats, boolean showTitle, MessageService messageService){
 		String description;
 		String title;
 		List<String> colLabels;
@@ -174,7 +175,8 @@ public class WebChartsBase {
 		}
 		List<List<Object>> data = basicStats.getDataSeries().get(0).getData();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<h3>" + title + "</h3>\n");
+		if (showTitle)
+			sb.append("<h3>" + title + "</h3>\n");
 		sb.append("<table class='standardTable' >\n");
 		if (data.isEmpty()){
 			sb.append("<tr><td>No data to display</td></tr>\n");

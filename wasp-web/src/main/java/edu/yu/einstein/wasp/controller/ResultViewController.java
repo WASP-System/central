@@ -3,12 +3,10 @@ package edu.yu.einstein.wasp.controller;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +29,6 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.charts.highchartsjs.HighChartsJsBase;
-import edu.yu.einstein.wasp.dao.SampleSourceDao;
 import edu.yu.einstein.wasp.grid.file.FileUrlResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
@@ -39,8 +36,6 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -255,11 +250,12 @@ public class ResultViewController extends WaspController {
 				int i = 0;
 				for (FileDataTabViewing plugin: plugins){
 					Status status = plugin.getStatus(fg);
-					statusArray[i][0] = plugin.getPluginName();
-				    statusArray[i][1] = plugin.getPluginDescription();
+					PanelTab panelTab = plugin.getViewPanelTab(fg);
+					statusArray[i][0] = panelTab.getName();
+				    statusArray[i][1] = panelTab.getDescription();
 				    statusArray[i++][2] = status.toString();
 				    if (status.equals(Status.COMPLETED))
-				    	pluginPanelTabs.put(plugin.getPluginName(), plugin.getViewPanelTab(fg));
+				    	pluginPanelTabs.put(plugin.getPluginName(), panelTab);
 				}
 				jsDetailsTabs.put("statuslist", statusArray);
 				jsDetailsTabs.put("paneltablist",pluginPanelTabs);

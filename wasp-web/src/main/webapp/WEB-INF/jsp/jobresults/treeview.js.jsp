@@ -368,7 +368,7 @@ function click(d) {
 						tabTitle = "Download "+(d.type.split('-'))[1].toUpperCase()+" files";
 				        return;
 					} else {
-						tabTitle = index; //d.name+" Details";
+						tabTitle = item.name; //d.name+" Details";
 					}
 					
 					tabCounter++;

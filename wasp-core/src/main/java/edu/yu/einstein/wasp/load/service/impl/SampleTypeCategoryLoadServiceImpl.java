@@ -27,18 +27,16 @@ public class SampleTypeCategoryLoadServiceImpl extends WaspLoadServiceImpl imple
 		Assert.assertParameterNotNull(name, "name Cannot be null");
 		SampleTypeCategory sampleTypeCategory = sampleTypeCategoryDao.getSampleTypeCategoryByIName(iname);
 		// inserts or update sampleSubtype
-		if (sampleTypeCategory.getSampleTypeCategoryId() == null) {
+		if (sampleTypeCategory.getId() == null) {
 			sampleTypeCategory.setIName(iname);
 			sampleTypeCategory.setName(name);
 			sampleTypeCategory.setIsActive(isActive);
 			sampleTypeCategory = sampleTypeCategoryDao.save(sampleTypeCategory);
 		} else {
-			if (!sampleTypeCategory.getName().equals(name)) {
+			if (sampleTypeCategory.getName() == null || !sampleTypeCategory.getName().equals(name)) 
 				sampleTypeCategory.setName(name);
-			}
-			if (sampleTypeCategory.getIsActive().intValue() != isActive) {
+			if (sampleTypeCategory.getIsActive().intValue() != isActive) 
 				sampleTypeCategory.setIsActive(isActive);
-			}
 		}
 		return sampleTypeCategory;
 	}

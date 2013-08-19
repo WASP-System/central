@@ -322,8 +322,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Override
 	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqcPlugin.getPluginName());
-		panelTab.setDescription(fastqcPlugin.getPluginDescription());
+		panelTab.setName(fastqc.getName());
+		panelTab.setDescription(fastqc.getDescription());
 		try {
 			panelTab.addPanel(BabrahamPanelRenderer.getQCResultsSummaryPanel(getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId), messageService));
 			panelTab.addPanel(BabrahamPanelRenderer.getBasicStatsPanel(getJsonForParsedSoftwareOutputByKey(PlotType.BASIC_STATISTICS, fastqc, fileGroupId), messageService));
@@ -351,8 +351,8 @@ public class BabrahamServiceImpl extends WaspServiceImpl implements BabrahamServ
 	@Override
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqscreenPlugin.getPluginName());
-		panelTab.setDescription(fastqscreenPlugin.getPluginDescription());
+		panelTab.setName(fastqscreen.getName());
+		panelTab.setDescription(fastqscreen.getDescription());
 		try {
 			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId), messageService));
 		} catch (JSONException | MetadataException e) {

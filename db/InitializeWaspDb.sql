@@ -1938,6 +1938,7 @@ CREATE TABLE `software` (
   `iname` varchar(255) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `resourcetypeid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),

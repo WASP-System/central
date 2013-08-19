@@ -36,18 +36,14 @@ public class FileTypeLoadServiceImpl extends WaspLoadServiceImpl implements File
 			  fileType.setIsActive(isActive);
 			  fileType = fileTypeDao.save(fileType);
 		  } else {
-			  if (fileType.getName() == null || !fileType.getName().equals(name)){
+			  if (fileType.getName() == null || !fileType.getName().equals(name))
 				  fileType.setName(name);
-			  }
-			  if (fileType.getDescription() == null || !fileType.getDescription().equals(description)){
+			  if (fileType.getDescription() == null || !fileType.getDescription().equals(description))
 				  fileType.setDescription(description);
-			  }
-			  if (fileType.getExtension() == null || !fileType.getExtension().equals(extension)){
+			  if (fileType.getExtension() == null || !fileType.getExtension().equals(extension))
 				  fileType.setExtension(extension);
-			  }
-			  if (fileType.getIsActive().intValue() != isActive){
+			  if (fileType.getIsActive().intValue() != isActive)
 				  fileType.setIsActive(isActive);
-			  }
 		  }
 		  return fileType;
 	  }

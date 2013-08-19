@@ -148,6 +148,36 @@ public class Software extends WaspModel {
 	public String getName () {
 		return this.name;
 	}
+	
+	
+	/** 
+	 * description
+	 *
+	 */
+	@Column(name="description")
+	protected String description;
+
+	/**
+	 * setDescription(String description)
+	 *
+	 * @param description
+	 *
+	 */
+	
+	public void setDescription (String description) {
+		this.description = description;
+	}
+
+	/**
+	 * getDescription()
+	 *
+	 * @return description
+	 *
+	 */
+	public String getDescription () {
+		return this.description;
+	}
+	
 
 	/** 
 	 * isActive

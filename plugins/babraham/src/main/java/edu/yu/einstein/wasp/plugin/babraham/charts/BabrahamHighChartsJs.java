@@ -127,7 +127,6 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 			WebContent content = new WebContent();
 			content.setScriptDependencies(getScriptDependencies());
 			StringBuilder sb = new StringBuilder();
-			sb.append("<h3>" + basicStats.getLocalizedTitle(messageService) + "</h3>\n");
 			sb.append("<table class='standardTable' >\n");
 			sb.append("<tr>\n");
 			sb.append("<th>" +  basicStats.getDataSeries().get(0).getLocalizedColLabels(messageService).get(1) + "</th>\n");
@@ -192,13 +191,13 @@ public class BabrahamHighChartsJs extends HighChartsJsBase {
 	}
 	
 	public static WebContent getKeyValueTableRepresentation(final WaspChart basicStats, MessageService messageService) throws ChartException{
-		WebContent content = WebChartsBase.getKeyValueTableRepresentation(basicStats, messageService);
+		WebContent content = WebChartsBase.getKeyValueTableRepresentation(basicStats, false, messageService);
 		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
 		return content;
 	}
 	
 	public static WebContent getTableRepresentation(final WaspChart basicStats, MessageService messageService){
-		WebContent content = WebChartsBase.getTableRepresentation(basicStats, messageService);
+		WebContent content = WebChartsBase.getTableRepresentation(basicStats, false, messageService);
 		content.setHtmlCode(content.getHtmlCode() + getFastQcCredits(messageService));
 		return content;
 	}
