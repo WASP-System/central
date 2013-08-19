@@ -199,7 +199,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<h3>FastQC Results Summary</h3>"));
+		Assert.assertTrue(html.contains("<th>FastQC Module</th>"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -238,7 +238,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<h3>Basic Statistics</h3>"));
+		Assert.assertTrue(html.contains("<tr><th>Filename: </th><td>18_GCCAAT_L003_R1_003.fastq.gz</td></tr>"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -251,7 +251,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<h3>Over-represented Sequences</h3>"));
+		Assert.assertTrue(html.contains("<td>CGGTTCAGCAGGAATGCCGAGATCGGAAGAGCGGTTCAGCAGGAATGCCG</td>"));
 	}
 	
 	@Test (groups = "unit-tests")
@@ -328,7 +328,7 @@ public class BabrahamQCTests extends AbstractTestNGSpringContextTests {
 		WebContent content = (WebContent) panel.getContent();
 		String html = content.getHtmlCode() + content.getScriptCode();
 		logger.debug(html);
-		Assert.assertTrue(html.contains("<h3>Kmer Content</h3>"));
+		Assert.assertTrue(html.contains("<th>Sequence</th>"));
 	}
 	
 	@Test (groups = "unit-tests")
