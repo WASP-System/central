@@ -128,23 +128,24 @@ public class SoftwareLoadServiceImpl extends WaspLoadServiceImpl implements	Soft
 		syncMetas(software, meta);
 		if (clazz.getName().equals(software.getClass().getName()))
 	    	return (T) software;
-	    T softwareSpecial;
+	    T softwareClone;
 		try {
-			softwareSpecial = clazz.newInstance();
-			softwareSpecial.setId(software.getId());
-			softwareSpecial.setIName(software.getIName());
-			softwareSpecial.setName(software.getName());
-			softwareSpecial.setIsActive(software.getIsActive());
-			softwareSpecial.setResourceType(software.getResourceType());
-			softwareSpecial.setJobDraftSoftware(software.getJobDraftSoftware());
-			softwareSpecial.setJobSoftware(software.getJobSoftware());
-			softwareSpecial.setSoftwareMeta(software.getSoftwareMeta());
-			softwareSpecial.setWorkflowSoftware(software.getWorkflowSoftware());
+			softwareClone = clazz.newInstance();
+			softwareClone.setId(software.getId());
+			softwareClone.setIName(software.getIName());
+			softwareClone.setName(software.getName());
+			softwareClone.setDescription(software.getDescription());
+			softwareClone.setIsActive(software.getIsActive());
+			softwareClone.setResourceType(software.getResourceType());
+			softwareClone.setJobDraftSoftware(software.getJobDraftSoftware());
+			softwareClone.setJobSoftware(software.getJobSoftware());
+			softwareClone.setSoftwareMeta(software.getSoftwareMeta());
+			softwareClone.setWorkflowSoftware(software.getWorkflowSoftware());
 		} catch (Exception e) {
 			logger.warn("Cannot create instance of " + clazz.getName() + ". Going to return as a Software object");
 			return (T) software;
 		}
-		return softwareSpecial;
+		return softwareClone;
 	    
 	}
 	
