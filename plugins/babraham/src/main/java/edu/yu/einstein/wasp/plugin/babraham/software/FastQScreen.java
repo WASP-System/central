@@ -62,7 +62,7 @@ public class FastQScreen extends SoftwarePackage {
 	private static final long serialVersionUID = -2863597794926320890L;
 
 	/**
-	 * Don't use the whole sequence file to search when preforming fastq_screen; instead create a temporary dataset of size subset
+	 * Don't use the whole sequence file to search when performing fastq_screen; instead create a temporary dataset of size subset
 	 */
 	private static final long subset = 500000L;
 	
@@ -195,7 +195,7 @@ public class FastQScreen extends SoftwarePackage {
 		command = "";
 		command += "mkdir " + OUTPUT_FOLDER + "\n";
 		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE + " && fastq_screen " + opts + " --outdir " + 
-				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE + "\n";
+				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE + " && rm " + COMBINATION_FASTQ_FILE + "\n";
 		return command;
 	}
 	

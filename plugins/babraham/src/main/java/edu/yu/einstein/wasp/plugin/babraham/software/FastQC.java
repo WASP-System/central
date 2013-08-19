@@ -213,7 +213,7 @@ public class FastQC extends SoftwarePackage{
 		
 		command += "mkdir " + OUTPUT_FOLDER + "\n";
 		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE_NAME + " && fastqc " + opts + " --outdir " + 
-				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE_NAME + "\n";
+				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE_NAME + " && rm " + COMBINATION_FASTQ_FILE_NAME + "\n";
 		return command;
 	}
 	
