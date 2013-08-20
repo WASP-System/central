@@ -12,7 +12,7 @@ Ext.define('Ext.wasp.GridPortlet', {
      * @param {Object} val
      */
     status: function(val) {
-        if (val == 'COMPLETED') {
+    	if (val == 'COMPLETED') {
             return '<span style="color:green;">Completed</span>';
         } else if (val == 'STARTED') {
             return '<span style="color:green;">Running</span>';
@@ -25,8 +25,11 @@ Ext.define('Ext.wasp.GridPortlet', {
     },
     
     clickBehaviour : function(grid, td, cellIndex, record, tr, rowIndex, e){
-    	if (this.tabPanel != null)
-    		this.tabPanel.setActiveTab(rowIndex + 1);
+    	if (this.tabPanel != null){
+    		var tabId = grid.getStore().getAt(rowIndex).get("tabId");
+    		if (tabId != null)
+    			this.tabPanel.setActiveTab(tabId);
+    	}
     	this.getView().deselect(record);
     },
 
@@ -36,7 +39,8 @@ Ext.define('Ext.wasp.GridPortlet', {
             fields: [
                {name: 'plugins'},
                {name: 'description'},
-               {name: 'status'}
+               {name: 'status'},
+               {name: 'tabId'}
             ],
             data: this.myData
         });

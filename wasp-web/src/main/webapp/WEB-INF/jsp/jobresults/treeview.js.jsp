@@ -378,9 +378,8 @@ function click(d) {
 						tabTitle = item.name; //d.name+" Details";
 					}
 					
-					tabCounter++;
-
-					var tabid = 'tab-'+tabCounter;
+					
+					var tabid = index;
 					var tab = tabpanel.add({
 						xtype: 'panel',
 						id: tabid,
