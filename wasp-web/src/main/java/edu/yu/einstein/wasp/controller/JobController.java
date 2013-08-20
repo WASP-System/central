@@ -1555,6 +1555,11 @@ public class JobController extends WaspController {
 		int numberAdditionalCostsCompletelyEmpty = 0;
 		int numberAdditionalCostsMissingSomething = 0;
 		int numberAdditionalCostsComplete = 0;
+		
+		List<String> additionalCostReasonList = new ArrayList<String>();
+		List<Integer> additionalCostUnitsList = new ArrayList<Integer>();
+		List<Integer> additionalCostPricePerUnitList = new ArrayList<Integer>();
+
 
 		for(int i = 0; i < numberOfAdditionalCostRows; i++){
 			if( "".equals(additionalCostReasonArray[i].trim())	 &&
@@ -1572,14 +1577,16 @@ public class JobController extends WaspController {
 					 "".equals(additionalCostPricePerUnitArray[i].trim()) ){
 						errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - Please review";
 			}
+			Integer numUnits = null;
+			Integer pricePerUnit = null;
 			try{
 				if(!"".equals(additionalCostUnitsArray[i].trim())){
-					Integer numUnits = new Integer(additionalCostUnitsArray[i].trim());
+					numUnits = new Integer(additionalCostUnitsArray[i].trim());
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for units";}
 			try{
 				if(!"".equals(additionalCostPricePerUnitArray[i].trim())){
-					Integer pricePerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
+					pricePerUnit = new Integer(additionalCostPricePerUnitArray[i].trim());
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Additional Costs section is missing information - whole number required for cost/unit; if no charge, enter zero";}
 			if(!"".equals(errorMessage)){
@@ -1593,6 +1600,9 @@ public class JobController extends WaspController {
 				additionalCostsCompletelyEmpty[i]=false;
 				additionalCostsIsMissingSomething[i]=false;
 				additionalCostsIsComplete[i]=true;
+				additionalCostReasonList.add(additionalCostReasonArray[i]);
+				additionalCostUnitsList.add(numUnits);
+				additionalCostPricePerUnitList.add(pricePerUnit);
 			}
 		}
 				
@@ -1603,6 +1613,10 @@ public class JobController extends WaspController {
 		int numberDiscountsCompletelyEmpty = 0;
 		int numberDiscountsMissingSomething = 0;
 		int numberDiscountsComplete = 0;
+
+ 	    List<String> discountReasonList = new ArrayList<String>();
+ 	    Map<String, Integer> discountReasonAbsolutePriceMap = new HashMap<String, Integer>();
+ 	    Map<String, Integer> discountReasonPercentMap = new HashMap<String, Integer>();
 
  		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();//+String.format("%.2f", price));
 
@@ -1627,11 +1641,19 @@ public class JobController extends WaspController {
 						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - you must select either " + currencyIcon + " or %";
 				}
 			}
+			Integer discountValue=null;
 			try{
 				if(!"".equals(discountValueArray[i].trim())){
-					Integer discountValue = new Integer(discountValueArray[i].trim());
+					discountValue = new Integer(discountValueArray[i].trim());
+					if("%".equals(discountTypeArray[i].trim()) && discountValue >100){
+						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove";
+					}
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)";}
+			
+			if(discountReasonList.contains(discountReasonArray[i].trim())){
+				errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once. ";
+			}
 			if(!"".equals(errorMessage)){
 				numberDiscountsMissingSomething++;
 				discountsCompletelyEmpty[i]=false;
@@ -1643,6 +1665,13 @@ public class JobController extends WaspController {
 				discountsCompletelyEmpty[i]=false;
 				discountsIsMissingSomething[i]=false;
 				discountsIsComplete[i]=true;
+				discountReasonList.add(discountReasonArray[i].trim());
+				if("%".equals(discountTypeArray[i].trim())){
+					discountReasonPercentMap.put(discountReasonArray[i].trim(), discountValue);
+				}
+				else{
+					discountReasonAbsolutePriceMap.put(discountReasonArray[i].trim(), discountValue);
+				}
 			}
 		}
 		
@@ -1687,11 +1716,79 @@ public class JobController extends WaspController {
 	 	    addressTheLetterToSubmitterAndPI(document, job);
 	 	    addReasonForLetter(document, "Estimated costs for Job ID " + job.getId());
 	 	    document.add(new LineSeparator());
-	 	    Paragraph jobDetailsParagraph = addCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
+	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
 	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
 	 	    document.add(jobDetailsParagraph);//add the paragraph to the document
-	 	    int libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedObjectList, submittedObjectLibraryCostMap);
-	 	    int sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
+	 	    
+	 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, job, submittedObjectList, submittedObjectLibraryCostMap);
+	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
+	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, job, additionalCostReasonList, additionalCostUnitsList, additionalCostPricePerUnitList);
+	 	    
+	 	    List<String> costReasonList = new ArrayList<String>();
+	 	    Map<String, Integer> costReasonPriceMap = new HashMap<String, Integer>();
+	 	    costReasonList.add("Total Library Costs");
+	 	    costReasonPriceMap.put("Total Library Costs",libraryConstructionTotalCost);
+	 	    costReasonList.add("Total Sequencing Costs");
+	 	    costReasonPriceMap.put("Total Sequencing Costs",sequenceRunsTotalCost);
+	 	    costReasonList.add("Total Additional Costs");
+	 	    costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
+	 	     
+	 	    
+	 	    
+	 	    
+	 	    
+	 	    //addCostSummaryTable
+	 		Paragraph anticipatedCosts = new Paragraph();
+	 		anticipatedCosts.setSpacingBefore(15);
+	 		anticipatedCosts.setSpacingAfter(5);
+	 		anticipatedCosts.add(new Chunk("Cost Summary:", NORMAL_BOLD));
+	 	 	document.add(anticipatedCosts);
+	 		
+	 	    PdfPTable costTable = new PdfPTable(2);
+	 	    costTable.getDefaultCell().setBorder(0);
+	 	    costTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+	 	   costTable.setWidthPercentage(60);
+	 	    costTable.addCell(new Phrase("Total Library Costs", NORMAL_BOLD));
+	 	   
+	 	    PdfPCell totalLibCostCell = new PdfPCell(new Phrase(currencyIcon + " " + libraryConstructionTotalCost, NORMAL_BOLD));
+	 	   totalLibCostCell.setBorder(0);
+	 	   totalLibCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 	    costTable.addCell(totalLibCostCell);
+	 	    
+	 	    costTable.addCell(new Phrase("Total Sequencing Costs", NORMAL_BOLD));
+	 	    //costTable.addCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
+	 	   PdfPCell totalSeqCostCell = new PdfPCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
+	 	  totalSeqCostCell.setBorder(0);
+	 	 totalSeqCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 	    costTable.addCell(totalSeqCostCell);
+	 	  
+	 	    
+	 	    if(additionalTotalCost>0){
+	 	    	costTable.addCell(new Phrase("Total Additional Costs", NORMAL_BOLD));
+	 	    	//costTable.addCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
+	 	    	PdfPCell totalAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
+	 	    	totalAdditionalCostCell.setBorder(0);
+	 	    	totalAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 		 	    costTable.addCell(totalAdditionalCostCell);
+	 	    }
+	 	    
+	 	    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
+	 	    int subtotal = libraryConstructionTotalCost + sequenceRunsTotalCost + additionalTotalCost;
+	 	    //costTable.addCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
+	 	   PdfPCell subtotalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
+	 	  subtotalCostCell.setBorder(0);
+	 	 subtotalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+		 	    costTable.addCell(subtotalCostCell);
+	 	   
+		 	    
+		 	    
+		 	
+	 	    document.add(costTable);
+	 	    
+	 	    
+	 	    
+	 	    
+	 	    
 	 	    document.close();
 	 	    
 		}catch(Exception e){
@@ -1825,7 +1922,7 @@ public class JobController extends WaspController {
  	    document.add(reasonForDocument);
 	}
 	
-	private Paragraph addCommonJobDetails(Job job){
+	private Paragraph startJobDetailsParagraphAndAddCommonJobDetails(Job job){
  	    Paragraph commonJobDetailsParagraph = new Paragraph();
  	    commonJobDetailsParagraph.setSpacingBefore(15);
  	    commonJobDetailsParagraph.setSpacingAfter(5);
@@ -1893,7 +1990,7 @@ public class JobController extends WaspController {
 		return jobDetailsParagraph;
 	}
 	
-	private int addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(Document document, Job job, List<Sample> submittedSampleList, Map<Sample, Integer> submittedObjectLibraryCostMap) throws DocumentException{
+	private Integer addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(Document document, Job job, List<Sample> submittedSampleList, Map<Sample, Integer> submittedObjectLibraryCostMap) throws DocumentException{
 		
  	 	Paragraph sampleLibraryTitle = new Paragraph();
  	 	sampleLibraryTitle.setSpacingBefore(5);
@@ -1975,10 +2072,10 @@ public class JobController extends WaspController {
 		sampleLibraryTable.addCell(totalLibCost);
 			
  		document.add(sampleLibraryTable);
- 		return cumulativeCostForAllLibraries;
+ 		return new Integer (cumulativeCostForAllLibraries);
 	}
 	
-	private int addSequenceRunsAndCostAsTable(Document document, Job job, List<String> machineList, 
+	private Integer addSequenceRunsAndCostAsTable(Document document, Job job, List<String> machineList, 
 											List<String> readLengthList, List<String> readTypeList, 
 											List<Integer> numLanesList, List<Integer> pricePerLaneList) throws DocumentException{
 		
@@ -2037,11 +2134,10 @@ public class JobController extends WaspController {
 			totalCostPerSequenceRunCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
 			runTable.addCell(totalCostPerSequenceRunCell);
 				
-			//runTable.addCell(new Phrase(currencyIcon + " " + totalCostPerSequenceRun.toString(), NORMAL));
 			cumulativeCostForAllSequenceRuns += totalCostPerSequenceRun.intValue();
 			runCounter++;
 		}
- 		for(int i = 0; i < 6; i++){//4 empty cells with no border
+ 		for(int i = 0; i < 6; i++){//6 empty cells with no border
  			PdfPCell cell = new PdfPCell(new Phrase(""));
  			cell.setBorder(Rectangle.NO_BORDER);
  			runTable.addCell(cell);
@@ -2053,7 +2149,75 @@ public class JobController extends WaspController {
 		runTable.addCell(totalRunCost);
 
 		document.add(runTable);		
-		return cumulativeCostForAllSequenceRuns;
+		return new Integer(cumulativeCostForAllSequenceRuns);
+	}
+	
+	private Integer addAdditionalCostsAsTable(Document document, Job job, List<String> additionalCostReasonList, 
+			List<Integer> additionalCostUnitsList, List<Integer> additionalCostPricePerUnitList) throws DocumentException{
+
+		int cumulativeAdditionalCost = 0;
+
+		if(additionalCostReasonList.size()==0){
+			return cumulativeAdditionalCost;
+		}
+		
+		Paragraph additionalCostTitle = new Paragraph();
+		additionalCostTitle.setSpacingBefore(5);
+		additionalCostTitle.setSpacingAfter(5);
+		additionalCostTitle.add(new Chunk("Additional Costs:", NORMAL_BOLD));
+		document.add(additionalCostTitle);
+		
+ 	 	PdfPTable additionalCostTable = new PdfPTable(5);
+ 	 	additionalCostTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+ 	 	additionalCostTable.setWidths(new float[]{0.2f, 1.4f, 0.3f, 0.5f, 0.9f});
+ 		PdfPCell celladditionalCostNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
+ 		celladditionalCostNo.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		additionalCostTable.addCell(celladditionalCostNo);
+ 		PdfPCell cellReason = new PdfPCell(new Phrase("Reason", NORMAL_BOLD));
+ 		cellReason.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		additionalCostTable.addCell(cellReason);
+ 		PdfPCell cellUnits = new PdfPCell(new Phrase("Units", NORMAL_BOLD));
+ 		cellUnits.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		additionalCostTable.addCell(cellUnits);
+ 		PdfPCell cellCostPerUnit = new PdfPCell(new Phrase("Cost/Unit", NORMAL_BOLD));
+ 		cellCostPerUnit.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		additionalCostTable.addCell(cellCostPerUnit);
+ 		PdfPCell cellTotalCost = new PdfPCell(new Phrase("Total Cost", NORMAL_BOLD));
+ 		cellTotalCost.setHorizontalAlignment(Element.ALIGN_CENTER);
+ 		additionalCostTable.addCell(cellTotalCost);
+ 		
+
+ 		int additionalCostCounter = 1;
+		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+
+		for(int i = 0; i < additionalCostReasonList.size(); i++){
+			additionalCostTable.addCell(new Phrase(""+additionalCostCounter, NORMAL));
+			additionalCostTable.addCell(new Phrase(additionalCostReasonList.get(i), NORMAL));
+			Integer units = additionalCostUnitsList.get(i);
+			additionalCostTable.addCell(new Phrase(units.toString(), NORMAL));
+			Integer pricePerUnit = additionalCostPricePerUnitList.get(i);
+			additionalCostTable.addCell(new Phrase(currencyIcon + " " + pricePerUnit.toString(), NORMAL));
+			Integer totalCostPerAdditionalCost = units * pricePerUnit;
+			PdfPCell totalCostPerAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerAdditionalCost.toString(), NORMAL));
+			totalCostPerAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			additionalCostTable.addCell(totalCostPerAdditionalCostCell);
+				
+			cumulativeAdditionalCost += totalCostPerAdditionalCost.intValue();
+			additionalCostCounter++;
+		}
+ 		for(int i = 0; i < 4; i++){//4 empty cells with no border
+ 			PdfPCell cell = new PdfPCell(new Phrase(""));
+ 			cell.setBorder(Rectangle.NO_BORDER);
+ 			additionalCostTable.addCell(cell);
+ 		}
+ 		PdfPCell totalAdditionalCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeAdditionalCost, NORMAL_BOLD));
+ 		totalAdditionalCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+ 		totalAdditionalCost.setBorderWidth(2f);
+ 		totalAdditionalCost.setBorderColor(BaseColor.BLACK);
+ 		additionalCostTable.addCell(totalAdditionalCost);
+		
+		document.add(additionalCostTable);
+		return new Integer(cumulativeAdditionalCost);
 	}
 	
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)

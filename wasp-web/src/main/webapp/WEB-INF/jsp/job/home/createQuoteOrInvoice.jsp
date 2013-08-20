@@ -160,10 +160,10 @@
 <tr><td colspan="4" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
-<span style='font-weight:bold'>4. Discounts / Credits Expected For This Job: </span><br /><br />
+<span style='font-weight:bold'>4. Discounts/Credits Expected For This Job: </span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6">Reason</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Reason<sup>*</sup></td>
 		<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${localCurrencyIcon}" /> Or %</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Discount</td>
 		<td class="label-centered" style="background-color:#FAF2D6">Action</td>
@@ -177,6 +177,8 @@
 	</tr>
 	<tr><td colspan="5" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
+<sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
+<br /><br />
 </div>
 </div>
 </form>
