@@ -179,14 +179,17 @@
 </table>
 <sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
 <br /><br />
-<span style='font-weight:bold'>5. Additional Comments: </span><br /><br />
+<span style='font-weight:bold'>5. Comments For This Job: </span><br /><br />
 <table  class="data" style="margin: 0px 0px">
 	<tr class="FormData">
-		<td class="label-centered" style="background-color:#FAF2D6"><span style="font-style:italic">Please Keep Comments Brief</span></td>		
+		<td class="label-centered" style="background-color:#FAF2D6">Comment</td>
+		<td class="label-centered" style="background-color:#FAF2D6">Action</td>		
 	</tr>
 	<tr>
-		<td><textarea id="comment" name="comment" cols="50" rows="3"></textarea><br /></td>
+		<td align='center'><textarea id="comments" name="comments" cols="60" rows="4"></textarea><br /></td>
+		<td align='center'><input type="button" class="delRow" value="Delete Row"/></td>
 	</tr>
+	<tr><td colspan="2" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
 <br /><br />
 </div>

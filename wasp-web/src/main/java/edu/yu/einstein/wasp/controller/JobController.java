@@ -1455,6 +1455,17 @@ public class JobController extends WaspController {
 		   		return;
 		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
+		
+		//f. get comments, if any
+		param = "comments";
+		String [] commentsArray = request.getParameterValues(param);
+		List<String> commentsList = new ArrayList<String>();
+		int numberOfCommentsRows = commentsArray.length;
+		for(int i = 0; i < numberOfCommentsRows; i++){
+			if(!"".equals(commentsArray[i].trim())){
+				commentsList.add(commentsArray[i].trim());
+			}
+		}
 				
 		//Secondly, deal with expected errors (person left out data on the form or filled in a letter when a number was needed)
 		//1. library construction costs (no empty entries permitted if the submitted sample is a library; must enter 0 if no charge for that library).
@@ -1682,17 +1693,7 @@ public class JobController extends WaspController {
  		if(cumulativePercentDiscount>100){
 			errorMessage += "<br />Cumulative Discount Percent may not exceed 100%";
 		}
- 		
- 		//additionl comments
- 		param = "comment";
-		String comment = request.getParameter(param);		
- 		if(comment==null){
- 			comment = "";
- 		}
- 		else{
- 			comment = comment.trim();
- 		}
- 		
+ 				
  		//if the user input contains errors, inform user and get out of here.
 		if(!"".equals(errorMessage)){
 			logger.warn(errorMessage);
@@ -1710,21 +1711,6 @@ public class JobController extends WaspController {
 	 	    Document document = new Document();
 	 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
 	 	    document.open();	 	    
-	 	    /*
-	 	    Paragraph header = new Paragraph();
-	 	    header.add(new Chunk("Epigenomics Shared Facility-do you like this name???999000999000 Leslie", BIG_BOLD));
-	 	    document.add(header);	 	    
-	 	      	      
-	 	    LineSeparator line = new LineSeparator(); 
-	 	    line.setOffset(new Float(-5.0));
-	 	    document.add(line);
-	 	    
-	 	   for(int x = 0; x < 200; x++){
-	 	    	Paragraph header2 = new Paragraph();
-	 	    	header2.add(new Chunk("My name is robert", BIG_BOLD));
-	 	    	document.add(header2);
-	 	   }
-	 	    */
 	 	    List<String> justUnderLetterheadLineList = new ArrayList<String>();
 	 	    justUnderLetterheadLineList.add("Shahina Maqbool PhD (ESF Director), Albert Einstein College of Medicine, 1301 Morris Park Ave (Price 159F)");
 	 	    justUnderLetterheadLineList.add("Email:shahina.maqbool@einstein.yu.edu Phone:718-678-1163");
@@ -1742,9 +1728,7 @@ public class JobController extends WaspController {
 	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
 	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, job, additionalCostReasonList, additionalCostUnitsList, additionalCostPricePerUnitList);
 	 	    
-	 	   if(!"".equalsIgnoreCase(comment)){
-	 	    	addNoteLine(document, "Comment", comment);
-	 	    }
+	 	    addCommentsAsTable(document, job, commentsList);
 	 	    
 	 	    List<String> costReasonList = new ArrayList<String>();
 	 	    Map<String, Integer> costReasonPriceMap = new HashMap<String, Integer>();
@@ -1756,61 +1740,7 @@ public class JobController extends WaspController {
 	 	    	costReasonList.add("Total Additional Costs");
 	 	    	costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
 	 	    } 
-	 	    addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
-	 	    
-	 	    
-	 	    /*
-	 	    
-	 		Paragraph anticipatedCosts = new Paragraph();
-	 		anticipatedCosts.setSpacingBefore(15);
-	 		anticipatedCosts.setSpacingAfter(5);
-	 		anticipatedCosts.add(new Chunk("Cost Summary:", NORMAL_BOLD));
-	 	 	document.add(anticipatedCosts);
-	 		
-	 	    PdfPTable costTable = new PdfPTable(2);
-	 	    costTable.getDefaultCell().setBorder(0);
-	 	    costTable.setHorizontalAlignment(Element.ALIGN_LEFT);
-	 	   costTable.setWidthPercentage(60);
-	 	    costTable.addCell(new Phrase("Total Library Costs", NORMAL_BOLD));
-	 	   
-	 	    PdfPCell totalLibCostCell = new PdfPCell(new Phrase(currencyIcon + " " + libraryConstructionTotalCost, NORMAL_BOLD));
-	 	   totalLibCostCell.setBorder(0);
-	 	   totalLibCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(totalLibCostCell);
-	 	    
-	 	    costTable.addCell(new Phrase("Total Sequencing Costs", NORMAL_BOLD));
-	 	    //costTable.addCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
-	 	   PdfPCell totalSeqCostCell = new PdfPCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
-	 	  totalSeqCostCell.setBorder(0);
-	 	 totalSeqCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(totalSeqCostCell);
-	 	  
-	 	    
-	 	    if(additionalTotalCost>0){
-	 	    	costTable.addCell(new Phrase("Total Additional Costs", NORMAL_BOLD));
-	 	    	//costTable.addCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
-	 	    	PdfPCell totalAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
-	 	    	totalAdditionalCostCell.setBorder(0);
-	 	    	totalAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 		 	    costTable.addCell(totalAdditionalCostCell);
-	 	    }
-	 	    
-	 	    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
-	 	    int subtotal = libraryConstructionTotalCost + sequenceRunsTotalCost + additionalTotalCost;
-	 	    //costTable.addCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
-	 	   PdfPCell subtotalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
-	 	  subtotalCostCell.setBorder(0);
-	 	 subtotalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-		 	    costTable.addCell(subtotalCostCell);
-	 	   
-		 	    
-		 	    
-		 	
-	 	    document.add(costTable);
-	 	    */
-	 	    
-	 	    
-	 	    
+	 	    Integer totalFinalCost = addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
 	 	    
 	 	    document.close();
 	 	    
@@ -2243,6 +2173,45 @@ public class JobController extends WaspController {
 		return new Integer(cumulativeAdditionalCost);
 	}
 	
+	
+	private void addCommentsAsTable(Document document, Job job, List<String> commentsList) throws DocumentException{
+
+		if(commentsList.size()==0){
+			return;
+		}
+		
+		Paragraph commentsTitle = new Paragraph();
+		commentsTitle.setSpacingBefore(5);
+		commentsTitle.setSpacingAfter(5);		
+		commentsTitle.add(new Chunk("Comments:", NORMAL_BOLD));
+		document.add(commentsTitle);
+		
+		PdfPTable commentsTable = new PdfPTable(2);
+		commentsTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+		commentsTable.setWidths(new float[]{0.3f, 5f});
+		PdfPCell commentsNo = new PdfPCell(new Phrase("No.", NORMAL_BOLD));
+		commentsNo.setHorizontalAlignment(Element.ALIGN_CENTER);
+		commentsTable.addCell(commentsNo);
+		PdfPCell commentHeader = new PdfPCell(new Phrase("Comments", NORMAL_BOLD));
+		commentHeader.setHorizontalAlignment(Element.ALIGN_CENTER);
+		commentsTable.addCell(commentHeader);
+		
+		int commentsCounter = 1;
+		for(int i = 0; i < commentsList.size(); i++){
+			PdfPCell numberCell = new PdfPCell(new Phrase(""+commentsCounter, NORMAL));
+			numberCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	 		commentsTable.addCell(numberCell);
+	 		
+			commentsTable.addCell(new Phrase(commentsList.get(i), NORMAL));
+			commentsCounter++;			
+		}
+		
+		document.add(commentsTable);		
+		
+	}
+	
+	
+	
 	private Integer addCostSummaryTable(Document document, Job job, List<String>costReasonList, Map<String, Integer>costReasonPriceMap, List<String>discountReasonList, Map<String, Integer>discountReasonAbsolutePriceMap, Map<String, Integer> discountReasonPercentMap) throws DocumentException{
 	
 		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
@@ -2273,39 +2242,7 @@ public class JobController extends WaspController {
  		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
  	 	    costTable.addCell(secondCell); 	 
  	    }
- /*	   
- 	    costTable.addCell(new Phrase("Total Library Costs", NORMAL_BOLD));
- 	   
- 	    PdfPCell totalLibCostCell = new PdfPCell(new Phrase(currencyIcon + " " + libraryConstructionTotalCost, NORMAL_BOLD));
- 	   totalLibCostCell.setBorder(0);
- 	   totalLibCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
- 	    costTable.addCell(totalLibCostCell);
- 	    
- 	    costTable.addCell(new Phrase("Total Sequencing Costs", NORMAL_BOLD));
- 	    //costTable.addCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
- 	   PdfPCell totalSeqCostCell = new PdfPCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
- 	  totalSeqCostCell.setBorder(0);
- 	 totalSeqCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
- 	    costTable.addCell(totalSeqCostCell);
- 	  
- 	    
- 	    if(additionalTotalCost>0){
- 	    	costTable.addCell(new Phrase("Total Additional Costs", NORMAL_BOLD));
- 	    	//costTable.addCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
- 	    	PdfPCell totalAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
- 	    	totalAdditionalCostCell.setBorder(0);
- 	    	totalAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
- 		 	    costTable.addCell(totalAdditionalCostCell);
- 	    }
- 	    
- 	    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
- 	    int subtotal = libraryConstructionTotalCost + sequenceRunsTotalCost + additionalTotalCost;
- 	    //costTable.addCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
- 	   PdfPCell subtotalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
- 	  subtotalCostCell.setBorder(0);
- 	 subtotalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(subtotalCostCell);
- */
+ 
  	    if(discountReasonList.size()>0){
  		    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
  	 	   
