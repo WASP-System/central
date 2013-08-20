@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -123,6 +124,7 @@ import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
 
+import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -1329,18 +1331,32 @@ public class JobController extends WaspController {
 		return "job/home/fileUploadManager";
 	}
 	
+	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public String jobSaveQuote(@PathVariable("jobId") Integer jobId,
+			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
+			  ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+
+		previewOrSaveQuote(jobId, submittedObjectIdList, m, request, response, "save");
+		return "This is the return statement. It should be displayed in the cost tab.";
+	}
 	
+	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
+			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
+			  ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
+
+		previewOrSaveQuote(jobId, submittedObjectIdList, m, request, response, "preview");
+	}
 	
 	public static final Font BIG_BOLD =  new Font(FontFamily.TIMES_ROMAN, 13, Font.BOLD );
 	public static final Font NORMAL =  new Font(FontFamily.TIMES_ROMAN, 11 );
 	public static final Font NORMAL_BOLD =  new Font(FontFamily.TIMES_ROMAN, 11, Font.BOLD );
 	public static final Font TINY_BOLD =  new Font(FontFamily.TIMES_ROMAN, 8, Font.BOLD );
 	
-	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public void jobPreviewQuote(@PathVariable("jobId") Integer jobId,
-			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
-			  ModelMap m, HttpServletResponse response) throws SampleTypeException {
+	private void previewOrSaveQuote(Integer jobId, List<Integer> submittedObjectIdList, ModelMap m, 
+			  HttpServletRequest request, HttpServletResponse response, String previewOrSave) throws SampleTypeException {
 		
 		String headerHtml = "<html><body><h2 style='color:red;font-weight:bold;'>Errors Detected</h2>";
 		String errorMessage = "";
@@ -1741,11 +1757,11 @@ public class JobController extends WaspController {
 	 	    	costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
 	 	    } 
 	 	    Integer totalFinalCost = addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
-	 	    
+
 	 	    document.close();
 	 	    
 		}catch(Exception e){
-			errorMessage = "Major problems encountered while previewing pdf file";
+			errorMessage = "Major problems encountered while creating file";
 			logger.warn(errorMessage);
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(errorMessage);
@@ -2208,9 +2224,7 @@ public class JobController extends WaspController {
 		
 		document.add(commentsTable);		
 		
-	}
-	
-	
+	}	
 	
 	private Integer addCostSummaryTable(Document document, Job job, List<String>costReasonList, Map<String, Integer>costReasonPriceMap, List<String>discountReasonList, Map<String, Integer>discountReasonAbsolutePriceMap, Map<String, Integer> discountReasonPercentMap) throws DocumentException{
 	
@@ -2316,6 +2330,7 @@ public class JobController extends WaspController {
 		
 		return new Integer(totalFinalCost);
 	}
+	
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCreateQuotePage(@PathVariable("jobId") Integer jobId,

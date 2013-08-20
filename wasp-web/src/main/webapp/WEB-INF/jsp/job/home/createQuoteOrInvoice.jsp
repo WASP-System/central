@@ -81,7 +81,7 @@
 <a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
 <a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
 <a class="button" href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote2222</a>
-<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
+<a class="button" href="javascript:void(0);" onclick='postFormWithAjax("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
 <br /><br /><br />
 
 <c:set value="${fn:length(submittedMacromoleculeList)}" var="numberOfLibrariesThatShouldBeConstructed" />
