@@ -79,7 +79,7 @@ Ext.onReady(function(){
 	barWidth = treeviewWidth * .5;
 	barHeight = 20;
 	
-	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
+	d3.json("/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 		vis = d3.select("#treeview").append("svg:svg")
 		.attr("width", treeviewWidth)
 		.attr("height", treeviewHeight)
@@ -335,7 +335,7 @@ function click(d) {
 			var createPortal = function(){
 				var summaryPanel;
 				if (result.statuslist.length > 0){
-					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist });
+					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist, tabPanel: tabpanel });
 				} else{
 					summaryPanel = {
 						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
