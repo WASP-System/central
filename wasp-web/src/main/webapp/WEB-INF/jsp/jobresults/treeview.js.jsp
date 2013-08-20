@@ -4,21 +4,27 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<!--script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script-->
-<!--script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script-->
-<!--script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script-->
+<!--script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script-->
+<script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
+<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-debug.js"></script-->
 
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
-<!--link rel="stylesheet" type="text/css"	href="/wasp/scripts/extjs/resources/css/ext-all.css" /-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-debug.js"></script-->
 
-<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script-->
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/examples.js"></script-->
 
+<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-debug.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
+
+<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-debug.css" /-->
 
 
 <script type="text/javascript">
+
+//$.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js", function() {
+//    $.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune-debug.js");
+//});
+
 var margin = {top: 20, right: 30, bottom: 20, left: 20};
 var treeviewWidth,
 	treeviewHeight,
@@ -79,7 +85,7 @@ Ext.onReady(function(){
 	barWidth = treeviewWidth * .5;
 	barHeight = 20;
 	
-	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
+	d3.json("/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 		vis = d3.select("#treeview").append("svg:svg")
 		.attr("width", treeviewWidth)
 		.attr("height", treeviewHeight)
