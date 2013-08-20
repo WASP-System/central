@@ -5,7 +5,7 @@ Ext.define('Ext.wasp.GridPortlet', {
         'Ext.data.ArrayStore'
     ],
     tabPanel : null,
-    myData: [],
+    statusData: [],
     height: 300,
     /**
      * Custom function used for column renderer
@@ -24,7 +24,7 @@ Ext.define('Ext.wasp.GridPortlet', {
         return val;
     },
     
-    clickBehaviour : function(grid, td, cellIndex, record, tr, rowIndex, e){
+    onCellClick : function(grid, td, cellIndex, record, tr, rowIndex, e){
     	if (this.tabPanel != null){
     		var tabId = grid.getStore().getAt(rowIndex).get("tabId");
     		if (tabId != null)
@@ -42,7 +42,7 @@ Ext.define('Ext.wasp.GridPortlet', {
                {name: 'status'},
                {name: 'tabId'}
             ],
-            data: this.myData
+            data: this.statusData
         });
 
         Ext.apply(this, {
@@ -54,7 +54,7 @@ Ext.define('Ext.wasp.GridPortlet', {
             forceFit: true,
             selModel: {  allowDeselect: true }, 
             listeners: {
-            	'cellclick' : this.clickBehaviour
+            	'cellclick' : this.onCellClick
             },
             columns: [{
                 id       :'plugins',

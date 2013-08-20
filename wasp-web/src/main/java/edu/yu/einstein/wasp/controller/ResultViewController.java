@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -251,17 +252,20 @@ public class ResultViewController extends WaspController {
 					logger.warn("No filegroup found with id = " + id);
 				} else {
 					int i = 0;
-					Integer completedCount = 0;
+					Integer tabCount = 0;
 					for (FileDataTabViewing plugin: plugins){
 						Status status = plugin.getStatus(fg);
-						PanelTab panelTab = plugin.getViewPanelTab(fg);
-						statusArray[i][0] = panelTab.getName();
-					    statusArray[i][1] = panelTab.getDescription();
+						Software software = plugin.getSoftware();
+						statusArray[i][0] = software.getName();
+					    statusArray[i][1] = software.getDescription();
 					    statusArray[i][2] = status.toString();
-					    if (status.equals(Status.COMPLETED) && !panelTab.getPanels().isEmpty()){
-					    	String tabId = "tab-" + (completedCount++).toString();
-					    	pluginPanelTabs.put(tabId, panelTab);
-					    	statusArray[i][3] = tabId;
+					    if (status.equals(Status.COMPLETED)){
+					    	PanelTab panelTab = plugin.getViewPanelTab(fg);
+					    	if (!panelTab.getPanels().isEmpty()){
+						    	String tabId = "tab-" + (tabCount++).toString();
+						    	pluginPanelTabs.put(tabId, panelTab);
+						    	statusArray[i][3] = tabId;
+					    	}
 					    }
 					    i++;
 					}

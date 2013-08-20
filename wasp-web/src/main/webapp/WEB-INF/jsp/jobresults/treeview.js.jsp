@@ -335,7 +335,7 @@ function click(d) {
 			var createPortal = function(){
 				var summaryPanel;
 				if (result.statuslist.length > 0){
-					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist, tabPanel: tabpanel });
+					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
 				} else{
 					summaryPanel = {
 						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
