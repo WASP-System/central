@@ -179,6 +179,16 @@
 </table>
 <sup>*</sup><span style="font-size:small;color:red">Please select any particular discount/credit reason only once</span>
 <br /><br />
+<span style='font-weight:bold'>5. Additional Comments: </span><br /><br />
+<table  class="data" style="margin: 0px 0px">
+	<tr class="FormData">
+		<td class="label-centered" style="background-color:#FAF2D6"><span style="font-style:italic">Please Keep Comments Brief</span></td>		
+	</tr>
+	<tr>
+		<td><textarea id="comment" name="comment" cols="50" rows="3"></textarea><br /></td>
+	</tr>
+</table>
+<br /><br />
 </div>
 </div>
 </form>

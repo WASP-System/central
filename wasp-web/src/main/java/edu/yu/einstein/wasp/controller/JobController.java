@@ -1614,6 +1614,7 @@ public class JobController extends WaspController {
 		int numberDiscountsMissingSomething = 0;
 		int numberDiscountsComplete = 0;
 
+		int cumulativePercentDiscount = 0;
  	    List<String> discountReasonList = new ArrayList<String>();
  	    Map<String, Integer> discountReasonAbsolutePriceMap = new HashMap<String, Integer>();
  	    Map<String, Integer> discountReasonPercentMap = new HashMap<String, Integer>();
@@ -1645,15 +1646,19 @@ public class JobController extends WaspController {
 			try{
 				if(!"".equals(discountValueArray[i].trim())){
 					discountValue = new Integer(discountValueArray[i].trim());
-					if("%".equals(discountTypeArray[i].trim()) && discountValue >100){
-						errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove";
-					}
+					if("%".equals(discountTypeArray[i].trim())){
+						cumulativePercentDiscount += discountValue;
+						if(discountValue >100){
+							errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section cannot be greater than 100% - please modify or remove";
+						}
+					}										
 				}
 			}catch(Exception e){errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section is missing information - enter a whole number for discount; no fractions allowed (example: enter 25 for 25%)";}
 			
 			if(discountReasonList.contains(discountReasonArray[i].trim())){
 				errorMessage += "<br />Row "+(i+1) + " in Discount/Credit section: Any particular reason for a Discount/Credit may be used only once. ";
 			}
+			
 			if(!"".equals(errorMessage)){
 				numberDiscountsMissingSomething++;
 				discountsCompletelyEmpty[i]=false;
@@ -1674,7 +1679,20 @@ public class JobController extends WaspController {
 				}
 			}
 		}
-		
+ 		if(cumulativePercentDiscount>100){
+			errorMessage += "<br />Cumulative Discount Percent may not exceed 100%";
+		}
+ 		
+ 		//additionl comments
+ 		param = "comment";
+		String comment = request.getParameter(param);		
+ 		if(comment==null){
+ 			comment = "";
+ 		}
+ 		else{
+ 			comment = comment.trim();
+ 		}
+ 		
  		//if the user input contains errors, inform user and get out of here.
 		if(!"".equals(errorMessage)){
 			logger.warn(errorMessage);
@@ -1714,7 +1732,7 @@ public class JobController extends WaspController {
 	 	    String title = "Epigenomics Shared Facility";
 	 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
 	 	    addressTheLetterToSubmitterAndPI(document, job);
-	 	    addReasonForLetter(document, "Estimated costs for Job ID " + job.getId());
+	 	    addNoteLine(document, "Re.", "Estimated costs for Job ID " + job.getId());
 	 	    document.add(new LineSeparator());
 	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
 	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
@@ -1724,20 +1742,25 @@ public class JobController extends WaspController {
 	 	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, job, machineList, readLengthList, readTypeList, numLanesList, pricePerLaneList);
 	 	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, job, additionalCostReasonList, additionalCostUnitsList, additionalCostPricePerUnitList);
 	 	    
+	 	   if(!"".equalsIgnoreCase(comment)){
+	 	    	addNoteLine(document, "Comment", comment);
+	 	    }
+	 	    
 	 	    List<String> costReasonList = new ArrayList<String>();
 	 	    Map<String, Integer> costReasonPriceMap = new HashMap<String, Integer>();
 	 	    costReasonList.add("Total Library Costs");
 	 	    costReasonPriceMap.put("Total Library Costs",libraryConstructionTotalCost);
 	 	    costReasonList.add("Total Sequencing Costs");
 	 	    costReasonPriceMap.put("Total Sequencing Costs",sequenceRunsTotalCost);
-	 	    costReasonList.add("Total Additional Costs");
-	 	    costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
-	 	     
+	 	    if(additionalTotalCost>0){
+	 	    	costReasonList.add("Total Additional Costs");
+	 	    	costReasonPriceMap.put("Total Additional Costs",additionalTotalCost);
+	 	    } 
+	 	    addCostSummaryTable(document, job, costReasonList, costReasonPriceMap, discountReasonList, discountReasonAbsolutePriceMap, discountReasonPercentMap);
 	 	    
 	 	    
+	 	    /*
 	 	    
-	 	    
-	 	    //addCostSummaryTable
 	 		Paragraph anticipatedCosts = new Paragraph();
 	 		anticipatedCosts.setSpacingBefore(15);
 	 		anticipatedCosts.setSpacingAfter(5);
@@ -1784,7 +1807,7 @@ public class JobController extends WaspController {
 		 	    
 		 	
 	 	    document.add(costTable);
-	 	    
+	 	    */
 	 	    
 	 	    
 	 	    
@@ -1913,12 +1936,12 @@ public class JobController extends WaspController {
 		}
 	}
 	
-	private void addReasonForLetter(Document document, String reason) throws DocumentException{
+	private void addNoteLine(Document document, String reason, String theReason) throws DocumentException{
  	    Paragraph reasonForDocument = new Paragraph();
  	    reasonForDocument.setSpacingBefore(15);
  	    reasonForDocument.setSpacingAfter(15);
- 	    reasonForDocument.add(new Chunk("Re: ", NORMAL_BOLD));
- 	    reasonForDocument.add(new Phrase(reason, NORMAL));
+ 	    reasonForDocument.add(new Chunk(reason+": ", NORMAL_BOLD));
+ 	    reasonForDocument.add(new Phrase(theReason, NORMAL));
  	    document.add(reasonForDocument);
 	}
 	
@@ -2220,6 +2243,142 @@ public class JobController extends WaspController {
 		return new Integer(cumulativeAdditionalCost);
 	}
 	
+	private Integer addCostSummaryTable(Document document, Job job, List<String>costReasonList, Map<String, Integer>costReasonPriceMap, List<String>discountReasonList, Map<String, Integer>discountReasonAbsolutePriceMap, Map<String, Integer> discountReasonPercentMap) throws DocumentException{
+	
+		String currencyIcon = Currency.getInstance(Locale.getDefault()).getSymbol();
+
+		int totalFinalCost = 0;
+		int totalCosts = 0;
+		int totalDiscounts = 0;
+		
+ 		Paragraph anticipatedCosts = new Paragraph();
+ 		anticipatedCosts.setSpacingBefore(15);
+ 		anticipatedCosts.setSpacingAfter(5);
+ 		anticipatedCosts.add(new Chunk("Cost Summary:", NORMAL_BOLD));
+ 	 	document.add(anticipatedCosts);
+ 		
+ 	    PdfPTable costTable = new PdfPTable(2);
+ 	    costTable.getDefaultCell().setBorder(0);
+ 	    costTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+ 	    costTable.setWidthPercentage(60);
+ 	   
+ 	    for(String costReason : costReasonList){
+ 	    	
+ 	    	costTable.addCell(new Phrase(costReason, NORMAL_BOLD));
+ 	    	
+ 	    	int thisCost = costReasonPriceMap.get(costReason).intValue();
+ 	    	totalCosts += thisCost;
+ 		    PdfPCell secondCell = new PdfPCell(new Phrase(currencyIcon + " " + thisCost, NORMAL_BOLD));
+ 		    secondCell.setBorder(0);
+ 		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 	 	    costTable.addCell(secondCell); 	 
+ 	    }
+ /*	   
+ 	    costTable.addCell(new Phrase("Total Library Costs", NORMAL_BOLD));
+ 	   
+ 	    PdfPCell totalLibCostCell = new PdfPCell(new Phrase(currencyIcon + " " + libraryConstructionTotalCost, NORMAL_BOLD));
+ 	   totalLibCostCell.setBorder(0);
+ 	   totalLibCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 	    costTable.addCell(totalLibCostCell);
+ 	    
+ 	    costTable.addCell(new Phrase("Total Sequencing Costs", NORMAL_BOLD));
+ 	    //costTable.addCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
+ 	   PdfPCell totalSeqCostCell = new PdfPCell(new Phrase(currencyIcon + " " + sequenceRunsTotalCost, NORMAL_BOLD));
+ 	  totalSeqCostCell.setBorder(0);
+ 	 totalSeqCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 	    costTable.addCell(totalSeqCostCell);
+ 	  
+ 	    
+ 	    if(additionalTotalCost>0){
+ 	    	costTable.addCell(new Phrase("Total Additional Costs", NORMAL_BOLD));
+ 	    	//costTable.addCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
+ 	    	PdfPCell totalAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + additionalTotalCost, NORMAL_BOLD));
+ 	    	totalAdditionalCostCell.setBorder(0);
+ 	    	totalAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 		 	    costTable.addCell(totalAdditionalCostCell);
+ 	    }
+ 	    
+ 	    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
+ 	    int subtotal = libraryConstructionTotalCost + sequenceRunsTotalCost + additionalTotalCost;
+ 	    //costTable.addCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
+ 	   PdfPCell subtotalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + subtotal, NORMAL_BOLD));
+ 	  subtotalCostCell.setBorder(0);
+ 	 subtotalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 	    costTable.addCell(subtotalCostCell);
+ */
+ 	    if(discountReasonList.size()>0){
+ 		    costTable.addCell(new Phrase("Subtotal", NORMAL_BOLD));
+ 	 	   
+ 	 	    PdfPCell subtotalCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCosts, NORMAL_BOLD));
+ 	 	    subtotalCell.setBorder(0);
+ 	 	    subtotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 	 	    costTable.addCell(subtotalCell);
+ 	 	  
+ 	 	    //blank line
+ 	 	    costTable.addCell(new Phrase(" ", NORMAL_BOLD));	 	   
+	 	    PdfPCell blankCell = new PdfPCell(new Phrase(" ", NORMAL_BOLD));
+	 	    blankCell.setBorder(0);
+	 	    blankCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 	    costTable.addCell(blankCell);
+	 	    
+	 	    //next add the discounts and get it's discountTotal
+	 	    for(String discountReason : discountReasonList){
+	 	    	
+	 	    	if(discountReasonPercentMap.containsKey(discountReason)){
+	 	    		int percentOff = discountReasonPercentMap.get(discountReason).intValue();
+	 	    		costTable.addCell(new Phrase(discountReason + " (" + percentOff + "%)", NORMAL_BOLD));
+	 	    		int thisDiscount = totalCosts * percentOff / 100;
+	 	    		totalDiscounts += thisDiscount;
+	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));
+		 		    secondCell.setBorder(0);
+		 		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+		 	 	    costTable.addCell(secondCell); 
+	 	    	}
+	 	    	else if(discountReasonAbsolutePriceMap.containsKey(discountReason)){
+	 	    		int thisDiscount = discountReasonAbsolutePriceMap.get(discountReason).intValue();
+	 	    		costTable.addCell(new Phrase(discountReason, NORMAL_BOLD));
+	 	    		totalDiscounts += thisDiscount;
+	 	    		PdfPCell secondCell = new PdfPCell(new Phrase("("+currencyIcon + " " + thisDiscount+")", NORMAL_BOLD));
+	 	    		secondCell.setBorder(0);
+	 	    		secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	 	    		costTable.addCell(secondCell); 	
+	 	    	}
+	 	    } 	 
+ 	    }
+ 	    //blank line
+ 	    costTable.addCell(new Phrase(" ", NORMAL_BOLD));	 	   
+ 	    PdfPCell blankCell = new PdfPCell(new Phrase(" ", NORMAL_BOLD));
+	    blankCell.setBorder(0);
+	    blankCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+	    costTable.addCell(blankCell);
+	    
+    	totalFinalCost = totalCosts - totalDiscounts;
+    	if(totalFinalCost < 0){
+    		totalFinalCost = 0;
+    	}
+    	
+    	PdfPCell totalFinalCostWordsCell = new PdfPCell(new Phrase("Total Cost", NORMAL_BOLD));
+    	totalFinalCostWordsCell.setBorderWidth(2f);
+    	totalFinalCostWordsCell.setBorderColorBottom(BaseColor.BLACK);
+    	totalFinalCostWordsCell.setBorderColorLeft(BaseColor.BLACK);
+    	totalFinalCostWordsCell.setBorderColorTop(BaseColor.BLACK);
+    	totalFinalCostWordsCell.setBorderColorRight(BaseColor.WHITE);
+    	totalFinalCostWordsCell.setHorizontalAlignment(Element.ALIGN_LEFT);	 		
+ 	    costTable.addCell(totalFinalCostWordsCell);
+ 	    
+ 	    PdfPCell totalFinalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + totalFinalCost, NORMAL_BOLD));
+ 	    totalFinalCostCell.setBorderWidth(2f);
+ 	    totalFinalCostWordsCell.setBorderColorBottom(BaseColor.BLACK);
+ 	    totalFinalCostWordsCell.setBorderColorRight(BaseColor.BLACK);
+ 	    totalFinalCostWordsCell.setBorderColorLeft(BaseColor.WHITE);
+ 	    totalFinalCostWordsCell.setBorderColorTop(BaseColor.BLACK);
+ 	    totalFinalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
+ 	    costTable.addCell(totalFinalCostCell);	 	    
+	 	    
+	 	document.add(costTable);		
+		
+		return new Integer(totalFinalCost);
+	}
 	@RequestMapping(value="/{jobId}/createQuote", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobCreateQuotePage(@PathVariable("jobId") Integer jobId,
