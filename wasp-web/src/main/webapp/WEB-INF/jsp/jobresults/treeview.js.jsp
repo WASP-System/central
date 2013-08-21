@@ -6,23 +6,23 @@
 
 <!--script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script-->
 <script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script>
-<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-debug.js"></script-->
+
+<script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script>
 
 <!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
-<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-debug.js"></script-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js"></script-->
 
 
-<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-debug.css" />
+<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
 
-<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-debug.css" /-->
+<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-wasp.css" /-->
 
 
 <script type="text/javascript">
 
 //$.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js", function() {
-//    $.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune-debug.js");
+//    $.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js");
 //});
 
 var margin = {top: 20, right: 30, bottom: 20, left: 20};
