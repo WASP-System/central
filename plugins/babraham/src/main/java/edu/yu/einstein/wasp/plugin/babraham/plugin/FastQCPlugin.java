@@ -14,6 +14,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
@@ -24,6 +25,7 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -41,6 +43,10 @@ public class FastQCPlugin extends BabrahamPluginBase{
 	void setJobExplorer(JobExplorer jobExplorer){
 		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
 	}
+	
+	@Autowired
+	@Qualifier("fastqc")
+	private Software fastqc;
 
 	private static final long serialVersionUID = -4008147590778610484L;
 
@@ -142,6 +148,12 @@ public class FastQCPlugin extends BabrahamPluginBase{
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
 		return babrahamService.getFastQCDataToDisplay(fileGroup.getId());
+	}
+
+
+	@Override
+	public Software getSoftware() {
+		return fastqc;
 	}
 
 }

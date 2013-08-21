@@ -16,6 +16,7 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
@@ -26,6 +27,7 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
@@ -46,6 +48,10 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 	void setJobExplorer(JobExplorer jobExplorer){
 		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
 	}
+	
+	@Autowired
+	@Qualifier("fastqscreen")
+	private Software fastqscreen;
 
 	public FastQScreenPlugin(String pluginName, Properties waspSiteProperties, MessageChannel channel) {
 		super(pluginName, waspSiteProperties, channel);
@@ -127,6 +133,12 @@ public class FastQScreenPlugin extends BabrahamPluginBase{
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
 		return babrahamService.getFastQScreenDataToDisplay(fileGroup.getId());
+	}
+
+
+	@Override
+	public Software getSoftware() {
+		return fastqscreen;
 	}
 
 	

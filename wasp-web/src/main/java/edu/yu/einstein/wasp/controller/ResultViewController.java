@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -245,17 +246,29 @@ public class ResultViewController extends WaspController {
 			} else if(type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
 				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
-				String[][] statusArray = new String[plugins.size()][3];
+				String[][] statusArray = new String[plugins.size()][4];
 				Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
-				int i = 0;
-				for (FileDataTabViewing plugin: plugins){
-					Status status = plugin.getStatus(fg);
-					PanelTab panelTab = plugin.getViewPanelTab(fg);
-					statusArray[i][0] = panelTab.getName();
-				    statusArray[i][1] = panelTab.getDescription();
-				    statusArray[i++][2] = status.toString();
-				    if (status.equals(Status.COMPLETED))
-				    	pluginPanelTabs.put(plugin.getPluginName(), panelTab);
+				if (fg.getId() == null){
+					logger.warn("No filegroup found with id = " + id);
+				} else {
+					int i = 0;
+					Integer tabCount = 0;
+					for (FileDataTabViewing plugin: plugins){
+						Status status = plugin.getStatus(fg);
+						Software software = plugin.getSoftware();
+						statusArray[i][0] = software.getName();
+					    statusArray[i][1] = software.getDescription();
+					    statusArray[i][2] = status.toString();
+					    if (status.equals(Status.COMPLETED)){
+					    	PanelTab panelTab = plugin.getViewPanelTab(fg);
+					    	if (!panelTab.getPanels().isEmpty()){
+						    	String tabId = "tab-" + (tabCount++).toString();
+						    	pluginPanelTabs.put(tabId, panelTab);
+						    	statusArray[i][3] = tabId;
+					    	}
+					    }
+					    i++;
+					}
 				}
 				jsDetailsTabs.put("statuslist", statusArray);
 				jsDetailsTabs.put("paneltablist",pluginPanelTabs);
