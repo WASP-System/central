@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -2907,17 +2908,15 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  public String getPlatformunitViewLink(Sample platformunit){
 			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
 			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
-			  ResourceCategory rc = resourceService.getAssignedResourceCategory(platformunit);
-			  String area = null;
-			  if (rc != null)
-				  area = rc.getIName();
-			  List<SequencingViewProviding> plugins = pluginRegistry.getPluginsHandlingArea(area, SequencingViewProviding.class);
-			  // we expect one (and ONLY one) plugin to handle the area otherwise we do not know which one to show so programming defensively:
-			  if (plugins.size() == 0)
-				  throw new PluginException("No plugins found for area=" + area + " with class=SequencingViewProviding");
-			  if (plugins.size() > 1)
-				  throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
-			  return plugins.get(0).getShowPlatformUnitViewLink(platformunit.getId());
+			  Set<SequencingViewProviding> plugins = new LinkedHashSet<>(); // use set so duplicates not added
+			  for (ResourceCategory rc : resourceService.getAssignedResourceCategory(platformunit))
+				  plugins.addAll(pluginRegistry.getPluginsHandlingArea(rc.getIName(), SequencingViewProviding.class));
+			  // we expect one (and ONLY one) plugin to handle the platformunit otherwise we do not know which one to show so programming defensively:
+			 if (plugins.size() > 1)
+				  throw new PluginException("More than one SequencingViewProviding plugin found");
+			  for (SequencingViewProviding plugin : plugins)
+				  return plugin.getShowPlatformUnitViewLink(platformunit.getId()); // should only be one so this is ok
+			  throw new PluginException("No SequencingViewProviding plugins found");
 		  }
 
 		@Override

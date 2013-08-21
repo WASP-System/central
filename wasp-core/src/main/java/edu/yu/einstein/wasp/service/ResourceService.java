@@ -1,6 +1,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.yu.einstein.wasp.dao.ResourceBarcodeDao;
 import edu.yu.einstein.wasp.dao.ResourceCategoryDao;
@@ -29,18 +30,18 @@ public interface ResourceService extends WaspService {
 	public ResourceTypeDao getResourceTypeDao();
 
 	/**
-	 * Get a unique resource category associated with the given job. If none resolved, null is returned.
+	 * Get a resource categories associated with the given job. If none resolved, null is returned.
 	 * @param job
 	 * @return
 	 */
-	public ResourceCategory getAssignedResourceCategory(Job job);
+	public  Set<ResourceCategory> getAssignedResourceCategory(Job job);
 
 	/**
-	 * Get a unique resource category associated with the given platform unit. If none resolved, null is returned.
+	 * Get a resource categories associated with the given platform unit. If none resolved, null is returned.
 	 * @param platformUnit
 	 * @return
 	 */
-	public ResourceCategory getAssignedResourceCategory(Sample platformUnit);
+	public  Set<ResourceCategory> getAssignedResourceCategory(Sample platformUnit);
 	
 	/**
 	 * Get select options for resource category

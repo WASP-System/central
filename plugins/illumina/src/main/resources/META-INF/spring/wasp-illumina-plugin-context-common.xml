@@ -33,14 +33,14 @@
 	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.#{hiseqPluginArea}" />
+	<int:channel id="wasp.channel.plugin.waspIlluminaHiSeq" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.#{hiseqPluginArea}" ref="waspIlluminaHiseqPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaHiSeq" ref="waspIlluminaHiseqPlugin" method="process" />
 	
 	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
 		<constructor-arg name="pluginName" ref="hiseqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.#{hiseqPluginArea}" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaHiSeq" />
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />
