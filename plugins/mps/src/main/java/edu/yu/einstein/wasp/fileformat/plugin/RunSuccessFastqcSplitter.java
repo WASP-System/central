@@ -65,12 +65,12 @@ public class RunSuccessFastqcSplitter extends AbstractMessageSplitter {
 	protected List<Message<WaspStatus>> splitMessage(Message<?> message) {
 		List<Message<WaspStatus>> outputMessages = new ArrayList<>();
 		if (!RunStatusMessageTemplate.isMessageOfCorrectType(message)){
-			logger.warn("Message is not of the correct type (a Run message). Check filter and imput channel are correct");
+			logger.warn("Message is not of the correct type (a Run message). Check filter and input channel are correct");
 			return outputMessages; // empty list
 		}
 		RunStatusMessageTemplate runStatusMessageTemplate = new RunStatusMessageTemplate((Message<WaspStatus>) message);
 		if (!runStatusMessageTemplate.getStatus().equals(WaspStatus.COMPLETED) || !runStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){
-			logger.warn("Message has the wrong status or payload value. Check filter and imput channel are correct");
+			logger.warn("Message has the wrong status or payload value. Check filter and input channel are correct");
 			return outputMessages; // empty list
 		}
 		

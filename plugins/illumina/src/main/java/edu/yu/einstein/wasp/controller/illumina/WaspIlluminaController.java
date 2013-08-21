@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
 import edu.yu.einstein.wasp.model.Resource;
@@ -460,7 +461,7 @@ public class WaspIlluminaController extends WaspController {
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
 			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
-		} catch(MessageHandlingException e2){
+		} catch(WaspMessageBuildingException e2){
 			logger.warn("Caught unexpected " + e2.getClass().getName() + " exception: " + e2.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runInitialize.error"); 
 			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";

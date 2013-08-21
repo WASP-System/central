@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
+import org.springframework.integration.MessagingException;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.Hyperlink;
@@ -75,27 +76,12 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	public Message<String> bcl2fastq(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
 			return bcl2fastqHelp();
-
-		Map<String, String> jobParameters = new HashMap<String, String>();
-		
+		Run run = getRunFromMessage(m);
 		try {
-			Run run = getRunFromMessage(m);
-			if (run == null)
-				return MessageBuilder.withPayload("Unable to determine run from message: " + m.getPayload().toString()).build();
-			
-			jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
-			jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
-			
-			String or = getOverride(m);
-			if (or != null)
-				jobParameters.put("override", or);
-			
-			logger.debug("Sending launch message to run " + FLOW_NAME + " on jobId: " + run.getId());
-			runService.launchBatchJob(FLOW_NAME, jobParameters);
-			
+			runService.initiateRun(run);
 			return (Message<String>) MessageBuilder.withPayload("Initiating Illumina pipeline on run " + run.getName()).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message around jobParameters: " + jobParameters.toString());
+			logger.warn("unable to build message for run " + run.getId());
 			return MessageBuilder.withPayload("Unable to launch bcl2qseq").build();
 		}
 	}
