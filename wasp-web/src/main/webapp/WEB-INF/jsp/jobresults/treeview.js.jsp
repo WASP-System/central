@@ -4,21 +4,27 @@
 
 <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
 
-<!--script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script-->
-<!--script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script-->
-<!--script type="text/javascript" src="http://code.highcharts.com/modules/exporting.js"></script-->
+<!--script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js"></script-->
+<script type="text/javascript" src="/wasp/scripts/extjs/ext-all.js"></script>
 
-<!--script type="text/javascript" src="/wasp/scripts/extjs/ext-all-dev.js"></script-->
-<!--link rel="stylesheet" type="text/css"	href="/wasp/scripts/extjs/resources/css/ext-all.css" /-->
+<script type="text/javascript" src="/wasp/scripts/extjs/ext-theme-neptune-wasp.js"></script>
 
-<script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script>
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/options-toolbar.js"></script-->
-<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/examples.js"></script-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/examples/shared/include-ext.js"></script-->
+<!--script type="text/javascript" src="/wasp/scripts/extjs/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js"></script-->
 
+
+<link rel="stylesheet" type="text/css" href="/wasp/css/ext-theme-neptune-all-wasp.css" />
 <link rel="stylesheet" type="text/css" href="/wasp/css/portal.css" />
+
+<!--link rel="stylesheet" type="text/css" href="/wasp/scripts/extjs/resources/ext-theme-neptune/ext-theme-neptune-all-wasp.css" /-->
 
 
 <script type="text/javascript">
+
+//$.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/ext-all-debug.js", function() {
+//    $.getScript("http://cdn.sencha.com/ext/gpl/4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune-wasp.js");
+//});
+
 var margin = {top: 20, right: 30, bottom: 20, left: 20};
 var treeviewWidth,
 	treeviewHeight,
@@ -79,7 +85,7 @@ Ext.onReady(function(){
 	barWidth = treeviewWidth * .5;
 	barHeight = 20;
 	
-	d3.json("http://localhost:8080/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
+	d3.json("/wasp/jobresults/getTreeJson.do?node="+rootstr, function(json) {	
 		vis = d3.select("#treeview").append("svg:svg")
 		.attr("width", treeviewWidth)
 		.attr("height", treeviewHeight)
@@ -335,7 +341,7 @@ function click(d) {
 			var createPortal = function(){
 				var summaryPanel;
 				if (result.statuslist.length > 0){
-					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { myData: result.statuslist });
+					summaryPanel = Ext.create('Ext.wasp.GridPortlet', { statusData: result.statuslist, tabPanel: tabpanel });
 				} else{
 					summaryPanel = {
 						html: '<div class="noPlugin">No registered plugins handle this data.</div>'
@@ -378,9 +384,8 @@ function click(d) {
 						tabTitle = item.name; //d.name+" Details";
 					}
 					
-					tabCounter++;
-
-					var tabid = 'tab-'+tabCounter;
+					
+					var tabid = index;
 					var tab = tabpanel.add({
 						xtype: 'panel',
 						id: tabid,
