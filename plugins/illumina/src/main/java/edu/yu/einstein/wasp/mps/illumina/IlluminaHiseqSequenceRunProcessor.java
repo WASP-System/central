@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.SampleException;
-import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -29,7 +27,6 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
-import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -42,12 +39,10 @@ import edu.yu.einstein.wasp.software.sequencer.SequenceRunProcessor;
  * @author calder
  * 
  */
-public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
+public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	
 	private static final long serialVersionUID = -3322619814370790116L;
-	private String softwareVersion = "1.8.2"; // hard coded as this is likely the final softwareVersion.
-	private String softwareName = "casava"; 
-
+		
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
@@ -61,6 +56,10 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	
 	@Autowired
 	private String truseqIndexedDnaArea;
+	
+	public IlluminaHiseqSequenceRunProcessor(){
+		setSoftwareVersion("0.8.2"); // this default may be overridden in wasp.site.properties
+	}
 
 	/**
 	 * Called first to set up analysis run.
@@ -308,16 +307,6 @@ public class IlluminaSequenceRunProcessor extends SequenceRunProcessor {
 	 */
 	private String getSampleSheetHeader() {
 		return "FCID,Lane,SampleID,SampleRef,Index,Description,Control,Recipe,Operator,SampleProject";
-	}
-
-	@Override
-	public String getSoftwareVersion() {
-		return softwareVersion;
-	}
-
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		this.softwareVersion = softwareVersion;
 	}
 
 }

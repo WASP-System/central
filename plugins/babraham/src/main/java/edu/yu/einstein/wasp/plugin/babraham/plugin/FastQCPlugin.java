@@ -95,22 +95,15 @@ public class FastQCPlugin extends BabrahamPluginBase{
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getBatchJobNameByArea(String batchJobType, String area){
-		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return FLOW_NAME;
-		return null;
-	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getBatchJobName(String batchJobType) {
-		return getBatchJobNameByArea(batchJobType, null);
+		if (batchJobType.equals(BatchJobTask.GENERIC))
+			return FLOW_NAME;
+		return null;
 	}
 
 	/**

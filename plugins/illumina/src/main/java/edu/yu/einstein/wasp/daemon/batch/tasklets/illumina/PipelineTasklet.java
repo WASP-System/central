@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -49,7 +49,7 @@ public class PipelineTasklet extends WaspTasklet {
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	private IlluminaHiseqSequenceRunProcessor casava;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	

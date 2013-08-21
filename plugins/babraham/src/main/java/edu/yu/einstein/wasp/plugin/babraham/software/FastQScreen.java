@@ -40,9 +40,9 @@ public class FastQScreen extends SoftwarePackage {
 	@Autowired
 	private FastqService fastqService;
 	
-	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
+	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
 	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaSequenceRunProcessor.
+	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
 	@Autowired
 	@Qualifier("casava")
 	private Software casava;
@@ -76,26 +76,9 @@ public class FastQScreen extends SoftwarePackage {
 	 * 
 	 */
 	public FastQScreen() {
-		// TODO Auto-generated constructor stub
+		setSoftwareVersion("0.4.1"); // this default may be overridden in wasp.site.properties
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public WorkUnit getFastQScreen(Integer fileGroupId) {
 		WorkUnit w = new WorkUnit();

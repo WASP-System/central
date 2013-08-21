@@ -13,22 +13,34 @@
 			<value>edu.yu.einstein.wasp.illumina</value>
 		</constructor-arg>
 	</bean>
-
+	
 	<bean id="illuminaPluginArea" class="java.lang.String">
 		<constructor-arg>
 			<value>wasp-illumina</value>
 		</constructor-arg>
 	</bean>
+
+	<bean id="hiseqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>waspIlluminaHiSeq</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="personalSeqPluginArea" class="java.lang.String">
+		<constructor-arg>
+			<value>waspIlluminaPersonalSeq</value>
+		</constructor-arg>
+	</bean>
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.wasp-illumina" />
+	<int:channel id="wasp.channel.plugin.#{hiseqPluginArea}" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.wasp-illumina" ref="wasp-illumina.WaspPluginBean" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.#{hiseqPluginArea}" ref="waspIlluminaHiseqPlugin" method="process" />
 	
-	<bean id="wasp-illumina.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaPlugin" depends-on="mps-tools">
-		<constructor-arg name="pluginName" ref="illuminaPluginArea" />
+	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
+		<constructor-arg name="pluginName" ref="hiseqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.wasp-illumina" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.#{hiseqPluginArea}" />
 		<property name="provides" >
 			<set>
 				<ref bean="casava" />
@@ -37,7 +49,7 @@
 		<property name="handles" >
 			<set>
 				<ref bean="illuminaHiSeq2000Area" />
-				<ref bean="illuminaMiSeqPersonalSequencerArea" />
+				<ref bean="illuminaHiSeq2500Area" />
 			</set>
 		</property>
 		<property name="casava" ref="casava" />

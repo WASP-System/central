@@ -34,8 +34,9 @@
 		<!-- 
 		<property name="handles" >
 			<set>
-				<ref bean="illuminaHiSeq2000Area" />
-				<ref bean="illuminaMiSeqPersonalSequencerArea" />
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
 			</set>
 		</property>
 		-->

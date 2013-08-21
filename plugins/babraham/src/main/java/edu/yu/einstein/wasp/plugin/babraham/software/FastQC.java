@@ -48,9 +48,9 @@ public class FastQC extends SoftwarePackage{
 	@Autowired
 	private MessageService messageService;
 	
-	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
+	// cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
 	// as Software and use @Qualifier to specify the casava bean. 
-	// Seems to be an issue for batch but not Web which accepts IlluminaSequenceRunProcessor.
+	// Seems to be an issue for batch but not Web which accepts IlluminaHiseqSequenceRunProcessor.
 	@Autowired
 	@Qualifier("casava")
 	private Software casava;
@@ -100,31 +100,13 @@ public class FastQC extends SoftwarePackage{
 	@Autowired
 	FileService fileService;
 	
-	
 	/**
 	 * 
 	 */
 	public FastQC() {
-		// TODO Auto-generated constructor stub
+		setSoftwareVersion("0.10.1"); // this default may be overridden in wasp.site.properties
 	}
 
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getSoftwareVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		// TODO Auto-generated method stub
-
-	}
 	
 	/**
 	 * Takes a FileGroup and returns a configured WorkUnit to run FastQC on the file group.

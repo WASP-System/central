@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -36,7 +36,7 @@ public class UpdateRunCompletedTasklet extends WaspTasklet {
 	private Run run;
 	
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	private IlluminaHiseqSequenceRunProcessor casava;
 
 	public UpdateRunCompletedTasklet() {
 		

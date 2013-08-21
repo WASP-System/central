@@ -175,10 +175,4 @@ public class BWAPlugin extends WaspPlugin implements ClientMessageI, BatchJobPro
 		return null;
 	}
 
-	@Override
-	public String getBatchJobNameByArea(String BatchJobType, String area) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

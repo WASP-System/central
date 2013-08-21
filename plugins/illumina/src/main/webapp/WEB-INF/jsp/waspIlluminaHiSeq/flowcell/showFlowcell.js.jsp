@@ -25,7 +25,7 @@ $(document).ready(function(){
 		if(id != ''){
 			$.ajax({
 				type: "POST",
-				url: "/wasp/wasp-illumina/flowcell/ajaxReadType.do",
+				url: "/wasp/waspIlluminaHiSeq/flowcell/ajaxReadType.do",
 				data: "resourceId=" + id,
 				cache: false,
 				success: function(response){

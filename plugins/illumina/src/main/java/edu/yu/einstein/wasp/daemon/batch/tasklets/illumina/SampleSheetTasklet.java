@@ -18,7 +18,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridExecutionException;
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -34,7 +34,7 @@ public class SampleSheetTasklet extends WaspTasklet {
 	private Run run;
 	
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	private IlluminaHiseqSequenceRunProcessor casava;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	

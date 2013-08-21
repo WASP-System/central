@@ -66,10 +66,4 @@ public class WaspGenericDnaSeqPlugin extends WaspPlugin implements ClientMessage
 	}
 
 
-	@Override
-	public String getBatchJobNameByArea(String BatchJobType, String area) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

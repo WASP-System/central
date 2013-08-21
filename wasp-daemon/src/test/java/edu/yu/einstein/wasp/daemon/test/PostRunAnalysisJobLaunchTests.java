@@ -223,7 +223,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			PowerMockito.when(mockSampleService.getJobOfLibraryOnCell(libraryCell)).thenReturn(job);
 			
 			BatchJobProviding plugin = new BatchJobProviding() {
-				@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 				@Override public String getBatchJobName(String BatchJobType) {return "skipTaskletJob";}
 				@Override public Set<?> getProvides() { return null;	}
 				@Override public Set<?> getHandles() { return null;	}
@@ -256,7 +255,6 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
 		final String ALIGN_JOB_NAME = "test.doAlign";
 		BatchJobProviding testPlugin = new BatchJobProviding() {
-			@Override public String getBatchJobNameByArea(String BatchJobType, String area) {return null;}
 			@Override public String getBatchJobName(String BatchJobType) {return ALIGN_JOB_NAME;}
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}

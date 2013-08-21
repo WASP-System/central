@@ -41,7 +41,7 @@ import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
+import edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
@@ -76,7 +76,7 @@ public class RegisterFilesTasklet extends WaspTasklet {
 	private GridHostResolver hostResolver;
 
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	private IlluminaHiseqSequenceRunProcessor casava;
 	
 	private GridTransportConnection transportConnection;
 	

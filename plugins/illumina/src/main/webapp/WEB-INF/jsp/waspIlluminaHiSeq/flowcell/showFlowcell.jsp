@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
  <br />
-<h1><fmt:message key="pageTitle.wasp-illumina/flowcell/showflowcell.label"/></h1>
+<h1><fmt:message key="pageTitle.waspIlluminaHiSeq/flowcell/showflowcell.label"/></h1>
  <c:out value="${runLocked}" />
 <div>
 <table class="EditTable ui-widget ui-widget-content">
@@ -20,7 +20,7 @@
 <%--permit platformUnit to be deleted only if it has no runs --%>
 <c:if test="${sequenceRuns.size()==0}">
 | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeletePU.label"/>")){location.href="<c:url value="/facility/platformunit/deletePlatformUnit.do?sampleId=${platformUnitSampleId}" />";}'><fmt:message key="platformunitShow.delete.label"/></a> 
-| <a href='<c:url value="/wasp-illumina/flowcell/${platformUnitSampleId}/run/create.do"/>'><fmt:message key="platformunitShow.addToRun.label"/></a>
+| <a href='<c:url value="/waspIlluminaHiSeq/flowcell/${platformUnitSampleId}/run/create.do"/>'><fmt:message key="platformunitShow.addToRun.label"/></a>
 </c:if>
 </td></tr>
 </table>
@@ -55,7 +55,7 @@
 <td class="value-centered-small"><c:out value='${detailMap["dateRunEnded"]}' /></td>
 <td class="value-centered-small"><c:out value='${detailMap["runStatus"]}' /></td>
 <c:if test="${runLocked == false}">
-<td class="value-centered-small"><a href='<c:url value="/wasp-illumina/run/${sequenceRun.runId}/update.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
+<td class="value-centered-small"><a href='<c:url value="/waspIlluminaHiSeq/run/${sequenceRun.runId}/update.do" />'><fmt:message key="platformunitShow.editSmall.label"/></a> | <a href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="platformunitShow.wantToDeleteRun.label"/>")){location.href="<c:url value="/run/${sequenceRun.runId}/delete.do" />";}'><fmt:message key="platformunitShow.deleteSmall.label"/></a></td>
 </c:if>
 </tr>
 </c:forEach>
@@ -118,7 +118,7 @@
 						<a href="javascript:void(0)" id="newControlAnchor_<c:out value="${idNewControlCounter}" />" onclick="toggleDisplayAddNewControlForm('show_form',<c:out value="${idNewControlCounter}" />)"><fmt:message key="showPlatformUnit.addControl.label"/></a>
 					</c:if>
 					<div id="idNewControlFormDiv_<c:out value="${idNewControlCounter}" />" style="display:none">
-						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/wasp-illumina/flowcell/addNewControlToLane.do" />" >
+						<form id="addNewControlToLaneForm_<c:out value="${idNewControlCounter}" />"  method='post' action="<c:url value="/waspIlluminaHiSeq/flowcell/addNewControlToLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellId' value='<c:out value="${cell.sampleId}" />'/>
 							<table class="data">
@@ -182,7 +182,7 @@
 						</div>	
 						
 						<div id="updatePicoFormDiv_<c:out value="${idCounter}" />" style="display:none">
-						<form id="updatePicoForm_<c:out value="${idCounter}" />"  method='post' action="<c:url value="/wasp-illumina/flowcell/updateConcInLane.do" />" >
+						<form id="updatePicoForm_<c:out value="${idCounter}" />"  method='post' action="<c:url value="/waspIlluminaHiSeq/flowcell/updateConcInLane.do" />" >
 							<input type='hidden' name='platformUnitId' value='<c:out value="${platformUnit.sampleId}" />'/>
 							<input type='hidden' name='cellLibraryId' value='<c:out value="${cellLibrary.getId()}" />'/>
 							<table class="data">

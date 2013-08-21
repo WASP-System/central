@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
  <br />
-<title><fmt:message key="pageTitle./wasp-illumina/flowcell/createUpdateRun.label"/></title>
+<title><fmt:message key="pageTitle./waspIlluminaHiSeq/flowcell/createUpdateRun.label"/></title>
 <c:choose>
 	<c:when test="${action == 'create'}">
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
@@ -126,9 +126,9 @@
    	    		<input class="fm-button" type="button" onClick="location.href='<c:url value="/resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
 			</c:if>
     		<c:if test="${run.getId() > 0}">
-    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/waspIlluminaHiSeq/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
     		</c:if>
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/wasp-illumina/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<c:url value="/waspIlluminaHiSeq/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
     	</div>
     </td></tr>
 

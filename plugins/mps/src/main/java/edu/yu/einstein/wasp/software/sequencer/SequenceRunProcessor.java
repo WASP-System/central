@@ -3,13 +3,6 @@
  */
 package edu.yu.einstein.wasp.software.sequencer;
 
-import edu.yu.einstein.wasp.grid.GridAccessException;
-import edu.yu.einstein.wasp.grid.GridExecutionException;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
-import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
-import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**

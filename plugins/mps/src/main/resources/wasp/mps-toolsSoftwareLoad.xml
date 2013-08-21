@@ -22,14 +22,14 @@
 	<bean id="picard" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
 		<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.tools.Picard</value></property>
 		<property name="name" value="Picard" />
-		<property name="area" value="#{picardArea}" />
+		<property name="area" ref="picardArea" />
 		<property name="resourceType" ref="bamProcessorResourceType" />
 	</bean>
 	
 	<bean id="samtools" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
 		<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.tools.SAMTools</value></property>
 		<property name="name" value="SAMTools" />
-		<property name="area" value="#{samtoolsArea}" />
+		<property name="area" ref="samtoolsArea" />
 		<property name="resourceType" ref="bamProcessorResourceType" />
 	</bean>
 	

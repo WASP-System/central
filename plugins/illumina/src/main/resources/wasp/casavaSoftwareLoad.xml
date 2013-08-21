@@ -18,7 +18,7 @@
   </bean>
 
   <bean id="casava" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-    <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor</value></property>
+    <property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor</value></property>
     <property name="name" value="CASAVA" />
     <property name="area" ref="casavaArea" />
     <property name="resourceType" ref="sequenceRunProcessorResourceType" />

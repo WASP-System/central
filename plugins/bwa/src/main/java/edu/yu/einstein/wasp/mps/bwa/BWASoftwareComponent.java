@@ -63,10 +63,9 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 	 * 
 	 */
 	private static final long serialVersionUID = -6631761128215948999L;
-	private String version = "0.6.2"; // hard coded as this is likely the final version.
 	
 	public BWASoftwareComponent() {
-		this.setSoftwareName("bwa");
+		setSoftwareVersion("0.6.3"); // this default may be overridden in wasp.site.properties
 	}
 	
 	public WorkUnit getAln(SampleSource libraryCell, FileGroup fg, Map<String,Object> jobParameters) {
@@ -316,17 +315,6 @@ public class BWASoftwareComponent extends ReferenceBasedAligner {
 	@Override
 	public void buildMetadata(Genome genome) throws WaspException {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String getSoftwareVersion() {
-		return version;
-	}
-
-	@Override
-	public void setSoftwareVersion(String softwareVersion) {
-		version = softwareVersion;
 		
 	}
 

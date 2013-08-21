@@ -203,7 +203,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 			// TODO: check the transactional behavior of this block when
 			// one job launch fails after successfully sending another
 			logger.debug("Getting generic flow for plugin: '" + plugin.getPluginName() + "'");
-			String flowName = plugin.getBatchJobNameByArea(BatchJobTask.GENERIC, rcIname);
+			String flowName = plugin.getBatchJobName(BatchJobTask.GENERIC);
 			if (flowName == null){
 				logger.warn("No generic flow found for plugin handling " + rcIname);
 				continue;
