@@ -300,8 +300,8 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
 			logger.debug("Sending the following launch message via channel " + MessageChannelRegistry.OUTBOUND_MESSAGE_CHANNEL + " : " + launchMessage);
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelLaunch, launchMessage);
-			if (replyMessage != null)
-				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
+			if (replyMessage == null)
+				logger.debug("testJobApproved(): Failed to receive reply message");
 
 			int repeat = 0;
 			boolean done = false;
@@ -332,7 +332,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 
 	@Override
 	public void handleMessage(Message<?> message) throws MessagingException {
-		logger.debug("Message recieved by handleMessage(): "+message.toString());
+		logger.debug("Message received by handleMessage(): "+message.toString());
 		messages.add(message);
 	}
 
