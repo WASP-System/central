@@ -71,9 +71,15 @@ function showPopupWindow(url){//not currently used, but could be useful in futur
 }
 
 //used to send contents of form via GET request and display response in modelessdialog 
-function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){
+function sendFormViaGetAndShowModlessDialog(formObjectId, theUrl){	
+	$("html, body").animate({ scrollTop: 0 }, "fast");
+
 	var frm = $("#" + formObjectId);
 	showModalessDialog(theUrl+"?"+frm.serialize());//frm.serialize() returns, for example, sampleSubtypeId=5&sampleTypeId=2&name=input1 
+	$("#modalessDialog").scrollTop("0");//bring dialog scrollbar to top of page; see http://stackoverflow.com/questions/10816279/how-to-get-jqueryui-dialog-scrolltop-to-scroll-dialog-content-to-top 
+	$("#modalessDialog").dialog({        
+        position: { my: "right top", at: "right top", of: $(document).scrollTop("0") } //of used to be of: window 
+    });
 	return false; 
 }
 

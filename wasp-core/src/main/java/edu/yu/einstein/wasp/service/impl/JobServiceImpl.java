@@ -2312,7 +2312,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+jobId+" not found in database");
 		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
 		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
-		Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+		///Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
 		quoteForm.setJobId(jobId);
 		quoteForm.setId(null);//new one; must leave this - problem without it
 		User user = authenticationService.getAuthenticatedUser();
@@ -2324,28 +2324,27 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			logger.warn(str);
 			throw new Exception(str);
 		}
-			
 		//might want to confirm the values in the meta are strings representing floats?? not currently checked, in case other fields are later added
-		try{	
-			this.acctQuoteMetaDao.setMeta(metaList, quoteId);	
+		try{
+			if(metaList!=null && !metaList.isEmpty()){
+				this.acctQuoteMetaDao.setMeta(metaList, quoteId);
+			}
 		} catch (MetadataException e){
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
 		}
-				
 		if (!job.getAcctQuote().contains(quoteForm)){//it will not contain it, as this is a new quote
 					
 			job.getAcctQuote().add(quoteForm);//no real reason to do this here
 		}
 		job.setCurrentQuote(quoteForm);		
 		this.getJobDao().save(job);		
-				
 		try{	
 			this.updateJobQuoteStatus(job, WaspStatus.COMPLETED);	
 		} catch (WaspMessageBuildingException e){
 			logger.warn(e.getMessage());
 			throw new Exception(e.getMessage());
-		}	
+		}
 	}
 
 	/** 

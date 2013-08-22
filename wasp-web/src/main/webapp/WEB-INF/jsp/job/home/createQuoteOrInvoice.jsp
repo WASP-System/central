@@ -74,16 +74,15 @@
 <form  method='post' name='quoteOrInvoiceForm' id="quoteOrInvoiceFormId" action="" >
 <div class="ui-widget">
 <div id="container_div_for_adding_rows" >
-
 <br />
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
-<a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
-<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
-<a class="button" href="javascript:void(0);" onclick='showModalessDialog("<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
-<a class="button" href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote2222</a>
-<a class="button" href="javascript:void(0);" onclick='postFormWithAjax("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
+<span style="padding:3px; border: 1px solid black;">
+<a <%-- class="button" --%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/costManager.do" />");' >Return To Costs Page</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/basic.do" />");' >View Basic Request</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<c:url value="/job/${job.getId()}/requests.do?onlyDisplayCellsRequested=true" />");' >View Lane Request</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
+</span>
 <br /><br /><br />
-
 <c:set value="${fn:length(submittedMacromoleculeList)}" var="numberOfLibrariesThatShouldBeConstructed" />
 <span style='font-weight:bold'>1. Library Constructions Expected For This Job: <c:out value="${numberOfLibrariesThatShouldBeConstructed}" />
 	<c:if test="${numberOfLibrariesThatShouldBeConstructed > 0}">
@@ -191,6 +190,12 @@
 	</tr>
 	<tr><td colspan="2" align="center"><input style="width:300" type="button" class="addRow" value="ADD ADDITIONAL ROW"/></td></tr>
 </table>
+<br /><br />
+<span style="padding:3px; border: 1px solid black;">
+<a href="javascript:void(0);" onclick='$("html, body").animate({ scrollTop: 0 }, "fast");' >Return To Top Of Page</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/previewQuote.do" />");' >Preview Quote</a>
+| <a <%-- class="button" --%> href="javascript:void(0);" onclick='sendFormViaGetAndShowModlessDialog("quoteOrInvoiceFormId", "<c:url value="/job/${job.getId()}/saveQuote.do" />");' >Save Quote</a>
+</span>
 <br /><br />
 </div>
 </div>

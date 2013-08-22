@@ -75,6 +75,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
@@ -969,6 +970,7 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 		populateCostPage(job, m);
+		
 		return "job/home/costManager";
 	}
 
@@ -1331,14 +1333,14 @@ public class JobController extends WaspController {
 		return "job/home/fileUploadManager";
 	}
 	
-	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.POST)
+	@RequestMapping(value="/{jobId}/saveQuote", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
-	public String jobSaveQuote(@PathVariable("jobId") Integer jobId,
+	public void jobSaveQuote(@PathVariable("jobId") Integer jobId,
 			  @RequestParam("submittedObjectId") List<Integer> submittedObjectIdList,
 			  ModelMap m, HttpServletRequest request, HttpServletResponse response) throws SampleTypeException {
 
 		previewOrSaveQuote(jobId, submittedObjectIdList, m, request, response, "save");
-		return "This is the return statement. It should be displayed in the cost tab.";
+			
 	}
 	
 	@RequestMapping(value="/{jobId}/previewQuote", method=RequestMethod.GET)
@@ -1369,8 +1371,9 @@ public class JobController extends WaspController {
 			errorMessage += "<br />"+messageService.getMessage("job.jobUnexpectedlyNotFound.error");
 		   	logger.warn(errorMessage);
 		   	try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml); return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+		   			response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+		   			return;
+		   	}catch(Exception e){logger.warn(e.getMessage()); return; }
 		}
 		
 		//b. here deal with unexpected submitted sample errors (sample not in database; sample not in job, both very unexpected)
@@ -1384,10 +1387,8 @@ public class JobController extends WaspController {
 			}
 			else if(!allJobSamplesList.contains(submittedObject)){
 				errorMessage += "<br />Unexpected Problem: Submitted sample (ID: " + submittedObjectId.intValue() + ") unexpectedly not part of this job";
-			}
-			
-			submittedObjectList.add(submittedObject);
-		}
+			}			
+			submittedObjectList.add(submittedObject);		}
 		
 		//c. here get the runCost parameters and check for highly unexpected errors
 		String param = "runCostMachine";
@@ -1406,16 +1407,16 @@ public class JobController extends WaspController {
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}			
 		int numberOfRunRows = runCostMachineArray.length;
 		if(runCostReadLengthArray.length != numberOfRunRows && runCostReadTypeArray.length != numberOfRunRows  &&
 				runCostNumberLanesArray.length != numberOfRunRows && runCostPricePerLaneArray.length != numberOfRunRows ){
 			errorMessage = "Unexpected problem interpreting sequence run information";
 			try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				return;
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
 		//d. here get the additionalCost parameters and check for highly unexpected errors
@@ -1430,7 +1431,7 @@ public class JobController extends WaspController {
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}			
 		int numberOfAdditionalCostRows = additionalCostReasonArray.length;
 		if(additionalCostUnitsArray.length != numberOfAdditionalCostRows && additionalCostPricePerUnitArray.length != numberOfAdditionalCostRows){
@@ -1438,7 +1439,7 @@ public class JobController extends WaspController {
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		
 		//e. here get the discount/credit parameters and check for highly unexpected errors
@@ -1451,9 +1452,9 @@ public class JobController extends WaspController {
 		if(discountReasonArray==null || discountTypeArray==null || discountValueArray==null){
 			errorMessage = "Unexpected problem interpreting discount/credit information";
 			try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
-		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				return;
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}			
 		int numberOfDiscountRows = discountReasonArray.length;
 		if(discountTypeArray.length != numberOfDiscountRows && discountValueArray.length != numberOfDiscountRows){
@@ -1461,7 +1462,7 @@ public class JobController extends WaspController {
 			try{
 		   		response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
 		   		return;
-		   	}catch(Exception e){logger.warn(e.getMessage()); return;}
+			}catch(Exception e){logger.warn(e.getMessage()); return;}
 		}
 		//if the job was found in the database, but there was some other unexpected error, inform user and get out of here.		
 		if(!"".equals(errorMessage)){
@@ -1586,7 +1587,6 @@ public class JobController extends WaspController {
 		List<String> additionalCostReasonList = new ArrayList<String>();
 		List<Integer> additionalCostUnitsList = new ArrayList<Integer>();
 		List<Integer> additionalCostPricePerUnitList = new ArrayList<Integer>();
-
 
 		for(int i = 0; i < numberOfAdditionalCostRows; i++){
 			if( "".equals(additionalCostReasonArray[i].trim())	 &&
@@ -1721,9 +1721,18 @@ public class JobController extends WaspController {
 		
 		//all ok, so develop the pdf 
 		try{
-			response.setContentType("application/pdf");
+			Date now = new Date();
 			
-	 	    OutputStream outputStream = response.getOutputStream();			
+			OutputStream outputStream = null;
+			File localFile = null;
+			if("preview".equalsIgnoreCase(previewOrSave)){
+				response.setContentType("application/pdf");			
+				outputStream = response.getOutputStream();	
+			}
+			else if ("save".equalsIgnoreCase(previewOrSave)){
+				localFile = fileService.createTempFile();
+				outputStream = new FileOutputStream(localFile);
+			}
 	 	    Document document = new Document();
 	 	    PdfWriter.getInstance(document, outputStream).setInitialLeading(10);
 	 	    document.open();	 	    
@@ -1733,8 +1742,10 @@ public class JobController extends WaspController {
 	 	    String imageLocation = "/Users/robertdubin/Documents/images/Einstein_Logo.png";
 	 	    String title = "Epigenomics Shared Facility";
 	 	    addLetterhead(document, imageLocation, title, justUnderLetterheadLineList);
+	 	    DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+	 	    addNoteLine(document, "", dateFormat.format(now));
 	 	    addressTheLetterToSubmitterAndPI(document, job);
-	 	    addNoteLine(document, "Re.", "Estimated costs for Job ID " + job.getId());
+	 	    addNoteLine(document, "Re.: ", "Estimated costs for Job ID " + job.getId());
 	 	    document.add(new LineSeparator());
 	 	    Paragraph jobDetailsParagraph = startJobDetailsParagraphAndAddCommonJobDetails(job);//start new paragraph containing common job details (put the paragraph is NOT added to the document in this method, thus permitting more to be added to it)
 	 	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
@@ -1760,14 +1771,46 @@ public class JobController extends WaspController {
 
 	 	    document.close();
 	 	    
+	 	    if ("preview".equalsIgnoreCase(previewOrSave)){
+	 	    	return;//nothing apparently needs to be done for it to work fine
+	 	    }
+	 	    else if ("save".equalsIgnoreCase(previewOrSave)){
+	 		   outputStream.close();//file has been save to local location
+	 		   
+	 		   //if new quote, save the file to remote location and create new acctQuote record
+	 		   jobService.createNewQuoteAndSaveFile(job, localFile);
+	 		   
+	 		   
+	 		   
+	 		   //next, save the file to remote location and record in database
+	 		   
+	 		   DateFormat dateFormat2 = new SimpleDateFormat("yyyy_MM_dd");		 	   
+		 	   Random randomNumberGenerator = new Random(System.currentTimeMillis());
+		 	   
+		 	   //if this is a new quote, save quote; if invoice, save invoice
+		 	   fileService.saveLocalJobFile(job, localFile, "Job"+job.getId()+"_Quote_"+dateFormat2.format(now)+".pdf", "Job"+job.getId()+"_Quote_"+dateFormat2.format(now), randomNumberGenerator);
+
+		 	   
+		 	   //if this is a new quote, save quote; if invoice, save invoice
+		 	   AcctQuote acctQuote = new AcctQuote();
+		 	   acctQuote.setAmount((float)(totalFinalCost.intValue()));		 	   
+		 	   jobService.addNewQuote(jobId, acctQuote, new ArrayList<AcctQuoteMeta>());
+		 	   
+		 	   response.setContentType("text/html"); 
+		 	   String headerHtml2 = "<html><body>";
+		 	   String successMessage = "<h2 style='color:blue;font-weight:bold;'>Your New File Has Been Saved</h2>";
+		 	   String footerHtml2 = "<br /></body></html>";
+		 	   response.getOutputStream().print(headerHtml2+successMessage+footerHtml2);
+		 	   return;
+	 	    }	 	    
 		}catch(Exception e){
 			errorMessage = "Major problems encountered while creating file";
 			logger.warn(errorMessage);
 			try{
-		   		response.setContentType("text/html"); response.getOutputStream().print(errorMessage);
-		   	}catch(Exception e2){}
-		}
-		System.out.println("-----------Inside 2");
+				response.setContentType("text/html"); response.getOutputStream().print(headerHtml+errorMessage+footerHtml);
+				return;
+			}catch(Exception e2){logger.warn(e.getMessage()); return;}
+		}		
 	}
 	
 	private void addLetterhead(Document document, String imageLocation, String title, List<String> justUnderLetterheadLineList) throws DocumentException{
@@ -1792,7 +1835,7 @@ public class JobController extends WaspController {
 	 	    if(!justUnderLetterheadLineList.isEmpty()){
 	 	    	Paragraph justUnderLetterhead = new Paragraph(); 
 	 	    	justUnderLetterhead.setSpacingBefore(4);
-	 	    	justUnderLetterhead.setSpacingAfter(25);
+	 	    	justUnderLetterhead.setSpacingAfter(15);
 	 	    	justUnderLetterhead.setLeading(10);
 	 	    	for(String text : justUnderLetterheadLineList){
 	 	    		Chunk textUnderTheLetterheadLine = new Chunk(text, TINY_BOLD);
@@ -1886,7 +1929,7 @@ public class JobController extends WaspController {
  	    Paragraph reasonForDocument = new Paragraph();
  	    reasonForDocument.setSpacingBefore(15);
  	    reasonForDocument.setSpacingAfter(15);
- 	    reasonForDocument.add(new Chunk(reason+": ", NORMAL_BOLD));
+ 	    reasonForDocument.add(new Chunk(reason, NORMAL_BOLD));
  	    reasonForDocument.add(new Phrase(theReason, NORMAL));
  	    document.add(reasonForDocument);
 	}
@@ -2151,7 +2194,7 @@ public class JobController extends WaspController {
  		PdfPCell cellCostPerUnit = new PdfPCell(new Phrase("Cost/Unit", NORMAL_BOLD));
  		cellCostPerUnit.setHorizontalAlignment(Element.ALIGN_CENTER);
  		additionalCostTable.addCell(cellCostPerUnit);
- 		PdfPCell cellTotalCost = new PdfPCell(new Phrase("Total Cost", NORMAL_BOLD));
+ 		PdfPCell cellTotalCost = new PdfPCell(new Phrase("Additional Cost", NORMAL_BOLD));
  		cellTotalCost.setHorizontalAlignment(Element.ALIGN_CENTER);
  		additionalCostTable.addCell(cellTotalCost);
  		
