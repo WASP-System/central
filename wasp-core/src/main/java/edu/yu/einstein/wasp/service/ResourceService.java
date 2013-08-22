@@ -49,7 +49,7 @@ public interface ResourceService extends WaspService {
 	 * @param metaKey
 	 * @return
 	 */
-	public List<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey);
+	public Set<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey);
 	
 	/**
 	 * Get select options for all resource categories associated with sampleSubtype
@@ -57,7 +57,7 @@ public interface ResourceService extends WaspService {
 	 * @param metaKey
 	 * @return
 	 */
-	public List<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey);
+	public Set<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey);
 	
 	/**
 	 * Get select options for all resource categories associated with sample
@@ -65,6 +65,6 @@ public interface ResourceService extends WaspService {
 	 * @param metaKey
 	 * @return
 	 */
-	public List<Option> getResourceCategorySelectOptions(Sample sample, String metaKey);
+	public Set<Option> getResourceCategorySelectOptions(Sample sample, String metaKey);
 	
 }

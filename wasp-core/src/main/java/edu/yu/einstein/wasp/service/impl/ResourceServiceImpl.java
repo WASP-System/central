@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -120,42 +121,42 @@ public class ResourceServiceImpl extends WaspServiceImpl implements ResourceServ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
+	public Set<Option> getResourceCategorySelectOptions(ResourceCategory resourceCategory, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
 		for(ResourceCategoryMeta rcm : resourceCategory.getResourceCategoryMeta()){
 			if( rcm.getK().indexOf(metaKey) > -1 ){//such as readLength
 				String[] tokens = rcm.getV().split(";");//rcm.getV() will be single:single;paired:paired
 				for(String token : tokens){//token could be single:single
 					String[] colonTokens = token.split(":");
-					list.add(new Option(colonTokens[0], colonTokens[1]));							
+					set.add(new Option(colonTokens[0], colonTokens[1]));							
 				}
 			}		
 		}	
-		return list;
+		return set;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
-		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){			
-			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+	public Set<Option> getResourceCategorySelectOptions(SampleSubtype sampleSubtype, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
+		for(SampleSubtypeResourceCategory ssrc : sampleSubtype.getSampleSubtypeResourceCategory()){
+			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
 		}	
-		return list;
+		return set;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
-		List<Option> list = new ArrayList<Option>();
+	public Set<Option> getResourceCategorySelectOptions(Sample sample, String metaKey) {
+		Set<Option> set = new LinkedHashSet<Option>();
 		for(SampleSubtypeResourceCategory ssrc : sample.getSampleSubtype().getSampleSubtypeResourceCategory()){			
-			list.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
+			set.addAll(getResourceCategorySelectOptions(ssrc.getResourceCategory(), metaKey));
 		}	
-		return list;
+		return set;
 	}
 
 }
