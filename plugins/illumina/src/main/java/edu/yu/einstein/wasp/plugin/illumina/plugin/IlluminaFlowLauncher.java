@@ -75,9 +75,10 @@ public class IlluminaFlowLauncher {
 		jobParameters.put(WaspJobParameters.RUN_NAME, run.getName());
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flowName, jobParameters) );
 		try {
-			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
+			
 			if (message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL))
-				launchMessage.getHeaders().put(MessageHeaders.REPLY_CHANNEL, message.getHeaders().get(MessageHeaders.REPLY_CHANNEL));
+				batchJobLaunchMessageTemplate.getHeaders().put(MessageHeaders.REPLY_CHANNEL, message.getHeaders().get(MessageHeaders.REPLY_CHANNEL));
+			Message<BatchJobLaunchContext> launchMessage = batchJobLaunchMessageTemplate.build();
 			logger.debug("preparing new message to send: " + launchMessage);
 			return launchMessage;
 		} catch (WaspMessageBuildingException e) {
