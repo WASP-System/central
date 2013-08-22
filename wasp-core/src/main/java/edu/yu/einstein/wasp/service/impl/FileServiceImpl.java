@@ -1480,15 +1480,27 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	@Transactional
-	public void saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+	public FileGroup saveLocalJobFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		try{
 			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
 			this.linkFileGroupWithJob(fileGroup, job);
+			return fileGroup;
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
 		}
 	}
 	
+	public FileGroup saveLocalQuoteOrInvoiceFile(Job job, File localFile, String fileName, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+		try{
+			FileGroup fileGroup = this.saveLocalFile(job.getId(), localFile, fileName, fileDescription, randomNumberGenerator, "results.dir", "submitted");
+			//DO NOT USE NEXT LINE HERE: the quote or invoice is linked via job's acctQuote or job's acctInvoice   
+			//////////this.linkFileGroupWithJob(fileGroup, job);
+			return fileGroup;
+		}catch(Exception e){
+			throw new FileUploadException(e.getMessage());
+		}
+	}
+
 	private FileGroup saveLocalFile(Integer id, File localFile, String fileName, String fileDescription, Random randomNumberGenerator, String targetDir, String additionalSubJobDir) throws FileUploadException{
 
 		GridWorkService gws;

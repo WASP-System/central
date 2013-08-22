@@ -978,13 +978,54 @@ public class JobController extends WaspController {
 		
 		m.addAttribute("job", job);
 		
+		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
+		if(mostRecentAcctQuote.getId()!=null){
+			m.addAttribute("mostRecentQuote", mostRecentAcctQuote.getAmount());
+		}		
+ 		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
+
+		Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
+		List<AcctQuote>  acctQuoteList = new ArrayList<AcctQuote>(acctQuoteSet);
+		class AcctQuoteCreatedComparator implements Comparator<AcctQuote> {
+			@Override
+			public int compare(AcctQuote arg0, AcctQuote arg1) {
+				return arg1.getCreated().compareTo(arg0.getCreated());
+			}
+		}
+		Collections.sort(acctQuoteList, new AcctQuoteCreatedComparator());//most recent is now first, least recent is last
+
 		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
 		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+		
+		for(AcctQuote acctQuote : acctQuoteList){//most recent is first, least recent is last
+			List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
+			for(AcctQuoteMeta acctQuoteMeta : acctQuoteMetaList){
+				if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
+					try{
+						FileGroup fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
+						if(fileGroup.getId()!=null){
+							fileGroups.add(fileGroup);
+							List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+							for(FileHandle fh : fileGroup.getFileHandles()){
+								fileHandles.add(fh);
+								String mimeType = fileService.getMimeType(fh.getFileName());
+								if(!mimeType.isEmpty()){
+									fileHandlesThatCanBeViewedList.add(fh);
+								}
+							}
+							fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+						}
+						break;
+					}catch(Exception e){logger.warn("FileGroup unexpectedly not found");}
+				}
+			}
+		}
+		/*
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
 			//include only quotes and invoices
-			if( fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_") || fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
+			if( fileGroup.getDescription().toLowerCase().startsWith("quote") || fileGroup.getDescription().toLowerCase().startsWith("invoice")){
 				fileGroups.add(fileGroup);
 				List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 				for(FileHandle fh : fileGroup.getFileHandles()){
@@ -997,6 +1038,7 @@ public class JobController extends WaspController {
 				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 			}			
 		}
+		*/
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
@@ -1256,10 +1298,10 @@ public class JobController extends WaspController {
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		for(JobFile jf: job.getJobFile()){
 			FileGroup fileGroup = jf.getFile();//returns a FileGroup
-			//exclude quotes and invoices
-			if(fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_")||fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
-				continue;
-			}
+			//exclude quotes and invoices (as of 8/22/13, no longer needed as these files are stored through acctQuoteMeta or acctInvoiceMeta
+			//if(fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_quote_")||fileGroup.getDescription().toLowerCase().startsWith("job"+job.getId()+"_invoice_")){
+			//	continue;
+			//}
 			fileGroups.add(fileGroup);
 			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
 			for(FileHandle fh : fileGroup.getFileHandles()){
@@ -1772,18 +1814,19 @@ public class JobController extends WaspController {
 	 	    document.close();
 	 	    
 	 	    if ("preview".equalsIgnoreCase(previewOrSave)){
+	 	    	outputStream.close();//apparently not really needed here but doesn't hurt
 	 	    	return;//nothing apparently needs to be done for it to work fine
 	 	    }
 	 	    else if ("save".equalsIgnoreCase(previewOrSave)){
 	 		   outputStream.close();//file has been save to local location
 	 		   
 	 		   //if new quote, save the file to remote location and create new acctQuote record
-	 		   jobService.createNewQuoteAndSaveFile(job, localFile);
+	 		   jobService.createNewQuoteAndSaveQuoteFile(job, localFile, new Float(totalFinalCost));
 	 		   
 	 		   
 	 		   
 	 		   //next, save the file to remote location and record in database
-	 		   
+/*	 		   
 	 		   DateFormat dateFormat2 = new SimpleDateFormat("yyyy_MM_dd");		 	   
 		 	   Random randomNumberGenerator = new Random(System.currentTimeMillis());
 		 	   
@@ -1795,7 +1838,7 @@ public class JobController extends WaspController {
 		 	   AcctQuote acctQuote = new AcctQuote();
 		 	   acctQuote.setAmount((float)(totalFinalCost.intValue()));		 	   
 		 	   jobService.addNewQuote(jobId, acctQuote, new ArrayList<AcctQuoteMeta>());
-		 	   
+*/		 	   
 		 	   response.setContentType("text/html"); 
 		 	   String headerHtml2 = "<html><body>";
 		 	   String successMessage = "<h2 style='color:blue;font-weight:bold;'>Your New File Has Been Saved</h2>";

@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.List;
@@ -624,4 +625,12 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public List<Sample> getLibraries(Job job);
 	 
+	/**
+	 * Create new acctQuote for a job and save it's associated file (to the remote location)
+	 * @param Job job
+	 * @param File localFile
+	 * @param Float totalFinalCost
+	 * @return void
+	 */
+	public void createNewQuoteAndSaveQuoteFile(Job job, File file, Float totalFinalCost)throws Exception;
 }

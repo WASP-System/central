@@ -2,11 +2,16 @@
 <c:import url="/WEB-INF/jsp/job/home/fadingMessage.jsp" />
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
-<br />
+
 <sec:authorize access="hasRole('su') or hasRole('ft') or hasRole('da')">
+	<br />
 	<a class="button" href="javascript:void(0);" onclick='loadNewPageWithAjax("<c:url value="/job/${job.getId()}/createQuoteOrInvoice.do" />");' >Create Quote / Invoice</a><br />
 </sec:authorize>
-<br /><br />
+<c:if test="${not empty mostRecentQuote }">
+<br />
+<h2>Most Recent Quote: <c:out value="${localCurrencyIcon}" /> <c:out value="${mostRecentQuote}" /></h2>
+</c:if>
+<br />
 <form id="fileUploadFormId" action="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" method="POST"  enctype="multipart/form-data" onsubmit='return false;' >
 	<table class="data" style="margin: 0px 0px">
 		<%-- 

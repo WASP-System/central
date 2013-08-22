@@ -10,6 +10,7 @@
 
 package edu.yu.einstein.wasp.service.impl;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -2312,7 +2314,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		Assert.assertParameterNotNullNotZero(job.getId(), "job with id="+jobId+" not found in database");
 		Assert.assertParameterNotNull(quoteForm, "quoteForm cannot be null");
 		Assert.assertParameterNotNull(quoteForm.getAmount(), "quoteForm.getAmount() cannot be null");
-		///Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
+		//Assert.assertParameterNotNullNotEmpty(metaList, "metaList cannot be null or empty");
 		quoteForm.setJobId(jobId);
 		quoteForm.setId(null);//new one; must leave this - problem without it
 		User user = authenticationService.getAuthenticatedUser();
@@ -2372,5 +2374,31 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			  }
 		}		
 		return libraryList;		
+	}
+	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createNewQuoteAndSaveQuoteFile(Job job, File file, Float totalFinalCost) throws Exception{
+			
+			Date now = new Date();
+			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");		 	   
+	 	   	Random randomNumberGenerator = new Random(System.currentTimeMillis());
+	 	   
+	 	   	//if this is a new quote, save quote; if invoice, save invoice
+	 	   	FileGroup fileGroup = fileService.saveLocalQuoteOrInvoiceFile(job, file, "Job"+job.getId()+"_Quote_"+dateFormat.format(now)+".pdf", "Quote", randomNumberGenerator);
+
+	 	   
+	 	   	//if this is a new quote, save quote; if invoice, save invoice
+	 	   	AcctQuote acctQuote = new AcctQuote();
+	 	   	acctQuote.setAmount(totalFinalCost);
+	 	   	List<AcctQuoteMeta> acctQuoteMetaList = new ArrayList<AcctQuoteMeta>();
+	 	   	AcctQuoteMeta acctQuoteMeta = new AcctQuoteMeta();
+	 	   	acctQuoteMeta.setK("acctQuote.fileGroupId");
+	 	   	acctQuoteMeta.setV(fileGroup.getId().toString());
+	 	   	acctQuoteMetaList.add(acctQuoteMeta);
+	 	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+
 	}
 }
