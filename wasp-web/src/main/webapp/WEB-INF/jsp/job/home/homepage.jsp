@@ -17,7 +17,7 @@
 <div id="tabs">	
   <ul>
 		<li><a id="basicAnchor"  href="<c:url value="/job/${job.getId()}/basic.do" />" >Basic</a></li>
-		<li><a id="costAnchor"  href="<c:url value="/job/${job.getId()}/costManager.do" />" >Costs</a></li>
+		<li><a id="costAnchor"   href="<c:url value="/job/${job.getId()}/costManager.do" />" >Costs</a></li>
 		<li><a id="viewerManagerAnchor"  href="<c:url value="/job/${job.getId()}/viewerManager.do" />">Share</a></li>
 		<li><a id="comments"  href="<c:url value="/job/${job.getId()}/comments.do" />" >Comments</a></li>
 		<li><a id="fileUploadAnchor"  href="<c:url value="/job/${job.getId()}/fileUploadManager.do" />" >Uploaded Files</a></li>

@@ -979,7 +979,7 @@ public class JobController extends WaspController {
 		m.addAttribute("job", job);
 		
 		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
-		if(mostRecentAcctQuote.getId()!=null){
+		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
 			m.addAttribute("mostRecentQuote", mostRecentAcctQuote.getAmount());
 		}		
  		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
@@ -1823,22 +1823,6 @@ public class JobController extends WaspController {
 	 		   //if new quote, save the file to remote location and create new acctQuote record
 	 		   jobService.createNewQuoteAndSaveQuoteFile(job, localFile, new Float(totalFinalCost));
 	 		   
-	 		   
-	 		   
-	 		   //next, save the file to remote location and record in database
-/*	 		   
-	 		   DateFormat dateFormat2 = new SimpleDateFormat("yyyy_MM_dd");		 	   
-		 	   Random randomNumberGenerator = new Random(System.currentTimeMillis());
-		 	   
-		 	   //if this is a new quote, save quote; if invoice, save invoice
-		 	   fileService.saveLocalJobFile(job, localFile, "Job"+job.getId()+"_Quote_"+dateFormat2.format(now)+".pdf", "Job"+job.getId()+"_Quote_"+dateFormat2.format(now), randomNumberGenerator);
-
-		 	   
-		 	   //if this is a new quote, save quote; if invoice, save invoice
-		 	   AcctQuote acctQuote = new AcctQuote();
-		 	   acctQuote.setAmount((float)(totalFinalCost.intValue()));		 	   
-		 	   jobService.addNewQuote(jobId, acctQuote, new ArrayList<AcctQuoteMeta>());
-*/		 	   
 		 	   response.setContentType("text/html"); 
 		 	   String headerHtml2 = "<html><body>";
 		 	   String successMessage = "<h2 style='color:blue;font-weight:bold;'>Your New File Has Been Saved</h2>";
