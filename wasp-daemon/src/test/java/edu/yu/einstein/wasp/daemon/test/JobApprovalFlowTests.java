@@ -104,7 +104,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(500); // allow some time for flow initialization
+			try{
+				Thread.sleep(500); // allow some time for flow initialization
+			} catch (InterruptedException e){};
 			
 			// send approval messages (simulating button presses in web view)
 			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID);
@@ -142,7 +144,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			int repeat = 0;
 			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
 				message = null;
-				Thread.sleep(1000);
+				try{
+					Thread.sleep(1000); // allow some time for flow initialization
+				} catch (InterruptedException e){};
 				repeat++;
 			}
 			if (message == null)
@@ -169,7 +173,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			if (replyMessage != null)
 				Assert.fail("testJobApproved(): Got unexpected reply message: "+ replyMessage.toString());
 			
-			Thread.sleep(500); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(500); // allow some time for flow initialization
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STARTED);
 			jobExecution.stop();
@@ -191,7 +197,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Map<String, JobParameter> parameterMap = new HashMap<String, JobParameter>();
 			parameterMap.put( JOB_ID_KEY, new JobParameter(JOB_ID2.toString()) );
 			JobExecution jobExecution = jobLauncher.run(job, new JobParameters(parameterMap));
-			Thread.sleep(500);
+			try{
+				Thread.sleep(500); // allow some time for flow initialization
+			} catch (InterruptedException e){};
 			
 			// send approval messages (simulating button presses in web view)
 			JobStatusMessageTemplate template = new JobStatusMessageTemplate(JOB_ID2);
@@ -234,7 +242,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			int repeat = 0;
 			while ((message == null || (! JobStatusMessageTemplate.actUponMessage(message, JOB_ID2, WaspJobTask.NOTIFY_STATUS))) && repeat < 10){
 				message = null;
-				Thread.sleep(1000);
+				try{
+					Thread.sleep(1000); // allow some time for flow initialization
+				} catch (InterruptedException e){};
 				repeat++;
 			}
 			if (message == null)
@@ -250,7 +260,9 @@ public class JobApprovalFlowTests extends AbstractTestNGSpringContextTests imple
 			Assert.assertEquals(WaspStatus.class, message.getPayload().getClass());
 			Assert.assertEquals(message.getPayload(), WaspStatus.ABANDONED);
 			
-			Thread.sleep(1000); // allow batch to wrap up
+			try{
+				Thread.sleep(1000); // allow some time for flow initialization
+			}catch (InterruptedException e){}; // allow batch to wrap up
 			// check BatchStatus and ExitStatus are as expected
 			Assert.assertEquals(jobExecution.getStatus(), BatchStatus.STOPPED);
 			Assert.assertEquals(jobExecution.getExitStatus().getExitCode(), ExitStatus.STOPPED.getExitCode());

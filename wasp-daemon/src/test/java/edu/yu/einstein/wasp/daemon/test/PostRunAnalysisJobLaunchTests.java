@@ -240,7 +240,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannelRun, runCompletedMessage);
 			if (replyMessage != null)
 				logger.debug("testJobApproved(): Got reply message: "+ replyMessage.toString());
-			Thread.sleep(500); // wait for message receiving and job completion events
+			try{
+				Thread.sleep(500);
+			} catch (InterruptedException e){}; // wait for message receiving and job completion events
 			Assert.assertEquals(messages.size(), 1);
 			Assert.assertTrue(BatchJobLaunchMessageTemplate.isMessageOfCorrectType(messages.get(0)));
 		} catch (Exception e){
@@ -310,7 +312,9 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 					if (AnalysisStatusMessageTemplate.actUponMessage(m, 1))
 						done = true;
 				}
-				Thread.sleep(500);
+				try{
+					Thread.sleep(500);
+				} catch (InterruptedException e){};
 				repeat++;
 				if (repeat == 40)
 					Assert.fail("Timeout waiting to receive messages");

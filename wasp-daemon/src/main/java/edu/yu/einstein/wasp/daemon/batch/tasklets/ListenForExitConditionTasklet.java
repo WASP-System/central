@@ -129,7 +129,9 @@ public class ListenForExitConditionTasklet extends WaspMessageHandlingTasklet {
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		logger.trace(name + "execute() invoked");
 		if (message == null){
-			Thread.sleep(executeRepeatDelay);
+			try{
+				Thread.sleep(executeRepeatDelay);
+			} catch (InterruptedException e){} // happens when message handled 
 			return RepeatStatus.CONTINUABLE;
 		}
 		return RepeatStatus.FINISHED;
