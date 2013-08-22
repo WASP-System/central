@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.plugin.RunQcProviding;
 import edu.yu.einstein.wasp.plugin.SequencingViewProviding;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
-import edu.yu.einstein.wasp.plugin.illumina.mps.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**

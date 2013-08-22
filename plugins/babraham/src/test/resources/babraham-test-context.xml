@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	
-	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.fileformat.service.impl.FastqServiceImpl" />
+	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl" />
 	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
 	<mockito:mock id="waspSqlService" class="edu.yu.einstein.wasp.service.impl.WaspSqlServiceImpl" />
 

@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	
-	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.fileformat.service.impl.FastqServiceImpl" />
+	<mockito:mock id="fastqService" class="edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl" />
 	<mockito:mock id="sampleService" class="edu.yu.einstein.wasp.service.impl.SampleServiceImpl" />
 	<mockito:mock id="fileService" class="edu.yu.einstein.wasp.service.impl.FileServiceImpl" />
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.impl.RunServiceImpl" />
@@ -15,7 +15,7 @@
 	<mockito:mock id="gridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService" />
 
 	<int:splitter input-channel="wasp.channel.run.success" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessFastqcSplitter" />
+		<bean class="edu.yu.einstein.wasp.plugin.mps.integration.endpoints.RunSuccessFastqcSplitter" />
 	</int:splitter>
 	
 	<int:channel id="wasp.channel.run.success" />

@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
-import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
@@ -28,6 +26,8 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
 import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;

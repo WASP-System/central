@@ -14,7 +14,6 @@ import org.springframework.integration.splitter.AbstractMessageSplitter;
 
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
-import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -23,6 +22,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessage
 import edu.yu.einstein.wasp.integration.messages.templates.FileStatusMessageTemplate;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.FastQCPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.FastQScreenPlugin;
+import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.service.FileService;
 
 /**

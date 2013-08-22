@@ -15,7 +15,7 @@
   </bean>
 
   <bean id="bwa" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.mps.bwa.BWASoftwareComponent</value></property>
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwa.software.BWASoftwareComponent</value></property>
     <property name="name" value="BWA" />
     <property name="area" ref="bwaAlignerArea" />
     <property name="resourceType" ref="referenceBasedAlignerResourceType" />

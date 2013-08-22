@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
-	<context:component-scan base-package="edu.yu.einstein.wasp.fileformat.service.impl" /> 
+	<context:component-scan base-package="edu.yu.einstein.wasp.plugin.fileformat.service.impl" /> 
 
 	<bean id="mps-tools" class="java.lang.String">
 		<constructor-arg>
@@ -21,7 +21,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.mps-tools" ref="mps-tools.WaspPluginBean" method="process" />
 	
-	<bean id="mps-tools.WaspPluginBean" class="edu.yu.einstein.wasp.mps.tools.plugin.MPSToolsPlugin">
+	<bean id="mps-tools.WaspPluginBean" class="edu.yu.einstein.wasp.plugin.mps.tools.plugin.MPSToolsPlugin">
 		<constructor-arg name="pluginName" ref="mps-tools" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.mps-tools" />
