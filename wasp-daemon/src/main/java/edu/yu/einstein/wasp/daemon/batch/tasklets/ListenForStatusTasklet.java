@@ -129,6 +129,9 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 		if (statusFromMessage.isUnsuccessful()){
 			for (StatusMessageTemplate messageTemplate: abortMonitoredTemplates){
 				if (messageTemplate.actUponMessage(message)){
+					this.messageQueue.add(message);
+					logger.debug(name + "handleMessage() found ABANDONED or FAILED message for abort-monitored template " + 
+							messageTemplate.getClass().getName() + ". Going to fail step.");
 					abandonStep = true;
 					return; // we have found a valid abort message so return
 				}
@@ -137,7 +140,7 @@ public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 		
 		// then check the message and it's status against the status we are interested in for a reportable match
 		if (messageTemplate.actUponMessage(message) && statusFromMessage.equals(messageTemplate.getStatus()) ){
-			this.messageQueue.add((Message<WaspStatus>) message);
+			this.messageQueue.add(message);
 			logger.debug(name + "handleMessage() adding found message to be compatible so adding to queue: " + message.toString());
 			if (statusFromMessage.isUnsuccessful()){
 				logger.debug(name + "handleMessage() found ABANDONED or FAILED message to act upon for expected task. Going to fail step.");

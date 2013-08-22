@@ -5,9 +5,12 @@ import java.util.List;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
+import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.support.MessageBuilder;
@@ -18,25 +21,22 @@ public abstract class WaspMessageHandlingTasklet extends WaspTasklet implements 
 	
 	protected List<Message<?>> messageQueue;
 	
+	@Autowired
+	@Qualifier("wasp.channel.reply")
+	PublishSubscribeChannel replyChannel;
+	
 	protected void sendSuccessReplyToAllMessagesInQueue(){
-		Message<WaspStatus> replyMessage = MessageBuilder.withPayload(WaspStatus.COMPLETED).build();
+		Message<WaspStatus> replyMessage;
 		MessagingTemplate messagingTemplate = new MessagingTemplate();
+		logger.debug("Going to send " + messageQueue.size()  + " reply message(s)...");
 		for (Message<?> message: messageQueue){
 			try{
-				if ( message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL)){
-					Object replyChannelObj = message.getHeaders().get(MessageHeaders.REPLY_CHANNEL);
-					if (MessageChannel.class.isInstance(replyChannelObj))
-						messagingTemplate.send((MessageChannel) replyChannelObj, replyMessage);
-					else if (String.class.isInstance(replyChannelObj))
-						messagingTemplate.send((String) replyChannelObj, replyMessage);
-					else {
-						logger.warn("Unable to send reply message to reply message channel of type " + replyChannelObj.getClass().getName() +
-								" specified in source message: " + message.toString());
-					}
-					
-				} else {
-					logger.warn("Failure to send reply message because no reply channel header specified in source message: " + message.toString());
-				}
+				logger.debug("sending reply to message: " + message.toString());
+				if ( message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL))
+					replyMessage = MessageBuilder.withPayload(WaspStatus.COMPLETED).setReplyChannel((MessageChannel) message.getHeaders().get(MessageHeaders.REPLY_CHANNEL)).build();
+				else
+					replyMessage = MessageBuilder.withPayload(WaspStatus.COMPLETED).build();
+				messagingTemplate.send(replyChannel, replyMessage);
 			} catch (Exception e){
 				logger.warn("Failure to send reply message (reason: " + e.getLocalizedMessage() + ") to reply channel specified in source message : " +
 						message.toString() + ". Original exception stack: ");
