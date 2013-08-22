@@ -1,4 +1,4 @@
-package edu.yu.einstein.wasp.plugin.illumina.plugin;
+package edu.yu.einstein.wasp.plugin.illumina.integration.endpoints;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.Run;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
 import edu.yu.einstein.wasp.service.RunService;
 
 @Transactional("entityManager")
@@ -29,23 +30,33 @@ public class IlluminaFlowLauncher {
 	
 	private RunService runService;
 	
-	@Autowired
+	private String hiseqPluginArea;
+	
+	private String personalSeqPluginArea;
+	
 	public void setRunService(RunService runService) {
 		this.runService = runService;
 	}
 	
-	@Autowired
-	@Qualifier("hiseqPluginArea")
-	private String hiseqPluginArea;
 	
-	@Autowired
-	@Qualifier("personalSeqPluginArea")
-	private String personalSeqPluginArea;
+	public void setHiseqPluginArea(String hiseqPluginArea) {
+		this.hiseqPluginArea = hiseqPluginArea;
+	}
+	
+
+	public void setPersonalSeqPluginArea(String personalSeqPluginArea) {
+		this.personalSeqPluginArea = personalSeqPluginArea;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(IlluminaFlowLauncher.class);
 	
 	public IlluminaFlowLauncher(){}
 	
+	public IlluminaFlowLauncher(RunService runService, String hiseqPluginArea, String personalSeqPluginArea){
+		setHiseqPluginArea(hiseqPluginArea);
+		setPersonalSeqPluginArea(personalSeqPluginArea);
+		setRunService(runService);
+	}
 	
 	@Transformer
 	public Message<BatchJobLaunchContext> launchIlluminaFlowJob(Message<?> message){ 
