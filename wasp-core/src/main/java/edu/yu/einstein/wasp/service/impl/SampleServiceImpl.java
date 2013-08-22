@@ -872,9 +872,9 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		  Set<Integer> IdsForPlatformUnitsNotAvailable = new LinkedHashSet<Integer>();
 		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.EXECUTING) );
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED) );
-		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.FAILED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.EXECUTING) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.FAILED) );
 		  
 		  // make platform unit available again if ExitStatus is STOPPED (aborted) 
 		  // so comment the following line out for now:
@@ -883,8 +883,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  // get sample id for all platform units associated with the batch job executions retrieved
 		  for (JobExecution je: allRelevantJobExecutions){
 			  try{
-				  String puIdStr = batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.PLATFORM_UNIT_ID);
-				  IdsForPlatformUnitsNotAvailable.add(Integer.valueOf(puIdStr));
+				  Run run = runService.getRunById(Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.RUN_ID)));
+				  IdsForPlatformUnitsNotAvailable.add(run.getPlatformUnit().getId());
 			  } catch (ParameterValueRetrievalException e){
 				  logger.warn(e.getLocalizedMessage());
 				  continue;
