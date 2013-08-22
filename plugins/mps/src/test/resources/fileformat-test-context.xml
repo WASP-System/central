@@ -15,7 +15,7 @@
 	<mockito:mock id="gridFileService" class="edu.yu.einstein.wasp.grid.file.SshFileService" />
 
 	<int:splitter input-channel="wasp.channel.run.success" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.fileformat.plugin.RunSuccessFastqcSplitter" />
+		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessFastqcSplitter" />
 	</int:splitter>
 	
 	<int:channel id="wasp.channel.run.success" />

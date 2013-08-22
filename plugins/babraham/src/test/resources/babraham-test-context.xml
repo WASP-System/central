@@ -18,7 +18,7 @@
 	<bean id="messageService" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
 	
 	<int:splitter input-channel="wasp.channel.notification.file" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter" />
+		<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.endpoints.BabrahamFastqMessageSplitter" />
 	</int:splitter>
 	
 	<int:channel id="wasp.channel.notification.file" />

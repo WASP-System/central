@@ -190,24 +190,24 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	}
 	
 	@Override
-	public void initiateRun(Run run) throws WaspMessageBuildingException {
+	public void initiateRun(Run run) {
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run is not valid");
 		// send message to initiate job processing
 		RunStatusMessageTemplate messageTemplate = new RunStatusMessageTemplate(run.getId());
 		messageTemplate.setUserCreatingMessageFromSession(userService);
 		messageTemplate.setStatus(WaspStatus.CREATED);
-		try{
-			sendOutboundMessage(messageTemplate.build(), false);
-		} catch (MessagingException e){
-			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		try {
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (WaspMessageBuildingException e){
+			throw new MessagingException(e.getLocalizedMessage());
 		}
 		
 	}
 	
 	
 	@Override
-	public Run updateAndInitiateRun(Run run) throws WaspMessageBuildingException{
+	public Run updateAndInitiateRun(Run run){
 		// transactional such that if message sending fails run saving will be rolled back
 		Run savedRun = this.updateRun(run);
 		this.initiateRun(savedRun);
@@ -584,7 +584,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		messageTemplate.setTask(WaspRunTask.QC);
 		messageTemplate.setStatus(WaspStatus.COMPLETED); 
 		try{
-			sendOutboundMessage(messageTemplate.build(), false);
+			sendOutboundMessage(messageTemplate.build(), true);
 		} catch (MessagingException e){
 			throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		}

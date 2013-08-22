@@ -1409,7 +1409,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		messageTemplate.setTask(task);
 		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
 		try{
-			sendOutboundMessage(messageTemplate.build(), false);
+			sendOutboundMessage(messageTemplate.build(), true);
 		} catch (MessagingException e){
 			throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		}

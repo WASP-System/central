@@ -27,7 +27,7 @@
 		<property name="job" ref="waspIlluminaHiSeq.jobFlow" />
 	</bean>
 
-	<mockito:mock id="casava" class="edu.yu.einstein.wasp.mps.illumina.IlluminaHiseqSequenceRunProcessor" />
+	<mockito:mock id="casava" class="edu.yu.einstein.wasp.plugin.illumina.mps.IlluminaHiseqSequenceRunProcessor" />
 	
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.RunService" />
 	

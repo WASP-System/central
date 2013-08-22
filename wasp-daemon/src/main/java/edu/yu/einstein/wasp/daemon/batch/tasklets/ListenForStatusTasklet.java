@@ -2,7 +2,6 @@ package edu.yu.einstein.wasp.daemon.batch.tasklets;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -13,12 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessagingException;
-import org.springframework.integration.core.MessageHandler;
 import org.springframework.integration.core.SubscribableChannel;
 
 import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
@@ -31,7 +28,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemp
  * provided message template.
  * @author asmclellan
  */
-public class ListenForStatusTasklet extends WaspTasklet implements MessageHandler, StepExecutionListener {
+public class ListenForStatusTasklet extends WaspMessageHandlingTasklet  {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -40,9 +37,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 	private SubscribableChannel subscribeChannel;
 	
 	private SubscribableChannel abortMonitoringChannel;
-	
-	private List<Message<WaspStatus>> messageQueue;
-	
+		
 	private Set<StatusMessageTemplate> abortMonitoredTemplates;
 	
 	private boolean stopStep = false;
@@ -62,7 +57,7 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		this.messageTemplate = messageTemplate;
 		this.subscribeChannel = inputSubscribableChannel;
 		this.abortMonitoringChannel = abortMonitoringChannel;
-		this.messageQueue = new ArrayList<Message<WaspStatus>>();
+		this.messageQueue = new ArrayList<Message<?>>();
 		this.abortMonitoredTemplates = new HashSet<StatusMessageTemplate>();
 		this.abortMonitoredTemplates.add(messageTemplate);
 	}
@@ -96,16 +91,18 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 		ExitStatus exitStatus = stepExecution.getExitStatus();
 		// if any messages in the queue are unsuccessful we wish to return an exit status of FAILED
 		if (exitStatus.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-			for (Message<WaspStatus> message: messageQueue)
+			for (Message<?> message: messageQueue)
 				exitStatus.addExitDescription((String) message.getHeaders().get(WaspStatusMessageTemplate.EXIT_DESCRIPTION_HEADER));
 			if (abandonStep)
 				exitStatus =  ExitStatus.FAILED; // modify exit code if abandoned
 			else if (stopStep)
 				exitStatus =  ExitStatus.STOPPED; // modify exit code if stopped
 		}
-		this.messageQueue.clear(); // clean up in case of restart
-		logger.debug(name + "AfterStep() going to return ExitStatus of '"+exitStatus.toString()+"'");
 		
+		// send reply messages to message channels of logged messages providing reply channels
+		sendSuccessReplyToAllMessagesInQueue();
+		this.messageQueue.clear(); // clean up in case of restart
+		logger.debug(name + "AfterStep() going to return ExitStatus of '" + exitStatus.toString() + "'");
 		return exitStatus;
 	}
 
@@ -147,11 +144,6 @@ public class ListenForStatusTasklet extends WaspTasklet implements MessageHandle
 				abandonStep = true;
 			}
 		}
-	}
-
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		// Do Nothing here
 	}
 
 }

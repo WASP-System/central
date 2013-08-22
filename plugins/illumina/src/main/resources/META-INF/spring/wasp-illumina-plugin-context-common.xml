@@ -37,7 +37,7 @@
 
 	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaHiSeq" ref="waspIlluminaHiseqPlugin" method="process" />
 	
-	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
+	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
 		<constructor-arg name="pluginName" ref="hiseqPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaHiSeq" />
@@ -54,7 +54,5 @@
 		</property>
 		<property name="casava" ref="casava" />
 	</bean>
-	
-	
 
 </beans>

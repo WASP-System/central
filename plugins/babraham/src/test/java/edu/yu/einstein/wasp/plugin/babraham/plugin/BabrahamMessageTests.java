@@ -31,7 +31,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.FileStatusMessageTemplate;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileType;
-import edu.yu.einstein.wasp.plugin.babraham.integration.BabrahamFastqMessageSplitter;
+import edu.yu.einstein.wasp.plugin.babraham.integration.endpoints.BabrahamFastqMessageSplitter;
 import edu.yu.einstein.wasp.service.FileService;
 
 @ContextConfiguration(locations={"/babraham-test-context.xml"})

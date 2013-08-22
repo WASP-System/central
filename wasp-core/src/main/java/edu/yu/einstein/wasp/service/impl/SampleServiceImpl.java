@@ -740,7 +740,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  messageTemplate.setStatus(status); // sample received (CREATED) or abandoned (ABANDONED)
 		  try{
-			  sendOutboundMessage(messageTemplate.build(), false);
+			  sendOutboundMessage(messageTemplate.build(), true);
 		  } catch (MessagingException e){
 			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		  }
@@ -768,7 +768,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		  }
 		  messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (FAILED)
 		  try{
-			  sendOutboundMessage(messageTemplate.build(), false);
+			  sendOutboundMessage(messageTemplate.build(), true);
 		  } catch (MessagingException e){
 			  throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		  }

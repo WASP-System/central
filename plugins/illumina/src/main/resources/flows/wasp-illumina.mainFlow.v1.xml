@@ -41,7 +41,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.updateRunCompleted" next="waspIlluminaHiSeq.mainFlow.createSampleSheet">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.UpdateRunCompletedTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.tasklets.UpdateRunCompletedTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
@@ -49,7 +49,7 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.createSampleSheet" next="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline">
 			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.SampleSheetTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.tasklets.SampleSheetTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
@@ -57,14 +57,14 @@
 		<batch:step id="waspIlluminaHiSeq.mainFlow.startIlluminaPipeline" next="waspIlluminaHiSeq.mainFlow.stageResults">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.PipelineTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.tasklets.PipelineTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.stageResults" next="waspIlluminaHiSeq.mainFlow.demultiplex">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.StageResultsTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.tasklets.StageResultsTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>
@@ -75,7 +75,7 @@
 		</batch:step>
 		<batch:step id="waspIlluminaHiSeq.mainFlow.registerFiles" next="waspIlluminaHiSeq.mainFlow.listenForQCCompletion">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.illumina.RegisterFilesTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.tasklets.RegisterFilesTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 				</bean>
 			</batch:tasklet>

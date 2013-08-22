@@ -69,7 +69,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @param run
 	 * @throws WaspMessageBuildingException 
 	 */
-	public void initiateRun(Run run) throws WaspMessageBuildingException;
+	public void initiateRun(Run run);
 
 	/**
 	 * Update details of existing sequencing run
@@ -203,7 +203,7 @@ public interface RunService extends WaspMessageHandlingService {
 	 * @return
 	 * @throws WaspMessageBuildingException 
 	 */
-	public Run updateAndInitiateRun(Run run) throws WaspMessageBuildingException;
+	public Run updateAndInitiateRun(Run run);
 
 	public void updateRunQcStatusSetComplete(Run run) throws WaspMessageBuildingException;
 }
