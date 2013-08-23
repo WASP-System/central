@@ -39,6 +39,8 @@ import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
@@ -599,7 +601,8 @@ public class EmailServiceImpl implements EmailService{
 		String machine = null;
 		String readType = null;
 		String readLength = null;
-		
+		/*
+		 Do NOT go through using the key for extraJobDetailsMap, as it is the value of things like "jobdetail_for_import.Read_Length.label" which can easily change
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		for(String key : extraJobDetailsMap.keySet()){
 			if(key.contains("machine")){
@@ -610,6 +613,27 @@ public class EmailServiceImpl implements EmailService{
 			}
 			else if(key.contains("readLength")){
 				readLength = new String(extraJobDetailsMap.get(key));
+			}
+		}
+		*/
+		List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
+		String area = null;
+		for(JobResourcecategory jrc : jobResourceCategoryList){
+			if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
+				  machine = jrc.getResourceCategory().getName();
+				  area = jrc.getResourceCategory().getIName();
+				  break;
+			}
+		}
+		for(JobMeta jm : job.getJobMeta()){
+			if(jm.getK().toLowerCase().contains("readlength")){
+				readLength = new String(jm.getV());
+			}
+			if(jm.getK().toLowerCase().contains("readtype")){
+				readType = new String(jm.getV());
+			}
+			if(readType!=null && readLength!=null){
+				break;
 			}
 		}
 		if(machine==null){machine = new String("");}

@@ -72,7 +72,19 @@ public class JobEmailServiceActivator {
 		}
 		
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
-		
+
+		//6-16-13; dubin. Observed situations where, immediately after a job draft was submitted to be transformed to a de-facto job, 
+		//job.getId() was null after this call:
+		//Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId()); 
+		//It was as likely due to a synchronization imbalance between the main program and batch. 
+		//To mitigate this problem, I added the following 1 second sleep, which should not affect the web, only the batch (affecting batch like this is irrelevant)
+		//Tested and appears to help this problem. Note: could really put this after the first if statement, but just in case, leave here.
+		try{
+			Thread.currentThread();
+			Thread.sleep(1000);//sleep for 1000 ms
+		}
+		catch(InterruptedException ie){	}
+	
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 			if(job != null && job.getId() != null){

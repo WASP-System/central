@@ -111,4 +111,32 @@ public class SampleWrapperWebapp extends SampleWrapper{
 		return getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, result, null);
 	}
 
+	/**
+	 * Gets all metadata filled in on the form from json map using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. Applies visibilityElementMap.
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param areas
+	 * @param result
+	 * @param visibilityElementMap
+	 * @return list of sample meta data
+	 */
+	public static List<SampleMeta> getValidatedMetaFromJsonAndTemplateToSubtype(Map<String,String> jsonMap, SampleSubtype sampleSubtype, BindingResult result, Map<String, MetaAttribute.FormVisibility> visibilityElementMap){
+		List<SampleMeta> validatedFormMeta = new ArrayList<SampleMeta>();
+		try {
+			validatedFormMeta = SampleAndSampleDraftMetaHelper.getValidatedMetaFromJsonAndTemplateToSubtype(jsonMap, sampleSubtype, result, SampleMeta.class);
+  		} catch(MetadataTypeException e){
+  			logger.warn("caught unexpected MetadataTypeException with message: "+ e.getMessage());
+  		}
+		return validatedFormMeta;
+	}
+	/**
+	 * Gets all metadata filled in on the form from json map using the areas representative of the supplied {@link SampleSubtype} and validates. Validation errors are added to the result. 
+	 * @param Map<String,String> jsonMap (json converted to Map<String,String>)
+	 * @param areas
+	 * @param result
+	 * @return list of sample meta data
+	 */
+	public static List<SampleMeta> getValidatedMetaFromJsonAndTemplateToSubtype(Map<String,String> jsonMap, SampleSubtype sampleSubtype, BindingResult result){
+		return getValidatedMetaFromJsonAndTemplateToSubtype(jsonMap, sampleSubtype, result, null);
+	}
+
 }
