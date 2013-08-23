@@ -2,6 +2,7 @@ package edu.yu.einstein.wasp.batch.core.extension.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.batch.core.repository.dao.JobExecutionDao;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
@@ -32,20 +34,15 @@ import edu.yu.einstein.wasp.exception.BatchDaoDataRetrievalException;
 @Repository
 public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements WaspStepExecutionDao, InitializingBean{
 	
-	private WaspJobInstanceDao waspJobInstanceDao;
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
-	private JobExecutionDao jobExecutionDao;
+	private WaspJobExecutionDao waspJobExecutionDao;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public void setWaspJobInstanceDao(WaspJobInstanceDao waspJobInstanceDao){
-		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be null");
-		this.waspJobInstanceDao = waspJobInstanceDao;
-	}
-	
-	public void setJobExecutionDao(JobExecutionDao jobExecutionDao){
-		Assert.notNull(jobExecutionDao, "jobExecutionDao cannot be null");
-		this.jobExecutionDao = jobExecutionDao;
+	public void setWaspJobExecutionDao(WaspJobExecutionDao waspJobExecutionDao){
+		Assert.notNull(waspJobExecutionDao, "waspJobExecutionDao cannot be null");
+		this.waspJobExecutionDao = waspJobExecutionDao;
 	}
 	
 	/**
@@ -53,8 +50,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	 */
 	@Override
 	public List<StepExecution> getStepExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus){
-		Assert.notNull(waspJobInstanceDao, "waspJobInstanceDao cannot be  null");
-		Assert.notNull(jobExecutionDao, "jobExecutionDao cannot be null");
+		Assert.notNull(waspJobExecutionDao, "waspJobExecutionDao cannot be  null");
 		final List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 		
 		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
@@ -62,33 +58,33 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 				+ "(STEP_NAME LIKE :name1 or STEP_NAME LIKE :name2) and JE.JOB_EXECUTION_ID = SE.JOB_EXECUTION_ID";
 		if (name == null)
 			name = "";
-		parameterSource.addValue("name1", "%" + name);
-		parameterSource.addValue("name2", name + "%");
+		parameterSource.addValue("name1", "%" + name, Types.VARCHAR);
+		parameterSource.addValue("name2", name + "%", Types.VARCHAR);
 		if (batchStatus != null){
 			sql += " and SE.STATUS = :status ";
-			parameterSource.addValue("status", batchStatus.toString());
+			parameterSource.addValue("status", batchStatus.toString(), Types.VARCHAR);
 		}
 		if (exitStatus != null){
 			sql += " and EXIT_CODE = :exitStatus ";
-			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString());
+			parameterSource.addValue("exitStatus", exitStatus.getExitCode().toString(), Types.VARCHAR);
 		}
 		if (parameterMap != null){
 			if (exclusive == null)
 				exclusive = false;
-			List<Long> jobInstanceIds = null;
+			List<Long> jobExecutionIds = null;
 			if (exclusive){
-				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByExclusivelyMatchingParameters(parameterMap);
+				jobExecutionIds = waspJobExecutionDao.getJobExecutionIdsByExclusivelyMatchingParameters(parameterMap);
 			} else {
-				jobInstanceIds = waspJobInstanceDao.getJobInstanceIdsByMatchingParameters(parameterMap);
+				jobExecutionIds = waspJobExecutionDao.getJobExecutionIdsByMatchingParameters(parameterMap);
 			}
-			if (jobInstanceIds == null || jobInstanceIds.isEmpty())
+			if (jobExecutionIds == null || jobExecutionIds.isEmpty())
 				return stepExecutions;
 
-			sql += " and JE.JOB_INSTANCE_ID in ( ";
+			sql += " and JE.JOB_EXECUTION_ID in ( ";
 			
 			int index = 1;
-			for (Long id: jobInstanceIds){
-				parameterSource.addValue("id"+index, id);
+			for (Long id: jobExecutionIds){
+				parameterSource.addValue("id"+index, id, Types.BIGINT);
 				if (index > 1)
 					sql += ",";
 				sql += " :id" + index;
@@ -105,7 +101,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			
 			@Override
 			public StepExecution mapRow(ResultSet rs, int rowNum) throws SQLException {
-				JobExecution jobExecution = jobExecutionDao.getJobExecution(rs.getLong(1));
+				JobExecution jobExecution = waspJobExecutionDao.getJobExecution(rs.getLong(1));
 				if (jobExecution == null)
 					throw new SQLException("Failed to map result for row number " + rowNum + "(jobExecutionId=" + rs.getLong(1) + ") to a JobExecution: ");
 				Long stepExecutionId = rs.getLong(2);
@@ -118,7 +114,7 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 			}
 		};
 		
-		getJdbcTemplate().query(getQuery(sql), mapper, parameterSource);
+		namedParameterJdbcTemplate.query(getQuery(sql), parameterSource, mapper);
 		return stepExecutions;
 	}
 	
@@ -127,11 +123,12 @@ public class JdbcWaspStepExecutionDao extends JdbcStepExecutionDao implements Wa
 	 */
 	@Override
 	public JobParameters getJobParameters(StepExecution stepExecution){
-		return (waspJobInstanceDao.getJobInstance(jobExecutionDao.getJobExecution(stepExecution.getJobExecutionId()))).getJobParameters();
+		return (waspJobExecutionDao.getJobExecution(stepExecution.getJobExecutionId())).getJobParameters();
 	}
 	
 	
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
+		namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getJdbcTemplate());
 	}
 }

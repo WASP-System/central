@@ -4,6 +4,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+  <bean id="genericPluginResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="Generic Plugin" />
+    <property name="area" value="genericPlugin" />
+  </bean>
    
   <bean id="mpsResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
     <property name="name" value="Massively Parallel DNA Sequencer" />

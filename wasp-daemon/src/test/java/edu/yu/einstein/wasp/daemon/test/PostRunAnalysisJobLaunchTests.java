@@ -17,7 +17,6 @@ import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.Message;
@@ -38,9 +37,7 @@ import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.batch.core.extension.JobExplorerWasp;
 import edu.yu.einstein.wasp.batch.launch.BatchJobLaunchContext;
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.WaspJobSoftwareLaunchTasklet;
-import edu.yu.einstein.wasp.daemon.service.BatchJobService;
 import edu.yu.einstein.wasp.dao.RunDao;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -65,7 +62,6 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @ContextConfiguration(locations={"/daemon-test-launch-context.xml","/daemon-test-wiretap.xml","/daemon-test-batchJob.xml"})
-
 public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTests implements MessageHandler {
 	
 	// mockRunService and mockRunDao are mocked in context to keep Spring happy when resolving dependencies on bean creation
@@ -232,6 +228,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 				@Override public Set<?> getProvides() { return null;	}
 				@Override public Set<?> getHandles() { return null;	}
 				@Override public String getPluginName() { return null; }
+				@Override public String getPluginDescription() { return null; }
 			};
 			
 			List<BatchJobProviding> plugins = new ArrayList<BatchJobProviding>();
@@ -253,7 +250,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 		}
 					
 	}
-	
+
 	@Test (groups = "unit-tests-batch-integration")
 	public void softwareLaunch() {
 		final String LAUNCH_JOB_NAME = "test.launchSoftwareJob";
@@ -264,6 +261,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			@Override public Set<?> getProvides() { return null;	}
 			@Override public Set<?> getHandles() { return null;	}
 			@Override public String getPluginName() { return null; }
+			@Override public String getPluginDescription() { return null; }
 		};
 		
 		List<JobMeta> jobMetaList = new ArrayList<JobMeta>();
@@ -322,7 +320,7 @@ public class PostRunAnalysisJobLaunchTests extends AbstractTestNGSpringContextTe
 			// validate proper completion of alignment step and that it was called with expected parameters
 			JobExecution je = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(ALIGN_JOB_NAME));
 			Assert.assertEquals(je.getStatus(), BatchStatus.COMPLETED);
-			JobParameters params = je.getJobInstance().getJobParameters();
+			JobParameters params = je.getJobParameters();
 			Assert.assertEquals(params.getParameters().size(), 3);
 			Assert.assertNotNull(params.getString("libraryCellIdList"));
 			Assert.assertNotNull(params.getString("p1"));

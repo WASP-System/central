@@ -105,8 +105,6 @@ public interface RunService extends WaspMessageHandlingService {
 	 */
 	public Set<Run> getSuccessfullyCompletedRuns();
 
-	public void launchBatchJob(String flow, Map<String, String> jobParameters) throws WaspMessageBuildingException;
-
 
 	/**
 	 * Gets a list of all non-control library-cell relationships on a run from cells that are marked as being successful and returns

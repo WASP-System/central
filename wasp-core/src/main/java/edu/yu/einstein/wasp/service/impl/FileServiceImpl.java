@@ -36,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.persistence.TypedQuery;
 
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,6 +68,7 @@ import edu.yu.einstein.wasp.exception.FileDownloadException;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.GridAccessException;
@@ -88,13 +92,13 @@ import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.FileTypeViewProviding;
+import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipOutputStream;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing.Status;
+import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 
 @Service
@@ -832,6 +836,12 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 			throw new PluginException("More than one plugin found for area=" + area + " with class=SequencingViewProviding");
 		return plugins.get(0).getFileDetails(filegroup.getId());
 	}
+	
+	@Override
+	public List<FileDataTabViewing> getTabViewProvidingPluginsByFileGroup(FileGroup fileGroup) {
+		String area = fileGroup.getFileType().getIName();
+		return pluginRegistry.getPluginsHandlingArea(area, FileDataTabViewing.class);
+	}
 
 	@Override
 	public Set<FileGroup> getFilesForCellLibraryByType(SampleSource cellLibrary, FileType fileType) {
@@ -1391,59 +1401,9 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService {
 
 	@Override
 	public String getMimeType(String fileName){
-		
-		//TODO FYI java7: heads up that in Java 7 you can now just use Files.probeContentType(path).
-		//list at http://www.freeformatter.com/mime-types-list.html	
-		String mimeType = "";
-		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
-		
-		if(fileExtension.equalsIgnoreCase("pdf")){
-			mimeType = "application/pdf";
-		}
-		else if(fileExtension.equalsIgnoreCase("htm") || fileExtension.equalsIgnoreCase("html")){
-			mimeType = "text/html";
-		}
-		else if(fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("text")){
-			mimeType = "text/plain";
-		}
-		else if(fileExtension.equalsIgnoreCase("bmp")){
-			mimeType = "image/bmp";
-		}
-		else if(fileExtension.equalsIgnoreCase("csv")){
-			mimeType = "text/csv";
-		}
-		else if(fileExtension.equalsIgnoreCase("gif")){
-			mimeType = "image/gif";
-		}
-		else if(fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")){
-			mimeType = "image/jpeg";
-		}
-		else if(fileExtension.equalsIgnoreCase("png")){
-			mimeType = "image/png";
-		}
-		else if(fileExtension.equalsIgnoreCase("tif")){
-			mimeType = "image/tiff";
-		}
-		/* these types of files download instead of being visible - do not use these here
-		else if(fileExtension.equalsIgnoreCase("docx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-		}
-		else if(fileExtension.equalsIgnoreCase("doc")){
-			mimeType = "application/msword";
-		}
-		else if(fileExtension.equalsIgnoreCase("ppt")){
-			mimeType = "application/vnd.ms-powerpoint";
-		}
-		else if(fileExtension.equalsIgnoreCase("pptx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-		}
-		else if(fileExtension.equalsIgnoreCase("xls")){
-			mimeType = "application/vnd.ms-excel";
-		}
-		else if(fileExtension.equalsIgnoreCase("xlsx")){
-			mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-		}
-		*/
+		ConfigurableMimeFileTypeMap mimeMap = new ConfigurableMimeFileTypeMap();
+		String mimeType = mimeMap.getContentType(fileName);
+		logger.debug("ContentType of file is: " + mimeType);
 		return mimeType;
 	}
 

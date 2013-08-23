@@ -54,37 +54,26 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		  	SampleSubtype sampleSubtype = sampleSubtypeDao.getSampleSubtypeByIName(iname); 
 		    String areaListString = StringUtils.join(areaList, ",");
 		    // inserts or update sampleSubtype
-		    if (sampleSubtype.getSampleSubtypeId() == null) {
+		    if (sampleSubtype.getId() == null) {
 		      sampleSubtype = new SampleSubtype();
 
 		      sampleSubtype.setIName(iname);
 		      sampleSubtype.setName(name);
 		      sampleSubtype.setIsActive(isActive);
-		      sampleSubtype.setSampleTypeId(sampleType.getSampleTypeId());
+		      sampleSubtype.setSampleTypeId(sampleType.getId());
 		      sampleSubtype.setAreaList(areaListString);
 
 		      sampleSubtype = sampleSubtypeDao.save(sampleSubtype); 
 
 		    } else {
-		      boolean changed = false;
-		      if (!sampleSubtype.getName().equals(name)){
+		      if (sampleSubtype.getName() == null || !sampleSubtype.getName().equals(name))
 		    	  sampleSubtype.setName(name);
-		    	  changed = true;
-		      }
-		      if (sampleSubtype.getSampleTypeId().intValue() != sampleType.getSampleTypeId().intValue()){
-		    	  sampleSubtype.setSampleTypeId(sampleType.getSampleTypeId());
-		    	  changed = true;
-		      }
-		      if (!sampleSubtype.getAreaList().equals(areaList)){
+		      if (sampleSubtype.getSampleTypeId() == null || sampleSubtype.getSampleTypeId().intValue() != sampleType.getId().intValue())
+		    	  sampleSubtype.setSampleTypeId(sampleType.getId());
+		      if (sampleSubtype.getAreaList() == null || !sampleSubtype.getAreaList().equals(areaList))
 		    	  sampleSubtype.setAreaList(areaListString);
-		    	  changed = true;
-		      }
-		      if (sampleSubtype.getIsActive().intValue() != isActive){
+		      if (sampleSubtype.getIsActive().intValue() != isActive)
 		    	  sampleSubtype.setIsActive(isActive);
-		    	  changed = true;
-		      }
-		      if (changed)
-		    	  sampleSubtypeDao.save(sampleSubtype); 
 		    }
 		  return sampleSubtype;
 	  }
@@ -138,7 +127,7 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		            continue; 
 		          }
 
-		        sampleSubtypeMeta.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());
+		        sampleSubtypeMeta.setSampleSubtypeId(sampleSubtype.getId());
 		        sampleSubtypeMeta.setPosition(1);
 		        sampleSubtypeMetaDao.save(sampleSubtypeMeta);
 		      }
@@ -163,10 +152,10 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 		    		oldSampleSubtypeResourceCats.remove(resourceCat.getIName());
 		    		continue;
 		    	}
-		    	if (resourceCat.getResourceCategoryId() != null){
+		    	if (resourceCat.getId() != null){
 		    		SampleSubtypeResourceCategory sampleSubtypeResourceCategory = new SampleSubtypeResourceCategory();
-		    		sampleSubtypeResourceCategory.setResourcecategoryId(resourceCat.getResourceCategoryId());
-		    		sampleSubtypeResourceCategory.setSampleSubtypeId(sampleSubtype.getSampleSubtypeId());
+		    		sampleSubtypeResourceCategory.setResourcecategoryId(resourceCat.getId());
+		    		sampleSubtypeResourceCategory.setSampleSubtypeId(sampleSubtype.getId());
 		    		sampleSubtypeResourceCategoryDao.save(sampleSubtypeResourceCategory);
 		    		oldSampleSubtypeResourceCats.remove(resourceCat.getIName());
 		    	} else {
@@ -202,7 +191,7 @@ public class SampleSubtypeLoadServiceImpl extends WaspLoadServiceImpl implements
 	  @Override
 	  public void validateApplicableRoles(String applicableRolesString){
 		  for (String applicableRole : applicableRolesString.split(",")){
-			  if (roleDao.getRoleByRoleName(applicableRole).getRoleId() == null)
+			  if (roleDao.getRoleByRoleName(applicableRole).getId() == null)
 				  throw new InvalidRoleException("Role '"+applicableRole+"' is not in the list of valid roles");
 		  }
 	  }

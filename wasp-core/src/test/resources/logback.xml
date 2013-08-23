@@ -17,6 +17,10 @@
 </encoder>
 </appender>
 <logger name="edu.yu.einstein.wasp" level="DEBUG"/>
+<logger name="org.hibernate" level="DEBUG"/>
+<logger name="org.hsqldb" level="DEBUG"/>
+<logger name="org.springframework.jdbc" level="DEBUG"/>
+<logger name="org.apache.commons.dbcp" level="DEBUG"/>
 <root level="INFO">
 <appender-ref ref="stdout"/>
 </root>

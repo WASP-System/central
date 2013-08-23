@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.RunCell;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einstein.wasp.dao.RunCellDao {
 
@@ -44,7 +44,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public RunCell getRunCellByRunCellId (final int runCellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", runCellId);
@@ -69,7 +69,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public RunCell getRunCellByRunIdResourcecellId (final int runId, final int resourcecellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("runId", runId);
@@ -95,7 +95,7 @@ public class RunCellDaoImpl extends WaspDaoImpl<RunCell> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public RunCell getRunCellBySampleIdRunId (final int sampleId, final int runId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);

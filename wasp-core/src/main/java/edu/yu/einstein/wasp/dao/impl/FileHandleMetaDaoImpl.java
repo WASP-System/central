@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.FileHandleMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileHandleMetaDaoImpl extends WaspMetaDaoImpl<FileHandleMeta> implements edu.yu.einstein.wasp.dao.FileHandleMetaDao {
 
@@ -44,7 +44,7 @@ public class FileHandleMetaDaoImpl extends WaspMetaDaoImpl<FileHandleMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileHandleMeta getFileMetaByFileMetaId (final int fileMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", fileMetaId);
@@ -69,7 +69,7 @@ public class FileHandleMetaDaoImpl extends WaspMetaDaoImpl<FileHandleMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileHandleMeta getFileMetaByKFileId (final String k, final int fileId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);
@@ -93,7 +93,7 @@ public class FileHandleMetaDaoImpl extends WaspMetaDaoImpl<FileHandleMeta> imple
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileHandleMeta getFileMetaByKWorkflowId (final String k, final Integer fileId) {
     	HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

@@ -1,7 +1,9 @@
 package edu.yu.einstein.wasp.integration.messages.templates;
 
 import org.springframework.integration.Message;
+import org.springframework.integration.support.MessageBuilder;
 
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 
 
@@ -17,21 +19,34 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 	
 	protected WaspStatus status;
 	
-	protected String exitDescription = "";
-	
 	public WaspStatusMessageTemplate(Message<WaspStatus> message){
 		super(message);
 		if (message.getHeaders().containsKey(EXIT_DESCRIPTION_HEADER))
-			exitDescription = (String) message.getHeaders().get(EXIT_DESCRIPTION_HEADER);
+			setHeader(EXIT_DESCRIPTION_HEADER, message.getHeaders().get(EXIT_DESCRIPTION_HEADER));
 		status = message.getPayload();
 	}
 	
+	public WaspStatusMessageTemplate(){
+		super();
+		this.status = null;
+	}	
+	
+	public WaspStatusMessageTemplate(String target){
+		super(target); 
+		this.status = null;
+	}
+	
+	public WaspStatusMessageTemplate(String target, String task){
+		super(target, task);
+		this.status = null;
+	}
+	
 	public String getExitDescription() {
-		return exitDescription;
+		return (String) getHeader(EXIT_DESCRIPTION_HEADER);
 	}
 
 	public void setExitDescription(String exitDescription) {
-		this.exitDescription = exitDescription;
+		setHeader(EXIT_DESCRIPTION_HEADER, exitDescription);
 	}
 
 	@Override
@@ -47,9 +62,27 @@ public abstract class WaspStatusMessageTemplate extends WaspMessageTemplate impl
 		this.status = status;
 	}
 	
-	public WaspStatusMessageTemplate(){
-		super();
-		this.status = null;
-	}	
+	/**
+	 * Build a Spring Integration Message using the ANALYSIS header, task header if not null, and the WaspStatus as payload .
+	 * @return
+	 * @throws WaspMessageBuildingException
+	 */
+	@Override
+	public Message<WaspStatus> build() throws WaspMessageBuildingException{
+		if (this.status == null)
+			throw new WaspMessageBuildingException("no status message defined");
+		Message<WaspStatus> message = null;
+		try {
+			message = MessageBuilder.withPayload(status)
+						.copyHeaders(getHeaders())
+						.setPriority(status.getPriority())
+						.build();
+		} catch(Exception e){
+			throw new WaspMessageBuildingException("build() failed to build message: "+e.getMessage());
+		}
+		return message;
+	}
+	
+	
 }
 	

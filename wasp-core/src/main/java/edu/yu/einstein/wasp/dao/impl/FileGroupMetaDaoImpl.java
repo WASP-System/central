@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.dao.FileGroupMetaDao;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileGroupMetaDaoImpl extends WaspMetaDaoImpl<FileGroupMeta> implements FileGroupMetaDao {
 	

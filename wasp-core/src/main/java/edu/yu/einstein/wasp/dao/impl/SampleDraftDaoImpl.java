@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.SampleDraft;
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.yu.einstein.wasp.dao.SampleDraftDao {
 
@@ -29,7 +29,7 @@ public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.
 	}
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleDraft getSampleDraftBySampleDraftId(final int sampleDraftId) {
 		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleDraftId);
@@ -42,7 +42,7 @@ public class SampleDraftDaoImpl extends WaspDaoImpl<SampleDraft> implements edu.
 	}
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public List<SampleDraft> getSampleDraftByJobId(final int jobDraftId) {
 		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobDraftId", jobDraftId);

@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class WaspBatchJobExecutionException extends Exception {
+public class WaspBatchJobExecutionException extends WaspException {
 	/**
 	 * 
 	 */

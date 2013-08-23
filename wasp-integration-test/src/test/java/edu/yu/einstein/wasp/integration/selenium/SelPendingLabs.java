@@ -19,6 +19,7 @@ import edu.yu.einstein.wasp.util.SeleniumHelper;
  * @author nvolnova
  *
  */
+
 public class SelPendingLabs extends SelBaseTest{
   
   @BeforeClass
@@ -35,7 +36,7 @@ public class SelPendingLabs extends SelBaseTest{
    * @param sApprovedUrl
    * @throws Exception
    */
-  @Test (groups = "integration-tests",  dataProvider = "DP1")
+  @Test (groups = {"integration-tests", "pending-lab-approval"},  dataProvider = "DP1")
   public void pendingLabApprove(String sUserName, String sUserPass, String sPiEmail, String sUserEmail, String sApprovedUrl) throws Exception {   
 		
 	  SeleniumHelper.login(sUserName, sUserPass);	 
@@ -43,8 +44,6 @@ public class SelPendingLabs extends SelBaseTest{
 	  driver.findElement(By.linkText("Tasks")).click();
 	  Assert.assertNotNull(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")), "Unable to locate 'Department Administration Tasks' link.");
 	  Assert.assertTrue(driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).isDisplayed());	  
-
-	  //driver.findElement(By.xpath("//a[contains(@href,'/wasp/task/daapprove/list.do')]")).click();
 	  driver.findElement(By.linkText("Department Administration Tasks")).click();
 	  
 	  Assert.assertTrue(SeleniumHelper.verifyTextPresent(sPiEmail),"Lab "+ sPiEmail +" not found");

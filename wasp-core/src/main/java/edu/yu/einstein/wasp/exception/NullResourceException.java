@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class NullResourceException extends RuntimeException {
+public class NullResourceException extends WaspRuntimeException {
 	/**
 	 * 
 	 */

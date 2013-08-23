@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class MetaAttributeNotFoundException extends Exception {
+public class MetaAttributeNotFoundException extends WaspException {
 	
 	/**
 	 * 

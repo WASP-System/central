@@ -3,18 +3,13 @@ package edu.yu.einstein.wasp.integration.selenium;
 import java.util.List;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Mouse;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.internal.Locatable;
-import org.openqa.selenium.HasInputDevices;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -39,7 +34,7 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
 	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
     	
   		SeleniumHelper.login(sUserName, sUserPass);
@@ -63,7 +58,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();
+    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();// set @value to 2 when testing on barcelona and to 1 when local
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	

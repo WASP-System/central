@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author rdubin
  *
  */
-public class ResourceException extends Exception{
+public class ResourceException extends WaspException {
 	
 	/**
 	 * 

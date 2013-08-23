@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.SampleTypeCategory;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> implements edu.yu.einstein.wasp.dao.SampleTypeCategoryDao {
 
@@ -44,7 +44,7 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleTypeCategory getSampleTypeCategoryBySampleTypecategoryId (final Integer sampleTypecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", sampleTypecategoryId);
@@ -69,7 +69,7 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleTypeCategory getSampleTypeCategoryByIName (final String iName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -94,7 +94,7 @@ public class SampleTypeCategoryDaoImpl extends WaspDaoImpl<SampleTypeCategory> i
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleTypeCategory getSampleTypeCategoryByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

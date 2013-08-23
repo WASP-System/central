@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourcecategory> implements edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao {
 
@@ -44,7 +44,7 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftresourcecategory getJobDraftresourcecategoryByJobDraftresourcecategoryId (final Integer jobDraftresourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobDraftresourcecategoryId);
@@ -69,7 +69,7 @@ public class JobDraftresourcecategoryDaoImpl extends WaspDaoImpl<JobDraftresourc
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftresourcecategory getJobDraftresourcecategoryByResourcecategoryIdJobDraftId (final Integer resourcecategoryId, final Integer jobDraftId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("resourcecategoryId", resourcecategoryId);

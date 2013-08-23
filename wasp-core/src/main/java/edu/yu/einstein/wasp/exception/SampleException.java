@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class SampleException extends Exception{
+public class SampleException extends WaspException {
 	
 	/**
 	 * 

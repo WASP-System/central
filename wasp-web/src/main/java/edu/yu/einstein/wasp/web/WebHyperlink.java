@@ -9,7 +9,7 @@ import edu.yu.einstein.wasp.service.MessageService;
  * 
  * @author asmclellan
  */
-public class WebHyperlink extends Hyperlink{
+public class WebHyperlink extends Hyperlink implements Comparable<WebHyperlink>{
 	
 	protected String localizedLabelKey;
 	
@@ -66,6 +66,11 @@ public class WebHyperlink extends Hyperlink{
 			return localizedLabelKey;
 		this.label =  this.messageService.getMessage(localizedLabelKey);
 		return this.label;
+	}
+
+	@Override
+	public int compareTo(WebHyperlink o) {
+		return getLabel().compareToIgnoreCase(o.getLabel());
 	}
 
 

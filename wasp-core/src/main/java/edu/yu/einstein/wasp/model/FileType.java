@@ -146,6 +146,34 @@ public class FileType extends WaspModel {
 	public String getDescription () {
 		return this.description;
 	}
+	
+	/** 
+	 * extension
+	 *
+	 */
+	@Column(name="extension")
+	protected String extension;
+
+	/**
+	 * setExtension(String extension)
+	 *
+	 * @param extension
+	 *
+	 */
+	
+	public void setExtension (String extension) {
+		this.extension = extension;
+	}
+
+	/**
+	 * getExtension()
+	 *
+	 * @return extension
+	 *
+	 */
+	public String getExtension () {
+		return this.extension;
+	}
 
 
 

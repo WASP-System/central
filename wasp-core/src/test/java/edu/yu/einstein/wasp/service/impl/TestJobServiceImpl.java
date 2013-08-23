@@ -257,8 +257,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
@@ -332,8 +332,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
@@ -393,16 +393,16 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  //jobParameter = new JobParameter("Param1");
 	  jobParameters = new JobParameters();
 	  
-	  jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 	  
 	  List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
 	  stepExecutions.add(stepExecution);
 	  
 	  JobParameters jobParameters2 = new JobParameters();
-	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name1");
-	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345));
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution2= new JobExecution(jobInstance2, new Long(12345), jobParameters2);
 	  StepExecution stepExecution2= new StepExecution("Step Name1", jobExecution2, new Long(12345));
 	  stepExecutions.add(stepExecution2);
 
@@ -457,12 +457,12 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 
 	  JobParameters jobParameters = new JobParameters();
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  JobInstance jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  
 	  JobParameters jobParameters2 = new JobParameters();
-	  JobInstance jobInstance2 = new JobInstance(new Long(12345), jobParameters2, "Job Name2");
-	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(2345));
+	  JobInstance jobInstance2 = new JobInstance(new Long(12345), "Job Name2");
+	  JobExecution jobExecution2 = new JobExecution(jobInstance2, new Long(2345), jobParameters2);
 	  
 	  List<JobExecution> jobExecutions = new ArrayList<JobExecution>();
 	  jobExecutions.add(jobExecution);
@@ -507,8 +507,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	    JobInstance jobInstance;
 		JobParameters jobParameters;
 		jobParameters = new JobParameters();
-		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		jobInstance = new JobInstance(new Long(12345), "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 		stepExecution.setExitStatus(ExitStatus.EXECUTING);
 		stepExecution.setStatus(BatchStatus.STARTED);
@@ -542,8 +542,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	    JobInstance jobInstance;
 		JobParameters jobParameters;
 		jobParameters = new JobParameters();
-		jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-		jobExecution = new JobExecution(jobInstance, new Long(12345));
+		jobInstance = new JobInstance(new Long(12345), "Job Name1");
+		jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 		stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
 		stepExecution.setExitStatus(ExitStatus.EXECUTING);
 		stepExecution.setStatus(BatchStatus.STARTED);
@@ -572,8 +572,8 @@ public class TestJobServiceImpl extends EasyMockSupport{
 	  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 	  
 	  JobParameters jobParameters = new JobParameters();
-	  JobInstance jobInstance = new JobInstance(new Long(12345), jobParameters, "Job Name1");
-	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345));
+	  JobInstance jobInstance = new JobInstance(new Long(12345), "Job Name1");
+	  JobExecution jobExecution = new JobExecution(jobInstance, new Long(12345), jobParameters);
 	  StepExecution stepExecution = new StepExecution("Step Name1", jobExecution, new Long(12345));
       stepExecution.setExitStatus(ExitStatus.EXECUTING);
       stepExecution.setStatus(BatchStatus.STARTED);
