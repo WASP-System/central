@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.ResourceCell;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements edu.yu.einstein.wasp.dao.ResourceCellDao {
 
@@ -44,7 +44,7 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCell getResourceCellByResourceCellId (final Integer resourceCellId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", resourceCellId);
@@ -69,7 +69,7 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCell getResourceCellByINameResourceId (final String iName, final Integer resourceId) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -95,7 +95,7 @@ public class ResourceCellDaoImpl extends WaspDaoImpl<ResourceCell> implements ed
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public ResourceCell getResourceCellByNameResourceId (final String name, final Integer resourceId) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

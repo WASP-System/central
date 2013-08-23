@@ -63,7 +63,7 @@
 					<c:set value="${cellLibraryQcStatusMap.get(cellLibrary)}" var="cellLibraryQcStatus" />
 					<c:set value="${cellLibraryQcStatusCommentMap.get(cellLibrary)}" var="cellLibraryQcStatusComment" />
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == true }">
-						<wasp:successIcon />
+						<wasp:successIcon  value="${cellLibraryQcStatusComment}"/>
 					</c:if>
 					<c:if test="${cellLibraryQcStatus != null && cellLibraryQcStatus == false }">
 						<div>

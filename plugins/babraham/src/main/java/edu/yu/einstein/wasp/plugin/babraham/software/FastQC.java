@@ -6,70 +6,100 @@ package edu.yu.einstein.wasp.plugin.babraham.software;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.charts.WaspBoxPlot;
 import edu.yu.einstein.wasp.exception.GridException;
-import edu.yu.einstein.wasp.filetype.FastqComparator;
-import edu.yu.einstein.wasp.filetype.service.FastqService;
-import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.fileformat.plugin.FastqComparator;
+import edu.yu.einstein.wasp.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.mps.illumina.IlluminaSequenceRunProcessor;
-import edu.yu.einstein.wasp.plugin.babraham.exception.FastQCDataParseException;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamQCParseModule;
+import edu.yu.einstein.wasp.plugin.babraham.exception.BabrahamDataParseException;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
+import edu.yu.einstein.wasp.service.FileService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 
 
 /**
- * @author calder
+ * @author calder / asmclellan
  *
  */
-public class FastQC extends SoftwarePackage {
+@Transactional("entityManager")
+public class FastQC extends SoftwarePackage{
 
 	
 	@Autowired
 	private FastqService fastqService;
 	
 	@Autowired
-	private IlluminaSequenceRunProcessor casava;
+	private MessageService messageService;
+	
+	// cannot autowire as IlluminaSequenceRunProcessor here which is all we really need. Beans referenced by base type so must
+	// as Software and use @Qualifier to specify the casava bean. 
+	// Seems to be an issue for batch but not Web which accepts IlluminaSequenceRunProcessor.
+	@Autowired
+	@Qualifier("casava")
+	private Software casava;
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7075104587205964069L;
 	
-	public static final String QC_ANALYSIS_RESULT = "result";
+	public static final String COMBINATION_FASTQ_FILE_PREFIX = "all";
+	
+	public static final String COMBINATION_FASTQ_FILE_NAME = COMBINATION_FASTQ_FILE_PREFIX + ".fastq";
+	
+	public static final String OUTPUT_ZIP_FILE_NAME = COMBINATION_FASTQ_FILE_PREFIX + "_fastqc.zip";
+	
+	public static final String OUTPUT_DATA_FILE_TO_EXTRACT = COMBINATION_FASTQ_FILE_PREFIX + "_fastqc/fastqc_data.txt";
+	
+	public static final String OUTPUT_FOLDER = "fastqcResults";
+	
+	public static final String QC_ANALYSIS_RESULT_KEY = "result";
+	
+	public static final String QC_ANALYSIS_RESULT_PASS = "pass";
+	
+	public static final String QC_ANALYSIS_RESULT_WARN = "warn";
+	
+	public static final String QC_ANALYSIS_RESULT_FAIL = "fail";
 	
 	public static class PlotType{
 		// meta keys for charts produced
-		public static final String BASIC_STATISTICS = "basic_statistics";
-		public static final String DUPLICATION_LEVELS = "duplication_levels";
-		public static final String KMER_PROFILES = "kmer_profiles";
-		public static final String PER_BASE_GC_CONTENT = "per_base_gc_content";
-		public static final String PER_BASE_N_CONTENT = "per_base_n_content";
-		public static final String PER_BASE_QUALITY = "per_base_quality";
-		public static final String PER_BASE_SEQUENCE_CONTENT = "per_base_sequence_content";
-		public static final String PER_SEQUENCE_GC_CONTENT = "per_sequence_gc_content";
-		public static final String PER_SEQUENCE_QUALITY = "per_sequence_quality";
-		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "sequence_length_distribution"; 
-		public static final String OVERREPRESENTED_SEQUENCES = "overrepresented_sequences";
+		public static final String QC_RESULT_SUMMARY = "result_summary";
+		public static final String BASIC_STATISTICS = "fastqc_basic_statistics";
+		public static final String DUPLICATION_LEVELS = "fastqc_duplication_levels";
+		public static final String KMER_PROFILES = "fastqc_kmer_profiles";
+		public static final String PER_BASE_GC_CONTENT = "fastqc_per_base_gc_content";
+		public static final String PER_BASE_N_CONTENT = "fastqc_per_base_n_content";
+		public static final String PER_BASE_QUALITY = "fastqc_per_base_quality";
+		public static final String PER_BASE_SEQUENCE_CONTENT = "fastqc_per_base_sequence_content";
+		public static final String PER_SEQUENCE_GC_CONTENT = "fastqc_per_sequence_gc_content";
+		public static final String PER_SEQUENCE_QUALITY = "fastqc_per_sequence_quality";
+		public static final String SEQUENCE_LENGTH_DISTRIBUTION = "fastqc_sequence_length_distribution"; 
+		public static final String OVERREPRESENTED_SEQUENCES = "fastqc_overrepresented_sequences";
 	}
 	
 	@Autowired
 	BabrahamService babrahamService;
+	
+	@Autowired
+	FileService fileService;
+	
 	
 	/**
 	 * 
@@ -104,7 +134,7 @@ public class FastQC extends SoftwarePackage {
 	 * @param fileGroup
 	 * @return
 	 */
-	public WorkUnit getFastQC(FileGroup fileGroup) {
+	public WorkUnit getFastQC(Integer fileGroupId) {
 		
 		WorkUnit w = new WorkUnit();
 		
@@ -117,7 +147,7 @@ public class FastQC extends SoftwarePackage {
 		w.setMemoryRequirements(1);
 		
 		// require a single thread, execution mode PROCESS
-		// indicates this is a vanilla exectuion.
+		// indicates this is a vanilla execution.
 		w.setProcessMode(ProcessMode.SINGLE);
 		w.setMode(ExecutionMode.PROCESS);
 		
@@ -139,6 +169,7 @@ public class FastQC extends SoftwarePackage {
 		// s1.R2.001
 		// s1.R1.002
 		// s1.R2.002
+		FileGroup fileGroup = fileService.getFileGroupById(fileGroupId);
 		List<FileHandle> files = new ArrayList<FileHandle>(fileGroup.getFileHandles());
 		Collections.sort(files, new FastqComparator(fastqService));
 		w.setRequiredFiles(files);
@@ -162,6 +193,8 @@ public class FastQC extends SoftwarePackage {
 		int segments = fastqService.getNumberOfReadSegments(fileGroup);
 		int files = fileGroup.getFileHandles().size();
 		
+		// fileList is an array of file name refs
+		// 1 for each read segment.
 		String[] fileList = new String[segments];
 		
 		for (int i = 0; i < segments; i++) {
@@ -175,20 +208,12 @@ public class FastQC extends SoftwarePackage {
 		}
 		
 		String opts = "--noextract --nogroup --quiet";
+		if (fileGroup.getSoftwareGeneratedBy().equals(casava))
+			opts += " --casava";
 		
-		for (int i = 0; i < segments; i++) {
-			int dir = i+1;
-			command += "mkdir " + dir + "\n";
-			// if casava, use casava mode
-			if (fileGroup.getSoftwareGeneratedBy().equals(casava)) {
-				command += "fastqc --casava " + opts + " --outdir " + i + " " + fileList[i] + "\n";
-			} else {
-				// otherwise treat like fastq
-				String name = i + ".fq";
-				command += "zcat " + fileList[i] + " > " + name + " && fastqc " + opts + " --outdir " + i + " " + name + "\n";
-			}
-		}
-
+		command += "mkdir " + OUTPUT_FOLDER + "\n";
+		command += "zcat ${" + WorkUnit.INPUT_FILE + "[@]} >> " + COMBINATION_FASTQ_FILE_NAME + " && fastqc " + opts + " --outdir " + 
+				OUTPUT_FOLDER + " " + COMBINATION_FASTQ_FILE_NAME + " && rm " + COMBINATION_FASTQ_FILE_NAME + "\n";
 		return command;
 	}
 	
@@ -200,36 +225,28 @@ public class FastQC extends SoftwarePackage {
 	 * @param result
 	 * @return
 	 * @throws GridException
-	 * @throws FastQCDataParseException
+	 * @throws BabrahamDataParseException
 	 * @throws JSONException 
 	 */
-	public Map<String,JSONObject> parseOutput(GridResult result) throws GridException, FastQCDataParseException, JSONException {
-		Map<String,JSONObject> output = new HashMap<String, JSONObject>();
-		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(result);
-		FastQCDataModule perBaseQual = mMap.get(PlotType.PER_BASE_QUALITY);
-		WaspBoxPlot boxPlot = new WaspBoxPlot();
-		boxPlot.setTitle("Quality scores across all bases");
-		boxPlot.setxAxisLabel("position in read (bp)");
-		boxPlot.setyAxisLabel("Quality Score");
-		boxPlot.addProperty(QC_ANALYSIS_RESULT, perBaseQual.getResult());
-		for (List<String> row : perBaseQual.getDataPoints()){
-			logger.debug(row.toString());
-			try{
-				boxPlot.addBoxAndWhiskers(
-						row.get(0), // Base
-						Double.valueOf(row.get(5)), // 10th Percentile
-						Double.valueOf(row.get(3)), // Lower Quartile
-						Double.valueOf(row.get(2)), // Median
-						Double.valueOf(row.get(4)), // Upper Quartile
-						Double.valueOf(row.get(6)) // 90th Percentile
-					);
-				boxPlot.addRunningMeanValue(row.get(0), Double.valueOf(row.get(1)));
-			} catch (NumberFormatException e){
-				throw new FastQCDataParseException("Caught NFE attempting to convert string values to Double");
-			}
-			output.put(PlotType.PER_BASE_QUALITY, boxPlot.getAsJSON());
-		}
+	public Map<String,JSONObject> parseOutput(String resultsDir) throws GridException, BabrahamDataParseException, JSONException {
+		Map<String,JSONObject> output = new LinkedHashMap<String, JSONObject>();
+		Map<String, FastQCDataModule> mMap = babrahamService.parseFastQCOutput(resultsDir);
+		output.put(PlotType.QC_RESULT_SUMMARY, BabrahamQCParseModule.getParsedQCResults(mMap, messageService));
+		output.put(PlotType.BASIC_STATISTICS, BabrahamQCParseModule.getParsedBasicStatistics(mMap, messageService));
+		output.put(PlotType.PER_BASE_QUALITY, BabrahamQCParseModule.getParsedPerBaseQualityData(mMap, messageService));
+		output.put(PlotType.PER_SEQUENCE_QUALITY, BabrahamQCParseModule.getPerSequenceQualityScores(mMap, messageService));
+		output.put(PlotType.PER_BASE_SEQUENCE_CONTENT, BabrahamQCParseModule.getPerBaseSequenceContent(mMap, messageService));
+		output.put(PlotType.PER_BASE_GC_CONTENT, BabrahamQCParseModule.getPerBaseGcContent(mMap, messageService));
+		output.put(PlotType.PER_SEQUENCE_GC_CONTENT, BabrahamQCParseModule.getPerSequenceGcContent(mMap, messageService));
+		output.put(PlotType.PER_BASE_N_CONTENT, BabrahamQCParseModule.getPerBaseNContent(mMap, messageService));
+		output.put(PlotType.SEQUENCE_LENGTH_DISTRIBUTION, BabrahamQCParseModule.getSequenceLengthDist(mMap, messageService));
+		output.put(PlotType.DUPLICATION_LEVELS, BabrahamQCParseModule.getSequenceDuplicationLevels(mMap, messageService));
+		output.put(PlotType.OVERREPRESENTED_SEQUENCES, BabrahamQCParseModule.getOverrepresentedSequences(mMap, messageService));
+		output.put(PlotType.KMER_PROFILES, BabrahamQCParseModule.getOverrepresentedKmers(mMap, messageService));
 		return output;
 	}
+	
+
+
 
 }

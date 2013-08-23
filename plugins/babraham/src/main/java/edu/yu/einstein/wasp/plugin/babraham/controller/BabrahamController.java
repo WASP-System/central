@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.WaspController;
-import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 
 
@@ -20,15 +19,18 @@ import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 public class BabrahamController extends WaspController {
 	
 	@Autowired
-	private MessageServiceWebapp messageService;
-	
-	@Autowired
 	private BabrahamService babrahamService;
 	
-	@RequestMapping(value="/description", method=RequestMethod.GET)
-	public String displayDescription(ModelMap m){
+	@RequestMapping(value="/fastqc/description", method=RequestMethod.GET)
+	public String displayFastQcDescription(ModelMap m){
 		logger.debug("service said: " + babrahamService.performAction());
-		return "babraham/description";
+		return "babraham/fastqc/description";
+	}
+	
+	@RequestMapping(value="/fastqscreen/description", method=RequestMethod.GET)
+	public String displayFastQScreenDescription(ModelMap m){
+		logger.debug("service said: " + babrahamService.performAction());
+		return "babraham/fastqscreen/description";
 	}
 
 }

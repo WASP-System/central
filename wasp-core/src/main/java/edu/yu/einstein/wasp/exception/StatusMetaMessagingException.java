@@ -5,7 +5,7 @@ package edu.yu.einstein.wasp.exception;
  * @author asmclellan
  *
  */
-public class StatusMetaMessagingException extends Exception {
+public class StatusMetaMessagingException extends WaspException {
 
 	/**
 	 * 

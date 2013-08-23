@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AdaptorsetResourceCategory;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetResourceCategory> implements edu.yu.einstein.wasp.dao.AdaptorsetResourceCategoryDao {
 
@@ -44,7 +44,7 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetresourcecategoryId (final Integer adaptorsetresourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", adaptorsetresourcecategoryId);
@@ -69,7 +69,7 @@ public class AdaptorsetResourceCategoryDaoImpl extends WaspDaoImpl<AdaptorsetRes
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AdaptorsetResourceCategory getAdaptorsetResourceCategoryByAdaptorsetIdResourcecategoryId (final Integer adaptorsetId, final Integer resourcecategoryId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("adaptorsetId", adaptorsetId);

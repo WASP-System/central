@@ -88,7 +88,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		jobExecutionsToRestart.addAll(jobExplorer.getJobExecutions(BatchStatus.STARTED));
 		for (JobExecution jobExecution: jobExecutionsToRestart){
 			String jobName = jobExecution.getJobInstance().getJobName();
-			JobParameters jobParameters = jobExecution.getJobInstance().getJobParameters();
+			JobParameters jobParameters = jobExecution.getJobParameters();
 			logger.info("Restarting running job '" + jobName + "' with parameters: " + jobParameters);
 			try{
 				// set jobExecution status to stopped to allow restart

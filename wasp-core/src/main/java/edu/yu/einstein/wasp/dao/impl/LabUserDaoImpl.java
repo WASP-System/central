@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.LabUser;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einstein.wasp.dao.LabUserDao {
 
@@ -44,7 +44,7 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public LabUser getLabUserByLabUserId (final int labUserId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", labUserId);
@@ -69,7 +69,7 @@ public class LabUserDaoImpl extends WaspDaoImpl<LabUser> implements edu.yu.einst
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public LabUser getLabUserByLabIdUserId (final int labId, final int userId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("labId", labId);

@@ -3,9 +3,6 @@
  */
 package edu.yu.einstein.wasp.plugin.babraham.tasklet;
 
-import java.util.Map;
-
-import org.json.JSONObject;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -17,7 +14,7 @@ import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspTasklet;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.plugin.babraham.service.BabrahamService;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC;
 import edu.yu.einstein.wasp.service.FileService;
 
@@ -31,12 +28,15 @@ public class FastQCTasklet extends WaspTasklet {
 	private FileService fileService;
 	
 	@Autowired
+	private BabrahamService babrahamService;
+	
+	@Autowired
 	private FastQC fastqc;
 	
 	@Autowired
 	private GridHostResolver hostResolver;
 
-	private FileGroup fileGroup;
+	private Integer fileGroupId;
 
 	/**
 	 * 
@@ -47,10 +47,10 @@ public class FastQCTasklet extends WaspTasklet {
 
 	public FastQCTasklet(String fileGroupId) {
 		Assert.assertParameterNotNull(fileGroupId);
-		Integer fgid = Integer.valueOf(fileGroupId);
-		this.fileGroup = fileService.getFileGroupById(fgid);
+		this.fileGroupId = Integer.valueOf(fileGroupId);
+		
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -63,17 +63,13 @@ public class FastQCTasklet extends WaspTasklet {
 		if (repeatStatus.equals(RepeatStatus.FINISHED)) {
 			// the work unit is complete, parse output
 			GridResult result = getStartedResult(context);
-
-			Map<String, JSONObject> metadata = fastqc.parseOutput(result);
-
-			
-			// TODO: Persist metadata
-		
+			// parse and save output
+			babrahamService.saveJsonForParsedSoftwareOutput(fastqc.parseOutput(result.getResultsDirectory()), fastqc, fileGroupId);
 			return RepeatStatus.FINISHED;
 		}
 		
 		// get work unit
-		WorkUnit w = fastqc.getFastQC(fileGroup);
+		WorkUnit w = fastqc.getFastQC(fileGroupId);
 		
 		// execute it
 		GridResult result = hostResolver.execute(w);

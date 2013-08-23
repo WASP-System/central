@@ -405,6 +405,7 @@ public class EmailServiceImpl implements EmailService{
 				generateMessage(user, template, model, mimeMessage); 
 			}
 		};
+		logger.debug("Sending email with template '" + template  + "' and parameters: " + model.toString());
 		this.mailSender.send(preparator);
 	}
 	

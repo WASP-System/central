@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.model.AcctGrant;
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.einstein.wasp.dao.AcctGrantDao {
 
@@ -43,7 +43,7 @@ public class AcctGrantDaoImpl extends WaspDaoImpl<AcctGrant> implements edu.yu.e
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctGrant getAcctGrantByGrantId (final int grantId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", grantId);

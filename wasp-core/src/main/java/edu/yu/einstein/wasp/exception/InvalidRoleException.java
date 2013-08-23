@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class InvalidRoleException extends RuntimeException {
+public class InvalidRoleException extends WaspRuntimeException {
 	/**
 	 * 
 	 */

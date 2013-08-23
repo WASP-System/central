@@ -3,11 +3,15 @@ package edu.yu.einstein.wasp.charts;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+import com.jcraft.jsch.Logger;
+
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.service.MessageService;
 
 /**
  * 
@@ -26,14 +30,29 @@ public class DataSeries {
 	
 	private Map<String, Object> properties;
 	
-	public DataSeries() {}
+	public DataSeries() {
+		name = "";
+		rowLabels = new ArrayList<String>();
+		colLabels = new ArrayList<String>();
+		data = new ArrayList<List<Object>>();
+		properties = new HashMap<String, Object>();
+	}
 	
 	public DataSeries(String name){
+		this();
 		this.setName(name);
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getLocalizedName(MessageService messageService) {
+		return messageService.getMessage(name);
+	}
+	
+	public String getLocalizedName(MessageService messageService, Locale locale) {
+		return messageService.getMessage(name, locale);
 	}
 
 	public void setName(String name) {
@@ -49,9 +68,38 @@ public class DataSeries {
 	 * @return
 	 */
 	public List<String> getRowLabels() {
-		if (rowLabels == null)
-			return new ArrayList<String>();
 		return rowLabels;
+	}
+	
+	/**
+	 * 
+	 * Row labels might typically represent X-axis labels but are not necessary or may be used as required.
+	 * For one dimensional data may these may be specified but the colLabels omitted.<br />
+	 * Returns an Empty list if no data.
+	 * @param messageService
+	 * @return
+	 */
+	public List<String> getLocalizedRowLabels(MessageService messageService) {
+		List<String> locLabels = new ArrayList<>();
+		for (String label: rowLabels)
+			locLabels.add(messageService.getMessage(label));
+		return locLabels;
+	}
+	
+	/**
+	 * 
+	 * Row labels might typically represent X-axis labels but are not necessary or may be used as required.
+	 * For one dimensional data may these may be specified but the colLabels omitted.<br />
+	 * Returns an Empty list if no data.
+	 * @param messageService
+	 * @param locale
+	 * @return
+	 */
+	public List<String> getLocalizedRowLabels(MessageService messageService, Locale locale) {
+		List<String> locLabels = new ArrayList<>();
+		for (String label: rowLabels)
+			locLabels.add(messageService.getMessage(label, locale));
+		return locLabels;
 	}
 	
 	/**
@@ -64,14 +112,50 @@ public class DataSeries {
 	}
 	
 	/**
+	 * Row labels might typically represent X-axis labels but are not necessary or may be used as required.
+	 * For one dimensional data may these may be specified but the colLabels omitted.
+	 * @return
+	 */
+	public void addRowLabel(String label) {
+		this.rowLabels.add(label);
+	}
+	
+	/**
+	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
+	 * to construct the plot (median, quartiles, outliers etc).<br />
+	 * Returns an Empty list if no data.
+	 * @param messageService
+	 * @return
+	 */
+	public List<String> getLocalizedColLabels(MessageService messageService) {
+		List<String> locLabels = new ArrayList<>();
+		for (String label: colLabels)
+			locLabels.add(messageService.getMessage(label));
+		return locLabels;
+	}
+	
+	/**
+	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
+	 * to construct the plot (median, quartiles, outliers etc).<br />
+	 * Returns an Empty list if no data.
+	 * @param messageService
+	 * @param locale
+	 * @return
+	 */
+	public List<String> getLocalizedColLabels(MessageService messageService, Locale locale) {
+		List<String> locLabels = new ArrayList<>();
+		for (String label: colLabels)
+			locLabels.add(messageService.getMessage(label, locale));
+		return locLabels;
+	}
+	
+	/**
 	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
 	 * to construct the plot (median, quartiles, outliers etc).<br />
 	 * Returns an Empty list if no data.
 	 * @return
 	 */
 	public List<String> getColLabels() {
-		if (colLabels == null)
-			return new ArrayList<String>();
 		return colLabels;
 	}
 
@@ -83,19 +167,40 @@ public class DataSeries {
 	public void setColLabels(List<String> labels) {
 		this.colLabels = labels;
 	}
+	
+	/**
+	 * Column labels might typically represent Y-axis labels but are not necessary or may be used as required. Typically required for boxplots where each row specifies a series of values
+	 * to construct the plot (median, quartiles, outliers etc).
+	 * @return
+	 */
+	public void addColLabel(String label) {
+		this.colLabels.add(label);
+	}
 
 	/**
 	 * Gets data or returns an empty List if none present.
 	 * @return
 	 */
 	public List<List<Object>> getData() {
-		if (data == null)
-			return new ArrayList<List<Object>>();
 		return data;
 	}
 
 	public void setData(List<List<Object>> data) {
 		this.data = data;
+	}
+	
+	/*
+	 * Not easy to cast List<List<String>> to List<List<Object>> and casting to List<List<? extends Object>> also cause trouble when compiling.
+	 * If there is a better way without looping please change this
+	 */
+	public void setDataFromString(List<List<String>> data) {
+		this.data = new ArrayList<>();
+		for (List<String> row : data){
+			List<Object> newRow = new ArrayList<>();
+			for (String entry: row)
+				newRow.add(entry);
+			this.data.add(newRow);
+		}
 	}
 
 	
@@ -104,8 +209,6 @@ public class DataSeries {
 	 * @param properties
 	 */
 	public Map<String, Object> getProperties() {
-		if (properties == null)
-			return new HashMap<String, Object>();
 		return properties;
 	}
 
@@ -126,8 +229,6 @@ public class DataSeries {
 	 */
 	@JsonIgnore
 	public void addProperty(String key, Object value){
-		if (properties == null)
-			properties =  new HashMap<String, Object>();
 		properties.put(key, value);
 	}
 	
@@ -148,8 +249,6 @@ public class DataSeries {
 	 * @param row
 	 */
 	public void addRow(String label, List<?> row){
-		if (rowLabels == null)
-			rowLabels = new ArrayList<String>();
 		rowLabels.add(label);
 		this.addRow(row);
 	}
@@ -192,16 +291,14 @@ public class DataSeries {
 	
 	@JsonIgnore
 	public int getRowCount(){
-		if (rowLabels == null)
-			return 0;
-		return rowLabels.size();
+		return data.size();
 	}
 	
 	@JsonIgnore
 	public int getColCount(){
-		if (colLabels == null)
+		if (getRowCount() == 0)
 			return 0;
-		return colLabels.size();
+		return data.get(0).size();
 	}
 
 }

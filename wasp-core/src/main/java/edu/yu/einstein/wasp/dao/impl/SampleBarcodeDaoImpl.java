@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.SampleBarcode;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements edu.yu.einstein.wasp.dao.SampleBarcodeDao {
 
@@ -44,7 +44,7 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleBarcode getSampleBarcodeBySampleBarcode (final int sampleBarcode) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleBarcode", sampleBarcode);
@@ -69,7 +69,7 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleBarcode getSampleBarcodeBySampleId (final int sampleId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("sampleId", sampleId);
@@ -94,7 +94,7 @@ public class SampleBarcodeDaoImpl extends WaspDaoImpl<SampleBarcode> implements 
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public SampleBarcode getSampleBarcodeByBarcodeId (final int barcodeId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("barcodeId", barcodeId);

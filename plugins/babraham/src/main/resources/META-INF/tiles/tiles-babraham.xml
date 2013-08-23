@@ -4,10 +4,14 @@
        "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
 <tiles-definitions>
 
-
-	<definition name="babraham/description" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/babraham/description.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/babraham/description.jsp" />
+	<definition name="babraham/fastqc/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/babraham/fastqc/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/babraham/fastqc/description.jsp" />
+	</definition>
+	
+	<definition name="babraham/fastqscreen/description" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/babraham/fastqscreen/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/babraham/fastqscreen/description.jsp" />
 	</definition>
 	
 </tiles-definitions>

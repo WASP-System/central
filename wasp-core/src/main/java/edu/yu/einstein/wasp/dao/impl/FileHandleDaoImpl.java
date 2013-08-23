@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.FileHandle;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class FileHandleDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu.einstein.wasp.dao.FileHandleDao {
 
@@ -44,7 +44,7 @@ public class FileHandleDaoImpl extends WaspDaoImpl<FileHandle> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public FileHandle getFileHandleById (final Integer id) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", id);

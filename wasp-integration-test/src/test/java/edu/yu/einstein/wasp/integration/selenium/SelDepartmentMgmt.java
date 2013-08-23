@@ -18,7 +18,7 @@ public class SelDepartmentMgmt extends SelBaseTest{
   @Parameters("environment")
   @Test(dataProvider = "DP1")
   public void createNewDept(String environment, String sUserName, String sUserPass, String sDeptName, String sAdminName) {
-	  SeleniumHelper.login(sUserName, sUserPass, driver);	 
+	  SeleniumHelper.login(sUserName, sUserPass);	 
 	  String baseUrl = "localhost:8080";
 	  if (environment.equals("production")) {
   		baseUrl = "barcelona.einstein.yu.edu:8080";

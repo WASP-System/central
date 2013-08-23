@@ -45,7 +45,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * 
  */
 public abstract class WaspPlugin extends HashMap<String, String> implements
-		InitializingBean, DisposableBean, WaspPluginI, ClientMessageI {
+		InitializingBean, DisposableBean, WaspPluginI, ClientMessageI, Comparable<WaspPlugin> {
 
 	private static final long serialVersionUID = 44139013862650632L;
 
@@ -54,6 +54,8 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	private Set<String> handles = new HashSet<String>();
 
 	private String pluginName;
+	
+	private String pluginDescription = "";
 
 	private Properties waspSiteProperties;
 
@@ -69,8 +71,7 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 * @param channel MessageChannel for this plugin (named with the format wasp.channel.plugin.pluginName)
 	 * @param pluginRegistry handle to the {@link WaspPluginRegistry}
 	 */
-	public WaspPlugin(String pluginName, Properties waspSiteProperties,
-			MessageChannel channel) {
+	public WaspPlugin(String pluginName, Properties waspSiteProperties,	MessageChannel channel) {
 		Assert.assertParameterNotNull(pluginName, "plugin must be assigned a name");
 		this.setPluginName(pluginName);
 		this.waspSiteProperties = waspSiteProperties;
@@ -191,12 +192,26 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 		return pluginName;
 	}
 
+
 	/**
 	 * @param pluginName
 	 *            the pluginName to set
 	 */
 	public void setPluginName(String pluginName) {
 		this.pluginName = pluginName;
+	}
+	
+	/**
+	 * @param pluginDescription
+	 *            the pluginDescription to set
+	 */
+	public void setPluginDescription(String pluginDescription) {
+		this.pluginDescription = pluginDescription;
+	}
+	
+	@Override
+	public String getPluginDescription() {
+		return pluginDescription;
 	}
 
 	/**
@@ -212,6 +227,11 @@ public abstract class WaspPlugin extends HashMap<String, String> implements
 	 */
 	public void setMessageChannel(MessageChannel messageChannel) {
 		this.messageChannel = messageChannel;
+	}
+	
+	@Override
+	public int compareTo(WaspPlugin o){
+		return getPluginName().compareToIgnoreCase(o.getPluginName());
 	}
 	
 	

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Run;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp.dao.RunDao {
 
@@ -45,7 +45,7 @@ public class RunDaoImpl extends WaspDaoImpl<Run> implements edu.yu.einstein.wasp
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Run getRunByRunId (final int runId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", runId);

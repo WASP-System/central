@@ -3,18 +3,13 @@ package edu.yu.einstein.wasp.integration.selenium;
 import java.util.List;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Mouse;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.internal.Locatable;
-import org.openqa.selenium.HasInputDevices;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import edu.yu.einstein.wasp.util.SeleniumHelper;
@@ -39,24 +34,11 @@ public class SelSubmitNewJob extends SelBaseTest{
      * @param sUserName
      * @param sUserPass
      */
-  	@Test (groups = "integration-tests",  dataProvider = "DP1")
+  	@Test (groups = {"integration-tests", "submit-new-job"}, dataProvider = "DP1")
 	public void submitNewJob(String sUserName, String sUserPass, String sJobNum, String sDnaName, String sLibName, String labName, String sExpectedUrl) throws Exception {   
     	
-  		driver.get("http://"+baseUrl+"/wasp");
-  		if (SeleniumHelper.verifyTextPresent("Logout", driver)) {
-  			driver.findElement(By.linkText("Logout")).click();
-  		}
-  	    
-	   	WebElement userName = driver.findElement(By.name("j_username"));
-    	WebElement userPassword = driver.findElement(By.name("j_password"));
-    	userName.clear();
-    	userPassword.clear();
-    	userName.sendKeys(sUserName);
-    	userPassword.sendKeys(sUserPass);
-    	
-		Assert.assertNotNull(driver.findElement(By.xpath("//input[@type='submit']")), "'Submit' button does not exist");
-		driver.findElement(By.xpath("//input[@type='submit']")).click();
-    	Assert.assertEquals(driver.getCurrentUrl(), "http://"+baseUrl+"/wasp/dashboard.do");
+  		SeleniumHelper.login(sUserName, sUserPass);
+  		
     	/* Does not work. Possible firefox webdriver bug.
     	Assert.assertNotNull(driver.findElement(By.linkText("Jobs")), "Unable to locate 'Jobs' menu link.");
     	
@@ -76,7 +58,7 @@ public class SelSubmitNewJob extends SelBaseTest{
 		select.selectByVisibleText(labName);
 		
     	Assert.assertTrue(driver.findElements(By.name("workflowId")).size() != 0, "Cannot locate 'Assay Workflow' radio button");
-    	driver.findElement(By.name("workflowId")).click();
+    	driver.findElement(By.xpath("//input[@type='radio' and @value='2']")).click();// set @value to 2 when testing on barcelona and to 1 when local
 		
     	driver.findElement(By.xpath("//input[@type='submit']")).click();
     	
@@ -126,7 +108,7 @@ public class SelSubmitNewJob extends SelBaseTest{
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Save']")).click();
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Select Genome", driver), "Cannot find 'Create A Job -- Select Genome' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Select Genome"), "Cannot find 'Create A Job -- Select Genome' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
 
     	
@@ -155,13 +137,13 @@ public class SelSubmitNewJob extends SelBaseTest{
     	select.selectByIndex(1); 
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Add A Comment", driver), "Cannot find 'Add A Comment' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Add A Comment"), "Cannot find 'Add A Comment' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Continue']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Verify New Job", driver), "Cannot find 'Verify New Job' page");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Verify New Job"), "Cannot find 'Verify New Job' page");
     	driver.findElement(By.xpath("//input[@type='submit' and @value='Submit Job']")).click();
     	
-    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Job Successfully Submitted", driver), "Job submission did not go through. Check that wasp-daemon application is running.");
+    	Assert.assertTrue(SeleniumHelper.verifyTextPresent("Job Successfully Submitted"), "Job submission did not go through. Check that wasp-daemon application is running.");
     	
     }
   	

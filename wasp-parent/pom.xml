@@ -6,9 +6,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 	    <groupId>edu.yu.einstein.wasp</groupId>
 	    <version>0.1.0-SNAPSHOT</version>
-		<artifactId>bom</artifactId>
+	    <artifactId>bom</artifactId>
+	    <relativePath>../</relativePath>
 	</parent>
 
+	<groupId>edu.yu.einstein.wasp</groupId>
 	<artifactId>wasp-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Wasp System</name>
@@ -86,9 +88,9 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<site.basedir>${project.basedir}</site.basedir>
-		<spring.framework.version>3.2.2.RELEASE</spring.framework.version>
+		<spring.framework.version>3.2.4.RELEASE</spring.framework.version>
 		<springsec.version>3.1.3.RELEASE</springsec.version>
-		<spring.batch.version>2.1.9.RELEASE</spring.batch.version>
+		<spring.batch.version>2.2.1.RELEASE</spring.batch.version>
 		<spring.integration.version>2.2.1.RELEASE</spring.integration.version>
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
@@ -100,6 +102,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 	</properties>
 
 	<modules>
+		<module>../wasp-plugin</module>
 		<module>../wasp-tomcat-classloader</module>
 		<module>../wasp-daemon</module>
 		<module>../wasp-core</module>
@@ -107,7 +110,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>../wasp-web</module>
 		<module>../wasp-cli</module>
 		<module>../wasp-doc</module>
-		<module>../wasp-plugin</module>
 		<module>../wasp-file</module>
 		<module>../plugins</module>
 		</modules>
@@ -263,10 +265,10 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.5.1</version>
+					<version>3.1</version>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
 						<debug>true</debug>
 					</configuration>
@@ -365,9 +367,9 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<version>1.6.9</version>
 			</dependency>
 			<dependency>
-				<groupId>hsqldb</groupId>
+				<groupId>org.hsqldb</groupId>
 				<artifactId>hsqldb</artifactId>
-				<version>1.8.0.7</version>
+				<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.mail</groupId>
@@ -605,6 +607,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
 				<version>${spring.framework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.retry</groupId>
+				<artifactId>spring-retry</artifactId>
+				<version>1.0.2.RELEASE</version>
 			</dependency>
 			<dependency> 
 				<groupId>org.springframework</groupId> 
@@ -1015,7 +1022,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<repository>
 			<id>atlassian</id>
 			<name>Atlassian repository</name>
-			<url>https://repository.atlassian.com/maven2/</url>
+			<url>https://maven.atlassian.com/repository/public</url>
 		</repository>
 		<repository>
 			<id>junit</id>

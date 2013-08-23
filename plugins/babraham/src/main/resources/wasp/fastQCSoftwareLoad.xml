@@ -17,18 +17,19 @@
 
   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapper" id="fastQCUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
-    <property name="baseArea" value="#{fastQCArea}" />
+    <property name="baseArea" ref="fastQCArea" />
   </bean>
 
   <bean id="fastqc" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
-  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.babraham.software.FastQC</value></property>
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.babraham.software.FastQC</value></property>
     <property name="name" value="FastQC" />
-    <property name="area" value="#{fastQCArea}" />
+    <property name="description" value="A quality control tool for high throughput sequence data." />
+    <property name="area" ref="fastQCArea" />
     <property name="resourceType" ref="fastqProcessorResourceType" />
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
-         <property name="area" value="#{fastQCArea}" />
+         <property name="area" ref="fastQCArea" />
          <property name="metaList">
          	<list>
          		<value>#{waspSoftware['currentVersion']}=0.10.1</value>

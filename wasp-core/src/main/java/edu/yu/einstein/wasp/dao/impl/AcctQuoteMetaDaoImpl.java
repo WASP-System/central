@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> implements edu.yu.einstein.wasp.dao.AcctQuoteMetaDao {
 
@@ -44,7 +44,7 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctQuoteMeta getAcctQuoteMetaByQuoteMetaId (final Integer quoteMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", quoteMetaId);
@@ -69,7 +69,7 @@ public class AcctQuoteMetaDaoImpl extends WaspMetaDaoImpl<AcctQuoteMeta> impleme
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public AcctQuoteMeta getAcctQuoteMetaByKQuoteId (final String k, final Integer quoteId) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("k", k);

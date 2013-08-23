@@ -1,36 +1,20 @@
 package edu.yu.einstein.wasp.plugin.babraham.software;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-public class FastQCDataModule{
-	
-	private String name;
-	
-	private String iname;
+public class FastQCDataModule extends BabrahamDataModule{
 	
 	private String result;
 	
-	private Set<String> attributes;
-	
 	private Map<String, String> keyValueData;
 	
-	private List<List<String>> dataPoints;
-	
 	public FastQCDataModule() {
-		this.attributes = new LinkedHashSet<String>();
-		this.dataPoints = new ArrayList<List<String>>();
+		super();
 		this.keyValueData = new LinkedHashMap<String, String>();
 	}
 	
-	public String getName() {
-		return name;
-	}
-	
+	@Override	
 	public void setName(String name) {
 		this.name = name;
 		setINameFromName();
@@ -44,10 +28,6 @@ public class FastQCDataModule{
 		this.keyValueData.put(key, value);
 	}
 	
-	public String getIName() {
-		return iname;
-	}
-	
 	public String getResult() {
 		return result;
 	}
@@ -55,23 +35,6 @@ public class FastQCDataModule{
 	public void setResult(String result) {
 		this.result = result;
 	}
-	
-	public Set<String> getAttributes() {
-		return attributes;
-	}
-	
-	public void setAttributes(Set<String> attributes) {
-		this.attributes = attributes;
-	}
-	
-	public List<List<String>> getDataPoints() {
-		return dataPoints;
-	}
-	
-	public void setDataPoints(List<List<String>> dataPoints) {
-		this.dataPoints = dataPoints;
-	}
-
 	
 	private void setINameFromName(){
 		this.iname = getModuleINameFromName(this.name);

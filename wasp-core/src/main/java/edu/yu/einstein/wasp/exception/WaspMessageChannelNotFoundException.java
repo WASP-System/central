@@ -1,6 +1,6 @@
 package edu.yu.einstein.wasp.exception;
 
-public class WaspMessageChannelNotFoundException extends RuntimeException {
+public class WaspMessageChannelNotFoundException extends WaspRuntimeException {
 	/**
 	 * 
 	 */

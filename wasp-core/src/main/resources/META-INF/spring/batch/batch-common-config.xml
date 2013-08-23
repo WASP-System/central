@@ -54,16 +54,16 @@
         <aop:advisor pointcut-ref="batchJobRetry" advice-ref="retryAdvice" />
     </aop:config>
 
-    <bean id="retryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+    <bean id="retryAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
-            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+            <bean class="org.springframework.retry.support.RetryTemplate">
                 <property name="retryPolicy">
-                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
+                    <bean class="org.springframework.retry.policy.SimpleRetryPolicy">
                     	<property name="maxAttempts" value="3" />
                     </bean>
                 </property>
                 <property name="backOffPolicy">
-                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                    <bean class="org.springframework.retry.backoff.FixedBackOffPolicy">
                         <property name="backOffPeriod" value="5000"/>
                     </bean>
                 </property>
@@ -77,23 +77,23 @@
         <aop:advisor pointcut-ref="taskletRetryFixedPointcut" advice-ref="fixedBackoffTaskletRetryAdvice" order="-1" />
     </aop:config>
 
-    <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+    <bean id="fixedBackoffTaskletRetryAdvice"  class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
         <property name="retryOperations">
-            <bean class="org.springframework.batch.retry.support.RetryTemplate">
+            <bean class="org.springframework.retry.support.RetryTemplate">
                 <property name="retryPolicy">
-                    <bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-                    	<property name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
-                    	<property name="retryableExceptions">
+                    <bean class="org.springframework.retry.policy.SimpleRetryPolicy">
+                    	<constructor-arg name="maxAttempts" value="${wasp.batch.retry.fixed.maxattempts:10}" />
+                    	<constructor-arg name="retryableExceptions">
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
 								<entry key="java.sql.SQLException" value="true"/>
 							</map>
-						</property>
+						</constructor-arg>
                     </bean>
                 </property>
                 <property name="backOffPolicy">
-                    <bean class="org.springframework.batch.retry.backoff.FixedBackOffPolicy">
+                    <bean class="org.springframework.retry.backoff.FixedBackOffPolicy">
                     	<property name="backOffPeriod" value="${wasp.batch.retry.fixed.interval:1000}" />
                     </bean>
                 </property>
@@ -109,23 +109,23 @@
 		<aop:advisor pointcut-ref="taskletRetryExponentialPointcut" advice-ref="exponentialBackoffTaskletRetryAdvice" />
 	</aop:config>
 
-	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.batch.retry.interceptor.RetryOperationsInterceptor">
+	<bean id="exponentialBackoffTaskletRetryAdvice" class="org.springframework.retry.interceptor.RetryOperationsInterceptor">
 		<property name="retryOperations">
-			<bean class="org.springframework.batch.retry.support.RetryTemplate">
+			<bean class="org.springframework.retry.support.RetryTemplate">
 				<property name="retryPolicy">
-					<bean class="org.springframework.batch.retry.policy.SimpleRetryPolicy">
-						<property name="maxAttempts" value="${wasp.batch.retry.exponential.maxattempts:1000000000}" />
-						<property name="retryableExceptions">
+					<bean class="org.springframework.retry.policy.SimpleRetryPolicy">
+						<constructor-arg name="maxAttempts" value="${wasp.batch.retry.exponential.maxattempts:1000000000}" />
+						<constructor-arg name="retryableExceptions">
 							<map>
 								<entry key="edu.yu.einstein.wasp.exception.TaskletRetryException" value="true" />
 								<entry key="org.springframework.dao.DeadlockLoserDataAccessException" value="true"/>
 								<entry key="java.sql.SQLException" value="true"/>
 							</map>
-						</property>
+						</constructor-arg>
 					</bean>
 				</property>
 				<property name="backOffPolicy">
-					<bean class="org.springframework.batch.retry.backoff.ExponentialBackOffPolicy">
+					<bean class="org.springframework.retry.backoff.ExponentialBackOffPolicy">
 						<property name="initialInterval" value="${wasp.batch.retry.exponential.initialInterval:5000}" />
 						<property name="maxInterval" value="${wasp.batch.retry.exponential.maxInterval:3600000}" />
 						<property name="multiplier" value="${wasp.batch.retry.exponential.multiplier:2}" />

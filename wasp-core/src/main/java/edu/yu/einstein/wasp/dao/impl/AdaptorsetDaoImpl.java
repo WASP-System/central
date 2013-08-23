@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.Adaptorset;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu.einstein.wasp.dao.AdaptorsetDao {
 
@@ -45,7 +45,7 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Adaptorset getAdaptorsetByAdaptorsetId (final Integer adaptorsetId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", adaptorsetId);
@@ -70,7 +70,7 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Adaptorset getAdaptorsetByIName (final String iName) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("iName", iName);
@@ -95,7 +95,7 @@ public class AdaptorsetDaoImpl extends WaspDaoImpl<Adaptorset> implements edu.yu
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public Adaptorset getAdaptorsetByName (final String name) {
     		HashMap<String, String> m = new HashMap<String, String>();
 		m.put("name", name);

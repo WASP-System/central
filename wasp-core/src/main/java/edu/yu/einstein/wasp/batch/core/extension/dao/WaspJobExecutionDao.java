@@ -4,12 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.repository.dao.JobExecutionDao;
 
 /**
@@ -18,6 +15,25 @@ import org.springframework.batch.core.repository.dao.JobExecutionDao;
  *
  */
 public interface WaspJobExecutionDao extends JobExecutionDao{
+	
+	/**
+	 * Get the ids of all the job executions that match the parameters provided as a Map.
+	 * Will match a subset of the parameters associated with the job execution.
+	 * Parameter value may be '*' indicating match all job parameters with a given key
+	 * @param parameterMap<String, String>
+	 * @return
+	 */
+	public List<Long> getJobExecutionIdsByMatchingParameters(Map<String, Set<String>> parameterMap);  
+	
+	/**
+	 * Get the ids of all the job executions that match the parameters provided as a Map.
+	 * Only returns jobInstanceIds from job instances with an exact match to all the parameters
+	 * associated with that job execution.
+	 * Parameter value may be '*' indicating match all job parameters with a given key
+	 * @param parameterMap<String, String>
+	 * @return
+	 */
+	public List<Long> getJobExecutionIdsByExclusivelyMatchingParameters(Map<String, Set<String>> parameterMap);
 	
 	
 	/**
@@ -38,16 +54,10 @@ public interface WaspJobExecutionDao extends JobExecutionDao{
 	public List<JobExecution> getJobExecutions(String name, Map<String, Set<String>> parameterMap, Boolean exclusive, BatchStatus batchStatus, ExitStatus exitStatus);
 	
 	/**
-	 * Obtains the list of job parameters for a given JobExecution
-	 * @param stepExecution
-	 * @return
-	 */
-	public JobParameters getJobParameters(JobExecution jobExecution);
-	
-	/**
 	 * Obtains job name for a given JobExecution
 	 * @param jobExecution
 	 * @return
 	 */
 	public String getJobName(JobExecution jobExecution);
+
 }

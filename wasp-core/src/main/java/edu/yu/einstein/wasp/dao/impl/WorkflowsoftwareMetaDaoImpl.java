@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class WorkflowsoftwareMetaDaoImpl extends WaspMetaDaoImpl<WorkflowsoftwareMeta> implements edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao {
 
@@ -44,7 +44,7 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspMetaDaoImpl<Workflowsoftwar
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareMetaId (final Integer workflowsoftwareMetaId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", workflowsoftwareMetaId);
@@ -69,7 +69,7 @@ public class WorkflowsoftwareMetaDaoImpl extends WaspMetaDaoImpl<Workflowsoftwar
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public WorkflowsoftwareMeta getWorkflowsoftwareMetaByWorkflowsoftwareIdK (final Integer workflowsoftwareId, final String k) {
     		HashMap<String, Object> m = new HashMap<String, Object>();
 		m.put("workflowsoftwareId", workflowsoftwareId);

@@ -23,7 +23,9 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 	
 	private FileType fileType;
 
-	private String description;
+	private String description = "";
+	
+	private String extension = "";
 
 	private int isActive = 1;
 
@@ -42,13 +44,21 @@ public class FileTypeLoaderAndFactory extends WaspLoader implements FactoryBean<
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public String getExtension() {
+		return extension;
+	}
+
+	public void setExtension(String extension) {
+		this.extension = extension;
+	}
 
 	
 	
 	@PostConstruct
 	public void init(){
 		fileTypeLoadService.updateUiFields(uiFields);
-		fileType =  fileTypeLoadService.update(iname, name, description, isActive);
+		fileType =  fileTypeLoadService.update(iname, name, description, extension, isActive);
 	}
 
 	@Override

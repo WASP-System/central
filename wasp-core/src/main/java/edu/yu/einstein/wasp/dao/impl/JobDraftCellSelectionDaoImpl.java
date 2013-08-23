@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 
 
-@Transactional
+@Transactional("entityManager")
 @Repository
 public class JobDraftCellSelectionDaoImpl extends WaspDaoImpl<JobDraftCellSelection> implements edu.yu.einstein.wasp.dao.JobDraftCellSelectionDao {
 
@@ -44,7 +44,7 @@ public class JobDraftCellSelectionDaoImpl extends WaspDaoImpl<JobDraftCellSelect
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftCellSelection getJobDraftCellSelectionByJobDraftCellSelectionId (final Integer jobDraftCellSelectionId) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("id", jobDraftCellSelectionId);
@@ -69,7 +69,7 @@ public class JobDraftCellSelectionDaoImpl extends WaspDaoImpl<JobDraftCellSelect
 	 */
 
 	@Override
-	@Transactional
+	@Transactional("entityManager")
 	public JobDraftCellSelection getJobDraftCellSelectionByJobDraftIdCellIndex (final Integer jobDraftId, final Integer cellIndex) {
     		HashMap<String, Integer> m = new HashMap<String, Integer>();
 		m.put("jobDraftId", jobDraftId);

@@ -13,6 +13,8 @@
  	<import resource="classpath*:META-INF/spring/**/*service-activators.xml" />
  	
  	<!-- import internationalized messaging -->
+ 	<bean id="messageService" class="edu.yu.einstein.wasp.service.impl.MessageServiceImpl" />
+ 	
 	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle" >
 		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" /> 
 	</bean>

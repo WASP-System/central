@@ -7,6 +7,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<context:component-scan base-package="___package___.service.impl" />
 
 	<bean id="___pluginname___PluginArea" class="java.lang.String">
 		<constructor-arg>
@@ -17,26 +19,25 @@
 	<!-- channel for communications with this plugin. -->
 	<int:channel id="wasp.channel.plugin.___pluginname___" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.___pluginname___" ref="___pluginname___.WaspPluginBean" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.___pluginname___" ref="___pluginname___WaspPluginBean" method="process" />
 	
-	<bean id="___pluginname___.WaspPluginBean" class="___package___.plugin.___pluginname___.___Pluginname___Plugin">
+	<bean id="___pluginname___WaspPluginBean" class="___package___.plugin.___Pluginname___Plugin">
 		<constructor-arg name="pluginName" ref="___pluginname___PluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.___pluginname___" />
-		<!-- 
+		<property name="pluginDescription" value="___description___" />
+////> RES
 		<property name="provides" >
 			<set>
-				<ref bean="___pluginname___" />
+				<ref bean="___pluginname___" /> 
 			</set>
 		</property>
-		 -->
-		<!-- 
+////<
 		<property name="handles" >
 			<set>
 				<ref bean="___pluginname___PluginArea" />
 			</set>
 		</property>
-		 -->
 	</bean>
 
 </beans>
